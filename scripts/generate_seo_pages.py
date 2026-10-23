@@ -99,7 +99,7 @@ HUBS = [
     {
         "slug": "templates",
         "title": "Templates category hub",
-        "description": "Template and ops-kit offers (including labeled examples).",
+        "description": "Template and ops-kit offers for agent workflows.",
         "match": lambda d: d.get("category") == "templates",
     },
     {
@@ -243,7 +243,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 <body>
 {body}
   <footer>
-    <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Example deals are synthetic smoke-test inventory.</p>
+    <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
   </footer>
@@ -286,7 +286,7 @@ def write_deal_page(deal: dict, feed_updated: str) -> Path:
     <p class="verified">Verified-on: {esc(verified)}</p>
     <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
     <p class="redeem">{cta_html(deal)}</p>
-    {"<p><em>Labeled example / sample inventory — not a live merchant offer.</em></p>" if example else ""}
+    {"<p><em>Sample inventory placeholder — not a live merchant offer.</em></p>" if example else ""}
   </article>
   <script type="application/ld+json">
 {json_ld(deal, page_url)}
@@ -397,7 +397,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     <p class="feed"><strong>Agents:</strong> GET <a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
   <main>{body_main}</main>
-  <footer><p>Updated {esc(updated)} Example deals are synthetic; affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+  <footer><p>Updated {esc(updated)} Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
   </footer>
 </body>
