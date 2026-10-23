@@ -49,6 +49,11 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
   </style>
 </head>
 <body>
@@ -60,6 +65,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-23 — Comparison / gotcha notes on deal pages</h2>
+<ul>
+<li>Every <code>deals/*/index.html</code> page now has a <strong>Before you redeem</strong> box.</li>
+<li>Durable curated notes live in <a href="../data/deal_gotchas.json">`data/deal_gotchas.json`</a>; <code>scripts/generate_seo_pages.py</code> merges them with auto-rules from feed fields (<code>promo_code</code>, <code>payout_status</code>, <code></code>, <code>unit</code>, <code>claim_note</code>, <code>notes</code>) and affiliate↔free twin cross-links.</li>
+
+</ul>
 <h2>2026-10-23 — Freshness badges + affiliates-first ranking</h2>
 <ul>
 <li>Deal pages and listing cards show <strong>Updated</strong> dates from feed <code>updated_at</code> when present (no invented dates); <strong>New</strong> / <strong>Updated</strong> badges for recent timestamps (~7–14 days).</li>
