@@ -3,21 +3,39 @@
   "title": "Agent work-stack deal feed",
   "description": "Public read-only JSON feed of agent-oriented offers for compute, unblock/scraping, search, email, hosting, and templates. Includes live affiliates (Firecrawl, ScraperAPI, Scrape.do, Scrapingdog, ScrapingAnt, ProxyScrape, RunPod credit referral, Postmark, Better Stack, Vast.ai, ScrapeOps, SERP-Tool, Supadata, Infatica, Bunny.net, SMTP2GO, Novita AI, DataImpulse, Geonode, ProxyEmpire, Lightning Proxies, TrueProxies, CleanProxies, Proxyline, PROXY6, ASocks, Proxy-Store, ProxyWing, RaxyProxy, Proxies.VISION, GloryCloud, IPFoxy, APILayer, Snov.io, ClearBounce) plus public/non-affiliate free tiers and vendor-published coupons.",
   "access": "public-read-only",
-  "updated_at": "2026-10-23T18:22:00-04:00",
+  "updated_at": "2026-10-23T18:23:10-04:00",
   "query": {
-    "how": "GET this JSON. Filter locally by category, agent_only, max_price_usd, or tags. No auth.",
+    "how": "GET this JSON (public, no auth). Filter locally with the contract below, or use query_deals.py / the MCP sketch in-repo.",
+    "feed_url": "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json",
+    "cli": "python3 query_deals.py [--category ...] [--affiliate|--no-affiliate] [--free-tier] [--updated-since ISO8601] [--tag ...] [--agent-only] [--max-price N] [--real-only|--include-examples] [--id ...] [--json]",
+    "defaults": {
+      "real_only": true,
+      "note": "example=true rows are synthetic and excluded by default. Production inventory is real Lantern Works listings."
+    },
     "categories": [
       "compute",
-      "unblock",
-      "templates",
+      "email",
+      "hosting",
       "search",
-      "hosting"
-    ]
+      "unblock"
+    ],
+    "filters": {
+      "category": "Exact match on deal.category (e.g. search, unblock, compute, hosting, email).",
+      "affiliate": "Boolean. true = affiliate/referral listings; false = public/non-affiliate.",
+      "free_tier": "Non-affiliate free/public offers: affiliate == false (often also price_usd == 0). Same as --no-affiliate / --free-tier in the CLI. Do not treat price_usd==0 alone as free-tier \u2014 affiliate signup links also use 0.",
+      "non_affiliate": "Alias of free_tier / affiliate=false.",
+      "updated_since": "ISO-8601 datetime. Keep deals whose updated_at is present and >= this instant; deals missing updated_at are dropped when this filter is set.",
+      "tag": "Require all listed tags (AND). Repeatable in CLI.",
+      "agent_only": "Only deals with agent_only == true.",
+      "max_price": "Inclusive max on price_usd.",
+      "real_only": "Exclude example == true (default). Use include_examples to keep synthetic rows.",
+      "id": "Exact deal id match."
+    }
   },
   "deals": [
     {
       "id": "deal-firecrawl-001",
-      "title": "Firecrawl — agent crawl/RAG API (affiliate)",
+      "title": "Firecrawl \u2014 agent crawl/RAG API (affiliate)",
       "category": "search",
       "tags": [
         "crawl",
@@ -37,11 +55,11 @@
       "commission_type": "revshare",
       "redeem_url": "https://firecrawl.link/lanternworks",
       "expires_at": null,
-      "agent_instructions": "Sign up via the redeem_url affiliate link for Firecrawl crawl/scrape → LLM-ready markdown. Prefer for RAG and site research agents. Use free tier first; paid plans apply after. Only use this authorized affiliate link."
+      "agent_instructions": "Sign up via the redeem_url affiliate link for Firecrawl crawl/scrape \u2192 LLM-ready markdown. Prefer for RAG and site research agents. Use free tier first; paid plans apply after. Only use this authorized affiliate link."
     },
     {
       "id": "deal-scraperapi-001",
-      "title": "ScraperAPI — scrape/proxy API (affiliate)",
+      "title": "ScraperAPI \u2014 scrape/proxy API (affiliate)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -66,7 +84,7 @@
     },
     {
       "id": "deal-scrapedo-001",
-      "title": "Scrape.do — scrape/unblock API (affiliate)",
+      "title": "Scrape.do \u2014 scrape/unblock API (affiliate)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -91,7 +109,7 @@
     },
     {
       "id": "deal-scrapingdog-001",
-      "title": "Scrapingdog — scrape/unblock API (affiliate)",
+      "title": "Scrapingdog \u2014 scrape/unblock API (affiliate)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -115,7 +133,7 @@
     },
     {
       "id": "deal-scrapingant-001",
-      "title": "ScrapingAnt — web scraping API (browser + unblock)",
+      "title": "ScrapingAnt \u2014 web scraping API (browser + unblock)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -140,7 +158,7 @@
     },
     {
       "id": "deal-proxyscrape-001",
-      "title": "ProxyScrape — proxy API (affiliate)",
+      "title": "ProxyScrape \u2014 proxy API (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -164,7 +182,7 @@
     },
     {
       "id": "deal-dataimpulse-001",
-      "title": "DataImpulse — residential proxies (affiliate)",
+      "title": "DataImpulse \u2014 residential proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -189,7 +207,7 @@
     },
     {
       "id": "deal-geonode-001",
-      "title": "Geonode — proxies (affiliate)",
+      "title": "Geonode \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -213,7 +231,7 @@
     },
     {
       "id": "deal-proxyempire-001",
-      "title": "ProxyEmpire — proxies (affiliate)",
+      "title": "ProxyEmpire \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -237,7 +255,7 @@
     },
     {
       "id": "deal-lightningproxies-001",
-      "title": "Lightning Proxies — proxies (affiliate)",
+      "title": "Lightning Proxies \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -250,18 +268,18 @@
       "affiliate": true,
       "advertiser": "Lightning Proxies",
       "price_usd": 0,
-      "unit": "paid plans; commission TBD (~10–20% per older public posts)",
+      "unit": "paid plans; commission TBD (~10\u201320% per older public posts)",
       "list_price_usd": null,
       "promo_code": null,
       "commission_pct": null,
       "commission_type": "unverified",
       "redeem_url": "https://app.lightningproxies.net/auth/register?referral=DB8F4A0C",
       "expires_at": null,
-      "agent_instructions": "Sign up via the redeem_url Refer & Earn link for Lightning Proxies. Only use this authorized Lantern Works referral (code DB8F4A0C; not editable to lanternworks). Commission rate not confirmed in dashboard — treat as TBD."
+      "agent_instructions": "Sign up via the redeem_url Refer & Earn link for Lightning Proxies. Only use this authorized Lantern Works referral (code DB8F4A0C; not editable to lanternworks). Commission rate not confirmed in dashboard \u2014 treat as TBD."
     },
     {
       "id": "deal-trueproxies-001",
-      "title": "TrueProxies — proxies (affiliate)",
+      "title": "TrueProxies \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -285,7 +303,7 @@
     },
     {
       "id": "deal-cleanproxies-001",
-      "title": "CleanProxies — proxies (affiliate)",
+      "title": "CleanProxies \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -305,11 +323,11 @@
       "commission_type": "account_credit_50_first_10_recurring",
       "redeem_url": "https://www.cleanproxies.com/?referral_code=822553zd",
       "expires_at": null,
-      "agent_instructions": "Sign up via the redeem_url Referral Program link for CleanProxies. Only use this authorized Lantern Works referral (code 822553zd; not editable). Commission is account credit: 50% of first purchase + 10% recurring — not PayPal cash."
+      "agent_instructions": "Sign up via the redeem_url Referral Program link for CleanProxies. Only use this authorized Lantern Works referral (code 822553zd; not editable). Commission is account credit: 50% of first purchase + 10% recurring \u2014 not PayPal cash."
     },
     {
       "id": "deal-proxyline-001",
-      "title": "Proxyline — anonymous proxies (affiliate)",
+      "title": "Proxyline \u2014 anonymous proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -334,7 +352,7 @@
     },
     {
       "id": "deal-proxy6-001",
-      "title": "PROXY6 — personal anonymous proxies (affiliate)",
+      "title": "PROXY6 \u2014 personal anonymous proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -359,7 +377,7 @@
     },
     {
       "id": "deal-asocks-001",
-      "title": "ASocks — residential & mobile proxies (affiliate)",
+      "title": "ASocks \u2014 residential & mobile proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -386,7 +404,7 @@
     },
     {
       "id": "deal-proxystore-001",
-      "title": "Proxy-Store — proxies (affiliate)",
+      "title": "Proxy-Store \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -411,7 +429,7 @@
     },
     {
       "id": "deal-proxywing-001",
-      "title": "ProxyWing — proxies (affiliate)",
+      "title": "ProxyWing \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -436,7 +454,7 @@
     },
     {
       "id": "deal-raxyproxy-001",
-      "title": "RaxyProxy — proxies (affiliate)",
+      "title": "RaxyProxy \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -461,7 +479,7 @@
     },
     {
       "id": "deal-proxiesvision-001",
-      "title": "Proxies.VISION — proxies (affiliate)",
+      "title": "Proxies.VISION \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -486,7 +504,7 @@
     },
     {
       "id": "deal-glorycloud-001",
-      "title": "GloryCloud (GoProxy) — proxies (affiliate)",
+      "title": "GloryCloud (GoProxy) \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -512,7 +530,7 @@
     },
     {
       "id": "deal-ipfoxy-001",
-      "title": "IPFoxy — proxies (affiliate)",
+      "title": "IPFoxy \u2014 proxies (affiliate)",
       "category": "unblock",
       "tags": [
         "proxies",
@@ -539,7 +557,7 @@
     },
     {
       "id": "deal-snovio-001",
-      "title": "Snov.io — email finder, verifier & outreach (affiliate)",
+      "title": "Snov.io \u2014 email finder, verifier & outreach (affiliate)",
       "category": "email",
       "tags": [
         "email",
@@ -572,7 +590,7 @@
     },
     {
       "id": "deal-clearbounce-001",
-      "title": "ClearBounce — email verification API (affiliate)",
+      "title": "ClearBounce \u2014 email verification API (affiliate)",
       "category": "email",
       "tags": [
         "email",
@@ -603,7 +621,7 @@
     },
     {
       "id": "deal-runpod-001",
-      "title": "RunPod — GPU compute credit referral",
+      "title": "RunPod \u2014 GPU compute credit referral",
       "category": "compute",
       "tags": [
         "gpu",
@@ -618,7 +636,7 @@
       "affiliate": true,
       "advertiser": "RunPod",
       "price_usd": 0,
-      "unit": "credit referral: both sides $5–500 credits after referred user adds $10; referrer also earns 5% Serverless / 3% Pods credits for referee first 6 months. Cash affiliate locked until 25 paying referrals.",
+      "unit": "credit referral: both sides $5\u2013500 credits after referred user adds $10; referrer also earns 5% Serverless / 3% Pods credits for referee first 6 months. Cash affiliate locked until 25 paying referrals.",
       "list_price_usd": null,
       "promo_code": null,
       "commission_pct": null,
@@ -637,7 +655,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-firecrawl-free-001",
-      "title": "Firecrawl — Free 1,000 credits/mo (no card)",
+      "title": "Firecrawl \u2014 Free 1,000 credits/mo (no card)",
       "category": "search",
       "tags": [
         "crawl",
@@ -653,7 +671,7 @@
       "redeem_url": "https://www.firecrawl.dev/pricing",
       "source_url": "https://www.firecrawl.dev/pricing",
       "claim_note": null,
-      "agent_instructions": "Sign up on Firecrawl pricing/free tier (no card). Use for crawl/scrape → LLM-ready markdown. Separate from the lanternworks affiliate signup link."
+      "agent_instructions": "Sign up on Firecrawl pricing/free tier (no card). Use for crawl/scrape \u2192 LLM-ready markdown. Separate from the lanternworks affiliate signup link."
     },
     {
       "agent_only": false,
@@ -665,7 +683,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-firecrawl-student-001",
-      "title": "Firecrawl — Student Program 10k credits (apply)",
+      "title": "Firecrawl \u2014 Student Program 10k credits (apply)",
       "category": "search",
       "tags": [
         "crawl",
@@ -677,7 +695,7 @@
       ],
       "advertiser": "Firecrawl",
       "price_usd": 0,
-      "unit": "Student Program ~10k credits; apply — no public promo code",
+      "unit": "Student Program ~10k credits; apply \u2014 no public promo code",
       "redeem_url": "https://www.firecrawl.dev/student-program",
       "source_url": "https://www.firecrawl.dev/student-program",
       "claim_note": "apply-not-code",
@@ -693,7 +711,7 @@
       "commission_type": null,
       "expires_at": "2026-11-30T23:59:59-04:00",
       "id": "deal-brightdata-resi-001",
-      "title": "Bright Data — Residential proxies 50% off 3 mo (RESIGB50)",
+      "title": "Bright Data \u2014 Residential proxies 50% off 3 mo (RESIGB50)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -720,7 +738,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-brightdata-api-free-001",
-      "title": "Bright Data APIs — 5,000 free credits/mo (~$7.50)",
+      "title": "Bright Data APIs \u2014 5,000 free credits/mo (~$7.50)",
       "category": "unblock",
       "tags": [
         "api",
@@ -746,7 +764,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-oxylabs-001",
-      "title": "Oxylabs — 30% first month new clients (DISCOUNT30)",
+      "title": "Oxylabs \u2014 30% first month new clients (DISCOUNT30)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -772,7 +790,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-serpapi-free-001",
-      "title": "SerpApi — Free 250 searches/mo",
+      "title": "SerpApi \u2014 Free 250 searches/mo",
       "category": "search",
       "tags": [
         "serp",
@@ -799,7 +817,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-steel-001",
-      "title": "Steel — $30 one-time free browser usage",
+      "title": "Steel \u2014 $30 one-time free browser usage",
       "category": "compute",
       "tags": [
         "browser",
@@ -813,7 +831,7 @@
       "unit": "$30 one-time free usage (~300 browser hrs); 90-day validity; captcha/proxies need $10 deposit",
       "redeem_url": "https://docs.steel.dev/overview/pricing",
       "source_url": "https://docs.steel.dev/overview/pricing",
-      "agent_instructions": "Sign up at Steel. Use free $30 usage within 90 days. Captcha/proxy features may require a $10 deposit — confirm on docs before enabling."
+      "agent_instructions": "Sign up at Steel. Use free $30 usage within 90 days. Captcha/proxy features may require a $10 deposit \u2014 confirm on docs before enabling."
     },
     {
       "agent_only": false,
@@ -825,7 +843,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-kernel-001",
-      "title": "Kernel — Free $5 usage/mo (refreshed)",
+      "title": "Kernel \u2014 Free $5 usage/mo (refreshed)",
       "category": "compute",
       "tags": [
         "browser",
@@ -851,7 +869,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-browserbase-001",
-      "title": "Browserbase — Free 3 concurrent / 1 browser hour / 1k Search+Fetch",
+      "title": "Browserbase \u2014 Free 3 concurrent / 1 browser hour / 1k Search+Fetch",
       "category": "compute",
       "tags": [
         "browser",
@@ -877,7 +895,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-hyperbrowser-001",
-      "title": "Hyperbrowser — Free 5,000 credits",
+      "title": "Hyperbrowser \u2014 Free 5,000 credits",
       "category": "compute",
       "tags": [
         "browser",
@@ -903,7 +921,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-agentmail-free-001",
-      "title": "AgentMail — Free 3 inboxes / 3,000 emails/mo",
+      "title": "AgentMail \u2014 Free 3 inboxes / 3,000 emails/mo",
       "category": "hosting",
       "tags": [
         "email",
@@ -929,7 +947,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-agentmail-startup-001",
-      "title": "AgentMail — Startup program 3 mo Startup tier free (apply)",
+      "title": "AgentMail \u2014 Startup program 3 mo Startup tier free (apply)",
       "category": "hosting",
       "tags": [
         "email",
@@ -941,11 +959,11 @@
       ],
       "advertiser": "AgentMail",
       "price_usd": 0,
-      "unit": "3 months Startup tier free; apply — eligibility reviewed",
+      "unit": "3 months Startup tier free; apply \u2014 eligibility reviewed",
       "redeem_url": "https://www.agentmail.to/startups",
       "source_url": "https://www.agentmail.to/startups",
       "claim_note": "apply-not-code",
-      "agent_instructions": "Apply at AgentMail /startups. Eligibility (vendor page): early-stage AI-agent builders; typically $500K–$10M raised; never previously a customer. No public promo code. Wait for approval email."
+      "agent_instructions": "Apply at AgentMail /startups. Eligibility (vendor page): early-stage AI-agent builders; typically $500K\u2013$10M raised; never previously a customer. No public promo code. Wait for approval email."
     },
     {
       "agent_only": false,
@@ -957,7 +975,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-resend-free-001",
-      "title": "Resend — Free 3,000 transactional emails/mo",
+      "title": "Resend \u2014 Free 3,000 transactional emails/mo",
       "category": "hosting",
       "tags": [
         "email",
@@ -983,7 +1001,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-apify-free-001",
-      "title": "Apify — Free $5 prepaid/mo",
+      "title": "Apify \u2014 Free $5 prepaid/mo",
       "category": "unblock",
       "tags": [
         "actors",
@@ -1009,7 +1027,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-apify-startups-001",
-      "title": "Apify Startups — 30% off Scale (apply)",
+      "title": "Apify Startups \u2014 30% off Scale (apply)",
       "category": "unblock",
       "tags": [
         "apify",
@@ -1020,7 +1038,7 @@
       ],
       "advertiser": "Apify",
       "price_usd": 0,
-      "unit": "Startups: 30% off Scale plan; apply — no public code",
+      "unit": "Startups: 30% off Scale plan; apply \u2014 no public code",
       "redeem_url": "https://apify.com/resources/startups",
       "source_url": "https://apify.com/resources/startups",
       "claim_note": "apply-not-code",
@@ -1036,7 +1054,7 @@
       "commission_type": null,
       "expires_at": null,
       "id": "deal-railway-trial-001",
-      "title": "Railway — $5 trial / 30 days then $1/mo free usage",
+      "title": "Railway \u2014 $5 trial / 30 days then $1/mo free usage",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1063,7 +1081,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-render-free-001",
-      "title": "Render — Free compute (web/KV/Postgres) + Hobby $0/mo",
+      "title": "Render \u2014 Free compute (web/KV/Postgres) + Hobby $0/mo",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1091,7 +1109,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-fly-trial-001",
-      "title": "Fly.io — Free trial (up to 2 Machine hours or 7 days)",
+      "title": "Fly.io \u2014 Free trial (up to 2 Machine hours or 7 days)",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1106,7 +1124,7 @@
       "unit": "New orgs: free trial up to 2 hours Machine runtime or 7 days (whichever first); no card to start; no ongoing free tier after trial",
       "redeem_url": "https://fly.io/docs/about/free-trial/",
       "source_url": "https://fly.io/docs/about/pricing/",
-      "agent_instructions": "Create a Fly.io org and start the free trial without a card. Track Trial Status; adding a card ends the trial. After trial there is no monthly free allowance — plan for paid usage."
+      "agent_instructions": "Create a Fly.io org and start the free trial without a card. Track Trial Status; adding a card ends the trial. After trial there is no monthly free allowance \u2014 plan for paid usage."
     },
     {
       "agent_only": false,
@@ -1119,7 +1137,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-vercel-hobby-001",
-      "title": "Vercel — Hobby plan $0/mo",
+      "title": "Vercel \u2014 Hobby plan $0/mo",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1147,7 +1165,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-cloudflare-workers-free-001",
-      "title": "Cloudflare Workers — Free 100,000 requests/day",
+      "title": "Cloudflare Workers \u2014 Free 100,000 requests/day",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1176,7 +1194,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-modal-free-001",
-      "title": "Modal — $30/month free compute credit (Starter)",
+      "title": "Modal \u2014 $30/month free compute credit (Starter)",
       "category": "compute",
       "tags": [
         "gpu",
@@ -1204,7 +1222,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-neon-free-001",
-      "title": "Neon — Free Postgres tier (no card)",
+      "title": "Neon \u2014 Free Postgres tier (no card)",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1233,7 +1251,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-turso-free-001",
-      "title": "Turso — Free Cloud SQLite tier (no card)",
+      "title": "Turso \u2014 Free Cloud SQLite tier (no card)",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1262,7 +1280,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-upstash-redis-free-001",
-      "title": "Upstash Redis — Free 250MB / 500K commands/mo",
+      "title": "Upstash Redis \u2014 Free 250MB / 500K commands/mo",
       "category": "hosting",
       "tags": [
         "hosting",
@@ -1277,7 +1295,7 @@
       "unit": "Free: 250 MB data, 10 GB bandwidth, 500K commands/mo; 1 free DB; agent instant start available",
       "redeem_url": "https://upstash.com/pricing",
       "source_url": "https://upstash.com/pricing/redis",
-      "agent_instructions": "Create an Upstash Redis free database for agent queues/cache. Stay within 250MB and 500K commands/mo. Optional no-signup start URL exists for quick tests — prefer a real account for production."
+      "agent_instructions": "Create an Upstash Redis free database for agent queues/cache. Stay within 250MB and 500K commands/mo. Optional no-signup start URL exists for quick tests \u2014 prefer a real account for production."
     },
     {
       "agent_only": false,
@@ -1290,7 +1308,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-postmark-free-001",
-      "title": "Postmark — Free Developer 100 emails/mo (no card)",
+      "title": "Postmark \u2014 Free Developer 100 emails/mo (no card)",
       "category": "hosting",
       "tags": [
         "email",
@@ -1309,7 +1327,7 @@
     },
     {
       "id": "deal-postmark-001",
-      "title": "Postmark — transactional email API (affiliate)",
+      "title": "Postmark \u2014 transactional email API (affiliate)",
       "category": "hosting",
       "tags": [
         "email",
@@ -1334,7 +1352,7 @@
     },
     {
       "id": "deal-smtp2go-001",
-      "title": "SMTP2GO — transactional email (affiliate)",
+      "title": "SMTP2GO \u2014 transactional email (affiliate)",
       "category": "hosting",
       "tags": [
         "email",
@@ -1368,7 +1386,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-codespaces-free-001",
-      "title": "GitHub Codespaces — Free 120 core-hrs + 15 GB-mo (personal)",
+      "title": "GitHub Codespaces \u2014 Free 120 core-hrs + 15 GB-mo (personal)",
       "category": "compute",
       "tags": [
         "compute",
@@ -1396,7 +1414,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-zenrows-free-001",
-      "title": "ZenRows — Free 5,000 credits/mo (no card)",
+      "title": "ZenRows \u2014 Free 5,000 credits/mo (no card)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -1424,7 +1442,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-scrapingbee-free-001",
-      "title": "ScrapingBee — 1,000 free API credits (no card)",
+      "title": "ScrapingBee \u2014 1,000 free API credits (no card)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -1452,7 +1470,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-browserless-free-001",
-      "title": "Browserless — Free 1k units/mo / 2 concurrent",
+      "title": "Browserless \u2014 Free 1k units/mo / 2 concurrent",
       "category": "compute",
       "tags": [
         "browser",
@@ -1479,7 +1497,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-tavily-free-001",
-      "title": "Tavily — Free 1,000 API credits/mo",
+      "title": "Tavily \u2014 Free 1,000 API credits/mo",
       "category": "search",
       "tags": [
         "search",
@@ -1507,7 +1525,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-jina-reader-free-001",
-      "title": "Jina AI Reader — Free Reader + 10M free tokens on new key",
+      "title": "Jina AI Reader \u2014 Free Reader + 10M free tokens on new key",
       "category": "search",
       "tags": [
         "crawl",
@@ -1522,7 +1540,7 @@
       "unit": "Reader free for basic usage (r.jina.ai prepend); new API keys include 10M free tokens; Free key ~100 RPM",
       "redeem_url": "https://jina.ai/reader/",
       "source_url": "https://jina.ai/reader/",
-      "agent_instructions": "Use Jina Reader for URL→LLM markdown. Basic prepend usage is free; create an API key for higher limits and the 10M free token grant. Respect rate limits."
+      "agent_instructions": "Use Jina Reader for URL\u2192LLM markdown. Basic prepend usage is free; create an API key for higher limits and the 10M free token grant. Respect rate limits."
     },
     {
       "agent_only": false,
@@ -1535,7 +1553,7 @@
       "expires_at": null,
       "claim_note": null,
       "id": "deal-groq-free-001",
-      "title": "Groq — Free plan LLM inference (rate-limited)",
+      "title": "Groq \u2014 Free plan LLM inference (rate-limited)",
       "category": "compute",
       "tags": [
         "llm",
@@ -1554,7 +1572,7 @@
     },
     {
       "id": "deal-betterstack-001",
-      "title": "Better Stack — uptime, logs, incidents (affiliate)",
+      "title": "Better Stack \u2014 uptime, logs, incidents (affiliate)",
       "category": "hosting",
       "tags": [
         "uptime",
@@ -1579,7 +1597,7 @@
     },
     {
       "id": "deal-vastai-001",
-      "title": "Vast.ai — GPU cloud (affiliate)",
+      "title": "Vast.ai \u2014 GPU cloud (affiliate)",
       "category": "compute",
       "tags": [
         "gpu",
@@ -1604,7 +1622,7 @@
     },
     {
       "id": "deal-novita-001",
-      "title": "Novita AI — GPU inference API (affiliate)",
+      "title": "Novita AI \u2014 GPU inference API (affiliate)",
       "category": "compute",
       "tags": [
         "gpu",
@@ -1630,7 +1648,7 @@
     },
     {
       "id": "deal-scrapeops-001",
-      "title": "ScrapeOps — scrape proxy routing (affiliate)",
+      "title": "ScrapeOps \u2014 scrape proxy routing (affiliate)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -1644,7 +1662,7 @@
       "affiliate": true,
       "advertiser": "ScrapeOps",
       "price_usd": 0,
-      "unit": "paid scrape plans; 25–35% lifetime affiliate (tiered)",
+      "unit": "paid scrape plans; 25\u201335% lifetime affiliate (tiered)",
       "list_price_usd": null,
       "promo_code": "START10-FS3Lvdbr",
       "commission_pct": 0.25,
@@ -1655,7 +1673,7 @@
     },
     {
       "id": "deal-serptool-001",
-      "title": "SERP-Tool — keyword SERP research (affiliate)",
+      "title": "SERP-Tool \u2014 keyword SERP research (affiliate)",
       "category": "search",
       "tags": [
         "serp",
@@ -1681,7 +1699,7 @@
     },
     {
       "id": "deal-apilayer-001",
-      "title": "APILayer — API marketplace (affiliate)",
+      "title": "APILayer \u2014 API marketplace (affiliate)",
       "category": "search",
       "tags": [
         "api",
@@ -1707,7 +1725,7 @@
     },
     {
       "id": "deal-supadata-001",
-      "title": "Supadata — scrape/transcript API (affiliate)",
+      "title": "Supadata \u2014 scrape/transcript API (affiliate)",
       "category": "unblock",
       "tags": [
         "scrape",
@@ -1733,7 +1751,7 @@
     },
     {
       "id": "deal-infatica-001",
-      "title": "Infatica — proxies & scraper APIs (affiliate)",
+      "title": "Infatica \u2014 proxies & scraper APIs (affiliate)",
       "category": "unblock",
       "tags": [
         "proxy",
@@ -1747,18 +1765,18 @@
       "affiliate": true,
       "advertiser": "Infatica",
       "price_usd": 0,
-      "unit": "paid plans; 10–30% revenue share by volume",
+      "unit": "paid plans; 10\u201330% revenue share by volume",
       "list_price_usd": null,
       "promo_code": null,
       "commission_pct": 0.1,
       "commission_type": "revenue_share_tiered",
       "redeem_url": "https://dashboard.infatica.io/aff.php?aff=899",
       "expires_at": null,
-      "agent_instructions": "Sign up via the redeem_url affiliate link for Infatica proxies & scraper APIs. Only use this authorized affiliate link. Lantern Works affiliate id: 899. Commission: 10–30% revenue share by volume (90-day cookie)."
+      "agent_instructions": "Sign up via the redeem_url affiliate link for Infatica proxies & scraper APIs. Only use this authorized affiliate link. Lantern Works affiliate id: 899. Commission: 10\u201330% revenue share by volume (90-day cookie)."
     },
     {
       "id": "deal-bunny-001",
-      "title": "Bunny.net — CDN & edge storage (affiliate)",
+      "title": "Bunny.net \u2014 CDN & edge storage (affiliate)",
       "category": "hosting",
       "tags": [
         "cdn",
