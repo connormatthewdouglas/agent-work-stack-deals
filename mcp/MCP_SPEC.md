@@ -7,11 +7,27 @@ See also: [README.md](./README.md) · [tools.manifest.json](./tools.manifest.jso
 ## Feed
 https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json
 
+Machine-readable filter contract: feed `query.filters` (keep in sync with `query_deals.py` and this spec).
+
+## Filter contract (shared)
+| Arg | Type | Meaning |
+|---|---|---|
+| `category` | string | Exact `deal.category` |
+| `affiliate` | boolean | `true` / `false` referral vs public |
+| `free_tier` | boolean | If true, same as `affiliate=false` (public/non-affiliate free tiers; often `price_usd: 0`). Not `price_usd==0` alone. |
+| `non_affiliate` | boolean | Alias of `free_tier` |
+| `updated_since` | string (ISO-8601) | Keep deals with `updated_at >=` value; drop rows missing `updated_at` |
+| `tag` | string | Require tag (servers may accept repeated / array) |
+| `agent_only` | boolean | Only `agent_only == true` |
+| `max_price_usd` | number | Inclusive max on `price_usd` |
+| `include_examples` | boolean | Default **false** (real-only). Synthetic `example: true` rows excluded unless set. |
+| `id` | string | Exact deal id (`get_deal`) |
+
 ## Tools
 
 ### `list_deals`
 List deals from the feed.
-- Args (all optional): `category`, `tag`, `agent_only`, `include_examples` (default false), `max_price_usd`
+- Args (all optional): `category`, `tag`, `agent_only`, `affiliate`, `free_tier`, `non_affiliate`, `updated_since`, `include_examples` (default false), `max_price_usd`
 - Default: exclude `example: true`
 - Returns: deal summaries with `redeem_url`
 

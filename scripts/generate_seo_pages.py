@@ -40,6 +40,11 @@ CSS = """
     .meta { color: #333; }
     .verified { font-size: .85rem; color: #555; }
     a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
   """
 
 CATEGORY_ORDER = ["compute", "email", "hosting", "search", "templates", "unblock"]
@@ -608,6 +613,48 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
     return path
 
 
+
+FEED_RAW = (
+    "https://gist.githubusercontent.com/connormatthewdouglas/"
+    "ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json"
+)
+
+
+def agent_query_howto_html() -> str:
+    """Homepage section: how agents should query the public feed. Generator-owned."""
+    return f"""  <section id="how-agents-query" class="howto">
+    <h2 class="section-title" style="margin-top:0;">How agents should query this</h2>
+    <p>Public JSON feed (no auth). Default filter posture is <strong>real-only</strong> (skip <code>example: true</code>). Production inventory is live Lantern Works listings.</p>
+    <p class="feed" style="margin:.6rem 0;">GET <a href="{FEED_RAW}">{FEED_RAW}</a></p>
+    <table>
+      <thead><tr><th>Filter</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>category</code></td><td>Exact category (<code>compute</code>, <code>email</code>, <code>hosting</code>, <code>search</code>, <code>unblock</code>, …)</td></tr>
+        <tr><td><code>affiliate</code></td><td><code>true</code> = referral; <code>false</code> = public/non-affiliate</td></tr>
+        <tr><td><code>free_tier</code> / <code>non_affiliate</code></td><td><code>affiliate == false</code> (often also <code>price_usd: 0</code>). Do <strong>not</strong> treat <code>price_usd == 0</code> alone as free-tier.</td></tr>
+        <tr><td><code>updated_since</code></td><td>ISO-8601; keep deals with <code>updated_at &gt;=</code> value; drop rows missing <code>updated_at</code></td></tr>
+        <tr><td><code>tag</code></td><td>Require tags (AND)</td></tr>
+        <tr><td><code>agent_only</code></td><td>Only <code>agent_only == true</code></td></tr>
+        <tr><td><code>max_price</code></td><td>Inclusive max on <code>price_usd</code></td></tr>
+        <tr><td><code>real_only</code></td><td>Default; exclude <code>example == true</code></td></tr>
+        <tr><td><code>id</code></td><td>Exact deal id</td></tr>
+      </tbody>
+    </table>
+    <p><strong>curl + local filter</strong></p>
+    <pre>curl -fsSL "{FEED_RAW}" \
+  | python3 -c 'import json,sys; d=json.load(sys.stdin)
+print([x["id"] for x in d["deals"] if x.get("category")=="search" and x.get("affiliate")])'</pre>
+    <p><strong>query_deals.py</strong> (repo CLI)</p>
+    <pre>python3 query_deals.py --category search
+python3 query_deals.py --affiliate
+python3 query_deals.py --free-tier
+python3 query_deals.py --updated-since 2026-10-23T00:00:00-04:00
+python3 query_deals.py --tag crawl --max-price 20 --json</pre>
+    <p class="meta">Machine-readable contract: feed <code>query</code> object · skill <code>lantern-works-deals</code> · <code>USAGE.md</code> · MCP sketch under <code>mcp/</code>.</p>
+  </section>
+"""
+
+
 def write_index(deals: list[dict], feed_updated: str) -> Path:
     by_cat = defaultdict(list)
     for d in deals:
@@ -665,6 +712,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     {guides_nav_html()}
     <p class="feed"><strong>Agents:</strong> GET <a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
+{agent_query_howto_html()}
   <main>{body_main}</main>
   <footer><p>Updated {esc(updated)} Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>

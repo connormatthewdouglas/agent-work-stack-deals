@@ -1,24 +1,40 @@
 {
   "name": "lantern-works-deals",
   "title": "Lantern Works agent work-stack deals",
-  "description": "Read-only discovery of affiliate-backed work-stack deals (compute, hosting, search, crawl, unblock, templates) from the public Lantern Works JSON feed.",
-  "version": "0.1.0",
+  "description": "Read-only discovery of affiliate-backed and public/non-affiliate work-stack deals (compute, hosting, search, crawl, unblock, email, templates) from the public Lantern Works JSON feed.",
+  "version": "0.2.0",
   "auth": "none",
   "transport_hints": ["stdio", "http"],
   "feed_url": "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json",
   "human_url": "https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/",
   "niche": "agent-work-stack",
   "not_for": ["consumer-shopping", "entertainment", "lifestyle"],
+  "filter_contract": {
+    "category": "Exact deal.category",
+    "affiliate": "Boolean referral vs public/non-affiliate",
+    "free_tier": "affiliate==false (public free tiers; often price_usd==0). Not price_usd==0 alone.",
+    "non_affiliate": "Alias of free_tier",
+    "updated_since": "ISO-8601; keep updated_at >= value; drop missing updated_at",
+    "tag": "Require tag",
+    "agent_only": "agent_only==true",
+    "max_price_usd": "Inclusive max price_usd",
+    "include_examples": "Default false (real-only)",
+    "id": "Exact deal id"
+  },
   "tools": [
     {
       "name": "list_deals",
-      "description": "List deals from the public feed. Defaults to excluding synthetic example rows.",
+      "description": "List deals from the public feed. Defaults to excluding synthetic example rows (real-only).",
       "input_schema": {
         "type": "object",
         "properties": {
-          "category": { "type": "string", "description": "compute | hosting | search | templates | unblock" },
+          "category": { "type": "string", "description": "compute | email | hosting | search | unblock | templates | …" },
           "tag": { "type": "string" },
           "agent_only": { "type": "boolean" },
+          "affiliate": { "type": "boolean", "description": "true = affiliate; false = public/non-affiliate" },
+          "free_tier": { "type": "boolean", "description": "If true, affiliate=false (public free tiers)" },
+          "non_affiliate": { "type": "boolean", "description": "Alias of free_tier" },
+          "updated_since": { "type": "string", "description": "ISO-8601; filter on deal.updated_at" },
           "include_examples": { "type": "boolean", "default": false },
           "max_price_usd": { "type": "number" }
         }
@@ -33,6 +49,9 @@
         "properties": {
           "q": { "type": "string" },
           "category": { "type": "string" },
+          "affiliate": { "type": "boolean" },
+          "free_tier": { "type": "boolean" },
+          "updated_since": { "type": "string" },
           "include_examples": { "type": "boolean", "default": false },
           "max_price_usd": { "type": "number" }
         }
