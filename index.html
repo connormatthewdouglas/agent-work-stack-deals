@@ -20,6 +20,8 @@
     .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
     .badge.agent { background: #e8f5e9; }
     .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
     .section-title { margin-top: 2rem; font-size: 1.25rem; }
     footer { margin-top: 2rem; color: #666; font-size: .85rem; }
     code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
@@ -29,7 +31,7 @@
   <header>
     <h1>Agent work-stack deals</h1>
     <p style="font-size:.9rem;"><a href="lanternworks/">About Lantern Works</a> — human-readable platform page</p>
-    <p>Affiliate-backed offers for AI agents (and humans directing them). Free to browse. Ranking is not pure</p>
+    <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Ranking is not pure</p>
     <nav>Jump: <a href="#cat-compute">compute</a> · <a href="#cat-hosting">hosting</a> · <a href="#cat-search">search</a> · <a href="#cat-templates">templates</a> · <a href="#cat-unblock">unblock</a></nav>
     <p class="feed"><strong>Agents:</strong> GET <a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
@@ -60,7 +62,43 @@
       <p class="instructions">Use for tool-calling workloads. Cap max tokens per request; prefer cheaper models for classification.</p>
       <p class="redeem"><a rel="nofollow sponsored" href="https://example.com/redeem/agent-smoke-llm">Redeem / signup</a>
       · code <code>AGENT-SMOKE-LLM</code></p>
-    </article></section><section id="cat-hosting"><h2 class="section-title">Agent deals: hosting</h2>
+    </article>
+
+    <article class="deal" id="deal-steel-001" data-category="compute" data-affiliate="false">
+      <h2><a href="#deal-steel-001">Steel — $30 one-time free browser usage</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $30 one-time free usage (~300 browser hrs); 90-day validity; captcha/proxies need $10 deposit · Steel</p>
+      <p class="tags"><span class="tag">browser</span> <span class="tag">steel</span> <span class="tag">free-credits</span></p>
+      <p class="instructions">Sign up at Steel. Use free $30 usage within 90 days. Captcha/proxy features may require a $10 deposit — confirm on docs before enabling.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://docs.steel.dev/overview/pricing">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-kernel-001" data-category="compute" data-affiliate="false">
+      <h2><a href="#deal-kernel-001">Kernel — Free $5 usage/mo (refreshed)</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $5 free usage/mo refreshed; stealth available on free · Kernel</p>
+      <p class="tags"><span class="tag">browser</span> <span class="tag">kernel</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up at Kernel pricing page. Use monthly free $5 allotment; confirm stealth/free limits on current pricing.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://www.kernel.sh/pricing">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-browserbase-001" data-category="compute" data-affiliate="false">
+      <h2><a href="#deal-browserbase-001">Browserbase — Free 3 concurrent / 1 browser hour / 1k Search+Fetch</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / Free: 3 concurrent browsers, 1 browser hour, 1k Search+Fetch · Browserbase</p>
+      <p class="tags"><span class="tag">browser</span> <span class="tag">browserbase</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up on Browserbase Free plan. Stay within concurrent/hour/Search+Fetch caps.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://www.browserbase.com/pricing">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-hyperbrowser-001" data-category="compute" data-affiliate="false">
+      <h2><a href="#deal-hyperbrowser-001">Hyperbrowser — Free 5,000 credits</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / 5,000 free credits · Hyperbrowser</p>
+      <p class="tags"><span class="tag">browser</span> <span class="tag">hyperbrowser</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up at Hyperbrowser. Use free 5,000 credits; confirm current free allowance on pricing.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://www.hyperbrowser.ai/pricing">Open offer / signup</a></p>
+    </article>
+</section><section id="cat-hosting"><h2 class="section-title">Agent deals: hosting</h2>
 
     <article class="deal" id="deal-hosting-001" data-category="hosting">
       <h2><a href="#deal-hosting-001">Always-on mini VPS — agent worker month</a> <span class="badge">example</span> <span class="badge agent">agent-only</span></h2>
@@ -87,7 +125,43 @@
       <p class="instructions">Verify domain/SPF before sending. Never cold-spam; transactional and user-requested only.</p>
       <p class="redeem"><a rel="nofollow sponsored" href="https://example.com/redeem/agent-smoke-mail">Redeem / signup</a>
       · code <code>AGENT-SMOKE-MAIL</code></p>
-    </article></section><section id="cat-search"><h2 class="section-title">Agent deals: search</h2>
+    </article>
+
+    <article class="deal" id="deal-agentmail-free-001" data-category="hosting" data-affiliate="false">
+      <h2><a href="#deal-agentmail-free-001">AgentMail — Free 3 inboxes / 3,000 emails/mo</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3 inboxes, 3,000 emails/mo, 100/day, 3 GB; no card · AgentMail</p>
+      <p class="tags"><span class="tag">email</span> <span class="tag">agentmail</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up for AgentMail Free plan. Do not invent promo codes. Respect daily/monthly send caps.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://www.agentmail.to/pricing">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-agentmail-startup-001" data-category="hosting" data-affiliate="false">
+      <h2><a href="#deal-agentmail-startup-001">AgentMail — Startup program 3 mo Startup tier free (apply)</a> <span class="badge public">public / non-affiliate</span> <span class="badge">apply — not a public code</span></h2>
+      <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3 months Startup tier free; apply — eligibility reviewed · AgentMail</p>
+      <p class="tags"><span class="tag">email</span> <span class="tag">agentmail</span> <span class="tag">startup</span> <span class="tag">apply</span></p>
+      <p class="instructions">Apply at AgentMail /startups. Eligibility (vendor page): early-stage AI-agent builders; typically $500K–$10M raised; never previously a customer. No public promo code. Wait for approval email.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://www.agentmail.to/startups">Open offer / signup</a> · <em>apply — no public code</em></p>
+    </article>
+
+
+    <article class="deal" id="deal-resend-free-001" data-category="hosting" data-affiliate="false">
+      <h2><a href="#deal-resend-free-001">Resend — Free 3,000 transactional emails/mo</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3,000 transactional emails/mo on Free · Resend</p>
+      <p class="tags"><span class="tag">email</span> <span class="tag">resend</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up at Resend Free. Verify domain/SPF. Transactional and user-requested only; no cold spam.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://resend.com/pricing">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-railway-trial-001" data-category="hosting" data-affiliate="false">
+      <h2><a href="#deal-railway-trial-001">Railway — $5 trial / 30 days then $1/mo free usage</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / $5 one-time trial (30 days), then Free plan $1 credit/mo (no rollover) · Railway</p>
+      <p class="tags"><span class="tag">hosting</span> <span class="tag">railway</span> <span class="tag">free-trial</span></p>
+      <p class="instructions">Sign up at Railway for free trial ($5 / 30 days). After trial, Free plan grants $1/mo. Connect GitHub for full trial network access when possible.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://docs.railway.com/reference/pricing/free-trial">Open offer / signup</a></p>
+    </article>
+</section><section id="cat-search"><h2 class="section-title">Agent deals: search</h2>
 
     <article class="deal" id="deal-firecrawl-001" data-category="search">
       <h2><a href="#deal-firecrawl-001">Firecrawl — agent crawl/RAG API (affiliate)</a> <span class="badge agent">affiliate</span></h2>
@@ -114,7 +188,34 @@
       <p class="instructions">Prefer over raw scrapers when HTML is messy. Respect robots.txt and rate limits.</p>
       <p class="redeem"><a rel="nofollow sponsored" href="https://example.com/redeem/agent-smoke-crawl">Redeem / signup</a>
       · code <code>AGENT-SMOKE-CRAWL</code></p>
-    </article></section><section id="cat-templates"><h2 class="section-title">Agent deals: templates</h2>
+    </article>
+
+    <article class="deal" id="deal-firecrawl-free-001" data-category="search" data-affiliate="false">
+      <h2><a href="#deal-firecrawl-free-001">Firecrawl — Free 1,000 credits/mo (no card)</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / 1,000 credits/mo; no credit card · Firecrawl</p>
+      <p class="tags"><span class="tag">crawl</span> <span class="tag">rag</span> <span class="tag">firecrawl</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up on Firecrawl pricing/free tier (no card). Use for crawl/scrape → LLM-ready markdown. Separate from the lanternworks affiliate signup link.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://www.firecrawl.dev/pricing">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-firecrawl-student-001" data-category="search" data-affiliate="false">
+      <h2><a href="#deal-firecrawl-student-001">Firecrawl — Student Program 10k credits (apply)</a> <span class="badge public">public / non-affiliate</span> <span class="badge">apply — not a public code</span></h2>
+      <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / Student Program ~10k credits; apply — no public promo code · Firecrawl</p>
+      <p class="tags"><span class="tag">crawl</span> <span class="tag">firecrawl</span> <span class="tag">student</span> <span class="tag">apply</span></p>
+      <p class="instructions">Open the Student Program page and apply. Do NOT invent or use a public coupon code. Wait for vendor approval.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://www.firecrawl.dev/student-program">Open offer / signup</a> · <em>apply — no public code</em></p>
+    </article>
+
+
+    <article class="deal" id="deal-serpapi-free-001" data-category="search" data-affiliate="false">
+      <h2><a href="#deal-serpapi-free-001">SerpApi — Free 250 searches/mo</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / 250 successful searches/mo on Free plan · SerpApi</p>
+      <p class="tags"><span class="tag">serp</span> <span class="tag">search</span> <span class="tag">serpapi</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up for SerpApi Free plan. Cache results; only successful searches count. Do not invent discount codes.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://serpapi.com/pricing">Open offer / signup</a></p>
+    </article>
+</section><section id="cat-templates"><h2 class="section-title">Agent deals: templates</h2>
 
     <article class="deal" id="deal-templates-001" data-category="templates">
       <h2><a href="#deal-templates-001">Cleaning business SOP template pack — agent checkout</a> <span class="badge">example</span> <span class="badge agent">agent-only</span></h2>
@@ -168,8 +269,53 @@
       <p class="instructions">Only after soft challenges fail. Log solve rate; stop if site ToS forbids. Prefer Latch product path when available.</p>
       <p class="redeem"><a rel="nofollow sponsored" href="https://example.com/redeem/agent-smoke-captcha">Redeem / signup</a>
       · code <code>AGENT-SMOKE-CAPTCHA</code></p>
-    </article></section></main>
-  <footer><p>Updated 2026-10-23T10:37:00-04:00. Example deals are synthetic; affiliate deals use authorized links only.</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    </article>
+
+    <article class="deal" id="deal-brightdata-resi-001" data-category="unblock" data-affiliate="false">
+      <h2><a href="#deal-brightdata-resi-001">Bright Data — Residential proxies 50% off 3 mo (RESIGB50)</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / 50% off residential proxies for 3 months; first-deposit match up to $500 (new accounts) · Bright Data</p>
+      <p class="tags"><span class="tag">proxy</span> <span class="tag">residential</span> <span class="tag">brightdata</span> <span class="tag">coupon</span></p>
+      <p class="instructions">Create Bright Data account. Apply promo_code RESIGB50 in Billing for residential proxies (3 months). New accounts may get first-deposit match up to $500. Do not use Bright Data 25% API/Unlocker/SERP coupon tiles.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://brightdata.com/pricing/proxy-network/residential-proxies">Open offer / signup</a> · code <code>RESIGB50</code></p>
+    </article>
+
+
+    <article class="deal" id="deal-brightdata-api-free-001" data-category="unblock" data-affiliate="false">
+      <h2><a href="#deal-brightdata-api-free-001">Bright Data APIs — 5,000 free credits/mo (~$7.50)</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / 5,000 free credits/mo (~$7.50); no card; Web Unlocker/SERP/Scraper/Studio/Browser API pool · Bright Data</p>
+      <p class="tags"><span class="tag">api</span> <span class="tag">brightdata</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up for Bright Data. Free 5,000 credits/mo apply automatically to eligible APIs. No promo code. Proxies are not in this free pool.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://docs.brightdata.com/general/account/billing-and-pricing/free-tier">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-oxylabs-001" data-category="unblock" data-affiliate="false">
+      <h2><a href="#deal-oxylabs-001"></a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong>; free credits available on eligible plans · Oxylabs</p>
+      <p class="tags"><span class="tag">proxy</span> <span class="tag">oxylabs</span> <span class="tag">coupon</span></p>
+      <p class="instructions">New Oxylabs clients only. Use promo_code DISCOUNT30 at checkout on eligible Micro/Starter/Advanced plans. Confirm current terms on the coupon page before paying.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://oxylabs.io/products/coupon-codes">Open offer / signup</a> · code <code>DISCOUNT30</code></p>
+    </article>
+
+
+    <article class="deal" id="deal-apify-free-001" data-category="unblock" data-affiliate="false">
+      <h2><a href="#deal-apify-free-001">Apify — Free $5 prepaid/mo</a> <span class="badge public">public / non-affiliate</span></h2>
+      <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / $5 prepaid platform credit/mo on Free · Apify</p>
+      <p class="tags"><span class="tag">actors</span> <span class="tag">apify</span> <span class="tag">free-tier</span></p>
+      <p class="instructions">Sign up for Apify Free. Use monthly $5 prepaid credit for Actors. Respect platform ToS.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://apify.com/pricing">Open offer / signup</a></p>
+    </article>
+
+
+    <article class="deal" id="deal-apify-startups-001" data-category="unblock" data-affiliate="false">
+      <h2><a href="#deal-apify-startups-001">Apify Startups — 30% off Scale (apply)</a> <span class="badge public">public / non-affiliate</span> <span class="badge">apply — not a public code</span></h2>
+      <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / Startups: 30% off Scale plan; apply — no public code · Apify</p>
+      <p class="tags"><span class="tag">apify</span> <span class="tag">startup</span> <span class="tag">apply</span></p>
+      <p class="instructions">Apply via Apify Startups program page. Do not invent a coupon. Wait for vendor confirmation before claiming 30% Scale discount.</p>
+      <p class="redeem"><a rel="noopener noreferrer" href="https://apify.com/resources/startups">Open offer / signup</a> · <em>apply — no public code</em></p>
+    </article>
+</section></main>
+  <footer><p>Updated 2026-10-23T12:21:39-04:00 Example deals are synthetic; affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
   </footer>
 </body>
