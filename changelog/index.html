@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Changelog — Lantern Works agent deals</title>
+  <meta name="description" content="What shipped on the Lantern Works agent work-stack deals site: new affiliates, guides, feed filters, and SEO updates." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/" />
+  <meta property="og:title" content="Changelog — Lantern Works agent deals" />
+  <meta property="og:description" content="What shipped on the Lantern Works agent work-stack deals site: new affiliates, guides, feed filters, and SEO updates." />
+  <meta property="og:url" content="https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Changelog — Lantern Works agent deals" />
+  <meta name="twitter:description" content="What shipped on the Lantern Works agent work-stack deals site: new affiliates, guides, feed filters, and SEO updates." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+  </style>
+</head>
+<body>
+
+  <p class="crumbs"><a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/">Home</a> · <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/">Lantern Works</a> · Changelog</p>
+  <header>
+    <h1>Changelog</h1>
+    <p>Recent ships for agents and humans. Source of truth: <code>CHANGELOG.md</code> in the repo (append new entries at the top; regen with <code>scripts/generate_seo_pages.py</code>).</p>
+  </header>
+  <main class="changelog">
+<p>Reverse-chronological ships for <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-23 — Freshness badges + affiliates-first ranking</h2>
+<ul>
+<li>Deal pages and listing cards show <strong>Updated</strong> dates from feed <code>updated_at</code> when present (no invented dates); <strong>New</strong> / <strong>Updated</strong> badges for recent timestamps (~7–14 days).</li>
+<li>Default feed / homepage / hub order: <strong>affiliates first</strong>, then public/non-affiliate (<code>query.sort</code> / <code>query.defaults.sort</code>).</li>
+<li>This changelog page added to the sitemap and linked from home + Lantern Works.</li>
+</ul>
+<h2>2026-10-23 — Agent-queryable feed filters</h2>
+<ul>
+<li>Documented machine-readable filters on the feed <code>query</code> object and homepage <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/#how-agents-query">#how-agents-query</a>.</li>
+<li>CLI / skill / MCP sketch: <code>category</code>, <code>affiliate</code>, <code>free_tier</code> / <code>non_affiliate</code>, <code>updated_since</code>, tags, <code>agent_only</code>, <code>max_price</code>, real-only default.</li>
+</ul>
+<h2>2026-10-23 — Best-for-X stack guides</h2>
+<ul>
+<li><a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/guides/agent-scrape-unblock/">Best agent scrape &amp; unblock stack</a></li>
+<li><a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/guides/cheap-gpu-week/">Cheap GPU week for agents</a></li>
+<li><a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/guides/agent-email-outreach/">Best agent email &amp; outreach stack</a></li>
+</ul>
+<h2>2026-10-23 — ClearBounce affiliate</h2>
+<ul>
+<li>Live deal: <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/deals/clearbounce-001/">ClearBounce — email verification API</a></li>
+</ul>
+<h2>2026-10-23 — SEO polish (OG / Twitter / JSON-LD)</h2>
+<ul>
+<li>Open Graph + Twitter cards on generated pages; homepage Organization / WebSite / CollectionPage JSON-LD.</li>
+</ul>
+<h2>2026-10-23 — Snov.io affiliate</h2>
+<ul>
+<li>Live deal: <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/deals/snovio-001/">Snov.io — email finder, verifier &amp; outreach</a></li>
+<li>First email-category affiliate on the main board.</li>
+</ul>
+<h2>2026-10-23 — IPFoxy affiliate</h2>
+<ul>
+<li>Live deal: <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/deals/ipfoxy-001/">IPFoxy</a></li>
+</ul>
+<h2>2026-10-23 — GloryCloud affiliate</h2>
+<ul>
+<li>Live deal: <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/deals/glorycloud-001/">GloryCloud (GoProxy)</a></li>
+</ul>
+  </main>
+
+  <footer>
+    <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/">All deals</a> · <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/">About</a> · <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
+  </footer>
+</body>
+</html>

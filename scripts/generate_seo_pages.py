@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate per-deal pages, category hubs, stack guides, sitemap, and refresh index.html from deals.json."""
+"""Generate per-deal pages, category hubs, stack guides, changelog, sitemap, and refresh index.html from deals.json."""
 from __future__ import annotations
 
 import html
@@ -32,6 +32,12 @@ CSS = """
     .badge.public { background: #e3f2fd; color: #0d47a1; }
     .badge.affiliate { background: #e8f5e9; }
     .badge.example { background: #fce4ec; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
     .section-title { margin-top: 2rem; font-size: 1.25rem; }
     footer { margin-top: 2rem; color: #666; font-size: .85rem; }
     code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
@@ -258,6 +264,58 @@ def is_example(deal: dict) -> bool:
     return False
 
 
+def sort_deals_affiliates_first(deals: list[dict]) -> list[dict]:
+    """Affiliate==true first, then public/non-affiliate; stable within each group."""
+    indexed = list(enumerate(deals))
+    indexed.sort(key=lambda iv: (0 if iv[1].get("affiliate") is True else 1, iv[0]))
+    return [d for _, d in indexed]
+
+
+def parse_deal_updated(deal: dict) -> datetime | None:
+    """Parse deal.updated_at from deals.json only. Never invent timestamps."""
+    raw = deal.get("updated_at")
+    if not raw or not isinstance(raw, str):
+        return None
+    s = raw.strip()
+    if not s:
+        return None
+    try:
+        if s.endswith("Z"):
+            s = s[:-1] + "+00:00"
+        return datetime.fromisoformat(s)
+    except ValueError:
+        return None
+
+
+def freshness_bits(deal: dict, *, now: datetime | None = None) -> tuple[str, str]:
+    """Return (badge_html, date_line_html) from real updated_at only.
+
+    Badge: New if within 7 days, Updated if within 14 days; else empty badge.
+    Date line: 'Updated Mon D, YYYY' when timestamp present; else empty (omit).
+    """
+    ts = parse_deal_updated(deal)
+    if ts is None:
+        return "", ""
+    if now is None:
+        now = datetime.now(ts.tzinfo) if ts.tzinfo else datetime.now()
+    elif ts.tzinfo and now.tzinfo is None:
+        now = now.replace(tzinfo=ts.tzinfo)
+    elif now.tzinfo and ts.tzinfo is None:
+        ts = ts.replace(tzinfo=now.tzinfo)
+    age_days = (now - ts).total_seconds() / 86400.0
+    badge = ""
+    if age_days <= 7:
+        badge = '<span class="badge fresh-new">New</span>'
+    elif age_days <= 14:
+        badge = '<span class="badge fresh-updated">Updated</span>'
+    try:
+        label = ts.strftime("%b %-d, %Y")
+    except ValueError:
+        label = ts.strftime("%b %d, %Y").replace(" 0", " ")
+    date_line = f'<p class="freshness">Updated {esc(label)}</p>'
+    return badge, date_line
+
+
 def price_bits(deal: dict) -> str:
     price = deal.get("price_usd")
     unit = deal.get("unit") or ""
@@ -274,6 +332,9 @@ def price_bits(deal: dict) -> str:
 
 def badges(deal: dict) -> str:
     bits = []
+    fresh_badge, _ = freshness_bits(deal)
+    if fresh_badge:
+        bits.append(fresh_badge)
     if is_example(deal):
         bits.append('<span class="badge example">example</span>')
     if deal.get("affiliate"):
@@ -343,10 +404,12 @@ def deal_card(deal: dict, link_mode: str = "page") -> str:
         aff_attr = ' data-affiliate="true"'
     elif deal.get("affiliate") is False:
         aff_attr = ' data-affiliate="false"'
+    _, fresh_line = freshness_bits(deal)
     return f"""
     <article class="deal" id="{esc(deal['id'])}" data-category="{esc(deal.get('category'))}"{aff_attr}>
       <h2><a href="{href}">{esc(deal.get('title'))}</a> {badges(deal)}</h2>
       <p class="meta"><span class="cat">{esc(deal.get('category'))}</span> · {price_bits(deal)} · {esc(deal.get('advertiser'))}</p>
+      {fresh_line}
       <p class="tags">{tags_html(deal)}</p>
       <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
       <p class="redeem">{cta_html(deal)}</p>
@@ -373,7 +436,7 @@ def homepage_json_ld(deals: list[dict]) -> str:
     website_id = f"{BASE}/#website"
     items = []
     position = 0
-    for d in deals:
+    for d in sort_deals_affiliates_first(deals):
         if is_example(d):
             continue
         position += 1
@@ -445,7 +508,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 {body}
   <footer>
     <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
-    <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
   </footer>
 </body>
@@ -477,6 +540,8 @@ def write_deal_page(deal: dict, feed_updated: str) -> Path:
         ctype = deal.get("") or ""
        
 
+    _, fresh_line = freshness_bits(deal)
+
     body = f"""
   <p class="crumbs"><a href="{BASE}/">Home</a> · <a href="{BASE}/lanternworks/">Lantern Works</a> · {hubs_nav}</p>
   <article class="deal" id="{esc(deal['id'])}">
@@ -484,6 +549,7 @@ def write_deal_page(deal: dict, feed_updated: str) -> Path:
     <p class="meta"><span class="cat">{esc(deal.get('category'))}</span> · {price_bits(deal)} · Advertiser: {esc(deal.get('advertiser'))}</p>
     <p class="tags">{tags_html(deal)}</p>
     {
+    {fresh_line}
     <p class="verified">Verified-on: {esc(verified)}</p>
     <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
     <p class="redeem">{cta_html(deal)}</p>
@@ -502,8 +568,10 @@ def write_deal_page(deal: dict, feed_updated: str) -> Path:
 
 def write_hub(hub: dict, deals: list[dict]) -> Path:
     matched = [d for d in deals if hub["match"](d)]
-    # Prefer real offers first
-    matched.sort(key=lambda d: (is_example(d), not bool(d.get("affiliate")), d.get("id") or ""))
+    # Real offers first, then affiliates-first (shared helper), then id
+    matched = sort_deals_affiliates_first(
+        sorted(matched, key=lambda d: (is_example(d), d.get("id") or ""))
+    )
     out_dir = ROOT / "categories" / hub["slug"]
     out_dir.mkdir(parents=True, exist_ok=True)
     page_url = f"{BASE}/categories/{hub['slug']}/"
@@ -591,6 +659,7 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
     urls = [
         (f"{BASE}/", "1.0"),
         (f"{BASE}/lanternworks/", "0.8"),
+        (f"{BASE}/changelog/", "0.7"),
     ]
     for s in hub_slugs:
         urls.append((f"{BASE}/categories/{s}/", "0.7"))
@@ -624,7 +693,7 @@ def agent_query_howto_html() -> str:
     """Homepage section: how agents should query the public feed. Generator-owned."""
     return f"""  <section id="how-agents-query" class="howto">
     <h2 class="section-title" style="margin-top:0;">How agents should query this</h2>
-    <p>Public JSON feed (no auth). Default filter posture is <strong>real-only</strong> (skip <code>example: true</code>). Production inventory is live Lantern Works listings.</p>
+    <p>Public JSON feed (no auth). Default filter posture is <strong>real-only</strong> (skip <code>example: true</code>). Default array order is <strong>affiliates first</strong> (<code>query.sort</code> / <code>query.defaults.sort</code>). Production inventory is live Lantern Works listings.</p>
     <p class="feed" style="margin:.6rem 0;">GET <a href="{FEED_RAW}">{FEED_RAW}</a></p>
     <table>
       <thead><tr><th>Filter</th><th>Meaning</th></tr></thead>
@@ -656,8 +725,9 @@ python3 query_deals.py --tag crawl --max-price 20 --json</pre>
 
 
 def write_index(deals: list[dict], feed_updated: str) -> Path:
+    # Preserve affiliates-first within each category (matches feed default sort).
     by_cat = defaultdict(list)
-    for d in deals:
+    for d in sort_deals_affiliates_first(deals):
         by_cat[d.get("category") or "other"].append(d)
 
     hub_nav = " · ".join(
@@ -705,8 +775,8 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
 <body>
   <header>
     <h1>Agent work-stack deals</h1>
-    <p style="font-size:.9rem;"><a href="lanternworks/">About Lantern Works</a> — human-readable platform page</p>
-    <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Ranking is not pure</p>
+    <p style="font-size:.9rem;"><a href="lanternworks/">About Lantern Works</a> · <a href="changelog/">Changelog</a></p>
+    <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Default order: <strong>affiliates first</strong>, then public/non-affiliate — not pure</p>
     <nav>Jump: {cat_nav}</nav>
     <nav style="margin-top:.35rem;">Hubs: {hub_nav}</nav>
     {guides_nav_html()}
@@ -714,7 +784,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   </header>
 {agent_query_howto_html()}
   <main>{body_main}</main>
-  <footer><p>Updated {esc(updated)} Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+  <footer><p>Updated {esc(updated)} Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · <a href="changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
   </footer>
 </body>
@@ -769,11 +839,19 @@ def patch_lanternworks() -> None:
         f'<a href="{BASE}/categories/serp-apis/">serp-apis</a> · '
         f'<a href="{BASE}/categories/gpu-compute/">gpu-compute</a> · '
         f'<a href="{BASE}/categories/email-apis/">email-apis</a> · '
-        f'<a href="{BASE}/">all deals</a></p>\n'
+        f'<a href="{BASE}/">all deals</a> · '
+        f'<a href="{BASE}/changelog/">changelog</a></p>\n'
         f'    <p class="meta">Stack guides: {guide_links}</p>\n'
     )
     if marker in text:
-        text = re.sub(r"<!-- seo-hubs -->.*?</p>\n", block, text, count=1, flags=re.S)
+        # Replace marker + following consecutive .meta paragraphs (avoids leaving duplicates).
+        text = re.sub(
+            r"<!-- seo-hubs -->(?:\s*<p class=\"meta\">.*?</p>\n)+",
+            block,
+            text,
+            count=1,
+            flags=re.S,
+        )
     else:
         # insert after lede or after first <h1> block nav
         if '<p class="lede">' in text:
@@ -790,7 +868,107 @@ def patch_lanternworks() -> None:
                 )
         else:
             text = text.replace("</header>", "    " + block + "  </header>", 1)
+    # Changelog link in top nav (idempotent).
+    if 'href="../changelog/"' not in text and 'href="../">All deals</a>' in text:
+        text = text.replace(
+            '<a href="../">All deals</a>',
+            '<a href="../">All deals</a>\n    <a href="../changelog/">Changelog</a>',
+            1,
+        )
+
     path.write_text(text, encoding="utf-8")
+
+
+
+def md_inline_to_html(s: str) -> str:
+    """Minimal markdown inline: [text](url) and **bold** and `code`."""
+    s = esc(s)
+    s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', s)
+    # unescape href we just escaped badly — rebuild properly
+    return s
+
+
+def render_changelog_markdown(md: str) -> str:
+    """Very small markdown→HTML for CHANGELOG.md (headings, lists, paragraphs, links)."""
+    lines = md.splitlines()
+    out: list[str] = []
+    in_ul = False
+
+    def close_ul():
+        nonlocal in_ul
+        if in_ul:
+            out.append("</ul>")
+            in_ul = False
+
+    def inline(s: str) -> str:
+        # links first on raw, then escape remainder via piecewise build
+        parts: list[str] = []
+        pos = 0
+        for m in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|`([^`]+)`", s):
+            if m.start() > pos:
+                parts.append(esc(s[pos:m.start()]))
+            if m.group(1) is not None:
+                parts.append(f'<a href="{esc(m.group(2))}">{esc(m.group(1))}</a>')
+            elif m.group(3) is not None:
+                parts.append(f"<strong>{esc(m.group(3))}</strong>")
+            else:
+                parts.append(f"<code>{esc(m.group(4))}</code>")
+            pos = m.end()
+        if pos < len(s):
+            parts.append(esc(s[pos:]))
+        return "".join(parts)
+
+    for line in lines:
+        if line.startswith("# "):
+            close_ul()
+            continue  # page title supplied by shell
+        if line.startswith("## "):
+            close_ul()
+            out.append(f"<h2>{inline(line[3:].strip())}</h2>")
+            continue
+        if line.startswith("- "):
+            if not in_ul:
+                out.append("<ul>")
+                in_ul = True
+            out.append(f"<li>{inline(line[2:].strip())}</li>")
+            continue
+        if not line.strip():
+            close_ul()
+            continue
+        close_ul()
+        out.append(f"<p>{inline(line.strip())}</p>")
+    close_ul()
+    return "\n".join(out)
+
+
+def write_changelog() -> Path:
+    """Render CHANGELOG.md → changelog/index.html (maintainable append path)."""
+    md_path = ROOT / "CHANGELOG.md"
+    if not md_path.exists():
+        raise RuntimeError("CHANGELOG.md missing — create it before generating")
+    md = md_path.read_text(encoding="utf-8")
+    out_dir = ROOT / "changelog"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    page_url = f"{BASE}/changelog/"
+    title = "Changelog — Lantern Works agent deals"
+    desc = (
+        "What shipped on the Lantern Works agent work-stack deals site: "
+        "new affiliates, guides, feed filters, and SEO updates."
+    )
+    body = f"""
+  <p class="crumbs"><a href="{BASE}/">Home</a> · <a href="{BASE}/lanternworks/">Lantern Works</a> · Changelog</p>
+  <header>
+    <h1>Changelog</h1>
+    <p>Recent ships for agents and humans. Source of truth: <code>CHANGELOG.md</code> in the repo (append new entries at the top; regen with <code>scripts/generate_seo_pages.py</code>).</p>
+  </header>
+  <main class="changelog">
+{render_changelog_markdown(md)}
+  </main>
+"""
+    (out_dir / "index.html").write_text(
+        page_shell(title, desc, page_url, body), encoding="utf-8"
+    )
+    return out_dir / "index.html"
 
 
 def ensure_robots() -> None:
@@ -831,6 +1009,7 @@ def main() -> None:
         guide_slugs.append(guide["slug"])
 
     write_sitemap(deal_slugs, hub_slugs, guide_slugs)
+    write_changelog()
     write_index(deals, feed_updated)
     patch_lanternworks()
     ensure_robots()
@@ -838,7 +1017,8 @@ def main() -> None:
     print(f"deal_pages={len(deal_paths)}")
     print(f"hub_pages={len(hub_paths)}")
     print(f"guide_pages={len(guide_paths)}")
-    print(f"sitemap_urls={2 + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
+    # home + lanternworks + changelog + hubs + guides + deals
+    print(f"sitemap_urls={3 + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
     print(f"deals={len(deals)}")
 
 
