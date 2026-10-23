@@ -59,7 +59,7 @@ CSS = """
     .gotchas a { font-weight: 600; }
   """
 
-CATEGORY_ORDER = ["compute", "email", "hosting", "search", "templates", "unblock"]
+CATEGORY_ORDER = ["compute", "email", "hosting", "proxies", "search", "seo", "templates", "unblock"]
 
 CATEGORY_HUB_SLUG = {"email": "email-apis"}
 
@@ -121,6 +121,12 @@ HUBS = [
         "title": "Search category hub",
         "description": "Search and crawl API deals for agent research stacks.",
         "match": lambda d: d.get("category") == "search",
+    },
+    {
+        "slug": "seo",
+        "title": "SEO tool deals",
+        "description": "SEO audit, rank tracking, and site-health tool offers for agent and human marketing stacks.",
+        "match": lambda d: d.get("category") == "seo",
     },
     {
         "slug": "templates",
