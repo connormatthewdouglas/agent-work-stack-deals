@@ -44,6 +44,13 @@ CSS = """
 
 CATEGORY_ORDER = ["compute", "email", "hosting", "search", "templates", "unblock"]
 
+CATEGORY_HUB_SLUG = {"email": "email-apis"}
+
+
+def hub_slug(cat):
+    return CATEGORY_HUB_SLUG.get(cat, cat)
+
+
 HUBS = [
     {
         "slug": "scraping-unblock",
@@ -345,7 +352,7 @@ def write_deal_page(deal: dict, feed_updated: str) -> Path:
     for hub in HUBS:
         if hub["match"](deal):
             hub_links.append(f'<a href="{BASE}/categories/{hub["slug"]}/">{esc(hub["slug"])}</a>')
-    hubs_nav = " · ".join(hub_links[:4]) if hub_links else f'<a href="{BASE}/categories/{esc(deal.get("category") or "compute")}/">{esc(deal.get("category"))}</a>'
+    hubs_nav = " · ".join(hub_links[:4]) if hub_links else f'<a href="{BASE}/categories/{esc(hub_slug(deal.get("category") or "compute"))}/">{esc(deal.get("category"))}</a>'
 
    ""
     if deal.get("affiliate") and deal.get("") is not None:
@@ -435,7 +442,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
         f'<a href="{BASE}/categories/{h["slug"]}/">{esc(h["slug"])}</a>' for h in HUBS[:5]
     )
     cat_nav = " · ".join(
-        f'<a href="#cat-{c}">{c}</a> · <a href="{BASE}/categories/{c}/">{c} hub</a>'
+        f'<a href="#cat-{c}">{c}</a> · <a href="{BASE}/categories/{hub_slug(c)}/">{c} hub</a>'
         for c in CATEGORY_ORDER
         if c in by_cat
     )
