@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-23 — Comparison / gotcha notes on deal pages
+
+- Every `deals/*/index.html` page now has a **Before you redeem** box.
+- Durable curated notes live in [`data/deal_gotchas.json`](../data/deal_gotchas.json); `scripts/generate_seo_pages.py` merges them with auto-rules from feed fields (`promo_code`, `payout_status`, `commission_type`, `unit`, `claim_note`, `notes`) and affiliate↔free twin cross-links.
+- High-value quirks covered: CleanProxies credit payout, ScraperAPI trial/free trap, Postmark & Firecrawl twins, Snov/ClearBounce floated, RunPod credits, Lightning Proxies commission TBD.
+
 ## 2026-10-23 — Freshness badges + affiliates-first ranking
 
 - Deal pages and listing cards show **Updated** dates from feed `updated_at` when present (no invented dates); **New** / **Updated** badges for recent timestamps (~7–14 days).

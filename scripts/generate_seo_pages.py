@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEALS_PATH = ROOT / "deals.json"
+GOTCHAS_PATH = ROOT / "data" / "deal_gotchas.json"
 BASE = "https://connormatthewdouglas.github.io/agent-work-stack-deals"
 LASTMOD = "2026-10-23"
 VERIFIED = "2026-10-23"
@@ -51,6 +52,11 @@ CSS = """
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
   """
 
 CATEGORY_ORDER = ["compute", "email", "hosting", "search", "templates", "unblock"]
@@ -269,6 +275,227 @@ def sort_deals_affiliates_first(deals: list[dict]) -> list[dict]:
     indexed = list(enumerate(deals))
     indexed.sort(key=lambda iv: (0 if iv[1].get("affiliate") is True else 1, iv[0]))
     return [d for _, d in indexed]
+
+
+
+def load_curated_gotchas() -> dict[str, list[str]]:
+    """Load durable curated notes from data/deal_gotchas.json (keyed by deal id)."""
+    if not GOTCHAS_PATH.exists():
+        return {}
+    raw = json.loads(GOTCHAS_PATH.read_text(encoding="utf-8"))
+    out: dict[str, list[str]] = {}
+    for k, v in raw.items():
+        if k.startswith("_"):
+            continue
+        if isinstance(v, list):
+            out[k] = [str(x).strip() for x in v if str(x).strip()]
+        elif isinstance(v, str) and v.strip():
+            out[k] = [v.strip()]
+    return out
+
+
+def brand_key(deal: dict) -> str:
+    adv = (deal.get("advertiser") or "").strip().lower()
+    if adv:
+        return adv
+    title = deal.get("title") or ""
+    return title.split("—")[0].strip().lower()
+
+
+def is_free_tierish(deal: dict) -> bool:
+    if deal.get("affiliate") is True:
+        return False
+    tags = [str(t).lower() for t in (deal.get("tags") or [])]
+    if any(t in tags for t in ("free-tier", "non-affiliate", "public")):
+        return True
+    unit = (deal.get("unit") or "").lower()
+    return "free" in unit
+
+
+def build_twin_index(deals: list[dict]) -> dict[str, list[dict]]:
+    """Map deal id -> sibling free/affiliate deals sharing the same advertiser/brand."""
+    by_brand: dict[str, dict[str, list[dict]]] = defaultdict(lambda: {"aff": [], "free": []})
+    for d in deals:
+        if is_example(d):
+            continue
+        key = brand_key(d)
+        if not key:
+            continue
+        if d.get("affiliate") is True:
+            by_brand[key]["aff"].append(d)
+        elif is_free_tierish(d):
+            by_brand[key]["free"].append(d)
+    twins: dict[str, list[dict]] = {}
+    for groups in by_brand.values():
+        if not groups["aff"] or not groups["free"]:
+            continue
+        for a in groups["aff"]:
+            twins[a["id"]] = list(groups["free"])
+        for f in groups["free"]:
+            twins[f["id"]] = list(groups["aff"])
+    return twins
+
+
+def _dedupe_notes(notes: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for n in notes:
+        key = " ".join(n.lower().split())
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(n)
+    return out
+
+
+def auto_gotchas(deal: dict, twins: list[dict] | None = None) -> list[str]:
+    """Safe baseline caveats derived only from deals.json schema fields."""
+    notes: list[str] = []
+    twins = twins or []
+    promo = deal.get("promo_code")
+    claim = deal.get("claim_note")
+    ctype = str(deal.get("commission_type") or "")
+    ctype_l = ctype.lower()
+    unit = deal.get("unit") or ""
+    unit_l = unit.lower()
+    payout = str(deal.get("payout_status") or "").lower()
+
+    if claim and "apply" in str(claim).lower():
+        notes.append(
+            f"Application / approval required (claim_note: {esc(claim)}) — not a redeemable promo code."
+        )
+    elif promo:
+        notes.append(
+            f"Authorized promo code on this listing: <code>{esc(promo)}</code>. "
+            "Do not invent other codes — use redeem_url with this code only."
+        )
+    else:
+        notes.append(
+            "No promo code on this listing — use the authorized redeem_url / signup link only. Never invent codes."
+        )
+
+    if payout == "floated":
+        notes.append(
+            "Payout quirk: payout_status is floated — affiliate earnings may not be withdrawable until payout setup completes."
+        )
+
+    if "account_credit" in ctype_l or (deal.get("affiliate") and "account credit" in unit_l):
+        detail = esc(ctype or unit)
+        notes.append(
+            f"Payout quirk: commission is account credit ({detail}), not cash/PayPal payout."
+        )
+    elif deal.get("affiliate") and ("credit" in ctype_l):
+        notes.append(
+            f"Payout quirk: rewards are credits ({esc(ctype)}), not cash commission."
+        )
+    elif ctype_l in ("unverified", "tbd") or (
+        deal.get("affiliate") and ("commission tbd" in unit_l or "tbd" in unit_l)
+    ):
+        notes.append(
+            "Commission is TBD / unverified in the feed — do not assume a locked payout rate."
+        )
+
+    if deal.get("affiliate") is True and (
+        "free plan" in unit_l
+        or "free tier" in unit_l
+        or "free signup" in unit_l
+        or "trial" in unit_l
+    ):
+        notes.append(
+            f"Free-tier / trial trap: unit notes say “{esc(unit)}” — confirm limits before relying on free usage for production agent load."
+        )
+
+    if is_free_tierish(deal) and unit:
+        notes.append(
+            f"Free-tier limits: {esc(unit)}. Outgrowing free usually means a paid plan — check any affiliate twin on this board before inventing coupons."
+        )
+
+    for sib in twins:
+        slug = slug_for(sib["id"])
+        href = f"{BASE}/deals/{slug}/"
+        label = esc(sib.get("title") or sib["id"])
+        if deal.get("affiliate") is True and is_free_tierish(sib):
+            notes.append(
+                f'Affiliate vs free twin: compare with <a href="{href}">{label}</a> before paying.'
+            )
+        elif is_free_tierish(deal) and sib.get("affiliate") is True:
+            notes.append(
+                f'Free vs paid twin: when you need volume, see affiliate listing <a href="{href}">{label}</a> (authorized redeem link only).'
+            )
+
+    raw_notes = deal.get("notes")
+    if isinstance(raw_notes, str) and raw_notes.strip():
+        snippet = " ".join(raw_notes.strip().split())
+        if len(snippet) > 180:
+            snippet = snippet[:177].rstrip() + "…"
+        low = snippet.lower()
+        if any(w in low for w in ("payout", "floated", "credit", "commission", "tracking", "slug", "referral")):
+            notes.append(f"Feed notes: {esc(snippet)}")
+
+    return _dedupe_notes(notes)
+
+
+def _theme_flags(text: str) -> set[str]:
+    low = text.lower()
+    flags: set[str] = set()
+    if any(w in low for w in ("promo code", "no promo", "invent", "redeem_url", "authorized referral", "authorized redeem")):
+        flags.add("promo")
+    if "floated" in low or "payout" in low:
+        flags.add("payout")
+    if "account credit" in low or ("credit" in low and "free" not in low.split("credit")[0][-20:]):
+        if "account credit" in low or "credits" in low or "credit referral" in low or "rewards are credits" in low:
+            flags.add("credit")
+    if "tbd" in low or "unverified" in low:
+        flags.add("tbd")
+    if any(w in low for w in ("free-tier", "free tier", "trial trap", "free plan", "free signup", "free-tier limits", "free developer")):
+        flags.add("free")
+    if "twin" in low or "compare with" in low or "when you need volume" in low:
+        flags.add("twin")
+    if low.startswith("feed notes:"):
+        flags.add("feed_notes")
+    if "application" in low and "apply" in low:
+        flags.add("apply")
+    return flags
+
+
+def collect_gotchas(
+    deal: dict,
+    curated: dict[str, list[str]],
+    twin_index: dict[str, list[dict]],
+) -> list[str]:
+    """Curated notes first (escaped); auto-rules fill gaps only (theme-aware)."""
+    curated_html = [esc(n) for n in (curated.get(deal["id"]) or [])]
+    covered: set[str] = set()
+    for n in curated_html:
+        covered |= _theme_flags(n)
+    auto = auto_gotchas(deal, twin_index.get(deal["id"]))
+    extras = []
+    for n in auto:
+        themes = _theme_flags(n)
+        # Keep cross-link HTML and feed_notes even when curated already spoke to the theme.
+        if '<a href=' in n or "feed_notes" in themes:
+            extras.append(n)
+            covered |= themes
+            continue
+        if themes and themes & covered:
+            continue
+        extras.append(n)
+        covered |= themes
+    return _dedupe_notes(curated_html + extras)
+
+
+def gotchas_html(notes: list[str]) -> str:
+    if not notes:
+        return ""
+    items = "\n".join(f"      <li>{n}</li>" for n in notes)
+    return f"""
+    <aside class="gotchas" aria-label="Before you redeem">
+      <h2>Before you redeem</h2>
+      <ul>
+{items}
+      </ul>
+    </aside>
+"""
 
 
 def parse_deal_updated(deal: dict) -> datetime | None:
@@ -516,7 +743,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 """
 
 
-def write_deal_page(deal: dict, feed_updated: str) -> Path:
+def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str, list[str]] | None = None, twin_index: dict[str, list[dict]] | None = None) -> Path:
     slug = slug_for(deal["id"])
     out_dir = ROOT / "deals" / slug
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -542,6 +769,9 @@ def write_deal_page(deal: dict, feed_updated: str) -> Path:
 
     _, fresh_line = freshness_bits(deal)
 
+    gnotes = collect_gotchas(deal, curated_gotchas or {}, twin_index or {})
+    gbox = gotchas_html(gnotes)
+
     body = f"""
   <p class="crumbs"><a href="{BASE}/">Home</a> · <a href="{BASE}/lanternworks/">Lantern Works</a> · {hubs_nav}</p>
   <article class="deal" id="{esc(deal['id'])}">
@@ -553,6 +783,7 @@ def write_deal_page(deal: dict, feed_updated: str) -> Path:
     <p class="verified">Verified-on: {esc(verified)}</p>
     <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
     <p class="redeem">{cta_html(deal)}</p>
+    {gbox}
     {"<p><em>Sample inventory placeholder — not a live merchant offer.</em></p>" if example else ""}
   </article>
   <script type="application/ld+json">
@@ -986,10 +1217,18 @@ def main() -> None:
     deals = feed["deals"]
     feed_updated = feed.get("updated_at") or VERIFIED
 
+    curated_gotchas = load_curated_gotchas()
+    twin_index = build_twin_index(deals)
+
     deal_paths = []
     deal_slugs = []
     for d in deals:
-        p = write_deal_page(d, feed_updated)
+        p = write_deal_page(
+            d,
+            feed_updated,
+            curated_gotchas=curated_gotchas,
+            twin_index=twin_index,
+        )
         deal_paths.append(p)
         deal_slugs.append(slug_for(d["id"]))
 
