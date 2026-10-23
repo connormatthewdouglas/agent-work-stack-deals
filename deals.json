@@ -1,9 +1,9 @@
 {
   "feed_version": "0.1.0",
   "title": "Agent work-stack deal feed",
-  "description": "Public read-only JSON feed of agent-oriented offers for compute, unblock/scraping, search, hosting, and templates. Includes live affiliates (Firecrawl, ScraperAPI, Scrape.do, Scrapingdog, ScrapingAnt, ProxyScrape, RunPod credit referral, Postmark) plus public/non-affiliate free tiers and vendor-published coupons. Rows with example:true are synthetic smoke-test inventory.",
+  "description": "Public read-only JSON feed of agent-oriented offers for compute, unblock/scraping, search, hosting, and templates. Includes live affiliates (Firecrawl, ScraperAPI, Scrape.do, Scrapingdog, ScrapingAnt, ProxyScrape, RunPod credit referral, Postmark, Better Stack) plus public/non-affiliate free tiers and vendor-published coupons. Rows with example:true are synthetic smoke-test inventory.",
   "access": "public-read-only",
-  "updated_at": "2026-10-23T15:20:54-04:00",
+  "updated_at": "2026-10-23T15:26:15-04:00",
   "query": {
     "how": "GET this JSON. Filter locally by category, agent_only, max_price_usd, or tags. No auth.",
     "categories": [
@@ -1369,6 +1369,31 @@
       "redeem_url": "https://console.groq.com/docs/rate-limits",
       "source_url": "https://console.groq.com/docs/rate-limits",
       "agent_instructions": "Create a Groq account and use Free plan rate limits for agent LLM calls. Check current Free Plan Limits table per model; upgrade if you hit 429s."
+    },
+    {
+      "id": "deal-betterstack-001",
+      "title": "Better Stack — uptime, logs, incidents (affiliate)",
+      "category": "hosting",
+      "tags": [
+        "uptime",
+        "logs",
+        "observability",
+        "affiliate",
+        "betterstack"
+      ],
+      "agent_only": false,
+      "example": false,
+      "affiliate": true,
+      "advertiser": "Better Stack",
+      "price_usd": 0,
+      "unit": "paid uptime/logs plans; 25% affiliate net revenue first year",
+      "list_price_usd": null,
+      "promo_code": null,
+      "commission_pct": 0.25,
+      "commission_type": "revshare",
+      "redeem_url": "https://betterstack.com/?ref=b-jo4b",
+      "expires_at": null,
+      "agent_instructions": "Sign up via the redeem_url affiliate link for Better Stack (uptime, logs, incidents). Only use this authorized affiliate link. Lantern Works ref: b-jo4b (system, not customizable). Commission: 25% of net revenue for referred customer's first year."
     }
   ]
 }
