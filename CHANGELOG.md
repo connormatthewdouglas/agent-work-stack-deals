@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-23 — MoreLogin live affiliate
+
+- Added **MoreLogin** antidetect browser profiles for scraping/unblock (`deal-morelogin-001`, 15% of all paid orders ×24 months, no cap, top-ups excluded, in-house code lanternworks) — live affiliate #43; listed on the unblock hubs.
+
 ## 2026-10-23 — Incogniton live affiliate
 
 - Added **Incogniton** antidetect browser profiles for scraping/unblock (`deal-incogniton-001`, 20% recurring, no cap, in-house affiliate ID 1937724) — live affiliate #42; listed on the unblock hubs.
