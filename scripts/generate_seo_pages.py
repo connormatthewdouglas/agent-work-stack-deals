@@ -14,6 +14,8 @@ DEALS_PATH = ROOT / "deals.json"
 BASE = "https://connormatthewdouglas.github.io/agent-work-stack-deals"
 LASTMOD = "2026-10-23"
 VERIFIED = "2026-10-23"
+SITE_NAME = "Lantern Works"
+# No dedicated OG share image in the repo — omit og:image / twitter:image.
 
 CSS = """
     :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
@@ -228,6 +230,80 @@ def deal_card(deal: dict, link_mode: str = "page") -> str:
 """
 
 
+
+def social_meta(title: str, description: str, canonical: str, og_type: str = "website") -> str:
+    """Open Graph + Twitter card tags. Absolute https URLs; no invented og:image."""
+    return f"""  <meta property="og:title" content="{esc(title)}" />
+  <meta property="og:description" content="{esc(description)}" />
+  <meta property="og:url" content="{esc(canonical)}" />
+  <meta property="og:type" content="{esc(og_type)}" />
+  <meta property="og:site_name" content="{esc(SITE_NAME)}" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="{esc(title)}" />
+  <meta name="twitter:description" content="{esc(description)}" />"""
+
+
+def homepage_json_ld(deals: list[dict]) -> str:
+    """WebSite + Organization + CollectionPage/ItemList for the deals board."""
+    org_id = f"{BASE}/#organization"
+    website_id = f"{BASE}/#website"
+    items = []
+    position = 0
+    for d in deals:
+        if is_example(d):
+            continue
+        position += 1
+        slug = slug_for(d["id"])
+        items.append(
+            {
+                "@type": "ListItem",
+                "position": position,
+                "url": f"{BASE}/deals/{slug}/",
+                "name": d.get("title"),
+            }
+        )
+    graph = [
+        {
+            "@type": "Organization",
+            "@id": org_id,
+            "name": SITE_NAME,
+            "url": f"{BASE}/",
+            "email": "lanternworks@agentmail.to",
+            "description": (
+                "Affiliate-backed and public free-tier deals for AI agent work stacks "
+                "(compute, search, crawl, hosting, email, unblock)."
+            ),
+        },
+        {
+            "@type": "WebSite",
+            "@id": website_id,
+            "name": "Agent work-stack deals",
+            "url": f"{BASE}/",
+            "description": (
+                "Deals for AI agents: compute, scrapers/unblock, templates, search APIs, hosting. "
+                "Affiliate-backed offers + machine-readable JSON feed."
+            ),
+            "publisher": {"@id": org_id},
+            "inLanguage": "en",
+        },
+        {
+            "@type": "CollectionPage",
+            "@id": f"{BASE}/#collection",
+            "name": "Agent work-stack deals",
+            "url": f"{BASE}/",
+            "isPartOf": {"@id": website_id},
+            "about": {"@id": org_id},
+            "mainEntity": {
+                "@type": "ItemList",
+                "name": "Lantern Works agent deals",
+                "numberOfItems": len(items),
+                "itemListElement": items,
+            },
+        },
+    ]
+    return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=2)
+
+
 def page_shell(title: str, description: str, canonical: str, body: str, robots: str = "index,follow") -> str:
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -238,6 +314,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
   <meta name="description" content="{esc(description)}" />
   <meta name="robots" content="{esc(robots)}" />
   <link rel="canonical" href="{esc(canonical)}" />
+{social_meta(title, description, canonical)}
   <style>{CSS}</style>
 </head>
 <body>
@@ -374,6 +451,11 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
 
     body_main = "\n".join(sections)
     updated = feed_updated or datetime.now().astimezone().isoformat(timespec="seconds")
+    index_title = "Agent work-stack deals — compute, unblock, templates, search, hosting"
+    index_desc = (
+        "Deals for AI agents: compute, scrapers/unblock, templates, search APIs, hosting. "
+        "Affiliate-backed offers + machine-readable JSON feed."
+    )
     html_doc = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -381,10 +463,14 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   <meta name='impact-site-verification' value='594aa2cb-9310-430a-8577-b47b45c91f8f'>
   <meta name="impact-site-verification" content="594aa2cb-9310-430a-8577-b47b45c91f8f" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Agent work-stack deals — compute, unblock, templates, search, hosting</title>
-  <meta name="description" content="Deals for AI agents: compute, scrapers/unblock, templates, search APIs, hosting. Affiliate-backed offers + machine-readable JSON feed." />
+  <title>{esc(index_title)}</title>
+  <meta name="description" content="{esc(index_desc)}" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="{BASE}/" />
+{social_meta(index_title, index_desc, f"{BASE}/")}
+  <script type="application/ld+json">
+{homepage_json_ld(deals)}
+  </script>
   <style>{CSS}</style>
 </head>
 <body>
@@ -411,6 +497,36 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
 def patch_lanternworks() -> None:
     path = ROOT / "lanternworks" / "index.html"
     text = path.read_text(encoding="utf-8")
+    lw_title = "Lantern Works — agent work-stack deals"
+    lw_desc = (
+        "Lantern Works: human-readable deals for AI agents (and humans directing them). "
+        "Affiliate-backed compute, search, crawl, hosting, templates, and unblock tools."
+    )
+    lw_url = f"{BASE}/lanternworks/"
+    social = social_meta(lw_title, lw_desc, lw_url)
+    # Idempotent: wrap social tags in markers so regen replaces cleanly.
+    begin, end_m = "<!-- seo-social -->", "<!-- /seo-social -->"
+    block = f"{begin}\n{social}\n  {end_m}"
+    if begin in text and end_m in text:
+        text = re.sub(
+            re.escape(begin) + r".*?" + re.escape(end_m),
+            block,
+            text,
+            count=1,
+            flags=re.S,
+        )
+    else:
+        # Drop any prior bare OG/Twitter metas before re-inserting.
+        text = re.sub(
+            r'[ \t]*<meta (?:property="og:[^"]+"|name="twitter:[^"]+") content="[^"]*" />\n',
+            "",
+            text,
+        )
+        needle = f'<link rel="canonical" href="{lw_url}" />'
+        if needle not in text:
+            raise RuntimeError("lanternworks canonical link missing")
+        text = text.replace(needle, needle + "\n  " + block, 1)
+
     marker = "<!-- seo-hubs -->"
     block = (
         f'{marker}\n    <p class="meta">Browse by hub: '
