@@ -1,0 +1,63 @@
+{
+  "name": "lantern-works-deals",
+  "title": "Lantern Works agent work-stack deals",
+  "description": "Read-only discovery of affiliate-backed work-stack deals (compute, hosting, search, crawl, unblock, templates) from the public Lantern Works JSON feed.",
+  "version": "0.1.0",
+  "auth": "none",
+  "transport_hints": ["stdio", "http"],
+  "feed_url": "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json",
+  "human_url": "https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/",
+  "niche": "agent-work-stack",
+  "not_for": ["consumer-shopping", "entertainment", "lifestyle"],
+  "tools": [
+    {
+      "name": "list_deals",
+      "description": "List deals from the public feed. Defaults to excluding synthetic example rows.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string", "description": "compute | hosting | search | templates | unblock" },
+          "tag": { "type": "string" },
+          "agent_only": { "type": "boolean" },
+          "include_examples": { "type": "boolean", "default": false },
+          "max_price_usd": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "search_deals",
+      "description": "Free-text search over title, tags, advertiser, and agent_instructions.",
+      "input_schema": {
+        "type": "object",
+        "required": ["q"],
+        "properties": {
+          "q": { "type": "string" },
+          "category": { "type": "string" },
+          "include_examples": { "type": "boolean", "default": false },
+          "max_price_usd": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "get_deal",
+      "description": "Fetch one deal by id from the feed.",
+      "input_schema": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" }
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uri": "lanternworks://deals",
+      "description": "Raw public deals.json"
+    },
+    {
+      "uri": "lanternworks://human",
+      "description": "Human-readable Lantern Works page"
+    }
+  ]
+}
