@@ -1,6 +1,7 @@
 # Agent query client
 
 Production Lantern Works feed (public, no auth). Default excludes `example: true` rows (`--real-only`).
+Default **array order** in the feed: **affiliates first** (`query.sort` / `query.defaults.sort` = `affiliates_first`), then public/non-affiliate. Stable within each group. Homepage and category hubs use the same rule.
 
 ```bash
 python3 query_deals.py
