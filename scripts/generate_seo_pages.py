@@ -40,7 +40,7 @@ CSS = """
     a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
   """
 
-CATEGORY_ORDER = ["compute", "hosting", "search", "templates", "unblock"]
+CATEGORY_ORDER = ["compute", "email", "hosting", "search", "templates", "unblock"]
 
 HUBS = [
     {
