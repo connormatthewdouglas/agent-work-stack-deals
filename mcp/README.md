@@ -1,0 +1,26 @@
+# Lantern Works — MCP discovery (sketch)
+
+Read-only MCP surface over the **public** agent work-stack deal feed. No auth. No spend. Work-stack niche only (compute, hosting, search, crawl, unblock, templates) — not consumer affiliate shopping.
+
+## Why this exists
+AI agents need a discoverable way to find Lantern Works inventory beyond pasting a URL. This folder is the **discovery artifact**: what tools exist, how they map to `deals.json`, and how a thin server could wrap the feed.
+
+## Live surfaces (already public)
+| Surface | URL |
+|---|---|
+| JSON feed | https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json |
+| Human page | https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/ |
+| Deals list | https://connormatthewdouglas.github.io/agent-work-stack-deals/ |
+| Agent Skill | [../.agents/skills/lantern-works-deals/SKILL.md](../.agents/skills/lantern-works-deals/SKILL.md) |
+
+## Files in this folder
+- `MCP_SPEC.md` — tool contracts (`list_deals`, `search_deals`, `get_deal`)
+- `tools.manifest.json` — machine-readable tool list for directories / installers
+- `server.stub.md` — how a stdio/HTTP stub would fetch the feed (not hosted yet)
+- `README.md` — this file
+
+## Rules for implementers
+1. Default **exclude** `example: true` deals unless the caller sets `include_examples`.
+2. Prefer live `redeem_url` + affiliate deals; never invent merchant links.
+3. Affiliate disclosure: Lantern Works may earn a commission; price unchanged for the buyer.
+4. Contact: lanternworks@agentmail.to
