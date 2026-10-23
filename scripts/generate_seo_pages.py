@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate per-deal pages, category hubs, sitemap, and refresh index.html from deals.json."""
+"""Generate per-deal pages, category hubs, stack guides, sitemap, and refresh index.html from deals.json."""
 from __future__ import annotations
 
 import html
@@ -118,6 +118,118 @@ HUBS = [
         "match": lambda d: d.get("category") == "unblock",
     },
 ]
+
+# Curated Best-for-X stack guides (not a coupon dump). Picks reference deals.json ids;
+# redeem URLs always come from the live deal record at generate time.
+GUIDES = [
+    {
+        "slug": "agent-scrape-unblock",
+        "title": "Best agent scrape & unblock stack",
+        "description": (
+            "A short Lantern Works stack guide: scrape/unblock APIs plus a proxy layer "
+            "agents actually use — curated picks with authorized redeem links."
+        ),
+        "intro": (
+            "Agents that fetch the live web need a scrape or unblock API and, often, a "
+            "proxy layer. This guide is a short curated stack from the Lantern Works "
+            "agent work-stack directory — not a coupon dump. Each pick links to its deal "
+            "page; redeem only through that deal’s authorized URL."
+        ),
+        "picks": [
+            {
+                "id": "deal-scrapedo-001",
+                "why": "Simple scrape/unblock API with strong agent-friendly docs — a solid default when you need JS rendering and anti-bot handling without assembling proxies yourself.",
+            },
+            {
+                "id": "deal-scrapingdog-001",
+                "why": "Budget-friendly scrape/unblock API that covers SERP and general page fetch — useful when agents need many cheap requests with a single integration.",
+            },
+            {
+                "id": "deal-scrapeops-001",
+                "why": "Proxy routing and scrape ops tooling that helps agents fail over across providers instead of hard-coding one unblock endpoint.",
+            },
+            {
+                "id": "deal-scrapingant-001",
+                "why": "Browser-backed scraping API for pages that need a real rendering stack — good when headless fetch alone is not enough.",
+            },
+            {
+                "id": "deal-proxyscrape-001",
+                "why": "Proxy layer with a lanternworks referral — pair with a scrape API when you want to bring your own IPs or rotate residential/datacenter pools.",
+            },
+        ],
+    },
+    {
+        "slug": "cheap-gpu-week",
+        "title": "Cheap GPU week for agents",
+        "description": (
+            "A short Lantern Works stack guide to affordable GPU and inference for agent "
+            "runtimes — curated affiliate picks plus one labeled free-tier option."
+        ),
+        "intro": (
+            "When an agent needs a burst of GPU for fine-tunes, inference, or sandboxed "
+            "jobs, spot and marketplace GPUs beat always-on cloud. Here are a few curated "
+            "compute picks from the Lantern Works directory. Affiliate links are authorized; "
+            "the free-tier option is labeled and non-affiliate."
+        ),
+        "picks": [
+            {
+                "id": "deal-runpod-001",
+                "why": "On-demand and serverless GPU pods with a referral credit path — fast to spin up for agent workers that need a known GPU SKU for a few hours or days.",
+            },
+            {
+                "id": "deal-vastai-001",
+                "why": "Marketplace pricing on community and datacenter GPUs — often the cheapest week when you can tolerate variable hosts and shop by $/hr.",
+            },
+            {
+                "id": "deal-novita-001",
+                "why": "GPU inference API for agents that want a hosted model endpoint instead of managing a raw GPU instance.",
+            },
+            {
+                "id": "deal-modal-free-001",
+                "why": "Public Starter free compute credit (non-affiliate) — useful for prototyping agent jobs before you move heavier workloads to paid GPU providers.",
+                "label": "free / public · non-affiliate",
+            },
+        ],
+    },
+    {
+        "slug": "agent-email-outreach",
+        "title": "Best agent email & outreach stack",
+        "description": (
+            "A short Lantern Works stack guide for agent email: find/verify, transactional "
+            "send, and optional free inboxes — curated picks with authorized redeem links."
+        ),
+        "intro": (
+            "Outbound and transactional email for agents usually needs find/verify plus a "
+            "reliable send API (and sometimes a dedicated agent inbox). This curated stack "
+            "from the Lantern Works directory keeps affiliate redeem links authorized and "
+            "calls out free/public tiers when they help agents start without a card."
+        ),
+        "picks": [
+            {
+                "id": "deal-snovio-001",
+                "why": "Email finder, verifier, and outreach in one stack — practical when an agent needs leads plus deliverability checks before send.",
+            },
+            {
+                "id": "deal-clearbounce-001",
+                "why": "Email verification API to keep agent lists clean — reduces bounces before you burn transactional quota.",
+            },
+            {
+                "id": "deal-postmark-001",
+                "why": "Transactional email API with strong deliverability — a solid send layer for agent receipts, alerts, and sequenced outreach.",
+            },
+            {
+                "id": "deal-smtp2go-001",
+                "why": "SMTP/API send with straightforward agent integration — good backup or primary transactional path alongside Postmark.",
+            },
+            {
+                "id": "deal-agentmail-free-001",
+                "why": "Free agent inbox tier (non-affiliate) — useful when the agent itself needs inbound mailboxes rather than only outbound SMTP.",
+                "label": "free / public · non-affiliate",
+            },
+        ],
+    },
+]
+
 
 
 def esc(s) -> str:
@@ -409,13 +521,76 @@ def write_hub(hub: dict, deals: list[dict]) -> Path:
     return out_dir / "index.html"
 
 
-def write_sitemap(deal_slugs: list[str], hub_slugs: list[str]) -> Path:
+def write_guide(guide: dict, by_id: dict[str, dict]) -> Path:
+    """Write a curated Best-for-X stack guide under guides/<slug>/."""
+    missing = [p["id"] for p in guide["picks"] if p["id"] not in by_id]
+    if missing:
+        raise RuntimeError(f"guide {guide['slug']}: missing deals {missing}")
+    out_dir = ROOT / "guides" / guide["slug"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    page_url = f"{BASE}/guides/{guide['slug']}/"
+    items = []
+    for i, pick in enumerate(guide["picks"], 1):
+        deal = by_id[pick["id"]]
+        slug = slug_for(deal["id"])
+        deal_page = f"{BASE}/deals/{slug}/"
+        label = pick.get("label")
+        label_html = f' <span class="badge public">{esc(label)}</span>' if label else ""
+        # Redeem only via authorized URL from deals.json
+        redeem = cta_html(deal)
+        items.append(
+            f"""    <section class="deal" id="pick-{i}">
+      <h2>{i}. <a href="{deal_page}">{esc(deal.get("title"))}</a>{label_html} {badges(deal)}</h2>
+      <p class="why"><strong>Why:</strong> {esc(pick["why"])}</p>
+      <p class="meta"><a href="{deal_page}">Deal page</a> · {esc(deal.get("advertiser") or "")}</p>
+      <p class="redeem">{redeem}</p>
+    </section>
+"""
+        )
+    picks_html = "\n".join(items)
+    body = f"""
+  <p class="crumbs"><a href="{BASE}/">Home</a> · <a href="{BASE}/lanternworks/">Lantern Works</a> · Stack guides</p>
+  <header>
+    <h1>{esc(guide["title"])}</h1>
+    <p>{esc(guide["intro"])}</p>
+    <p class="meta">{len(guide["picks"])} curated picks · lastmod {LASTMOD}</p>
+  </header>
+  <main>
+{picks_html}
+  </main>
+  <p class="meta">More stacks: """ + " · ".join(
+        f'<a href="{BASE}/guides/{g["slug"]}/">{esc(g["title"])}</a>'
+        for g in GUIDES
+        if g["slug"] != guide["slug"]
+    ) + f""" · <a href="{BASE}/">all deals</a></p>
+"""
+    (out_dir / "index.html").write_text(
+        page_shell(f'{guide["title"]} — Lantern Works', guide["description"], page_url, body),
+        encoding="utf-8",
+    )
+    return out_dir / "index.html"
+
+
+def guides_nav_html() -> str:
+    links = " · ".join(
+        f'<a href="{BASE}/guides/{g["slug"]}/">{esc(g["title"])}</a>' for g in GUIDES
+    )
+    return (
+        f'<nav class="stack-guides" style="margin-top:.5rem;">'
+        f'<strong>Stack guides:</strong> {links}</nav>'
+    )
+
+
+
+def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list[str] | None = None) -> Path:
     urls = [
         (f"{BASE}/", "1.0"),
         (f"{BASE}/lanternworks/", "0.8"),
     ]
     for s in hub_slugs:
         urls.append((f"{BASE}/categories/{s}/", "0.7"))
+    for s in (guide_slugs or []):
+        urls.append((f"{BASE}/guides/{s}/", "0.75"))
     for s in deal_slugs:
         urls.append((f"{BASE}/deals/{s}/", "0.6"))
     lines = [
@@ -487,6 +662,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Ranking is not pure</p>
     <nav>Jump: {cat_nav}</nav>
     <nav style="margin-top:.35rem;">Hubs: {hub_nav}</nav>
+    {guides_nav_html()}
     <p class="feed"><strong>Agents:</strong> GET <a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
   <main>{body_main}</main>
@@ -535,6 +711,9 @@ def patch_lanternworks() -> None:
         text = text.replace(needle, needle + "\n  " + block, 1)
 
     marker = "<!-- seo-hubs -->"
+    guide_links = " · ".join(
+        f'<a href="{BASE}/guides/{g["slug"]}/">{esc(g["title"])}</a>' for g in GUIDES
+    )
     block = (
         f'{marker}\n    <p class="meta">Browse by hub: '
         f'<a href="{BASE}/categories/scraping-unblock/">scraping-unblock</a> · '
@@ -543,6 +722,7 @@ def patch_lanternworks() -> None:
         f'<a href="{BASE}/categories/gpu-compute/">gpu-compute</a> · '
         f'<a href="{BASE}/categories/email-apis/">email-apis</a> · '
         f'<a href="{BASE}/">all deals</a></p>\n'
+        f'    <p class="meta">Stack guides: {guide_links}</p>\n'
     )
     if marker in text:
         text = re.sub(r"<!-- seo-hubs -->.*?</p>\n", block, text, count=1, flags=re.S)
@@ -594,14 +774,23 @@ def main() -> None:
         hub_paths.append(p)
         hub_slugs.append(hub["slug"])
 
-    write_sitemap(deal_slugs, hub_slugs)
+    by_id = {d["id"]: d for d in deals}
+    guide_paths = []
+    guide_slugs = []
+    for guide in GUIDES:
+        p = write_guide(guide, by_id)
+        guide_paths.append(p)
+        guide_slugs.append(guide["slug"])
+
+    write_sitemap(deal_slugs, hub_slugs, guide_slugs)
     write_index(deals, feed_updated)
     patch_lanternworks()
     ensure_robots()
 
     print(f"deal_pages={len(deal_paths)}")
     print(f"hub_pages={len(hub_paths)}")
-    print(f"sitemap_urls={2 + len(hub_slugs) + len(deal_slugs)}")
+    print(f"guide_pages={len(guide_paths)}")
+    print(f"sitemap_urls={2 + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
     print(f"deals={len(deals)}")
 
 
