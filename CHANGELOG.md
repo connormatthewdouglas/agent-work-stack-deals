@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — Unreal Speech live affiliate
+
+; listed on the ai-agents hub alongside voice-agent platforms.
+
 ## 2026-10-24 — BuildShip live affiliate
 
 ; listed on the ai-agents hub.
