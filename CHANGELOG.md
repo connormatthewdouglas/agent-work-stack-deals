@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — Quickchat AI live affiliate
+
+- Added **Quickchat AI** no-code AI agent / chatbot builder (`deal-quickchat-001`, 20% recurring per paid referral for 12 months, via Tolt ref lanternworks) — live affiliate #48; listed on the ai-agents hub.
+
 ## 2026-10-23 — AI agents hub + Chipp and Chatbase live affiliates
 
 - New **AI agent platform deals** hub at [`categories/ai-agents/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/categories/ai-agents/) for agent builders, chatbot platforms, and general AI agents; **Runable** moved there from templates.
