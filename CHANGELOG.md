@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — GigaGPU live affiliate
+
+- Added **GigaGPU** dedicated bare-metal GPU servers (`deal-gigagpu-001`, $40 flat per GPU server order, in-house WHMCS aff=44) — live affiliate #71; listed on the compute hub.
+
 ## 2026-10-24 — Uptimewolf live affiliate
 
 ; listed on the hosting hub alongside Better Stack.
