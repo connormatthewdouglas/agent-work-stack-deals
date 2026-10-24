@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — Zapmail live affiliate
+
+; listed on the email-apis hub.
+
 ## 2026-10-24 — Salesforge (+ Mailforge) live affiliate
 
 - Added **Salesforge** cold-email + AI SDR suite (`deal-salesforge-001`, 15% across all Forge products up to 12 months, via Tolt via=lanternworks; same slug on mailforge.ai) — live affiliate #61; listed on the email-apis hub.
