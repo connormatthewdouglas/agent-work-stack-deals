@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — Relay (burner mailboxes) live affiliate
+
+- Added **Relay (burner mailboxes)** cold-outreach mailbox provider at userelay.app (`deal-relay-mailboxes-001`, 50% per paid referral, duration not stated, via Tolt ref lanternworks) — live affiliate #51; listed on the email-apis hub. Not affiliated with relay.app.
+
 ## 2026-10-24 — Botpress live affiliate; Vapi terms
 
 - Added **Botpress** AI agent builder (`deal-botpress-001`, 30% of referred spend for 12 months excl. AI usage, via PartnerStack) — live affiliate #50; listed on the ai-agents hub.
