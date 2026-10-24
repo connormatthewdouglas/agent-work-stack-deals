@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — GetSales live affiliate
+
+; listed on the email-apis hub.
+
 ## 2026-10-24 — Botdog live affiliate
 
 ; listed on the email-apis hub alongside the outreach tools.
