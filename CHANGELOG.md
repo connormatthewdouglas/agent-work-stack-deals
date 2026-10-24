@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — Vapi live affiliate
+
+- Added **Vapi** voice AI agents API (`deal-vapi-001`, 15% per paid referral, duration unconfirmed, via Tolt aff lanternworks) — live affiliate #49; listed on the ai-agents hub.
+
 ## 2026-10-24 — Quickchat AI live affiliate
 
 - Added **Quickchat AI** no-code AI agent / chatbot builder (`deal-quickchat-001`, 20% recurring per paid referral for 12 months, via Tolt ref lanternworks) — live affiliate #48; listed on the ai-agents hub.
