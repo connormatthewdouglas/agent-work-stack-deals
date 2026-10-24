@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — Botpress live affiliate; Vapi terms
+
+; listed on the ai-agents hub.
+- Updated **Vapi** notes with affiliate-portal terms (15% per paid referral; duration and cookie not stated).
+
 ## 2026-10-24 — Vapi live affiliate
 
 ; listed on the ai-agents hub.
