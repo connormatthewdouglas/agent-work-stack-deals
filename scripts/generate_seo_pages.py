@@ -59,7 +59,7 @@ CSS = """
     .gotchas a { font-weight: 600; }
   """
 
-CATEGORY_ORDER = ["compute", "email", "hosting", "proxies", "search", "seo", "templates", "unblock"]
+CATEGORY_ORDER = ["ai-agents", "compute", "email", "hosting", "proxies", "search", "seo", "templates", "unblock"]
 
 CATEGORY_HUB_SLUG = {"email": "email-apis"}
 
@@ -69,6 +69,12 @@ def hub_slug(cat):
 
 
 HUBS = [
+    {
+        "slug": "ai-agents",
+        "title": "AI agent platform deals",
+        "description": "Agent builders, chatbot platforms, and general-purpose AI agents — live affiliate offers for teams shipping agents.",
+        "match": lambda d: d.get("category") == "ai-agents",
+    },
     {
         "slug": "scraping-unblock",
         "title": "Scraping & unblock deals",
@@ -968,7 +974,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
         by_cat[d.get("category") or "other"].append(d)
 
     hub_nav = " · ".join(
-        f'<a href="{BASE}/categories/{h["slug"]}/">{esc(h["slug"])}</a>' for h in HUBS[:5]
+        f'<a href="{BASE}/categories/{h["slug"]}/">{esc(h["slug"])}</a>' for h in HUBS[:6]
     )
     cat_nav = " · ".join(
         f'<a href="#cat-{c}">{c}</a> · <a href="{BASE}/categories/{hub_slug(c)}/">{c} hub</a>'
@@ -1038,7 +1044,7 @@ def patch_lanternworks() -> None:
     lw_title = "Lantern Works — agent work-stack deals"
     lw_desc = (
         "Lantern Works: human-readable deals for AI agents (and humans directing them). "
-        "Affiliate-backed compute, search, crawl, hosting, templates, and unblock tools."
+        "Affiliate-backed compute, search, crawl, hosting, templates, AI agents, and unblock tools."
     )
     lw_url = f"{BASE}/lanternworks/"
     social = social_meta(lw_title, lw_desc, lw_url)
@@ -1071,6 +1077,7 @@ def patch_lanternworks() -> None:
     )
     block = (
         f'{marker}\n    <p class="meta">Browse by hub: '
+        f'<a href="{BASE}/categories/ai-agents/">ai-agents</a> · '
         f'<a href="{BASE}/categories/scraping-unblock/">scraping-unblock</a> · '
         f'<a href="{BASE}/categories/proxies/">proxies</a> · '
         f'<a href="{BASE}/categories/serp-apis/">serp-apis</a> · '
