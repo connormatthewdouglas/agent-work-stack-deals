@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — Botpress live affiliate; Vapi terms
+
+- Added **Botpress** AI agent builder (`deal-botpress-001`, 30% of referred spend for 12 months excl. AI usage, via PartnerStack) — live affiliate #50; listed on the ai-agents hub.
+- Updated **Vapi** notes with affiliate-portal terms (15% per paid referral; duration and cookie not stated).
+
 ## 2026-10-24 — Vapi live affiliate
 
 - Added **Vapi** voice AI agents API (`deal-vapi-001`, 15% per paid referral, duration unconfirmed, via Tolt aff lanternworks) — live affiliate #49; listed on the ai-agents hub.
