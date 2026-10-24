@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-24 — LeadMagic live affiliate
+
+; listed on the email-apis hub.
+
 ## 2026-10-24 — Prospeo live affiliate
 
 - Added **Prospeo** email finder / B2B enrichment API (`deal-prospeo-001`, 20% on paid customers for 12 months; referred users get 20% free credits on first purchase; via Tolt via=lanternworks) — live affiliate #58; listed on the email-apis hub.
