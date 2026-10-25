@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-25 — mailfloss live affiliate
+
+; listed on the email-apis hub.
+
 ## 2026-10-25 — InboxKit live affiliate
 
 - Added **InboxKit** Google/Microsoft mailbox infrastructure for cold email (`deal-inboxkit-001`, affiliate rate not stated, via FirstPromoter fpr=lanternworks) — live affiliate #84; listed on the email-apis hub.
