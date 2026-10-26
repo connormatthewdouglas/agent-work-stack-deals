@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Robofy, Icemail
+
+- Added Robofy (AI chatbot and agent builder, Starter $40/mo) to the AI Agents hub and Icemail (cold-email mailboxes, $2.5/mailbox/mo) to the Email APIs hub, with prices verified on each vendor's pricing page.
+
 ## 2026-10-26 — InterServer
 
 - Added InterServer (web hosting and VPS) to the Compute hub. Price not yet verified, so it is shown as unknown.
