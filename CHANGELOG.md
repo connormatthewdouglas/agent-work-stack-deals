@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — AlphaVPS
+
+- Added AlphaVPS (EU VPS, dedicated and GPU servers) to the Compute and GPU compute hubs; USD price not yet verified (vendor lists EUR pricing).
+
 ## 2026-10-26 — PDF.co, BounceBan
 
 - Added PDF.co (PDF data-extraction API, Basic $8.99/mo billed annually, verified) to the Data APIs hub and BounceBan (email verification API; price not yet verified) to the Email APIs hub.
