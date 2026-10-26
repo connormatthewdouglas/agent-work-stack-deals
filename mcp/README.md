@@ -9,8 +9,8 @@ AI agents need a discoverable way to find Lantern Works inventory beyond pasting
 | Surface | URL |
 |---|---|
 | JSON feed | https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json |
-| Human page | https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/ |
-| Deals list | https://connormatthewdouglas.github.io/agent-work-stack-deals/ |
+| Human page | https://thelanternworks.com/lanternworks/ |
+| Deals list | https://thelanternworks.com/ |
 | Agent Skill | [../.agents/skills/lantern-works-deals/SKILL.md](../.agents/skills/lantern-works-deals/SKILL.md) |
 | Query CLI | [../query_deals.py](../query_deals.py) · [../USAGE.md](../USAGE.md) |
 

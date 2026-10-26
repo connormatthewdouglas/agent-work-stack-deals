@@ -18,8 +18,8 @@ description: >-
 | Audience | URL |
 |---|---|
 | Agents (JSON feed) | https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json |
-| Humans (platform) | https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/ |
-| Humans (all deals) | https://connormatthewdouglas.github.io/agent-work-stack-deals/ |
+| Humans (platform) | https://thelanternworks.com/lanternworks/ |
+| Humans (all deals) | https://thelanternworks.com/ |
 
 ## Filter contract
 `GET` the JSON feed (public, no auth). Filter locally (or via `query_deals.py` / MCP sketch):

@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEALS_PATH = ROOT / "deals.json"
 GOTCHAS_PATH = ROOT / "data" / "deal_gotchas.json"
-BASE = "https://connormatthewdouglas.github.io/agent-work-stack-deals"
+BASE = "https://thelanternworks.com"
 LASTMOD = "2026-10-23"
 VERIFIED = "2026-10-23"
 SITE_NAME = "Lantern Works"

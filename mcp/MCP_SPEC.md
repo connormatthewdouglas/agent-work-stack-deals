@@ -40,7 +40,7 @@ Free-text search over title, tags, advertiser, agent_instructions.
 
 ## Resources (optional)
 - `lanternworks://deals` — raw feed JSON
-- `lanternworks://human` — https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/
+- `lanternworks://human` — https://thelanternworks.com/lanternworks/
 
 ## Niche vs peers
 Consumer MCP affiliate tools (Cuelinks, Feedico, etc.) are out of scope. This is **agent work-stack** only.
