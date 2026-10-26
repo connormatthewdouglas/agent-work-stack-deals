@@ -21,7 +21,7 @@ python3 query_deals.py --include-examples     # keep synthetic example=true rows
 |---|---|---|
 | `category` | `--category` | Exact `deal.category` |
 | `affiliate` | `--affiliate` / `--no-affiliate` | `affiliate` true/false |
-| `free_tier` / `non_affiliate` | `--free-tier` / `--non-affiliate` | `affiliate == false` (public free tiers). `price_usd: null` means unknown, not free — affiliate signup links also use 0. |
+| `free_tier` / `non_affiliate` | `--free-tier` / `--non-affiliate` | `affiliate == false` (public free tiers). `price_usd: null` means unknown, not free. |
 | `updated_since` | `--updated-since ISO8601` | Keep deals with `updated_at >=` timestamp; rows missing `updated_at` are dropped |
 | `tag` | `--tag` (repeatable, AND) | Require tags |
 | `agent_only` | `--agent-only` | `agent_only == true` |
