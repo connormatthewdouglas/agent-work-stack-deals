@@ -3,56 +3,219 @@
   "$id": "https://thelanternworks.com/schema.json",
   "title": "Lantern Works deal feed",
   "description": "Schema for /deals.json and /api/v1/deals.json. Public fields only: commission, payout, and compliance data are private and must never appear here.",
-  "x-schema-version": "1.0.0",
+  "x-schema-version": "1.1.0",
   "type": "object",
-  "required": ["schema_version", "feed_version", "title", "access", "updated_at", "deals"],
+  "required": [
+    "schema_version",
+    "feed_version",
+    "title",
+    "access",
+    "updated_at",
+    "deals"
+  ],
   "properties": {
-    "$schema": {"type": "string"},
-    "schema_version": {"type": "string", "const": "1.0.0", "description": "Version of this schema the feed conforms to (semver)."},
-    "feed_version": {"type": "string"},
-    "title": {"type": "string"},
-    "description": {"type": "string"},
-    "access": {"const": "public-read-only"},
-    "updated_at": {"type": "string", "format": "date-time"},
-    "query": {"type": "object"},
-    "deals": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/deal"}}
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0",
+      "description": "Version of this schema the feed conforms to (semver)."
+    },
+    "feed_version": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "access": {
+      "const": "public-read-only"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "query": {
+      "type": "object"
+    },
+    "deals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/deal"
+      }
+    }
   },
   "additionalProperties": false,
   "$defs": {
-    "nullableUrl": {"type": ["string", "null"], "pattern": "^https://"},
-    "nullablePrice": {"type": ["number", "null"], "minimum": 0, "description": "null = UNKNOWN (not free). 0 only for verified free tiers."},
-    "nullableTimestamp": {"type": ["string", "null"], "format": "date-time"},
+    "nullableUrl": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^https://"
+    },
+    "nullablePrice": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "description": "null = UNKNOWN (not free). 0 only for verified free tiers."
+    },
+    "nullableTimestamp": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
     "deal": {
       "type": "object",
-      "required": ["id", "title", "category", "tags", "agent_only", "example", "affiliate", "advertiser",
-                   "price_usd", "list_price_usd", "currency", "unit", "billing_period",
-                   "promo_code", "redeem_url", "expires_at", "agent_instructions", "offer_type",
-                   "verified_at", "updated_at"],
+      "required": [
+        "id",
+        "title",
+        "category",
+        "tags",
+        "agent_only",
+        "example",
+        "affiliate",
+        "advertiser",
+        "price_usd",
+        "list_price_usd",
+        "currency",
+        "unit",
+        "billing_period",
+        "promo_code",
+        "redeem_url",
+        "expires_at",
+        "agent_instructions",
+        "offer_type",
+        "verified_at",
+        "updated_at"
+      ],
       "properties": {
-        "id": {"type": "string", "pattern": "^deal-[a-z0-9-]+$"},
-        "title": {"type": "string", "minLength": 1},
-        "category": {"enum": ["ai-agents", "compute", "email", "email-apis", "hosting", "proxies", "search", "seo", "unblock"]},
-        "tags": {"type": "array", "items": {"type": "string"}},
-        "agent_only": {"type": "boolean"},
-        "example": {"type": "boolean"},
-        "affiliate": {"type": "boolean"},
-        "advertiser": {"type": "string", "minLength": 1},
-        "price_usd": {"$ref": "#/$defs/nullablePrice"},
-        "list_price_usd": {"$ref": "#/$defs/nullablePrice"},
-        "currency": {"const": "USD", "description": "Currency of price_usd / list_price_usd."},
-        "unit": {"type": ["string", "null"], "description": "Human-readable unit the price applies to (e.g. per GB, per request, plan)."},
-        "billing_period": {"enum": [null, "one_time", "month", "year", "usage"], "description": "Billing period of price_usd; null = unknown / not applicable."},
-        "promo_code": {"type": ["string", "null"]},
-        "redeem_url": {"type": "string", "pattern": "^https?://"},
-        "docs_url": {"$ref": "#/$defs/nullableUrl"},
-        "source_url": {"$ref": "#/$defs/nullableUrl"},
-        "expires_at": {"$ref": "#/$defs/nullableTimestamp"},
-        "agent_instructions": {"type": "string"},
-        "claim_note": {"type": ["string", "null"]},
-        "pricing_note": {"type": ["string", "null"]},
-        "offer_type": {"enum": ["discount", "free_tier", "standard_signup", "credit_referral"]},
-        "verified_at": {"$ref": "#/$defs/nullableTimestamp", "description": "When the offer terms were last checked against the vendor source; null = not recorded."},
-        "updated_at": {"$ref": "#/$defs/nullableTimestamp", "description": "When this listing last changed; null = not recorded."}
+        "id": {
+          "type": "string",
+          "pattern": "^deal-[a-z0-9-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "ai-agents",
+            "compute",
+            "data-api",
+            "email",
+            "email-apis",
+            "hosting",
+            "proxies",
+            "search",
+            "seo",
+            "unblock"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agent_only": {
+          "type": "boolean"
+        },
+        "example": {
+          "type": "boolean"
+        },
+        "affiliate": {
+          "type": "boolean"
+        },
+        "advertiser": {
+          "type": "string",
+          "minLength": 1
+        },
+        "price_usd": {
+          "$ref": "#/$defs/nullablePrice"
+        },
+        "list_price_usd": {
+          "$ref": "#/$defs/nullablePrice"
+        },
+        "currency": {
+          "const": "USD",
+          "description": "Currency of price_usd / list_price_usd."
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Human-readable unit the price applies to (e.g. per GB, per request, plan)."
+        },
+        "billing_period": {
+          "enum": [
+            null,
+            "one_time",
+            "month",
+            "year",
+            "usage"
+          ],
+          "description": "Billing period of price_usd; null = unknown / not applicable."
+        },
+        "promo_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "redeem_url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "docs_url": {
+          "$ref": "#/$defs/nullableUrl"
+        },
+        "source_url": {
+          "$ref": "#/$defs/nullableUrl"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "agent_instructions": {
+          "type": "string"
+        },
+        "claim_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pricing_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "offer_type": {
+          "enum": [
+            "discount",
+            "free_tier",
+            "standard_signup",
+            "credit_referral"
+          ]
+        },
+        "verified_at": {
+          "$ref": "#/$defs/nullableTimestamp",
+          "description": "When the offer terms were last checked against the vendor source; null = not recorded."
+        },
+        "updated_at": {
+          "$ref": "#/$defs/nullableTimestamp",
+          "description": "When this listing last changed; null = not recorded."
+        }
       },
       "additionalProperties": false
     }

@@ -169,6 +169,12 @@ HUBS = [
         "match": lambda d: d.get("category") == "templates",
     },
     {
+        "slug": "data-api",
+        "title": "Data API deals",
+        "description": "Data APIs (sports, market and reference data) for agents that need structured feeds.",
+        "match": lambda d: d.get("category") == "data-api",
+    },
+    {
         "slug": "unblock",
         "title": "Unblock category hub",
         "description": "Unblock, scrape, and proxy category deals.",
