@@ -10,8 +10,12 @@ if str(ROOT) not in sys.path:
 
 from mcp.server.fastmcp import FastMCP  # noqa: E402
 
-from core import DealError, FeedLoader  # noqa: E402
-from core import deals as core  # noqa: E402
+try:  # installed wheel: core is vendored as a subpackage
+    from lantern_works_deals_mcp.core import DealError, FeedLoader
+    from lantern_works_deals_mcp.core import deals as core
+except ImportError:  # repo checkout: shared top-level core/
+    from core import DealError, FeedLoader  # noqa: E402
+    from core import deals as core  # noqa: E402
 
 INSTRUCTIONS = ("Read-only search over the Lantern Works agent work-stack deal feed. Results are ranked by "
                 "customer value (offer type, price, verification freshness, relevance), never by affiliate "
@@ -19,6 +23,7 @@ INSTRUCTIONS = ("Read-only search over the Lantern Works agent work-stack deal f
                 "Confirm terms on the vendor page and get the user's approval before any paid signup.")
 
 mcp = FastMCP("lantern-works-deals", instructions=INSTRUCTIONS)
+__version__ = "0.1.0"
 loader = FeedLoader()
 
 

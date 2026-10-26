@@ -2,21 +2,31 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.connormatthewdouglas/lantern-works-deals",
   "title": "Lantern Works agent deals",
-  "description": "Read-only search, compare and lookup of agent work-stack deals (compute, search, email, proxies) ranked by customer value.",
+  "description": "Read-only search, compare and lookup of agent work-stack deals ranked by customer value.",
   "version": "0.1.0",
   "websiteUrl": "https://thelanternworks.com/for-agents/",
   "repository": {
     "url": "https://github.com/connormatthewdouglas/agent-work-stack-deals",
-    "source": "github",
-    "subfolder": "mcp_server"
+    "source": "github"
   },
   "packages": [
     {
       "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
       "identifier": "lantern-works-deals-mcp",
       "version": "0.1.0",
-      "transport": { "type": "stdio" },
-      "_note": "DRAFT: requires a PyPI package publish first (needs Frosty's approval). Registry ownership check expects 'mcp-name: io.github.connormatthewdouglas/lantern-works-deals' in the package README."
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "LANTERN_DEALS_FILE",
+          "description": "Optional path to a local deals.json (offline use).",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
     }
   ]
 }

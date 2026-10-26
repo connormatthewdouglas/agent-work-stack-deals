@@ -1,0 +1,132 @@
+# OpenAI Agents SDK MCPServerStdio, 2026-10-26 14:12 EDT
+tools: [('search_deals', True), ('compare_deals', True), ('get_deal', True)]
+
+== search_deals {"query": "email", "category": "email", "limit": 3}
+{
+ "total": 26,
+ "count": 3,
+ "results": [
+  {
+   "id": "deal-heyo-001",
+   "title": "Heyo Email — cold email sending with unlimited accounts, warmup and unified inbox (affiliate)",
+   "advertiser": "Heyo Email",
+   "category": "email",
+   "offer_type": "standard_referral",
+   "price_usd": null,
+   "unit": null,
+   "verified_at": "2026-10-24T21:26:00-04:00",
+   "redeem_url": "https://www.heyoemail.com?ref=LANTJPMQ",
+   "affiliate": true
+  },
+  {
+   "id": "deal-emailoctopus-001",
+   "title": "EmailOctopus — email marketing newsletters, automations and landing pages (affiliate)",
+   "advertiser": "EmailOctopus",
+   "category": "email",
+   "offer_type": "standard_referral",
+   "price_usd": null,
+   "unit": null,
+   "verified_at": "2026-10-25T20:22:00-04:00",
+   "redeem_url": "https://emailoctopus.com/?ref=lanternworks",
+   "affiliate": true
+  },
+  {
+   "id": "deal-sealch-001",
+   "title": "
+
+== search_deals {"tags": ["proxy"], "max_price": 50, "limit": 2}
+{
+ "total": 1,
+ "count": 1,
+ "results": [
+  {
+   "id": "deal-proxydocker-001",
+   "title": "Proxydocker — proxy lists and proxy API (free list plus premium plans)",
+   "advertiser": "Proxydocker",
+   "category": "proxies",
+   "offer_type": "standard_referral",
+   "price_usd": 9.95,
+   "unit": "Premium plan, per month (billed monthly)",
+   "verified_at": "2026-10-26T08:25:00-04:00",
+   "redeem_url": "https://proxydocker.com/r/z9k7gevk",
+   "affiliate": true
+  }
+ ],
+ "next_cursor": null
+}
+
+== get_deal {"id": "deal-firecrawl-free-001"}
+{
+ "id": "deal-firecrawl-free-001",
+ "title": "Firecrawl — Free 1,000 credits/mo (no card)",
+ "advertiser": "Firecrawl",
+ "category": "search",
+ "offer_type": "free_tier",
+ "tags": [
+  "crawl",
+  "rag",
+  "firecrawl",
+  "free-tier",
+  "public",
+  "non-affiliate"
+ ],
+ "affiliate": false,
+ "agent_only": false,
+ "price_usd": 0,
+ "list_price_usd": null,
+ "currency": "USD",
+ "unit": "1,000 credits/mo; no credit card",
+ "billing_period": null,
+ "promo_code": null,
+ "redeem_url": "https://www.firecrawl.dev/pricing",
+ "expires_at": null,
+ "verified_at": null,
+ "updated_at": null,
+ "agent_instructions": "Sign up on Firecrawl pricing/free tier (no card). Use for crawl/scrape → LLM-ready markdown.",
+ "source_url": "https://www.firecrawl.dev/pricing",
+ "claim_note": null
+}
+
+== compare_deals {"ids": ["deal-9proxy-001", "deal-brightdata-resi-001", "deal-proxydocker-001"]}
+{
+ "order": "customer_value",
+ "deals": [
+  {
+   "id": "deal-9proxy-001",
+   "advertiser": "9Proxy",
+   "category": "unblock",
+   "offer_type": "verified_discount",
+   "price_usd": null,
+   "list_price_usd": null,
+   "unit": "Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)",
+   "billing_period": null,
+   "promo_code": "9P_8KsTzWv6",
+   "expires_at": null,
+   "verified_at": "2026-10-25T18:05:00-04:00",
+   "redeem_url": "https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6",
+   "pricing_note": "Starting from $0.018/IP or $0.68/GB (per 9proxy.com/pricing, checked 2026-10-25)."
+  },
+  {
+   "id": "deal-brightdata-resi-001",
+   "advertiser": "Bright Data",
+   "category": "unblock",
+   "offer_type": "verified_discount",
+   "price_usd": null,
+   "list_price_usd": null,
+   "unit": "50% off residential proxies for 3 months; first-deposit match up to $500 (new account
+
+== compare_deals {"ids": ["deal-9proxy-001"]}
+{
+ "error": {
+  "code": "invalid_argument",
+  "message": "ids must contain 2-5 deal ids"
+ }
+}
+
+== search_deals {"limit": 99}
+{
+ "error": {
+  "code": "invalid_argument",
+  "message": "limit must be 1..25"
+ }
+}

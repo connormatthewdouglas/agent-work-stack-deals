@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lantern-works-deals-mcp"
+version = "0.1.0"
+description = "Read-only MCP server (stdio) for the Lantern Works agent work-stack deals feed: search, compare and look up deals ranked by customer value."
+readme = "mcp_server/README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Lantern Works" }]
+dependencies = ["mcp>=1.10,<2"]
+keywords = ["mcp", "model-context-protocol", "deals", "ai-agents"]
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent"]
+
+[project.urls]
+Homepage = "https://thelanternworks.com/for-agents/"
+Repository = "https://github.com/connormatthewdouglas/agent-work-stack-deals"
+
+[project.scripts]
+lantern-works-deals-mcp = "lantern_works_deals_mcp.server:main"
+
+[tool.setuptools]
+packages = ["lantern_works_deals_mcp", "lantern_works_deals_mcp.core"]
+
+[tool.setuptools.package-dir]
+lantern_works_deals_mcp = "mcp_server"
+"lantern_works_deals_mcp.core" = "core"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

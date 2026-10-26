@@ -1,0 +1,205 @@
+# MCP Inspector CLI 2.12.0 over stdio, 2026-10-26 14:12 EDT
+
+$ inspector --cli /workspace/agent-deals-feed/.venv/bin/python mcp_server/server.py --method tools/list
+npm warn deprecated @modelcontextprotocol/inspector-server@0.15.0: v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.
+npm warn deprecated @modelcontextprotocol/inspector-cli@0.15.0: v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.
+npm warn deprecated @modelcontextprotocol/inspector-client@0.15.0: v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.
+npm warn deprecated @modelcontextprotocol/inspector@0.15.0: v1 is deprecated. Upgrade to v2: npm i @modelcontextprotocol/inspector@latest. v1 gets security fixes only, published under the v1-latest tag.
+{
+  "tools": [
+    {
+      "name": "search_deals",
+      "description": "Search agent work-stack deals (compute, search, email, unblock, hosting...).\n\noffer_type: verified_discount | free_tier | trial | standard_referral | credit_only_referral.\nmax_price excludes deals with unknown price. limit 1-25. Pass next_cursor back as cursor to page.\n",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Query"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Category"
+          },
+          "offer_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Offer Type"
+          },
+          "max_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Price"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tags"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cursor"
+          }
+        },
+        "title": "search_dealsArguments"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "compare_deals",
+      "description": "Compare 2-5 deals side by side (price, unit, offer type, code, verification), best value first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "title": "compare_dealsArguments"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_deal",
+      "description": "Get one deal's public record by id, including redeem_url and agent_instructions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "get_dealArguments"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}
+
+$ inspector --cli /workspace/agent-deals-feed/.venv/bin/python mcp_server/server.py --method tools/call --tool-name search_deals --tool-arg query=gpu --tool-arg limit=3
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"total\": 8,\n  \"count\": 3,\n  \"results\": [\n    {\n      \"id\": \"deal-modal-free-001\",\n      \"title\": \"Modal — $30/month free compute credit (Starter)\",\n      \"advertiser\": \"Modal\",\n      \"category\": \"compute\",\n      \"offer_type\": \"free_tier\",\n      \"price_usd\": 0,\n      \"unit\": \"$30/month free credit on Starter; pay-as-you-go beyond allotment\",\n      \"verified_at\": null,\n      \"redeem_url\": \"https://modal.com/pricing\",\n      \"affiliate\": false\n    },\n    {\n      \"id\": \"deal-ucartz-001\",\n      \"title\": \"Ucartz — GPU dedicated servers, dedicated servers and hosting\",\n      \"advertiser\": \"Ucartz\",\n      \"category\": \"compute\",\n      \"offer_type\": \"standard_referral\",\n      \"price_usd\": 382.72,\n      \"unit\": \"GPU dedicated server (Radeon 780M, entry plan) per month\",\n      \"verified_at\": \"2026-10-26T12:00:00-04:00\",\n      \"redeem_url\": \"https://www.ucartz.com/clients/aff.php?aff=5132\",\n      \"affiliate\": true\n    },\n    {\n      \"id\": \"deal-gigagpu-001\",\n      \"title\": \"GigaGPU — dedicated bare-metal GPU servers, UK datacenter (affiliate)\",\n      \"advertiser\": \"GigaGPU\",\n      \"category\": \"compute\",\n      \"offer_type\": \"standard_referral\",\n      \"price_usd\": null,\n      \"unit\": null,\n      \"verified_at\": \"2026-10-24T19:20:00-04:00\",\n      \"redeem_url\": \"https://portal.gigagpu.com/aff.php?aff=44\",\n      \"affiliate\": true\n    }\n  ],\n  \"next_cursor\": \"eyJvIjogM30\"\n}"
+    }
+  ],
+  "isError": false
+}
+
+$ inspector --cli /workspace/agent-deals-feed/.venv/bin/python mcp_server/server.py --method tools/call --tool-name search_deals --tool-arg offer_type=free_tier --tool-arg max_price=0 --tool-arg limit=2
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"total\": 25,\n  \"count\": 2,\n  \"results\": [\n    {\n      \"id\": \"deal-scrapenest-001\",\n      \"title\": \"ScrapeNest — web scraping and search API (free tier)\",\n      \"advertiser\": \"ScrapeNest\",\n      \"category\": \"unblock\",\n      \"offer_type\": \"free_tier\",\n      \"price_usd\": 0,\n      \"unit\": \"Free plan: 1,000 credits per month\",\n      \"verified_at\": \"2026-10-26T13:56:00-04:00\",\n      \"redeem_url\": \"https://scrapenest.dev/r/lanternworks\",\n      \"affiliate\": true\n    },\n    {\n      \"id\": \"deal-cyberpanel-001\",\n      \"title\": \"CyberPanel — free open-source web hosting control panel\",\n      \"advertiser\": \"CyberPanel\",\n      \"category\": \"hosting\",\n      \"offer_type\": \"free_tier\",\n      \"price_usd\": 0,\n      \"unit\": \"CyberPanel core control panel (self-hosted on your own server)\",\n      \"verified_at\": \"2026-10-26T13:36:00-04:00\",\n      \"redeem_url\": \"https://cyberpanel.net/?ref=mq3kvhz2h2dj\",\n      \"affiliate\": true\n    }\n  ],\n  \"next_cursor\": \"eyJvIjogMn0\"\n}"
+    }
+  ],
+  "isError": false
+}
+
+$ inspector --cli /workspace/agent-deals-feed/.venv/bin/python mcp_server/server.py --method tools/call --tool-name get_deal --tool-arg id=deal-9proxy-001
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"id\": \"deal-9proxy-001\",\n  \"title\": \"9Proxy — residential proxies from $0.018/IP or $0.68/GB, 5% off via referral code\",\n  \"advertiser\": \"9Proxy\",\n  \"category\": \"unblock\",\n  \"offer_type\": \"verified_discount\",\n  \"tags\": [\n    \"proxy\",\n    \"residential-proxy\",\n    \"unblock\",\n    \"scrape\",\n    \"9proxy\",\n    \"referral-code\",\n    \"affiliate\"\n  ],\n  \"affiliate\": true,\n  \"agent_only\": false,\n  \"price_usd\": null,\n  \"list_price_usd\": null,\n  \"currency\": \"USD\",\n  \"unit\": \"Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)\",\n  \"billing_period\": null,\n  \"promo_code\": \"9P_8KsTzWv6\",\n  \"redeem_url\": \"https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6\",\n  \"expires_at\": null,\n  \"verified_at\": \"2026-10-25T18:05:00-04:00\",\n  \"updated_at\": \"2026-10-25T18:05:00-04:00\",\n  \"agent_instructions\": \"Sign up via the invite link (code 9P_8KsTzWv6 is pre-filled) for 5% off purchases. Starting prices: $0.018/IP or $0.68/GB; confirm current plan prices on 9proxy.com before buying.\",\n  \"docs_url\": \"https://www.proxyrack.com/pricing/\",\n  \"source_url\": \"https://9proxy.com/affiliate\",\n  \"pricing_note\": \"Starting from $0.018/IP or $0.68/GB (per 9proxy.com/pricing, checked 2026-10-25).\",\n  \"claim_note\": \"Referees get 5% off purchases with invite code 9P_8KsTzWv6 (stated on 9proxy.com/affiliate).\"\n}"
+    }
+  ],
+  "isError": false
+}
+
+$ inspector --cli /workspace/agent-deals-feed/.venv/bin/python mcp_server/server.py --method tools/call --tool-name compare_deals --tool-arg ids=["deal-9proxy-001","deal-firecrawl-free-001"]
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"order\": \"customer_value\",\n  \"deals\": [\n    {\n      \"id\": \"deal-9proxy-001\",\n      \"advertiser\": \"9Proxy\",\n      \"category\": \"unblock\",\n      \"offer_type\": \"verified_discount\",\n      \"price_usd\": null,\n      \"list_price_usd\": null,\n      \"unit\": \"Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)\",\n      \"billing_period\": null,\n      \"promo_code\": \"9P_8KsTzWv6\",\n      \"expires_at\": null,\n      \"verified_at\": \"2026-10-25T18:05:00-04:00\",\n      \"redeem_url\": \"https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6\",\n      \"pricing_note\": \"Starting from $0.018/IP or $0.68/GB (per 9proxy.com/pricing, checked 2026-10-25).\"\n    },\n    {\n      \"id\": \"deal-firecrawl-free-001\",\n      \"advertiser\": \"Firecrawl\",\n      \"category\": \"search\",\n      \"offer_type\": \"free_tier\",\n      \"price_usd\": 0,\n      \"list_price_usd\": null,\n      \"unit\": \"1,000 credits/mo; no credit card\",\n      \"billing_period\": null,\n      \"promo_code\": null,\n      \"expires_at\": null,\n      \"verified_at\": null,\n      \"redeem_url\": \"https://www.firecrawl.dev/pricing\"\n    }\n  ],\n  \"note\": \"price_usd null = unknown, not free. Confirm terms on the vendor page before spending.\"\n}"
+    }
+  ],
+  "isError": false
+}
+
+$ inspector --cli /workspace/agent-deals-feed/.venv/bin/python mcp_server/server.py --method tools/call --tool-name get_deal --tool-arg id=nope
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"No deal with id 'nope'\"\n  }\n}"
+    }
+  ],
+  "isError": false
+}

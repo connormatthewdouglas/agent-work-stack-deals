@@ -42,4 +42,19 @@ Claude Desktop (`claude_desktop_config.json`) / Cursor (`.cursor/mcp.json`):
 .venv/bin/python mcp_server/smoke/smoke_client.py   # real stdio client session, live feed
 ```
 
-`server.json` is a draft for the official MCP Registry; it is not submitted.
+## Package (built and tested locally, not yet on PyPI)
+
+`pyproject.toml` at the repo root builds `lantern-works-deals-mcp` with a `lantern-works-deals-mcp` console command:
+
+```bash
+python3 -m build && pip install dist/lantern_works_deals_mcp-0.1.0-py3-none-any.whl
+lantern-works-deals-mcp   # stdio server
+```
+
+Once published, the config becomes `{"command": "uvx", "args": ["lantern-works-deals-mcp"]}`.
+
+## Client validation
+
+Transcripts in `smoke/`: official Python SDK client (`transcript.txt`), MCP Inspector CLI (`inspector_cli_transcript.txt`), OpenAI Agents SDK `MCPServerStdio` (`agents_sdk_transcript.txt`).
+
+`server.json` passes `mcp-publisher validate` and has not been submitted.
