@@ -12,7 +12,7 @@
   "filter_contract": {
     "category": "Exact deal.category",
     "affiliate": "Boolean referral vs public/non-affiliate",
-    "free_tier": "affiliate==false (public free tiers; often price_usd==0). Not price_usd==0 alone.",
+    "free_tier": "affiliate==false (public free tiers). price_usd null = unknown, not free.",
     "non_affiliate": "Alias of free_tier",
     "updated_since": "ISO-8601; keep updated_at >= value; drop missing updated_at",
     "tag": "Require tag",

@@ -66,7 +66,7 @@ def apply_filters(deals: list[dict], args: argparse.Namespace) -> list[dict]:
     if args.category:
         out = [d for d in out if d.get("category") == args.category]
     if args.max_price is not None:
-        out = [d for d in out if float(d.get("price_usd", 1e18)) <= args.max_price]
+        out = [d for d in out if d.get("price_usd") is not None and float(d["price_usd"]) <= args.max_price]  # null = unknown, excluded
     if args.tag:
         out = [d for d in out if set(args.tag).issubset(set(d.get("tags") or []))]
     if args.agent_only:
@@ -140,7 +140,7 @@ Filter contract (also in deals.json → query.filters):
     p.add_argument(
         "--free-tier",
         action="store_true",
-        help="Non-affiliate free/public offers (affiliate=false; often price_usd=0)",
+        help="Non-affiliate free/public offers (affiliate=false; price_usd null = unknown)",
     )
     p.add_argument(
         "--non-affiliate",

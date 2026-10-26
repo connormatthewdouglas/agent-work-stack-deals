@@ -14,7 +14,7 @@ Machine-readable filter contract: feed `query.filters` (keep in sync with `query
 |---|---|---|
 | `category` | string | Exact `deal.category` |
 | `affiliate` | boolean | `true` / `false` referral vs public |
-| `free_tier` | boolean | If true, same as `affiliate=false` (public/non-affiliate free tiers; often `price_usd: 0`). Not `price_usd==0` alone. |
+| `free_tier` | boolean | If true, same as `affiliate=false` (public/non-affiliate free tiers). `price_usd: null` = unknown, not free. |
 | `non_affiliate` | boolean | Alias of `free_tier` |
 | `updated_since` | string (ISO-8601) | Keep deals with `updated_at >=` value; drop rows missing `updated_at` |
 | `tag` | string | Require tag (servers may accept repeated / array) |

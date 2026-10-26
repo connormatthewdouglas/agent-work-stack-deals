@@ -25,6 +25,6 @@ Shared with the feed `query` object and `query_deals.py`: `category`, `affiliate
 
 ## Rules for implementers
 1. Default **exclude** `example: true` deals unless the caller sets `include_examples` (production inventory is real Lantern Works listings).
-2. Prefer live `redeem_url` + affiliate deals; never invent merchant links. Public/non-affiliate free tiers use `affiliate: false`.
-3. Affiliate disclosure: Lantern Works may earn a
+2. Rank by fit and verified price; affiliate status is not a ranking factor. Never invent merchant links or codes. Public/non-affiliate free tiers use `affiliate: false`.
+3. Affiliate disclosure: some links are affiliate links (`affiliate: true`); Lantern Works may earn a commission. Price and ranking unchanged.
 4. Contact: lanternworks@agentmail.to

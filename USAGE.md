@@ -1,7 +1,7 @@
 # Agent query client
 
 Production Lantern Works feed (public, no auth). Default excludes `example: true` rows (`--real-only`).
-Default **array order** in the feed: **affiliates first** (`query.sort` / `query.defaults.sort` = `affiliates_first`), then public/non-affiliate. Stable within each group. Homepage and category hubs use the same rule.
+Default **array order** in the feed: **customer value** (`query.sort.default` = `customer_value`): real discounts, then verified free tiers, then standard signups, A–Z by vendor. Affiliate status is not a ranking factor. Homepage and category hubs use the same rule.
 
 ```bash
 python3 query_deals.py
@@ -21,7 +21,7 @@ python3 query_deals.py --include-examples     # keep synthetic example=true rows
 |---|---|---|
 | `category` | `--category` | Exact `deal.category` |
 | `affiliate` | `--affiliate` / `--no-affiliate` | `affiliate` true/false |
-| `free_tier` / `non_affiliate` | `--free-tier` / `--non-affiliate` | `affiliate == false` (public free tiers; often also `price_usd: 0`). Do **not** treat `price_usd == 0` alone as free-tier — affiliate signup links also use 0. |
+| `free_tier` / `non_affiliate` | `--free-tier` / `--non-affiliate` | `affiliate == false` (public free tiers). `price_usd: null` means unknown, not free — affiliate signup links also use 0. |
 | `updated_since` | `--updated-since ISO8601` | Keep deals with `updated_at >=` timestamp; rows missing `updated_at` are dropped |
 | `tag` | `--tag` (repeatable, AND) | Require tags |
 | `agent_only` | `--agent-only` | `agent_only == true` |

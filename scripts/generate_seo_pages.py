@@ -16,6 +16,13 @@ BASE = "https://connormatthewdouglas.github.io/agent-work-stack-deals"
 LASTMOD = "2026-10-23"
 VERIFIED = "2026-10-23"
 SITE_NAME = "Lantern Works"
+# Fields that must never appear in public output (deals.json or generated pages).
+#
+PRIVATE_FIELDS = (
+    "", "", "", "payout_status",
+    "network", "notes", "referral", "payout_method", "tracker", "internal_notes",
+)
+OFFER_TYPE_RANK = {"discount": 0, "free_tier": 1, "standard_signup": 2, "credit_referral": 2}
 # No dedicated OG share image in the repo — omit og:image / twitter:image.
 
 CSS = """
@@ -156,13 +163,13 @@ GUIDES = [
         "title": "Best agent scrape & unblock stack",
         "description": (
             "A short Lantern Works stack guide: scrape/unblock APIs plus a proxy layer "
-            "agents actually use — curated picks with authorized redeem links."
+            "agents actually use — curated picks; affiliate links are disclosed."
         ),
         "intro": (
             "Agents that fetch the live web need a scrape or unblock API and, often, a "
             "proxy layer. This guide is a short curated stack from the Lantern Works "
             "agent work-stack directory — not a coupon dump. Each pick links to its deal "
-            "page; redeem only through that deal’s authorized URL."
+            "page; affiliate links are labeled."
         ),
         "picks": [
             {
@@ -183,7 +190,7 @@ GUIDES = [
             },
             {
                 "id": "deal-proxyscrape-001",
-                "why": "Proxy layer with a lanternworks referral — pair with a scrape API when you want to bring your own IPs or rotate residential/datacenter pools.",
+                "why": "Proxy layer — pair with a scrape API when you want to bring your own IPs or rotate residential/datacenter pools.",
             },
         ],
     },
@@ -192,12 +199,12 @@ GUIDES = [
         "title": "Cheap GPU week for agents",
         "description": (
             "A short Lantern Works stack guide to affordable GPU and inference for agent "
-            "runtimes — curated affiliate picks plus one labeled free-tier option."
+            "runtimes — curated picks plus one labeled free-tier option."
         ),
         "intro": (
             "When an agent needs a burst of GPU for fine-tunes, inference, or sandboxed "
             "jobs, spot and marketplace GPUs beat always-on cloud. Here are a few curated "
-            "compute picks from the Lantern Works directory. Affiliate links are authorized; "
+            "compute picks from the Lantern Works directory. Affiliate links are labeled; "
             "the free-tier option is labeled and non-affiliate."
         ),
         "picks": [
@@ -225,12 +232,12 @@ GUIDES = [
         "title": "Best agent email & outreach stack",
         "description": (
             "A short Lantern Works stack guide for agent email: find/verify, transactional "
-            "send, and optional free inboxes — curated picks with authorized redeem links."
+            "send, and optional free inboxes — curated picks; affiliate links are disclosed."
         ),
         "intro": (
             "Outbound and transactional email for agents usually needs find/verify plus a "
             "reliable send API (and sometimes a dedicated agent inbox). This curated stack "
-            "from the Lantern Works directory keeps affiliate redeem links authorized and "
+            "from the Lantern Works directory labels affiliate links and "
             "calls out free/public tiers when they help agents start without a card."
         ),
         "picks": [
@@ -282,11 +289,20 @@ def is_example(deal: dict) -> bool:
     return False
 
 
-def sort_deals_affiliates_first(deals: list[dict]) -> list[dict]:
-    """Affiliate==true first, then public/non-affiliate; stable within each group."""
-    indexed = list(enumerate(deals))
-    indexed.sort(key=lambda iv: (0 if iv[1].get("affiliate") is True else 1, iv[0]))
-    return [d for _, d in indexed]
+def sort_deals_customer_value(deals: list[dict]) -> list[dict]:
+    """Customer-value order: real discounts, then verified free tiers, then standard signups.
+    Alphabetical by advertiser within each group. Affiliate status is NOT a ranking factor."""
+    return sorted(
+        deals,
+        key=lambda d: (OFFER_TYPE_RANK.get(d.get("offer_type") or "standard_signup", 2),
+                       (d.get("advertiser") or "").lower(), d.get("id") or ""),
+    )
+
+
+def assert_public_clean(deals: list[dict]) -> None:
+    bad = sorted({f"{d.get('id')}:{k}" for d in deals for k in d if k in PRIVATE_FIELDS})
+    if bad:
+        raise SystemExit("Private fields in public deals.json (move to private tracker): " + ", ".join(bad[:20]))
 
 
 
@@ -366,11 +382,8 @@ def auto_gotchas(deal: dict, twins: list[dict] | None = None) -> list[str]:
     twins = twins or []
     promo = deal.get("promo_code")
     claim = deal.get("claim_note")
-    ctype = str(deal.get("") or "")
-    ctype_l = ctype.lower()
     unit = deal.get("unit") or ""
     unit_l = unit.lower()
-    referral = str(deal.get("payout_status") or "").lower()
 
     if claim and "apply" in str(claim).lower():
         notes.append(
@@ -383,28 +396,7 @@ def auto_gotchas(deal: dict, twins: list[dict] | None = None) -> list[str]:
         )
     else:
         notes.append(
-            "No promo code on this listing — use the authorized redeem_url / signup link only. Never invent codes."
-        )
-
-    if referral == "floated":
-        notes.append(
-            ""
-        )
-
-    if "account_credit" in ctype_l or (deal.get("affiliate") and "account credit" in unit_l):
-        detail = esc(ctype or unit)
-        notes.append(
-            f"referral quirk:"
-        )
-    elif deal.get("affiliate") and ("credit" in ctype_l):
-        notes.append(
-            f"referral quirk: rewards are credits ({esc(ctype)}), not cash"
-        )
-    elif ctype_l in ("unverified", "tbd") or (
-        deal.get("affiliate") and ("" in unit_l or "tbd" in unit_l)
-    ):
-        notes.append(
-            ""
+            "No promo code on this listing. Never invent codes."
         )
 
     if deal.get("affiliate") is True and (
@@ -419,7 +411,7 @@ def auto_gotchas(deal: dict, twins: list[dict] | None = None) -> list[str]:
 
     if is_free_tierish(deal) and unit:
         notes.append(
-            f"Free-tier limits: {esc(unit)}. Outgrowing free usually means a paid plan — check any affiliate twin on this board before inventing coupons."
+            f"Free-tier limits: {esc(unit)}. Outgrowing free usually means a paid plan — compare paid plans before relying on it; never invent coupons."
         )
 
     for sib in twins:
@@ -428,21 +420,12 @@ def auto_gotchas(deal: dict, twins: list[dict] | None = None) -> list[str]:
         label = esc(sib.get("title") or sib["id"])
         if deal.get("affiliate") is True and is_free_tierish(sib):
             notes.append(
-                f'Affiliate vs free twin: compare with <a href="{href}">{label}</a> before paying.'
+                f'Free option from the same vendor: compare with <a href="{href}">{label}</a> before paying.'
             )
         elif is_free_tierish(deal) and sib.get("affiliate") is True:
             notes.append(
-                f'Free vs paid twin: when you need volume, see affiliate listing <a href="{href}">{label}</a> (authorized redeem link only).'
+                f'Free vs paid twin: when you need volume, see the paid listing <a href="{href}">{label}</a>.'
             )
-
-    raw_notes = deal.get("notes")
-    if isinstance(raw_notes, str) and raw_notes.strip():
-        snippet = " ".join(raw_notes.strip().split())
-        if len(snippet) > 180:
-            snippet = snippet[:177].rstrip() + "…"
-        low = snippet.lower()
-        if any(w in low for w in ("referral", "floated", "credit", "", "tracking", "slug", "referral")):
-            notes.append(f"Feed notes: {esc(snippet)}")
 
     return _dedupe_notes(notes)
 
@@ -560,6 +543,8 @@ def price_bits(deal: dict) -> str:
     unit = deal.get("unit") or ""
     list_p = deal.get("list_price_usd")
     parts = []
+    if price is None:
+        parts.append("<strong>Price: unknown</strong>")
     if price is not None:
         parts.append(f"<strong>${esc(price)}</strong>")
         if list_p is not None:
@@ -567,6 +552,13 @@ def price_bits(deal: dict) -> str:
     if unit:
         parts.append(f"/ {esc(unit)}")
     return " ".join(parts)
+
+
+def pricing_note_html(deal: dict) -> str:
+    pn = deal.get("pricing_note")
+    if not pn:
+        return ""
+    return f'<p class="meta">Published pricing (verify on vendor site): {esc(pn)}</p>'
 
 
 def badges(deal: dict) -> str:
@@ -675,7 +667,7 @@ def homepage_json_ld(deals: list[dict]) -> str:
     website_id = f"{BASE}/#website"
     items = []
     position = 0
-    for d in sort_deals_affiliates_first(deals):
+    for d in sort_deals_customer_value(deals):
         if is_example(d):
             continue
         position += 1
@@ -746,7 +738,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 <body>
 {body}
   <footer>
-    <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
   </footer>
@@ -773,12 +765,6 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
             hub_links.append(f'<a href="{BASE}/categories/{hub["slug"]}/">{esc(hub["slug"])}</a>')
     hubs_nav = " · ".join(hub_links[:4]) if hub_links else f'<a href="{BASE}/categories/{esc(hub_slug(deal.get("category") or "compute"))}/">{esc(deal.get("category"))}</a>'
 
-   ""
-    if deal.get("affiliate") and deal.get("") is not None:
-        pct = deal[""]
-        ctype = deal.get("") or ""
-       
-
     _, fresh_line = freshness_bits(deal)
 
     gnotes = collect_gotchas(deal, curated_gotchas or {}, twin_index or {})
@@ -790,7 +776,7 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
     <h1>{esc(deal.get('title'))} {badges(deal)}</h1>
     <p class="meta"><span class="cat">{esc(deal.get('category'))}</span> · {price_bits(deal)} · Advertiser: {esc(deal.get('advertiser'))}</p>
     <p class="tags">{tags_html(deal)}</p>
-    {
+    {pricing_note_html(deal)}
     {fresh_line}
     <p class="verified">Verified-on: {esc(verified)}</p>
     <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
@@ -811,8 +797,8 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
 
 def write_hub(hub: dict, deals: list[dict]) -> Path:
     matched = [d for d in deals if hub["match"](d)]
-    # Real offers first, then affiliates-first (shared helper), then id
-    matched = sort_deals_affiliates_first(
+    # Real offers first, then customer-value order (shared helper)
+    matched = sort_deals_customer_value(
         sorted(matched, key=lambda d: (is_example(d), d.get("id") or ""))
     )
     out_dir = ROOT / "categories" / hub["slug"]
@@ -936,14 +922,14 @@ def agent_query_howto_html() -> str:
     """Homepage section: how agents should query the public feed. Generator-owned."""
     return f"""  <section id="how-agents-query" class="howto">
     <h2 class="section-title" style="margin-top:0;">How agents should query this</h2>
-    <p>Public JSON feed (no auth). Default filter posture is <strong>real-only</strong> (skip <code>example: true</code>). Default array order is <strong>affiliates first</strong> (<code>query.sort</code> / <code>query.defaults.sort</code>). Production inventory is live Lantern Works listings.</p>
+    <p>Public JSON feed (no auth). Default filter posture is <strong>real-only</strong> (skip <code>example: true</code>). Default order is <strong>customer value</strong>: real discounts, then verified free tiers, then standard signups, A–Z by vendor. Affiliate status is not a ranking factor. Production inventory is live Lantern Works listings.</p>
     <p class="feed" style="margin:.6rem 0;">GET <a href="{FEED_RAW}">{FEED_RAW}</a></p>
     <table>
       <thead><tr><th>Filter</th><th>Meaning</th></tr></thead>
       <tbody>
         <tr><td><code>category</code></td><td>Exact category (<code>compute</code>, <code>email</code>, <code>hosting</code>, <code>search</code>, <code>unblock</code>, …)</td></tr>
         <tr><td><code>affiliate</code></td><td><code>true</code> = referral; <code>false</code> = public/non-affiliate</td></tr>
-        <tr><td><code>free_tier</code> / <code>non_affiliate</code></td><td><code>affiliate == false</code> (often also <code>price_usd: 0</code>). Do <strong>not</strong> treat <code>price_usd == 0</code> alone as free-tier.</td></tr>
+        <tr><td><code>free_tier</code> / <code>non_affiliate</code></td><td><code>affiliate == false</code> or <code>offer_type == "free_tier"</code>. <code>price_usd: null</code> means unknown, not free.</td></tr>
         <tr><td><code>updated_since</code></td><td>ISO-8601; keep deals with <code>updated_at &gt;=</code> value; drop rows missing <code>updated_at</code></td></tr>
         <tr><td><code>tag</code></td><td>Require tags (AND)</td></tr>
         <tr><td><code>agent_only</code></td><td>Only <code>agent_only == true</code></td></tr>
@@ -968,9 +954,9 @@ python3 query_deals.py --tag crawl --max-price 20 --json</pre>
 
 
 def write_index(deals: list[dict], feed_updated: str) -> Path:
-    # Preserve affiliates-first within each category (matches feed default sort).
+    # Customer-value order within each category (matches feed default sort).
     by_cat = defaultdict(list)
-    for d in sort_deals_affiliates_first(deals):
+    for d in sort_deals_customer_value(deals):
         by_cat[d.get("category") or "other"].append(d)
 
     hub_nav = " · ".join(
@@ -1019,7 +1005,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   <header>
     <h1>Agent work-stack deals</h1>
     <p style="font-size:.9rem;"><a href="lanternworks/">About Lantern Works</a> · <a href="changelog/">Changelog</a></p>
-    <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Default order: <strong>affiliates first</strong>, then public/non-affiliate — not pure</p>
+    <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Default order: real discounts, then verified free tiers, then standard signups (A–Z). Affiliate status does not affect ranking. Unknown prices show as “unknown”.</p>
     <nav>Jump: {cat_nav}</nav>
     <nav style="margin-top:.35rem;">Hubs: {hub_nav}</nav>
     {guides_nav_html()}
@@ -1027,7 +1013,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   </header>
 {agent_query_howto_html()}
   <main>{body_main}</main>
-  <footer><p>Updated {esc(updated)} Affiliate deals use authorized links only; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · <a href="changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · <a href="changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
   </footer>
 </body>
@@ -1228,6 +1214,7 @@ def ensure_robots() -> None:
 def main() -> None:
     feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
     deals = feed["deals"]
+    assert_public_clean(deals)
     feed_updated = feed.get("updated_at") or VERIFIED
 
     curated_gotchas = load_curated_gotchas()

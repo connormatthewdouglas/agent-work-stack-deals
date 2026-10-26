@@ -10,7 +10,7 @@ On each tool call (or with ≤5 min cache):
 4. Return compact JSON (id, title, category, tags, price_usd, unit, redeem_url, affiliate, example, agent_instructions, expires_at, updated_at).
 
 ### free_tier / non_affiliate
-Map to `affiliate == false` (public free tiers). Do not equate with `price_usd == 0` alone — affiliate signup rows often also use 0.
+Map to `affiliate == false` (public free tiers). `price_usd: null` means unknown, not free.
 
 ### updated_since
 ISO-8601 compare against `deal.updated_at`. Rows missing `updated_at` are excluded when this filter is set.
@@ -31,4 +31,4 @@ Point directories / install docs at:
 - Agent Skill: `.agents/skills/lantern-works-deals/SKILL.md`
 
 ## Non-goals
-
+Payout rails, vendor outreach, consumer affiliate networks, mutating the feed.
