@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Synthesia
+
+- Added Synthesia (AI video with avatars) to the AI Agents hub as a verified free plan; Starter $19/mo.
+
 ## 2026-10-26 — Raycast
 
 - Added Raycast (productivity launcher with AI and extensions) to the AI Agents hub as a verified free plan; Pro from $10/mo.
