@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — RB2B
+
+- Added RB2B (B2B website visitor identification) to the Email APIs hub, the closest existing hub for sales/outreach tools, at $79/mo for the Starter plan per the vendor's USD pricing page.
+
 ## 2026-10-26 — Press Mage
 
 - Added Press Mage (managed WordPress hosting) to the Hosting hub at $39/mo for the Journeyman plan, verified on the vendor's pricing page.
