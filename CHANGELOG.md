@@ -2,10 +2,6 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
-## 2026-10-25 — Moz live affiliate
-
-- Added **Moz** SEO data — Moz Pro, Moz Local, Moz API (`deal-moz-001`,
-
 ## 2026-10-25 — ContentBot.ai live affiliate
 
 ; listed on the ai-agents hub.
