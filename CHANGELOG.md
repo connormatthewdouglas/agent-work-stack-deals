@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Wonderchat
+
+- Added Wonderchat (AI customer-support chatbot builder) to the AI Agents hub as a verified free plan; paid plans from $32.50/mo billed yearly.
+
 ## 2026-10-26 — Basin, Jet Admin
 
 - Added Basin (form backend API) and Jet Admin (no-code internal tools) to the Hosting hub as verified free tiers; paid plans from $12.50/mo (Basin, billed yearly) and $16/mo (Jet Admin, billed yearly).
