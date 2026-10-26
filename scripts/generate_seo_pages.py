@@ -42,6 +42,12 @@ PRIVATE_PATH = Path(os.environ.get(
     str(ROOT.parents[1] / "lanternworks" / "private" / "deals_private_fields.json"),
 ))
 API_V1_PATH = ROOT / "api" / "v1" / "deals.json"
+# Compliance gate (private, outside the repo; owned by Wick). When present, only deals whose
+# registry status is "approved" are published; others move to a private held file and are
+# restored automatically once approved. When absent (e.g. CI), the feed is used as-is.
+PRIVATE_DIR = PRIVATE_PATH.parent
+COMPLIANCE_PATH = Path(os.environ.get("LANTERN_COMPLIANCE_REGISTRY", str(PRIVATE_DIR / "compliance_registry.json")))
+HELD_PATH = Path(os.environ.get("LANTERN_HELD_DEALS", str(PRIVATE_DIR / "held_deals.json")))
 SCHEMA_PATH = ROOT / "schema.json"
 OFFER_TYPE_RANK = {"verified_discount": 0, "free_tier": 1, "trial": 2, "standard_referral": 2, "credit_only_referral": 2}
 OFFER_TYPES = tuple(OFFER_TYPE_RANK)
@@ -393,6 +399,32 @@ def assert_outputs_clean(paths: list[Path], private: dict) -> None:
             bad.append(str(p.relative_to(ROOT)))
     if bad:
         raise SystemExit("Private data leaked into generated output: " + ", ".join(bad[:20]))
+
+
+def apply_compliance_gate(feed: dict) -> dict:
+    """Publish only registry-approved deals. Returns the (possibly rewritten) feed.
+
+    Unapproved/unknown deals are moved to HELD_PATH (private) and removed from deals.json;
+    held deals whose status becomes approved are restored. No-op if the registry is absent."""
+    if not COMPLIANCE_PATH.exists():
+        print("compliance_gate=absent (feed published as-is)")
+        return feed
+    reg = json.loads(COMPLIANCE_PATH.read_text(encoding="utf-8"))
+    entries = reg.get("entries", {}) if isinstance(reg, dict) else {}
+    held = json.loads(HELD_PATH.read_text(encoding="utf-8")) if HELD_PATH.exists() else []
+    pool: dict[str, dict] = {d["id"]: d for d in held}
+    pool.update({d["id"]: d for d in feed["deals"]})
+    approved, blocked = [], []
+    for d in pool.values():
+        status = (entries.get(slug_for(d["id"])) or {}).get("status")
+        (approved if status == "approved" else blocked).append(d)
+    before = [d["id"] for d in feed["deals"]]
+    feed["deals"] = sort_deals_customer_value(approved)
+    HELD_PATH.write_text(json.dumps(sorted(blocked, key=lambda d: d["id"]), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if [d["id"] for d in feed["deals"]] != before:
+        DEALS_PATH.write_text(json.dumps(feed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"compliance_gate=present approved={len(approved)} held={len(blocked)}")
+    return feed
 
 
 def write_api_v1() -> Path:
@@ -1311,6 +1343,7 @@ def ensure_robots() -> None:
 def main() -> None:
     feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
     assert_public_clean(feed)
+    feed = apply_compliance_gate(feed)
     deals = feed["deals"]
     private = load_private_model()
     private_checks(private, deals)
