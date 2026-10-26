@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Raycast
+
+- Added Raycast (productivity launcher with AI and extensions) to the AI Agents hub as a verified free plan; Pro from $10/mo.
+
 ## 2026-10-26 — Woodpecker
 
 - Added Woodpecker (cold email and LinkedIn outreach) to the Email APIs hub at $35/mo for the entry Email plan, verified on the vendor's pricing page.
