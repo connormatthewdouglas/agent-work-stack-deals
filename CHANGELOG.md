@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Keywords Everywhere
+
+- Added Keywords Everywhere (keyword volume, CPC and backlink data; Bronze $7/mo billed annually) to the SEO hub; pricing verified on keywordseverywhere.com.
+
 ## 2026-10-26 — EngageBay
 
 - Added EngageBay (email marketing, CRM and helpdesk; free plan, paid from $14.99/user/mo) to the Email APIs hub; pricing verified on engagebay.com.
