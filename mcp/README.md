@@ -1,5 +1,7 @@
 # Lantern Works — MCP discovery (sketch)
 
+> **Status (2026-10-26):** a working server now lives in `mcp_server/` (local stdio, official Python SDK). This folder is the original design sketch.
+
 > **Status: not hosted.** No Lantern Works MCP server is running; this folder is a design sketch. Agents should `GET https://thelanternworks.com/deals.json` directly.
 
 Read-only MCP surface over the **public** agent work-stack deal feed. No auth. No spend. Work-stack niche only (compute, hosting, search, crawl, unblock, email, templates) — not consumer affiliate shopping.

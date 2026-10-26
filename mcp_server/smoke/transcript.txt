@@ -1,0 +1,167 @@
+Processing request of type ListToolsRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+server: lantern-works-deals 1.30.0
+tools: ['search_deals', 'compare_deals', 'get_deal']
+
+== search_deals {"query": "proxy", "limit": 3}
+{
+ "total": 23,
+ "count": 3,
+ "results": [
+  {
+   "id": "deal-9proxy-001",
+   "title": "9Proxy \u2014 residential proxies from $0.018/IP or $0.68/GB, 5% off via referral code",
+   "advertiser": "9Proxy",
+   "category": "unblock",
+   "offer_type": "verified_discount",
+   "price_usd": null,
+   "unit": "Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)",
+   "verified_at": "2026-10-25T18:05:00-04:00",
+   "redeem_url": "https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6",
+   "affiliate": true
+  },
+  {
+   "id": "deal-proxydocker-001",
+   "title": "Proxydocker \u2014 proxy lists and proxy API (free list plus premium plans)",
+   "advertiser": "Proxydocker",
+   "category": "proxies",
+   "offer_type": "standard_referral",
+   "price_usd": 9.95,
+   "unit": "Premium plan, per month (billed monthly)",
+   "verified_at": "2026-10-26T08:25:00-04:00",
+   "redeem_url": "https://proxydocker.com/r/z9k7gevk",
+   "affiliate": true
+  },
+  {
+   "id": "deal-brightdata-resi-001",
+   "title": "Bright Data \u2014 Residential proxies 50% off 3 mo (RESIGB50)",
+   "advertiser": "Bright Data",
+   "category": "unblock",
+   "offer_type": "verified_discount",
+   "price_usd": null,
+   "unit": "50% off residential proxies for 3 months; first-deposit match up to $500 (new accounts)",
+   "verified_at": null,
+   "redeem_url": "https://brightdata.com/pricing/proxy-network/residential-proxies",
+   "affiliate": false
+  }
+ ],
+ "next_cursor": "eyJvIjogM30"
+}
+
+== search_deals {"category": "search", "offer_type": "free_tier", "limit": 2}
+{
+ "total": 4,
+ "count": 2,
+ "results": [
+  {
+   "id": "deal-firecrawl-free-001",
+   "title": "Firecrawl \u2014 Free 1,000 credits/mo (no card)",
+   "advertiser": "Firecrawl",
+   "category": "search",
+   "offer_type": "free_tier",
+   "price_usd": 0,
+   "unit": "1,000 credits/mo; no credit card",
+   "verified_at": null,
+   "redeem_url": "https://www.firecrawl.dev/pricing",
+   "affiliate": false
+  },
+  {
+   "id": "deal-jina-reader-free-001",
+   "title": "Jina AI Reader \u2014 Free Reader + 10M free tokens on new key",
+   "advertiser": "Jina AI",
+   "category": "search",
+   "offer_type": "free_tier",
+   "price_usd": 0,
+   "unit": "Reader free for basic usage (r.jina.ai prepend); new API keys include 10M free tokens; Free key ~100 RPM",
+   "verified_at": null,
+   "redeem_url": "https://jina.ai/reader/",
+   "affiliate": false
+  }
+ ],
+ "next_cursor": "eyJvIjogMn0"
+}
+
+== compare_deals {"ids": ["deal-9proxy-001", "deal-proxydocker-001"]}
+{
+ "order": "customer_value",
+ "deals": [
+  {
+   "id": "deal-9proxy-001",
+   "advertiser": "9Proxy",
+   "category": "unblock",
+   "offer_type": "verified_discount",
+   "price_usd": null,
+   "list_price_usd": null,
+   "unit": "Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)",
+   "billing_period": null,
+   "promo_code": "9P_8KsTzWv6",
+   "expires_at": null,
+   "verified_at": "2026-10-25T18:05:00-04:00",
+   "redeem_url": "https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6",
+   "pricing_note": "Starting from $0.018/IP or $0.68/GB (per 9proxy.com/pricing, checked 2026-10-25)."
+  },
+  {
+   "id": "deal-proxydocker-001",
+   "advertiser": "Proxydocker",
+   "category": "proxies",
+   "offer_type": "standard_referral",
+   "price_usd": 9.95,
+   "list_price_usd": null,
+   "unit": "Premium plan, per month (billed monthly)",
+   "billing_period": "month",
+   "promo_code": null,
+   "expires_at": null,
+   "verified_at": "2026-10-26T08:25:00-04:00",
+   "redeem_url": "https://proxydocker.com/r/z9k7gevk",
+   "pricing_note": "Per proxydocker.com (checked 2026-10-26): premium plans $9.95, $29.95 and $49.95 per month billed monthly (discounts for 6-month billing); free proxy list and free geolocation API tier."
+  }
+ ],
+ "note": "price_usd null = unknown, not free. Confirm terms on the vendor page before spending."
+}
+
+== get_deal {"id": "deal-9proxy-001"}
+{
+ "id": "deal-9proxy-001",
+ "title": "9Proxy \u2014 residential proxies from $0.018/IP or $0.68/GB, 5% off via referral code",
+ "advertiser": "9Proxy",
+ "category": "unblock",
+ "offer_type": "verified_discount",
+ "tags": [
+  "proxy",
+  "residential-proxy",
+  "unblock",
+  "scrape",
+  "9proxy",
+  "referral-code",
+  "affiliate"
+ ],
+ "affiliate": true,
+ "agent_only": false,
+ "price_usd": null,
+ "list_price_usd": null,
+ "currency": "USD",
+ "unit": "Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)",
+ "billing_period": null,
+ "promo_code": "9P_8KsTzWv6",
+ "redeem_url": "https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6",
+ "expires_at": null,
+ "verified_at": "2026-10-25T18:05:00-04:00",
+ "updated_at": "2026-10-25T18:05:00-04:00",
+ "agent_instructions": "Sign up via the invite link (code 9P_8KsTzWv6 is pre-filled) for 5% off purchases. Starting prices: $0.018/IP or $0.68/GB; confirm current plan prices on 9proxy.com before buying.",
+ "docs_url": "https://www.proxyrack.com/pricing/",
+ "source_url": "https://9proxy.com/affiliate",
+ "pricing_note": "Starting from $0.018/IP or $0.68/GB (per 9proxy.com/pricing, checked 2026-10-25).",
+ "claim_note": "Referees get 5% off purchases with invite code 9P_8KsTzWv6 (stated on 9proxy.com/affiliate)."
+}
+
+== get_deal {"id": "does-not-exist"}
+{
+ "error": {
+  "code": "not_found",
+  "message": "No deal with id 'does-not-exist'"
+ }
+}

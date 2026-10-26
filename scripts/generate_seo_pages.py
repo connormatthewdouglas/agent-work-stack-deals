@@ -500,8 +500,23 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
   <h2>Skill and MCP</h2>
   <ul>
     <li>Agent skill: <a href="{BASE}/skills/lantern-works-deals/SKILL.html">lantern-works-deals</a> (source <code>skills/lantern-works-deals/SKILL.md</code> in the repo). Copy it into your agent's skills folder.</li>
-    <li>MCP: <strong>not hosted</strong>. The repo's <code>mcp/</code> folder is a design sketch only; use the JSON feed directly.</li>
+    <li>MCP: a read-only <strong>local (stdio)</strong> server with tools <code>search_deals</code>, <code>compare_deals</code> and <code>get_deal</code>. There is no hosted endpoint. Results are ranked by customer value, never by affiliate status.</li>
   </ul>
+
+  <h2>Install the MCP server (local stdio)</h2>
+  <pre>git clone https://github.com/connormatthewdouglas/agent-work-stack-deals.git
+cd agent-work-stack-deals
+python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r mcp_server/requirements.txt</pre>
+  <p>Add it to your client's MCP config (Claude Desktop <code>claude_desktop_config.json</code>, Cursor <code>.cursor/mcp.json</code>), using absolute paths:</p>
+  <pre>{{
+  "mcpServers": {{
+    "lantern-works-deals": {{
+      "command": "/ABS/PATH/agent-work-stack-deals/.venv/bin/python",
+      "args": ["/ABS/PATH/agent-work-stack-deals/mcp_server/server.py"]
+    }}
+  }}
+}}</pre>
+  <p>The server fetches <code>{v1}</code> and caches it for 5 minutes. Set <code>LANTERN_DEALS_FILE</code> to a local JSON path to work offline. Errors come back as <code>{{"error": {{"code", "message"}}}}</code>; page with <code>next_cursor</code>.</p>
 
   <h2>Handling the data</h2>
   <ul>

@@ -21,3 +21,19 @@ Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 - **Migration test:** `python3 scripts/test_url_migration.py` checks old GitHub Pages project URLs 301 to the new domain, key pages return 200, and the feeds match.
 - **Compliance gate:** when the private registry (`LANTERN_COMPLIANCE_REGISTRY`, default `../../lanternworks/private/compliance_registry.json`, owned by Wick) is present, the generator publishes only deals whose status is `approved`; others move to a private held file and come back automatically once approved. Absent registry (CI) = feed published as-is.
 - **For agents:** https://thelanternworks.com/for-agents/ documents endpoints, schema and offer types.
+
+## MCP server (read-only, local stdio)
+
+`mcp_server/` is a working MCP server on the official Python SDK with tools `search_deals`, `compare_deals` and `get_deal`. Filter and rank logic lives in `core/` (reusable by the site and CLI) and ranks by customer value, never by affiliate status. No hosted transport.
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r mcp_server/requirements.txt
+```
+
+```json
+{ "mcpServers": { "lantern-works-deals": {
+    "command": "/ABS/PATH/agent-work-stack-deals/.venv/bin/python",
+    "args": ["/ABS/PATH/agent-work-stack-deals/mcp_server/server.py"] } } }
+```
+
+Details, errors, and tests: [mcp_server/README.md](mcp_server/README.md). Install guide: https://thelanternworks.com/for-agents/
