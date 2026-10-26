@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — DocsBot AI
+
+- Added DocsBot AI (AI chatbot/RAG API; free plan, paid plans from $49/mo) to the AI agents hub; pricing verified on docsbot.ai.
+
 ## 2026-10-26 — Keywords Everywhere
 
 - Added Keywords Everywhere (keyword volume, CPC and backlink data; Bronze $7/mo billed annually) to the SEO hub; pricing verified on keywordseverywhere.com.
