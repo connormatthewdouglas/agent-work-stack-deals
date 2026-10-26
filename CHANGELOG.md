@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-25 — Link Whisper live affiliate
+
+- Added **Link Whisper** WordPress internal-linking plugin (`deal-linkwhisper-001`,
+
 ## 2026-10-25 — SEOWriting.ai live affiliate
 
 ; listed on the ai-agents hub.
