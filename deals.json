@@ -1,4 +1,5 @@
 {
+  "schema_version": "1.0.0",
   "feed_version": "0.1.0",
   "title": "Agent work-stack deal feed",
   "description": "Public read-only JSON feed of agent-oriented offers for compute, unblock/scraping, search, email, hosting, SEO, templates, and AI agents. Includes standard signups (some via affiliate links, marked affiliate: true), verified public free tiers, and vendor-published discounts. Unknown prices are null.",
@@ -6,7 +7,7 @@
   "updated_at": "2026-10-25T22:58:00-04:00",
   "query": {
     "how": "GET this JSON (public, no auth). Filter locally with the contract below, or use query_deals.py / the MCP sketch in-repo.",
-    "feed_url": "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json",
+    "feed_url": "https://thelanternworks.com/deals.json",
     "cli": "python3 query_deals.py [--category ...] [--affiliate|--no-affiliate] [--free-tier] [--updated-since ISO8601] [--tag ...] [--agent-only] [--max-price N] [--real-only|--include-examples] [--id ...] [--json]",
     "defaults": {
       "real_only": true,
@@ -42,7 +43,10 @@
       "default": "customer_value",
       "meaning": "Real discounts first, then verified free tiers, then standard signups; alphabetical by advertiser. Affiliate/referral status does not affect order."
     },
-    "disclosure": "Listings with affiliate == true use affiliate/referral links; Lantern Works may earn a commission. This does not change your price or the ranking. Commission rates are not published in this feed."
+    "disclosure": "Listings with affiliate == true use affiliate/referral links; Lantern Works may earn a commission. This does not change your price or the ranking. Commission rates are not published in this feed.",
+    "feed_url_v1": "https://thelanternworks.com/api/v1/deals.json",
+    "feed_mirror_url": "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json",
+    "schema_url": "https://thelanternworks.com/schema.json"
   },
   "deals": [
     {
@@ -74,7 +78,10 @@
       "source_url": "https://9proxy.com/affiliate",
       "claim_note": "Referees get 5% off purchases with invite code 9P_8KsTzWv6 (stated on 9proxy.com/affiliate).",
       "pricing_note": "Starting from $0.018/IP or $0.68/GB (per 9proxy.com/pricing, checked 2026-10-25).",
-      "offer_type": "discount"
+      "offer_type": "discount",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T18:05:00-04:00"
     },
     {
       "agent_only": false,
@@ -100,7 +107,11 @@
       "source_url": "https://apify.com/resources/startups",
       "claim_note": "apply-not-code",
       "agent_instructions": "Apply via Apify Startups program page. Do not invent a coupon. Wait for vendor confirmation before claiming 30% Scale discount.",
-      "offer_type": "discount"
+      "offer_type": "discount",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -126,7 +137,11 @@
       "redeem_url": "https://brightdata.com/pricing/proxy-network/residential-proxies",
       "source_url": "https://brightdata.com/coupons",
       "agent_instructions": "Create Bright Data account. Apply promo_code RESIGB50 in Billing for residential proxies (3 months). New accounts may get first-deposit match up to $500. Do not use Bright Data 25% API/Unlocker/SERP coupon tiles.",
-      "offer_type": "discount"
+      "offer_type": "discount",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-firecrawl-001",
@@ -149,7 +164,11 @@
       "redeem_url": "https://firecrawl.link/lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Firecrawl crawl/scrape → LLM-ready markdown. Suited to RAG and site research agents. Use free tier first; paid plans apply after.",
-      "offer_type": "discount"
+      "offer_type": "discount",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -174,7 +193,11 @@
       "redeem_url": "https://oxylabs.io/products/coupon-codes",
       "source_url": "https://oxylabs.io/products/coupon-codes",
       "agent_instructions": "New Oxylabs clients only. Use promo_code DISCOUNT30 at checkout on eligible Micro/Starter/Advanced plans. Confirm current terms on the coupon page before paying.",
-      "offer_type": "discount"
+      "offer_type": "discount",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-proxystore-001",
@@ -198,7 +221,11 @@
       "redeem_url": "https://proxy-store.com/?ref=183166",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Proxy-Store proxies. Optional coupon for referred users: yfmhOSr6 (5% first order).",
-      "offer_type": "discount"
+      "offer_type": "discount",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -223,7 +250,11 @@
       "redeem_url": "https://www.agentmail.to/pricing",
       "source_url": "https://www.agentmail.to/pricing",
       "agent_instructions": "Sign up for AgentMail Free plan. Do not invent promo codes. Respect daily/monthly send caps.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -250,7 +281,11 @@
       "source_url": "https://www.agentmail.to/startups",
       "claim_note": "apply-not-code",
       "agent_instructions": "Apply at AgentMail /startups. Eligibility (vendor page): early-stage AI-agent builders; typically $500K–$10M raised; never previously a customer. No public promo code. Wait for approval email.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -275,7 +310,11 @@
       "redeem_url": "https://apify.com/pricing",
       "source_url": "https://apify.com/pricing",
       "agent_instructions": "Sign up for Apify Free. Use monthly $5 prepaid credit for Actors. Respect platform ToS.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -300,7 +339,11 @@
       "redeem_url": "https://docs.brightdata.com/general/account/billing-and-pricing/free-tier",
       "source_url": "https://docs.brightdata.com/general/account/billing-and-pricing/free-tier",
       "agent_instructions": "Sign up for Bright Data. Free 5,000 credits/mo apply automatically to eligible APIs. No promo code. Proxies are not in this free pool.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -325,7 +368,11 @@
       "redeem_url": "https://www.browserbase.com/pricing",
       "source_url": "https://www.browserbase.com/pricing",
       "agent_instructions": "Sign up on Browserbase Free plan. Stay within concurrent/hour/Search+Fetch caps.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -351,7 +398,11 @@
       "redeem_url": "https://www.browserless.io/pricing",
       "source_url": "https://www.browserless.io/pricing",
       "agent_instructions": "Sign up for Browserless Free plan. Stay within 1k units/mo and 2 concurrent browsers.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -379,7 +430,11 @@
       "redeem_url": "https://developers.cloudflare.com/workers/platform/pricing/",
       "source_url": "https://developers.cloudflare.com/workers/platform/pricing/",
       "agent_instructions": "Use Cloudflare Workers Free plan for agent edge functions. Stay under 100k requests/day and 10ms CPU/invocation. Static asset requests are free/unlimited per docs.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -406,7 +461,11 @@
       "source_url": "https://www.firecrawl.dev/pricing",
       "claim_note": null,
       "agent_instructions": "Sign up on Firecrawl pricing/free tier (no card). Use for crawl/scrape → LLM-ready markdown.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -433,7 +492,11 @@
       "redeem_url": "https://fly.io/docs/about/free-trial/",
       "source_url": "https://fly.io/docs/about/pricing/",
       "agent_instructions": "Create a Fly.io org and start the free trial without a card. Track Trial Status; adding a card ends the trial. After trial there is no monthly free allowance — plan for paid usage.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -460,7 +523,11 @@
       "redeem_url": "https://docs.github.com/en/billing/concepts/product-billing/github-codespaces",
       "source_url": "https://docs.github.com/en/billing/concepts/product-billing/github-codespaces",
       "agent_instructions": "Use Codespaces on a personal GitHub Free account within included monthly compute/storage. Org/enterprise plans do not include a free Codespaces quota per docs.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -487,7 +554,11 @@
       "redeem_url": "https://console.groq.com/docs/rate-limits",
       "source_url": "https://console.groq.com/docs/rate-limits",
       "agent_instructions": "Create a Groq account and use Free plan rate limits for agent LLM calls. Check current Free Plan Limits table per model; upgrade if you hit 429s.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -512,7 +583,11 @@
       "redeem_url": "https://www.hyperbrowser.ai/pricing",
       "source_url": "https://www.hyperbrowser.ai/pricing",
       "agent_instructions": "Sign up at Hyperbrowser. Use free 5,000 credits; confirm current free allowance on pricing.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -539,7 +614,11 @@
       "redeem_url": "https://jina.ai/reader/",
       "source_url": "https://jina.ai/reader/",
       "agent_instructions": "Use Jina Reader for URL→LLM markdown. Basic prepend usage is free; create an API key for higher limits and the 10M free token grant. Respect rate limits.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -564,7 +643,11 @@
       "redeem_url": "https://www.kernel.sh/pricing",
       "source_url": "https://www.kernel.sh/pricing",
       "agent_instructions": "Sign up at Kernel pricing page. Use monthly free $5 allotment; confirm stealth/free limits on current pricing.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -591,7 +674,11 @@
       "redeem_url": "https://modal.com/pricing",
       "source_url": "https://modal.com/pricing",
       "agent_instructions": "Sign up for Modal Starter. Use the $30/month free compute credit for GPU/CPU jobs. Confirm current allotment on pricing before scaling.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -619,7 +706,11 @@
       "redeem_url": "https://neon.tech/pricing",
       "source_url": "https://neon.com/pricing",
       "agent_instructions": "Create a Neon Free project for agent Postgres. Stay within CU-hours and storage per project. No card required.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -646,7 +737,11 @@
       "redeem_url": "https://postmarkapp.com/pricing",
       "source_url": "https://postmarkapp.com/pricing",
       "agent_instructions": "Sign up for Postmark Free Developer plan. Use for transactional agent mail only (not cold spam). 100 emails/mo never expires per vendor FAQ.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -671,7 +766,11 @@
       "redeem_url": "https://docs.railway.com/reference/pricing/free-trial",
       "source_url": "https://docs.railway.com/reference/pricing/free-trial",
       "agent_instructions": "Sign up at Railway for free trial ($5 / 30 days). After trial, Free plan grants $1/mo. Connect GitHub for full trial network access when possible.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -698,7 +797,11 @@
       "redeem_url": "https://render.com/pricing",
       "source_url": "https://render.com/pricing",
       "agent_instructions": "Sign up on Render pricing. Use Free compute for exploration/personal projects (spin-down limits). Hobby is $0/mo plus metered compute. Confirm current free limits before production workloads.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -723,7 +826,11 @@
       "redeem_url": "https://resend.com/pricing",
       "source_url": "https://resend.com/pricing",
       "agent_instructions": "Sign up at Resend Free. Verify domain/SPF. Transactional and user-requested only; no cold spam.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -750,7 +857,11 @@
       "redeem_url": "https://www.scrapingbee.com/pricing/",
       "source_url": "https://www.scrapingbee.com/",
       "agent_instructions": "Sign up at ScrapingBee for 1,000 free API credits (no card). Basic request = 1 credit; JS/premium features cost more. Do not invent promo codes.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -776,7 +887,11 @@
       "redeem_url": "https://serpapi.com/pricing",
       "source_url": "https://serpapi.com/pricing",
       "agent_instructions": "Sign up for SerpApi Free plan. Cache results; only successful searches count. Do not invent discount codes.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -798,10 +913,14 @@
       "advertiser": "Steel",
       "price_usd": 0,
       "unit": "$30 one-time free usage (~300 browser hrs); 90-day validity; captcha/proxies need $10 deposit",
-      "redeem_url": "https://docs.steel.dev/overview/pricing",
-      "source_url": "https://docs.steel.dev/overview/pricing",
+      "redeem_url": "https://steel.dev/pricing",
+      "source_url": "https://steel.dev/pricing",
       "agent_instructions": "Sign up at Steel. Use free $30 usage within 90 days. Captcha/proxy features may require a $10 deposit — confirm on docs before enabling.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": "2026-10-26T08:20:00-04:00",
+      "verified_at": "2026-10-26T08:20:00-04:00"
     },
     {
       "agent_only": false,
@@ -828,7 +947,11 @@
       "redeem_url": "https://docs.tavily.com/documentation/api-credits",
       "source_url": "https://docs.tavily.com/documentation/api-credits",
       "agent_instructions": "Get a Tavily API key and use the monthly 1,000 free credits for agent search/extract. Basic search = 1 credit; advanced = 2.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -856,7 +979,11 @@
       "redeem_url": "https://turso.tech/pricing",
       "source_url": "https://turso.tech/pricing",
       "agent_instructions": "Sign up for Turso Free Cloud. Use for edge/embedded SQLite agent state. Confirm current Free limits on pricing.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -883,7 +1010,11 @@
       "redeem_url": "https://upstash.com/pricing",
       "source_url": "https://upstash.com/pricing/redis",
       "agent_instructions": "Create an Upstash Redis free database for agent queues/cache. Stay within 250MB and 500K commands/mo. Optional no-signup start URL exists for quick tests — prefer a real account for production.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -910,7 +1041,11 @@
       "redeem_url": "https://vercel.com/pricing",
       "source_url": "https://vercel.com/pricing",
       "agent_instructions": "Sign up for Vercel Hobby. Deploy personal/non-commercial projects within Hobby caps. Upgrade to Pro if you need commercial use or overages.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "agent_only": false,
@@ -937,7 +1072,11 @@
       "redeem_url": "https://www.zenrows.com/pricing",
       "source_url": "https://www.zenrows.com/",
       "agent_instructions": "Sign up for ZenRows Free. Credits refresh monthly (no top-ups on Free). Only successful requests spend credits.",
-      "offer_type": "free_tier"
+      "offer_type": "free_tier",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-99stack-001",
@@ -967,7 +1106,10 @@
       "expires_at": null,
       "agent_instructions": "Deploy hourly-billed cloud VPS or GPU instances via 99Stack Cloud's redeem_url (pre-paid balance). Delete instances when idle to avoid charges; confirm current rates at launch.",
       "pricing_note": "Examples (per 99stack.com product pages): SSD VPS Shared Small 1 vCPU/512 MB/10 GiB from $0.0068/hr ($5/mo); NVIDIA H100 (12 vCPU/240 GB RAM) $2.8767/hr ($2,100/mo).",
-      "offer_type": "credit_referral"
+      "offer_type": "credit_referral",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T21:55:00-04:00"
     },
     {
       "id": "deal-adspower-001",
@@ -994,7 +1136,10 @@
       "updated_at": "2026-10-23T19:15:00-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for AdsPower antidetect browser profiles. Code lanternworks may apply a discount — not verified; verify at checkout.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T19:15:00-04:00"
     },
     {
       "id": "deal-albato-001",
@@ -1024,7 +1169,10 @@
       "expires_at": null,
       "agent_instructions": "Build API integrations and automated workflows via Albato's redeem_url.",
       "pricing_note": "Pricing per albato.com/pricing (two prices shown per plan, likely monthly vs annual billing; confirm at checkout): Free $0 (100 transactions/mo, 5 active automations, 15-min updates); Pro $22/mo or $15/mo (1K transactions, unlimited automations and steps, 5-min updates, 7-day trial); Teams $93/mo or $65/mo (from 5K transactions, teams mode with roles); Enterprise by contact. Extra transactions $0.0330 each.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:15:00-04:00"
     },
     {
       "id": "deal-anotherwrapper-001",
@@ -1055,7 +1203,10 @@
       "source_url": "https://anotherwrapper.com/",
       "claim_note": null,
       "pricing_note": "One-time payment, lifetime access (per anotherwrapper.com): Solo $249 (1 developer license; shown against $349), Startup $549 (up to 5 developers; shown against $799), Agency $999 (up to 10 developers; shown against $1,499). Site says the $249 batch price rises to $299 later; 30-day money-back guarantee.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T22:58:00-04:00"
     },
     {
       "id": "deal-apilayer-001",
@@ -1080,7 +1231,11 @@
       "redeem_url": "https://apilayer.com?fpr=lanternworks",
       "expires_at": null,
       "agent_instructions": "Covers scrapestack, mailboxlayer, ipstack, Zenserp/serpstack and other APILayer products.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-betterstack-001",
@@ -1104,7 +1259,11 @@
       "redeem_url": "https://betterstack.com/?ref=b-jo4b",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Better Stack (uptime, logs, incidents).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-bolna-001",
@@ -1133,7 +1292,10 @@
       "expires_at": null,
       "agent_instructions": "Build and deploy multilingual inbound/outbound voice AI calling agents for Indian languages via Bolna's redeem_url.",
       "pricing_note": "Pay-as-you-go credits ($10 to $5000), standard rate 6.00¢ (₹5.52)/min, plus pilot and enterprise plans (per bolna.ai/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T13:00:00-04:00"
     },
     {
       "id": "deal-botdog-001",
@@ -1162,7 +1324,10 @@
       "expires_at": null,
       "agent_instructions": "Automate LinkedIn connection invites and follow-up sequences via Botdog's redeem_url. Respect LinkedIn's User Agreement/ToS and usage limits (automation can risk account restrictions), and comply with CAN-SPAM, GDPR, and other anti-spam laws: honest identity, relevant personalized messages, honor opt-outs promptly, no scraped or purchased lists without a lawful basis.",
       "pricing_note": "Solo $79/mo per sender ($55.33/mo billed yearly); Agency from $299/mo for 5 senders ($209.33/mo yearly); Managed from $690/mo per seat (per botdog.co/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:35:00-04:00"
     },
     {
       "id": "deal-botpress-001",
@@ -1190,7 +1355,10 @@
       "expires_at": null,
       "agent_instructions": "Build and deploy AI agents for customer support and other workflows (webchat, WhatsApp, Slack; Intercom, Zendesk, HubSpot, Salesforce integrations) via Botpress's redeem_url.",
       "pricing_note": "Free plan (100 conversations); Plus $150/mo and Team $750/mo billed annually (per botpress.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T10:25:00-04:00"
     },
     {
       "id": "deal-browseract-001",
@@ -1220,7 +1388,10 @@
       "expires_at": null,
       "agent_instructions": "Build and run browser agents for scraping and web automation (or call them via MCP) through BrowserAct's redeem_url.",
       "pricing_note": "Free (200 signup credits); Basic $16/mo, Essential $70/mo, Advanced $120/mo; ~20% off yearly (Basic $13/mo, Essential $56/mo) per browseract.com/pricing.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T17:52:00-04:00"
     },
     {
       "id": "deal-buildship-001",
@@ -1249,7 +1420,10 @@
       "expires_at": null,
       "agent_instructions": "Build AI workflows, agents, and backend APIs (prompt-to-flow with full code access, ready-made integration nodes) via BuildShip's redeem_url.",
       "pricing_note": "AI-powered workflow builder for backend APIs, flows, and agents (prompt-to-flow, full code access). 7-day free trial; Starter $19/mo, Pro $59/mo, Business $449/mo (per buildship.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T14:05:00-04:00"
     },
     {
       "id": "deal-bunny-001",
@@ -1273,7 +1447,11 @@
       "redeem_url": "https://bunny.net?ref=xrflx381px",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Bunny.net CDN and edge storage.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-chatbase-001",
@@ -1299,7 +1477,10 @@
       "updated_at": "2026-10-23T20:39:00-04:00",
       "expires_at": null,
       "agent_instructions": "Train customer-support AI agents on your own docs and data via Chatbase's redeem_url.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T20:39:00-04:00"
     },
     {
       "id": "deal-chipp-001",
@@ -1325,7 +1506,10 @@
       "updated_at": "2026-10-23T20:39:00-04:00",
       "expires_at": null,
       "agent_instructions": "Build and deploy custom AI agents and chatbots without code via Chipp's redeem_url.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T20:39:00-04:00"
     },
     {
       "id": "deal-cleanproxies-001",
@@ -1348,7 +1532,11 @@
       "redeem_url": "https://www.cleanproxies.com/?referral_code=822553zd",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for CleanProxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-clearbounce-001",
@@ -1374,7 +1562,10 @@
       "updated_at": "2026-10-23T18:17:57-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for ClearBounce email verification.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T18:17:57-04:00"
     },
     {
       "id": "deal-contentbot-001",
@@ -1403,7 +1594,10 @@
       "expires_at": null,
       "agent_instructions": "Generate and publish SEO content via ContentBot.ai's redeem_url.",
       "pricing_note": "Pricing per contentbot.ai (#pricing section): Prepaid once-off $0.5 per 1,000 words (15k to 5M words; 10k words free on first purchase); Starter $9/mo (50,000 words/mo); Premium $29/mo (150,000 words/mo, 3 AI workflows); Premium+ $49/mo (400,000 words/mo, unlimited AI workflows).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:50:00-04:00"
     },
     {
       "id": "deal-dataimpulse-001",
@@ -1427,7 +1621,11 @@
       "redeem_url": "https://dataimpulse.com/?aff=5d92862f-3eb4-4ed4-97dd-66df695a6def",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for DataImpulse.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-dmarcly-001",
@@ -1458,7 +1656,10 @@
       "expires_at": null,
       "agent_instructions": "Set up DMARC/SPF/DKIM monitoring via DMARCLY's redeem_url. Authentication improves deliverability but is not a license to spam: comply with CAN-SPAM, GDPR, and other anti-spam laws (honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis).",
       "pricing_note": "Pricing per dmarcly.com/pricing (monthly/annual toggle; confirm at checkout): Professional $17.99/mo, Growth $39.99/mo, Business $69/mo, Enterprise $199/mo; overage $10 per 1M emails over quota, $1 per extra DMARC domain, $10 per extra Safe SPF domain. 14-day free trial, no credit card required.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T18:25:00-04:00"
     },
     {
       "id": "deal-droxy-001",
@@ -1487,7 +1688,10 @@
       "expires_at": null,
       "agent_instructions": "Build no-code AI chat/voice agents trained on your own knowledge and deploy them to web and social channels via Droxy's redeem_url.",
       "pricing_note": "Basic $24/mo, Advanced $120/mo, Enterprise $320/mo (20% off annually) (per droxy.ai/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:30:00-04:00"
     },
     {
       "id": "deal-emaillistverify-001",
@@ -1513,7 +1717,10 @@
       "updated_at": "2026-10-23T18:54:00-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for EmailListVerify email list verification.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T18:54:00-04:00"
     },
     {
       "id": "deal-emailoctopus-001",
@@ -1543,7 +1750,10 @@
       "expires_at": null,
       "agent_instructions": "Send newsletters and automated email campaigns via EmailOctopus using the redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: send only to opted-in subscribers, honest sender identity and subject lines, a physical address, working unsubscribe honored promptly, no purchased or scraped lists.",
       "offer_type": "standard_signup",
-      "pricing_note": "Pricing per emailoctopus.com/pricing: Starter Free (2,500 subscribers, 10,000 emails/mo, EmailOctopus branding); Pro from $9/mo billed yearly at the smallest subscriber tier (price scales with subscribers; yearly saves 10%). 20% lifetime discount for nonprofits; custom quotes above 500,000 subscribers."
+      "pricing_note": "Pricing per emailoctopus.com/pricing: Starter Free (2,500 subscribers, 10,000 emails/mo, EmailOctopus branding); Pro from $9/mo billed yearly at the smallest subscriber tier (price scales with subscribers; yearly saves 10%). 20% lifetime discount for nonprofits; custom quotes above 500,000 subscribers.",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:22:00-04:00"
     },
     {
       "id": "deal-exa-001",
@@ -1572,7 +1782,10 @@
       "expires_at": null,
       "agent_instructions": "Give agents web search, page contents, deep search, and research runs (API and MCP server) via Exa's redeem_url.",
       "pricing_note": "Free Starter: $10 credits/month plus $10 onboarding bonus, no payment method; Search from $4/1k requests, Contents $1/1k pages, Deep Search $12/1k, Agent runs $0.012-$1.00 (per exa.ai/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T12:25:00-04:00"
     },
     {
       "agent_only": false,
@@ -1599,7 +1812,11 @@
       "source_url": "https://www.firecrawl.dev/student-program",
       "claim_note": "apply-not-code",
       "agent_instructions": "Open the Student Program page and apply. Do NOT invent or use a public coupon code. Wait for vendor approval.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-flowlu-001",
@@ -1629,7 +1846,10 @@
       "expires_at": null,
       "agent_instructions": "Set up CRM, projects and workflow automation via Flowlu's redeem_url.",
       "pricing_note": "Pricing per flowlu.com/pricing (per user per month): Free $0 (2 users, always free; CRM with 100 contacts and 1 pipeline); Essential $9 billed yearly / $12 billed monthly; Advanced $17 yearly / $22 monthly; Ultimate $24 yearly / $32 monthly.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:32:00-04:00"
     },
     {
       "id": "deal-folderly-001",
@@ -1658,7 +1878,10 @@
       "expires_at": null,
       "agent_instructions": "Improve deliverability and test inbox placement via Folderly's redeem_url. Deliverability tooling is not a license to spam: comply with CAN-SPAM, GDPR, and other anti-spam laws (honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis).",
       "offer_type": "standard_signup",
-      "pricing_note": "Pricing per folderly.com/pricing: sender reputation maintenance $96 per mailbox/month billed yearly (save 20%); inbox placement tests free 2/mo, $79/mo for 100 tests/month, or $799/yr (save 15%); spam-placement alerts $0/mo. A 10% referral coupon was not shown on folderly.com; verify at checkout."
+      "pricing_note": "Pricing per folderly.com/pricing: sender reputation maintenance $96 per mailbox/month billed yearly (save 20%); inbox placement tests free 2/mo, $79/mo for 100 tests/month, or $799/yr (save 15%); spam-placement alerts $0/mo. A 10% referral coupon was not shown on folderly.com; verify at checkout.",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T18:58:00-04:00"
     },
     {
       "id": "deal-fullenrich-001",
@@ -1687,7 +1910,10 @@
       "expires_at": null,
       "agent_instructions": "Find verified work emails and mobile numbers via FullEnrich's waterfall enrichment API or MCP server using the redeem_url (charged only when data is found). Respect privacy and anti-spam law.",
       "pricing_note": "Waterfall enrichment across many providers for work emails, mobile phones, personal emails, and reverse email lookup; pay only for verified data found; API, MCP server, CRM integrations, unlimited users. 50 free credits, no card; Pro e.g. 1,000 credits/mo at $0.055/credit (1 credit per work email, 10 per mobile); credits roll over 3 months monthly / 12 months yearly (per fullenrich.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:15:00-04:00"
     },
     {
       "id": "deal-geonode-001",
@@ -1710,7 +1936,11 @@
       "redeem_url": "https://geonode.com/?ref=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Geonode.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-getsales-001",
@@ -1739,7 +1969,10 @@
       "expires_at": null,
       "agent_instructions": "Run multichannel LinkedIn + email outreach (or drive it via API/MCP) through GetSales' redeem_url. Affiliate dashboard lists code AFF50CN (50% discount) — verify at checkout; do not promise it. Respect LinkedIn's User Agreement/ToS and usage limits (automation can risk account restrictions), and comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, physical address in email, honor opt-outs promptly, no scraped or purchased lists without a lawful basis.",
       "pricing_note": "Free trial; Send $39/seat/mo, Enrich $49/seat/mo (monthly; 6/12-month terms discounted) per getsales.io/pricing.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:55:00-04:00"
     },
     {
       "id": "deal-gigagpu-001",
@@ -1768,7 +2001,10 @@
       "expires_at": null,
       "agent_instructions": "Order a dedicated GPU server (self-hosted LLMs, inference, fine-tuning, rendering) via GigaGPU's redeem_url; open it in a browser if a scripted request hits Cloudflare. Confirm current monthly price and specs at checkout before ordering.",
       "offer_type": "standard_signup",
-      "pricing_note": "Dedicated bare-metal servers with a single GPU card (e.g. RTX 3050 6GB, RTX 5060 Ti 16GB, RTX 3090 24GB, RTX 5080 16GB, Radeon AI Pro R9700 32GB); full root, NVMe, 1Gbps, UK datacenter, monthly billing, no contracts (per gigagpu.com). Monthly prices were not stated on the fetched page; check at checkout."
+      "pricing_note": "Dedicated bare-metal servers with a single GPU card (e.g. RTX 3050 6GB, RTX 5060 Ti 16GB, RTX 3090 24GB, RTX 5080 16GB, Radeon AI Pro R9700 32GB); full root, NVMe, 1Gbps, UK datacenter, monthly billing, no contracts (per gigagpu.com). Monthly prices were not stated on the fetched page; check at checkout.",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T19:20:00-04:00"
     },
     {
       "id": "deal-glorycloud-001",
@@ -1793,7 +2029,11 @@
       "redeem_url": "https://www.glorycloud.com/?ref=l2fzpl",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for GloryCloud (formerly GoProxy) proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-gologin-001",
@@ -1820,7 +2060,10 @@
       "updated_at": "2026-10-23T18:51:00-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for GoLogin antidetect browser profiles.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T18:51:00-04:00"
     },
     {
       "id": "deal-heyo-001",
@@ -1848,7 +2091,10 @@
       "expires_at": null,
       "agent_instructions": "Run cold-email sequences with unlimited sending accounts and automatic warmup via Heyo Email's redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis.",
       "pricing_note": "Cold-email sending: unlimited sending accounts (Microsoft Exchange OAuth), automatic peer-to-peer warmup, global unibox, multi-step sequences with A/B tests, DNC management, REST API; Heyo Infra Exchange mailboxes ~$0.34-0.44/mo. Starter $39/mo (50k emails), Growth $79/mo (200k emails), Agency whitelabel $49/mo (per heyoemail.com).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T21:26:00-04:00"
     },
     {
       "id": "deal-inboxkit-001",
@@ -1878,7 +2124,10 @@
       "expires_at": null,
       "agent_instructions": "Provision Google Workspace / Microsoft 365 sending mailboxes for outreach (UI, REST API or MCP) via InboxKit's redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis; follow Google/Microsoft sending policies.",
       "pricing_note": "Flat $3.00/mailbox/mo monthly or $2.50 annual (quarterly 10% off), no plans or minimums; Azure $30/tenant/mo (up to 100 mailboxes); warmup add-on $3/mailbox/mo; pre-warmed mailboxes $6–$9/mailbox/mo plus domain fee from $12.50; free account, no card; no promo code (per inboxkit.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T15:52:00-04:00"
     },
     {
       "id": "deal-incogniton-001",
@@ -1905,7 +2154,10 @@
       "updated_at": "2026-10-23T19:19:00-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Incogniton antidetect browser profiles.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T19:19:00-04:00"
     },
     {
       "id": "deal-infatica-001",
@@ -1929,7 +2181,11 @@
       "redeem_url": "https://dashboard.infatica.io/aff.php?aff=899",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Infatica proxies & scraper APIs.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-ipfoxy-001",
@@ -1954,7 +2210,11 @@
       "redeem_url": "https://www.ipfoxy.com/invite/lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for IPFoxy proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-klenty-001",
@@ -1984,7 +2244,10 @@
       "expires_at": null,
       "agent_instructions": "Run multichannel sales cadences (email, calls, LinkedIn tasks, SMS) via Klenty's redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis; follow TCPA/do-not-call rules for calls and SMS. Respect LinkedIn's User Agreement/ToS and usage limits for any LinkedIn steps.",
       "pricing_note": "Multichannel outreach across email, calls, LinkedIn and SMS with cadences, CRM sync, AI call coaching/scorecards and dialers. 14-day free trial (full access, up to 200 emails); Starter $50/mo billed annually (15,000 contacts, 75,000 emails/mo); Growth $70/user/mo annual; Plus $99/user/mo annual; Parallel & Power Dialer add-on $45/user/mo; up to 20% off annual/quarterly (per klenty.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T17:22:00-04:00"
     },
     {
       "id": "deal-latenode-001",
@@ -2012,7 +2275,10 @@
       "expires_at": null,
       "agent_instructions": "Build AI agents and automated workflows (chat-described agents, scheduled runs, AI app builder, tables) via Latenode's redeem_url.",
       "offer_type": "standard_signup",
-      "pricing_note": "Free plan forever, then pay-as-you-go per CPU second (first 10,000 CPU sec free) with paid add-ons (per latenode.com/pricing)."
+      "pricing_note": "Free plan forever, then pay-as-you-go per CPU second (first 10,000 CPU sec free) with paid add-ons (per latenode.com/pricing).",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T11:55:00-04:00"
     },
     {
       "id": "deal-leadmagic-001",
@@ -2041,7 +2307,10 @@
       "expires_at": null,
       "agent_instructions": "Find and verify B2B work emails, mobiles, and company data via LeadMagic's REST API, CLI, or hosted MCP using the redeem_url (pay only for valid results). Respect privacy and anti-spam law.",
       "pricing_note": "Plans from $99/mo (per leadmagic.io).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:10:00-04:00"
     },
     {
       "id": "deal-lightningproxies-001",
@@ -2064,7 +2333,11 @@
       "redeem_url": "https://app.lightningproxies.net/auth/register?referral=DB8F4A0C",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Lightning Proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-linkwhisper-001",
@@ -2093,7 +2366,10 @@
       "expires_at": null,
       "agent_instructions": "Add AI-suggested internal links to WordPress sites via Link Whisper's redeem_url. Pricing per linkwhisper.com/pricing (billed yearly): Starter $97/yr (1 site, 2,000 AI credits), Growth $197/yr (3 sites, 3,000 credits), Pro $297/yr (10 sites, 5,000 credits), Agency $497/yr (50 sites, 10,000 credits); 14-day money-back guarantee on initial licenses.",
       "offer_type": "standard_signup",
-      "pricing_note": "Pricing per linkwhisper.com/pricing (billed yearly): Starter $97/yr (1 site, 2,000 AI credits), Growth $197/yr (3 sites), Pro $297/yr (10 sites), Agency $497/yr (50 sites); 14-day money-back guarantee on initial licenses."
+      "pricing_note": "Pricing per linkwhisper.com/pricing (billed yearly): Starter $97/yr (1 site, 2,000 AI credits), Growth $197/yr (3 sites), Pro $297/yr (10 sites), Agency $497/yr (50 sites); 14-day money-back guarantee on initial licenses.",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T21:00:00-04:00"
     },
     {
       "id": "deal-mailerlite-001",
@@ -2122,7 +2398,10 @@
       "expires_at": null,
       "agent_instructions": "Run email campaigns, automations and signup forms, or send via MailerLite's API/MCP (paid plans), through the redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: send only to opted-in or lawfully obtained subscribers, honest sender identity and subject lines, physical address in marketing email, working unsubscribe honored promptly, no purchased or scraped lists.",
       "pricing_note": "Free plan up to 250 subscribers, 2,500 emails/mo; Comfort from $12/mo; Power from $25/mo; Enterprise custom; free trial, no card (per mailerlite.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T13:22:00-04:00"
     },
     {
       "id": "deal-mailfloss-001",
@@ -2151,7 +2430,10 @@
       "expires_at": null,
       "agent_instructions": "Verify and auto-clean email lists by connecting an email platform to mailfloss through the redeem_url. Verification is list hygiene, not permission: comply with CAN-SPAM, GDPR, and other anti-spam laws — email only opted-in or lawfully obtained contacts, honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists.",
       "pricing_note": "Free tier 500 verifications/mo; Lite from $29/mo (10,000 credits/mo); Business from $59/mo (25,000 credits/mo); higher credit tiers available; prepaid one-time credits that don't expire; 7-day free trial on subscriptions (card required) (per mailfloss.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T16:22:00-04:00"
     },
     {
       "id": "deal-mailkite-001",
@@ -2181,7 +2463,10 @@
       "expires_at": null,
       "agent_instructions": "Send transactional email, receive inbound mail as webhooks, or give an agent its own inbox via MailKite's MCP server through the redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: send only to opted-in or lawfully obtained recipients, honest sender identity and subject lines, working unsubscribe for non-transactional mail, no purchased lists or bulk cold blasting.",
       "pricing_note": "Free to start; Pro $5 first month then $20/mo; Scale $25 and Business $100 for month one (card required) (per mailkite.dev).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T21:22:00-04:00"
     },
     {
       "id": "deal-mailreach-001",
@@ -2210,7 +2495,10 @@
       "expires_at": null,
       "agent_instructions": "Warm up sending mailboxes and run spam/placement tests via MailReach's redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: warmup does not make unsolicited bulk email lawful — honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis.",
       "pricing_note": "Pricing calculator shows email warmup at $19.5 per mailbox per month (total varies by mailbox count, volume discounts shown) and spam-test credits sold in packs; custom quote for 100+ mailboxes / 10,000+ credits (per mailreach.co/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T14:30:00-04:00"
     },
     {
       "id": "deal-mailveri-001",
@@ -2240,7 +2528,10 @@
       "expires_at": null,
       "agent_instructions": "Verify email addresses or clean lists via MailVeri's API, MCP server or bulk upload using the redeem_url. Verification is not a license to spam: comply with CAN-SPAM, GDPR, and other anti-spam laws (honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis). Only verify addresses you have a lawful basis to process.",
       "pricing_note": "Pricing per mailveri.com/pricing — pay-as-you-go credit packs, no subscriptions, credits never expire: $9/10K, $19/25K, $39/50K (+10K bonus = 60K), $59/100K, $119/250K, $199/500K, $299/1M, $599/2.5M, $999/5M credits. 1,000 free credits on signup (no credit card).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T19:35:00-04:00"
     },
     {
       "id": "deal-millis-001",
@@ -2269,7 +2560,10 @@
       "expires_at": null,
       "agent_instructions": "Build and deploy low-latency voice agents for phone (inbound/outbound), web, and apps via Millis AI's API using the redeem_url.",
       "pricing_note": "Pricing starting at $0.02/min (per millis.ai).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:25:00-04:00"
     },
     {
       "id": "deal-morelogin-001",
@@ -2296,7 +2590,10 @@
       "updated_at": "2026-10-23T19:24:00-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for MoreLogin antidetect browser profiles.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T19:24:00-04:00"
     },
     {
       "id": "deal-novita-001",
@@ -2321,7 +2618,11 @@
       "redeem_url": "https://novita.ai/?ref=mgezngr",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Novita AI.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-nstbrowser-001",
@@ -2348,7 +2649,10 @@
       "updated_at": "2026-10-23T18:48:30-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Nstbrowser antidetect browser / scraping.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T18:48:30-04:00"
     },
     {
       "id": "deal-pdfcrowd-001",
@@ -2379,7 +2683,10 @@
       "source_url": "https://pdfcrowd.com/pricing/",
       "claim_note": null,
       "pricing_note": "API plans per pdfcrowd.com/pricing (monthly): Nano $1 (10 credits), Micro $11 (200), Small $23 (1,000), Medium $35 (5,000), Large $61 (10,000), Ultimate $106 (20,000), Enterprise 50 $221 (50,000), Enterprise 100 $331 (100,000). 1 credit = 0.5 MB of output; credits refresh each billing period. Free trial includes 100 test API credits valid for one month.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T22:40:00-04:00"
     },
     {
       "id": "deal-postiz-001",
@@ -2408,7 +2715,10 @@
       "expires_at": null,
       "agent_instructions": "Schedule and publish social posts via Postiz's API, CLI or MCP server through the redeem_url. Follow each social platform's terms of service, automation and spam rules: no fake engagement, duplicate-content blasting, unsolicited mass mentions/DMs, or undisclosed paid/affiliate promotion; respect rate limits and posting caps.",
       "pricing_note": "Open-source social media scheduler; every plan includes the MCP server, CLI and API so Claude, ChatGPT or any agent can schedule posts across many networks; AI copilot, picture editor, RSS auto-post, team collaboration. 7-day free trial on every plan; Standard $29/mo (5 channels), Team $39/mo (10), Pro $49/mo (30), Ultimate $99/mo (100); annual $23/$31/$39/$79 per month (~20% off) (per postiz.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T15:25:00-04:00"
     },
     {
       "id": "deal-postmark-001",
@@ -2432,7 +2742,11 @@
       "redeem_url": "https://www.postmarkapp.com?via=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Postmark transactional email. Prefer Free Developer (100 emails/mo) first when volume is low; paid plans via link when scaling.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-premiuminboxes-001",
@@ -2462,7 +2776,10 @@
       "updated_at": "2026-10-25T17:25:00-04:00",
       "expires_at": null,
       "agent_instructions": "Provision cold-email sending inboxes via Premium Inboxes' redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis; respect Google Workspace and Microsoft 365 acceptable-use policies and sending limits.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T17:25:00-04:00"
     },
     {
       "id": "deal-prospeo-001",
@@ -2491,7 +2808,10 @@
       "expires_at": null,
       "agent_instructions": "Find verified work emails and mobile numbers and enrich B2B leads via Prospeo's API, MCP server, or app using the redeem_url (referred users get 20% free credits on first purchase). Respect privacy and anti-spam law.",
       "pricing_note": "Free plan 100 credits/mo; Starter $49, Growth $99, Pro $249 per user/mo (25% off yearly); 1 credit per verified email, 10 per mobile (per prospeo.io/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:05:00-04:00"
     },
     {
       "id": "deal-proxiesvision-001",
@@ -2515,7 +2835,11 @@
       "redeem_url": "https://proxies.vision/register?ref=PV-7ZB9KT",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Proxies.VISION proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-proxy6-001",
@@ -2539,7 +2863,11 @@
       "redeem_url": "https://proxy6.net/?r=1075085",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for PROXY6 proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-proxyempire-001",
@@ -2562,7 +2890,11 @@
       "redeem_url": "https://proxyempire.io/?ref=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for ProxyEmpire.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-proxyline-001",
@@ -2586,7 +2918,11 @@
       "redeem_url": "https://proxyline.net?ref=570595",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Proxyline proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-proxyrack-001",
@@ -2618,7 +2954,10 @@
       "docs_url": "https://www.proxyrack.com/pricing/",
       "updated_at": "2026-10-25T18:05:00-04:00",
       "pricing_note": "Pricing per proxyrack.com/pricing: Premium Residential (pay per GB) from $110/mo; Unlimited Residential (pay per thread, unmetered bandwidth, 35M+ monthly IPs) from $300/mo, e.g. 500 threads $750/mo, 1,000 threads $1,250/mo, 2,000 threads $2,000/mo, 5,000 threads $4,500/mo; Private Residential from $299.90/mo; Datacenter USA Rotating and Global Rotating from $150/mo (per thread, unmetered); Mobile from $100/mo; Web Scraper API from $119/mo. Unlimited Residential 3-day trial for $5.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T18:05:00-04:00"
     },
     {
       "id": "deal-proxyscrape-001",
@@ -2641,7 +2980,11 @@
       "redeem_url": "https://proxyscrape.com/?ref=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for ProxyScrape proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-proxywing-001",
@@ -2665,7 +3008,11 @@
       "redeem_url": "https://proxywing.com/?ref=3138",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for ProxyWing proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-quickchat-001",
@@ -2692,7 +3039,10 @@
       "expires_at": null,
       "agent_instructions": "Build no-code AI agents for customer support, sales, and ecommerce (website chat, WhatsApp, Messenger, Shopify, Intercom, Zendesk, etc.) via Quickchat AI's redeem_url.",
       "pricing_note": "Free plan; paid from $9/mo.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T07:30:00-04:00"
     },
     {
       "id": "deal-raxyproxy-001",
@@ -2716,7 +3066,11 @@
       "redeem_url": "https://raxyproxy.com/go/jmukqvpu",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for RaxyProxy proxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-reachinbox-001",
@@ -2745,7 +3099,10 @@
       "expires_at": null,
       "agent_instructions": "Run cold-email campaigns with AI warm-up, personalization, and reply handling via ReachInbox's redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis.",
       "pricing_note": "Free plan (3 accounts, 250 emails/mo); Starter $30/mo, Growth $75/mo, Pro $225/mo billed yearly; Enterprise $999/mo (per reachinbox.ai/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:20:00-04:00"
     },
     {
       "id": "deal-relay-mailboxes-001",
@@ -2773,7 +3130,10 @@
       "expires_at": null,
       "agent_instructions": "Provision low-cost cold-outreach mailboxes on your own domains via Relay's redeem_url (userelay.app; not relay.app). Follow anti-spam law and sender policies.",
       "pricing_note": "Per userelay.app: plans from $10/mo, mailboxes as cheap as $1/mo at volume, SPF/DKIM/DMARC compliant, credentials CSV within 24h for Instantly/Lemlist import.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T11:35:00-04:00"
     },
     {
       "id": "deal-runable-001",
@@ -2799,7 +3159,10 @@
       "updated_at": "2026-10-23T20:40:00-04:00",
       "expires_at": null,
       "agent_instructions": "Start with Runable's general-purpose AI agent for multi-step tasks via the redeem_url.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T20:40:00-04:00"
     },
     {
       "id": "deal-runpod-001",
@@ -2824,7 +3187,11 @@
       "redeem_url": "https://runpod.io?ref=wuct08gl",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for RunPod GPU/Serverless compute. Suited to agent workloads needing GPUs.",
-      "offer_type": "credit_referral"
+      "offer_type": "credit_referral",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-salesforge-001",
@@ -2854,7 +3221,10 @@
       "expires_at": null,
       "agent_instructions": "Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis.",
       "pricing_note": "Salesforge: cold outreach with unlimited mailboxes, warm-up, mailbox rotation, AI personalization, LinkedIn steps, API, and AI SDR Agent Frank; 14-day free trial; pricing page lists plans from $40/mo and states 'starting at $48/mo' (per salesforge.ai/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:15:00-04:00"
     },
     {
       "id": "deal-scrapedo-001",
@@ -2878,7 +3248,11 @@
       "redeem_url": "https://scrape.do?fpr=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Scrape.do scrape/unblock API. Suited to agents that need reliable HTML fetch with unblock.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-scrapeops-001",
@@ -2902,7 +3276,11 @@
       "redeem_url": "https://scrapeops.io?fpr=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for ScrapeOps. Optional coupon START10-FS3Lvdbr — discount not verified; verify at checkout.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-scraperapi-001",
@@ -2926,7 +3304,11 @@
       "redeem_url": "https://www.scraperapi.com/?fp_ref=connor-f2e155",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for ScraperAPI scrape/proxy API (rotating proxies, CAPTCHA/anti-bot handling, JS rendering). Start on the free trial/free plan first.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-scrapingant-001",
@@ -2950,7 +3332,11 @@
       "redeem_url": "https://scrapingant.com/?ref=mzmwogv",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for ScrapingAnt scraping API (browser + unblock).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-scrapingdog-001",
@@ -2973,7 +3359,11 @@
       "redeem_url": "https://www.scrapingdog.com/?deal=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Scrapingdog scrape/unblock API. Suited to agents that need reliable HTML fetch.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-screenshotone-001",
@@ -3002,7 +3392,10 @@
       "expires_at": null,
       "agent_instructions": "Render website screenshots, PDFs or videos via ScreenshotOne's API through the redeem_url.",
       "pricing_note": "Screenshot/rendering API (pages to images, PDFs, scrolling screenshots, videos) with webhooks, signed links, stealth mode and IP location options. 100 free screenshots; Basic $17/mo (2,000 screenshots), Growth $79/mo (10,000), Scale $259/mo (50,000); annual billing = 2 months free (per screenshotone.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T08:50:00-04:00"
     },
     {
       "id": "deal-sealch-001",
@@ -3031,7 +3424,10 @@
       "expires_at": null,
       "agent_instructions": "Verify email addresses or clean lists via Sealch's CSV upload or API using the redeem_url. Verification is not a license to spam: comply with CAN-SPAM, GDPR, and other anti-spam laws (honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis). Only verify addresses you have a lawful basis to process.",
       "pricing_note": "Pricing per sealch.com/pricing (slider-based; figures shown at the page's default volume): Pay as you go $49 one-time ($0.49 per 1,000 verified; credits never expire); Monthly $33/mo ($0.33 per 1,000); site advertises from $0.35 per 1,000 at volume; enterprise via sales. 200 free credits on signup, no credit card.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T19:38:00-04:00"
     },
     {
       "id": "deal-sendpulse-001",
@@ -3060,7 +3456,10 @@
       "expires_at": null,
       "agent_instructions": "Send transactional email via SendPulse's SMTP relay or API (and email/SMS campaigns) through the redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: send only to opted-in or lawfully obtained recipients, honest sender identity and subject lines, physical address in marketing email, working unsubscribe honored promptly, no purchased lists.",
       "pricing_note": "SMTP: free Basic plan 12,000 emails/mo; Pro 100k emails $74.85/mo monthly ($59.88/mo annual); Enterprise 500k emails $274.85/mo ($219.88/mo annual); pay-as-you-go from $15 per 10,000 emails (per sendpulse.com/prices/smtp).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T20:46:00-04:00"
     },
     {
       "id": "deal-seobility-001",
@@ -3086,7 +3485,10 @@
       "updated_at": "2026-10-23T18:43:19-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Seobility SEO tools.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T18:43:19-04:00"
     },
     {
       "id": "deal-seowritingai-001",
@@ -3115,7 +3517,10 @@
       "expires_at": null,
       "agent_instructions": "Generate and publish SEO articles via SEOWriting.ai's redeem_url.",
       "pricing_note": "Pricing per seowriting.ai/pricing: Starter $19/mo monthly or $14/mo billed yearly ($168/yr; up to 50 articles); Professional $79/mo or $59/mo yearly ($708/yr; up to 250 articles; internal linking 5,000 URLs/site); Professional Plus 1 $159/mo or $119/mo yearly ($1,428/yr; up to 500 articles); Professional Plus 2 $307/mo or $230/mo yearly ($2,760/yr; up to 1,000 articles).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:50:00-04:00"
     },
     {
       "id": "deal-serptool-001",
@@ -3140,7 +3545,11 @@
       "redeem_url": "https://serp-tool.com/r/lanternworks-a56r",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for SERP-Tool keyword SERP research.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-shifter-001",
@@ -3166,7 +3575,10 @@
       "updated_at": "2026-10-23T18:36:58-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Shifter proxies/scraping.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T18:36:58-04:00"
     },
     {
       "id": "deal-siliconflow-cn-001",
@@ -3195,7 +3607,10 @@
       "updated_at": "2026-10-24T13:25:00-04:00",
       "expires_at": null,
       "agent_instructions": "Use only if the operator can use a Chinese-language site and likely a mainland China account and payment method: pay-as-you-go LLM/multimodal inference API (open models like DeepSeek, Qwen, GLM) priced in CNY via SiliconFlow China's redeem_url (siliconflow.cn, not siliconflow.com).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T13:25:00-04:00"
     },
     {
       "id": "deal-smartreach-001",
@@ -3224,7 +3639,10 @@
       "updated_at": "2026-10-25T17:30:00-04:00",
       "expires_at": null,
       "agent_instructions": "Run cold email campaigns and multichannel sales sequences via SmartReach's redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis; follow TCPA/do-not-call rules for calls. Respect LinkedIn's User Agreement/ToS and usage limits for any LinkedIn steps or automation.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T17:30:00-04:00"
     },
     {
       "id": "deal-smtp2go-001",
@@ -3248,7 +3666,11 @@
       "redeem_url": "https://get.smtp2go.com/lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for SMTP2GO.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-snovio-001",
@@ -3276,7 +3698,10 @@
       "updated_at": "2026-10-23T18:05:56-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Snov.io email finder, verification, and outreach.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T18:05:56-04:00"
     },
     {
       "id": "deal-softshellweb-001",
@@ -3305,7 +3730,10 @@
       "expires_at": null,
       "agent_instructions": "Order a KVM VPS, NVMe shared or reseller hosting plan via SoftShellWeb's redeem_url (expect a 301 redirect to softshellweb.com). Confirm current price, location and specs at checkout.",
       "pricing_note": "Store prices (USD/mo): EU KVM VPS from $5 (1 core/1GB/20GB) to $98 (8 core/32GB); USA KVM SSD VPS from $5 (1GB) to $160 (32GB); Shared Basic $5 (20GB, 10 domains) (per softshellweb.com/client/store).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T09:58:00-04:00"
     },
     {
       "id": "deal-supadata-001",
@@ -3330,7 +3758,11 @@
       "redeem_url": "https://supadata.ai/?ref=lanternworks",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Supadata scrape/transcript API.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-telemetry-tracker-001",
@@ -3358,7 +3790,10 @@
       "updated_at": "2026-10-25T08:20:00-04:00",
       "expires_at": null,
       "agent_instructions": "Add error tracking, Web Vitals and event/session monitoring to a JS/Node app via Telemetry Tracker's redeem_url (hosted cloud) as a lighter Sentry alternative. No coupon or promo code exists for this deal. Avoid sending secrets or personal data in error payloads.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T08:20:00-04:00"
     },
     {
       "id": "deal-thundercompute-001",
@@ -3388,7 +3823,10 @@
       "expires_at": null,
       "agent_instructions": "Launch on-demand GPU instances (A6000, L40, A100, H100) for training or inference via Thunder Compute's redeem_url. Stop or delete instances when idle to avoid charges; confirm current rates at launch.",
       "pricing_note": "On-demand GPU instances billed per hour while running: RTX A6000 48GB $0.35/hr, L40 48GB $0.79/hr, A100 80GB $1.09/hr, H100 SXM 80GB $3.20/hr; extra vCPU $0.04/vCPU-hr; instance disk first 100GB/GPU included then $0.219/GB/mo. Sandbox per-second rates: H100 SXM $2.95/GPU-hr, A100 80GB $1.95/GPU-hr; $0 data egress (per thundercompute.com/pricing).",
-      "offer_type": "credit_referral"
+      "offer_type": "credit_referral",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T11:20:00-04:00"
     },
     {
       "id": "deal-trillet-001",
@@ -3418,7 +3856,10 @@
       "expires_at": null,
       "agent_instructions": "Build and deploy white-label voice AI agents (inbound/outbound calls, SMS, email workflows) via Trillet's redeem_url. Comply with call-recording consent, TCPA/robocall and anti-spam rules (disclose AI, honor do-not-call and opt-outs).",
       "pricing_note": "Voice/SMS/email AI agents with workflows, HIPAA mode, Trillet MCP (build agents in Claude Code/Cursor/Codex). 7-day free trial; Studio $99/mo (1,000 min, 3 workspaces), Agency $299/mo (3,000 min, unlimited workspaces); AI Receptionist $49/mo (150 min, then $0.20/min); Enterprise custom (per trillet.ai pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T17:56:00-04:00"
     },
     {
       "id": "deal-trueproxies-001",
@@ -3441,7 +3882,11 @@
       "redeem_url": "https://trueproxies.com?ref=EKWS3K5S",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for TrueProxies.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-undetectable-001",
@@ -3469,7 +3914,10 @@
       "updated_at": "2026-10-23T19:33:00-04:00",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Undetectable.io antidetect browser profiles.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-23T19:33:00-04:00"
     },
     {
       "id": "deal-unrealspeech-001",
@@ -3498,7 +3946,10 @@
       "expires_at": null,
       "agent_instructions": "Generate speech audio for voice agents, narration, and apps via Unreal Speech's text-to-speech API (streaming, long-form, per-word timestamps) using the redeem_url.",
       "pricing_note": "Free plan 250K characters; paid plans from Basic ($49/mo, shown at $4.99/mo for first 6 months) to Enterprise $4,999/mo (per unrealspeech.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T14:55:00-04:00"
     },
     {
       "id": "deal-uplead-001",
@@ -3528,7 +3979,10 @@
       "expires_at": null,
       "agent_instructions": "Find and verify B2B contact emails or enrich company/contact records via UpLead's app or API through the redeem_url. Data privacy: process personal data only with a lawful basis (GDPR legitimate interest assessment, CCPA notices), honor deletion/opt-out requests, keep exported data secure, and don't resell or publish it. Comply with CAN-SPAM, GDPR, and other anti-spam laws when emailing contacts: honest sender identity and subject lines, a physical address, working opt-out honored promptly.",
       "pricing_note": "Free trial $0 for 7 days (5 credits); Essentials $99/mo (170 credits) or $74/mo annual (2,040 credits/yr); Plus $199/mo (400 credits) or $149/mo annual (4,800 credits/yr); Professional custom; extra credits $0.60/$0.50 per credit (per uplead.com/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T14:55:00-04:00"
     },
     {
       "id": "deal-uptimewolf-001",
@@ -3557,7 +4011,10 @@
       "expires_at": null,
       "agent_instructions": "Set up uptime, cron-heartbeat, server and DNS monitors plus status pages (UI or REST API) via Uptimewolf's redeem_url.",
       "pricing_note": "Free plan (2 monitors); Starter $2.99/mo, Advanced $4.99/mo, Unlimited $29.99/mo; annual ~17% off; 5-day free trial (per uptimewolf.com).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T18:30:00-04:00"
     },
     {
       "id": "deal-usermaven-001",
@@ -3586,7 +4043,10 @@
       "updated_at": "2026-10-25T20:08:00-04:00",
       "expires_at": null,
       "agent_instructions": "Set up product analytics and attribution via Usermaven's redeem_url. Privacy: obtain GDPR/ePrivacy and CCPA/CPRA-compliant consent before tracking where required, disclose tracking in the privacy policy, honor opt-outs and Do Not Sell/Share requests, and avoid collecting sensitive personal data.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:08:00-04:00"
     },
     {
       "id": "deal-vapi-001",
@@ -3615,7 +4075,10 @@
       "expires_at": null,
       "agent_instructions": "Build, test, and deploy voice AI agents (phone and web calls) via API with Vapi's redeem_url.",
       "pricing_note": "Usage-based pricing with $5 free credits; Core success package $29/mo (per vapi.ai/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T10:25:00-04:00"
     },
     {
       "id": "deal-vastai-001",
@@ -3639,7 +4102,11 @@
       "redeem_url": "https://cloud.vast.ai/?ref_id=760339",
       "expires_at": null,
       "agent_instructions": "Sign up via the redeem_url for Vast.ai GPU cloud.",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": null,
+      "verified_at": null
     },
     {
       "id": "deal-wavespeed-001",
@@ -3669,7 +4136,10 @@
       "expires_at": null,
       "agent_instructions": "Generate images, video and audio via WaveSpeedAI's API, CLI or MCP through the redeem_url. Check per-model pricing before batch jobs; follow model licenses and content policies (no deceptive deepfakes or non-consensual likenesses).",
       "pricing_note": "Pay-as-you-go, no subscription; eligible new accounts get $1 free credits, no card required. Examples: Seedream 5.0 Pro $0.045/image, Seedream 5.0 Flash $0.027/image, Nano Banana Pro $0.14/image (per wavespeed.ai/pricing).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T19:52:00-04:00"
     },
     {
       "id": "deal-windsor-001",
@@ -3700,7 +4170,10 @@
       "expires_at": null,
       "agent_instructions": "Connect marketing, analytics and SEO data sources to a warehouse or BI tool via Windsor.ai's redeem_url.",
       "pricing_note": "Pricing per windsor.ai/pricing (monthly / annual-billed): Free $0 (30-day free trial, then Forever Free: 1 user, 1 data source, 1 account, 30-day history); Basic $23/mo (monthly, per FAQ); Standard $118/mo or $99/mo annual (unlimited users, 7 data sources); Plus $299/mo or $249/mo annual (10 data sources, 200 accounts); Professional $598/mo or $499/mo annual (14 data sources).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:20:00-04:00"
     },
     {
       "id": "deal-xcloud-001",
@@ -3731,7 +4204,10 @@
       "expires_at": null,
       "agent_instructions": "Provision managed servers or connect your own servers to the xCloud panel via the redeem_url.",
       "pricing_note": "Pricing per xcloud.host/pricing: managed hosting (they provision, patch and run the server; WordPress, Node.js, Laravel, Docker, Next.js) from $5/mo, sized by memory (e.g. Cloudflare Enterprise CDN $5/domain/mo, Mail Delivery $3/mo for 3,000 emails with a 100/mo free tier).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-25T20:00:00-04:00"
     },
     {
       "id": "deal-zapmail-001",
@@ -3761,7 +4237,10 @@
       "expires_at": null,
       "agent_instructions": "Provision Google/Microsoft 365 sending mailboxes with automated DNS and OAuth hookup to your outreach tool via Zapmail's redeem_url. Comply with CAN-SPAM, GDPR, and other anti-spam laws: honest sender identity and subject lines, a physical address, working opt-out honored promptly, no purchased or scraped lists without a lawful basis.",
       "pricing_note": "Growth 30, larger tier 100) with additional mailboxes at $3.00-$3.50 each and deliverability test credits (per zapmail.ai).",
-      "offer_type": "standard_signup"
+      "offer_type": "standard_signup",
+      "currency": "USD",
+      "billing_period": null,
+      "verified_at": "2026-10-24T16:15:00-04:00"
     }
   ]
 }
