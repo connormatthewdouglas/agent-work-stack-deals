@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Twin
+
+- Added Twin (AI agent automation platform) to the AI Agents hub at $29/mo for the Plus plan, verified on the vendor's pricing page.
+
 ## 2026-10-26 — Ucartz
 
 - Added Ucartz (GPU dedicated servers and hosting) to the Compute hub, with GPU servers from $382.72/mo verified on the vendor's GPU server page.
