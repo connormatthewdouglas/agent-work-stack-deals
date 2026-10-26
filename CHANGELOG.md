@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — CyberPanel
+
+- Added CyberPanel (free open-source web hosting control panel) to the Hosting hub as a verified free tier; premium add-ons from $7.99/mo.
+
 ## 2026-10-26 — Robofy, Icemail
 
 - Added Robofy (AI chatbot and agent builder, Starter $40/mo) to the AI Agents hub and Icemail (cold-email mailboxes, $2.5/mailbox/mo) to the Email APIs hub, with prices verified on each vendor's pricing page.
