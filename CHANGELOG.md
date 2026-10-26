@@ -2,9 +2,9 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
-## 2026-10-26 — Writesonic, Whatagraph, Moz, Gumlet, Live Tennis API, Proxydocker
+## 2026-10-26 — Writesonic, Whatagraph, Moz, Gumlet, Live Tennis API, Proxydocker, RealMarketAPI
 
-- Added Writesonic (AI agents), Whatagraph (SEO/marketing reporting), Moz (search; re-added with its current link), Gumlet (hosting/CDN), Live Tennis API (new Data API hub) and Proxydocker (proxies). Prices only where verified on the vendor site; otherwise null.
+- Added Writesonic (AI agents), Whatagraph (SEO/marketing reporting), Moz (search; re-added with its current link), Gumlet (hosting/CDN), Live Tennis API (new Data API hub) Proxydocker (proxies) and RealMarketAPI (Data API). Prices only where verified on the vendor site; otherwise null.
 - Feed schema 1.1.0 adds the data-api category. New stable feed at /api/v1/deals.json.
 
 ## 2026-10-25 — AnotherWrapper (#106)
