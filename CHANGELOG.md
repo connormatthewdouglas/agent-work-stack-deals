@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Waalaxy
+
+- Added Waalaxy (LinkedIn and email prospecting automation) to the Email APIs hub; USD price not yet verified (vendor lists EUR pricing).
+
 ## 2026-10-26 — SalesBlink
 
 - Added SalesBlink (cold email outreach automation with MCP, Starter $29/mo) to the Email APIs hub; price verified on salesblink.io/pricing.
