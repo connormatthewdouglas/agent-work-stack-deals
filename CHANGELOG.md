@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — WebGee
+
+- Added WebGee (NVMe cloud hosting, cloud VPS and dedicated servers; GeeSpark $4.95/mo, $1 first month) to the Hosting hub; price verified on webgee.com.
+
 ## 2026-10-26 — AlphaVPS
 
 - Added AlphaVPS (EU VPS, dedicated and GPU servers) to the Compute and GPU compute hubs; USD price not yet verified (vendor lists EUR pricing).
