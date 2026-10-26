@@ -401,6 +401,23 @@ def assert_outputs_clean(paths: list[Path], private: dict) -> None:
         raise SystemExit("Private data leaked into generated output: " + ", ".join(bad[:20]))
 
 
+HELD_IDS: set[str] = set()
+
+
+def write_held_stubs() -> None:
+    """Keep URLs of held deals alive as noindex 'temporarily unavailable' pages (no redeem link)."""
+    for deal_id in sorted(HELD_IDS):
+        slug = slug_for(deal_id)
+        out = ROOT / "deals" / slug / "index.html"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        body = (f'  <nav class="crumbs"><a href="{BASE}/">Lantern Works</a> › Deal unavailable</nav>\n'
+                f"  <h1>This listing is temporarily unavailable</h1>\n"
+                f'  <p>This deal is paused while we re-check it. See <a href="{BASE}/">all current deals</a>.</p>\n')
+        out.write_text(page_shell("Listing temporarily unavailable — Lantern Works",
+                                  "This Lantern Works listing is temporarily paused.",
+                                  f"{BASE}/deals/{slug}/", body, robots="noindex,follow"), encoding="utf-8")
+
+
 def apply_compliance_gate(feed: dict) -> dict:
     """Publish only registry-approved deals. Returns the (possibly rewritten) feed.
 
@@ -423,6 +440,7 @@ def apply_compliance_gate(feed: dict) -> dict:
     HELD_PATH.write_text(json.dumps(sorted(blocked, key=lambda d: d["id"]), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     if [d["id"] for d in feed["deals"]] != before:
         DEALS_PATH.write_text(json.dumps(feed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    HELD_IDS.update(d["id"] for d in blocked)
     print(f"compliance_gate=present approved={len(approved)} held={len(blocked)}")
     return feed
 
@@ -1027,6 +1045,8 @@ def write_hub(hub: dict, deals: list[dict]) -> Path:
 
 def write_guide(guide: dict, by_id: dict[str, dict]) -> Path:
     """Write a curated Best-for-X stack guide under guides/<slug>/."""
+    # Picks held by the compliance gate are skipped; any other missing id is a bug.
+    guide = {**guide, "picks": [p for p in guide["picks"] if p["id"] not in HELD_IDS]}
     missing = [p["id"] for p in guide["picks"] if p["id"] not in by_id]
     if missing:
         raise RuntimeError(f"guide {guide['slug']}: missing deals {missing}")
@@ -1461,6 +1481,7 @@ def main() -> None:
     patch_lanternworks()
     ensure_robots()
     write_for_agents(deals, feed)
+    write_held_stubs()
     api_path = write_api_v1()
     public_out = [p for p in ROOT.rglob("*") if p.is_file() and p.suffix in (".html", ".json", ".xml", ".txt", ".md")
                   and ".git" not in p.parts and "scripts" not in p.parts]
