@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Offer-type labels (schema 1.2.0)
+
+- Every listing now carries one offer_type: verified_discount, free_tier, trial, standard_referral or credit_only_referral (conservative label where unclear). Time-limited or one-time free credits are now labelled trial.
+- The validator enforces offer_type and reports verified_at coverage (null = not recorded; no dates are invented).
+
 ## 2026-10-26 — ShortPixel
 
 - Added ShortPixel (image optimization and CDN) to Hosting. Prices left unknown until verified on the vendor site.

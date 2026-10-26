@@ -63,7 +63,19 @@ def check_schema(feed: dict) -> None:
     dup = {i for i in ids if ids.count(i) > 1}
     if dup:
         err(f"duplicate deal ids: {sorted(dup)[:10]}")
-    for d in feed.get("deals", []):
+    deals = feed.get("deals", [])
+    for d in deals:
+        if d.get("offer_type") not in gen.OFFER_TYPES:
+            err(f"{d.get('id')}.offer_type missing/invalid: {d.get('offer_type')!r} (allowed: {', '.join(gen.OFFER_TYPES)})")
+    from collections import Counter
+    dist = Counter(d.get("offer_type") for d in deals)
+    print("offer_type " + " ".join(f"{k}={dist.get(k, 0)}" for k in gen.OFFER_TYPES))
+    n_ver = sum(1 for d in deals if d.get("verified_at"))
+    n_upd = sum(1 for d in deals if d.get("updated_at"))
+    # Coverage is reported, never failed on: null means "not recorded", and dates are never invented.
+    print(f"verified_at coverage={n_ver}/{len(deals)} ({100 * n_ver / max(1, len(deals)):.0f}%) null={len(deals) - n_ver}; "
+          f"updated_at coverage={n_upd}/{len(deals)}")
+    for d in deals:
         for k in ("updated_at", "verified_at", "expires_at"):
             val = d.get(k)
             if val is None:

@@ -43,7 +43,8 @@ PRIVATE_PATH = Path(os.environ.get(
 ))
 API_V1_PATH = ROOT / "api" / "v1" / "deals.json"
 SCHEMA_PATH = ROOT / "schema.json"
-OFFER_TYPE_RANK = {"discount": 0, "free_tier": 1, "standard_signup": 2, "credit_referral": 2}
+OFFER_TYPE_RANK = {"verified_discount": 0, "free_tier": 1, "trial": 2, "standard_referral": 2, "credit_only_referral": 2}
+OFFER_TYPES = tuple(OFFER_TYPE_RANK)
 # No dedicated OG share image in the repo — omit og:image / twitter:image.
 
 CSS = """
@@ -321,7 +322,7 @@ def sort_deals_customer_value(deals: list[dict]) -> list[dict]:
     Alphabetical by advertiser within each group. Affiliate status is NOT a ranking factor."""
     return sorted(
         deals,
-        key=lambda d: (OFFER_TYPE_RANK.get(d.get("offer_type") or "standard_signup", 2),
+        key=lambda d: (OFFER_TYPE_RANK.get(d.get("offer_type") or "standard_referral", 2),
                        (d.get("advertiser") or "").lower(), d.get("id") or ""),
     )
 
@@ -1309,8 +1310,8 @@ def ensure_robots() -> None:
 
 def main() -> None:
     feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
-    deals = feed["deals"]
     assert_public_clean(feed)
+    deals = feed["deals"]
     private = load_private_model()
     private_checks(private, deals)
     feed_updated = feed.get("updated_at") or VERIFIED
