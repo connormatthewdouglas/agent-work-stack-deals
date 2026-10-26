@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — ShortPixel
+
+- Added ShortPixel (image optimization and CDN) to Hosting. Prices left unknown until verified on the vendor site.
+
 ## 2026-10-26 — Writesonic, Whatagraph, Moz, Gumlet, Live Tennis API, Proxydocker, RealMarketAPI
 
 - Added Writesonic (AI agents), Whatagraph (SEO/marketing reporting), Moz (search; re-added with its current link), Gumlet (hosting/CDN), Live Tennis API (new Data API hub) Proxydocker (proxies) and RealMarketAPI (Data API). Prices only where verified on the vendor site; otherwise null.

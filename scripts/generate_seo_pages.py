@@ -24,10 +24,10 @@ PRIVATE_FIELDS = (
     "commission_pct", "commission_type", "commission_usd", "commission_rate", "commission",
     "payout_status", "payout", "payout_method", "payout_terms", "network", "notes",
     "tracker", "internal_notes", "compliance", "compliance_notes", "compliance_status",
-    "approval_status", "channel_restrictions", "cash_vs_credit", "epc", "cookie_days",
+    "approval_status", "tracking_unverified", "tracking_note", "channel_restrictions", "cash_vs_credit", "epc", "cookie_days",
 )
 # Private key prefixes (e.g. orig_* snapshots in the private tracker) are also never public.
-PRIVATE_PREFIXES = ("orig_", "commission_", "payout_", "compliance_", "private_", "internal_")
+PRIVATE_PREFIXES = ("orig_", "tracking_", "commission_", "payout_", "compliance_", "private_", "internal_")
 # Value patterns that look like commission/payout terms leaking into public text.
 PRIVATE_VALUE_RE = re.compile(
     r"(\b\d{1,3}(?:\.\d+)?\s*%\s*(?:recurring\s+|lifetime\s+|one[- ]time\s+)?(?:affiliate|commission|revshare|rev[- ]share|payout)"
