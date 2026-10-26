@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-25 — Comparison pages
+
+- Added 12 keyword comparison pages under `/compare/` (residential and rotating proxies, GPU rental, H100 prices, cheap VPS for agents, email verification, deliverability/warmup, transactional email, SERP APIs, screenshot APIs, AI SEO writing tools, scraping API deals) and an **AI agent tool deals** overview page. Tables quote only prices verified on vendor pages; everything else reads "unknown". Each page has pros/cons, a how-to-choose section, FAQ and breadcrumbs.
+- Added published pricing notes for Folderly, EmailOctopus, Latenode, GigaGPU and Link Whisper.
+
 ## 2026-10-25 — Sprint 0: truthfulness and compliance cleanup
 
 - Removed A generic affiliate disclosure remains (no rates).

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import json
+import sys
 import re
 from collections import defaultdict
 from datetime import datetime
@@ -17,10 +18,10 @@ LASTMOD = "2026-10-23"
 VERIFIED = "2026-10-23"
 SITE_NAME = "Lantern Works"
 # Fields that must never appear in public output (deals.json or generated pages).
-#
+# Commission / payout / internal notes live only in the private tracker outside the repo.
 PRIVATE_FIELDS = (
-    "", "", "", "payout_status",
-    "network", "notes", "referral", "payout_method", "tracker", "internal_notes",
+    "commission_pct", "commission_type", "commission_usd", "payout_status",
+    "network", "notes", "payout", "payout_method", "tracker", "internal_notes",
 )
 OFFER_TYPE_RANK = {"discount": 0, "free_tier": 1, "standard_signup": 2, "credit_referral": 2}
 # No dedicated OG share image in the repo — omit og:image / twitter:image.
@@ -435,8 +436,8 @@ def _theme_flags(text: str) -> set[str]:
     flags: set[str] = set()
     if any(w in low for w in ("promo code", "no promo", "invent", "redeem_url", "authorized referral", "authorized redeem")):
         flags.add("promo")
-    if "floated" in low or "referral" in low:
-        flags.add("referral")
+    if "floated" in low or "payout" in low:
+        flags.add("payout")
     if "account credit" in low or ("credit" in low and "free" not in low.split("credit")[0][-20:]):
         if "account credit" in low or "credits" in low or "credit referral" in low or "rewards are credits" in low:
             flags.add("credit")
@@ -740,7 +741,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
   <footer>
     <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
-    <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
 </body>
 </html>
@@ -884,12 +885,14 @@ def guides_nav_html() -> str:
 
 
 
-def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list[str] | None = None) -> Path:
+def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list[str] | None = None, compare_paths: list[str] | None = None) -> Path:
     urls = [
         (f"{BASE}/", "1.0"),
         (f"{BASE}/lanternworks/", "0.8"),
         (f"{BASE}/changelog/", "0.7"),
     ]
+    for s in (compare_paths or []):
+        urls.append((f"{BASE}/{s}/", "0.8"))
     for s in hub_slugs:
         urls.append((f"{BASE}/categories/{s}/", "0.7"))
     for s in (guide_slugs or []):
@@ -1009,12 +1012,13 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     <nav>Jump: {cat_nav}</nav>
     <nav style="margin-top:.35rem;">Hubs: {hub_nav}</nav>
     {guides_nav_html()}
+    {__import__("compare_pages").nav_html(BASE)}
     <p class="feed"><strong>Agents:</strong> GET <a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
 {agent_query_howto_html()}
   <main>{body_main}</main>
   <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · <a href="changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
-    <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>
 </body>
 </html>
@@ -1247,7 +1251,9 @@ def main() -> None:
         guide_paths.append(p)
         guide_slugs.append(guide["slug"])
 
-    write_sitemap(deal_slugs, hub_slugs, guide_slugs)
+    import compare_pages
+    compare_paths = compare_pages.write_compare_pages(sys.modules[__name__], deals)
+    write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths)
     write_changelog()
     write_index(deals, feed_updated)
     patch_lanternworks()
@@ -1257,7 +1263,8 @@ def main() -> None:
     print(f"hub_pages={len(hub_paths)}")
     print(f"guide_pages={len(guide_paths)}")
     # home + lanternworks + changelog + hubs + guides + deals
-    print(f"sitemap_urls={3 + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
+    print(f"compare_pages={len(compare_paths)}")
+    print(f"sitemap_urls={3 + len(compare_paths) + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
     print(f"deals={len(deals)}")
 
 
