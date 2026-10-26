@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — meertrack
+
+- Added meertrack (competitor monitoring API/MCP; $19 per competitor/mo) to the data API hub; pricing verified on meertrack.com.
+- DocsBot AI: docs_url changed to the developer docs page.
+
 ## 2026-10-26 — DocsBot AI
 
 - Added DocsBot AI (AI chatbot/RAG API; free plan, paid plans from $49/mo) to the AI agents hub; pricing verified on docsbot.ai.
