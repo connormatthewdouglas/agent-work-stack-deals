@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Helena by Enrich Labs
+
+- Added Helena by Enrich Labs (AI marketing/SEO agent; 3-day free trial, Starter $39/mo) to the AI agents hub; trial and pricing verified on enrichlabs.ai.
+
 ## 2026-10-26 — meertrack
 
 - Added meertrack (competitor monitoring API/MCP; $19 per competitor/mo) to the data API hub; pricing verified on meertrack.com.
