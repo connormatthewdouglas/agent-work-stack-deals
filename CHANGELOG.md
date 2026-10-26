@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdouglas.github.io/agent-work-stack-deals/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/).
 
+## 2026-10-25 — AnotherWrapper (#106)
+
+- Added AnotherWrapper (AI app starter kit / boilerplate) to AI agent platform deals, with verified one-time license prices.
+
 ## 2026-10-25 — PDFCrowd (#105)
 
 - Added PDFCrowd (HTML-to-PDF and HTML-to-image APIs) to Scraping & unblock, with verified API plan prices, and to the screenshot API comparison.
@@ -13,7 +17,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://connormatthewdo
 
 ## 2026-10-25 — Sprint 0: truthfulness and compliance cleanup
 
-- Removed A generic affiliate disclosure remains (no rates).
+- Removed commission, payout and internal-note fields from the public feed and every generated page; the generator now refuses to build if they reappear. A generic affiliate disclosure remains (no rates).
 - Removed agent-directed "prefer affiliate links" instructions from the feed, skill, MCP docs and pages.
 - Ranking is now **customer value**: real discounts, then verified free tiers, then standard signups, A–Z by vendor. Affiliate status is not a ranking factor.
 - Unknown prices are now `null` and shown as "unknown"; `price_usd: 0` is used only for verified free tiers. New `offer_type` field (discount / free_tier / standard_signup / credit_referral) and `pricing_note` with published vendor prices.

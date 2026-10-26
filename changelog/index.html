@@ -65,6 +65,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-25 — AnotherWrapper (#106)</h2>
+<ul>
+<li>Added AnotherWrapper (AI app starter kit / boilerplate) to AI agent platform deals, with verified one-time license prices.</li>
+</ul>
 <h2>2026-10-25 — PDFCrowd (#105)</h2>
 <ul>
 <li>Added PDFCrowd (HTML-to-PDF and HTML-to-image APIs) to Scraping &amp; unblock, with verified API plan prices, and to the screenshot API comparison.</li>
@@ -76,7 +80,7 @@
 </ul>
 <h2>2026-10-25 — Sprint 0: truthfulness and compliance cleanup</h2>
 <ul>
-
+<li>Removed commission, payout and internal-note fields from the public feed and every generated page; the generator now refuses to build if they reappear. A generic affiliate disclosure remains (no rates).</li>
 <li>Removed agent-directed &quot;prefer affiliate links&quot; instructions from the feed, skill, MCP docs and pages.</li>
 <li>Ranking is now <strong>customer value</strong>: real discounts, then verified free tiers, then standard signups, A–Z by vendor. Affiliate status is not a ranking factor.</li>
 <li>Unknown prices are now <code>null</code> and shown as &quot;unknown&quot;; <code>price_usd: 0</code> is used only for verified free tiers. New <code>offer_type</code> field (discount / free_tier / standard_signup / credit_referral) and <code>pricing_note</code> with published vendor prices.</li>
@@ -406,7 +410,7 @@
   <footer>
     <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/">All deals</a> · <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/lanternworks/">About</a> · <a href="https://connormatthewdouglas.github.io/agent-work-stack-deals/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
-    <p>Affiliate disclosure: we may earn a That never changes the price you pay.</p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
 </body>
 </html>
