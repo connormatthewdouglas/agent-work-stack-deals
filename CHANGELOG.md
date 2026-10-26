@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Marblism, Hyperping
+
+- Added Marblism (AI employees, $44/mo billed monthly) to the AI Agents hub and Hyperping (uptime monitoring and status pages, verified free plan) to the Hosting hub, with prices verified on each vendor's pricing page.
+
 ## 2026-10-26 — Outseta
 
 - Added Outseta (auth, billing, CRM and memberships for SaaS) to the Hosting hub at $47/mo for the Start plan billed monthly, verified on the vendor's pricing page.
