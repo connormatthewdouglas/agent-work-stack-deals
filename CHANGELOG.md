@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Basin, Jet Admin
+
+- Added Basin (form backend API) and Jet Admin (no-code internal tools) to the Hosting hub as verified free tiers; paid plans from $12.50/mo (Basin, billed yearly) and $16/mo (Jet Admin, billed yearly).
+
 ## 2026-10-26 — ScrapeNest
 
 - Added ScrapeNest (web scraping and search API) to the Scraping & Unblock hub as a verified free tier: 1,000 credits/mo, no card; paid plans from $29/mo.
