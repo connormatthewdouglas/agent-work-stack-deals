@@ -2,9 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
-## 2026-10-26 — Keyword Insights
+## 2026-10-26 — Keyword Insights, Bouncer
 
 - Added Keyword Insights (keyword research and clustering) to SEO, with verified monthly plan prices.
+- Added Bouncer (email verification API) to Email APIs, with verified pay-as-you-go pricing.
 
 ## 2026-10-26 — Offer-type labels (schema 1.2.0)
 
