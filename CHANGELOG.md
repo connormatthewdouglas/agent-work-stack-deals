@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — KaijuVerifier
+
+- Added KaijuVerifier (email verification API; free plan with 100 verifications/month, paid from $19/mo) to the Email APIs hub; pricing verified on kaijuverifier.com.
+
 ## 2026-10-26 — Uptimia
 
 - Added Uptimia (uptime, SSL, API and server monitoring; free plan, paid from $9/mo) to the Hosting hub; pricing verified on uptimia.com.
