@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import json
+import os
 import sys
 import re
 from collections import defaultdict
@@ -20,9 +21,28 @@ SITE_NAME = "Lantern Works"
 # Fields that must never appear in public output (deals.json or generated pages).
 # Commission / payout / internal notes live only in the private tracker outside the repo.
 PRIVATE_FIELDS = (
-    "commission_pct", "commission_type", "commission_usd", "payout_status",
-    "network", "notes", "payout", "payout_method", "tracker", "internal_notes",
+    "commission_pct", "commission_type", "commission_usd", "commission_rate", "commission",
+    "payout_status", "payout", "payout_method", "payout_terms", "network", "notes",
+    "tracker", "internal_notes", "compliance", "compliance_notes", "compliance_status",
+    "approval_status", "channel_restrictions", "cash_vs_credit", "epc", "cookie_days",
 )
+# Private key prefixes (e.g. orig_* snapshots in the private tracker) are also never public.
+PRIVATE_PREFIXES = ("orig_", "commission_", "payout_", "compliance_", "private_", "internal_")
+# Value patterns that look like commission/payout terms leaking into public text.
+PRIVATE_VALUE_RE = re.compile(
+    r"(\b\d{1,3}(?:\.\d+)?\s*%\s*(?:recurring\s+|lifetime\s+|one[- ]time\s+)?(?:affiliate|commission|revshare|rev[- ]share|payout)"
+    r"|\brevshare\b|\bCPA\s*\$|\bpayout\s+(?:of|is|rate)\b|\bcommission\s+(?:of|is|rate)\s*[:=]?\s*\$?\d)",
+    re.IGNORECASE,
+)
+# Private commission/compliance model lives OUTSIDE the public repo. Optional: the build
+# works without it (CI has no access). It is read only for private sanity checks and
+# leak detection; nothing from it is ever written to public output.
+PRIVATE_PATH = Path(os.environ.get(
+    "LANTERN_PRIVATE_FIELDS",
+    str(ROOT.parents[1] / "lanternworks" / "private" / "deals_private_fields.json"),
+))
+API_V1_PATH = ROOT / "api" / "v1" / "deals.json"
+SCHEMA_PATH = ROOT / "schema.json"
 OFFER_TYPE_RANK = {"discount": 0, "free_tier": 1, "standard_signup": 2, "credit_referral": 2}
 # No dedicated OG share image in the repo — omit og:image / twitter:image.
 
@@ -300,10 +320,79 @@ def sort_deals_customer_value(deals: list[dict]) -> list[dict]:
     )
 
 
-def assert_public_clean(deals: list[dict]) -> None:
-    bad = sorted({f"{d.get('id')}:{k}" for d in deals for k in d if k in PRIVATE_FIELDS})
+def _is_private_key(k: str) -> bool:
+    return k in PRIVATE_FIELDS or k.startswith(PRIVATE_PREFIXES)
+
+
+def find_private_leaks(obj, path: str = "$") -> list[str]:
+    """Recursively find private keys or commission-like values anywhere in a JSON object."""
+    out: list[str] = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if _is_private_key(str(k)):
+                out.append(f"{path}.{k} (private key)")
+            out.extend(find_private_leaks(v, f"{path}.{k}"))
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            ident = v.get("id") if isinstance(v, dict) and v.get("id") else i
+            out.extend(find_private_leaks(v, f"{path}[{ident}]"))
+    elif isinstance(obj, str) and PRIVATE_VALUE_RE.search(obj):
+        out.append(f"{path} (commission/payout-like text)")
+    return out
+
+
+def assert_public_clean(deals) -> None:
+    bad = find_private_leaks(deals)
     if bad:
-        raise SystemExit("Private fields in public deals.json (move to private tracker): " + ", ".join(bad[:20]))
+        raise SystemExit("Private data in public deals.json (move to private tracker): " + "; ".join(bad[:20]))
+
+
+def load_private_model() -> dict:
+    """Load the private commission/compliance model if present (local builds only)."""
+    if not PRIVATE_PATH.exists():
+        return {}
+    try:
+        return json.loads(PRIVATE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"warning: private model unreadable ({type(e).__name__}); skipping private checks", file=sys.stderr)
+        return {}
+
+
+def private_checks(private: dict, deals: list[dict]) -> None:
+    """Non-public use of the private model: report coverage drift only (counts, never values)."""
+    if not private:
+        print("private_model=absent (public-only build)")
+        return
+    public_ids = {d["id"] for d in deals}
+    priv_ids = {k for k in private if not k.startswith("_")}
+    print(f"private_model=present ids={len(priv_ids)} missing_from_public={len(priv_ids - public_ids)} "
+          f"public_without_private={len(public_ids - priv_ids)}")
+
+
+def assert_outputs_clean(paths: list[Path], private: dict) -> None:
+    """Scan generated public files for private keys/values (commission terms, private snippets)."""
+    needles: set[str] = set()
+    for rec in private.values():
+        if not isinstance(rec, dict):
+            continue
+        for k, v in rec.items():
+            if isinstance(v, str) and len(v) >= 24 and PRIVATE_VALUE_RE.search(v):
+                needles.add(v)
+    key_re = re.compile(r'"(' + "|".join(re.escape(k) for k in PRIVATE_FIELDS) + r')"\s*:')
+    bad = []
+    for p in paths:
+        txt = p.read_text(encoding="utf-8", errors="replace")
+        if key_re.search(txt) or PRIVATE_VALUE_RE.search(txt) or any(n in txt for n in needles):
+            bad.append(str(p.relative_to(ROOT)))
+    if bad:
+        raise SystemExit("Private data leaked into generated output: " + ", ".join(bad[:20]))
+
+
+def write_api_v1() -> Path:
+    """Stable versioned feed: byte-identical copy of /deals.json."""
+    API_V1_PATH.parent.mkdir(parents=True, exist_ok=True)
+    API_V1_PATH.write_bytes(DEALS_PATH.read_bytes())
+    return API_V1_PATH
 
 
 
@@ -1215,7 +1304,9 @@ def ensure_robots() -> None:
 def main() -> None:
     feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
     deals = feed["deals"]
-    assert_public_clean(deals)
+    assert_public_clean(feed)
+    private = load_private_model()
+    private_checks(private, deals)
     feed_updated = feed.get("updated_at") or VERIFIED
 
     curated_gotchas = load_curated_gotchas()
@@ -1255,6 +1346,11 @@ def main() -> None:
     write_index(deals, feed_updated)
     patch_lanternworks()
     ensure_robots()
+    api_path = write_api_v1()
+    public_out = [p for p in ROOT.rglob("*") if p.is_file() and p.suffix in (".html", ".json", ".xml", ".txt", ".md")
+                  and ".git" not in p.parts and "scripts" not in p.parts]
+    assert_outputs_clean(public_out, private)
+    print(f"api_v1={api_path.relative_to(ROOT)}")
 
     print(f"deal_pages={len(deal_paths)}")
     print(f"hub_pages={len(hub_paths)}")
