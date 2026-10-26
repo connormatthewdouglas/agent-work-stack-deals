@@ -10,10 +10,7 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import Any
 
-DEFAULT_FEED = (
-    "https://gist.githubusercontent.com/connormatthewdouglas/"
-    "ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json"
-)
+DEFAULT_FEED = "https://thelanternworks.com/deals.json"
 
 
 def fetch(url: str) -> dict:
@@ -121,7 +118,7 @@ Filter contract (also in deals.json → query.filters):
     p.add_argument(
         "--feed",
         default=DEFAULT_FEED,
-        help="Feed URL (default: live Lantern Works gist)",
+        help="Feed URL (default: https://thelanternworks.com/deals.json)",
     )
     p.add_argument(
         "--category",
