@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — RackNerd, Hostwinds
+
+- Added RackNerd (budget KVM VPS from $26.99/year) and Hostwinds (unmanaged Linux VPS from $4.99/mo) to the Compute hub, with prices verified on each vendor's VPS page.
+
 ## 2026-10-26 — Twin
 
 - Added Twin (AI agent automation platform) to the AI Agents hub at $29/mo for the Plus plan, verified on the vendor's pricing page.
