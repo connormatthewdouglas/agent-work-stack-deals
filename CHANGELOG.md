@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Uptimia
+
+- Added Uptimia (uptime, SSL, API and server monitoring; free plan, paid from $9/mo) to the Hosting hub; pricing verified on uptimia.com.
+
 ## 2026-10-26 — CometAPI
 
 - Added CometAPI (unified pay-as-you-go API for LLM, image, video and audio models, priced 20% below official rates) to the AI agents hub; pricing checked on cometapi.com.
