@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — IPGeolocation.io
+
+- Added IPGeolocation.io (IP geolocation and threat-intel API; free tier with 1,000 credits/day, paid from $19/mo) to the Data APIs hub; pricing verified on ipgeolocation.io.
+
 ## 2026-10-26 — WebGee
 
 - Added WebGee (NVMe cloud hosting, cloud VPS and dedicated servers; GeeSpark $4.95/mo, $1 first month) to the Hosting hub; price verified on webgee.com.
