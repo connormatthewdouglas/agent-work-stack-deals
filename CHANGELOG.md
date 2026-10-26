@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Emailable
+
+- Added Emailable (email verification) to Email APIs; 250 free starter credits verified, plan prices left unknown.
+
 ## 2026-10-26 — SearchApi
 
 - Added SearchApi (real-time SERP API) to Search, with verified monthly plan prices.
