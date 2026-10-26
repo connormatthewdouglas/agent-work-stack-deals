@@ -5,7 +5,7 @@ Read-only wrapper around the public JSON feed. **No auth. No paid server require
 See also: [README.md](./README.md) · [tools.manifest.json](./tools.manifest.json) · [server.stub.md](./server.stub.md)
 
 ## Feed
-https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json
+https://thelanternworks.com/deals.json
 
 Machine-readable filter contract: feed `query.filters` (keep in sync with `query_deals.py` and this spec).
 

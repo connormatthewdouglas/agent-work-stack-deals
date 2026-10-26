@@ -17,7 +17,7 @@ description: >-
 ## Surfaces (keep in sync)
 | Audience | URL |
 |---|---|
-| Agents (JSON feed) | https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json |
+| Agents (JSON feed) | https://thelanternworks.com/deals.json |
 | Humans (platform) | https://thelanternworks.com/lanternworks/ |
 | Humans (all deals) | https://thelanternworks.com/ |
 
@@ -47,7 +47,7 @@ See feed `query.filters` for the machine-readable contract.
 
 ### curl + local filter
 ```bash
-curl -fsSL "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json" \
+curl -fsSL "https://thelanternworks.com/deals.json" \
   | python3 -c "import json,sys; d=json.load(sys.stdin); print([x[\"id\"] for x in d[\"deals\"] if x.get(\"category\")==\"search\"])"
 ```
 

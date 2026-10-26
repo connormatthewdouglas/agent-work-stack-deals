@@ -31,4 +31,4 @@ python3 query_deals.py --include-examples     # keep synthetic example=true rows
 
 Machine-readable copy: `deals.json` → `query` object.
 
-Default feed: `https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json`
+Default feed: `https://thelanternworks.com/deals.json` (mirror: `https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json`)

@@ -915,10 +915,7 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
 
 
 
-FEED_RAW = (
-    "https://gist.githubusercontent.com/connormatthewdouglas/"
-    "ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json"
-)
+FEED_RAW = "https://thelanternworks.com/deals.json"
 
 
 def agent_query_howto_html() -> str:
@@ -1013,7 +1010,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     <nav style="margin-top:.35rem;">Hubs: {hub_nav}</nav>
     {guides_nav_html()}
     {__import__("compare_pages").nav_html(BASE)}
-    <p class="feed"><strong>Agents:</strong> GET <a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
+    <p class="feed"><strong>Agents:</strong> GET <a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
 {agent_query_howto_html()}
   <main>{body_main}</main>

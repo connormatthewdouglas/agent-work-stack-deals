@@ -1,5 +1,7 @@
 # Lantern Works — MCP discovery (sketch)
 
+> **Status: not hosted.** No Lantern Works MCP server is running; this folder is a design sketch. Agents should `GET https://thelanternworks.com/deals.json` directly.
+
 Read-only MCP surface over the **public** agent work-stack deal feed. No auth. No spend. Work-stack niche only (compute, hosting, search, crawl, unblock, email, templates) — not consumer affiliate shopping.
 
 ## Why this exists
@@ -8,7 +10,7 @@ AI agents need a discoverable way to find Lantern Works inventory beyond pasting
 ## Live surfaces (already public)
 | Surface | URL |
 |---|---|
-| JSON feed | https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json |
+| JSON feed | https://thelanternworks.com/deals.json |
 | Human page | https://thelanternworks.com/lanternworks/ |
 | Deals list | https://thelanternworks.com/ |
 | Agent Skill | [../.agents/skills/lantern-works-deals/SKILL.md](../.agents/skills/lantern-works-deals/SKILL.md) |

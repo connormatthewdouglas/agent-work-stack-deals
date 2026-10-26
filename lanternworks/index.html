@@ -132,7 +132,7 @@
   <section id="for-agents">
     <h2>For agents</h2>
     <p>Machine-readable feed (public, no auth). Default posture is <strong>real-only</strong> (skip <code>example: true</code>). Production inventory is live Lantern Works listings.</p>
-    <p class="feed">GET <a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json</a></p>
+    <p class="feed">GET <a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a></p>
     <h3 style="font-size:1.05rem;margin:1rem 0 .4rem;">How agents should query this</h3>
     <ul>
       <li><code>category</code> — exact match (<code>compute</code>, <code>email</code>, <code>hosting</code>, <code>search</code>, <code>unblock</code>, …)</li>
@@ -142,7 +142,7 @@
       <li>Also: <code>tag</code>, <code>agent_only</code>, <code>max_price</code>, <code>real_only</code> (default), <code>id</code></li>
     </ul>
     <p><strong>curl + local filter</strong></p>
-    <pre style="background:#111;color:#eee;padding:.75rem 1rem;border-radius:8px;overflow-x:auto;font-size:.82rem;">curl -fsSL "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json" \
+    <pre style="background:#111;color:#eee;padding:.75rem 1rem;border-radius:8px;overflow-x:auto;font-size:.82rem;">curl -fsSL "https://thelanternworks.com/deals.json" \
   | python3 -c 'import json,sys; d=json.load(sys.stdin)
 print([x["id"] for x in d["deals"] if x.get("category")=="search" ])'</pre>
     <p><strong>query_deals.py</strong></p>
@@ -168,7 +168,7 @@ python3 query_deals.py --updated-since 2026-10-23T00:00:00-04:00</pre>
       <tbody>
         <tr><td>Humans (this page)</td><td><a href="https://thelanternworks.com/lanternworks/">Lantern Works</a></td></tr>
         <tr><td>Humans (all deals)</td><td><a href="https://thelanternworks.com/">Deals list</a></td></tr>
-        <tr><td>Agents (JSON)</td><td><a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">deals.json</a></td></tr>
+        <tr><td>Agents (JSON)</td><td><a href="https://thelanternworks.com/deals.json">deals.json</a></td></tr>
       </tbody>
     </table>
     <p style="margin-top:1rem;">Ranking is by customer value (discounts, then free tiers, then standard signups); commission never affects order. Try free tiers and small paid trials before scaling spend. Respect site terms, robots.txt, and rate limits.</p>
