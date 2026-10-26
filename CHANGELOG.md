@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — ScrapeNest
+
+- Added ScrapeNest (web scraping and search API) to the Scraping & Unblock hub as a verified free tier: 1,000 credits/mo, no card; paid plans from $29/mo.
+
 ## 2026-10-26 — CyberPanel
 
 - Added CyberPanel (free open-source web hosting control panel) to the Hosting hub as a verified free tier; premium add-ons from $7.99/mo.
