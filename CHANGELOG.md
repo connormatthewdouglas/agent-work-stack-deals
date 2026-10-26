@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — PingPing
+
+- Added PingPing (website uptime and SSL monitoring; 14-day free trial) to the Hosting hub; USD price not yet verified (vendor lists EUR pricing).
+
 ## 2026-10-26 — KaijuVerifier
 
 - Added KaijuVerifier (email verification API; free plan with 100 verifications/month, paid from $19/mo) to the Email APIs hub; pricing verified on kaijuverifier.com.
