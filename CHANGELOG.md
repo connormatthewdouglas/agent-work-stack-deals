@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Speak AI, PiAPI, Apiframe
+
+- Added Speak AI (transcription and analysis), PiAPI (AI media generation APIs) and Apiframe (AI image/video API) to the AI Agents hub. Prices are from each vendor's USD pricing page. The PiAPI entry does not link to PiAPI's docs.
+
 ## 2026-10-26 — Emailable
 
 - Added Emailable (email verification) to Email APIs; 250 free starter credits verified, plan prices left unknown.
