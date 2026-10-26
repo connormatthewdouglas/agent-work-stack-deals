@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Findymail, Bento
+
+- Added Findymail (verified B2B email finder API, Individual $99/mo) and Bento (email marketing with transactional API, $29/mo) to the Email APIs hub, with prices verified on each vendor's pricing page.
+
 ## 2026-10-26 — Marblism, Hyperping
 
 - Added Marblism (AI employees, $44/mo billed monthly) to the AI Agents hub and Hyperping (uptime monitoring and status pages, verified free plan) to the Hosting hub, with prices verified on each vendor's pricing page.
