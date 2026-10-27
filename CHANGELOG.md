@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Trends MCP
+
+- Added Trends MCP (live trend-data MCP server/API; free plan, paid from $16/mo billed annually) to the AI agents hub; pricing verified on trendsmcp.ai.
+
 ## 2026-10-26 — Palabra.ai
 
 - Added Palabra.ai (real-time speech-to-speech translation API; $0.04/min, $50 free credits on sign-up) to the AI agents hub; pricing verified on palabra.ai.
