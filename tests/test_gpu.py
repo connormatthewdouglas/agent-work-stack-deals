@@ -1,13 +1,13 @@
 import json
 from pathlib import Path
-from core.gpu import RATE_SPECS, build_rates, estimate
+from core.gpu import build_rates, estimate, load_vendor_files
 
 FEED = json.loads((Path(__file__).resolve().parents[1] / "deals.json").read_text())["deals"]
 
 
 def test_all_specs_verified_against_feed():
     r = build_rates(FEED)
-    assert r["problems"] == [] and len(r["rates"]) == len(RATE_SPECS)
+    assert r["problems"] == [] and len(r["rates"]) == sum(len(d["records"]) for d in load_vendor_files())
 
 
 def test_estimate_hourly_vs_flat_and_rank():
@@ -61,3 +61,41 @@ def test_new_families_and_modal_per_second():
     assert modal and all(r["billing"] == "per second while running" for r in modal)
     h200 = next(r for r in modal if r["gpu"] == "H200 SXM")
     assert abs(h200["price_usd"] - 0.001261 * 3600) < 1e-4
+
+
+def test_records_schema_and_compat_fields():
+    from core.gpu import RECORD_FIELDS, record_problems
+    docs = load_vendor_files()
+    assert len(docs) >= 5
+    for d in docs:
+        assert record_problems(d) == [], d["vendor"]
+        for r in d["records"]:
+            assert set(RECORD_FIELDS) <= set(r)
+    old = {"deal_id", "advertiser", "gpu", "vram_gb", "price_usd", "unit", "tier", "hourly_equiv_usd", "billing",
+           "offer_type", "affiliate", "verified_at", "source_url", "redeem_url", "basis"}
+    for r in build_rates(FEED)["rates"]:
+        assert old <= set(r) and r["source_url"].startswith("https://") and r["checked_at"]
+        assert r["unit"] in ("hour", "month") and isinstance(r["interruptible"], bool)
+    modal = [r for r in build_rates(FEED)["rates"] if r["billing_unit"] == "per-second"]
+    assert modal and all(r["interruptible"] and r["price_per_second_usd"] for r in modal)
+
+
+def test_record_problems_and_staleness_detected():
+    import copy
+    from datetime import datetime, timedelta
+    from core.gpu import record_problems, stale_records
+    doc = copy.deepcopy(next(d for d in load_vendor_files() if len(d["records"]) > 2))
+    r = doc["records"][0]
+    assert stale_records([doc], now=datetime.fromisoformat(r["checked_at"]) + timedelta(days=6)) == []
+    assert stale_records([doc], now=datetime.fromisoformat(r["checked_at"]) + timedelta(days=8))
+    r["billing_unit"] = "weekly"; r["interruptible"] = "no"; r["hourly_usd"] = 999
+    del doc["records"][-1]["source_url"]
+    probs = " ".join(record_problems(doc))
+    assert "billing_unit" in probs and "interruptible" in probs and "missing ['source_url']" in probs
+    assert build_rates(FEED, [doc])["problems"]
+
+
+def test_published_api_matches_records():
+    api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    assert api["rates"] == build_rates(FEED)["rates"]
+    assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files()}

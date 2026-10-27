@@ -19,8 +19,8 @@ API_PATH = ROOT / "api" / "v1" / "gpu-prices.json"
 
 def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     data = build_rates(deals)
-    for p in data["problems"]:
-        print(f"warning: gpu calculator: dropped rate ({p})", file=sys.stderr)
+    if data["problems"]:  # invalid pricing records fail the build instead of silently dropping rates
+        raise SystemExit("gpu pricing records invalid:\n  " + "\n  ".join(data["problems"]))
     payload = {
         "schema": "lantern-works-gpu-prices/1",
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
@@ -28,11 +28,14 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "hours_per_month": HOURS_PER_MONTH,
         "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
         "methodology": [
-            "Rates are copied from each deal's public pricing_note (field 'basis' is the exact quote) and only for deals with verified_at set.",
+            "Rates come from structured per-vendor pricing records (data/gpu_pricing/<vendor>.json in the repo); each rate has source_url and checked_at, and 'basis' is the exact vendor quote.",
+            "A daily job re-fetches every source_url and flags records older than 7 days or unreachable pages; prices are never auto-edited.",
+            "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
-            "Excludes storage, egress, extra vCPU and taxes. Confirm on the vendor page before spending.",
+            "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"unknown\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
         ],
         "rates": data["rates"],
+        "vendors": data["vendors"],
         "free_credits": data["free_credits"],
         "unpriced": data["unpriced"],
     }

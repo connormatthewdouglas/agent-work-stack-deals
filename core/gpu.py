@@ -1,64 +1,79 @@
-"""GPU cost calculator core: structured GPU rates extracted from deals.json pricing notes.
+"""GPU pricing core: structured per-vendor pricing records (data/gpu_pricing/<vendor>.json).
 
-Every rate is tied to a deal id and a quote that must appear verbatim in that deal's public
-pricing_note, and the deal must have verified_at set. Anything else is reported as unpriced.
+Each record carries vendor, GPU, VRAM, price + billing unit, interruptible, source_url and checked_at.
+scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits).
 Ranking is by estimated cost for the user's hours, never by affiliate status or commission.
 """
 from __future__ import annotations
 
+import json
 import math
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 HOURS_PER_MONTH = 730  # 24 * 365 / 12
 
-# (deal_id, gpu, vram_gb, price_usd, unit, quote, tier) — quote must be a substring of pricing_note.
-RATE_SPECS = [
-    ("deal-thundercompute-001", "RTX A6000", 48, 0.35, "hour", "RTX A6000 48GB $0.35/hr", "on-demand"),
-    ("deal-thundercompute-001", "L40", 48, 0.79, "hour", "L40 48GB $0.79/hr", "on-demand"),
-    ("deal-thundercompute-001", "A100", 80, 1.09, "hour", "A100 80GB $1.09/hr", "on-demand"),
-    ("deal-thundercompute-001", "H100 SXM", 80, 3.20, "hour", "H100 SXM 80GB $3.20/hr", "on-demand"),
-    ("deal-99stack-001", "H100", 80, 2.8767, "hour", "NVIDIA H100 (12 vCPU/240 GB RAM) $2.8767/hr", "on-demand"),
-    ("deal-ucartz-001", "Radeon 780M", None, 382.72, "month", "from $382.72/mo (Radeon 780M)", "dedicated server"),
-    ("deal-ucartz-001", "RTX 4090", 24, 798.72, "month", "RTX 4090 from $798.72/mo", "dedicated server"),
-    ("deal-ucartz-001", "RTX A5000", 24, 819.52, "month", "RTX A5000 from $819.52/mo", "dedicated server"),
-    ("deal-ucartz-001", "RTX 5090", 32, 1256.32, "month", "RTX 5090 from $1,256.32/mo", "dedicated server"),
-    ("deal-ucartz-001", "A100", 80, 3128.32, "month", "A100 80GB from $3,128.32/mo", "dedicated server"),
-]
-_RP = "deal-runpod-001"
-for _gpu, _vram, _price, _q, _tier in [
-    ("H200", 141, 5.29, "H200 141GB $5.29/hr", "Secure Cloud"),
-    ("H100 SXM", 80, 3.99, "H100 SXM 80GB $3.99/hr", "Secure Cloud"),
-    ("H100 PCIe", 80, 2.89, "H100 PCIe 80GB $2.89/hr", "Secure Cloud"),
-    ("A100 SXM", 80, 1.79, "A100 SXM 80GB $1.79/hr", "Secure Cloud"),
-    ("A100 PCIe", 80, 1.79, "A100 PCIe 80GB $1.79/hr", "Secure Cloud"),
-    ("L40S", 48, 1.09, "L40S 48GB $1.09/hr", "Secure Cloud"),
-    ("L40", 48, 0.82, "L40 48GB $0.82/hr", "Secure Cloud"),
-    ("RTX A6000", 48, 0.59, "RTX A6000 48GB $0.59/hr", "Secure Cloud"),
-    ("RTX 5090", 32, 1.19, "RTX 5090 32GB $1.19/hr", "Secure Cloud"),
-    ("RTX 4090", 24, 0.89, "RTX 4090 24GB $0.89/hr", "Secure Cloud"),
-    ("RTX 3090", 24, 0.50, "RTX 3090 24GB $0.50/hr", "Secure Cloud"),
-    ("RTX A5000", 24, 0.27, "RTX A5000 24GB $0.27/hr", "Secure Cloud"),
-    ("H100 SXM", 80, 2.69, "H100 SXM $2.69/hr", "Community Cloud"),
-    ("H100 PCIe", 80, 1.99, "H100 PCIe $1.99/hr", "Community Cloud"),
-    ("A100 SXM", 80, 1.39, "A100 SXM $1.39/hr", "Community Cloud"),
-    ("A100 PCIe", 80, 1.19, "A100 PCIe $1.19/hr", "Community Cloud"),
-    ("RTX 4090", 24, 0.34, "RTX 4090 $0.34/hr", "Community Cloud"),
-    ("RTX 3090", 24, 0.22, "RTX 3090 $0.22/hr", "Community Cloud"),
-    ("H200", 141, 3.59, "H200 $3.59/hr", "Community Cloud"),
-    ("L40S", 48, 0.79, "L40S $0.79/hr", "Community Cloud"),
-    ("RTX A6000", 48, 0.33, "RTX A6000 $0.33/hr", "Community Cloud"),
-    ("RTX 5090", 32, 0.69, "RTX 5090 $0.69/hr", "Community Cloud"),
-]:
-    RATE_SPECS.append((_RP, _gpu, _vram, _price, "hour", _q, _tier))
-
-# Modal bills GPU time per second; stored as the exact hourly equivalent (per-second rate x 3600).
 SERVERLESS = "Serverless (per second)"
-for _gpu, _vram, _per_sec, _q in [
-    ("H200 SXM", 141, 0.001261, "Nvidia H200 SXM $0.001261/sec"),
-    ("H100 SXM", 80, 0.001097, "Nvidia H100 SXM5 $0.001097/sec"),
-    ("A100", 80, 0.000694, "Nvidia A100, 80 GB $0.000694/sec"),
-    ("L40S", 48, 0.000542, "Nvidia L40S $0.000542/sec"),
-]:
-    RATE_SPECS.append(("deal-modal-free-001", _gpu, _vram, round(_per_sec * 3600, 4), "hour", _q, SERVERLESS))
+BILLING_UNITS = ("per-second", "hourly", "monthly")
+RECORD_FIELDS = ("vendor", "gpu", "vram_gb", "price_usd", "billing_unit", "hourly_usd", "interruptible",
+                 "tier", "form_factor", "quote", "source_url", "checked_at")
+PRICING_DIR = Path(__file__).resolve().parents[1] / "data" / "gpu_pricing"
+STALE_DAYS = 7
+
+
+def load_vendor_files(directory: Path | None = None) -> list[dict]:
+    """Per-vendor structured pricing records (data/gpu_pricing/<vendor>.json): the only source of GPU rates."""
+    d = Path(directory or PRICING_DIR)
+    return [json.loads(f.read_text(encoding="utf-8")) for f in sorted(d.glob("*.json"))]
+
+
+def record_problems(doc: dict) -> list[str]:
+    """Schema/consistency checks for one vendor file. Empty list = valid."""
+    out, name = [], doc.get("vendor") or "?"
+    for k in ("vendor", "deal_id", "source_url", "checked_at", "records", "extras"):
+        if not doc.get(k):
+            out.append(f"{name}: missing {k}")
+    for k in ("egress", "storage", "interruption"):
+        x = (doc.get("extras") or {}).get(k) or {}
+        if x.get("status") not in ("published", "unknown") or not x.get("text") or not x.get("source_url"):
+            out.append(f"{name}: extras.{k} needs status published|unknown, text, source_url")
+    for i, r in enumerate(doc.get("records") or []):
+        tag = f"{name} record {i} ({r.get('gpu')})"
+        miss = [k for k in RECORD_FIELDS if k not in r]
+        if miss:
+            out.append(f"{tag}: missing {miss}")
+            continue
+        if r["vendor"] != doc.get("vendor"):
+            out.append(f"{tag}: vendor mismatch")
+        if r["billing_unit"] not in BILLING_UNITS:
+            out.append(f"{tag}: billing_unit must be one of {BILLING_UNITS}")
+        if not isinstance(r["interruptible"], bool):
+            out.append(f"{tag}: interruptible must be true/false")
+        if not (isinstance(r["price_usd"], (int, float)) and r["price_usd"] > 0):
+            out.append(f"{tag}: price_usd must be > 0")
+            continue
+        factor = {"per-second": 3600, "hourly": 1, "monthly": 1 / HOURS_PER_MONTH}.get(r["billing_unit"], 1)
+        if abs(round(r["price_usd"] * factor, 4) - r["hourly_usd"]) > 1e-4:
+            out.append(f"{tag}: hourly_usd {r['hourly_usd']} != price_usd x {factor:g}")
+        if not str(r["source_url"]).startswith("https://") or not r["checked_at"]:
+            out.append(f"{tag}: needs https source_url and checked_at")
+        try:
+            datetime.fromisoformat(r["checked_at"])
+        except (TypeError, ValueError):
+            out.append(f"{tag}: checked_at not ISO-8601")
+    return out
+
+
+def stale_records(docs: list[dict], now: datetime | None = None, days: int = STALE_DAYS) -> list[str]:
+    now = now or datetime.now(timezone.utc)
+    out = []
+    for doc in docs:
+        for r in doc.get("records") or []:
+            age = now - datetime.fromisoformat(r["checked_at"])
+            if age > timedelta(days=days):
+                out.append(f"{doc['vendor']} {r['gpu']} ({r['tier']}): checked_at {r['checked_at']} is {age.days} days old")
+    return out
+
 
 # Model families for landing pages: rates whose gpu starts with the family name.
 FAMILIES = {"h100": "H100", "h200": "H200", "a100": "A100", "l40s": "L40S", "rtx-4090": "RTX 4090", "rtx-5090": "RTX 5090",
@@ -90,34 +105,48 @@ def is_gpu_deal(d: dict) -> bool:
     return any(t in (d.get("tags") or []) for t in GPU_TAGS)
 
 
-def build_rates(deals: list[dict]) -> dict:
+def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dict:
+    """Rates for /api/v1/gpu-prices.json and every GPU page, from the per-vendor records.
+
+    Output fields stay compatible with 0.2.0 consumers: price_usd/unit are the hourly (unit 'hour') or
+    monthly (unit 'month') price; per-second prices are carried as price_per_second_usd."""
     by_id = {d["id"]: d for d in deals}
-    rates, problems = [], []
-    for deal_id, gpu, vram, price, unit, quote, tier in RATE_SPECS:
-        d = by_id.get(deal_id)
+    docs = load_vendor_files() if vendor_docs is None else vendor_docs
+    rates, problems, vendors = [], [], []
+    for doc in docs:
+        bad = record_problems(doc)
+        if bad:
+            problems += bad
+            continue
+        d = by_id.get(doc["deal_id"])
         if not d:
-            problems.append(f"{deal_id}: not in public feed")
+            problems.append(f"{doc['deal_id']}: not in public feed")
             continue
-        if quote not in (d.get("pricing_note") or ""):
-            problems.append(f"{deal_id}: quote not in pricing_note: {quote!r}")
-            continue
-        if not d.get("verified_at"):
-            problems.append(f"{deal_id}: no verified_at")
-            continue
-        rates.append({"deal_id": deal_id, "advertiser": d.get("advertiser"), "gpu": gpu, "vram_gb": vram,
-                      "price_usd": price, "unit": unit, "tier": tier,
-                      "hourly_equiv_usd": round(price if unit == "hour" else price / HOURS_PER_MONTH, 4),
-                      "billing": ("per second while running" if tier == SERVERLESS else "per hour while running") if unit == "hour" else "flat monthly (dedicated server)",
-                      "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
-                      "verified_at": d.get("verified_at"), "source_url": d.get("source_url"),
-                      "redeem_url": d.get("redeem_url"), "basis": quote})
+        vendors.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
+                        "checked_at": doc["checked_at"], "billing_granularity": doc.get("billing_granularity"),
+                        "extras": doc["extras"]})
+        for r in doc["records"]:
+            monthly = r["billing_unit"] == "monthly"
+            rates.append({
+                "deal_id": doc["deal_id"], "advertiser": r["vendor"], "gpu": r["gpu"], "vram_gb": r["vram_gb"],
+                "price_usd": r["price_usd"] if monthly else r["hourly_usd"],
+                "unit": "month" if monthly else "hour", "tier": r["tier"],
+                "hourly_equiv_usd": r["hourly_usd"],
+                "billing": {"per-second": "per second while running", "hourly": "per hour while running",
+                            "monthly": "flat monthly (dedicated server)"}[r["billing_unit"]],
+                "billing_unit": r["billing_unit"],
+                "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
+                "interruptible": r["interruptible"], "form_factor": r["form_factor"],
+                "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
+                "verified_at": r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
+                "redeem_url": d.get("redeem_url"), "basis": r["quote"]})
     priced = {r["deal_id"] for r in rates}
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
-                 "reason": "no verified structured GPU price in feed", "source_url": d.get("source_url")}
+                 "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}
                 for d in sorted(deals, key=lambda x: x["id"]) if is_gpu_deal(d) and d["id"] not in priced]
     credits = [{"deal_id": d["id"], "advertiser": d.get("advertiser"), "unit": d.get("unit")}
                for d in deals if is_gpu_deal(d) and d.get("offer_type") in ("free_tier", "trial")]
-    return {"rates": rates, "unpriced": unpriced, "free_credits": credits, "problems": problems}
+    return {"rates": rates, "vendors": vendors, "unpriced": unpriced, "free_credits": credits, "problems": problems}
 
 
 def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filter: str | None = None,
