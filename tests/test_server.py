@@ -108,6 +108,27 @@ def test_versions_consistent_and_reported(srv):
     assert f"lantern-works-deals-mcp=={VERSION}" in (ROOT / "Dockerfile").read_text()
 
 
+def test_cursor_plugin_manifest(srv):
+    import re, struct
+    from core import VERSION
+    pdir = ROOT / "plugins" / "lantern-works-deals"
+    cur = json.loads((pdir / ".cursor-plugin" / "plugin.json").read_text())
+    assert cur["name"] == "lantern-works-deals" and cur["version"] == VERSION
+    # logo: raw GitHub URL of the repo-root logo.png (same file the site serves at /logo.png)
+    assert cur["logo"] == "https://raw.githubusercontent.com/connormatthewdouglas/agent-work-stack-deals/main/logo.png"
+    b = (ROOT / "logo.png").read_bytes()
+    assert struct.unpack(">II", b[16:24]) == (400, 400)
+    tools = sorted(t.name for t in asyncio.run(srv.mcp.list_tools()))
+    assert len(tools) == 5
+    for f in (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json"):
+        m = json.loads((ROOT / f).read_text())
+        e = m["plugins"][0]
+        assert (ROOT / e["source"]).is_dir() and (ROOT / e["source"] / ".cursor-plugin" / "plugin.json").is_file()
+        assert sorted(re.search(r"\((.*?)\)", e["description"]).group(1).split(", ")) == tools, f
+    assert json.loads((pdir / "mcp.json").read_text()) == json.loads((pdir / ".mcp.json").read_text())
+    assert (pdir / "skills" / "lantern-works-deals" / "SKILL.md").is_file()
+
+
 def test_user_agent_sent(monkeypatch):
     import urllib.request
     from core import USER_AGENT, FeedLoader, GpuPricesLoader
