@@ -2,6 +2,13 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Compliance update
+
+- Removed four listings whose affiliate terms do not allow listing on deal or coupon sites.
+- ScraperAPI is now a plain referral link with no coupon wording.
+- Firecrawl: removed an unverified first-purchase discount claim.
+- Schema 1.3.0: new optional `signup` / `signup_note` fields. `signup: "manual_only"` marks vendors whose terms ban automated signup, so a human must sign up manually. It is set on SearchApi, IPGeolocation.io, Kyma API, Unreal Speech, RunPod and Runable, shown on their deal pages, and returned by the MCP server.
+
 ## 2026-10-26 — Trends MCP
 
 - Added Trends MCP (live trend-data MCP server/API; free plan, paid from $16/mo billed annually) to the AI agents hub; pricing verified on trendsmcp.ai.
@@ -124,10 +131,6 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - Added Basin (form backend API) and Jet Admin (no-code internal tools) to the Hosting hub as verified free tiers; paid plans from $12.50/mo (Basin, billed yearly) and $16/mo (Jet Admin, billed yearly).
 
-## 2026-10-26 — ScrapeNest
-
-- Added ScrapeNest (web scraping and search API) to the Scraping & Unblock hub as a verified free tier: 1,000 credits/mo, no card; paid plans from $29/mo.
-
 ## 2026-10-26 — CyberPanel
 
 - Added CyberPanel (free open-source web hosting control panel) to the Hosting hub as a verified free tier; premium add-ons from $7.99/mo.
@@ -160,9 +163,9 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - Added Press Mage (managed WordPress hosting) to the Hosting hub at $39/mo for the Journeyman plan, verified on the vendor's pricing page.
 
-## 2026-10-26 — Speak AI, PiAPI, Apiframe
+## 2026-10-26 — Speak AI, PiAPI
 
-- Added Speak AI (transcription and analysis), PiAPI (AI media generation APIs) and Apiframe (AI image/video API) to the AI Agents hub. Prices are from each vendor's USD pricing page. The PiAPI entry does not link to PiAPI's docs.
+- Added Speak AI (transcription and analysis) and PiAPI (AI media generation APIs) to the AI Agents hub. Prices are from each vendor's USD pricing page. The PiAPI entry does not link to PiAPI's docs.
 
 ## 2026-10-26 — Emailable
 
@@ -328,10 +331,6 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - Added **SoftShellWeb** KVM VPS / shared / reseller hosting (`deal-softshellweb-001`) — live affiliate #78; listed on the hosting hub.
 
-## 2026-10-25 — ScreenshotOne live affiliate
-
-- Added **ScreenshotOne** website screenshot/rendering API (`deal-screenshotone-001`) — live affiliate #77; listed on the scraping-unblock hub.
-
 ## 2026-10-25 — Telemetry Tracker live affiliate
 
 - Added **Telemetry Tracker** open-source error tracking / Sentry alternative (`deal-telemetry-tracker-001`) — live affiliate #76; listed on the hosting hub.
@@ -449,11 +448,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - Added **Quickchat AI** no-code AI agent / chatbot builder (`deal-quickchat-001`) — live affiliate #48; listed on the ai-agents hub.
 
-## 2026-10-23 — AI agents hub + Chipp and Chatbase live affiliates
+## 2026-10-23 — AI agents hub + Chipp live affiliate
 
 - New **AI agent platform deals** hub at [`categories/ai-agents/`](https://thelanternworks.com/categories/ai-agents/) for agent builders, chatbot platforms, and general AI agents; **Runable** moved there from templates.
 - Added **Chipp** no-code AI agent builder (`deal-chipp-001`) — live affiliate #46; listed on the ai-agents hub.
-- Added **Chatbase** AI support agent / chatbot platform (`deal-chatbase-001`) — live affiliate #47; listed on the ai-agents hub.
 
 ## 2026-10-23 — Runable live affiliate
 

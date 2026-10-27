@@ -131,6 +131,35 @@ def check_static() -> None:
             err(f"github.io hardcode in {rel}")
 
 
+def check_compliance(feed: dict) -> None:
+    """Pulled listings (affiliate-terms conflicts) must be absent everywhere; plain-link and
+    manual-signup listings must render as required."""
+    ids = {d["id"] for d in feed["deals"]}
+    for i in ids:
+        if gen.is_pulled(i):
+            err(f"pulled listing present in deals.json (sha256 {hashlib.sha256(i.encode()).hexdigest()[:12]})")
+    for d in (ROOT / "deals").iterdir():
+        if d.is_dir() and gen.is_pulled(f"deal-{d.name}"):
+            err(f"pulled listing page still exists: deals/{hashlib.sha256(d.name.encode()).hexdigest()[:12]}")
+    sm = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+    for slug in re.findall(r"/deals/([^/<]+)/", sm):
+        if gen.is_pulled(f"deal-{slug}"):
+            err("pulled listing URL in sitemap.xml")
+    for d in feed["deals"]:
+        page = ROOT / "deals" / gen.slug_for(d["id"]) / "index.html"
+        if not page.exists():
+            continue
+        html = page.read_text(encoding="utf-8")
+        if d["id"] in gen.NO_COUPON_WORDING_IDS:
+            if d.get("promo_code"):
+                err(f"{d['id']}: promo_code not allowed (plain link only)")
+            text = re.sub(r"<[^>]+>", " ", re.sub(r"<script.*?</script>|<style.*?</style>", " ", html, flags=re.S))
+            if re.search(r"coupon|discount|promo", text, re.I):
+                err(f"{d['id']}: coupon/discount wording on a plain-link-only page")
+        if d.get("signup") == "manual_only" and "Manual signup only" not in html:
+            err(f"{d['id']}: manual_only signup note missing from deal page")
+
+
 def fetch(url: str, method: str = "GET", timeout: int = 20) -> tuple[int | None, str]:
     req = urllib.request.Request(url, method=method, headers={"User-Agent": UA, "Accept": "*/*"})
     try:
@@ -197,6 +226,7 @@ def main() -> int:
     check_schema(feed)
     check_private(feed)
     check_static()
+    check_compliance(feed)
     if a.gist:
         check_gist()
     if a.links:

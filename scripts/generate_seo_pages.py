@@ -418,11 +418,40 @@ def assert_outputs_clean(paths: list[Path], private: dict) -> None:
 
 
 HELD_IDS: set[str] = set()
+# Listings pulled for affiliate-terms conflicts. Stored as sha256(deal id) so the public repo does not
+# name them. Pulled deals are never published (registry present or not), get no stub page, and their
+# old /deals/<slug>/ directory is deleted so the URL 404s. Registry status "pulled" adds to this set.
+PULLED_ID_SHA256 = frozenset({
+    "f483983f5dade785816b1dff9ea0dafdf845cfda1f4dab1d18f7526dc8d67827",
+    "37cbce2d8ff08ee5d9c16b5ba3ec1214a5ea81631fdf9d16695aa42359c50f3b",
+    "48f2b01deb93e9410c524852b038ab0d24c2f3c559df6d2c1265726ef4b80a5d",
+    "39855a1e80d49dd19e11c1986b7607d96fa861d0925f73f05974abb691c409ad",
+})
+PULLED_IDS: set[str] = set()
+# Plain link only: affiliate terms forbid coupon/discount wording on these listings.
+NO_COUPON_WORDING_IDS = frozenset({"deal-scraperapi-001"})
+SIGNUP_NOTES = {"manual_only": "Sign up manually. No automated signup: the vendor's terms ban bot or automated account creation."}
+
+
+def is_pulled(deal_id: str) -> bool:
+    import hashlib
+    return deal_id in PULLED_IDS or hashlib.sha256(deal_id.encode()).hexdigest() in PULLED_ID_SHA256
+
+
+def remove_pulled_pages(ids) -> None:
+    import shutil
+    ids = set(ids) | {f"deal-{p.name}" for p in (ROOT / "deals").iterdir() if p.is_dir() and is_pulled(f"deal-{p.name}")}
+    for deal_id in ids:
+        d = ROOT / "deals" / slug_for(deal_id)
+        if d.exists():
+            shutil.rmtree(d)
 
 
 def write_held_stubs() -> None:
     """Keep URLs of held deals alive as noindex 'temporarily unavailable' pages (no redeem link)."""
     for deal_id in sorted(HELD_IDS):
+        if is_pulled(deal_id):
+            continue
         slug = slug_for(deal_id)
         out = ROOT / "deals" / slug / "index.html"
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -440,6 +469,9 @@ def apply_compliance_gate(feed: dict) -> dict:
     Unapproved/unknown deals are moved to HELD_PATH (private) and removed from deals.json;
     held deals whose status becomes approved are restored. No-op if the registry is absent."""
     if not COMPLIANCE_PATH.exists():
+        bad = [d["id"] for d in feed["deals"] if is_pulled(d["id"])]
+        if bad:
+            raise SystemExit(f"pulled listing(s) present in deals.json: {len(bad)}; remove them")
         print("compliance_gate=absent (feed published as-is)")
         return feed
     reg = json.loads(COMPLIANCE_PATH.read_text(encoding="utf-8"))
@@ -450,13 +482,19 @@ def apply_compliance_gate(feed: dict) -> dict:
     approved, blocked = [], []
     for d in pool.values():
         status = (entries.get(slug_for(d["id"])) or {}).get("status")
-        (approved if status == "approved" else blocked).append(d)
+        if status == "pulled":
+            PULLED_IDS.add(d["id"])
+        (approved if status == "approved" and not is_pulled(d["id"]) else blocked).append(d)
     before = [d["id"] for d in feed["deals"]]
     feed["deals"] = sort_deals_customer_value(approved)
     HELD_PATH.write_text(json.dumps(sorted(blocked, key=lambda d: d["id"]), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     if [d["id"] for d in feed["deals"]] != before:
         DEALS_PATH.write_text(json.dumps(feed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     HELD_IDS.update(d["id"] for d in blocked)
+    for e_slug, e in entries.items():
+        if (e or {}).get("status") == "pulled":
+            PULLED_IDS.add(f"deal-{e_slug}")
+    remove_pulled_pages(i for i in HELD_IDS | PULLED_IDS if is_pulled(i))
     print(f"compliance_gate=present approved={len(approved)} held={len(blocked)}")
     return feed
 
@@ -668,7 +706,12 @@ def auto_gotchas(deal: dict, twins: list[dict] | None = None) -> list[str]:
     unit = deal.get("unit") or ""
     unit_l = unit.lower()
 
-    if claim and "apply" in str(claim).lower():
+    if deal.get("signup") in SIGNUP_NOTES:
+        notes.append(esc(deal.get("signup_note") or SIGNUP_NOTES[deal["signup"]]))
+
+    if deal.get("id") in NO_COUPON_WORDING_IDS:
+        notes.append("Plain referral link at the vendor's standard pricing.")
+    elif claim and "apply" in str(claim).lower():
         notes.append(
             f"Application / approval required (claim_note: {esc(claim)}) — not a redeemable promo code."
         )
@@ -734,6 +777,13 @@ def _theme_flags(text: str) -> set[str]:
     if "application" in low and "apply" in low:
         flags.add("apply")
     return flags
+
+
+def signup_html(deal: dict) -> str:
+    kind = deal.get("signup")
+    if kind not in SIGNUP_NOTES:
+        return ""
+    return f'\n    <p class="signup"><strong>Manual signup only:</strong> {esc(deal.get("signup_note") or SIGNUP_NOTES[kind])}</p>'
 
 
 def collect_gotchas(
@@ -1065,7 +1115,7 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
     {pricing_note_html(deal)}
     {fresh_line}
     {verified_line}
-    <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
+    <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>{signup_html(deal)}
     <p class="redeem">{cta_html(deal)}</p>
     {gbox}
     {"<p><em>Sample inventory placeholder — not a live merchant offer.</em></p>" if example else ""}
@@ -1075,9 +1125,11 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
   </script>
 """
     title = f"{deal.get('title')} — Lantern Works deals"
-    (out_dir / "index.html").write_text(
-        page_shell(title, desc[:300], page_url, body, robots=robots), encoding="utf-8"
-    )
+    html_out = page_shell(title, desc[:300], page_url, body, robots=robots)
+    if deal.get("id") in NO_COUPON_WORDING_IDS:
+        html_out = html_out.replace("; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).", ".")
+        html_out = html_out.replace("; never invent coupons.", ".")
+    (out_dir / "index.html").write_text(html_out, encoding="utf-8")
     return out_dir / "index.html"
 
 

@@ -254,7 +254,7 @@ PAGES = [
         "h1": "Screenshot APIs and headless browser APIs compared",
         "desc": "A dedicated screenshot API versus hosted headless browsers that can capture screenshots, compared on verified free tiers and pricing.",
         "intro": "For page screenshots or PDFs you can call a dedicated screenshot API (one request, one image) or drive a hosted headless browser and capture it yourself. The first is simpler; the second handles logins and multi-step flows. Only verified limits and prices are shown.",
-        "ids": ["deal-screenshotone-001", "deal-pdfcrowd-001", "deal-browserless-free-001", "deal-browserbase-001", "deal-steel-001", "deal-hyperbrowser-001", "deal-kernel-001"],
+        "ids": ["deal-pdfcrowd-001", "deal-browserless-free-001", "deal-browserbase-001", "deal-steel-001", "deal-hyperbrowser-001", "deal-kernel-001"],
         "choose": [
             "Single public URL to image or PDF: a screenshot API is fewer moving parts.",
             "Logged-in or multi-step pages: a hosted browser session you control.",

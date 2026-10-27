@@ -101,3 +101,22 @@ def test_real_feed_snapshot_is_public_clean():
     r = search(deals, limit=25)
     assert r["total"] == len(deals) and r["count"] == 25
     assert r["results"][0]["offer_type"] in ("verified_discount", "free_tier")
+
+
+def test_signup_manual_only_passthrough():
+    deals = DEALS + [D("man", affiliate=True, signup="manual_only", signup_note="Sign up manually, no automated signup.")]
+    assert get_deal(deals, "man")["signup"] == "manual_only"
+    assert get_deal(deals, "man")["signup_note"].startswith("Sign up manually")
+    assert next(r for r in search(deals, limit=25)["results"] if r["id"] == "man")["signup"] == "manual_only"
+    assert compare(deals, ["man", "free"])["deals"][0 if compare(deals, ["man", "free"])["deals"][0]["id"] == "man" else 1]["signup"] == "manual_only"
+
+
+def test_committed_feed_manual_signup_and_pulled():
+    import hashlib
+    feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/deals.json").read_text(encoding="utf-8"))
+    man = {d["id"] for d in feed["deals"] if d.get("signup") == "manual_only"}
+    assert {"deal-searchapi-001", "deal-ipgeolocation-001", "deal-kymaapi-001", "deal-unrealspeech-001",
+            "deal-runpod-001", "deal-runable-001"} <= man
+    import scripts.generate_seo_pages as gen  # noqa: E402
+    assert not any(gen.is_pulled(d["id"]) for d in feed["deals"])
+    assert all(hashlib.sha256(d["id"].encode()).hexdigest() not in gen.PULLED_ID_SHA256 for d in feed["deals"])
