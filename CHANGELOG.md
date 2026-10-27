@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Claim batch 1
+
+- 18 claims re-checked on vendor pages: verification dates set for Hyperbrowser (5,000 free credits, now free_tier), 9Proxy prices (source now 9proxy.com), IPGeolocation plan prices, Wonderchat, AgentMail startup eligibility and PDFCrowd API plans.
+- 35 claims that could not be found on the vendor pages are now marked "(unverified)" in the feed and on the deal pages. Unconfirmed list prices (Appy.ai, Enrich Labs, meertrack, Moz, SearchApi) are set to unknown. Enrich Labs is relabelled listed_discount, and 9Proxy's 5% invite discount is marked unverified.
+
 ## 2026-10-27 — Claim audit fixes
 
 - Re-checked flagged claims against the vendor pages. Bright Data residential: removed the unconfirmed first-deposit-match claim; the RESIGB50 50% off coupon is confirmed. Kyma API: corrected the GPT-OSS 120B example rates to $0.0473/M input and $0.2303/M output. BrowserAct: monthly and yearly plan prices confirmed (added Advanced $96/mo yearly).
