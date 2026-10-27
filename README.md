@@ -1,40 +1,57 @@
 # Lantern Works — agent deals directory
 
-**Lantern Works** publishes a curated directory of affiliate and public offers for AI agents (and humans directing them): compute, unblock/scrapers, templates, search, hosting, and related work-stack tools.
+**Lantern Works** publishes a curated directory of affiliate and public offers for AI agents (and humans directing them): compute and GPU rental, unblock/scrapers, email, search, hosting, and related work-stack tools. Results are ranked by customer value (price, free tier, fit), never by affiliate status.
 
-- **Browse:** [GitHub Pages](https://thelanternworks.com/)
-- **About Lantern Works:** [lanternworks/](https://thelanternworks.com/lanternworks/)
-- **Agent feed (JSON):** [thelanternworks.com/deals.json](https://thelanternworks.com/deals.json) (primary) · mirror: [raw deals.json on gist](https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json)
-- **Query CLI:** `python3 query_deals.py --category unblock --max-price 20` (see [USAGE.md](USAGE.md) for the full filter contract)
-
-Listings are live affiliate links (authorized Lantern Works referrals) or public/non-affiliate free tiers and vendor-published coupons (each deal's `offer_type` says whether a discount was verified or only listed). Agents `GET` the JSON feed with no auth and filter locally by `category`, `affiliate` / `free_tier`, `updated_since`, `agent_only`, `max_price`, `tags`, or `id` (default real-only). Contract: feed `query` object.
+- **Browse:** [thelanternworks.com](https://thelanternworks.com/) · [About](https://thelanternworks.com/lanternworks/)
+- **Agent feed (JSON, no auth):** [thelanternworks.com/api/v1/deals.json](https://thelanternworks.com/api/v1/deals.json) (same bytes as `/deals.json`) · mirror: [gist](https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json)
+- **GPU prices:** [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · **Stack pricing:** [api/v1/stack-pricing.json](https://thelanternworks.com/api/v1/stack-pricing.json)
+- **Query CLI:** `python3 query_deals.py --category unblock --max-price 20` (filter contract: [USAGE.md](USAGE.md))
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## Feed contract, validation and deploy gate
+## MCP server (v0.3.1, read-only, stdio)
 
-- **Schema:** [`schema.json`](https://thelanternworks.com/schema.json) (JSON Schema 2020-12). `deals.json` carries `schema_version`; prices are nullable (`null` = unknown, `0` = verified free tier), with explicit `currency`, `unit`, `billing_period`, `verified_at`, `updated_at`.
-- **Stable feed:** `https://thelanternworks.com/api/v1/deals.json` is byte-identical to `/deals.json` (both written by `scripts/generate_seo_pages.py`). The gist is a byte-identical mirror.
-- **Private data:** commission, payout and compliance data live only in a private file outside this repo (`LANTERN_PRIVATE_FIELDS`, default `../../lanternworks/private/deals_private_fields.json`). The generator reads it only for local sanity checks and leak detection and fails the build if any private key or commission-like text reaches public output.
-- **Validation:** `pip install jsonschema && python3 scripts/validate_feed.py --gist --links` checks schema, private-leak scan, api/v1 parity, sitemap host, old-host hardcodes, gist parity and redeem URLs (403/429/timeouts warn; 404/410/DNS/persistent 5xx fail, exit 1).
-- **Deploy gate:** Pages currently deploys from the `main` branch, so the gate is: **run the validator and get exit 0 before every push to main** (and update the gist first so parity holds). A GitHub Actions workflow (`validate` job, then Jekyll build + `deploy-pages` gated on it, with Pages source switched to "GitHub Actions"; CNAME keeps `thelanternworks.com`) is prepared but needs a token with `workflow` scope to push.
-- **Migration test:** `python3 scripts/test_url_migration.py` checks old GitHub Pages project URLs 301 to the new domain, key pages return 200, and the feeds match.
-- **Compliance gate:** when the private registry (`LANTERN_COMPLIANCE_REGISTRY`, default `../../lanternworks/private/compliance_registry.json`, owned by Wick) is present, the generator publishes only deals whose status is `approved`; others move to a private held file and come back automatically once approved. Absent registry (CI) = feed published as-is.
-- **For agents:** https://thelanternworks.com/for-agents/ documents endpoints, schema and offer types.
+Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
-## MCP server (read-only, local stdio)
+### Tools
 
-`mcp_server/` is the read-only MCP server ([PyPI `lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/), MCP Registry `io.github.connormatthewdouglas/lantern-works-deals`) on the official Python SDK with five tools: `search_deals`, `compare_deals`, `get_deal`, `compare_gpu_prices` and `optimize_stack`. Filter and rank logic lives in `core/` (reusable by the site and CLI) and ranks by customer value, never by affiliate status. No hosted transport.
+| Tool | What it does |
+|---|---|
+| `search_deals` | Search the deals feed by text, `category`, `offer_type`, `max_price` and `tags`; paginated summaries (`limit` 1-25, `cursor`). |
+| `compare_deals` | Compare 2-5 deals by id side by side, best customer value first. |
+| `get_deal` | Return the full public record for one deal id. |
+| `compare_gpu_prices` | Hourly rental prices for a GPU model (e.g. `H100`, `A100 SXM`, `RTX 4090`) across tracked providers, cheapest first, each with `source_url` and `checked_at`. "Cheapest" means cheapest among tracked providers, not the whole market. |
+| `optimize_stack` | Given monthly usage (pages scraped, proxy GB, emails, search queries, GPU hours/model), pick the cheapest tracked plan per line and total the monthly cost, with the calculation, sources and alternatives; unpublished prices are reported as `unknown`. |
+
+### Install
 
 ```bash
-uvx lantern-works-deals-mcp                                         # run
-claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp   # Claude Code
+uvx lantern-works-deals-mcp
 ```
+
+Claude Code:
+
+```bash
+claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
+```
+
+Cursor (`.cursor/mcp.json`) and Cline (`cline_mcp_settings.json`, via MCP Servers → Configure) use the same entry:
 
 ```json
 { "mcpServers": { "lantern-works-deals": { "command": "uvx", "args": ["lantern-works-deals-mcp"] } } }
 ```
 
-Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`. All clients (Cursor, VS Code, Claude Desktop): https://thelanternworks.com/install/
+Docker: `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp` (the root [`Dockerfile`](Dockerfile) installs the pinned PyPI release and runs the stdio server). Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Other clients: https://thelanternworks.com/install/ · Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`.
 
-Details, errors, and tests: [mcp_server/README.md](mcp_server/README.md). Install guide: https://thelanternworks.com/for-agents/
+Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
+
+## Feed contract, validation and deploy gate
+
+- **Schema:** [`schema.json`](https://thelanternworks.com/schema.json) (JSON Schema 2020-12). `deals.json` carries `schema_version`; prices are nullable (`null` = unknown, `0` = free tier), with explicit `currency`, `unit`, `billing_period`, `verified_at`, `updated_at`.
+- **Stable feed:** `https://thelanternworks.com/api/v1/deals.json` is byte-identical to `/deals.json` (both written by `scripts/generate_seo_pages.py`). The gist is a byte-identical mirror.
+- **Private data:** commission, payout and compliance data live only in a private file outside this repo (path set by `LANTERN_PRIVATE_FIELDS`). The generator reads it only for local sanity checks and leak detection and fails the build if any private key or commission-like text reaches public output.
+- **Validation:** `pip install jsonschema && python3 scripts/validate_feed.py --gist --links` checks schema, private-leak scan, api/v1 parity, sitemap host, old-host hardcodes, gist parity and redeem URLs (403/429/timeouts warn; 404/410/DNS/persistent 5xx fail, exit 1).
+- **Deploy gate:** GitHub Actions runs schema validation, the test suite, a clean PyPI install check and a Docker build/stdio check; Pages deploys only after they pass, then live checks run.
+- **Migration test:** `python3 scripts/test_url_migration.py` checks old GitHub Pages project URLs 301 to the new domain, key pages return 200, and the feeds match.
+- **Compliance gate:** when the private registry (path set by `LANTERN_COMPLIANCE_REGISTRY`) is present, the generator publishes only deals whose status is `approved`; others move to a private held file and come back automatically once approved. Absent registry (CI) = feed published as-is.
+- **For agents:** https://thelanternworks.com/for-agents/ documents endpoints, schema and offer types.
