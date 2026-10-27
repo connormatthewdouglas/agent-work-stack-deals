@@ -57,10 +57,15 @@ def run(cmd, **kw):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--version", default="0.2.0")
+    ap.add_argument("--version", default="latest", help="'latest' = newest release on PyPI (so CI covers each new release as soon as it is published)")
     ap.add_argument("--uvx", action="store_true", help="also test via uvx")
     ap.add_argument("--wheel", help="pre-upload check: install this local wheel instead of PyPI (skips uvx)")
     a = ap.parse_args()
+    if a.version == "latest":
+        import urllib.request
+        with urllib.request.urlopen(f"https://pypi.org/pypi/{PKG}/json", timeout=20) as r:
+            a.version = json.load(r)["info"]["version"]
+        print(f"latest on PyPI: {a.version}", flush=True)
     spec = f"{PKG}=={a.version}"
     target = os.path.abspath(a.wheel) if a.wheel else spec
     tmp = tempfile.mkdtemp(prefix="lw-pypi-")
