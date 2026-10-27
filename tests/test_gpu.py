@@ -99,3 +99,19 @@ def test_published_api_matches_records():
     api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
     assert api["rates"] == build_rates(FEED)["rates"]
     assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files()}
+
+
+def test_gpu_pages_carry_accuracy_notes_and_tracked_wording():
+    import re
+    root = Path(__file__).resolve().parents[1]
+    pages = list((root / "gpu").glob("*/index.html")) + [root / "tools/gpu-cost-calculator/index.html"]
+    pages += [root / "compare" / s / "index.html" for s in ("cheap-gpu-rental", "h100-rental-price-comparison", "cheapest-gpu-per-gb-vram",
+                                                          "runpod-vs-thunder-compute-vs-modal-h100", "runpod-community-vs-secure-cloud-prices")]
+    assert len(pages) >= 12
+    for p in pages:
+        t = p.read_text()
+        for h in ("GPU-hours vs wall-clock time", "Hardware differences", "Egress and storage extras", "Interruptible vs on-demand"):
+            assert h in t, (p, h)
+        text = re.sub(r"<[^>]+>|https?://\S+", " ", t)
+        for m in re.finditer(r"cheapest[^.?\n]{0,80}", text, re.I):
+            assert "among tracked" in m.group(0).lower() or "tracked h100" in m.group(0).lower(), (p, m.group(0))

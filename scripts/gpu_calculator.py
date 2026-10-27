@@ -58,7 +58,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     api = f"{gen.BASE}/api/v1/gpu-prices.json"
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU cost calculator</nav>
   <h1>GPU cost calculator</h1>
-  <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost; referral links don't change the order.</p>
+  <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost, cheapest among tracked providers first (vendors we don't track may cost less); referral links don't change the order.</p>
   <form id="calc" onsubmit="return false" aria-label="GPU cost inputs">
     <label>GPU hours per month <input id="hours" type="number" min="0" max="20000" step="1" value="100" inputmode="numeric"></label>
     <label>GPUs <input id="gpus" type="number" min="1" max="64" step="1" value="1" inputmode="numeric"></label>
@@ -76,7 +76,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     <li>Monthly dedicated servers: flat price × ceil(hours ÷ {HOURS_PER_MONTH}) × GPUs, whatever your usage.</li>
     <li>Excludes storage, egress, extra vCPU, taxes and promo credits. Prices are "from" prices; confirm on the vendor page before spending.</li>
   </ul>
-  <p>Model guides and comparisons: <a href="{gen.BASE}/gpu/price-comparison/">all GPU prices</a> · {__import__("gpu_pages").links_html(gen.BASE, deals)}</p>
+{__import__("gpu_pages").accuracy_html(gen, payload["rates"])}  <p>Model guides and comparisons: <a href="{gen.BASE}/gpu/price-comparison/">all GPU prices</a> · {__import__("gpu_pages").links_html(gen.BASE, deals)}</p>
   <h2>Free GPU-adjacent credits</h2>
   <ul>{credits}</ul>
   <h2>Not priced yet</h2>
@@ -97,7 +97,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
       const n=Math.max(1,Math.ceil(h/H))*g; return {{...r,cost:r.price_usd*n,calc:`$${{r.price_usd}}/mo × ${{n}} server(s)`}};
     }}).sort((a,b)=>a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
     $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="nofollow sponsored noopener">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
-    $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";
+    $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest among tracked providers: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";
     const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
     history.replaceState(null,"","?"+p);
   }}
@@ -107,6 +107,6 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     out = ROOT / PAGE_PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(gen.page_shell("GPU cost calculator — Lantern Works",
-                                  "Estimate monthly GPU cost (A100, H100, RTX 4090 and more) from verified vendor prices, with the calculation shown.",
+                                  "Estimate monthly GPU cost (A100, H100, RTX 4090 and more) from verified prices of tracked vendors, with the calculation shown and the cheapest among tracked providers first.",
                                   f"{gen.BASE}/{PAGE_PATH}/", body), encoding="utf-8")
     return PAGE_PATH

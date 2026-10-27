@@ -68,20 +68,20 @@ def facts(d: dict) -> tuple[list[str], list[str]]:
 PAGES = [
     {
         "slug": "cheapest-residential-proxies",
-        "title": "Cheapest Residential Proxies (2026): Verified Prices & Deals Compared",
-        "h1": "Cheapest residential proxies compared",
+        "title": "Residential Proxies (2026): Cheapest Among Tracked Providers, Verified Prices & Deals",
+        "h1": "Residential proxies compared: cheapest among tracked providers",
         "desc": "Residential proxy providers compared on published per-GB / per-IP pricing and live discounts. Prices shown only where verified on the vendor page; otherwise marked unknown.",
         "intro": "Residential proxies route requests through consumer IP addresses, which makes them harder to block than datacenter IPs and far more expensive. The table lists the providers in our feed, the price we actually saw on the vendor's own page, and any vendor-published discount. Where we could not confirm a price, the cell says <em>unknown</em> rather than guessing.",
         "ids": ["deal-9proxy-001", "deal-proxyrack-001", "deal-brightdata-resi-001", "deal-oxylabs-001", "deal-dataimpulse-001", "deal-geonode-001", "deal-infatica-001", "deal-proxyempire-001", "deal-shifter-001", "deal-ipfoxy-001", "deal-lightningproxies-001"],
         "choose": [
             "Compare on the same unit. Some providers bill per GB of traffic, some per IP, some per thread with unmetered bandwidth. A low per-IP price is not comparable with a per-GB price until you estimate your traffic.",
-            "Check minimum purchase and expiry. The cheapest entry price often comes with a small, short-lived package.",
+            "Check minimum purchase and expiry. The lowest entry price often comes with a small, short-lived package.",
             "Separate intro offers from the ongoing rate. A first-month or first-deposit discount helps once; the list price is what you will pay afterward.",
             "Test success rate on your actual targets with a small package before buying volume. A cheaper pool that fails more often costs more per successful request.",
             "Confirm the provider's sourcing and acceptable-use policy, and only scrape what you are allowed to collect.",
         ],
         "faq": [
-            ("Which residential proxy is cheapest?", "Among the providers whose prices we could verify, the lowest published entry price in our feed is shown in the table. Many providers do not publish comparable prices, so the cheapest option for your workload depends on traffic volume and success rate; test before committing."),
+            ("Which residential proxy is cheapest among tracked providers?", "Among the providers whose prices we could verify, the lowest published entry price in our feed is shown in the table. Many providers do not publish comparable prices, so the lowest-cost option for your workload depends on traffic volume and success rate; test before committing."),
             ("Why are some prices marked unknown?", "We only show a price we read on the vendor's own pricing page. If we could not confirm it, we say unknown instead of copying a number from a third-party list."),
             ("Are residential proxies better than datacenter proxies?", "They are harder to block but usually cost much more. If your targets do not block datacenter IPs, datacenter proxies or a scraping API may be cheaper."),
             ("Do these links cost me more?", "No. Some links are affiliate links; that never changes the price you pay, and it does not change the order of this table."),
@@ -111,8 +111,8 @@ PAGES = [
     },
     {
         "slug": "cheap-gpu-rental",
-        "title": "Cheap GPU Rental & GPU Cloud Deals (2026): Verified Hourly Prices",
-        "h1": "Cheap GPU rental and GPU cloud deals",
+        "title": "GPU Rental & GPU Cloud Deals (2026): Cheapest Among Tracked Providers, Verified Prices",
+        "h1": "GPU rental and cloud deals: cheapest among tracked providers",
         "desc": "GPU clouds and dedicated GPU servers compared on verified hourly or monthly pricing, free credits and billing model. Unverified prices are shown as unknown.",
         "intro": "For inference, fine-tuning or agent workloads that need a GPU, renting beats buying unless the card is busy most of the day. Prices vary by GPU model, region and billing model (per-second serverless, hourly on-demand, or monthly dedicated). The table quotes the prices we read on each vendor's page.",
         "ids": ["deal-thundercompute-001", "deal-99stack-001", "deal-modal-free-001", "deal-gigagpu-001", "deal-runpod-001", "deal-vastai-001", "deal-novita-001"],
@@ -123,11 +123,12 @@ PAGES = [
             "Use free monthly credits to benchmark your actual job before committing.",
         ],
         "faq": [
-            ("What is the cheapest GPU to rent?", "It depends on the card you need. The table lists each provider's verified per-hour or per-month prices; compare like-for-like GPU models."),
+            ("What is the cheapest GPU to rent among tracked providers?", "It depends on the card you need. The table lists each provider's verified per-hour or per-month prices; compare like-for-like GPU models."),
             ("Is serverless GPU cheaper than an hourly instance?", "For intermittent workloads usually yes, because you pay only while code runs. For a GPU busy most of the hour, an on-demand instance is typically cheaper."),
             ("Why do some providers show unknown?", "Their prices change often or were not on the page we checked, so we do not publish a number we cannot verify."),
         ],
         "hubs": ["gpu-compute", "compute"],
+        "gpu": True,
     },
     {
         "slug": "h100-rental-price-comparison",
@@ -142,7 +143,7 @@ PAGES = [
         "choose": [
             "Confirm the variant: H100 SXM and PCIe differ in interconnect and price.",
             "Compare the whole instance: vCPU, system RAM and local disk bundled with the GPU change the effective price.",
-            "Check availability, not just price. A cheap H100 that is rarely in stock does not help a deadline.",
+            "Check availability, not just price. A low-priced H100 that is rarely in stock does not help a deadline.",
             "For short jobs, per-second billing can beat a lower hourly rate with a minimum charge.",
         ],
         "faq": [
@@ -150,11 +151,12 @@ PAGES = [
             ("Is a marketplace cheaper than a GPU cloud?", "Marketplaces can be cheaper but host reliability varies. Managed clouds charge more for consistency. We did not verify marketplace H100 prices, so they show unknown."),
         ],
         "hubs": ["gpu-compute", "compute"],
+        "gpu": True,
     },
     {
         "slug": "cheapest-cloud-vps-for-ai-agents",
-        "title": "Cheapest Cloud VPS & Hosting for AI Agents: Verified Prices & Free Tiers",
-        "h1": "Cheapest cloud VPS and hosting for AI agents",
+        "title": "Cloud VPS & Hosting for AI Agents: Cheapest Among Tracked Providers, Verified Prices & Free Tiers",
+        "h1": "Cloud VPS and hosting for AI agents: cheapest among tracked providers",
         "desc": "Low-cost VPS, managed hosting and free app platforms for running AI agents, compared on verified pricing and free-tier limits.",
         "intro": "Most agents need a small always-on process, a cron or webhook endpoint, and a database. A $5/month VPS gives full control; a platform free tier removes server work but adds limits. The table puts both side by side with the prices and limits we verified.",
         "ids": ["deal-99stack-001", "deal-softshellweb-001", "deal-xcloud-001", "deal-cloudflare-workers-free-001", "deal-render-free-001", "deal-railway-trial-001", "deal-fly-trial-001", "deal-vercel-hobby-001", "deal-codespaces-free-001"],
@@ -162,10 +164,10 @@ PAGES = [
             "Long-running agents (polling loops, websockets, browsers) need a VPS or container host; request/response agents fit serverless free tiers.",
             "Check whether the free tier sleeps on idle; a sleeping agent misses scheduled work.",
             "Check commercial-use terms: some hobby tiers forbid business use.",
-            "Budget RAM first. Headless browsers and local models need far more memory than the cheapest VPS plan.",
+            "Budget RAM first. Headless browsers and local models need far more memory than the lowest-priced VPS plan.",
         ],
         "faq": [
-            ("What is the cheapest way to host an AI agent?", "For light request/response agents, a free serverless tier. For always-on agents, the cheapest verified VPS plans in the table start around the prices shown."),
+            ("What is the cheapest way to host an AI agent among tracked providers?", "For light request/response agents, a free serverless tier. For always-on agents, the lowest-priced verified VPS plans in the table start around the prices shown."),
             ("Can I run a headless browser on a $5 VPS?", "Often only one at a time, and memory is tight. A hosted browser API may be cheaper than a larger VPS."),
         ],
         "hubs": ["hosting", "compute"],
@@ -184,7 +186,7 @@ PAGES = [
             "Verification is list hygiene, not permission: you still need consent or a lawful basis to email.",
         ],
         "faq": [
-            ("What is the cheapest email verification API?", "Compare the per-1,000 cost at your volume using the verified prices in the table; pack pricing usually falls with size."),
+            ("What is the cheapest email verification API among tracked providers?", "Compare the per-1,000 cost at your volume using the verified prices in the table; pack pricing usually falls with size."),
             ("Do verification credits expire?", "It varies. Where the vendor page says credits never expire, the table shows it."),
             ("Does verifying emails make cold email legal?", "No. Follow CAN-SPAM, GDPR and similar laws regardless of verification."),
         ],
@@ -283,7 +285,7 @@ PAGES = [
         ],
         "faq": [
             ("Will AI-written content rank?", "Content can rank regardless of how it is produced if it is helpful and accurate; unedited bulk output usually does not."),
-            ("What is the cheapest AI SEO writer here?", "See the verified prices in the table and compare at your monthly volume."),
+            ("What is the cheapest AI SEO writer among tracked providers?", "See the verified prices in the table and compare at your monthly volume."),
         ],
         "hubs": ["ai-agents", "seo"],
     },
@@ -378,6 +380,12 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
             f'<a href="{base}/{o.get("canonical_to") or "compare/" + o["slug"]}/">{esc(o["h1"])}</a>' for o in PAGES if o["slug"] != p["slug"]
         )
         hubs = " · ".join(f'<a href="{base}/categories/{h}/">{esc(hub_titles.get(h, h))}</a>' for h in p["hubs"])
+        gpu_block = ""
+        if p.get("gpu"):
+            import gpu_pages
+            from core.gpu import build_rates
+            grs = [r for r in build_rates(deals)["rates"] if r["deal_id"] in p["ids"] and (not p.get("focus") or r["gpu"].startswith("H100"))]
+            gpu_block = gpu_pages.accuracy_html(g, grs)
         body = f"""
   <nav aria-label="Breadcrumb" class="crumbs"><a href="{base}/">Home</a> › <a href="{base}/{PILLAR['slug']}/">AI agent tool deals</a> › {esc(p['h1'])}</nav>
   <main>
@@ -394,7 +402,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
   <h2>Pros and cons</h2>
   <p><small>Derived only from facts on the vendor pages we checked.</small></p>
   {''.join(pc)}
-  <h2>How to choose</h2>
+{gpu_block}  <h2>How to choose</h2>
   <ul>{''.join(f'<li>{esc(x)}</li>' for x in p['choose'])}</ul>
   <h2>FAQ</h2>
   {''.join(f'<h3>{esc(q)}</h3><p>{esc(a)}</p>' for q, a in faq)}
