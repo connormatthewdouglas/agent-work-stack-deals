@@ -21,7 +21,7 @@ OLD = "https://connormatthewdouglas.github.io/agent-work-stack-deals"
 GIST_RAW = "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json"
 KEY_PATHS = ["/", "/deals.json", "/api/v1/deals.json", "/schema.json", "/sitemap.xml", "/robots.txt",
              "/agent.json", "/changelog/", "/lanternworks/", "/for-agents/",
-             "/skills/lantern-works-deals/SKILL.html", "/SKILL.md", "/query_deals.py", "/USAGE.html"]
+             "/skills/lantern-works-deals/SKILL.html", "/SKILL.md", "/query_deals.py", "/USAGE.html", "/install/", "/api/v1/gpu-prices.json"]
 OLD_PATHS = ["/", "/deals.json", "/sitemap.xml", "/changelog/", "/lanternworks/", "/for-agents/",
              "/skills/lantern-works-deals/SKILL.html", "/SKILL.md", "/query_deals.py", "/USAGE.html"]
 UA = {"User-Agent": "LanternWorksMigrationTest/1.0"}

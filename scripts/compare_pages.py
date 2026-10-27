@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from install_page import link_snippet as install_link_snippet
 
 PRICE_RE = re.compile(r"\$\s?\d|¢|free|\bfree\b|credits?", re.I)
 
@@ -406,7 +407,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
 """
         path = g.ROOT / "compare" / p["slug"] / "index.html"
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(g.page_shell(p["title"], p["desc"], canon, body), encoding="utf-8")
+        path.write_text(g.page_shell(p["title"], p["desc"], canon, body + install_link_snippet(g.BASE)), encoding="utf-8")
         if not p.get("canonical_to"):  # canonicalized pages stay reachable but leave the sitemap
             out.append(f"compare/{p['slug']}")
 
@@ -458,7 +459,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
 """
     path = g.ROOT / PILLAR["slug"] / "index.html"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(g.page_shell(PILLAR["title"], PILLAR["desc"], url, body), encoding="utf-8")
+    path.write_text(g.page_shell(PILLAR["title"], PILLAR["desc"], url, body + install_link_snippet(g.BASE)), encoding="utf-8")
     out.insert(0, PILLAR["slug"])
     return out
 

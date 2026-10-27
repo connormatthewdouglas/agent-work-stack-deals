@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install Lantern Works in your agent (MCP, Claude Code, Cursor, VS Code)</title>
+  <meta name="description" content="Add the free, read-only Lantern Works MCP server to Claude Code, Claude Desktop, Cursor, VS Code or any MCP client: uvx lantern-works-deals-mcp." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/install/" />
+  <meta property="og:title" content="Install Lantern Works in your agent (MCP, Claude Code, Cursor, VS Code)" />
+  <meta property="og:description" content="Add the free, read-only Lantern Works MCP server to Claude Code, Claude Desktop, Cursor, VS Code or any MCP client: uvx lantern-works-deals-mcp." />
+  <meta property="og:url" content="https://thelanternworks.com/install/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Install Lantern Works in your agent (MCP, Claude Code, Cursor, VS Code)" />
+  <meta name="twitter:description" content="Add the free, read-only Lantern Works MCP server to Claude Code, Claude Desktop, Cursor, VS Code or any MCP client: uvx lantern-works-deals-mcp." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/for-agents/">For agents</a> › Install</nav>
+  <h1>Add Lantern Works to your agent</h1>
+  <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: <code>search_deals</code>, <code>compare_deals</code>, <code>get_deal</code>, <code>compare_gpu_prices</code>.</p>
+  <p class="meta">Tested 2026-10-27: a clean <code>uvx lantern-works-deals-mcp</code> (0.2.0) initializes over stdio and all 4 tools return results.</p>
+
+  <h2>Claude Code</h2>
+  <pre>claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp</pre>
+
+  <h2>Claude Desktop</h2>
+  <p>Settings → Developer → Edit Config (<code>claude_desktop_config.json</code>):</p>
+  <pre>{
+  &quot;mcpServers&quot;: {
+    &quot;lantern-works-deals&quot;: {
+      &quot;command&quot;: &quot;uvx&quot;,
+      &quot;args&quot;: [
+        &quot;lantern-works-deals-mcp&quot;
+      ]
+    }
+  }
+}</pre>
+  <p>Restart Claude Desktop. If <code>uvx</code> isn't on Claude's PATH, use the absolute path from <code>which uvx</code>.</p>
+
+  <h2>Cursor</h2>
+  <p><a href="cursor://anysphere.cursor-deeplink/mcp/install?name=lantern-works-deals&amp;config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJsYW50ZXJuLXdvcmtzLWRlYWxzLW1jcCJdfQ==">One-click install</a>, or add the same JSON to <code>~/.cursor/mcp.json</code> / <code>.cursor/mcp.json</code>.</p>
+
+  <h2>VS Code (Copilot agent mode)</h2>
+  <p><a href="https://vscode.dev/redirect/mcp/install?name=lantern-works-deals&amp;config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22lantern-works-deals-mcp%22%5D%7D">Install in VS Code</a>, or <code>.vscode/mcp.json</code>:</p>
+  <pre>{
+  &quot;servers&quot;: {
+    &quot;lantern-works-deals&quot;: {
+      &quot;type&quot;: &quot;stdio&quot;,
+      &quot;command&quot;: &quot;uvx&quot;,
+      &quot;args&quot;: [
+        &quot;lantern-works-deals-mcp&quot;
+      ]
+    }
+  }
+}</pre>
+
+  <h2>Skills-based agents (Claude Code skills, OpenClaw)</h2>
+  <pre>npx skills add connormatthewdouglas/agent-work-stack-deals</pre>
+  <p>Installs <a href="https://thelanternworks.com/SKILL.md">SKILL.md</a> (checked 2026-10-27 with <code>-a claude-code</code>). For OpenClaw MCP, use the generic stdio config below.</p>
+
+  <h2>Any MCP client (generic)</h2>
+  <p>Command <code>uvx</code>, args <code>["lantern-works-deals-mcp"]</code>, transport stdio. pipx: <code>pipx run lantern-works-deals-mcp</code>. Docker: build the repo's <code>Dockerfile</code> and run <code>docker run -i --rm &lt;image&gt;</code>. Optional env: <code>LANTERN_DEALS_FILE</code>, <code>LANTERN_GPU_PRICES_FILE</code> (offline JSON).</p>
+  <p>The server only fetches the two public JSON files below and sends <code>User-Agent: lantern-works-deals-mcp/&lt;version&gt;</code>, nothing that identifies you.</p>
+
+  <h2>No MCP? Use the JSON</h2>
+  <ul>
+    <li>Deals: <a href="https://thelanternworks.com/api/v1/deals.json">https://thelanternworks.com/api/v1/deals.json</a></li>
+    <li>GPU prices: <a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a></li>
+  </ul>
+  <p>More: <a href="https://thelanternworks.com/for-agents/">For agents</a> (endpoints, schema, offer types).</p>
+
+  <footer>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+</body>
+</html>

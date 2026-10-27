@@ -524,6 +524,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
     <tr><td>Stable versioned feed</td><td><a href="{v1}">{v1}</a></td></tr>
     <tr><td>Feed (same bytes)</td><td><a href="{FEED_RAW}">{FEED_RAW}</a></td></tr>
     <tr><td>JSON Schema</td><td><a href="{BASE}/schema.json">{BASE}/schema.json</a> (draft 2020-12, version <code>{esc(schema.get("x-schema-version"))}</code>)</td></tr>
+    <tr><td>Install (MCP / skill)</td><td><a href="{BASE}/install/">{BASE}/install/</a> (Claude Code, Claude Desktop, Cursor, VS Code, generic)</td></tr>
     <tr><td>Agent manifest</td><td><a href="{BASE}/agent.json">{BASE}/agent.json</a></td></tr>
     <tr><td>Mirror</td><td><a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">gist raw deals.json</a> (byte-identical)</td></tr>
   </tbody></table>
@@ -1613,6 +1614,8 @@ def main() -> None:
     import gpu_pages
     tool_paths = [gpu_calculator.write(sys.modules[__name__], deals, feed_updated)]
     tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)
+    import install_page
+    tool_paths.append(install_page.write(sys.modules[__name__]))
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)

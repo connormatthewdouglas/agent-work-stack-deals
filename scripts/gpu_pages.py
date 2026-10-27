@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from core.gpu import HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families  # noqa: E402
+from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
 DEFAULT_HOURS = 100
@@ -121,7 +122,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
 """
     out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(gen.page_shell(title, desc, url, body), encoding="utf-8")
+    out.write_text(gen.page_shell(title, desc, url, body + install_link_snippet(gen.BASE)), encoding="utf-8")
     return path
 
 
@@ -168,7 +169,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
 """
     out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(gen.page_shell(title, desc, url, body), encoding="utf-8")
+    out.write_text(gen.page_shell(title, desc, url, body + install_link_snippet(gen.BASE)), encoding="utf-8")
     return path
 
 
@@ -198,7 +199,7 @@ def _cmp_page(gen, path, title, desc, h1, crumb, intro, sections, rows_ld, faqs,
 """
     out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(gen.page_shell(title, desc, url, body), encoding="utf-8")
+    out.write_text(gen.page_shell(title, desc, url, body + install_link_snippet(gen.BASE)), encoding="utf-8")
     return path
 
 
