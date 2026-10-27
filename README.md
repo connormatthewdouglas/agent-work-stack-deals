@@ -7,7 +7,7 @@
 - **Agent feed (JSON):** [thelanternworks.com/deals.json](https://thelanternworks.com/deals.json) (primary) · mirror: [raw deals.json on gist](https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json)
 - **Query CLI:** `python3 query_deals.py --category unblock --max-price 20` (see [USAGE.md](USAGE.md) for the full filter contract)
 
-Listings are live affiliate links (authorized Lantern Works referrals) or verified public/non-affiliate free tiers and vendor-published coupons. Agents `GET` the JSON feed with no auth and filter locally by `category`, `affiliate` / `free_tier`, `updated_since`, `agent_only`, `max_price`, `tags`, or `id` (default real-only). Contract: feed `query` object.
+Listings are live affiliate links (authorized Lantern Works referrals) or public/non-affiliate free tiers and vendor-published coupons (each deal's `offer_type` says whether a discount was verified or only listed). Agents `GET` the JSON feed with no auth and filter locally by `category`, `affiliate` / `free_tier`, `updated_since`, `agent_only`, `max_price`, `tags`, or `id` (default real-only). Contract: feed `query` object.
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
@@ -24,16 +24,17 @@ Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
 ## MCP server (read-only, local stdio)
 
-`mcp_server/` is a working MCP server on the official Python SDK with tools `search_deals`, `compare_deals` and `get_deal`. Filter and rank logic lives in `core/` (reusable by the site and CLI) and ranks by customer value, never by affiliate status. No hosted transport.
+`mcp_server/` is the read-only MCP server ([PyPI `lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/), MCP Registry `io.github.connormatthewdouglas/lantern-works-deals`) on the official Python SDK with five tools: `search_deals`, `compare_deals`, `get_deal`, `compare_gpu_prices` and `optimize_stack`. Filter and rank logic lives in `core/` (reusable by the site and CLI) and ranks by customer value, never by affiliate status. No hosted transport.
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -r mcp_server/requirements.txt
+uvx lantern-works-deals-mcp                                         # run
+claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp   # Claude Code
 ```
 
 ```json
-{ "mcpServers": { "lantern-works-deals": {
-    "command": "/ABS/PATH/agent-work-stack-deals/.venv/bin/python",
-    "args": ["/ABS/PATH/agent-work-stack-deals/mcp_server/server.py"] } } }
+{ "mcpServers": { "lantern-works-deals": { "command": "uvx", "args": ["lantern-works-deals-mcp"] } } }
 ```
+
+Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`. All clients (Cursor, VS Code, Claude Desktop): https://thelanternworks.com/install/
 
 Details, errors, and tests: [mcp_server/README.md](mcp_server/README.md). Install guide: https://thelanternworks.com/for-agents/
