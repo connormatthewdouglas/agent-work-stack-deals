@@ -1,4 +1,4 @@
-# Lantern Works deals — MCP server (read-only, stdio)
+# Lantern Works deals — MCP server (v0.3.1, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -16,7 +16,7 @@ Claude Code:
 claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
 ```
 
-Claude Desktop (`claude_desktop_config.json`) / Cursor (`.cursor/mcp.json`):
+Cursor (`.cursor/mcp.json`), Cline (`cline_mcp_settings.json`) and Claude Desktop (`claude_desktop_config.json`):
 
 ```json
 {
@@ -29,7 +29,7 @@ Claude Desktop (`claude_desktop_config.json`) / Cursor (`.cursor/mcp.json`):
 }
 ```
 
-Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Docker: `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp`. More clients: https://thelanternworks.com/install/
+Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Docker (from the repo root; installs the pinned PyPI release): `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp`. More clients: https://thelanternworks.com/install/
 
 ## Tools
 
