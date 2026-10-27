@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Agent Stack Optimizer
+
+- New [Agent Stack Optimizer](https://thelanternworks.com/tools/stack-optimizer/): enter monthly needs (pages to scrape, JS-rendered pages, residential proxy GB, transactional emails, search queries, GPU hours) and get the cheapest suitable plan per need among tracked providers. Every line shows the vendor quote, source page, check date and assumptions; unpublished prices say "unknown"; manual-signup-only vendors are flagged and can be skipped.
+- New [`/api/v1/stack-pricing.json`](https://thelanternworks.com/api/v1/stack-pricing.json): cited plan prices (Firecrawl, ZenRows, ScrapingBee, Exa, SearchApi, 9Proxy, Proxyrack, SendPulse, Emailit), re-checked against the vendor pages daily.
+- MCP tool `optimize_stack` is ready for the next package release (0.3.0, not published yet).
+
 ## 2026-10-27 — Compliance update
 
 - Removed four listings whose affiliate terms do not allow listing on deal or coupon sites.

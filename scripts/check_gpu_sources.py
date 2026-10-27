@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Daily GPU pricing source check (read-only; never edits prices).
+"""Daily GPU + stack pricing source check (read-only; never edits prices).
+
+Also covers data/stack_pricing/<vendor>.json (Agent Stack Optimizer offers) the same way.
 
 For every data/gpu_pricing/<vendor>.json: validates the records, flags records whose checked_at is
 older than 7 days, fetches each source_url and flags pages that are unreachable, and flags records whose
@@ -18,6 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core.gpu import STALE_DAYS, load_vendor_files, record_problems, stale_records  # noqa: E402
+from core import stack  # noqa: E402
 
 UA = "Mozilla/5.0 (compatible; LanternWorksPriceCheck/1.0; +https://thelanternworks.com/for-agents/)"
 
@@ -70,8 +73,31 @@ def main() -> int:
                 if missing:
                     flags.append(f"price not found on page (re-check by hand): {doc['vendor']} {r['gpu']} "
                                  f"({r['tier']}) quote {r['quote']!r} missing {missing} at {r['source_url']}")
-    n = sum(len(d["records"]) for d in docs)
-    summary = f"{len(docs)} vendor files, {n} records, {checked} prices re-found on live pages, {len(flags)} flag(s)"
+    sdocs = stack.load_vendor_files()
+    for doc in sdocs:
+        flags += [f"invalid stack record: {p}" for p in stack.record_problems(doc)]
+    flags += [f"stale (> {STALE_DAYS} days): {s}" for s in stale_records(
+        [{"vendor": d["vendor"], "checked_at": d["checked_at"], "records": [{**o, "gpu": o["need"], "tier": o["plan"],
+          "checked_at": o.get("checked_at") or d["checked_at"]} for o in d["offers"]]} for d in sdocs])]
+    if not a.offline:
+        for doc in sdocs:
+            u = doc["source_url"]
+            if u not in pages:
+                pages[u] = fetch(u)
+                print(f"{doc['vendor']}: {u} -> {pages[u][0] or pages[u][1]}")
+            st, body = pages[u]
+            if st != 200:
+                flags.append(f"unreachable: {doc['vendor']} {u} -> {st if st else body}")
+                continue
+            text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body
+            for o in doc["offers"]:
+                checked += 1
+                missing = [t for t in price_tokens(o["quote"]) if t not in text]
+                if missing:
+                    flags.append(f"price not found on page (re-check by hand): {doc['vendor']} {o['need']} "
+                                 f"({o['plan']}) quote {o['quote']!r} missing {missing} at {u}")
+    n = sum(len(d["records"]) for d in docs) + sum(len(d["offers"]) for d in sdocs)
+    summary = f"{len(docs) + len(sdocs)} vendor files, {n} records, {checked} prices re-found on live pages, {len(flags)} flag(s)"
     print(summary)
     for f in flags:
         print("FLAG:", f)

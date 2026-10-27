@@ -77,7 +77,7 @@
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
-  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/" aria-current="page">Changelog</a></nav>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/" aria-current="page">Changelog</a></nav>
 <div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Changelog</p>
@@ -87,6 +87,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-27 — Agent Stack Optimizer</h2>
+<ul>
+<li>New <a href="https://thelanternworks.com/tools/stack-optimizer/">Agent Stack Optimizer</a>: enter monthly needs (pages to scrape, JS-rendered pages, residential proxy GB, transactional emails, search queries, GPU hours) and get the cheapest suitable plan per need among tracked providers. Every line shows the vendor quote, source page, check date and assumptions; unpublished prices say &quot;unknown&quot;; manual-signup-only vendors are flagged and can be skipped.</li>
+<li>New <a href="https://thelanternworks.com/api/v1/stack-pricing.json">`/api/v1/stack-pricing.json`</a>: cited plan prices (Firecrawl, ZenRows, ScrapingBee, Exa, SearchApi, 9Proxy, Proxyrack, SendPulse, Emailit), re-checked against the vendor pages daily.</li>
+<li>MCP tool <code>optimize_stack</code> is ready for the next package release (0.3.0, not published yet).</li>
+</ul>
 <h2>2026-10-27 — Compliance update</h2>
 <ul>
 <li>Removed four listings whose affiliate terms do not allow listing on deal or coupon sites.</li>

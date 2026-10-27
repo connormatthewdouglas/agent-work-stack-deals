@@ -17,7 +17,9 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 async def main(ver, cmd):
-    want = {"search_deals", "compare_deals", "get_deal"} | ({"compare_gpu_prices"} if ver != "0.1.0" else set())
+    v = tuple(int(x) for x in ver.split(".")[:3])
+    want = {"search_deals", "compare_deals", "get_deal"} | ({"compare_gpu_prices"} if ver != "0.1.0" else set()) \
+        | ({"optimize_stack"} if v >= (0, 3, 0) else set())
     params = StdioServerParameters(command=cmd[0], args=cmd[1:])
     async with stdio_client(params) as (r, w):
         async with ClientSession(r, w) as s:
@@ -42,6 +44,10 @@ async def main(ver, cmd):
                 assert all(x["source_url"] and x["checked_at"] for x in rs), gp
                 assert "cheapest among tracked providers" in gp["summary"].lower(), gp
                 msg = f" gpu=H100:{rs[0]['advertiser']}@{rs[0]['hourly_usd']}"
+            if "optimize_stack" in names:
+                st = body(await s.call_tool("optimize_stack", {"scrape_pages": 50000, "emails_sent": 10000, "gpu_hours": 100, "gpu_model": "H100"}))
+                assert len(st["lines"]) == 3 and all(l["status"] == "unknown" or (l["choice"]["source_url"] and l["choice"]["checked_at"]) for l in st["lines"]), st
+                msg += f" stack=${st['total_monthly_usd']}"
             assert want <= set(names), (want, names)
             info = s_init.serverInfo
             if ver != "0.1.0":  # 0.1.0 reported the mcp SDK version (fixed in 0.2.0)

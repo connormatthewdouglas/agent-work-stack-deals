@@ -565,6 +565,7 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
 
   <h2>GPU prices</h2>
   <p><a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> lists structured GPU rates (per hour or per month) taken from verified pricing notes, each with its <code>deal_id</code> and source quote. Deals without a verified price are under <code>unpriced</code>. The human version is the <a href="{BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a>.</p>
+  <p><a href="{BASE}/api/v1/stack-pricing.json">{BASE}/api/v1/stack-pricing.json</a> has cited plan prices for scraping, residential proxies, transactional email and search APIs (each offer has <code>quote</code>, <code>source_url</code>, <code>checked_at</code>; unpublished numbers are <code>null</code> = unknown). The <a href="{BASE}/tools/stack-optimizer/">Agent Stack Optimizer</a> picks the cheapest suitable plan per need among tracked providers.</p>
 
   <h2>Install the MCP server (local stdio)</h2>
   <p>Published on <a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a> as <code>lantern-works-deals-mcp</code> and in the MCP Registry as <code>io.github.connormatthewdouglas/lantern-works-deals</code>. With <a href="https://docs.astral.sh/uv/">uv</a> installed, run:</p>
@@ -1644,6 +1645,8 @@ def main() -> None:
     import gpu_calculator
     import gpu_pages
     tool_paths = [gpu_calculator.write(sys.modules[__name__], deals, feed_updated)]
+    import stack_optimizer
+    tool_paths.append(stack_optimizer.write(sys.modules[__name__], deals, feed_updated))
     tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)
     import install_page
     tool_paths.append(install_page.write(sys.modules[__name__]))

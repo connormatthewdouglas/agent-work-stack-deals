@@ -77,7 +77,7 @@
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
-  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/" aria-current="page">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/" aria-current="page">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
 <div id="content">
   <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › For agents</nav>
   <h1>For agents: query the Lantern Works deal feed</h1>
@@ -129,6 +129,7 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
 
   <h2>GPU prices</h2>
   <p><a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a> lists structured GPU rates (per hour or per month) taken from verified pricing notes, each with its <code>deal_id</code> and source quote. Deals without a verified price are under <code>unpriced</code>. The human version is the <a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU cost calculator</a>.</p>
+  <p><a href="https://thelanternworks.com/api/v1/stack-pricing.json">https://thelanternworks.com/api/v1/stack-pricing.json</a> has cited plan prices for scraping, residential proxies, transactional email and search APIs (each offer has <code>quote</code>, <code>source_url</code>, <code>checked_at</code>; unpublished numbers are <code>null</code> = unknown). The <a href="https://thelanternworks.com/tools/stack-optimizer/">Agent Stack Optimizer</a> picks the cheapest suitable plan per need among tracked providers.</p>
 
   <h2>Install the MCP server (local stdio)</h2>
   <p>Published on <a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a> as <code>lantern-works-deals-mcp</code> and in the MCP Registry as <code>io.github.connormatthewdouglas/lantern-works-deals</code>. With <a href="https://docs.astral.sh/uv/">uv</a> installed, run:</p>

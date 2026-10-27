@@ -8,6 +8,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 FEED = ROOT / "api" / "v1" / "deals.json"
 GPU = ROOT / "api" / "v1" / "gpu-prices.json"
+STACK = ROOT / "api" / "v1" / "stack-pricing.json"
 
 
 @pytest.fixture(scope="module")
@@ -19,6 +20,8 @@ def srv():
     server.loader._cache = None
     server.gpu_loader.file = str(GPU)
     server.gpu_loader._cache = None
+    server.stack_loader.file = str(STACK)
+    server.stack_loader._cache = None
     return server
 
 
@@ -30,7 +33,7 @@ def call(srv, name, args):
 
 def test_tools_listed(srv):
     tools = {t.name: t for t in asyncio.run(srv.mcp.list_tools())}
-    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices"}
+    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack"}
     assert all(t.annotations.readOnlyHint for t in tools.values())
 
 
@@ -123,3 +126,15 @@ def test_user_agent_sent(monkeypatch):
     monkeypatch.delenv("LANTERN_DEALS_FILE", raising=False)
     FeedLoader(file=None).load(); GpuPricesLoader(file=None).load()
     assert seen == [USER_AGENT, USER_AGENT]
+
+
+def test_optimize_stack_tool(srv):
+    r = call(srv, "optimize_stack", {"scrape_pages": 50000, "proxy_gb": 10, "emails_sent": 10000, "gpu_hours": 100, "gpu_model": "H100"})
+    assert [l["need"] for l in r["lines"]] == ["scrape_pages", "proxy_gb", "emails_sent", "gpu_hours"]
+    for l in r["lines"]:
+        c = l["choice"]
+        assert c["source_url"].startswith("https://") and c["checked_at"] and c["quote"] and isinstance(c["assumptions"], list)
+        assert all(c["monthly_cost_usd"] <= a["monthly_cost_usd"] for a in l["alternatives"])
+    assert r["data_source"].endswith("/api/v1/stack-pricing.json")
+    assert call(srv, "optimize_stack", {})["error"]["code"] == "invalid_argument"
+    assert call(srv, "optimize_stack", {"emails_sent": -5})["error"]["code"] == "invalid_argument"

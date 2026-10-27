@@ -20,6 +20,7 @@ VERSION = "0.2.0"  # package version (pyproject + server.json must match; tests 
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
 GPU_PRICES_URL = "https://thelanternworks.com/api/v1/gpu-prices.json"
+STACK_PRICING_URL = "https://thelanternworks.com/api/v1/stack-pricing.json"
 OFFER_TYPES = ("verified_discount", "listed_discount", "free_tier", "trial", "standard_referral", "credit_only_referral")
 OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0, "listed_discount": 1.0,
                     "standard_referral": 0.0, "credit_only_referral": -0.5}
@@ -83,6 +84,13 @@ class GpuPricesLoader(FeedLoader):
     """The published /api/v1/gpu-prices.json (same file the site serves). LANTERN_GPU_PRICES_FILE overrides."""
     DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (GPU_PRICES_URL, "LANTERN_GPU_PRICES_URL",
                                                        "LANTERN_GPU_PRICES_FILE", "rates", "GPU prices")
+
+
+
+class StackPricingLoader(FeedLoader):
+    """The published /api/v1/stack-pricing.json (Agent Stack Optimizer data). LANTERN_STACK_PRICING_FILE overrides."""
+    DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (STACK_PRICING_URL, "LANTERN_STACK_PRICING_URL",
+                                                       "LANTERN_STACK_PRICING_FILE", "offers", "stack pricing")
 
 
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
