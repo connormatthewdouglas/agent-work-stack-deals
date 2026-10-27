@@ -153,6 +153,8 @@
   <p>Command <code>uvx</code>, args <code>["lantern-works-deals-mcp"]</code>, transport stdio. pipx: <code>pipx run lantern-works-deals-mcp</code>. Docker: build the repo's <code>Dockerfile</code> and run <code>docker run -i --rm &lt;image&gt;</code>. Optional env: <code>LANTERN_DEALS_FILE</code>, <code>LANTERN_GPU_PRICES_FILE</code> (offline JSON).</p>
   <p>The server only fetches the two public JSON files below and sends <code>User-Agent: lantern-works-deals-mcp/&lt;version&gt;</code>, nothing that identifies you.</p>
 
+  <h2>Privacy and telemetry</h2>
+  <p>Telemetry is <strong>off by default</strong>. Setting <code>LANTERN_TELEMETRY=1</code> in the server's environment opts in to an anonymous count of tool calls, sent at most once a day. Each count is only the tool name, package version, UTC day and number of calls. No arguments, IDs or IPs are sent or stored, and telemetry never blocks a tool call. Details: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/PRIVACY.md">PRIVACY.md</a>.</p>
   <h2>No MCP? Use the JSON</h2>
   <ul>
     <li>Deals: <a href="https://thelanternworks.com/api/v1/deals.json">https://thelanternworks.com/api/v1/deals.json</a></li>

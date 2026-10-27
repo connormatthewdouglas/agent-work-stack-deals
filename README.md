@@ -43,6 +43,8 @@ Cursor (`.cursor/mcp.json`) and Cline (`cline_mcp_settings.json`, via MCP Server
 
 Docker: `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp` (the root [`Dockerfile`](Dockerfile) installs the pinned PyPI release and runs the stdio server). Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Other clients: https://thelanternworks.com/install/ · Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`.
 
+Telemetry is **off by default**. `LANTERN_TELEMETRY=1` opts in to an anonymous daily count of tool calls: tool name, version, day and count only. No arguments, IDs or IPs are sent or stored. See [PRIVACY.md](PRIVACY.md).
+
 Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
 
 ## Feed contract, validation and deploy gate

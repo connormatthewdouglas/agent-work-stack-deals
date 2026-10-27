@@ -8,7 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import functools  # noqa: E402
+
 from mcp.server.fastmcp import FastMCP  # noqa: E402
+
+try:
+    from lantern_works_deals_mcp import telemetry
+except ImportError:
+    from mcp_server import telemetry  # noqa: E402
 
 try:  # installed wheel: core is vendored as a subpackage
     from lantern_works_deals_mcp.core import VERSION, DealError, FeedLoader, GpuPricesLoader, StackPricingLoader
@@ -33,6 +40,15 @@ gpu_loader = GpuPricesLoader()
 stack_loader = StackPricingLoader()
 
 
+def _counted(fn):
+    """Opt-in anonymous call counter (LANTERN_TELEMETRY=1 only; see telemetry.py). Never affects results."""
+    @functools.wraps(fn)
+    def wrapper(*a, **kw):
+        telemetry.record(fn.__name__, __version__)
+        return fn(*a, **kw)
+    return wrapper
+
+
 def _run(fn, *a, **kw) -> dict:
     try:
         return fn(loader.deals(), *a, **kw)
@@ -41,6 +57,7 @@ def _run(fn, *a, **kw) -> dict:
 
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
 def search_deals(query: str | None = None, category: str | None = None, offer_type: str | None = None,
                  max_price: float | None = None, tags: list[str] | None = None, limit: int = 10,
                  cursor: str | None = None) -> dict:
@@ -54,18 +71,21 @@ def search_deals(query: str | None = None, category: str | None = None, offer_ty
 
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
 def compare_deals(ids: list[str]) -> dict:
     """Compare 2-5 deals side by side (price, unit, offer type, code, verification), best value first."""
     return _run(core.compare, ids)
 
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
 def get_deal(id: str) -> dict:
     """Get one deal's public record by id, including redeem_url and agent_instructions."""
     return _run(core.get_deal, id)
 
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
 def compare_gpu_prices(gpu: str, limit: int = 10) -> dict:
     """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first.
 
@@ -80,6 +100,7 @@ def compare_gpu_prices(gpu: str, limit: int = 10) -> dict:
 
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
 def optimize_stack(scrape_pages: int = 0, scrape_pages_js: int = 0, proxy_gb: float = 0, emails_sent: int = 0,
                    search_queries: int = 0, gpu_hours: float = 0, gpu_model: str | None = None,
                    exclude_manual_signup: bool = False) -> dict:

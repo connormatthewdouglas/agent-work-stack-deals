@@ -1,0 +1,19 @@
+name = "lantern-works-telemetry"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# Free plan: D1 (aggregate counter table) + Workers rate-limit binding.
+[[d1_databases]]
+binding = "DB"
+database_name = "lantern-works-telemetry"
+database_id = "REPLACE_AFTER_wrangler_d1_create"
+
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }
+
+[observability]
+enabled = false  # no request logs
