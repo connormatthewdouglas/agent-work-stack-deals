@@ -73,8 +73,23 @@ jobs:
         with:
           python-version: "3.12"
       - uses: astral-sh/setup-uv@v6
-      - name: PyPI clean install + stdio tool calls
+      - name: PyPI clean install + stdio tool calls (latest release; 0.2.0+ must expose and pass compare_gpu_prices)
         run: python3 scripts/test_pypi_install.py --uvx
+
+  docker:
+    # Glama-style container run: build the Dockerfile (installs the pinned PyPI release) and call every tool over stdio
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: docker build -t lantern-works-deals-mcp .
+      - name: Docker stdio tool calls
+        run: |
+          ver=$(sed -n 's/.*lantern-works-deals-mcp==\([0-9.]*\).*/\1/p' Dockerfile)
+          python3 scripts/test_pypi_install.py --version "$ver" --docker lantern-works-deals-mcp
 
   live-checks:
     # LIVE-site checks (URL migration/key paths/gist==live feed, /SKILL.md frontmatter). These test the deployed
@@ -93,7 +108,7 @@ jobs:
 
   deploy:
     # Deploy is gated on validation. Only from main pushes / manual runs.
-    needs: [validate, tests, pypi-install]
+    needs: [validate, tests, pypi-install, docker]
     # Pages source = "GitHub Actions" (build_type=workflow) with repo variable PAGES_DEPLOY_VIA_ACTIONS=true,
     # so nothing reaches the live site unless validate + tests + pypi-install pass. Rollback: set Pages
     # build_type back to legacy (branch main, /) and the variable to false.
