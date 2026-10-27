@@ -12,7 +12,9 @@ update the record by hand). Exit 1 if anything is flagged. --report FILE writes 
 from __future__ import annotations
 
 import argparse
+import json
 import re
+import statistics
 import sys
 import urllib.request
 from pathlib import Path
@@ -50,7 +52,8 @@ def main() -> int:
     flags: list[str] = []
     for doc in docs:
         flags += [f"invalid record: {p}" for p in record_problems(doc)]
-    flags += [f"stale (> {STALE_DAYS} days): {s}" for s in stale_records(docs)]
+    # Vendors held out as stale (doc["stale"]) are never ranked, so their record age isn't a live-site failure.
+    flags += [f"stale (> {STALE_DAYS} days): {s}" for s in stale_records([d for d in docs if not d.get("stale")])]
     checked = 0
     if not a.offline:
         pages: dict[str, tuple[int | None, str]] = {}
@@ -68,6 +71,22 @@ def main() -> int:
                 if st != 200:
                     continue
                 checked += 1
+                if r.get("price_status") == "marketplace":
+                    # Host-set prices move minute to minute: exact figures can't be re-found. Require live offers
+                    # and report today's median for a human re-check instead.
+                    try:
+                        offers = json.loads(body).get("offers") or []
+                        per = sorted(o["dph_total"] / max(1, o.get("num_gpus") or 1) for o in offers)
+                    except (ValueError, KeyError, TypeError, AttributeError):
+                        per = None
+                    if per is None:
+                        flags.append(f"marketplace source not parseable: {doc['vendor']} {r['gpu']} at {r['source_url']}")
+                    elif not per:
+                        flags.append(f"marketplace has no live offers: {doc['vendor']} {r['gpu']} at {r['source_url']}")
+                    else:
+                        print(f"  {doc['vendor']} {r['gpu']}: live {len(per)} offers, min ${per[0]:.4f}, "
+                              f"median ${statistics.median(per):.4f} (published median ${r['hourly_usd']})")
+                    continue
                 text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body
                 missing = [t for t in price_tokens(r["quote"]) if t not in text]
                 if missing:
