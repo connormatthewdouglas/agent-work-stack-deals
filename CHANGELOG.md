@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Check-date wording
+
+- AlphaVPS, BounceBan, PingPing and Waalaxy: removed check dates from pricing notes that had no recorded verification. Enrich Labs: plan prices confirmed on the vendor page, so its verification date and $39 Starter price are restored; the 3-day trial remains unverified.
+
 ## 2026-10-27 — Claim batch 2, part 4
 
 - Re-checked pricing claims on the remaining 28 deals (ShortPixel to Zapmail): verification dates set where figures were found on vendor pages; others marked "(unverified)", with unconfirmed prices set to unknown.
