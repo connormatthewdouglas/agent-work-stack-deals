@@ -503,6 +503,9 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
     <li>MCP: a read-only <strong>local (stdio)</strong> server with tools <code>search_deals</code>, <code>compare_deals</code> and <code>get_deal</code>. There is no hosted endpoint. Results are ranked by customer value, never by affiliate status.</li>
   </ul>
 
+  <h2>GPU prices</h2>
+  <p><a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> lists structured GPU rates (per hour or per month) taken from verified pricing notes, each with its <code>deal_id</code> and source quote. Deals without a verified price are under <code>unpriced</code>. The human version is the <a href="{BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a>.</p>
+
   <h2>Install the MCP server (local stdio)</h2>
   <pre>git clone https://github.com/connormatthewdouglas/agent-work-stack-deals.git
 cd agent-work-stack-deals
@@ -1040,6 +1043,9 @@ def write_hub(hub: dict, deals: list[dict]) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     page_url = f"{BASE}/categories/{hub['slug']}/"
     cards = "\n".join(deal_card(d, link_mode="page") for d in matched) or "<p>No deals in this hub yet.</p>"
+    if hub["slug"] == "gpu-compute":
+        cards = (f'<p class="callout"><a href="{BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a>: estimate monthly cost '
+                 f'from verified vendor prices, with the calculation shown.</p>\n') + cards
     body = f"""
   <p class="crumbs"><a href="{BASE}/">Home</a> · <a href="{BASE}/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -1493,7 +1499,9 @@ def main() -> None:
 
     import compare_pages
     compare_paths = compare_pages.write_compare_pages(sys.modules[__name__], deals)
-    write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths)
+    import gpu_calculator
+    tool_paths = [gpu_calculator.write(sys.modules[__name__], deals, feed_updated)]
+    write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)
     patch_lanternworks()
@@ -1511,7 +1519,7 @@ def main() -> None:
     print(f"guide_pages={len(guide_paths)}")
     # home + lanternworks + changelog + hubs + guides + deals
     print(f"compare_pages={len(compare_paths)}")
-    print(f"sitemap_urls={4 + len(compare_paths) + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
+    print(f"sitemap_urls={4 + len(compare_paths) + len(tool_paths) + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
     print(f"deals={len(deals)}")
 
 

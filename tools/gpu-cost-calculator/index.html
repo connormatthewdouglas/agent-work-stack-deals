@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GPU cost calculator — Lantern Works</title>
+  <meta name="description" content="Estimate monthly GPU cost (A100, H100, RTX 4090 and more) from verified vendor prices, with the calculation shown." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/tools/gpu-cost-calculator/" />
+  <meta property="og:title" content="GPU cost calculator — Lantern Works" />
+  <meta property="og:description" content="Estimate monthly GPU cost (A100, H100, RTX 4090 and more) from verified vendor prices, with the calculation shown." />
+  <meta property="og:url" content="https://thelanternworks.com/tools/gpu-cost-calculator/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="GPU cost calculator — Lantern Works" />
+  <meta name="twitter:description" content="Estimate monthly GPU cost (A100, H100, RTX 4090 and more) from verified vendor prices, with the calculation shown." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/categories/gpu-compute/">GPU &amp; compute</a> › GPU cost calculator</nav>
+  <h1>GPU cost calculator</h1>
+  <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost; referral links don't change the order.</p>
+  <form id="calc" onsubmit="return false" aria-label="GPU cost inputs">
+    <label>GPU hours per month <input id="hours" type="number" min="0" max="20000" step="1" value="100" inputmode="numeric"></label>
+    <label>GPUs <input id="gpus" type="number" min="1" max="64" step="1" value="1" inputmode="numeric"></label>
+    <label>GPU model <select id="gpu"><option value="">Any</option><option value="A100">A100</option><option value="H100">H100</option><option value="H100 SXM">H100 SXM</option><option value="L40">L40</option><option value="RTX 4090">RTX 4090</option><option value="RTX 5090">RTX 5090</option><option value="RTX A5000">RTX A5000</option><option value="RTX A6000">RTX A6000</option><option value="Radeon 780M">Radeon 780M</option></select></label>
+    <label>Min VRAM (GB) <select id="vram"><option value="">Any</option><option>24</option><option>48</option><option>80</option></select></label>
+    <label><input id="flat" type="checkbox" checked> Include flat monthly servers</label>
+  </form>
+  <p id="summary" aria-live="polite"></p>
+  <div style="overflow-x:auto"><table class="howto" id="results"><thead><tr><th>Est. / month</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Label</th></tr></thead><tbody></tbody></table></div>
+  <noscript><p>The calculator needs JavaScript. The same data is at <a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a>.</p></noscript>
+
+  <h2>Calculation basis</h2>
+  <ul>
+    <li>Hourly: rate × hours × GPUs. Billed while the instance runs.</li>
+    <li>Monthly dedicated servers: flat price × ceil(hours ÷ 730) × GPUs, whatever your usage.</li>
+    <li>Excludes storage, egress, extra vCPU, taxes and promo credits. Prices are "from" prices; confirm on the vendor page before spending.</li>
+  </ul>
+  <h2>Free GPU-adjacent credits</h2>
+  <ul><li><a href="https://thelanternworks.com/deals/modal-free-001/">Modal</a>: $30/month free credit on Starter; pay-as-you-go beyond allotment</li></ul>
+  <h2>Not priced yet</h2>
+  <p>These GPU deals have no verified, structured GPU price in the feed, so they're left out instead of guessed: <a href="https://thelanternworks.com/deals/alphavps-001/">AlphaVPS</a>, <a href="https://thelanternworks.com/deals/gigagpu-001/">GigaGPU</a>, <a href="https://thelanternworks.com/deals/modal-free-001/">Modal</a>, <a href="https://thelanternworks.com/deals/novita-001/">Novita AI</a>, <a href="https://thelanternworks.com/deals/runpod-001/">RunPod</a>, <a href="https://thelanternworks.com/deals/vastai-001/">Vast.ai</a>.</p>
+  <h2>For agents</h2>
+  <p>Machine-readable rates: <a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). The URL keeps state, e.g. <code>?hours=300&amp;gpu=A100</code>.</p>
+  <script>
+  const R=[{"deal_id": "deal-thundercompute-001", "advertiser": "Thunder Compute", "gpu": "RTX A6000", "vram_gb": 48, "price_usd": 0.35, "unit": "hour", "hourly_equiv_usd": 0.35, "billing": "per hour while running", "offer_type": "credit_only_referral", "affiliate": true, "verified_at": "2026-10-25T11:20:00-04:00", "source_url": null, "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console", "basis": "RTX A6000 48GB $0.35/hr"}, {"deal_id": "deal-thundercompute-001", "advertiser": "Thunder Compute", "gpu": "L40", "vram_gb": 48, "price_usd": 0.79, "unit": "hour", "hourly_equiv_usd": 0.79, "billing": "per hour while running", "offer_type": "credit_only_referral", "affiliate": true, "verified_at": "2026-10-25T11:20:00-04:00", "source_url": null, "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console", "basis": "L40 48GB $0.79/hr"}, {"deal_id": "deal-thundercompute-001", "advertiser": "Thunder Compute", "gpu": "A100", "vram_gb": 80, "price_usd": 1.09, "unit": "hour", "hourly_equiv_usd": 1.09, "billing": "per hour while running", "offer_type": "credit_only_referral", "affiliate": true, "verified_at": "2026-10-25T11:20:00-04:00", "source_url": null, "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console", "basis": "A100 80GB $1.09/hr"}, {"deal_id": "deal-thundercompute-001", "advertiser": "Thunder Compute", "gpu": "H100 SXM", "vram_gb": 80, "price_usd": 3.2, "unit": "hour", "hourly_equiv_usd": 3.2, "billing": "per hour while running", "offer_type": "credit_only_referral", "affiliate": true, "verified_at": "2026-10-25T11:20:00-04:00", "source_url": null, "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console", "basis": "H100 SXM 80GB $3.20/hr"}, {"deal_id": "deal-99stack-001", "advertiser": "99Stack Cloud", "gpu": "H100", "vram_gb": 80, "price_usd": 2.8767, "unit": "hour", "hourly_equiv_usd": 2.8767, "billing": "per hour while running", "offer_type": "credit_only_referral", "affiliate": true, "verified_at": "2026-10-25T21:55:00-04:00", "source_url": null, "redeem_url": "https://www.99stack.com/a/4b6237a3-fe0d-4c21-966e-ed3d4de5f928", "basis": "NVIDIA H100 (12 vCPU/240 GB RAM) $2.8767/hr"}, {"deal_id": "deal-ucartz-001", "advertiser": "Ucartz", "gpu": "Radeon 780M", "vram_gb": null, "price_usd": 382.72, "unit": "month", "hourly_equiv_usd": 0.5243, "billing": "flat monthly (dedicated server)", "offer_type": "standard_referral", "affiliate": true, "verified_at": "2026-10-26T12:00:00-04:00", "source_url": "https://www.ucartz.com/gpu-dedicated-servers", "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132", "basis": "from $382.72/mo (Radeon 780M)"}, {"deal_id": "deal-ucartz-001", "advertiser": "Ucartz", "gpu": "RTX 4090", "vram_gb": 24, "price_usd": 798.72, "unit": "month", "hourly_equiv_usd": 1.0941, "billing": "flat monthly (dedicated server)", "offer_type": "standard_referral", "affiliate": true, "verified_at": "2026-10-26T12:00:00-04:00", "source_url": "https://www.ucartz.com/gpu-dedicated-servers", "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132", "basis": "RTX 4090 from $798.72/mo"}, {"deal_id": "deal-ucartz-001", "advertiser": "Ucartz", "gpu": "RTX A5000", "vram_gb": 24, "price_usd": 819.52, "unit": "month", "hourly_equiv_usd": 1.1226, "billing": "flat monthly (dedicated server)", "offer_type": "standard_referral", "affiliate": true, "verified_at": "2026-10-26T12:00:00-04:00", "source_url": "https://www.ucartz.com/gpu-dedicated-servers", "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132", "basis": "RTX A5000 from $819.52/mo"}, {"deal_id": "deal-ucartz-001", "advertiser": "Ucartz", "gpu": "RTX 5090", "vram_gb": 32, "price_usd": 1256.32, "unit": "month", "hourly_equiv_usd": 1.721, "billing": "flat monthly (dedicated server)", "offer_type": "standard_referral", "affiliate": true, "verified_at": "2026-10-26T12:00:00-04:00", "source_url": "https://www.ucartz.com/gpu-dedicated-servers", "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132", "basis": "RTX 5090 from $1,256.32/mo"}, {"deal_id": "deal-ucartz-001", "advertiser": "Ucartz", "gpu": "A100", "vram_gb": 80, "price_usd": 3128.32, "unit": "month", "hourly_equiv_usd": 4.2854, "billing": "flat monthly (dedicated server)", "offer_type": "standard_referral", "affiliate": true, "verified_at": "2026-10-26T12:00:00-04:00", "source_url": "https://www.ucartz.com/gpu-dedicated-servers", "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132", "basis": "A100 80GB from $3,128.32/mo"}], H=730;
+  const $=id=>document.getElementById(id), fmt=n=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const q=new URLSearchParams(location.search);
+  for (const k of ["hours","gpus","gpu","vram"]) if (q.get(k)!==null) $(k).value=q.get(k);
+  if (q.get("flat")==="0") $("flat").checked=false;
+  function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+  function run(){
+    const h=Math.max(0,+$("hours").value||0), g=Math.max(1,Math.floor(+$("gpus").value||1)), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
+    const rows=R.filter(r=>(!m||r.gpu===m)&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{
+      if(r.unit==="hour") return {...r,cost:r.price_usd*h*g,calc:`$${r.price_usd}/hr × ${h} h × ${g}`};
+      const n=Math.max(1,Math.ceil(h/H))*g; return {...r,cost:r.price_usd*n,calc:`$${r.price_usd}/mo × ${n} server(s)`};
+    }).sort((a,b)=>a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
+    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${fmt(r.cost)}</strong></td><td>${esc(r.gpu)}${r.vram_gb?` ${r.vram_gb} GB`:""}</td><td><a href="${esc(r.redeem_url)}" rel="nofollow sponsored noopener">${esc(r.advertiser)}</a></td><td>${esc(r.billing)}</td><td>${esc(r.calc)}</td><td><a href="${esc(r.source_url)}" rel="noopener">“${esc(r.basis)}”</a> · ${esc((r.verified_at||"").slice(0,10))}</td><td>${r.affiliate?"referral":"public"}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("summary").textContent=rows.length?`${rows.length} options. Cheapest: ${rows[0].advertiser} ${rows[0].gpu} at ${fmt(rows[0].cost)}/month.`:"No priced option matches these filters.";
+    const p=new URLSearchParams({hours:h,gpus:g}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
+    history.replaceState(null,"","?"+p);
+  }
+  $("calc").addEventListener("input",run); run();
+  </script>
+
+  <footer>
+    <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+</body>
+</html>
