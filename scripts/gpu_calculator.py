@@ -32,6 +32,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
             "A daily job re-fetches every source_url and flags records older than 7 days or unreachable pages; prices are never auto-edited.",
             "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
+            "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
             "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"unknown\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
         ],
         "rates": data["rates"],
@@ -94,7 +95,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     const h=Math.max(0,+$("hours").value||0), g=Math.max(1,Math.floor(+$("gpus").value||1)), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
     const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
       if(r.unit==="hour") return {{...r,cost:r.price_usd*h*g,calc:`$${{r.price_usd}}/hr × ${{h}} h × ${{g}}`}};
-      const n=Math.max(1,Math.ceil(h/H))*g; return {{...r,cost:r.price_usd*n,calc:`$${{r.price_usd}}/mo × ${{n}} server(s)`}};
+      const n=Math.max(1,Math.ceil(h/H))*g; return {{...r,cost:r.price_usd*n,calc:(r.gpu_count>1?`$${{r.price_usd}}/GPU-mo × ${{n}} (sold as ${{r.gpu_count}}-GPU servers at $${{r.server_price_usd}}/mo)`:`$${{r.price_usd}}/mo × ${{n}} server(s)`)}};
     }}).sort((a,b)=>a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
     $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="nofollow sponsored noopener" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
     $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest among tracked providers: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";

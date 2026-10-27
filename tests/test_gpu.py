@@ -17,7 +17,7 @@ def test_estimate_hourly_vs_flat_and_rank():
     th = next(x for x in e if x["deal_id"] == "deal-thundercompute-001")
     assert th["monthly_cost_usd"] == 109.0
     uc = next(x for x in e if x["deal_id"] == "deal-ucartz-001")
-    assert uc["monthly_cost_usd"] == 3128.32
+    assert uc["monthly_cost_usd"] == 1564.16 and uc["gpu_count"] == 2  # per GPU of a 2x A100 $3,128.32 server
     e4090 = estimate(rates, 1000, gpu_filter="4090")
     assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(798.72 * 2, 2)
     assert e4090[0]["monthly_cost_usd"] == 340.0  # RunPod Community $0.34/hr x 1000 h
@@ -115,3 +115,46 @@ def test_gpu_pages_carry_accuracy_notes_and_tracked_wording():
         text = re.sub(r"<[^>]+>|https?://\S+", " ", t)
         for m in re.finditer(r"cheapest[^.?\n]{0,80}", text, re.I):
             assert "among tracked" in m.group(0).lower() or "tracked h100" in m.group(0).lower(), (p, m.group(0))
+
+
+def test_every_record_has_live_evidence():
+    import re
+    n = 0
+    for doc in load_vendor_files():
+        for r in doc["records"]:
+            ev = r["evidence"]
+            assert set(ev) == {"source_url", "quote", "checked_at"}, r["gpu"]
+            assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
+            assert ev["checked_at"] == r["checked_at"]
+            n += 1
+    assert n == 36
+    blob = "".join(p.read_text() for p in (Path(__file__).resolve().parents[1] / "data" / "gpu_pricing").glob("*.json"))
+    assert "/private" not in blob and "referral_terms" not in blob and not re.search(r"commission|payout", blob, re.I)
+
+
+def test_multi_gpu_server_is_per_gpu():
+    from core.gpu import record_problems
+    uc = next(d for d in load_vendor_files() if d["vendor"] == "Ucartz")
+    a100 = next(r for r in uc["records"] if r["gpu"] == "A100")
+    assert (a100["gpu_count"], a100["price_usd"], a100["hourly_usd"], a100["server_hourly_usd"]) == (2, 3128.32, 2.1427, 4.2854)
+    bad = {**uc, "records": [{**a100, "hourly_usd": 4.2854}]}
+    assert any("per GPU" in p for p in record_problems(bad))
+    bad = {**uc, "records": [{k: v for k, v in a100.items() if k != "server_hourly_usd"}]}
+    assert any("server_hourly_usd" in p for p in record_problems(bad))
+    bad = {**uc, "records": [{k: v for k, v in a100.items() if k != "evidence"}]}
+    assert any("evidence" in p for p in record_problems(bad))
+    rate = next(r for r in build_rates(FEED)["rates"] if r["deal_id"] == "deal-ucartz-001" and r["gpu"] == "A100")
+    assert (rate["hourly_equiv_usd"], rate["price_usd"], rate["server_price_usd"]) == (2.1427, 1564.16, 3128.32)
+
+
+def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
+    from core.deals import compare_gpu_prices
+    from core.stack import _gpu_options
+    data = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    res = compare_gpu_prices(data, "A100", limit=25)["results"]
+    uc = next(r for r in res if r["advertiser"] == "Ucartz")
+    assert uc["hourly_usd"] == 2.1427 and uc["gpu_count"] == 2 and uc["server_hourly_usd"] == 4.2854
+    assert [r["hourly_usd"] for r in res] == sorted(r["hourly_usd"] for r in res)
+    opts = _gpu_options(data, 730, "A100", set())
+    o = next(x for x in opts if x["vendor"] == "Ucartz")
+    assert o["monthly_cost_usd"] == 1564.16 and "2-GPU" in o["calc"]

@@ -1,6 +1,9 @@
 """GPU pricing core: structured per-vendor pricing records (data/gpu_pricing/<vendor>.json).
 
-Each record carries vendor, GPU, VRAM, price + billing unit, interruptible, source_url and checked_at.
+Each record carries vendor, GPU, VRAM, price + billing unit, interruptible, source_url and checked_at, plus an
+`evidence` object {source_url, quote, checked_at} from the last live check of the vendor page.
+Multi-GPU servers carry gpu_count (> 1) and server_hourly_usd; price_usd is the vendor's server price and
+hourly_usd is always PER GPU (server price / gpu_count), so every ranking is per GPU.
 scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits).
 Ranking is by estimated cost for the user's hours, never by affiliate status or commission.
 """
@@ -19,6 +22,8 @@ RECORD_FIELDS = ("vendor", "gpu", "vram_gb", "price_usd", "billing_unit", "hourl
                  "tier", "form_factor", "quote", "source_url", "checked_at")
 PRICING_DIR = Path(__file__).resolve().parents[1] / "data" / "gpu_pricing"
 STALE_DAYS = 7
+EVIDENCE_FIELDS = ("source_url", "quote", "checked_at")
+MAX_QUOTE = 200
 
 
 def load_vendor_files(directory: Path | None = None) -> list[dict]:
@@ -53,8 +58,30 @@ def record_problems(doc: dict) -> list[str]:
             out.append(f"{tag}: price_usd must be > 0")
             continue
         factor = {"per-second": 3600, "hourly": 1, "monthly": 1 / HOURS_PER_MONTH}.get(r["billing_unit"], 1)
-        if abs(round(r["price_usd"] * factor, 4) - r["hourly_usd"]) > 1e-4:
-            out.append(f"{tag}: hourly_usd {r['hourly_usd']} != price_usd x {factor:g}")
+        n = r.get("gpu_count", 1)
+        if not (isinstance(n, int) and not isinstance(n, bool) and n >= 1):
+            out.append(f"{tag}: gpu_count must be an integer >= 1")
+            continue
+        if abs(round(r["price_usd"] * factor / n, 4) - r["hourly_usd"]) > 1e-4:
+            out.append(f"{tag}: hourly_usd {r['hourly_usd']} != price_usd x {factor:g} / gpu_count {n} (must be per GPU)")
+        if n > 1 and abs(round(r["price_usd"] * factor, 4) - (r.get("server_hourly_usd") or 0)) > 1e-4:
+            out.append(f"{tag}: gpu_count {n} needs server_hourly_usd = price_usd x {factor:g}")
+        if n == 1 and "server_hourly_usd" in r:
+            out.append(f"{tag}: server_hourly_usd only for gpu_count > 1")
+        ev = r.get("evidence")
+        if not isinstance(ev, dict) or any(not ev.get(k) for k in EVIDENCE_FIELDS):
+            out.append(f"{tag}: evidence needs {EVIDENCE_FIELDS}")
+        else:
+            if set(ev) - set(EVIDENCE_FIELDS):
+                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS))}")
+            if not str(ev["source_url"]).startswith("https://"):
+                out.append(f"{tag}: evidence.source_url must be https")
+            if len(ev["quote"]) > MAX_QUOTE:
+                out.append(f"{tag}: evidence.quote longer than {MAX_QUOTE} chars")
+            try:
+                datetime.fromisoformat(ev["checked_at"])
+            except (TypeError, ValueError):
+                out.append(f"{tag}: evidence.checked_at not ISO-8601")
         if not str(r["source_url"]).startswith("https://") or not r["checked_at"]:
             out.append(f"{tag}: needs https source_url and checked_at")
         try:
@@ -127,9 +154,14 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                         "extras": doc["extras"]})
         for r in doc["records"]:
             monthly = r["billing_unit"] == "monthly"
+            n = r.get("gpu_count", 1)
             rates.append({
                 "deal_id": doc["deal_id"], "advertiser": r["vendor"], "gpu": r["gpu"], "vram_gb": r["vram_gb"],
-                "price_usd": r["price_usd"] if monthly else r["hourly_usd"],
+                # Always per GPU: monthly multi-GPU servers are divided by gpu_count.
+                "price_usd": round(r["price_usd"] / n, 2) if monthly else r["hourly_usd"],
+                "gpu_count": n,
+                "server_price_usd": r["price_usd"] if n > 1 else None,
+                "server_hourly_usd": r.get("server_hourly_usd"),
                 "unit": "month" if monthly else "hour", "tier": r["tier"],
                 "hourly_equiv_usd": r["hourly_usd"],
                 "billing": {"per-second": "per second while running", "hourly": "per hour while running",
@@ -139,7 +171,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
                 "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
                 "verified_at": r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
-                "redeem_url": d.get("redeem_url"), "basis": r["quote"]})
+                "redeem_url": d.get("redeem_url"), "basis": r["quote"], "evidence": r["evidence"]})
     priced = {r["deal_id"] for r in rates}
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}
@@ -166,6 +198,11 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
         else:
             n = max(1, math.ceil(hours_per_month / HOURS_PER_MONTH)) * gpus
             cost = r["price_usd"] * n
-            basis = f"${r['price_usd']}/mo x {n} server(s), flat regardless of hours"
+            per = r.get("gpu_count") or 1
+            if per > 1:
+                basis = (f"${r['price_usd']}/GPU-mo x {n} GPU-month(s) (sold as {per}-GPU servers at "
+                         f"${r['server_price_usd']:,.2f}/mo), flat regardless of hours")
+            else:
+                basis = f"${r['price_usd']}/mo x {n} server(s), flat regardless of hours"
         out.append({**r, "monthly_cost_usd": round(cost, 2), "calc": basis})
     return sorted(out, key=lambda x: (x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))

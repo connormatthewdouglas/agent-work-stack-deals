@@ -9,6 +9,7 @@
     "A daily job re-fetches every source_url and flags records older than 7 days or unreachable pages; prices are never auto-edited.",
     "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
     "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
+    "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
     "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"unknown\") are in vendors[].extras with source_url. Confirm on the vendor page before spending."
   ],
   "rates": [
@@ -18,6 +19,9 @@
       "gpu": "H100",
       "vram_gb": 80,
       "price_usd": 2.8767,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "on-demand",
       "hourly_equiv_usd": 2.8767,
@@ -28,11 +32,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
       "redeem_url": "https://www.99stack.com/a/4b6237a3-fe0d-4c21-966e-ed3d4de5f928",
-      "basis": "NVIDIA H100 (12 vCPU/240 GB RAM) $2.8767/hr"
+      "basis": "NVIDIA H100 (12 vCPU/240 GB RAM) $2.8767/hr",
+      "evidence": {
+        "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
+        "quote": "G4-gpu-h100-240m-12c 4800 GiB 240 GB 12 vCPUs 50 TB $2.8767 /hr $2 100 /mo",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -40,6 +49,9 @@
       "gpu": "H200 SXM",
       "vram_gb": 141,
       "price_usd": 4.5396,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Serverless (per second)",
       "hourly_equiv_usd": 4.5396,
@@ -50,11 +62,16 @@
       "form_factor": "SXM",
       "offer_type": "free_tier",
       "affiliate": false,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://modal.com/pricing",
       "redeem_url": "https://modal.com/pricing",
-      "basis": "Nvidia H200 SXM $0.001261/sec"
+      "basis": "Nvidia H200 SXM $0.001261/sec",
+      "evidence": {
+        "source_url": "https://modal.com/pricing",
+        "quote": "Nvidia H200 SXM $0.001261 / sec",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -62,6 +79,9 @@
       "gpu": "H100 SXM",
       "vram_gb": 80,
       "price_usd": 3.9492,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Serverless (per second)",
       "hourly_equiv_usd": 3.9492,
@@ -72,11 +92,16 @@
       "form_factor": "SXM",
       "offer_type": "free_tier",
       "affiliate": false,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://modal.com/pricing",
       "redeem_url": "https://modal.com/pricing",
-      "basis": "Nvidia H100 SXM5 $0.001097/sec"
+      "basis": "Nvidia H100 SXM5 $0.001097/sec",
+      "evidence": {
+        "source_url": "https://modal.com/pricing",
+        "quote": "Nvidia H100 SXM5 $0.001097 / sec",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -84,6 +109,9 @@
       "gpu": "A100",
       "vram_gb": 80,
       "price_usd": 2.4984,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Serverless (per second)",
       "hourly_equiv_usd": 2.4984,
@@ -94,11 +122,16 @@
       "form_factor": null,
       "offer_type": "free_tier",
       "affiliate": false,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://modal.com/pricing",
       "redeem_url": "https://modal.com/pricing",
-      "basis": "Nvidia A100, 80 GB $0.000694/sec"
+      "basis": "Nvidia A100, 80 GB $0.000694/sec",
+      "evidence": {
+        "source_url": "https://modal.com/pricing",
+        "quote": "Nvidia A100, 80 GB $0.000694 / sec",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -106,6 +139,9 @@
       "gpu": "L40S",
       "vram_gb": 48,
       "price_usd": 1.9512,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Serverless (per second)",
       "hourly_equiv_usd": 1.9512,
@@ -116,11 +152,16 @@
       "form_factor": null,
       "offer_type": "free_tier",
       "affiliate": false,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://modal.com/pricing",
       "redeem_url": "https://modal.com/pricing",
-      "basis": "Nvidia L40S $0.000542/sec"
+      "basis": "Nvidia L40S $0.000542/sec",
+      "evidence": {
+        "source_url": "https://modal.com/pricing",
+        "quote": "Nvidia L40S $0.000542 / sec",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -128,6 +169,9 @@
       "gpu": "H200",
       "vram_gb": 141,
       "price_usd": 5.29,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 5.29,
@@ -138,11 +182,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "H200 141GB $5.29/hr"
+      "basis": "H200 141GB $5.29/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H200 cloud GPU rental on Runpod. Community Cloud $3.59/hr, Secure Cloud $5.29/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -150,6 +199,9 @@
       "gpu": "H100 SXM",
       "vram_gb": 80,
       "price_usd": 3.99,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 3.99,
@@ -160,11 +212,16 @@
       "form_factor": "SXM",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "H100 SXM 80GB $3.99/hr"
+      "basis": "H100 SXM 80GB $3.99/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $3.99/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -172,6 +229,9 @@
       "gpu": "H100 PCIe",
       "vram_gb": 80,
       "price_usd": 2.89,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 2.89,
@@ -182,11 +242,16 @@
       "form_factor": "PCIe",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "H100 PCIe 80GB $2.89/hr"
+      "basis": "H100 PCIe 80GB $2.89/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -194,6 +259,9 @@
       "gpu": "A100 SXM",
       "vram_gb": 80,
       "price_usd": 1.79,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 1.79,
@@ -204,11 +272,16 @@
       "form_factor": "SXM",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "A100 SXM 80GB $1.79/hr"
+      "basis": "A100 SXM 80GB $1.79/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -216,6 +289,9 @@
       "gpu": "A100 PCIe",
       "vram_gb": 80,
       "price_usd": 1.79,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 1.79,
@@ -226,11 +302,16 @@
       "form_factor": "PCIe",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "A100 PCIe 80GB $1.79/hr"
+      "basis": "A100 PCIe 80GB $1.79/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -238,6 +319,9 @@
       "gpu": "L40S",
       "vram_gb": 48,
       "price_usd": 1.09,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 1.09,
@@ -248,11 +332,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "L40S 48GB $1.09/hr"
+      "basis": "L40S 48GB $1.09/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand L40S cloud GPU rental on Runpod. Community Cloud $0.79/hr, Secure Cloud $1.09/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -260,6 +349,9 @@
       "gpu": "L40",
       "vram_gb": 48,
       "price_usd": 0.82,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 0.82,
@@ -270,11 +362,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "L40 48GB $0.82/hr"
+      "basis": "L40 48GB $0.82/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand L40 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $0.82/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -282,6 +379,9 @@
       "gpu": "RTX A6000",
       "vram_gb": 48,
       "price_usd": 0.59,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 0.59,
@@ -292,11 +392,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX A6000 48GB $0.59/hr"
+      "basis": "RTX A6000 48GB $0.59/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX A6000 cloud GPU rental on Runpod. Community Cloud $0.33/hr, Secure Cloud $0.59/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -304,6 +409,9 @@
       "gpu": "RTX 5090",
       "vram_gb": 32,
       "price_usd": 1.19,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 1.19,
@@ -314,11 +422,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX 5090 32GB $1.19/hr"
+      "basis": "RTX 5090 32GB $1.19/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.19/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -326,6 +439,9 @@
       "gpu": "RTX 4090",
       "vram_gb": 24,
       "price_usd": 0.89,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 0.89,
@@ -336,11 +452,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX 4090 24GB $0.89/hr"
+      "basis": "RTX 4090 24GB $0.89/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -348,6 +469,9 @@
       "gpu": "RTX 3090",
       "vram_gb": 24,
       "price_usd": 0.5,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 0.5,
@@ -358,11 +482,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX 3090 24GB $0.50/hr"
+      "basis": "RTX 3090 24GB $0.50/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 3090 cloud GPU rental on Runpod. Community Cloud $0.22/hr, Secure Cloud $0.50/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -370,6 +499,9 @@
       "gpu": "RTX A5000",
       "vram_gb": 24,
       "price_usd": 0.27,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Secure Cloud",
       "hourly_equiv_usd": 0.27,
@@ -380,11 +512,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX A5000 24GB $0.27/hr"
+      "basis": "RTX A5000 24GB $0.27/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX A5000 cloud GPU rental on Runpod. Community Cloud $0.16/hr, Secure Cloud $0.27/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -392,6 +529,9 @@
       "gpu": "H100 SXM",
       "vram_gb": 80,
       "price_usd": 2.69,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 2.69,
@@ -402,11 +542,16 @@
       "form_factor": "SXM",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "H100 SXM $2.69/hr"
+      "basis": "H100 SXM $2.69/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $3.99/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -414,6 +559,9 @@
       "gpu": "H100 PCIe",
       "vram_gb": 80,
       "price_usd": 1.99,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 1.99,
@@ -424,11 +572,16 @@
       "form_factor": "PCIe",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "H100 PCIe $1.99/hr"
+      "basis": "H100 PCIe $1.99/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -436,6 +589,9 @@
       "gpu": "A100 SXM",
       "vram_gb": 80,
       "price_usd": 1.39,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 1.39,
@@ -446,11 +602,16 @@
       "form_factor": "SXM",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "A100 SXM $1.39/hr"
+      "basis": "A100 SXM $1.39/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -458,6 +619,9 @@
       "gpu": "A100 PCIe",
       "vram_gb": 80,
       "price_usd": 1.19,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 1.19,
@@ -468,11 +632,16 @@
       "form_factor": "PCIe",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "A100 PCIe $1.19/hr"
+      "basis": "A100 PCIe $1.19/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -480,6 +649,9 @@
       "gpu": "RTX 4090",
       "vram_gb": 24,
       "price_usd": 0.34,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 0.34,
@@ -490,11 +662,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX 4090 $0.34/hr"
+      "basis": "RTX 4090 $0.34/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -502,6 +679,9 @@
       "gpu": "RTX 3090",
       "vram_gb": 24,
       "price_usd": 0.22,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 0.22,
@@ -512,11 +692,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX 3090 $0.22/hr"
+      "basis": "RTX 3090 $0.22/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 3090 cloud GPU rental on Runpod. Community Cloud $0.22/hr, Secure Cloud $0.50/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -524,6 +709,9 @@
       "gpu": "H200",
       "vram_gb": 141,
       "price_usd": 3.59,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 3.59,
@@ -534,11 +722,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "H200 $3.59/hr"
+      "basis": "H200 $3.59/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H200 cloud GPU rental on Runpod. Community Cloud $3.59/hr, Secure Cloud $5.29/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -546,6 +739,9 @@
       "gpu": "L40S",
       "vram_gb": 48,
       "price_usd": 0.79,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 0.79,
@@ -556,11 +752,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "L40S $0.79/hr"
+      "basis": "L40S $0.79/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand L40S cloud GPU rental on Runpod. Community Cloud $0.79/hr, Secure Cloud $1.09/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -568,6 +769,9 @@
       "gpu": "RTX A6000",
       "vram_gb": 48,
       "price_usd": 0.33,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 0.33,
@@ -578,11 +782,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX A6000 $0.33/hr"
+      "basis": "RTX A6000 $0.33/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX A6000 cloud GPU rental on Runpod. Community Cloud $0.33/hr, Secure Cloud $0.59/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-runpod-001",
@@ -590,6 +799,9 @@
       "gpu": "RTX 5090",
       "vram_gb": 32,
       "price_usd": 0.69,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "Community Cloud",
       "hourly_equiv_usd": 0.69,
@@ -600,11 +812,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.runpod.io/pricing",
       "redeem_url": "https://runpod.io?ref=wuct08gl",
-      "basis": "RTX 5090 $0.69/hr"
+      "basis": "RTX 5090 $0.69/hr",
+      "evidence": {
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.19/hr.",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -612,6 +829,9 @@
       "gpu": "RTX A6000",
       "vram_gb": 48,
       "price_usd": 0.35,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "on-demand",
       "hourly_equiv_usd": 0.35,
@@ -622,11 +842,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.thundercompute.com/pricing",
       "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console",
-      "basis": "RTX A6000 48GB $0.35/hr"
+      "basis": "RTX A6000 48GB $0.35/hr",
+      "evidence": {
+        "source_url": "https://www.thundercompute.com/pricing",
+        "quote": "RTX A6000 48 GB 6 included · 8 max 48–⁠64 GB 100–⁠500 GB $0.35 /hr",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -634,6 +859,9 @@
       "gpu": "L40",
       "vram_gb": 48,
       "price_usd": 0.79,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "on-demand",
       "hourly_equiv_usd": 0.79,
@@ -644,11 +872,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.thundercompute.com/pricing",
       "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console",
-      "basis": "L40 48GB $0.79/hr"
+      "basis": "L40 48GB $0.79/hr",
+      "evidence": {
+        "source_url": "https://www.thundercompute.com/pricing",
+        "quote": "L40 48 GB 6 included · 12 max 48–⁠96 GB 100–⁠500 GB $0.79 /hr",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -656,6 +889,9 @@
       "gpu": "A100",
       "vram_gb": 80,
       "price_usd": 1.09,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "on-demand",
       "hourly_equiv_usd": 1.09,
@@ -666,11 +902,16 @@
       "form_factor": null,
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.thundercompute.com/pricing",
       "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console",
-      "basis": "A100 80GB $1.09/hr"
+      "basis": "A100 80GB $1.09/hr",
+      "evidence": {
+        "source_url": "https://www.thundercompute.com/pricing",
+        "quote": "A100 80GB 80 GB 8 included · 16 max 64–⁠128 GB 100–⁠500 GB $1.09 /hr",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -678,6 +919,9 @@
       "gpu": "H100 SXM",
       "vram_gb": 80,
       "price_usd": 3.2,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "hour",
       "tier": "on-demand",
       "hourly_equiv_usd": 3.2,
@@ -688,11 +932,16 @@
       "form_factor": "SXM",
       "offer_type": "credit_only_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.thundercompute.com/pricing",
       "redeem_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=console",
-      "basis": "H100 SXM 80GB $3.20/hr"
+      "basis": "H100 SXM 80GB $3.20/hr",
+      "evidence": {
+        "source_url": "https://www.thundercompute.com/pricing",
+        "quote": "H100 SXM 80 GB 4 included · 16 max 32–⁠128 GB 100–⁠500 GB $3.20 /hr",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-ucartz-001",
@@ -700,6 +949,9 @@
       "gpu": "Radeon 780M",
       "vram_gb": null,
       "price_usd": 382.72,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "month",
       "tier": "dedicated server",
       "hourly_equiv_usd": 0.5243,
@@ -710,11 +962,16 @@
       "form_factor": null,
       "offer_type": "standard_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
       "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132",
-      "basis": "from $382.72/mo (Radeon 780M)"
+      "basis": "from $382.72/mo (Radeon 780M)",
+      "evidence": {
+        "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
+        "quote": "Radeon 780M servers from $382.72",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-ucartz-001",
@@ -722,6 +979,9 @@
       "gpu": "RTX 4090",
       "vram_gb": 24,
       "price_usd": 798.72,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "month",
       "tier": "dedicated server",
       "hourly_equiv_usd": 1.0941,
@@ -732,11 +992,16 @@
       "form_factor": null,
       "offer_type": "standard_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
       "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132",
-      "basis": "RTX 4090 from $798.72/mo"
+      "basis": "RTX 4090 from $798.72/mo",
+      "evidence": {
+        "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
+        "quote": "RTX 4090 servers from $798.72",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-ucartz-001",
@@ -744,6 +1009,9 @@
       "gpu": "RTX A5000",
       "vram_gb": 24,
       "price_usd": 819.52,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "month",
       "tier": "dedicated server",
       "hourly_equiv_usd": 1.1226,
@@ -754,11 +1022,16 @@
       "form_factor": null,
       "offer_type": "standard_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
       "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132",
-      "basis": "RTX A5000 from $819.52/mo"
+      "basis": "RTX A5000 from $819.52/mo",
+      "evidence": {
+        "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
+        "quote": "RTX A5000 servers from $819.52",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-ucartz-001",
@@ -766,6 +1039,9 @@
       "gpu": "RTX 5090",
       "vram_gb": 32,
       "price_usd": 1256.32,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
       "unit": "month",
       "tier": "dedicated server",
       "hourly_equiv_usd": 1.721,
@@ -776,21 +1052,29 @@
       "form_factor": null,
       "offer_type": "standard_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
       "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132",
-      "basis": "RTX 5090 from $1,256.32/mo"
+      "basis": "RTX 5090 from $1,256.32/mo",
+      "evidence": {
+        "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
+        "quote": "RTX 5090 servers from $1,256.32",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     },
     {
       "deal_id": "deal-ucartz-001",
       "advertiser": "Ucartz",
       "gpu": "A100",
       "vram_gb": 80,
-      "price_usd": 3128.32,
+      "price_usd": 1564.16,
+      "gpu_count": 2,
+      "server_price_usd": 3128.32,
+      "server_hourly_usd": 4.2854,
       "unit": "month",
       "tier": "dedicated server",
-      "hourly_equiv_usd": 4.2854,
+      "hourly_equiv_usd": 2.1427,
       "billing": "flat monthly (dedicated server)",
       "billing_unit": "monthly",
       "price_per_second_usd": null,
@@ -798,11 +1082,16 @@
       "form_factor": null,
       "offer_type": "standard_referral",
       "affiliate": true,
-      "verified_at": "2026-10-27T02:21:00-04:00",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "verified_at": "2026-10-27T09:02:53-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
       "redeem_url": "https://www.ucartz.com/clients/aff.php?aff=5132",
-      "basis": "A100 80GB from $3,128.32/mo"
+      "basis": "2 x A100 80GB server (EPYC 7443P) $3,128.32/mo",
+      "evidence": {
+        "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
+        "quote": "AMD EPYC 7443P, 24 cores / 48 threads 2 x A100 80GB GPU 512 GB RAM 2 x 3.84 TB NVMe 100 TB, 10 Gbps $3,128.32/mo",
+        "checked_at": "2026-10-27T09:02:53-04:00"
+      }
     }
   ],
   "vendors": [
@@ -810,7 +1099,7 @@
       "vendor": "99Stack Cloud",
       "deal_id": "deal-99stack-001",
       "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "billing_granularity": null,
       "extras": {
         "egress": {
@@ -837,7 +1126,7 @@
       "vendor": "Modal",
       "deal_id": "deal-modal-free-001",
       "source_url": "https://modal.com/pricing",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "billing_granularity": "per-second",
       "extras": {
         "egress": {
@@ -864,7 +1153,7 @@
       "vendor": "RunPod",
       "deal_id": "deal-runpod-001",
       "source_url": "https://www.runpod.io/pricing",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "billing_granularity": null,
       "extras": {
         "egress": {
@@ -891,7 +1180,7 @@
       "vendor": "Thunder Compute",
       "deal_id": "deal-thundercompute-001",
       "source_url": "https://www.thundercompute.com/pricing",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "billing_granularity": "per-minute",
       "extras": {
         "egress": {
@@ -918,7 +1207,7 @@
       "vendor": "Ucartz",
       "deal_id": "deal-ucartz-001",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
-      "checked_at": "2026-10-27T02:21:00-04:00",
+      "checked_at": "2026-10-27T09:02:53-04:00",
       "billing_granularity": "monthly",
       "extras": {
         "egress": {

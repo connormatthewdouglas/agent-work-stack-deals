@@ -25,7 +25,11 @@ def _money(x: float) -> str:
 
 
 def _rate_str(r: dict) -> str:
-    return f"${r['price_usd']:g}/hr" if r["unit"] == "hour" else f"${r['price_usd']:,.2f}/mo"
+    if r["unit"] == "hour":
+        return f"${r['price_usd']:g}/hr"
+    if (r.get("gpu_count") or 1) > 1:
+        return f"${r['price_usd']:,.2f}/GPU-mo ({r['gpu_count']}-GPU server ${r['server_price_usd']:,.2f}/mo)"
+    return f"${r['price_usd']:,.2f}/mo"
 
 
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:

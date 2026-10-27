@@ -94,7 +94,8 @@ class StackPricingLoader(FeedLoader):
 
 
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
-               "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id")
+               "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id",
+               "gpu_count", "server_price_usd", "server_hourly_usd", "evidence")
 
 
 def _tokens(s: str) -> list[str]:

@@ -136,7 +136,10 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -
             cost, calc = r["price_usd"] * hours, f"${r['price_usd']:g}/hr x {hours:,g} h"
         else:
             n = max(1, math.ceil(hours / hpm))
-            cost, calc = r["price_usd"] * n, f"${r['price_usd']:g}/mo x {n} server(s), flat regardless of hours"
+            per = r.get("gpu_count") or 1
+            cost, calc = r["price_usd"] * n, (f"${r['price_usd']:g}/GPU-mo x {n} (per GPU; sold as {per}-GPU servers at "
+                                              f"${r.get('server_price_usd') or 0:,.2f}/mo), flat regardless of hours"
+                                              if per > 1 else f"${r['price_usd']:g}/mo x {n} server(s), flat regardless of hours")
         out.append({"vendor": r.get("advertiser"), "plan": f"{r.get('gpu')} ({r.get('tier') or r.get('billing') or ''})".replace(" ()", ""),
                     "deal_id": r.get("deal_id"), "monthly_cost_usd": round(cost, 2), "calc": calc, "quote": r.get("basis"),
                     "source_url": r.get("source_url"), "checked_at": r.get("verified_at"),
