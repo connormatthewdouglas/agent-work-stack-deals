@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Claim batch 2, part 1
+
+- Re-checked pricing claims on 31 deals (99stack to Folderly) against vendor pages: verification dates set where the figures were found; figures that could not be found are marked "(unverified)" and unconfirmed prices are set to unknown.
+
 ## 2026-10-27 — 9Proxy correction
 
 - 9Proxy: removed the 5% invite-discount claim, which nothing on 9proxy.com supports. It is now a standard referral listing with the verified starting prices ($0.018/IP, $0.68/GB, checked 2026-10-27).
