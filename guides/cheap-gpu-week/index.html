@@ -91,28 +91,28 @@
       <h2>1. <a href="https://thelanternworks.com/deals/runpod-001/">RunPod — GPU compute credit referral</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="why"><strong>Why:</strong> On-demand and serverless GPU pods with a referral credit path — fast to spin up for agent workers that need a known GPU SKU for a few hours or days.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/runpod-001/">Deal page</a> · RunPod</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://runpod.io?ref=wuct08gl">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://runpod.io?ref=wuct08gl" data-deal="deal-runpod-001">Redeem / signup</a></p>
     </section>
 
     <section class="deal" id="pick-2">
       <h2>2. <a href="https://thelanternworks.com/deals/vastai-001/">Vast.ai — GPU cloud (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="why"><strong>Why:</strong> Marketplace pricing on community and datacenter GPUs — often the cheapest week when you can tolerate variable hosts and shop by $/hr.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/vastai-001/">Deal page</a> · Vast.ai</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://cloud.vast.ai/?ref_id=760339">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://cloud.vast.ai/?ref_id=760339" data-deal="deal-vastai-001">Redeem / signup</a></p>
     </section>
 
     <section class="deal" id="pick-3">
       <h2>3. <a href="https://thelanternworks.com/deals/novita-001/">Novita AI — GPU inference API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="why"><strong>Why:</strong> GPU inference API for agents that want a hosted model endpoint instead of managing a raw GPU instance.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/novita-001/">Deal page</a> · Novita AI</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://novita.ai/?ref=mgezngr">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://novita.ai/?ref=mgezngr" data-deal="deal-novita-001">Redeem / signup</a></p>
     </section>
 
     <section class="deal" id="pick-4">
       <h2>4. <a href="https://thelanternworks.com/deals/modal-free-001/">Modal — $30/month free compute credit (Starter)</a> <span class="badge public">free / public · non-affiliate</span> <span class="badge public">public / non-affiliate</span></h2>
       <p class="why"><strong>Why:</strong> Public Starter free compute credit (non-affiliate) — useful for prototyping agent jobs before you move heavier workloads to paid GPU providers.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/modal-free-001/">Deal page</a> · Modal</p>
-      <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://modal.com/pricing">Open offer / signup</a></p>
+      <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://modal.com/pricing" data-deal="deal-modal-free-001">Open offer / signup</a></p>
     </section>
 
   </main>
@@ -125,5 +125,29 @@
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
 </body>
 </html>

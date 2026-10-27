@@ -94,7 +94,7 @@
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">ip-geolocation</span> <span class="tag">threat-intel</span> <span class="tag">vpn-detection</span> <span class="tag">proxy-detection</span> <span class="tag">fraud-prevention</span> <span class="tag">api</span> <span class="tag">free-tier</span> <span class="tag">ipgeolocation</span> <span class="tag">affiliate</span></p>
       <p class="instructions">Sign up via the redeem_url referral link to get a free API key (1,000 credits per day, no card). Security, VPN/proxy and Tor detection, company data and bulk lookups need a paid plan, starting with Starter at $19/mo. Use IP data in line with privacy laws and the vendor&#x27;s terms. Only use this authorized referral link.</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://app.ipgeolocation.io/signup?referral=AFF-8VONH0NSIX">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://app.ipgeolocation.io/signup?referral=AFF-8VONH0NSIX" data-deal="deal-ipgeolocation-001">Redeem / signup</a></p>
     </article>
 
 
@@ -104,7 +104,7 @@
       <p class="freshness">Updated Oct 26, 2026</p>
       <p class="tags"><span class="tag">sports-data</span> <span class="tag">api</span> <span class="tag">tennis</span> <span class="tag">websocket</span> <span class="tag">live-tennis-api</span> <span class="tag">affiliate</span></p>
       <p class="instructions">Sign up via the redeem_url affiliate link. Start with the free key (100 requests/day, no card) and upgrade only if you need history, odds or WebSocket. Respect plan rate limits. Only use this authorized affiliate link.</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://affiliates.livetennisapi.com/r/lanternworks?s1=shared-link">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://affiliates.livetennisapi.com/r/lanternworks?s1=shared-link" data-deal="deal-livetennisapi-001">Redeem / signup</a></p>
     </article>
 
 
@@ -114,7 +114,7 @@
       <p class="freshness">Updated Oct 26, 2026</p>
       <p class="tags"><span class="tag">data-api</span> <span class="tag">competitor-monitoring</span> <span class="tag">competitive-intelligence</span> <span class="tag">api</span> <span class="tag">mcp</span> <span class="tag">meertrack</span> <span class="tag">affiliate</span></p>
       <p class="instructions">Sign up via the redeem_url affiliate link and add the competitors to track. Pull change data as CSV/JSON, through the REST API (meertrack.com/developers/api), or connect AI tools through the meertrack MCP server (github.com/meertrack/meertrack-mcp). Pricing is per tracked competitor. Only use this authorized affiliate link.</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://meertrack.com?via=lanternworks">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://meertrack.com?via=lanternworks" data-deal="deal-meertrack-001">Redeem / signup</a></p>
     </article>
 
 
@@ -124,7 +124,7 @@
       <p class="freshness">Updated Oct 26, 2026</p>
       <p class="tags"><span class="tag">pdf</span> <span class="tag">document-parsing</span> <span class="tag">data-extraction</span> <span class="tag">ocr</span> <span class="tag">api</span> <span class="tag">pdfco</span> <span class="tag">affiliate</span></p>
       <p class="instructions">Sign up via the redeem_url affiliate link to get an API key (free trial available). Estimate credit usage with the calculator on pdf.co/pricing before choosing a plan. Only process documents you are authorized to handle. Only use this authorized affiliate link.</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://app.pdf.co/?via=lanternworks">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://app.pdf.co/?via=lanternworks" data-deal="deal-pdfco-001">Redeem / signup</a></p>
     </article>
 
 
@@ -134,7 +134,7 @@
       <p class="freshness">Updated Oct 26, 2026</p>
       <p class="tags"><span class="tag">market-data</span> <span class="tag">financial-data</span> <span class="tag">api</span> <span class="tag">websocket</span> <span class="tag">mcp</span> <span class="tag">realmarketapi</span> <span class="tag">affiliate</span></p>
       <p class="instructions">Sign up via the redeem_url affiliate link. Start on the free plan (no credit card) and upgrade only for more symbols, history or quota. Market data is not financial advice; respect plan quotas. Only use this authorized affiliate link.</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://realmarketapi.com?via=lanternworks">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://realmarketapi.com?via=lanternworks" data-deal="deal-realmarketapi-001">Redeem / signup</a></p>
     </article>
 
   </main>
@@ -146,5 +146,29 @@
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
 </body>
 </html>

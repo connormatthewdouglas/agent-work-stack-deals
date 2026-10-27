@@ -56,7 +56,7 @@ def analytics_snippet() -> str:
     if not re.fullmatch(r"[A-Za-z0-9_-]{8,64}", token):
         raise SystemExit("site_config.json: CF_BEACON_TOKEN has unexpected characters")
     beacon = json.dumps({"token": token})
-    return f"""  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{beacon}'></script>\n"""
+    return f"""  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{beacon}'></script>\n""" + site_ui.TRACK_JS
 # Compliance gate (private, outside the repo; owned by Wick). When present, only deals whose
 # registry status is "approved" are published; others move to a private held file and are
 # restored automatically once approved. When absent (e.g. CI), the feed is used as-is.
@@ -941,7 +941,7 @@ def cta_html(deal: dict) -> str:
         extra += f' · code <code>{esc(deal["promo_code"])}</code>'
     if deal.get("claim_note"):
         extra += f' · <em>{esc(deal["claim_note"])}</em>'
-    return f'<a class="cta" {rel} href="{esc(url)}">{label}</a>{extra}'
+    return f'<a class="cta" {rel} href="{esc(url)}" data-deal="{esc(deal["id"])}">{label}</a>{extra}'
 
 
 def json_ld(deal: dict, page_url: str) -> str:
@@ -1580,11 +1580,21 @@ def write_changelog() -> Path:
     return out_dir / "index.html"
 
 
+def write_404() -> None:
+    """GitHub Pages 404. Virtual analytics routes (/e/...) only exist in history; if one is reloaded, go back.
+    No analytics beacon here, so a reload never counts twice."""
+    body = (f'  <h1>Page not found</h1>\n  <p><a href="{BASE}/">Browse all deals</a> or use the links above.</p>\n'
+            '  <script>if(location.pathname.startsWith("/e/")){history.length>1?history.back():location.replace("/")}</script>\n')
+    html_doc = page_shell("Page not found — Lantern Works", "Page not found.", f"{BASE}/404.html", body, robots="noindex")
+    (ROOT / "404.html").write_text(html_doc.replace(analytics_snippet(), ""), encoding="utf-8")
+
+
 def ensure_robots() -> None:
     path = ROOT / "robots.txt"
     desired = (
         "User-agent: *\n"
         "Allow: /\n"
+        "Disallow: /e/\n"
         f"Sitemap: {BASE}/sitemap.xml\n"
     )
     path.write_text(desired, encoding="utf-8")
@@ -1643,6 +1653,7 @@ def main() -> None:
     write_index(deals, feed_updated)
     patch_lanternworks()
     ensure_robots()
+    write_404()
     write_for_agents(deals, feed)
     write_held_stubs()
     api_path = write_api_v1()

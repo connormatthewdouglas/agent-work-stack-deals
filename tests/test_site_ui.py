@@ -29,3 +29,18 @@ def test_site_nav_everywhere():
             assert href in nav, (p, href)
         assert nav.count('aria-current=') == 1, p
         assert 'id="content"' in t, p
+
+
+def test_measurement_is_cookieless_and_aggregate():
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import site_ui
+    js = site_ui.TRACK_JS.lower()
+    for bad in ("cookie", "localstorage", "sessionstorage", "fetch(", "xmlhttprequest", "sendbeacon", "f-q\").value"):
+        assert bad not in js, bad
+    home = (ROOT / "index.html").read_text()
+    assert "history.replacestate" not in home.lower()  # URL rewrites would count as extra page views
+    ids = set(re.findall(r'data-deal="([^"]+)"', home))
+    assert ids and all(re.fullmatch(r"[a-z0-9-]+", i) for i in ids)
+    assert "Disallow: /e/" in (ROOT / "robots.txt").read_text()
+    assert "cloudflareinsights" not in (ROOT / "404.html").read_text()

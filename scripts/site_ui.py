@@ -76,7 +76,7 @@ def filter_form_html(categories: list[str], offer_types: list[str]) -> str:
     <label>Max price (USD) <input id="f-max" type="number" min="0" step="any" inputmode="decimal" placeholder="any"></label>
     <label class="check"><input id="f-free" type="checkbox"> Free tier only</label>
     <label class="check"><input id="f-ver" type="checkbox"> Verified only</label>
-    <p class="wide" id="f-count" aria-live="polite" style="margin:0"></p>
+    <p class="wide" style="margin:0"><span id="f-count" aria-live="polite"></span> · <a id="f-link" href="./">Link to these results</a></p>
   </form>
   <noscript><p class="meta">Search, filters and side-by-side compare need JavaScript. All deals are listed below by category, and the <a href="ai-agent-tool-deals/">comparison pages</a> work without it.</p></noscript>
   <section id="cmp-view" hidden aria-labelledby="cmp-h" tabindex="-1"><h2 id="cmp-h">Side-by-side comparison</h2><div id="cmp-table" style="overflow-x:auto"></div></section>
@@ -107,10 +107,9 @@ HOME_JS = r"""  <script>
     const p=new URLSearchParams();
     for(const [k,id] of Object.entries(map)) if($(id).value) p.set(k,$(id).value);
     if(fr)p.set("free","1"); if(ve)p.set("verified","1");
-    history.replaceState(null,"",(p.toString()?"?"+p:location.pathname)+location.hash);
-    document.dispatchEvent(new CustomEvent("lw:search",{detail:{active:p.toString()!==""}}));
+    $("f-link").href=p.toString()?"?"+p:"./";
   }
-  form.addEventListener("input",apply); apply();
+  let t; form.addEventListener("input",()=>{ apply(); clearTimeout(t); t=setTimeout(()=>{ if($("f-q").value.trim()) document.dispatchEvent(new CustomEvent("lw:search",{detail:{active:true}})); },1200); }); apply();
   // compare up to 3
   const picked=[];
   for(const c of cards){
@@ -133,8 +132,40 @@ HOME_JS = r"""  <script>
       ["Free tier",c=>c.dataset.free==="1"?"Yes":"Not verified"],["Verified",c=>c.dataset.verifiedAt?esc(c.dataset.verifiedAt.slice(0,10)):"<em>unverified</em>"],
       ["Link type",c=>c.dataset.affiliate==="true"?"affiliate (rel=sponsored)":"public"],["Details",c=>esc(c.querySelector(".instructions")?.textContent||"")]];
     $("cmp-table").innerHTML=`<table><thead><tr><td></td>${picked.map(c=>`<th scope="col">${esc(c.dataset.advertiser)}</th>`).join("")}</tr></thead><tbody>${rows.map(([h,f])=>`<tr><th scope="row">${h}</th>${picked.map(c=>`<td>${f(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    document.dispatchEvent(new CustomEvent("lw:event",{detail:"compare"}));
     $("cmp-view").hidden=false; $("cmp-view").focus(); $("cmp-view").scrollIntoView({block:"start"});
   };
+})();
+  </script>
+"""
+
+
+# Privacy-safe usage counts through the existing Cloudflare Web Analytics beacon, which has no custom events
+# but counts SPA route changes as page views (history.pushState / popstate). Each event becomes one aggregate
+# page view of a virtual path: /e/out/<deal-id>/, /e/search/, /e/calculator/, /e/compare/. No cookies,
+# storage, identifiers or query values are sent; search terms are never recorded. Emitted only with the beacon.
+TRACK_JS = r"""  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
 })();
   </script>
 """

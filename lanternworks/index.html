@@ -182,6 +182,30 @@ python3 query_deals.py --updated-since 2026-10-23T00:00:00-04:00</pre>
   </footer>
 <!-- cf-analytics -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
 <!-- /cf-analytics -->
 </body>
 </html>

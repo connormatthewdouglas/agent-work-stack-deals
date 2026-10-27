@@ -66,7 +66,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     <label>Min VRAM (GB) <select id="vram"><option value="">Any</option><option>24</option><option>48</option><option>80</option></select></label>
     <label><input id="flat" type="checkbox" checked> Include flat monthly servers</label>
   </form>
-  <p id="summary" aria-live="polite"></p>
+  <p><span id="summary" aria-live="polite"></span> <a id="permalink" href="?">Link to this estimate</a></p>
   <div style="overflow-x:auto"><table class="howto" id="results"><thead><tr><th>Est. / month</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Label</th></tr></thead><tbody></tbody></table></div>
   <noscript><p>The calculator needs JavaScript. The same data is at <a href="{api}">{api}</a>.</p></noscript>
 
@@ -82,7 +82,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <h2>Not priced yet</h2>
   <p>These GPU deals have no verified, structured GPU price in the feed, so they're left out instead of guessed: {unpriced}.</p>
   <h2>For agents</h2>
-  <p>Machine-readable rates: <a href="{api}">{api}</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). The URL keeps state, e.g. <code>?hours=300&amp;gpu=A100</code>.</p>
+  <p>Machine-readable rates: <a href="{api}">{api}</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). Inputs can be preset in the URL, e.g. <code>?hours=300&amp;gpu=A100</code>.</p>
   <script>
   const R={data_js}, H={HOURS_PER_MONTH};
   const $=id=>document.getElementById(id), fmt=n=>"$"+n.toLocaleString("en-US",{{minimumFractionDigits:2,maximumFractionDigits:2}});
@@ -96,12 +96,13 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
       if(r.unit==="hour") return {{...r,cost:r.price_usd*h*g,calc:`$${{r.price_usd}}/hr × ${{h}} h × ${{g}}`}};
       const n=Math.max(1,Math.ceil(h/H))*g; return {{...r,cost:r.price_usd*n,calc:`$${{r.price_usd}}/mo × ${{n}} server(s)`}};
     }}).sort((a,b)=>a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
-    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="nofollow sponsored noopener">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="nofollow sponsored noopener" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
     $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest among tracked providers: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";
     const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
-    history.replaceState(null,"","?"+p);
+    $("permalink").href="?"+p;
   }}
   $("calc").addEventListener("input",run); run();
+  $("calc").addEventListener("input",()=>document.dispatchEvent(new CustomEvent("lw:event",{{detail:"calculator"}})),{{once:true}});
   </script>
 """
     out = ROOT / PAGE_PATH / "index.html"

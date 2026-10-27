@@ -91,35 +91,35 @@
       <h2>1. <a href="https://thelanternworks.com/deals/scrapedo-001/">Scrape.do — scrape/unblock API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="why"><strong>Why:</strong> Simple scrape/unblock API with strong agent-friendly docs — a solid default when you need JS rendering and anti-bot handling without assembling proxies yourself.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/scrapedo-001/">Deal page</a> · Scrape.do</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrape.do?fpr=lanternworks">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrape.do?fpr=lanternworks" data-deal="deal-scrapedo-001">Redeem / signup</a></p>
     </section>
 
     <section class="deal" id="pick-2">
       <h2>2. <a href="https://thelanternworks.com/deals/scrapingdog-001/">Scrapingdog — scrape/unblock API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="why"><strong>Why:</strong> Budget-friendly scrape/unblock API that covers SERP and general page fetch — useful when agents need many cheap requests with a single integration.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/scrapingdog-001/">Deal page</a> · Scrapingdog</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.scrapingdog.com/?deal=lanternworks">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.scrapingdog.com/?deal=lanternworks" data-deal="deal-scrapingdog-001">Redeem / signup</a></p>
     </section>
 
     <section class="deal" id="pick-3">
       <h2>3. <a href="https://thelanternworks.com/deals/scrapeops-001/">ScrapeOps — scrape proxy routing (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="why"><strong>Why:</strong> Proxy routing and scrape ops tooling that helps agents fail over across providers instead of hard-coding one unblock endpoint.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/scrapeops-001/">Deal page</a> · ScrapeOps</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrapeops.io?fpr=lanternworks">Redeem / signup</a> · code <code>START10-FS3Lvdbr</code></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrapeops.io?fpr=lanternworks" data-deal="deal-scrapeops-001">Redeem / signup</a> · code <code>START10-FS3Lvdbr</code></p>
     </section>
 
     <section class="deal" id="pick-4">
       <h2>4. <a href="https://thelanternworks.com/deals/scrapingant-001/">ScrapingAnt — web scraping API (browser + unblock)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="why"><strong>Why:</strong> Browser-backed scraping API for pages that need a real rendering stack — good when headless fetch alone is not enough.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/scrapingant-001/">Deal page</a> · ScrapingAnt</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrapingant.com/?ref=mzmwogv">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrapingant.com/?ref=mzmwogv" data-deal="deal-scrapingant-001">Redeem / signup</a></p>
     </section>
 
     <section class="deal" id="pick-5">
       <h2>5. <a href="https://thelanternworks.com/deals/proxyscrape-001/">ProxyScrape — proxy API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="why"><strong>Why:</strong> Proxy layer — pair with a scrape API when you want to bring your own IPs or rotate residential/datacenter pools.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/proxyscrape-001/">Deal page</a> · ProxyScrape</p>
-      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxyscrape.com/?ref=lanternworks">Redeem / signup</a></p>
+      <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxyscrape.com/?ref=lanternworks" data-deal="deal-proxyscrape-001">Redeem / signup</a></p>
     </section>
 
   </main>
@@ -132,5 +132,29 @@
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
 </body>
 </html>

@@ -89,7 +89,7 @@
     <p class="freshness">Updated Oct 26, 2026</p>
     <p class="verified">Verified-on: 2026-10-26</p>
     <p class="instructions">Sign up via the redeem_url affiliate link (14-day free trial). Follow anti-spam laws (CAN-SPAM, GDPR, CASL) and mailbox provider and LinkedIn policies: only contact prospects you have a lawful basis to reach, include an unsubscribe option, and honor opt-outs. Confirm current prices on woodpecker.co/pricing. Only use this authorized affiliate link.</p>
-    <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://woodpecker.co/?red=lanternworks">Redeem / signup</a></p>
+    <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://woodpecker.co/?red=lanternworks" data-deal="deal-woodpecker-001">Redeem / signup</a></p>
     
     <aside class="gotchas" aria-label="Before you redeem">
       <h2>Before you redeem</h2>
@@ -125,5 +125,29 @@
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
 </body>
 </html>
