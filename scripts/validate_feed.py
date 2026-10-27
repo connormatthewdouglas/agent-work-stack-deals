@@ -68,8 +68,8 @@ def check_schema(feed: dict) -> None:
         if d.get("offer_type") not in gen.OFFER_TYPES:
             err(f"{d.get('id')}.offer_type missing/invalid: {d.get('offer_type')!r} (allowed: {', '.join(gen.OFFER_TYPES)})")
         # Truthfulness: nothing may claim verification without a verified_at timestamp.
-        if d.get("offer_type") == "verified_discount" and not d.get("verified_at"):
-            err(f"{d.get('id')}: offer_type verified_discount requires verified_at (re-verify or use listed_discount)")
+        if d.get("offer_type") in ("verified_discount", "free_tier", "trial") and not d.get("verified_at") and not d.get("example"):
+            err(f"{d.get('id')}: offer_type {d.get('offer_type')} claims verification and requires verified_at (re-verify or use listed_discount/standard_referral)")
         page = ROOT / "deals" / gen.slug_for(d["id"]) / "index.html"
         if page.exists():
             html_text = page.read_text(encoding="utf-8")

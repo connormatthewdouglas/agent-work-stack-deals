@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Claim audit fixes
+
+- Re-checked flagged claims against the vendor pages. Bright Data residential: removed the unconfirmed first-deposit-match claim; the RESIGB50 50% off coupon is confirmed. Kyma API: corrected the GPT-OSS 120B example rates to $0.0473/M input and $0.2303/M output. BrowserAct: monthly and yearly plan prices confirmed (added Advanced $96/mo yearly).
+- Verification labels: verified_at is now set only where a claim check is recorded. Unverified trial offers (AgentMail startup program, Fly.io, Hyperbrowser) are relabelled listed_discount. The validator now rejects verified_discount, free_tier and trial offers without verified_at.
+- 9Proxy: docs link now points to 9proxy.com/pricing.
+
 ## 2026-10-27 — Clore.ai
 
 - Added [Clore.ai](https://thelanternworks.com/deals/cloreai-001/) to the GPU hub. It is a decentralized GPU marketplace with per-hour rentals; hosts set the prices.

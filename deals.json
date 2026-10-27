@@ -4,7 +4,7 @@
   "title": "Agent work-stack deal feed",
   "description": "Public read-only JSON feed of agent-oriented offers for compute, unblock/scraping, search, email, hosting, SEO, templates, and AI agents. Includes standard signups (some via affiliate links, marked affiliate: true), verified public free tiers, and vendor-published discounts. Unknown prices are null.",
   "access": "public-read-only",
-  "updated_at": "2026-10-27T09:30:00-04:00",
+  "updated_at": "2026-10-27T10:30:00-04:00",
   "query": {
     "how": "GET this JSON (public, no auth). Filter locally with the contract below, or use query_deals.py / the MCP sketch in-repo.",
     "feed_url": "https://thelanternworks.com/deals.json",
@@ -74,8 +74,8 @@
       "redeem_url": "https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6",
       "expires_at": null,
       "agent_instructions": "Sign up via the invite link (code 9P_8KsTzWv6 is pre-filled) for 5% off purchases. Starting prices: $0.018/IP or $0.68/GB; confirm current plan prices on 9proxy.com before buying.",
-      "docs_url": "https://www.proxyrack.com/pricing/",
-      "updated_at": "2026-10-25T18:05:00-04:00",
+      "docs_url": "https://9proxy.com/pricing",
+      "updated_at": "2026-10-27T10:30:00-04:00",
       "source_url": "https://9proxy.com/affiliate",
       "claim_note": "Referees get 5% off purchases with invite code 9P_8KsTzWv6 (stated on 9proxy.com/affiliate).",
       "pricing_note": "Starting from $0.018/IP or $0.68/GB (per 9proxy.com/pricing, checked 2026-10-25).",
@@ -119,6 +119,36 @@
       "example": false,
       "affiliate": false,
       "list_price_usd": null,
+      "promo_code": "RESIGB50",
+      "expires_at": "2026-11-30T23:59:59-04:00",
+      "id": "deal-brightdata-resi-001",
+      "title": "Bright Data — Residential proxies 50% off 3 mo (RESIGB50)",
+      "category": "unblock",
+      "tags": [
+        "proxy",
+        "residential",
+        "brightdata",
+        "coupon",
+        "public",
+        "non-affiliate"
+      ],
+      "advertiser": "Bright Data",
+      "price_usd": null,
+      "unit": "50% off residential proxies for 3 months",
+      "redeem_url": "https://brightdata.com/pricing/proxy-network/residential-proxies",
+      "source_url": "https://brightdata.com/coupons",
+      "agent_instructions": "Create Bright Data account. Apply promo_code RESIGB50 in Billing for residential proxies (3 months). Do not use Bright Data 25% API/Unlocker/SERP coupon tiles.",
+      "offer_type": "verified_discount",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": "2026-10-27T10:30:00-04:00",
+      "verified_at": "2026-10-27T10:14:40-04:00"
+    },
+    {
+      "agent_only": false,
+      "example": false,
+      "affiliate": false,
+      "list_price_usd": null,
       "promo_code": "DISCOUNT30",
       "expires_at": null,
       "id": "deal-oxylabs-001",
@@ -142,6 +172,34 @@
       "billing_period": null,
       "updated_at": null,
       "verified_at": "2026-10-27T01:45:00-04:00"
+    },
+    {
+      "id": "deal-proxystore-001",
+      "title": "Proxy-Store — proxies (affiliate)",
+      "category": "unblock",
+      "tags": [
+        "proxies",
+        "scraping",
+        "unblock",
+        "proxy-store",
+        "affiliate"
+      ],
+      "agent_only": false,
+      "example": false,
+      "affiliate": true,
+      "advertiser": "Proxy-Store",
+      "price_usd": null,
+      "unit": "paid proxy plans; referred users get 5% off first order",
+      "list_price_usd": null,
+      "promo_code": "yfmhOSr6",
+      "redeem_url": "https://proxy-store.com/?ref=183166",
+      "expires_at": null,
+      "agent_instructions": "Sign up via the redeem_url for Proxy-Store proxies. Optional coupon for referred users: yfmhOSr6 (5% first order).",
+      "offer_type": "verified_discount",
+      "currency": "USD",
+      "billing_period": null,
+      "updated_at": "2026-10-27T10:30:00-04:00",
+      "verified_at": "2026-10-27T10:14:40-04:00"
     },
     {
       "agent_only": false,
@@ -1413,10 +1471,10 @@
       "source_url": "https://www.agentmail.to/startups",
       "claim_note": "apply-not-code",
       "agent_instructions": "Apply at AgentMail /startups. Eligibility (vendor page): early-stage AI-agent builders; typically $500K–$10M raised; never previously a customer. No public promo code. Wait for approval email.",
-      "offer_type": "trial",
+      "offer_type": "listed_discount",
       "currency": "USD",
       "billing_period": null,
-      "updated_at": null,
+      "updated_at": "2026-10-27T10:30:00-04:00",
       "verified_at": null
     },
     {
@@ -1839,36 +1897,6 @@
       "verified_at": "2026-10-26T09:32:00-04:00"
     },
     {
-      "agent_only": false,
-      "example": false,
-      "affiliate": false,
-      "list_price_usd": null,
-      "promo_code": "RESIGB50",
-      "expires_at": "2026-11-30T23:59:59-04:00",
-      "id": "deal-brightdata-resi-001",
-      "title": "Bright Data — Residential proxies 50% off 3 mo (RESIGB50)",
-      "category": "unblock",
-      "tags": [
-        "proxy",
-        "residential",
-        "brightdata",
-        "coupon",
-        "public",
-        "non-affiliate"
-      ],
-      "advertiser": "Bright Data",
-      "price_usd": null,
-      "unit": "50% off residential proxies for 3 months; first-deposit match up to $500 (new accounts)",
-      "redeem_url": "https://brightdata.com/pricing/proxy-network/residential-proxies",
-      "source_url": "https://brightdata.com/coupons",
-      "agent_instructions": "Create Bright Data account. Apply promo_code RESIGB50 in Billing for residential proxies (3 months). New accounts may get first-deposit match up to $500. Do not use Bright Data 25% API/Unlocker/SERP coupon tiles.",
-      "offer_type": "listed_discount",
-      "currency": "USD",
-      "billing_period": null,
-      "updated_at": null,
-      "verified_at": null
-    },
-    {
       "id": "deal-browseract-001",
       "title": "BrowserAct — no-code browser agents for web scraping and automation, with MCP (affiliate)",
       "category": "unblock",
@@ -1892,14 +1920,14 @@
       "promo_code": null,
       "redeem_url": "https://browseract.com?fpr=lanternworks",
       "docs_url": "https://www.browseract.com",
-      "updated_at": "2026-10-24T17:52:00-04:00",
+      "updated_at": "2026-10-27T10:30:00-04:00",
       "expires_at": null,
       "agent_instructions": "Build and run browser agents for scraping and web automation (or call them via MCP) through BrowserAct's redeem_url.",
-      "pricing_note": "Free (200 signup credits); Basic $16/mo, Essential $70/mo, Advanced $120/mo; ~20% off yearly (Basic $13/mo, Essential $56/mo) per browseract.com/pricing.",
+      "pricing_note": "Free (200 signup credits); monthly billing: Basic $16/mo, Essential $70/mo, Advanced $120/mo; yearly billing (-20%): Basic $13/mo, Essential $56/mo, Advanced $96/mo, per browseract.com/pricing (checked 2026-10-27).",
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-24T17:52:00-04:00"
+      "verified_at": "2026-10-27T10:30:00-04:00"
     },
     {
       "id": "deal-buildship-001",
@@ -2562,8 +2590,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "updated_at": null,
-      "verified_at": null
+      "updated_at": "2026-10-27T10:30:00-04:00",
+      "verified_at": "2026-10-27T10:14:40-04:00"
     },
     {
       "id": "deal-flowlu-001",
@@ -2623,10 +2651,10 @@
       "redeem_url": "https://fly.io/docs/about/free-trial/",
       "source_url": "https://fly.io/docs/about/pricing/",
       "agent_instructions": "Create a Fly.io org and start the free trial without a card. Track Trial Status; adding a card ends the trial. After trial there is no monthly free allowance — plan for paid usage.",
-      "offer_type": "trial",
+      "offer_type": "listed_discount",
       "currency": "USD",
       "billing_period": null,
-      "updated_at": null,
+      "updated_at": "2026-10-27T10:30:00-04:00",
       "verified_at": null
     },
     {
@@ -3029,10 +3057,10 @@
       "redeem_url": "https://www.hyperbrowser.ai/pricing",
       "source_url": "https://www.hyperbrowser.ai/pricing",
       "agent_instructions": "Sign up at Hyperbrowser. Use free 5,000 credits; confirm current free allowance on pricing.",
-      "offer_type": "trial",
+      "offer_type": "listed_discount",
       "currency": "USD",
       "billing_period": null,
-      "updated_at": null,
+      "updated_at": "2026-10-27T10:30:00-04:00",
       "verified_at": null
     },
     {
@@ -3380,10 +3408,10 @@
       "agent_instructions": "Sign up via the redeem_url affiliate link. After email verification you get a $0.50 credit for eligible free-tier models, with no card required. Point any OpenAI-compatible client at Kyma and choose a model; per-model rates are on kymaapi.com/pricing. There is no subscription; you top up a balance. Only use this authorized affiliate link.",
       "docs_url": "https://kymaapi.com/pricing",
       "source_url": "https://kymaapi.com/pricing",
-      "pricing_note": "Per kymaapi.com/pricing (checked 2026-10-26): pay per use, no subscription, one balance for 119 models (chat, reasoning, image, video, audio). $0.50 free signup credit after email verification for eligible models (48 of 119). Example rates: GPT-OSS 120B $0.0494/M input, $0.2406/M output.",
+      "pricing_note": "Per kymaapi.com/pricing (checked 2026-10-27): pay per use, no subscription, one balance for 119 models (chat, reasoning, image, video, audio). $0.50 free signup credit after email verification for eligible models (48 of 119). Example rates: GPT-OSS 120B $0.0473/M input, $0.2303/M output.",
       "offer_type": "standard_referral",
-      "updated_at": "2026-10-27T01:55:00-04:00",
-      "verified_at": "2026-10-26T18:05:00-04:00",
+      "updated_at": "2026-10-27T10:30:00-04:00",
+      "verified_at": "2026-10-27T10:30:00-04:00",
       "signup": "manual_only",
       "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion."
     },
@@ -4443,34 +4471,6 @@
       "verified_at": null
     },
     {
-      "id": "deal-proxystore-001",
-      "title": "Proxy-Store — proxies (affiliate)",
-      "category": "unblock",
-      "tags": [
-        "proxies",
-        "scraping",
-        "unblock",
-        "proxy-store",
-        "affiliate"
-      ],
-      "agent_only": false,
-      "example": false,
-      "affiliate": true,
-      "advertiser": "Proxy-Store",
-      "price_usd": null,
-      "unit": "paid proxy plans; referred users get 5% off first order",
-      "list_price_usd": null,
-      "promo_code": "yfmhOSr6",
-      "redeem_url": "https://proxy-store.com/?ref=183166",
-      "expires_at": null,
-      "agent_instructions": "Sign up via the redeem_url for Proxy-Store proxies. Optional coupon for referred users: yfmhOSr6 (5% first order).",
-      "offer_type": "listed_discount",
-      "currency": "USD",
-      "billing_period": null,
-      "updated_at": null,
-      "verified_at": null
-    },
-    {
       "id": "deal-proxy6-001",
       "title": "PROXY6 — personal anonymous proxies (affiliate)",
       "category": "unblock",
@@ -5142,8 +5142,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "updated_at": null,
-      "verified_at": null
+      "updated_at": "2026-10-27T10:30:00-04:00",
+      "verified_at": "2026-10-27T10:14:40-04:00"
     },
     {
       "id": "deal-scrapingant-001",
@@ -5201,8 +5201,8 @@
       "offer_type": "trial",
       "currency": "USD",
       "billing_period": null,
-      "updated_at": null,
-      "verified_at": null
+      "updated_at": "2026-10-27T10:30:00-04:00",
+      "verified_at": "2026-10-27T10:14:40-04:00"
     },
     {
       "id": "deal-scrapingdog-001",
