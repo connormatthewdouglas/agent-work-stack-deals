@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — MCP 0.3.2
+
+- lantern-works-deals-mcp 0.3.2: `optimize_stack` deal links now point at the real deal pages (`/deals/<slug>/`, e.g. `/deals/exa-001/`) instead of 404ing. The site's stack optimizer had the same bug and is fixed. Vast.ai A100 SXM 80 GB is held out of rankings until its marketplace has at least 5 verified offers again.
+
 ## 2026-10-27 — Claim batch 2, part 1
 
 - Re-checked pricing claims on 31 deals (99stack to Folderly) against vendor pages: verification dates set where the figures were found; figures that could not be found are marked "(unverified)" and unconfirmed prices are set to unknown.

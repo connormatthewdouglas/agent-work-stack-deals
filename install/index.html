@@ -91,8 +91,8 @@
 <div id="content">
   <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/for-agents/">For agents</a> › Install</nav>
   <h1>Add Lantern Works to your agent</h1>
-  <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: <code>search_deals</code>, <code>compare_deals</code>, <code>get_deal</code>, <code>compare_gpu_prices</code>.</p>
-  <p class="meta">Tested 2026-10-27: a clean <code>uvx lantern-works-deals-mcp</code> (0.3.1) initializes over stdio and all 4 tools return results.</p>
+  <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: <code>search_deals</code>, <code>compare_deals</code>, <code>get_deal</code>, <code>compare_gpu_prices</code>, <code>optimize_stack</code>.</p>
+  <p class="meta">Tested 2026-10-27: a clean <code>uvx lantern-works-deals-mcp</code> (0.3.2) initializes over stdio and all 5 tools return results.</p>
 
   <h2>Claude Code</h2>
   <pre>claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp</pre>
@@ -133,7 +133,7 @@
 }</pre>
 
   <h2>Cline</h2>
-  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested 2026-10-27: this exact config started the server and <code>tools/list</code> returned all 4 tools):</p>
+  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested 2026-10-27: this exact config started the server and <code>tools/list</code> returned all 5 tools):</p>
   <pre>{
   &quot;mcpServers&quot;: {
     &quot;lantern-works-deals&quot;: {
