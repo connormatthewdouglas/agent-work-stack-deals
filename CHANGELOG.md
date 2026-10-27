@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Emailit
+
+- Added Emailit (email API/SMTP; Pro $20/mo billed yearly; +5,000 bonus monthly credits with code LANTERNWORKS) to the email APIs hub; pricing verified on emailit.com.
+
 ## 2026-10-26 — LLM Socket, Originality.ai
 
 - Added LLM Socket (AI-search visibility for Shopify; 7-day free trial, from $9/mo) to the SEO hub; trial and pricing verified on llmsocket.co.
