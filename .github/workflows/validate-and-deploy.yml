@@ -1,0 +1,87 @@
+name: Validate feed and deploy Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 11 * * *"   # daily link + gist-parity check (does not deploy)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "jsonschema[format]==4.*"
+      - name: Generator runs cleanly (guard + public-output leak scan, no private file in CI)
+        run: |
+          python3 scripts/generate_seo_pages.py
+          # deals.json, api/v1 and sitemap must match what is committed (HTML may differ by freshness date)
+          git diff --exit-code -- deals.json api/v1/deals.json sitemap.xml schema.json
+      - name: Schema, private-field leak, api/v1 parity, sitemap, old-host hardcode checks
+        run: python3 scripts/validate_feed.py
+      - name: Gist mirror parity
+        run: python3 scripts/validate_feed.py --gist
+      - name: Redeem URL link check (advisory; flaky vendors such as softshellweb 5xx never fail the job)
+        continue-on-error: true
+        run: python3 scripts/validate_feed.py --links
+
+  test:
+    # MCP server + core unit/tool tests (offline: LANTERN_DEALS_FILE points at the committed feed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r mcp_server/requirements.txt pytest "jsonschema[format]==4.*"
+      - name: pytest (core + MCP tools)
+        env:
+          LANTERN_DEALS_FILE: api/v1/deals.json
+        run: python3 -m pytest -q tests/test_core.py tests/test_server.py
+      - name: Feed validator
+        run: python3 scripts/validate_feed.py
+      - name: Package builds and installs
+        run: |
+          pip install build
+          python3 -m build
+          pip install dist/*.whl
+          python3 -c "import lantern_works_deals_mcp.server"
+
+  deploy:
+    # Deploy is gated on validation. Only from main pushes / manual runs.
+    needs: [validate, test]
+    # Pages currently uses the legacy branch deploy (main, /). This job only runs once the repo
+    # variable PAGES_DEPLOY_VIA_ACTIONS is 'true' AND Pages source is switched to "GitHub Actions".
+    if: vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      # Same Jekyll build GitHub's branch deploy used, so URLs are unchanged. CNAME is copied into _site.
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - uses: actions/upload-pages-artifact@v3
+      - id: deployment
+        uses: actions/deploy-pages@v4
