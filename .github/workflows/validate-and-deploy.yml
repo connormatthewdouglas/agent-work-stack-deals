@@ -38,8 +38,8 @@ jobs:
         continue-on-error: true
         run: python3 scripts/validate_feed.py --links
 
-  test:
-    # MCP server + core unit/tool tests (offline: LANTERN_DEALS_FILE points at the committed feed)
+  tests:
+    # ALL tests (tests/ = core, MCP server, GPU) + SKILL.md + packaging (offline: LANTERN_DEALS_FILE points at the committed feed)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -47,11 +47,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r mcp_server/requirements.txt pytest "jsonschema[format]==4.*"
-      - name: pytest (core + MCP tools)
+      - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
+      - name: pytest (entire tests/ directory incl. test_gpu.py)
         env:
           LANTERN_DEALS_FILE: api/v1/deals.json
-        run: python3 -m pytest -q tests/test_core.py tests/test_server.py
+        run: python3 -m pytest -q tests
+      - name: URL migration / key paths
+        run: python3 scripts/test_url_migration.py
+      - name: SKILL.md frontmatter parses; repo /SKILL.md copy matches source
+        run: python3 scripts/check_skill.py
       - name: Feed validator
         run: python3 scripts/validate_feed.py
       - name: Package builds and installs
@@ -61,11 +65,35 @@ jobs:
           pip install dist/*.whl
           python3 -c "import lantern_works_deals_mcp.server"
 
+  pypi-install:
+    # Clean-environment install of the PUBLISHED package from PyPI (fresh venv + uvx), all 3 tools over stdio
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+      - name: PyPI clean install + stdio tool calls
+        run: python3 scripts/test_pypi_install.py --uvx
+
+  live-skill:
+    # Live /SKILL.md must return 200 and its frontmatter must match source. Advisory on PRs (live lags deploy).
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pyyaml
+      - run: python3 scripts/check_skill.py --live
+
   deploy:
     # Deploy is gated on validation. Only from main pushes / manual runs.
-    needs: [validate, test]
-    # Pages currently uses the legacy branch deploy (main, /). This job only runs once the repo
-    # variable PAGES_DEPLOY_VIA_ACTIONS is 'true' AND Pages source is switched to "GitHub Actions".
+    needs: [validate, tests, pypi-install]
+    # Pages source = "GitHub Actions" (build_type=workflow) with repo variable PAGES_DEPLOY_VIA_ACTIONS=true,
+    # so nothing reaches the live site unless validate + tests + pypi-install pass. Rollback: set Pages
+    # build_type back to legacy (branch main, /) and the variable to false.
     if: vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
