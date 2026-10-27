@@ -30,6 +30,8 @@ jobs:
           python3 scripts/generate_seo_pages.py
           # deals.json, api/v1 and sitemap must match what is committed (HTML may differ by freshness date)
           git diff --exit-code -- deals.json api/v1/deals.json sitemap.xml schema.json
+      - name: Internal link check (generated site + READMEs/SKILL.md; fails on missing targets)
+        run: python3 scripts/check_internal_links.py
       - name: Schema, private-field leak, api/v1 parity, sitemap, old-host hardcode checks
         run: python3 scripts/validate_feed.py
       - name: Gist mirror parity
