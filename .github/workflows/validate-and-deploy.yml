@@ -46,10 +46,20 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
+      - name: GPU rate changes carry source_url + quote + checked_at (vs previous commit and latest snapshot)
+        env:
+          BEFORE: ${{ github.event.before }}
+          BASE_PR: ${{ github.event.pull_request.base.sha }}
+        run: |
+          base="${BASE_PR:-$BEFORE}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then base=HEAD~1; fi
+          python3 scripts/check_gpu_changes.py --base "$base"
       - name: pytest (entire tests/ directory incl. test_gpu.py)
         env:
           LANTERN_DEALS_FILE: api/v1/deals.json

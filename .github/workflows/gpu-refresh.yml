@@ -1,0 +1,62 @@
+name: GPU price refresh
+
+# Daily: re-read each tracked provider's public pricing page/API (robots.txt respected, plain UA naming
+# Lantern Works + repo URL, 3 s between requests). A rate changes only where its price was parsed;
+# unreadable rates keep their value and are auto-held after 7 days unverified. Data changes are
+# committed by github-actions[bot]; the gated deploy (tests incl. test_gpu.py) is then dispatched,
+# since pushes made with GITHUB_TOKEN do not trigger other workflows.
+on:
+  schedule:
+    - cron: "23 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: gpu-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
+      - name: Refresh, regenerate, gate, commit, push (rebase-retry)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LANTERN_DEALS_FILE: api/v1/deals.json
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          run_refresh() {
+            python3 scripts/refresh_gpu_prices.py --report /tmp/refresh.md
+            python3 scripts/generate_seo_pages.py > /dev/null
+            python3 scripts/check_gpu_changes.py --base HEAD
+            python3 -m pytest -q tests
+          }
+          run_refresh
+          cat /tmp/refresh.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$(git status --porcelain)" ]; then echo "No data changes." >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
+          for i in 1 2 3 4; do
+            git add -A
+            git commit -qm "data: daily GPU price refresh $(date -u +%F)"
+            if git push origin HEAD:main; then pushed=1; break; fi
+            echo "push rejected; resetting to origin/main and re-running refresh (attempt $i)"
+            git fetch -q origin main && git reset -q --hard origin/main
+            sleep $((i * 15))
+            run_refresh
+            if [ -z "$(git status --porcelain)" ]; then exit 0; fi
+          done
+          [ "${pushed:-0}" = 1 ] || { echo "push failed after retries"; exit 1; }
+          gh workflow run validate-and-deploy.yml --ref main
+          echo "Committed $(git rev-parse --short HEAD); dispatched validate-and-deploy." >> "$GITHUB_STEP_SUMMARY"
