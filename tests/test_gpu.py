@@ -186,7 +186,7 @@ def test_new_vendor_flags():
     vast = [r for r in rates if r["advertiser"] == "Vast.ai"]
     assert sorted(r["gpu"] for r in vast) == ["RTX 4090"]  # A100 SXM 80GB held (3 < 5 offers); A100 PCIe 80GB: 1 verified offer, not published
     assert {r["gpu"]: (r["hourly_equiv_usd"], r["lowest_offer_usd"], r["offer_count"]) for r in vast} == {
-        "A100 SXM": (1.1354, 1.0022, 10), "RTX 4090": (0.5106, 0.3744, 40)}
+        "RTX 4090": (0.5106, 0.3744, 40)}
     assert all('"verified":{"eq":true}' in __import__("urllib.parse").parse.unquote(r["source_url"]) for r in vast)
     assert all(r["deal_id"] == "deal-vastai-001" and r["price_status"] == "marketplace"
                and r["lowest_offer_usd"] <= r["hourly_equiv_usd"] and r["offer_count"] >= 5 for r in vast)
