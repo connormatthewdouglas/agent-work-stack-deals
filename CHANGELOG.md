@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Clore.ai
+
+- Added [Clore.ai](https://thelanternworks.com/deals/cloreai-001/) to the GPU hub. It is a decentralized GPU marketplace with per-hour rentals; hosts set the prices.
+
 ## 2026-10-27 — GEO Metrics
 
 - Added [GEO Metrics](https://thelanternworks.com/deals/geo-metrics-001/) to the SEO hub. It tracks brand visibility in AI search (ChatGPT, Gemini, Perplexity and others) and offers a free trial. Plans start at €80/mo, checked today.
