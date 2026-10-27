@@ -55,9 +55,30 @@
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
     .gotchas li { margin: .3rem 0; }
     .gotchas a { font-weight: 600; }
-  </style>
+  
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
 </head>
 <body>
+  <a class="skip" href="#content">Skip to content</a>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/" aria-current="true">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -67,7 +88,7 @@
   </header>
   <main>
 
-    <article class="deal" id="deal-firecrawl-free-001" data-category="search" data-affiliate="false">
+    <article class="deal" id="deal-firecrawl-free-001" data-category="search" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="1,000 credits/mo; no credit card" data-advertiser="Firecrawl" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/firecrawl-free-001/">Firecrawl — Free 1,000 credits/mo (no card)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / 1,000 credits/mo; no credit card · Firecrawl</p>
       
@@ -77,7 +98,7 @@
     </article>
 
 
-    <article class="deal" id="deal-jina-reader-free-001" data-category="search" data-affiliate="false">
+    <article class="deal" id="deal-jina-reader-free-001" data-category="search" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Reader free for basic usage (r.jina.ai prepend); new API keys include 10M free tokens; Free key ~100 RPM" data-advertiser="Jina AI" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/jina-reader-free-001/">Jina AI Reader — Free Reader + 10M free tokens on new key</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / Reader free for basic usage (r.jina.ai prepend); new API keys include 10M free tokens; Free key ~100 RPM · Jina AI</p>
       
@@ -87,7 +108,7 @@
     </article>
 
 
-    <article class="deal" id="deal-serpapi-free-001" data-category="search" data-affiliate="false">
+    <article class="deal" id="deal-serpapi-free-001" data-category="search" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="250 successful searches/mo on Free plan" data-advertiser="SerpApi" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/serpapi-free-001/">SerpApi — Free 250 searches/mo</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / 250 successful searches/mo on Free plan · SerpApi</p>
       
@@ -97,7 +118,7 @@
     </article>
 
 
-    <article class="deal" id="deal-tavily-free-001" data-category="search" data-affiliate="false">
+    <article class="deal" id="deal-tavily-free-001" data-category="search" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Researcher/Free: 1,000 API credits every month" data-advertiser="Tavily" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/tavily-free-001/">Tavily — Free 1,000 API credits/mo</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / Researcher/Free: 1,000 API credits every month · Tavily</p>
       
@@ -107,7 +128,7 @@
     </article>
 
 
-    <article class="deal" id="deal-apilayer-001" data-category="search" data-affiliate="true">
+    <article class="deal" id="deal-apilayer-001" data-category="search" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid API plans" data-advertiser="APILayer" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/apilayer-001/">APILayer — API marketplace (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>Price: unknown</strong> / paid API plans · APILayer</p>
       
@@ -117,7 +138,7 @@
     </article>
 
 
-    <article class="deal" id="deal-exa-001" data-category="search" data-affiliate="true">
+    <article class="deal" id="deal-exa-001" data-category="search" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Exa" data-free="0" data-verified="1" data-verified-at="2026-10-24T12:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/exa-001/">Exa — web search API for AI agents (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>Price: unknown</strong> · Exa</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -127,7 +148,7 @@
     </article>
 
 
-    <article class="deal" id="deal-firecrawl-001" data-category="search" data-affiliate="true">
+    <article class="deal" id="deal-firecrawl-001" data-category="search" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="free tier + paid plans" data-advertiser="Firecrawl" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/firecrawl-001/">Firecrawl — agent crawl/RAG API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>Price: unknown</strong> / free tier + paid plans · Firecrawl</p>
       <p class="freshness">Updated Oct 27, 2026</p>
@@ -137,7 +158,7 @@
     </article>
 
 
-    <article class="deal" id="deal-firecrawl-student-001" data-category="search" data-affiliate="false">
+    <article class="deal" id="deal-firecrawl-student-001" data-category="search" data-affiliate="false" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="Student Program ~10k credits; apply — no public promo code" data-advertiser="Firecrawl" data-free="1" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/firecrawl-student-001/">Firecrawl — Student Program 10k credits (apply)</a> <span class="badge public">public / non-affiliate</span> <span class="badge unverified">unverified</span> <span class="badge">apply-not-code</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>Price: unknown</strong> / Student Program ~10k credits; apply — no public promo code · Firecrawl</p>
       
@@ -147,7 +168,7 @@
     </article>
 
 
-    <article class="deal" id="deal-moz-001" data-category="search" data-affiliate="true">
+    <article class="deal" id="deal-moz-001" data-category="search" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="99" data-unit="Moz Pro Starter, per month (billed monthly)" data-advertiser="Moz" data-free="0" data-verified="1" data-verified-at="2026-10-26T08:55:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/moz-001/">Moz — SEO data: Moz Pro, Moz Local and Moz API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>$99</strong> / Moz Pro Starter, per month (billed monthly) · Moz</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -157,7 +178,7 @@
     </article>
 
 
-    <article class="deal" id="deal-searchapi-001" data-category="search" data-affiliate="true">
+    <article class="deal" id="deal-searchapi-001" data-category="search" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="40" data-unit="Developer plan, per month (10,000 searches; $4 per 1,000)" data-advertiser="SearchApi" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:08:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/searchapi-001/">SearchApi — real-time SERP API (Google, Bing, YouTube and more)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>$40</strong> / Developer plan, per month (10,000 searches; $4 per 1,000) · SearchApi</p>
       <p class="freshness">Updated Oct 27, 2026</p>
@@ -167,7 +188,7 @@
     </article>
 
 
-    <article class="deal" id="deal-serptool-001" data-category="search" data-affiliate="true">
+    <article class="deal" id="deal-serptool-001" data-category="search" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="SERP-Tool" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/serptool-001/">SERP-Tool — keyword SERP research (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">search</span> · <strong>Price: unknown</strong> / paid plans · SERP-Tool</p>
       
@@ -178,6 +199,7 @@
 
   </main>
 
+</div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>

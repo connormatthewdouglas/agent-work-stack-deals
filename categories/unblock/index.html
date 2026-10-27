@@ -55,9 +55,30 @@
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
     .gotchas li { margin: .3rem 0; }
     .gotchas a { font-weight: 600; }
-  </style>
+  
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
 </head>
 <body>
+  <a class="skip" href="#content">Skip to content</a>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/" aria-current="true">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -67,7 +88,7 @@
   </header>
   <main>
 
-    <article class="deal" id="deal-9proxy-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-9proxy-001" data-category="unblock" data-affiliate="true" data-offer="verified_discount" data-offer-label="Vendor discount" data-price="" data-unit="Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)" data-advertiser="9Proxy" data-free="0" data-verified="1" data-verified-at="2026-10-25T18:05:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/9proxy-001/">9Proxy — residential proxies from $0.018/IP or $0.68/GB, 5% off via referral code</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge">Referees get 5% off purchases with invite code 9P_8KsTzWv6 (stated on 9proxy.com/affiliate).</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing) · 9Proxy</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -77,7 +98,7 @@
     </article>
 
 
-    <article class="deal" id="deal-apify-startups-001" data-category="unblock" data-affiliate="false">
+    <article class="deal" id="deal-apify-startups-001" data-category="unblock" data-affiliate="false" data-offer="verified_discount" data-offer-label="Vendor discount" data-price="" data-unit="Startups: 30% off Scale plan; apply — no public code" data-advertiser="Apify" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/apify-startups-001/">Apify Startups — 30% off Scale (apply)</a> <span class="badge public">public / non-affiliate</span> <span class="badge">apply-not-code</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / Startups: 30% off Scale plan; apply — no public code · Apify</p>
       
@@ -87,7 +108,7 @@
     </article>
 
 
-    <article class="deal" id="deal-oxylabs-001" data-category="unblock" data-affiliate="false">
+    <article class="deal" id="deal-oxylabs-001" data-category="unblock" data-affiliate="false" data-offer="verified_discount" data-offer-label="Vendor discount" data-price="" data-unit="30% off first month (new clients); free credits available on eligible plans" data-advertiser="Oxylabs" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/oxylabs-001/">Oxylabs — 30% first month new clients (DISCOUNT30)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / 30% off first month (new clients); free credits available on eligible plans · Oxylabs</p>
       
@@ -97,7 +118,7 @@
     </article>
 
 
-    <article class="deal" id="deal-apify-free-001" data-category="unblock" data-affiliate="false">
+    <article class="deal" id="deal-apify-free-001" data-category="unblock" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="$5 prepaid platform credit/mo on Free" data-advertiser="Apify" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/apify-free-001/">Apify — Free $5 prepaid/mo</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / $5 prepaid platform credit/mo on Free · Apify</p>
       
@@ -107,7 +128,7 @@
     </article>
 
 
-    <article class="deal" id="deal-brightdata-api-free-001" data-category="unblock" data-affiliate="false">
+    <article class="deal" id="deal-brightdata-api-free-001" data-category="unblock" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="5,000 free credits/mo (~$7.50); no card; Web Unlocker/SERP/Scraper/Studio/Browser API pool" data-advertiser="Bright Data" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/brightdata-api-free-001/">Bright Data APIs — 5,000 free credits/mo (~$7.50)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / 5,000 free credits/mo (~$7.50); no card; Web Unlocker/SERP/Scraper/Studio/Browser API pool · Bright Data</p>
       
@@ -117,7 +138,7 @@
     </article>
 
 
-    <article class="deal" id="deal-zenrows-free-001" data-category="unblock" data-affiliate="false">
+    <article class="deal" id="deal-zenrows-free-001" data-category="unblock" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan: 5,000 credits every month; recurring; no credit card" data-advertiser="ZenRows" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/zenrows-free-001/">ZenRows — Free 5,000 credits/mo (no card)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / Free plan: 5,000 credits every month; recurring; no credit card · ZenRows</p>
       
@@ -127,7 +148,7 @@
     </article>
 
 
-    <article class="deal" id="deal-adspower-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-adspower-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="AdsPower" data-free="0" data-verified="1" data-verified-at="2026-10-23T19:15:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/adspower-001/">AdsPower — antidetect browser profiles (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · AdsPower</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -137,7 +158,7 @@
     </article>
 
 
-    <article class="deal" id="deal-brightdata-resi-001" data-category="unblock" data-affiliate="false">
+    <article class="deal" id="deal-brightdata-resi-001" data-category="unblock" data-affiliate="false" data-offer="listed_discount" data-offer-label="Listed discount (unverified)" data-price="" data-unit="50% off residential proxies for 3 months; first-deposit match up to $500 (new accounts)" data-advertiser="Bright Data" data-free="1" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/brightdata-resi-001/">Bright Data — Residential proxies 50% off 3 mo (RESIGB50)</a> <span class="badge public">public / non-affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / 50% off residential proxies for 3 months; first-deposit match up to $500 (new accounts) · Bright Data</p>
       
@@ -147,7 +168,7 @@
     </article>
 
 
-    <article class="deal" id="deal-browseract-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-browseract-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="BrowserAct" data-free="0" data-verified="1" data-verified-at="2026-10-24T17:52:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/browseract-001/">BrowserAct — no-code browser agents for web scraping and automation, with MCP (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · BrowserAct</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -157,7 +178,7 @@
     </article>
 
 
-    <article class="deal" id="deal-cleanproxies-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-cleanproxies-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="CleanProxies" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/cleanproxies-001/">CleanProxies — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · CleanProxies</p>
       
@@ -167,7 +188,7 @@
     </article>
 
 
-    <article class="deal" id="deal-dataimpulse-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-dataimpulse-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="DataImpulse" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/dataimpulse-001/">DataImpulse — residential proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · DataImpulse</p>
       
@@ -177,7 +198,7 @@
     </article>
 
 
-    <article class="deal" id="deal-geonode-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-geonode-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="Geonode" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/geonode-001/">Geonode — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · Geonode</p>
       
@@ -187,7 +208,7 @@
     </article>
 
 
-    <article class="deal" id="deal-glorycloud-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-glorycloud-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid proxy plans" data-advertiser="GloryCloud" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/glorycloud-001/">GloryCloud (GoProxy) — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans · GloryCloud</p>
       
@@ -197,7 +218,7 @@
     </article>
 
 
-    <article class="deal" id="deal-gologin-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-gologin-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="GoLogin" data-free="0" data-verified="1" data-verified-at="2026-10-23T18:51:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/gologin-001/">GoLogin — antidetect browser profiles (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · GoLogin</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -207,7 +228,7 @@
     </article>
 
 
-    <article class="deal" id="deal-incogniton-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-incogniton-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Incogniton" data-free="0" data-verified="1" data-verified-at="2026-10-23T19:19:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/incogniton-001/">Incogniton — antidetect browser profiles (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · Incogniton</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -217,7 +238,7 @@
     </article>
 
 
-    <article class="deal" id="deal-infatica-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-infatica-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="Infatica" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/infatica-001/">Infatica — proxies &amp; scraper APIs (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · Infatica</p>
       
@@ -227,7 +248,7 @@
     </article>
 
 
-    <article class="deal" id="deal-ipfoxy-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-ipfoxy-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="IPFoxy" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/ipfoxy-001/">IPFoxy — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · IPFoxy</p>
       
@@ -237,7 +258,7 @@
     </article>
 
 
-    <article class="deal" id="deal-lightningproxies-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-lightningproxies-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="Lightning Proxies" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/lightningproxies-001/">Lightning Proxies — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · Lightning Proxies</p>
       
@@ -247,7 +268,7 @@
     </article>
 
 
-    <article class="deal" id="deal-morelogin-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-morelogin-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="MoreLogin" data-free="0" data-verified="1" data-verified-at="2026-10-23T19:24:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/morelogin-001/">MoreLogin — antidetect browser profiles (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · MoreLogin</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -257,7 +278,7 @@
     </article>
 
 
-    <article class="deal" id="deal-nstbrowser-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-nstbrowser-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid Nstbrowser plans" data-advertiser="Nstbrowser" data-free="0" data-verified="1" data-verified-at="2026-10-23T18:48:30-04:00">
       <h2><a href="https://thelanternworks.com/deals/nstbrowser-001/">Nstbrowser — antidetect browser for scraping &amp; unblock (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid Nstbrowser plans · Nstbrowser</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -267,7 +288,7 @@
     </article>
 
 
-    <article class="deal" id="deal-pdfcrowd-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-pdfcrowd-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="PDFCrowd" data-free="0" data-verified="1" data-verified-at="2026-10-25T22:40:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/pdfcrowd-001/">PDFCrowd — HTML-to-PDF and HTML-to-image conversion APIs (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · PDFCrowd</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -277,7 +298,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxiesvision-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxiesvision-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid proxy plans" data-advertiser="Proxies.VISION" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/proxiesvision-001/">Proxies.VISION — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans · Proxies.VISION</p>
       
@@ -287,7 +308,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxystore-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxystore-001" data-category="unblock" data-affiliate="true" data-offer="listed_discount" data-offer-label="Listed discount (unverified)" data-price="" data-unit="paid proxy plans; referred users get 5% off first order" data-advertiser="Proxy-Store" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/proxystore-001/">Proxy-Store — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans; referred users get 5% off first order · Proxy-Store</p>
       
@@ -297,7 +318,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxy6-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxy6-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid proxy plans" data-advertiser="PROXY6" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/proxy6-001/">PROXY6 — personal anonymous proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans · PROXY6</p>
       
@@ -307,7 +328,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxyempire-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxyempire-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="ProxyEmpire" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/proxyempire-001/">ProxyEmpire — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · ProxyEmpire</p>
       
@@ -317,7 +338,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxyline-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxyline-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid proxy plans" data-advertiser="Proxyline" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/proxyline-001/">Proxyline — anonymous proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans · Proxyline</p>
       
@@ -327,7 +348,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxyrack-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxyrack-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Proxyrack" data-free="0" data-verified="1" data-verified-at="2026-10-25T18:05:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/proxyrack-001/">Proxyrack — residential, datacenter and mobile proxies plus scraper API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · Proxyrack</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -337,7 +358,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxyscrape-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxyscrape-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid proxy plans" data-advertiser="ProxyScrape" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/proxyscrape-001/">ProxyScrape — proxy API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans · ProxyScrape</p>
       
@@ -347,7 +368,7 @@
     </article>
 
 
-    <article class="deal" id="deal-proxywing-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-proxywing-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid proxy plans" data-advertiser="ProxyWing" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/proxywing-001/">ProxyWing — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans · ProxyWing</p>
       
@@ -357,7 +378,7 @@
     </article>
 
 
-    <article class="deal" id="deal-raxyproxy-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-raxyproxy-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid proxy plans" data-advertiser="RaxyProxy" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/raxyproxy-001/">RaxyProxy — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid proxy plans · RaxyProxy</p>
       
@@ -367,7 +388,7 @@
     </article>
 
 
-    <article class="deal" id="deal-scrapedo-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-scrapedo-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="free signup; paid plans Hobby/Pro/Business/Advanced" data-advertiser="Scrape.do" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/scrapedo-001/">Scrape.do — scrape/unblock API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / free signup; paid plans Hobby/Pro/Business/Advanced · Scrape.do</p>
       
@@ -377,7 +398,7 @@
     </article>
 
 
-    <article class="deal" id="deal-scrapeops-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-scrapeops-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid scrape plans" data-advertiser="ScrapeOps" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/scrapeops-001/">ScrapeOps — scrape proxy routing (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid scrape plans · ScrapeOps</p>
       
@@ -387,7 +408,7 @@
     </article>
 
 
-    <article class="deal" id="deal-scraperapi-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-scraperapi-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="7-day trial with 5,000 API credits (no card), then free plan 1,000 API credits (5 concurrent); paid plans from $49/mo" data-advertiser="ScraperAPI" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/scraperapi-001/">ScraperAPI — scrape/proxy API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / 7-day trial with 5,000 API credits (no card), then free plan 1,000 API credits (5 concurrent); paid plans from $49/mo · ScraperAPI</p>
       
@@ -397,7 +418,7 @@
     </article>
 
 
-    <article class="deal" id="deal-scrapingant-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-scrapingant-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid scraping API (browser + unblock)" data-advertiser="ScrapingAnt" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/scrapingant-001/">ScrapingAnt — web scraping API (browser + unblock)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid scraping API (browser + unblock) · ScrapingAnt</p>
       
@@ -407,7 +428,7 @@
     </article>
 
 
-    <article class="deal" id="deal-scrapingbee-free-001" data-category="unblock" data-affiliate="false">
+    <article class="deal" id="deal-scrapingbee-free-001" data-category="unblock" data-affiliate="false" data-offer="trial" data-offer-label="Trial" data-price="0" data-unit="1,000 free scraper API credits on signup; no credit card required" data-advertiser="ScrapingBee" data-free="1" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/scrapingbee-free-001/">ScrapingBee — 1,000 free API credits (no card)</a> <span class="badge public">public / non-affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / 1,000 free scraper API credits on signup; no credit card required · ScrapingBee</p>
       
@@ -417,7 +438,7 @@
     </article>
 
 
-    <article class="deal" id="deal-scrapingdog-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-scrapingdog-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="free signup; paid plans" data-advertiser="Scrapingdog" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/scrapingdog-001/">Scrapingdog — scrape/unblock API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / free signup; paid plans · Scrapingdog</p>
       
@@ -427,7 +448,7 @@
     </article>
 
 
-    <article class="deal" id="deal-supadata-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-supadata-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="Supadata" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/supadata-001/">Supadata — scrape/transcript API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · Supadata</p>
       
@@ -437,7 +458,7 @@
     </article>
 
 
-    <article class="deal" id="deal-trueproxies-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-trueproxies-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="TrueProxies" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/trueproxies-001/">TrueProxies — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> / paid plans · TrueProxies</p>
       
@@ -447,7 +468,7 @@
     </article>
 
 
-    <article class="deal" id="deal-undetectable-001" data-category="unblock" data-affiliate="true">
+    <article class="deal" id="deal-undetectable-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Undetectable.io" data-free="0" data-verified="1" data-verified-at="2026-10-23T19:33:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/undetectable-001/">Undetectable.io — antidetect browser with MCP/AI hooks (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Price: unknown</strong> · Undetectable.io</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -458,6 +479,7 @@
 
   </main>
 
+</div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>

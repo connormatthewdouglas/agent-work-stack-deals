@@ -110,6 +110,10 @@ CSS = """
     .gotchas a { font-weight: 600; }
   """
 
+sys.path.insert(0, str(Path(__file__).resolve().parent)) if str(Path(__file__).resolve().parent) not in sys.path else None
+import site_ui  # noqa: E402
+CSS += site_ui.CSS
+
 CATEGORY_ORDER = ["ai-agents", "compute", "email", "hosting", "proxies", "search", "seo", "templates", "unblock"]
 
 CATEGORY_HUB_SLUG = {"email": "email-apis"}
@@ -963,6 +967,16 @@ def json_ld(deal: dict, page_url: str) -> str:
     return json.dumps(offer, ensure_ascii=False, indent=2)
 
 
+def filter_attrs(deal: dict) -> str:
+    """Data attributes read by the homepage search/filter/compare script (public fields only)."""
+    price = deal.get("price_usd")
+    vals = {"offer": deal.get("offer_type") or "", "offer-label": site_ui.OFFER_LABELS.get(deal.get("offer_type") or "", ""),
+            "price": "" if price is None else price, "unit": deal.get("unit") or "", "advertiser": deal.get("advertiser") or "",
+            "free": "1" if (deal.get("offer_type") == "free_tier" or is_free_tierish(deal)) else "0", "verified": "1" if deal.get("verified_at") else "0",
+            "verified-at": deal.get("verified_at") or ""}
+    return "".join(f' data-{k}="{esc(v)}"' for k, v in vals.items())
+
+
 def deal_card(deal: dict, link_mode: str = "page") -> str:
     """link_mode: page -> /deals/slug/; anchor -> #id"""
     slug = slug_for(deal["id"])
@@ -977,7 +991,7 @@ def deal_card(deal: dict, link_mode: str = "page") -> str:
         aff_attr = ' data-affiliate="false"'
     _, fresh_line = freshness_bits(deal)
     return f"""
-    <article class="deal" id="{esc(deal['id'])}" data-category="{esc(deal.get('category'))}"{aff_attr}>
+    <article class="deal" id="{esc(deal['id'])}" data-category="{esc(deal.get('category'))}"{aff_attr}{filter_attrs(deal)}>
       <h2><a href="{href}">{esc(deal.get('title'))}</a> {badges(deal)}</h2>
       <p class="meta"><span class="cat">{esc(deal.get('category'))}</span> · {price_bits(deal)} · {esc(deal.get('advertiser'))}</p>
       {fresh_line}
@@ -1076,7 +1090,9 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
   <style>{CSS}</style>
 </head>
 <body>
+{site_ui.nav_html(BASE, canonical)}<div id="content">
 {body}
+</div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
@@ -1355,7 +1371,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   <style>{CSS}</style>
 </head>
 <body>
-  <header>
+{site_ui.nav_html(BASE, BASE + "/")}  <header>
     <h1>Agent work-stack deals</h1>
     <p style="font-size:.9rem;"><a href="lanternworks/">About Lantern Works</a> · <a href="changelog/">Changelog</a></p>
     <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Default order: real discounts, then verified free tiers, then standard signups (A–Z). Affiliate status does not affect ranking. Unknown prices show as “unknown”.</p>
@@ -1365,8 +1381,10 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     {__import__("compare_pages").nav_html(BASE)}
     <p class="feed"><strong>Agents:</strong> GET <a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
+{site_ui.filter_form_html([c for c in CATEGORY_ORDER if c in by_cat], [o for o in OFFER_TYPES if any(d.get("offer_type") == o for d in deals)])}
+  <main id="content">{body_main}</main>
 {agent_query_howto_html()}
-  <main>{body_main}</main>
+{site_ui.HOME_JS}
   <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · <a href="changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>

@@ -55,9 +55,30 @@
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
     .gotchas li { margin: .3rem 0; }
     .gotchas a { font-weight: 600; }
-  </style>
+  
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
 </head>
 <body>
+  <a class="skip" href="#content">Skip to content</a>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/" aria-current="true">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -67,7 +88,7 @@
   </header>
   <main>
 
-    <article class="deal" id="deal-agentmail-free-001" data-category="hosting" data-affiliate="false">
+    <article class="deal" id="deal-agentmail-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="3 inboxes, 3,000 emails/mo, 100/day, 3 GB; no card" data-advertiser="AgentMail" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/agentmail-free-001/">AgentMail — Free 3 inboxes / 3,000 emails/mo</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3 inboxes, 3,000 emails/mo, 100/day, 3 GB; no card · AgentMail</p>
       
@@ -77,7 +98,7 @@
     </article>
 
 
-    <article class="deal" id="deal-engagebay-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-engagebay-001" data-category="email-apis" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan: 250 contacts, 1,000 branded emails" data-advertiser="EngageBay" data-free="1" data-verified="1" data-verified-at="2026-10-26T19:21:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/engagebay-001/">EngageBay — email marketing, CRM and helpdesk suite (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$0</strong> / Free plan: 250 contacts, 1,000 branded emails · EngageBay</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -87,7 +108,7 @@
     </article>
 
 
-    <article class="deal" id="deal-kaijuverifier-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-kaijuverifier-001" data-category="email-apis" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan: 100 verifications per month" data-advertiser="KaijuVerifier" data-free="1" data-verified="1" data-verified-at="2026-10-26T18:28:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/kaijuverifier-001/">KaijuVerifier — email verification API (100 free verifications/month)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$0</strong> / Free plan: 100 verifications per month · KaijuVerifier</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -97,7 +118,7 @@
     </article>
 
 
-    <article class="deal" id="deal-postmark-free-001" data-category="hosting" data-affiliate="false">
+    <article class="deal" id="deal-postmark-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free Developer plan: 100 emails/mo forever; free trial / no credit card to start" data-advertiser="Postmark" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/postmark-free-001/">Postmark — Free Developer 100 emails/mo (no card)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free Developer plan: 100 emails/mo forever; free trial / no credit card to start · Postmark</p>
       
@@ -107,7 +128,7 @@
     </article>
 
 
-    <article class="deal" id="deal-resend-free-001" data-category="hosting" data-affiliate="false">
+    <article class="deal" id="deal-resend-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="3,000 transactional emails/mo on Free" data-advertiser="Resend" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/resend-free-001/">Resend — Free 3,000 transactional emails/mo</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3,000 transactional emails/mo on Free · Resend</p>
       
@@ -117,7 +138,7 @@
     </article>
 
 
-    <article class="deal" id="deal-agentmail-startup-001" data-category="hosting" data-affiliate="false">
+    <article class="deal" id="deal-agentmail-startup-001" data-category="hosting" data-affiliate="false" data-offer="trial" data-offer-label="Trial" data-price="0" data-unit="3 months Startup tier free; apply — eligibility reviewed" data-advertiser="AgentMail" data-free="1" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/agentmail-startup-001/">AgentMail — Startup program 3 mo Startup tier free (apply)</a> <span class="badge public">public / non-affiliate</span> <span class="badge unverified">unverified</span> <span class="badge">apply-not-code</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3 months Startup tier free; apply — eligibility reviewed · AgentMail</p>
       
@@ -127,7 +148,7 @@
     </article>
 
 
-    <article class="deal" id="deal-bento-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-bento-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="29" data-unit="Marketing Platform (up to 5,000 active users) per month" data-advertiser="Bento" data-free="0" data-verified="1" data-verified-at="2026-10-26T17:01:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/bento-001/">Bento — email marketing platform with transactional email API</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$29</strong> / Marketing Platform (up to 5,000 active users) per month · Bento</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -137,7 +158,7 @@
     </article>
 
 
-    <article class="deal" id="deal-botdog-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-botdog-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Botdog" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:35:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/botdog-001/">Botdog — AI-powered LinkedIn outreach automation for sales teams (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Botdog</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -147,7 +168,7 @@
     </article>
 
 
-    <article class="deal" id="deal-bounceban-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-bounceban-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="credits (1 credit per verification)" data-advertiser="BounceBan" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/bounceban-001/">BounceBan — email verification API with catch-all verification</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>Price: unknown</strong> / credits (1 credit per verification) · BounceBan</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -157,7 +178,7 @@
     </article>
 
 
-    <article class="deal" id="deal-bouncer-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-bouncer-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="8" data-unit="1,000 email verifications (pay-as-you-go credits)" data-advertiser="Bouncer" data-free="0" data-verified="1" data-verified-at="2026-10-26T09:32:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/bouncer-001/">Bouncer — email verification and validation API</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$8</strong> / 1,000 email verifications (pay-as-you-go credits) · Bouncer</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -167,7 +188,7 @@
     </article>
 
 
-    <article class="deal" id="deal-dmarcly-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-dmarcly-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="DMARCLY" data-free="0" data-verified="1" data-verified-at="2026-10-25T18:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/dmarcly-001/">DMARCLY — DMARC, SPF and DKIM monitoring for email deliverability (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · DMARCLY</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -177,7 +198,7 @@
     </article>
 
 
-    <article class="deal" id="deal-emailable-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-emailable-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="Credits (pay-as-you-go or monthly); see emailable.com/pricing" data-advertiser="Emailable" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:12:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/emailable-001/">Emailable — email verification (bulk, API and widget)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>Price: unknown</strong> / Credits (pay-as-you-go or monthly); see emailable.com/pricing · Emailable</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -187,7 +208,7 @@
     </article>
 
 
-    <article class="deal" id="deal-emailit-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-emailit-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="20" data-unit="Pro plan per month billed yearly ($25 monthly; 100,000 credits/mo). Free: 3,000 credits/mo" data-advertiser="Emailit" data-free="0" data-verified="1" data-verified-at="2026-10-26T20:52:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/emailit-001/">Emailit — email API, SMTP and campaigns (+5,000 bonus monthly credits with code LANTERNWORKS)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$20</strong> <s>$25</s> / Pro plan per month billed yearly ($25 monthly; 100,000 credits/mo). Free: 3,000 credits/mo · Emailit</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -197,7 +218,7 @@
     </article>
 
 
-    <article class="deal" id="deal-emaillistverify-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-emaillistverify-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="EmailListVerify" data-free="0" data-verified="1" data-verified-at="2026-10-23T18:54:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/emaillistverify-001/">EmailListVerify — email list verification API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>Price: unknown</strong> · EmailListVerify</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -207,7 +228,7 @@
     </article>
 
 
-    <article class="deal" id="deal-emailoctopus-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-emailoctopus-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="EmailOctopus" data-free="0" data-verified="1" data-verified-at="2026-10-25T20:22:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/emailoctopus-001/">EmailOctopus — email marketing newsletters, automations and landing pages (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · EmailOctopus</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -217,7 +238,7 @@
     </article>
 
 
-    <article class="deal" id="deal-findymail-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-findymail-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="99" data-unit="Individual plan per month" data-advertiser="Findymail" data-free="0" data-verified="1" data-verified-at="2026-10-26T17:01:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/findymail-001/">Findymail — verified B2B email and phone finder API</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$99</strong> / Individual plan per month · Findymail</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -227,7 +248,7 @@
     </article>
 
 
-    <article class="deal" id="deal-folderly-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-folderly-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Folderly" data-free="0" data-verified="1" data-verified-at="2026-10-25T18:58:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/folderly-001/">Folderly — email deliverability, inbox placement tests and spam monitoring (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Folderly</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -237,7 +258,7 @@
     </article>
 
 
-    <article class="deal" id="deal-fullenrich-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-fullenrich-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="FullEnrich" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:15:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/fullenrich-001/">FullEnrich — waterfall contact enrichment (email + phone finder) (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · FullEnrich</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -247,7 +268,7 @@
     </article>
 
 
-    <article class="deal" id="deal-getsales-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-getsales-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="GetSales" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:55:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/getsales-001/">GetSales — multichannel LinkedIn + email outreach automation with API &amp; MCP (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · GetSales</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -257,7 +278,7 @@
     </article>
 
 
-    <article class="deal" id="deal-heyo-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-heyo-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Heyo Email" data-free="0" data-verified="1" data-verified-at="2026-10-24T21:26:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/heyo-001/">Heyo Email — cold email sending with unlimited accounts, warmup and unified inbox (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Heyo Email</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -267,7 +288,7 @@
     </article>
 
 
-    <article class="deal" id="deal-icemail-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-icemail-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="2.5" data-unit="Google Workspace or Microsoft 365 mailbox per month" data-advertiser="Icemail" data-free="0" data-verified="1" data-verified-at="2026-10-26T13:30:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/icemail-001/">Icemail — cold-email inbox infrastructure (Google Workspace and Microsoft 365 mailboxes)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$2.5</strong> / Google Workspace or Microsoft 365 mailbox per month · Icemail</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -277,7 +298,7 @@
     </article>
 
 
-    <article class="deal" id="deal-inboxkit-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-inboxkit-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="InboxKit" data-free="0" data-verified="1" data-verified-at="2026-10-25T15:52:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/inboxkit-001/">InboxKit — Google Workspace &amp; Microsoft 365 mailbox infrastructure for cold email, with API &amp; MCP (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · InboxKit</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -287,7 +308,7 @@
     </article>
 
 
-    <article class="deal" id="deal-klenty-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-klenty-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Klenty" data-free="0" data-verified="1" data-verified-at="2026-10-25T17:22:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/klenty-001/">Klenty — multichannel sales engagement, cold email and conversation intelligence (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Klenty</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -297,7 +318,7 @@
     </article>
 
 
-    <article class="deal" id="deal-leadmagic-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-leadmagic-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="LeadMagic" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:10:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/leadmagic-001/">LeadMagic — B2B enrichment and email finder API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · LeadMagic</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -307,7 +328,7 @@
     </article>
 
 
-    <article class="deal" id="deal-mailerlite-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-mailerlite-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="MailerLite" data-free="0" data-verified="1" data-verified-at="2026-10-25T13:22:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/mailerlite-001/">MailerLite — email marketing, automations and API/MCP sending (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · MailerLite</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -317,7 +338,7 @@
     </article>
 
 
-    <article class="deal" id="deal-mailfloss-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-mailfloss-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="mailfloss" data-free="0" data-verified="1" data-verified-at="2026-10-25T16:22:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/mailfloss-001/">mailfloss — automated email list verification and cleaning (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · mailfloss</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -327,7 +348,7 @@
     </article>
 
 
-    <article class="deal" id="deal-mailkite-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-mailkite-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="MailKite" data-free="0" data-verified="1" data-verified-at="2026-10-24T21:22:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/mailkite-001/">MailKite — transactional email API, inbound webhooks and MCP agent inboxes (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · MailKite</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -337,7 +358,7 @@
     </article>
 
 
-    <article class="deal" id="deal-mailreach-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-mailreach-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="MailReach" data-free="0" data-verified="1" data-verified-at="2026-10-25T14:30:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/mailreach-001/">MailReach — email warmup and spam/deliverability testing (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · MailReach</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -347,7 +368,7 @@
     </article>
 
 
-    <article class="deal" id="deal-mailveri-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-mailveri-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="MailVeri" data-free="0" data-verified="1" data-verified-at="2026-10-25T19:35:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/mailveri-001/">MailVeri — email verification API, bulk list cleaning and native MCP server (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · MailVeri</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -357,7 +378,7 @@
     </article>
 
 
-    <article class="deal" id="deal-postmark-001" data-category="hosting" data-affiliate="true">
+    <article class="deal" id="deal-postmark-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid transactional email" data-advertiser="Postmark" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/postmark-001/">Postmark — transactional email API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Price: unknown</strong> / paid transactional email · Postmark</p>
       
@@ -367,7 +388,7 @@
     </article>
 
 
-    <article class="deal" id="deal-premiuminboxes-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-premiuminboxes-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Premium Inboxes" data-free="0" data-verified="1" data-verified-at="2026-10-25T17:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/premiuminboxes-001/">Premium Inboxes — done-for-you cold email inbox infrastructure (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Premium Inboxes</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -377,7 +398,7 @@
     </article>
 
 
-    <article class="deal" id="deal-prospeo-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-prospeo-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Prospeo" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:05:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/prospeo-001/">Prospeo — email finder and B2B enrichment API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Prospeo</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -387,7 +408,7 @@
     </article>
 
 
-    <article class="deal" id="deal-rb2b-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-rb2b-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="79" data-unit="Starter plan per month" data-advertiser="RB2B" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:40:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/rb2b-001/">RB2B — B2B website visitor identification for sales outreach</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$79</strong> / Starter plan per month · RB2B</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -397,7 +418,7 @@
     </article>
 
 
-    <article class="deal" id="deal-reachinbox-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-reachinbox-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="ReachInbox" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:20:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/reachinbox-001/">ReachInbox — AI cold-email automation and outbound inbox platform (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · ReachInbox</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -407,7 +428,7 @@
     </article>
 
 
-    <article class="deal" id="deal-relay-mailboxes-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-relay-mailboxes-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Relay (userelay.app)" data-free="0" data-verified="1" data-verified-at="2026-10-24T11:35:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/relay-mailboxes-001/">Relay (burner mailboxes) — cold outreach mailboxes (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Relay (userelay.app)</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -417,7 +438,7 @@
     </article>
 
 
-    <article class="deal" id="deal-salesblink-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-salesblink-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="29" data-unit="Starter plan per month (billed monthly)" data-advertiser="SalesBlink" data-free="0" data-verified="1" data-verified-at="2026-10-26T17:01:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/salesblink-001/">SalesBlink — cold email outreach automation with MCP, API and CLI</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$29</strong> / Starter plan per month (billed monthly) · SalesBlink</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -427,7 +448,7 @@
     </article>
 
 
-    <article class="deal" id="deal-salesforge-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-salesforge-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Salesforge (Forge suite)" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:15:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/salesforge-001/">Salesforge (+ Mailforge) — cold-email infrastructure and AI SDR suite (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Salesforge (Forge suite)</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -437,7 +458,7 @@
     </article>
 
 
-    <article class="deal" id="deal-sealch-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-sealch-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Sealch" data-free="0" data-verified="1" data-verified-at="2026-10-25T19:38:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/sealch-001/">Sealch — email verification with catch-all detection, CSV and API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Sealch</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -447,7 +468,7 @@
     </article>
 
 
-    <article class="deal" id="deal-sendpulse-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-sendpulse-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="SendPulse" data-free="0" data-verified="1" data-verified-at="2026-10-24T20:46:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/sendpulse-001/">SendPulse — SMTP/transactional email API plus email, SMS and chatbot marketing automation (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · SendPulse</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -457,7 +478,7 @@
     </article>
 
 
-    <article class="deal" id="deal-smartlead-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-smartlead-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="39" data-unit="Base plan, per month (2,000 contacts, 6,000 email sends)" data-advertiser="Smartlead.ai" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:05:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/smartlead-001/">Smartlead.ai — cold email outreach with unlimited mailboxes, warmup and API</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$39</strong> / Base plan, per month (2,000 contacts, 6,000 email sends) · Smartlead.ai</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -467,7 +488,7 @@
     </article>
 
 
-    <article class="deal" id="deal-smartreach-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-smartreach-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="SmartReach" data-free="0" data-verified="1" data-verified-at="2026-10-25T17:30:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/smartreach-001/">SmartReach — cold email outreach and multichannel sales engagement (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · SmartReach</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -477,7 +498,7 @@
     </article>
 
 
-    <article class="deal" id="deal-smtp2go-001" data-category="hosting" data-affiliate="true">
+    <article class="deal" id="deal-smtp2go-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid plans" data-advertiser="SMTP2GO" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/smtp2go-001/">SMTP2GO — transactional email (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Price: unknown</strong> / paid plans · SMTP2GO</p>
       
@@ -487,7 +508,7 @@
     </article>
 
 
-    <article class="deal" id="deal-snovio-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-snovio-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid Snov.io plans" data-advertiser="Snov.io" data-free="0" data-verified="1" data-verified-at="2026-10-23T18:05:56-04:00">
       <h2><a href="https://thelanternworks.com/deals/snovio-001/">Snov.io — email finder, verifier &amp; outreach (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> / paid Snov.io plans · Snov.io</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -497,7 +518,7 @@
     </article>
 
 
-    <article class="deal" id="deal-uplead-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-uplead-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="UpLead" data-free="0" data-verified="1" data-verified-at="2026-10-25T14:55:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/uplead-001/">UpLead — B2B contact data, email finder and verification (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · UpLead</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -507,7 +528,7 @@
     </article>
 
 
-    <article class="deal" id="deal-waalaxy-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-waalaxy-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="per user per month" data-advertiser="Waalaxy" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/waalaxy-001/">Waalaxy — LinkedIn and email prospecting automation</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>Price: unknown</strong> / per user per month · Waalaxy</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -517,7 +538,7 @@
     </article>
 
 
-    <article class="deal" id="deal-woodpecker-001" data-category="email-apis" data-affiliate="true">
+    <article class="deal" id="deal-woodpecker-001" data-category="email-apis" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="35" data-unit="Email plan (500 contacted prospects, 8,000 emails) per month" data-advertiser="Woodpecker" data-free="0" data-verified="1" data-verified-at="2026-10-26T15:33:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/woodpecker-001/">Woodpecker — cold email and LinkedIn outreach</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email-apis</span> · <strong>$35</strong> / Email plan (500 contacted prospects, 8,000 emails) per month · Woodpecker</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -527,7 +548,7 @@
     </article>
 
 
-    <article class="deal" id="deal-zapmail-001" data-category="email" data-affiliate="true">
+    <article class="deal" id="deal-zapmail-001" data-category="email" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Zapmail" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:15:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/zapmail-001/">Zapmail — Google &amp; Microsoft inbox infrastructure for cold email (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">email</span> · <strong>Price: unknown</strong> · Zapmail</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -538,6 +559,7 @@
 
   </main>
 
+</div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>

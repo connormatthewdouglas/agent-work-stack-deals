@@ -55,9 +55,30 @@
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
     .gotchas li { margin: .3rem 0; }
     .gotchas a { font-weight: 600; }
-  </style>
+  
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
 </head>
 <body>
+  <a class="skip" href="#content">Skip to content</a>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/" aria-current="true">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -67,7 +88,7 @@
   </header>
   <main>
 
-    <article class="deal" id="deal-originality-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-originality-001" data-category="seo" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan: 10K words (100 credits) one time, no subscription; Pro from $12.95/mo billed yearly" data-advertiser="Originality.ai" data-free="1" data-verified="1" data-verified-at="2026-10-26T20:15:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/originality-001/">Originality.ai — AI content and plagiarism detection (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>$0</strong> / Free plan: 10K words (100 credits) one time, no subscription; Pro from $12.95/mo billed yearly · Originality.ai</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -77,7 +98,7 @@
     </article>
 
 
-    <article class="deal" id="deal-aiclicks-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-aiclicks-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="59" data-unit="Starter plan per month" data-advertiser="AIclicks" data-free="0" data-verified="1" data-verified-at="2026-10-26T15:24:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/aiclicks-001/">AIclicks — AI search visibility tracking and optimization</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>$59</strong> / Starter plan per month · AIclicks</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -87,7 +108,7 @@
     </article>
 
 
-    <article class="deal" id="deal-keywordinsights-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-keywordinsights-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="58" data-unit="Basic plan, per month (10,000 credits)" data-advertiser="Keyword Insights" data-free="0" data-verified="1" data-verified-at="2026-10-26T09:30:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/keywordinsights-001/">Keyword Insights — keyword research, clustering and content briefs</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>$58</strong> / Basic plan, per month (10,000 credits) · Keyword Insights</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -97,7 +118,7 @@
     </article>
 
 
-    <article class="deal" id="deal-keywordseverywhere-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-keywordseverywhere-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="7" data-unit="Bronze plan per month, billed annually ($84/yr; 100,000 credits/yr)" data-advertiser="Keywords Everywhere" data-free="0" data-verified="1" data-verified-at="2026-10-26T19:23:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/keywordseverywhere-001/">Keywords Everywhere — keyword volume, CPC and backlink data in your browser</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>$7</strong> / Bronze plan per month, billed annually ($84/yr; 100,000 credits/yr) · Keywords Everywhere</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -107,7 +128,7 @@
     </article>
 
 
-    <article class="deal" id="deal-keywordspeopleuse-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-keywordspeopleuse-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="15" data-unit="Lite plan, per month (150 credits)" data-advertiser="Keywords People Use" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:05:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/keywordspeopleuse-001/">Keywords People Use — question and long-tail keyword research (People Also Ask, Reddit, Quora)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>$15</strong> / Lite plan, per month (150 credits) · Keywords People Use</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -117,7 +138,7 @@
     </article>
 
 
-    <article class="deal" id="deal-llmsocket-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-llmsocket-001" data-category="seo" data-affiliate="true" data-offer="trial" data-offer-label="Trial" data-price="9" data-unit="per month for up to 100 products (Shopify app); 7-day free trial" data-advertiser="LLM Socket" data-free="0" data-verified="1" data-verified-at="2026-10-26T20:15:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/llmsocket-001/">LLM Socket — AI-search (ChatGPT) visibility for Shopify stores (7-day free trial)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>$9</strong> / per month for up to 100 products (Shopify app); 7-day free trial · LLM Socket</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -127,7 +148,7 @@
     </article>
 
 
-    <article class="deal" id="deal-lowfruits-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-lowfruits-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="29.9" data-unit="Standard subscription, per month (billed monthly)" data-advertiser="LowFruits" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:00:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/lowfruits-001/">LowFruits — low-competition keyword research and SERP analysis</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>$29.9</strong> / Standard subscription, per month (billed monthly) · LowFruits</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -137,7 +158,7 @@
     </article>
 
 
-    <article class="deal" id="deal-nightwatch-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-nightwatch-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="Plans priced in EUR per month; see nightwatch.io/pricing" data-advertiser="Nightwatch" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:00:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/nightwatch-001/">Nightwatch — SEO rank tracking and AI search visibility tracking</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>Price: unknown</strong> / Plans priced in EUR per month; see nightwatch.io/pricing · Nightwatch</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -147,7 +168,7 @@
     </article>
 
 
-    <article class="deal" id="deal-seobility-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-seobility-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid Seobility plans" data-advertiser="Seobility" data-free="0" data-verified="1" data-verified-at="2026-10-23T18:43:19-04:00">
       <h2><a href="https://thelanternworks.com/deals/seobility-001/">Seobility — SEO audit &amp; rank tracking (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>Price: unknown</strong> / paid Seobility plans · Seobility</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -157,7 +178,7 @@
     </article>
 
 
-    <article class="deal" id="deal-whatagraph-001" data-category="seo" data-affiliate="true">
+    <article class="deal" id="deal-whatagraph-001" data-category="seo" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="Plans priced in EUR per month (billed annually); see whatagraph.com/pricing" data-advertiser="Whatagraph" data-free="0" data-verified="1" data-verified-at="2026-10-26T08:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/whatagraph-001/">Whatagraph — marketing data reporting and dashboards</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">seo</span> · <strong>Price: unknown</strong> / Plans priced in EUR per month (billed annually); see whatagraph.com/pricing · Whatagraph</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -168,6 +189,7 @@
 
   </main>
 
+</div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>

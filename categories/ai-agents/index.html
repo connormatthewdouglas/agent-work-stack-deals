@@ -55,9 +55,30 @@
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
     .gotchas li { margin: .3rem 0; }
     .gotchas a { font-weight: 600; }
-  </style>
+  
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
 </head>
 <body>
+  <a class="skip" href="#content">Skip to content</a>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/" aria-current="true">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -67,7 +88,7 @@
   </header>
   <main>
 
-    <article class="deal" id="deal-docsbot-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-docsbot-001" data-category="ai-agents" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan for personal use (no credit card); paid plans from $49/month" data-advertiser="DocsBot AI" data-free="1" data-verified="1" data-verified-at="2026-10-26T19:58:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/docsbot-001/">DocsBot AI — AI chatbots and RAG API trained on your docs (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$0</strong> / Free plan for personal use (no credit card); paid plans from $49/month · DocsBot AI</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -77,7 +98,7 @@
     </article>
 
 
-    <article class="deal" id="deal-raycast-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-raycast-001" data-category="ai-agents" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan (core launcher and public extensions; AI not included)" data-advertiser="Raycast" data-free="1" data-verified="1" data-verified-at="2026-10-26T15:53:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/raycast-001/">Raycast — productivity launcher with AI and extensions (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$0</strong> / Free plan (core launcher and public extensions; AI not included) · Raycast</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -87,7 +108,7 @@
     </article>
 
 
-    <article class="deal" id="deal-synthesia-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-synthesia-001" data-category="ai-agents" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Basic plan: 500 credits per month" data-advertiser="Synthesia" data-free="1" data-verified="1" data-verified-at="2026-10-26T15:55:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/synthesia-001/">Synthesia — AI video generation with avatars (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$0</strong> / Basic plan: 500 credits per month · Synthesia</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -97,7 +118,7 @@
     </article>
 
 
-    <article class="deal" id="deal-trends-mcp-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-trends-mcp-001" data-category="ai-agents" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan: 100 requests/month, no credit card; paid plans from $16/mo billed annually" data-advertiser="Trends MCP" data-free="1" data-verified="1" data-verified-at="2026-10-26T22:48:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/trends-mcp-001/">Trends MCP — live trend data MCP server and API for agents (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$0</strong> / Free plan: 100 requests/month, no credit card; paid plans from $16/mo billed annually · Trends MCP</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -107,7 +128,7 @@
     </article>
 
 
-    <article class="deal" id="deal-wonderchat-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-wonderchat-001" data-category="ai-agents" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan" data-advertiser="Wonderchat" data-free="1" data-verified="1" data-verified-at="2026-10-26T14:35:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/wonderchat-001/">Wonderchat — AI customer-support chatbot builder (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$0</strong> / Free plan · Wonderchat</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -117,7 +138,7 @@
     </article>
 
 
-    <article class="deal" id="deal-albato-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-albato-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Albato" data-free="0" data-verified="1" data-verified-at="2026-10-25T20:15:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/albato-001/">Albato — no-code API integration and workflow automation (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Albato</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -127,7 +148,7 @@
     </article>
 
 
-    <article class="deal" id="deal-anotherwrapper-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-anotherwrapper-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="AnotherWrapper" data-free="0" data-verified="1" data-verified-at="2026-10-25T22:58:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/anotherwrapper-001/">AnotherWrapper — AI app starter kit / Next.js boilerplate with auth, payments and demo AI apps (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · AnotherWrapper</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -137,7 +158,7 @@
     </article>
 
 
-    <article class="deal" id="deal-appy-ai-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-appy-ai-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="50" data-unit="AI Workforce plan per month (20,000 credits monthly); free Starter with $100 credits, no card" data-advertiser="Appy.ai" data-free="0" data-verified="1" data-verified-at="2026-10-26T21:24:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/appy-ai-001/">Appy.ai — AI coworkers for Slack and Teams ($100 free credits to start)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$50</strong> / AI Workforce plan per month (20,000 credits monthly); free Starter with $100 credits, no card · Appy.ai</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -147,7 +168,7 @@
     </article>
 
 
-    <article class="deal" id="deal-bolna-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-bolna-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Bolna AI" data-free="0" data-verified="1" data-verified-at="2026-10-24T13:00:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/bolna-001/">Bolna — voice AI agents for Indian languages (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Bolna AI</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -157,7 +178,7 @@
     </article>
 
 
-    <article class="deal" id="deal-botpress-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-botpress-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Botpress" data-free="0" data-verified="1" data-verified-at="2026-10-24T10:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/botpress-001/">Botpress — AI agent builder (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Botpress</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -167,7 +188,7 @@
     </article>
 
 
-    <article class="deal" id="deal-buildship-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-buildship-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="BuildShip" data-free="0" data-verified="1" data-verified-at="2026-10-24T14:05:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/buildship-001/">BuildShip — AI workflow and backend builder (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · BuildShip</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -177,7 +198,7 @@
     </article>
 
 
-    <article class="deal" id="deal-chipp-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-chipp-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Chipp" data-free="0" data-verified="1" data-verified-at="2026-10-23T20:39:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/chipp-001/">Chipp — AI agent builder (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Chipp</p>
       <p class="freshness">Updated Oct 23, 2026</p>
@@ -187,7 +208,7 @@
     </article>
 
 
-    <article class="deal" id="deal-cometapi-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-cometapi-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="pay per use (per 1M tokens / per image / per second)" data-advertiser="CometAPI" data-free="0" data-verified="1" data-verified-at="2026-10-26T18:21:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/cometapi-001/">CometAPI — unified LLM, image and video API, priced 20% below official rates</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> / pay per use (per 1M tokens / per image / per second) · CometAPI</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -197,7 +218,7 @@
     </article>
 
 
-    <article class="deal" id="deal-contentbot-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-contentbot-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="ContentBot.ai" data-free="0" data-verified="1" data-verified-at="2026-10-25T20:50:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/contentbot-001/">ContentBot.ai — AI blog writer, SEO content and content workflows (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · ContentBot.ai</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -207,7 +228,7 @@
     </article>
 
 
-    <article class="deal" id="deal-droxy-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-droxy-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Droxy" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:30:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/droxy-001/">Droxy — AI chatbot and agent builder (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Droxy</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -217,7 +238,7 @@
     </article>
 
 
-    <article class="deal" id="deal-enrichlabs-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-enrichlabs-001" data-category="ai-agents" data-affiliate="true" data-offer="trial" data-offer-label="Trial" data-price="39" data-unit="Starter plan per month (1 brand, 1 seat, 200 credits/mo); 3-day free trial" data-advertiser="Enrich Labs" data-free="0" data-verified="1" data-verified-at="2026-10-26T20:10:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/enrichlabs-001/">Helena by Enrich Labs — autonomous AI marketing and SEO agent (3-day free trial)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$39</strong> / Starter plan per month (1 brand, 1 seat, 200 credits/mo); 3-day free trial · Enrich Labs</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -227,7 +248,7 @@
     </article>
 
 
-    <article class="deal" id="deal-flowlu-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-flowlu-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Flowlu" data-free="0" data-verified="1" data-verified-at="2026-10-25T20:32:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/flowlu-001/">Flowlu — work management, CRM, projects and automation in one workspace (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Flowlu</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -237,7 +258,7 @@
     </article>
 
 
-    <article class="deal" id="deal-kymaapi-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-kymaapi-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="pay per use (per 1M tokens / per image / per second)" data-advertiser="Kyma API" data-free="0" data-verified="1" data-verified-at="2026-10-26T18:05:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/kymaapi-001/">Kyma API — OpenAI-compatible API for 119 models, pay per use</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> / pay per use (per 1M tokens / per image / per second) · Kyma API</p>
       <p class="freshness">Updated Oct 27, 2026</p>
@@ -247,7 +268,7 @@
     </article>
 
 
-    <article class="deal" id="deal-latenode-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-latenode-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Latenode" data-free="0" data-verified="1" data-verified-at="2026-10-24T11:55:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/latenode-001/">Latenode — AI workflow automation and agents (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Latenode</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -257,7 +278,7 @@
     </article>
 
 
-    <article class="deal" id="deal-linkwhisper-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-linkwhisper-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Link Whisper" data-free="0" data-verified="1" data-verified-at="2026-10-25T21:00:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/linkwhisper-001/">Link Whisper — AI internal-linking plugin for WordPress SEO (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Link Whisper</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -267,7 +288,7 @@
     </article>
 
 
-    <article class="deal" id="deal-marblism-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-marblism-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="44" data-unit="Plan with all AI employees per month, billed monthly" data-advertiser="Marblism" data-free="0" data-verified="1" data-verified-at="2026-10-26T16:58:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/marblism-001/">Marblism — AI employees for email, socials, SEO and lead gen</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$44</strong> / Plan with all AI employees per month, billed monthly · Marblism</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -277,7 +298,7 @@
     </article>
 
 
-    <article class="deal" id="deal-millis-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-millis-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Millis AI" data-free="0" data-verified="1" data-verified-at="2026-10-24T16:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/millis-001/">Millis AI — low-latency voice agents API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Millis AI</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -287,7 +308,7 @@
     </article>
 
 
-    <article class="deal" id="deal-palabra-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-palabra-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="0.04" data-unit="per minute of speech-to-speech translation (API); $50 free credits on sign-up" data-advertiser="Palabra.ai" data-free="0" data-verified="1" data-verified-at="2026-10-26T21:53:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/palabra-001/">Palabra.ai — real-time speech-to-speech translation API ($50 free credits on sign-up)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$0.04</strong> / per minute of speech-to-speech translation (API); $50 free credits on sign-up · Palabra.ai</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -297,7 +318,7 @@
     </article>
 
 
-    <article class="deal" id="deal-piapi-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-piapi-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="15" data-unit="Creator plan per month; API usage billed separately (pay-as-you-go)" data-advertiser="PiAPI" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:10:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/piapi-001/">PiAPI — AI media generation APIs (image, video, music)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$15</strong> / Creator plan per month; API usage billed separately (pay-as-you-go) · PiAPI</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -307,7 +328,7 @@
     </article>
 
 
-    <article class="deal" id="deal-postiz-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-postiz-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Postiz" data-free="0" data-verified="1" data-verified-at="2026-10-25T15:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/postiz-001/">Postiz — open-source social media scheduler with API, CLI and MCP for agents (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Postiz</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -317,7 +338,7 @@
     </article>
 
 
-    <article class="deal" id="deal-quickchat-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-quickchat-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Quickchat AI" data-free="0" data-verified="1" data-verified-at="2026-10-24T07:30:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/quickchat-001/">Quickchat AI — AI agent and chatbot builder (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Quickchat AI</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -327,7 +348,7 @@
     </article>
 
 
-    <article class="deal" id="deal-robofy-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-robofy-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="40" data-unit="Starter plan per month" data-advertiser="Robofy" data-free="0" data-verified="1" data-verified-at="2026-10-26T13:30:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/robofy-001/">Robofy — AI chatbot and agent builder for websites</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$40</strong> / Starter plan per month · Robofy</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -337,7 +358,7 @@
     </article>
 
 
-    <article class="deal" id="deal-runable-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-runable-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Runable" data-free="0" data-verified="1" data-verified-at="2026-10-23T20:40:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/runable-001/">Runable — general-purpose AI agent (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Runable</p>
       <p class="freshness">Updated Oct 27, 2026</p>
@@ -347,7 +368,7 @@
     </article>
 
 
-    <article class="deal" id="deal-seowritingai-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-seowritingai-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="SEOWriting.ai" data-free="0" data-verified="1" data-verified-at="2026-10-25T20:50:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/seowritingai-001/">SEOWriting.ai — AI SEO article generation with WordPress and Shopify publishing (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · SEOWriting.ai</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -357,7 +378,7 @@
     </article>
 
 
-    <article class="deal" id="deal-speakai-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-speakai-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="25" data-unit="Pro plan, per team member per month (billed monthly)" data-advertiser="Speak AI" data-free="0" data-verified="1" data-verified-at="2026-10-26T10:10:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/speakai-001/">Speak AI — transcription and AI analysis of audio, video and text</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$25</strong> / Pro plan, per team member per month (billed monthly) · Speak AI</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -367,7 +388,7 @@
     </article>
 
 
-    <article class="deal" id="deal-trillet-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-trillet-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Trillet AI" data-free="0" data-verified="1" data-verified-at="2026-10-24T17:56:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/trillet-001/">Trillet AI — white-label voice AI agent platform for agencies, with MCP (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Trillet AI</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -377,7 +398,7 @@
     </article>
 
 
-    <article class="deal" id="deal-twin-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-twin-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="29" data-unit="Plus plan per month" data-advertiser="Twin" data-free="0" data-verified="1" data-verified-at="2026-10-26T12:35:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/twin-001/">Twin — AI agent automation platform</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>$29</strong> / Plus plan per month · Twin</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -387,7 +408,7 @@
     </article>
 
 
-    <article class="deal" id="deal-unrealspeech-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-unrealspeech-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Unreal Speech" data-free="0" data-verified="1" data-verified-at="2026-10-24T14:55:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/unrealspeech-001/">Unreal Speech — low-cost text-to-speech API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Unreal Speech</p>
       <p class="freshness">Updated Oct 27, 2026</p>
@@ -397,7 +418,7 @@
     </article>
 
 
-    <article class="deal" id="deal-vapi-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-vapi-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="Vapi" data-free="0" data-verified="1" data-verified-at="2026-10-24T10:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/vapi-001/">Vapi — voice AI agents API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> · Vapi</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -407,7 +428,7 @@
     </article>
 
 
-    <article class="deal" id="deal-writesonic-001" data-category="ai-agents" data-affiliate="true">
+    <article class="deal" id="deal-writesonic-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="Paid plans per month; see writesonic.com/pricing" data-advertiser="Writesonic" data-free="0" data-verified="1" data-verified-at="2026-10-26T08:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/writesonic-001/">Writesonic — AI search visibility (GEO), SEO and AI writing platform</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Price: unknown</strong> / Paid plans per month; see writesonic.com/pricing · Writesonic</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -418,6 +439,7 @@
 
   </main>
 
+</div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>

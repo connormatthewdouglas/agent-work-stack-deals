@@ -55,9 +55,30 @@
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
     .gotchas li { margin: .3rem 0; }
     .gotchas a { font-weight: 600; }
-  </style>
+  
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
 </head>
 <body>
+  <a class="skip" href="#content">Skip to content</a>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/" aria-current="true">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -67,7 +88,7 @@
   </header>
   <main>
 
-    <article class="deal" id="deal-browserbase-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-browserbase-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free: 3 concurrent browsers, 1 browser hour, 1k Search+Fetch" data-advertiser="Browserbase" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/browserbase-001/">Browserbase — Free 3 concurrent / 1 browser hour / 1k Search+Fetch</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / Free: 3 concurrent browsers, 1 browser hour, 1k Search+Fetch · Browserbase</p>
       
@@ -77,7 +98,7 @@
     </article>
 
 
-    <article class="deal" id="deal-browserless-free-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-browserless-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free $0/mo: 1k units/month, 2 max concurrent browsers; no card required" data-advertiser="Browserless" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/browserless-free-001/">Browserless — Free 1k units/mo / 2 concurrent</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / Free $0/mo: 1k units/month, 2 max concurrent browsers; no card required · Browserless</p>
       
@@ -87,7 +108,7 @@
     </article>
 
 
-    <article class="deal" id="deal-codespaces-free-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-codespaces-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="GitHub Free personal accounts: 120 hrs compute + 15 GB-month storage/mo included for Codespaces" data-advertiser="GitHub" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/codespaces-free-001/">GitHub Codespaces — Free 120 core-hrs + 15 GB-mo (personal)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / GitHub Free personal accounts: 120 hrs compute + 15 GB-month storage/mo included for Codespaces · GitHub</p>
       
@@ -97,7 +118,7 @@
     </article>
 
 
-    <article class="deal" id="deal-groq-free-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-groq-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="Free plan with documented model rate limits (RPM/RPD/TPM) in Groq console docs" data-advertiser="Groq" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/groq-free-001/">Groq — Free plan LLM inference (rate-limited)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / Free plan with documented model rate limits (RPM/RPD/TPM) in Groq console docs · Groq</p>
       
@@ -107,7 +128,7 @@
     </article>
 
 
-    <article class="deal" id="deal-kernel-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-kernel-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="$5 free usage/mo refreshed; stealth available on free" data-advertiser="Kernel" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/kernel-001/">Kernel — Free $5 usage/mo (refreshed)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $5 free usage/mo refreshed; stealth available on free · Kernel</p>
       
@@ -117,7 +138,7 @@
     </article>
 
 
-    <article class="deal" id="deal-modal-free-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-modal-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-unit="$30/month free credit on Starter; pay-as-you-go beyond allotment" data-advertiser="Modal" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/modal-free-001/">Modal — $30/month free compute credit (Starter)</a> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $30/month free credit on Starter; pay-as-you-go beyond allotment · Modal</p>
       
@@ -127,7 +148,7 @@
     </article>
 
 
-    <article class="deal" id="deal-99stack-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-99stack-001" data-category="compute" data-affiliate="true" data-offer="credit_only_referral" data-offer-label="Signup credit" data-price="" data-unit="" data-advertiser="99Stack Cloud" data-free="0" data-verified="1" data-verified-at="2026-10-27T01:51:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/99stack-001/">99Stack Cloud — hourly-billed cloud VPS and GPU instances (H100, L40S, A40, etc.) (referral credits)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> · 99Stack Cloud</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -137,7 +158,7 @@
     </article>
 
 
-    <article class="deal" id="deal-alphavps-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-alphavps-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="per server per month" data-advertiser="AlphaVPS" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/alphavps-001/">AlphaVPS — EU VPS, dedicated and GPU servers (RTX PRO 6000 / RTX 5090)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> / per server per month · AlphaVPS</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -147,7 +168,7 @@
     </article>
 
 
-    <article class="deal" id="deal-gigagpu-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-gigagpu-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="GigaGPU" data-free="0" data-verified="1" data-verified-at="2026-10-24T19:20:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/gigagpu-001/">GigaGPU — dedicated bare-metal GPU servers, UK datacenter (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> · GigaGPU</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -157,7 +178,7 @@
     </article>
 
 
-    <article class="deal" id="deal-hostwinds-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-hostwinds-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="4.99" data-unit="Unmanaged Linux VPS (1 CPU, 1 GB RAM) per month" data-advertiser="Hostwinds" data-free="0" data-verified="1" data-verified-at="2026-10-26T12:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/hostwinds-001/">Hostwinds — VPS and cloud hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$4.99</strong> / Unmanaged Linux VPS (1 CPU, 1 GB RAM) per month · Hostwinds</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -167,7 +188,7 @@
     </article>
 
 
-    <article class="deal" id="deal-hyperbrowser-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-hyperbrowser-001" data-category="compute" data-affiliate="false" data-offer="trial" data-offer-label="Trial" data-price="0" data-unit="5,000 free credits" data-advertiser="Hyperbrowser" data-free="1" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/hyperbrowser-001/">Hyperbrowser — Free 5,000 credits</a> <span class="badge public">public / non-affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / 5,000 free credits · Hyperbrowser</p>
       
@@ -177,7 +198,7 @@
     </article>
 
 
-    <article class="deal" id="deal-interserver-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-interserver-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="InterServer" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/interserver-001/">InterServer — web hosting and VPS</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> · InterServer</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -187,7 +208,7 @@
     </article>
 
 
-    <article class="deal" id="deal-novita-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-novita-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="paid usage" data-advertiser="Novita AI" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/novita-001/">Novita AI — GPU inference API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> / paid usage · Novita AI</p>
       
@@ -197,7 +218,7 @@
     </article>
 
 
-    <article class="deal" id="deal-racknerd-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-racknerd-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="26.99" data-unit="512 MB KVM VPS plan per year" data-advertiser="RackNerd" data-free="0" data-verified="1" data-verified-at="2026-10-26T12:45:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/racknerd-001/">RackNerd — budget KVM VPS and dedicated servers</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$26.99</strong> / 512 MB KVM VPS plan per year · RackNerd</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -207,7 +228,7 @@
     </article>
 
 
-    <article class="deal" id="deal-runpod-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-runpod-001" data-category="compute" data-affiliate="true" data-offer="credit_only_referral" data-offer-label="Signup credit" data-price="" data-unit="GPU pods billed per hour (see pricing_note)" data-advertiser="RunPod" data-free="0" data-verified="1" data-verified-at="2026-10-27T01:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/runpod-001/">RunPod — GPU compute credit referral</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> / GPU pods billed per hour (see pricing_note) · RunPod</p>
       <p class="freshness">Updated Oct 27, 2026</p>
@@ -217,7 +238,7 @@
     </article>
 
 
-    <article class="deal" id="deal-siliconflow-cn-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-siliconflow-cn-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="SiliconFlow (硅基流动, China site)" data-free="0" data-verified="1" data-verified-at="2026-10-24T13:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/siliconflow-cn-001/">SiliconFlow China (siliconflow.cn, Chinese-language site) — LLM inference API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> · SiliconFlow (硅基流动, China site)</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -227,7 +248,7 @@
     </article>
 
 
-    <article class="deal" id="deal-steel-001" data-category="compute" data-affiliate="false">
+    <article class="deal" id="deal-steel-001" data-category="compute" data-affiliate="false" data-offer="trial" data-offer-label="Trial" data-price="0" data-unit="$30 one-time free usage (~300 browser hrs); 90-day validity; captcha/proxies need $10 deposit" data-advertiser="Steel" data-free="1" data-verified="1" data-verified-at="2026-10-26T08:20:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/steel-001/">Steel — $30 one-time free browser usage</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $30 one-time free usage (~300 browser hrs); 90-day validity; captcha/proxies need $10 deposit · Steel</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -237,7 +258,7 @@
     </article>
 
 
-    <article class="deal" id="deal-thundercompute-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-thundercompute-001" data-category="compute" data-affiliate="true" data-offer="credit_only_referral" data-offer-label="Signup credit" data-price="" data-unit="" data-advertiser="Thunder Compute" data-free="0" data-verified="1" data-verified-at="2026-10-27T01:25:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/thundercompute-001/">Thunder Compute — low-cost on-demand GPU cloud (A6000, L40, A100, H100) (referral credits)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> · Thunder Compute</p>
       <p class="freshness">Updated Oct 25, 2026</p>
@@ -247,7 +268,7 @@
     </article>
 
 
-    <article class="deal" id="deal-ucartz-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-ucartz-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="382.72" data-unit="GPU dedicated server (Radeon 780M, entry plan) per month" data-advertiser="Ucartz" data-free="0" data-verified="1" data-verified-at="2026-10-26T12:00:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/ucartz-001/">Ucartz — GPU dedicated servers, dedicated servers and hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$382.72</strong> / GPU dedicated server (Radeon 780M, entry plan) per month · Ucartz</p>
       <p class="freshness">Updated Oct 26, 2026</p>
@@ -257,7 +278,7 @@
     </article>
 
 
-    <article class="deal" id="deal-vastai-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-vastai-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="GPU rental" data-advertiser="Vast.ai" data-free="0" data-verified="0" data-verified-at="">
       <h2><a href="https://thelanternworks.com/deals/vastai-001/">Vast.ai — GPU cloud (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> / GPU rental · Vast.ai</p>
       
@@ -267,7 +288,7 @@
     </article>
 
 
-    <article class="deal" id="deal-wavespeed-001" data-category="compute" data-affiliate="true">
+    <article class="deal" id="deal-wavespeed-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-unit="" data-advertiser="WaveSpeedAI" data-free="0" data-verified="1" data-verified-at="2026-10-24T19:52:00-04:00">
       <h2><a href="https://thelanternworks.com/deals/wavespeed-001/">WaveSpeedAI — pay-as-you-go inference API for image, video and audio generative models (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Price: unknown</strong> · WaveSpeedAI</p>
       <p class="freshness">Updated Oct 24, 2026</p>
@@ -278,6 +299,7 @@
 
   </main>
 
+</div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
