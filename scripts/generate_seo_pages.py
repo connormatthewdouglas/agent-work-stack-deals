@@ -66,7 +66,20 @@ HELD_PATH = Path(os.environ.get("LANTERN_HELD_DEALS", str(PRIVATE_DIR / "held_de
 SCHEMA_PATH = ROOT / "schema.json"
 OFFER_TYPE_RANK = {"verified_discount": 0, "free_tier": 1, "listed_discount": 2, "trial": 2, "standard_referral": 2, "credit_only_referral": 2}
 OFFER_TYPES = tuple(OFFER_TYPE_RANK)
-# No dedicated OG share image in the repo — omit og:image / twitter:image.
+# Sitewide brand mark (original, drawn by scripts/make_logo.py): favicon + og:image/twitter:image + JSON-LD logo.
+LOGO_URL = f"{BASE}/logo.png"
+HEAD_BRAND = (
+    f'  <link rel="icon" href="{BASE}/favicon.ico" sizes="any" />\n'
+    f'  <link rel="icon" type="image/png" sizes="32x32" href="{BASE}/favicon-32.png" />\n'
+    f'  <link rel="apple-touch-icon" href="{BASE}/apple-touch-icon.png" />\n'
+)
+OG_IMAGE = (
+    f'  <meta property="og:image" content="{LOGO_URL}" />\n'
+    '  <meta property="og:image:width" content="400" />\n'
+    '  <meta property="og:image:height" content="400" />\n'
+    f'  <meta property="og:image:alt" content="Lantern Works lantern logo" />\n'
+    f'  <meta name="twitter:image" content="{LOGO_URL}" />\n'
+)
 
 CSS = """
     :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
@@ -1005,7 +1018,7 @@ def deal_card(deal: dict, link_mode: str = "page") -> str:
 
 
 def social_meta(title: str, description: str, canonical: str, og_type: str = "website") -> str:
-    """Open Graph + Twitter card tags. Absolute https URLs; no invented og:image."""
+    """Open Graph + Twitter card tags. Absolute https URLs. og:image/twitter:image come from brand_heads()."""
     return f"""  <meta property="og:title" content="{esc(title)}" />
   <meta property="og:description" content="{esc(description)}" />
   <meta property="og:url" content="{esc(canonical)}" />
@@ -1042,6 +1055,8 @@ def homepage_json_ld(deals: list[dict]) -> str:
             "name": SITE_NAME,
             "url": f"{BASE}/",
             "email": "lanternworks@agentmail.to",
+            "logo": {"@type": "ImageObject", "url": LOGO_URL, "width": 400, "height": 400},
+            "image": LOGO_URL,
             "description": (
                 "Affiliate-backed and public free-tier deals for AI agent work stacks "
                 "(compute, search, crawl, hosting, email, unblock)."
@@ -1600,6 +1615,23 @@ def ensure_robots() -> None:
     path.write_text(desired, encoding="utf-8")
 
 
+def brand_heads() -> int:
+    """Idempotently add favicon links (+ og:image/twitter:image) to every public HTML page's <head>."""
+    b, e = "<!-- brand -->", "<!-- /brand -->"
+    n = 0
+    for f in sorted(ROOT.rglob("*.html")):
+        rel = f.relative_to(ROOT).parts
+        if rel[0] in {".git", "node_modules", ".github", "mcp_server", "tests", "examples", "plugins", "skills"} or "</head>" not in (t := f.read_text(encoding="utf-8")):
+            continue
+        t2 = re.sub(r"[ \t]*" + re.escape(b) + r".*?" + re.escape(e) + r"\n", "", t, flags=re.S)
+        block = f"  {b}\n{HEAD_BRAND}{OG_IMAGE}  {e}\n"
+        t2 = t2.replace("</head>", block + "</head>", 1)
+        if t2 != t:
+            f.write_text(t2, encoding="utf-8")
+        n += 1
+    return n
+
+
 def main() -> None:
     write_skill_copies()
     feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
@@ -1658,6 +1690,7 @@ def main() -> None:
     write_404()
     write_for_agents(deals, feed)
     write_held_stubs()
+    print(f"brand_pages={brand_heads()}")
     api_path = write_api_v1()
     public_out = [p for p in ROOT.rglob("*") if p.is_file() and p.suffix in (".html", ".json", ".xml", ".txt", ".md")
                   and ".git" not in p.parts and "scripts" not in p.parts]

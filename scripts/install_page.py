@@ -55,6 +55,10 @@ def write(g) -> str:
   <p><a href="{html.escape(VSCODE_LINK)}">Install in VS Code</a>, or <code>.vscode/mcp.json</code>:</p>
   {_pre(vscode)}
 
+  <h2>Cline</h2>
+  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested {TESTED_ON}: this exact config started the server and <code>tools/list</code> returned all {len(TOOLS)} tools):</p>
+  {_pre(desktop)}
+
   <h2>Skills-based agents (Claude Code skills, OpenClaw)</h2>
   {_pre("npx skills add connormatthewdouglas/agent-work-stack-deals")}
   <p>Installs <a href="{base}/SKILL.md">SKILL.md</a> (checked {TESTED_ON} with <code>-a claude-code</code>). For OpenClaw MCP, use the generic stdio config below.</p>
