@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.connormatthewdouglas/lantern-works-deals",
-  "title": "Lantern Works agent deals",
-  "description": "Read-only search, compare and lookup of agent work-stack deals ranked by customer value.",
-  "version": "0.1.0",
+  "title": "Lantern Works: AI infra deals & GPU prices",
+  "description": "Read-only AI-infra deals, free tiers and tracked GPU rental prices, ranked by customer value.",
+  "version": "0.2.0",
   "websiteUrl": "https://thelanternworks.com/for-agents/",
   "repository": {
     "url": "https://github.com/connormatthewdouglas/agent-work-stack-deals",
@@ -14,7 +14,7 @@
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "lantern-works-deals-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"
@@ -23,6 +23,12 @@
         {
           "name": "LANTERN_DEALS_FILE",
           "description": "Optional path to a local deals.json (offline use).",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "LANTERN_GPU_PRICES_FILE",
+          "description": "Optional path to a local gpu-prices.json (offline use).",
           "isRequired": false,
           "isSecret": false
         }

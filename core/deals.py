@@ -15,7 +15,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+VERSION = "0.2.0"  # package version (pyproject + server.json must match; tests enforce)
+# Non-identifying: product/version only, no host, user, or install id.
+USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
+GPU_PRICES_URL = "https://thelanternworks.com/api/v1/gpu-prices.json"
 OFFER_TYPES = ("verified_discount", "listed_discount", "free_tier", "trial", "standard_referral", "credit_only_referral")
 OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0, "listed_discount": 1.0,
                     "standard_referral": 0.0, "credit_only_referral": -0.5}
@@ -43,9 +47,11 @@ class DealError(Exception):
 class FeedLoader:
     """Fetch the public feed with a short in-memory cache. LANTERN_DEALS_FILE overrides (tests/offline)."""
 
+    DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = FEED_URL, "LANTERN_DEALS_URL", "LANTERN_DEALS_FILE", "deals", "deal feed"
+
     def __init__(self, url: str | None = None, file: str | None = None, ttl: float = CACHE_TTL_S):
-        self.url = url or os.environ.get("LANTERN_DEALS_URL", FEED_URL)
-        self.file = file or os.environ.get("LANTERN_DEALS_FILE") or None
+        self.url = url or os.environ.get(self.URL_ENV, self.DEFAULT_URL)
+        self.file = file or os.environ.get(self.FILE_ENV) or None
         self.ttl = ttl
         self._cache: tuple[float, dict] | None = None
 
@@ -57,20 +63,76 @@ class FeedLoader:
             if self.file:
                 feed = json.loads(Path(self.file).read_text(encoding="utf-8"))
             else:
-                req = urllib.request.Request(self.url, headers={"User-Agent": "lantern-works-mcp/0.1"})
+                req = urllib.request.Request(self.url, headers={"User-Agent": USER_AGENT})
                 with urllib.request.urlopen(req, timeout=15) as r:
                     feed = json.loads(r.read().decode("utf-8"))
         except Exception as e:  # network, file, or JSON errors
             if self._cache:  # serve stale rather than fail
                 return self._cache[1]
-            raise DealError("feed_unavailable", f"Could not load deal feed: {type(e).__name__}") from None
-        if not isinstance(feed, dict) or not isinstance(feed.get("deals"), list):
-            raise DealError("feed_invalid", "Feed is missing a deals[] array")
+            raise DealError("feed_unavailable", f"Could not load {self.LABEL}: {type(e).__name__}") from None
+        if not isinstance(feed, dict) or not isinstance(feed.get(self.LIST_KEY), list):
+            raise DealError("feed_invalid", f"Feed is missing a {self.LIST_KEY}[] array")
         self._cache = (now, feed)
         return feed
 
     def deals(self) -> list[dict]:
         return [d for d in self.load()["deals"] if isinstance(d, dict) and not d.get("example")]
+
+
+class GpuPricesLoader(FeedLoader):
+    """The published /api/v1/gpu-prices.json (same file the site serves). LANTERN_GPU_PRICES_FILE overrides."""
+    DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (GPU_PRICES_URL, "LANTERN_GPU_PRICES_URL",
+                                                       "LANTERN_GPU_PRICES_FILE", "rates", "GPU prices")
+
+
+RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
+               "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id")
+
+
+def _tokens(s: str) -> list[str]:
+    return [t for t in "".join(c if c.isalnum() else " " for c in (s or "").lower()).split() if t]
+
+
+def gpu_models(data: dict) -> list[str]:
+    return sorted({r.get("gpu") for r in data.get("rates") or [] if r.get("gpu")})
+
+
+def compare_gpu_prices(data: dict, gpu: str, limit: int = 10) -> dict:
+    """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
+    'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
+    q = _tokens(gpu)
+    if not q:
+        raise DealError("invalid_argument", "gpu is required, e.g. 'H100', 'A100 SXM', 'RTX 4090'")
+    if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIMIT:
+        raise DealError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
+    rows = [r for r in data.get("rates") or []
+            if isinstance(r, dict) and isinstance(r.get("hourly_equiv_usd"), (int, float))
+            and set(q) <= set(_tokens(r.get("gpu", "")))]
+    if not rows:
+        raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
+    rows.sort(key=lambda r: (r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    results = []
+    for i, r in enumerate(rows[:limit], 1):
+        out = {k: r.get(k) for k in RATE_FIELDS}
+        out["hourly_usd"] = out.pop("hourly_equiv_usd")
+        out["checked_at"] = out.pop("verified_at")
+        out["rank"] = i
+        results.append(out)
+    c = results[0]
+    return {
+        "gpu": gpu,
+        "summary": (f"Cheapest among tracked providers: {c['advertiser']} {c['gpu']} at ${c['hourly_usd']:g}/hr "
+                    f"({c['tier']}, checked {(c['checked_at'] or '')[:10]}). This is the cheapest among tracked "
+                    "providers only, not the whole market."),
+        "scope": "cheapest among tracked providers",
+        "total": len(rows), "count": len(results), "results": results,
+        "sorted_by": "hourly_usd ascending (monthly plans converted at hours_per_month)",
+        "hours_per_month": data.get("hours_per_month"),
+        "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at"),
+        "methodology": data.get("methodology"),
+        "note": "Each result's source_url is the vendor page the price was checked on (checked_at). "
+                "Excludes storage, egress and taxes; confirm on the vendor page before spending.",
+    }
 
 
 def public_view(deal: dict, fields: tuple[str, ...] = PUBLIC_FIELDS) -> dict:
