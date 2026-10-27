@@ -159,3 +159,18 @@ def test_optimize_stack_tool(srv):
     assert r["data_source"].endswith("/api/v1/stack-pricing.json")
     assert call(srv, "optimize_stack", {})["error"]["code"] == "invalid_argument"
     assert call(srv, "optimize_stack", {"emails_sent": -5})["error"]["code"] == "invalid_argument"
+
+
+def test_compare_gpu_prices_include_history(srv):
+    srv.history_loader.file = str(ROOT / "api" / "v1" / "gpu-prices" / "history.json")
+    srv.history_loader._cache = None
+    plain = call(srv, "compare_gpu_prices", {"gpu": "H100"})
+    assert "history" not in plain and "price_history" not in plain["results"][0]
+    r = call(srv, "compare_gpu_prices", {"gpu": "H100", "include_history": True})
+    assert r["history"]["source"].endswith("/api/v1/gpu-prices/history.json") and isinstance(r["history"]["recent_changes"], list)
+    assert all(isinstance(x["price_history"], list) for x in r["results"])
+    assert any(x["price_history"] for x in r["results"])  # every tracked rate has at least its seed point
+    srv.history_loader.file = str(ROOT / "nope.json")
+    srv.history_loader._cache = None
+    r = call(srv, "compare_gpu_prices", {"gpu": "H100", "include_history": True})
+    assert r["results"] and r["history"]["error"]  # history failure never breaks the comparison

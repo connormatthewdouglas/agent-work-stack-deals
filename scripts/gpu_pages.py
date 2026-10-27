@@ -13,7 +13,7 @@ from urllib.parse import urlencode
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families  # noqa: E402
+from core.gpu import load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of  # noqa: E402
 from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
@@ -132,7 +132,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
   <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{gen.esc(cheapest['advertiser'])} {gen.esc(cheapest['gpu'])} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
 {_table(gen, rows, full)}
   <p>Basis: hourly rate × hours; dedicated servers are a flat monthly price. One GPU. Excludes storage, egress and tax.</p>
-{accuracy_html(gen, fam['rates'])}  <h2>FAQ</h2>
+{accuracy_html(gen, fam['rates'])}{changes_html(gen, slug)}  <h2>FAQ</h2>
 {_faq_html(gen, faqs)}
   <h2>More</h2>
   <ul><li><a href="{calc}">GPU cost calculator ({gen.esc(name)} prefilled)</a></li>{_more_links(gen, exclude=path)}<li><a href="{gen.BASE}/compare/cheap-gpu-rental/">GPU rental deals comparison</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices.json">gpu-prices.json</a> for agents</li></ul>
@@ -391,6 +391,41 @@ def write_all(gen, deals: list[dict]) -> list[str]:
     return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + list(pages.values()) + cmps
 
 
+def _history():
+    p = ROOT / "api" / "v1" / "gpu-prices" / "history.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+def _pct(x) -> str:
+    return "" if x is None else f"{x:+.1f}%"
+
+
+def changes_html(gen, gpu_family: str | None = None, days: int = 30, limit: int = 15) -> str:
+    """'Recent price changes' (among tracked providers) from the daily snapshots."""
+    from core import gpu_history
+    h = _history()
+    if not h.get("series"):
+        return ""
+    ch = gpu_history.recent_changes(h, days=days)
+    if gpu_family:
+        ch = [c for c in ch if family_of(c["gpu"]) == gpu_family]
+    api = f"{gen.BASE}/api/v1/gpu-prices/history.json"
+    head = f"  <h2>Recent price changes</h2>\n"
+    since = h.get("first_snapshot")
+    if not ch:
+        return (head + f"  <p>No price changes among tracked providers in the last {days} days "
+                f"(daily snapshots since {gen.esc(since or '')}). Full series: <a href=\"{api}\">price history JSON</a>.</p>\n")
+    rows = "".join(
+        f"<tr><td>{gen.esc(c['date'])}</td><td>{gen.esc(c['vendor'])}</td><td>{gen.esc(c['gpu'])} ({gen.esc(c['tier'])})</td>"
+        f"<td>${c['from_hourly_usd']:g} → ${c['to_hourly_usd']:g}/hr</td>"
+        f"<td>{_pct(c.get('change_pct'))}</td></tr>"
+        for c in ch[:limit])
+    return (head + f"  <p>Price changes among tracked providers in the last {days} days, per GPU-hour, from daily snapshots "
+            f"since {gen.esc(since or '')}. Full series: <a href=\"{api}\">price history JSON</a>.</p>\n"
+            "  <table><thead><tr><th>Date</th><th>Provider</th><th>GPU</th><th>Price</th><th>Change</th></tr></thead>"
+            f"<tbody>{rows}</tbody></table>\n")
+
+
 def write_hub(gen, rates: list[dict]) -> str:
     """/gpu/ hub: entry point linking every GPU page, tool and data endpoint."""
     path = "gpu"
@@ -407,14 +442,14 @@ def write_hub(gen, rates: list[dict]) -> str:
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › GPU</nav>
   <h1>GPU rental prices</h1>
   <p class="meta">{len(rates)} tracked rates{(" · newest check " + fresh) if fresh else ""} · "cheapest" means cheapest among tracked providers</p>
-  <h2>Tools</h2>
+{changes_html(gen)}  <h2>Tools</h2>
   <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li></ul>
   <h2>Cheapest GPU by model</h2>
   <ul>{li(cheapest)}</ul>
   <h2>Comparisons</h2>
   <ul>{li(cmps)}</ul>
   <h2>Deals and data</h2>
-  <ul><li><a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute deals</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices.json">GPU pricing API (JSON)</a></li><li><a href="{gen.BASE}/api/v1/stack-pricing.json">Stack pricing API (JSON)</a></li></ul>
+  <ul><li><a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute deals</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices.json">GPU pricing API (JSON)</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices/history.json">GPU price history (JSON)</a></li><li><a href="{gen.BASE}/api/v1/stack-pricing.json">Stack pricing API (JSON)</a></li></ul>
 """
     out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)

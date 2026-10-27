@@ -63,7 +63,7 @@ curl -fsSL "https://thelanternworks.com/api/v1/gpu-prices.json" \
   | python3 -c "import json,sys; d=json.load(sys.stdin); r=sorted((x for x in d[\"rates\"] if \"h100\" in x[\"gpu\"].lower().split()), key=lambda x: x[\"hourly_equiv_usd\"]); [print(x[\"advertiser\"], x[\"gpu\"], x[\"hourly_equiv_usd\"], x[\"source_url\"], x[\"verified_at\"][:10]) for x in r]"
 ```
 
-The MCP tool `compare_gpu_prices(gpu="H100")` returns the same data, already sorted.
+The MCP tool `compare_gpu_prices(gpu="H100")` returns the same data, already sorted; add `include_history=true` for each rate's price history and recent changes (also at https://thelanternworks.com/api/v1/gpu-prices/history.json).
 
 ### Optional CLI
 If you have the [agent-work-stack-deals](https://github.com/connormatthewdouglas/agent-work-stack-deals) repo checked out:

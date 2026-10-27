@@ -129,7 +129,7 @@ def main() -> int:
         print("FLAG:", f)
     if a.report:
         body = [f"Daily GPU pricing source check: {summary}.", "",
-                "Prices are never edited automatically. Re-check each flagged record on its source page, then update "
+                "Prices change only where scripts/refresh_gpu_prices.py parses them (daily). Re-check each flagged record on its source page, then update "
                 "`data/gpu_pricing/<vendor>.json` (price and `checked_at`) by hand.", ""]
         body += [f"- {f}" for f in flags] or ["- none"]
         Path(a.report).write_text("\n".join(body) + "\n", encoding="utf-8")

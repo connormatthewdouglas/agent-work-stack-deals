@@ -11,7 +11,7 @@ import json
 import os
 import time
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,7 @@ USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
 GPU_PRICES_URL = "https://thelanternworks.com/api/v1/gpu-prices.json"
 STACK_PRICING_URL = "https://thelanternworks.com/api/v1/stack-pricing.json"
+GPU_HISTORY_URL = "https://thelanternworks.com/api/v1/gpu-prices/history.json"
 OFFER_TYPES = ("verified_discount", "listed_discount", "free_tier", "trial", "standard_referral", "credit_only_referral")
 OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0, "listed_discount": 1.0,
                     "standard_referral": 0.0, "credit_only_referral": -0.5}
@@ -87,6 +88,12 @@ class GpuPricesLoader(FeedLoader):
 
 
 
+class GpuHistoryLoader(FeedLoader):
+    """The published /api/v1/gpu-prices/history.json (daily snapshots as change points). LANTERN_GPU_HISTORY_FILE overrides."""
+    DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (GPU_HISTORY_URL, "LANTERN_GPU_HISTORY_URL",
+                                                       "LANTERN_GPU_HISTORY_FILE", "series", "GPU price history")
+
+
 class StackPricingLoader(FeedLoader):
     """The published /api/v1/stack-pricing.json (Agent Stack Optimizer data). LANTERN_STACK_PRICING_FILE overrides."""
     DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (STACK_PRICING_URL, "LANTERN_STACK_PRICING_URL",
@@ -107,7 +114,37 @@ def gpu_models(data: dict) -> list[str]:
     return sorted({r.get("gpu") for r in data.get("rates") or [] if r.get("gpu")})
 
 
-def compare_gpu_prices(data: dict, gpu: str, limit: int = 10) -> dict:
+HISTORY_DAYS = 30
+
+
+def _hist_key(r: dict) -> str:
+    return f"{r.get('advertiser')}|{r.get('gpu')}|{r.get('tier')}|{r.get('vram_gb')}|{r.get('gpu_count') or 1}"
+
+
+def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = HISTORY_DAYS) -> dict:
+    """Per-result price history (change points) + recent changes for this model among tracked providers."""
+    q = set(_tokens(gpu))
+    series = {s.get("key"): s for s in history.get("series") or [] if isinstance(s, dict)}
+    for r in results:
+        s = series.get(_hist_key(r))
+        r["price_history"] = [{k: p.get(k) for k in ("date", "hourly_usd", "status")} for p in (s or {}).get("points") or []]
+    last = history.get("last_snapshot")
+    start = None
+    if last:
+        try:
+            start = (datetime.fromisoformat(last) - timedelta(days=days)).date().isoformat()
+        except ValueError:
+            start = None
+    changes = [{k: c.get(k) for k in ("date", "vendor", "gpu", "tier", "vram_gb", "from_hourly_usd", "to_hourly_usd",
+                                      "change_pct", "status", "source_url")}
+               for c in history.get("changes") or [] if isinstance(c, dict) and q <= set(_tokens(c.get("gpu", "")))
+               and (start is None or (c.get("date") or "") > start)]
+    return {"recent_changes": changes, "window_days": days, "first_snapshot": history.get("first_snapshot"),
+            "last_snapshot": last, "source": GPU_HISTORY_URL,
+            "note": "Price changes among tracked providers only (daily snapshots; points are change points)."}
+
+
+def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     q = _tokens(gpu)
@@ -129,6 +166,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10) -> dict:
         out["rank"] = i
         results.append(out)
     c = results[0]
+    extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
     return {
         "gpu": gpu,
         "summary": (f"Cheapest among tracked providers: {c['advertiser']} {c['gpu']} at ${c['hourly_usd']:g}/hr "
@@ -146,6 +184,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10) -> dict:
         "methodology": data.get("methodology"),
         "note": "Each result's source_url is the vendor page the price was checked on (checked_at). "
                 "Excludes storage, egress and taxes; confirm on the vendor page before spending.",
+        **extra,
     }
 
 

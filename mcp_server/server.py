@@ -18,11 +18,11 @@ except ImportError:
     from mcp_server import telemetry  # noqa: E402
 
 try:  # installed wheel: core is vendored as a subpackage
-    from lantern_works_deals_mcp.core import VERSION, DealError, FeedLoader, GpuPricesLoader, StackPricingLoader
+    from lantern_works_deals_mcp.core import VERSION, DealError, FeedLoader, GpuHistoryLoader, GpuPricesLoader, StackPricingLoader
     from lantern_works_deals_mcp.core import deals as core
     from lantern_works_deals_mcp.core import stack
 except ImportError:  # repo checkout: shared top-level core/
-    from core import VERSION, DealError, FeedLoader, GpuPricesLoader, StackPricingLoader  # noqa: E402
+    from core import VERSION, DealError, FeedLoader, GpuHistoryLoader, GpuPricesLoader, StackPricingLoader  # noqa: E402
     from core import deals as core  # noqa: E402
     from core import stack  # noqa: E402
 
@@ -37,6 +37,7 @@ __version__ = VERSION
 mcp._mcp_server.version = __version__
 loader = FeedLoader()
 gpu_loader = GpuPricesLoader()
+history_loader = GpuHistoryLoader()
 stack_loader = StackPricingLoader()
 
 
@@ -86,15 +87,26 @@ def get_deal(id: str) -> dict:
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
-def compare_gpu_prices(gpu: str, limit: int = 10) -> dict:
+def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False) -> dict:
     """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
     has source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.
     limit 1-25. Unknown model returns not_found listing tracked models.
+    include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
+    (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     """
     try:
-        return core.compare_gpu_prices(gpu_loader.load(), gpu, limit)
+        hist = None
+        if include_history:
+            try:
+                hist = history_loader.load()
+            except DealError as e:
+                hist = {"series": [], "changes": [], "error": e.message}
+        out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, history=hist)
+        if hist and hist.get("error"):
+            out["history"]["error"] = hist["error"]
+        return out
     except DealError as e:
         return e.to_dict()
 

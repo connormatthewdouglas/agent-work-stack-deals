@@ -9,7 +9,10 @@ Optional flags: min_gpus (instance only sold with N GPUs; estimates charge at le
 MIN_MARKET_OFFERS; a thinner market gets a record-level `stale` {reason} hold); vendor-level `stale` {reason, page_last_updated} holds the vendor out of `rates` (listed
 under `held_stale` instead) so no comparison, page, MCP tool or optimizer can rank it.
 deal_id may be null for vendors with no deal in the feed (links then go to the vendor's own page).
-scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits).
+scripts/refresh_gpu_prices.py (daily Action) re-reads each source and updates a price only where it parsed it from
+the vendor's own page/API: verified_at = when the price was last parsed, checked_at = last attempt. A rate not
+re-verified for STALE_DAYS gets an automatic record-level hold (stale.auto) and is never ranked until re-verified.
+scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits); scripts/refresh_gpu_prices.py updates parsed prices.
 Ranking is by estimated cost for the user's hours, never by affiliate status or commission.
 """
 from __future__ import annotations
@@ -112,10 +115,13 @@ def record_problems(doc: dict) -> list[str]:
                 out.append(f"{tag}: evidence.checked_at not ISO-8601")
         if not str(r["source_url"]).startswith("https://") or not r["checked_at"]:
             out.append(f"{tag}: needs https source_url and checked_at")
-        try:
-            datetime.fromisoformat(r["checked_at"])
-        except (TypeError, ValueError):
-            out.append(f"{tag}: checked_at not ISO-8601")
+        for k in ("checked_at", "verified_at"):
+            if k == "verified_at" and k not in r:
+                continue
+            try:
+                datetime.fromisoformat(r[k])
+            except (TypeError, ValueError):
+                out.append(f"{tag}: {k} not ISO-8601")
     return out
 
 
@@ -126,9 +132,10 @@ def stale_records(docs: list[dict], now: datetime | None = None, days: int = STA
         for r in doc.get("records") or []:
             if r.get("stale"):
                 continue  # held records are never ranked; their age isn't a live-site failure
-            age = now - datetime.fromisoformat(r["checked_at"])
+            v = r.get("verified_at") or r["checked_at"]
+            age = now - datetime.fromisoformat(v)
             if age > timedelta(days=days):
-                out.append(f"{doc['vendor']} {r['gpu']} ({r['tier']}): checked_at {r['checked_at']} is {age.days} days old")
+                out.append(f"{doc['vendor']} {r['gpu']} ({r['tier']}): price last verified {v} is {age.days} days old")
     return out
 
 
@@ -220,7 +227,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
                 "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
-                "verified_at": r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
+                "verified_at": r.get("verified_at") or r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"]})
     priced = {r["deal_id"] for r in rates}
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),

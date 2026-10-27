@@ -15,6 +15,18 @@ from core.gpu import HOURS_PER_MONTH, build_rates  # noqa: E402
 
 PAGE_PATH = "tools/gpu-cost-calculator"
 API_PATH = ROOT / "api" / "v1" / "gpu-prices.json"
+HISTORY_PATH = ROOT / "api" / "v1" / "gpu-prices" / "history.json"
+
+
+def write_history(gen) -> dict:
+    """/api/v1/gpu-prices/history.json from the committed daily snapshots (data/gpu_pricing/snapshots/)."""
+    from core import gpu_history
+    hist = gpu_history.build_history(gpu_history.load_snapshots())
+    hist["source"] = f"{gen.BASE}/api/v1/gpu-prices.json"
+    gen.assert_public_clean(hist)
+    HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    HISTORY_PATH.write_text(json.dumps(hist, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return hist
 
 
 def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
@@ -29,7 +41,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
         "methodology": [
             "Rates come from structured per-vendor pricing records (data/gpu_pricing/<vendor>.json in the repo); each rate has source_url and checked_at, and 'basis' is the exact vendor quote.",
-            "A daily job re-fetches every source_url and flags records older than 7 days or unreachable pages; prices are never auto-edited.",
+            "A daily job re-reads every source_url (robots.txt respected) and updates a price only where it parsed it from the vendor's own page or API; verified_at is when the price was last parsed, checked_at the last attempt. A rate not re-verified for 7 days is held (held_stale) and never ranked. Price history: /api/v1/gpu-prices/history.json.",
             "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
             "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
@@ -48,6 +60,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
 
 def write(gen, deals: list[dict], feed_updated: str) -> str:
     payload = build_payload(gen, deals, feed_updated)
+    write_history(gen)
     API_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     esc = gen.esc
     data_js = json.dumps(payload["rates"], ensure_ascii=False).replace("</", "<\\/")
