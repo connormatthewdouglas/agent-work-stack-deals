@@ -128,6 +128,8 @@ PAGES = [
     },
     {
         "slug": "h100-rental-price-comparison",
+        # Superseded by the verified-rate landing page; canonicalized there and dropped from the sitemap.
+        "canonical_to": "gpu/cheapest-h100-rental",
         "title": "H100 Rental Price Comparison: Verified Per-Hour Prices",
         "h1": "H100 rental price comparison",
         "desc": "NVIDIA H100 rental prices per hour from vendor pages we verified, plus GPU clouds where the H100 price is not yet verified (shown as unknown).",
@@ -336,6 +338,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
         assert len(rows) >= 4, (p["slug"], len(rows))
         rows = g.sort_deals_customer_value(rows)
         url = f"{base}/compare/{p['slug']}/"
+        canon = f"{base}/{p['canonical_to']}/" if p.get("canonical_to") else url
         crumbs = [("Home", f"{base}/"), ("AI agent tool deals", f"{base}/{PILLAR['slug']}/"), (p["h1"], url)]
         tr = []
         ptm = {}
@@ -369,13 +372,14 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
             ],
         }
         related = " · ".join(
-            f'<a href="{base}/compare/{o["slug"]}/">{esc(o["h1"])}</a>' for o in PAGES if o["slug"] != p["slug"]
+            f'<a href="{base}/{o.get("canonical_to") or "compare/" + o["slug"]}/">{esc(o["h1"])}</a>' for o in PAGES if o["slug"] != p["slug"]
         )
         hubs = " · ".join(f'<a href="{base}/categories/{h}/">{esc(hub_titles.get(h, h))}</a>' for h in p["hubs"])
         body = f"""
   <nav aria-label="Breadcrumb" class="crumbs"><a href="{base}/">Home</a> › <a href="{base}/{PILLAR['slug']}/">AI agent tool deals</a> › {esc(p['h1'])}</nav>
   <main>
   <h1>{esc(p['h1'])}</h1>
+  {f'<p class="callout"><strong>Updated page:</strong> verified per-hour H100 prices, sorted by cost, are now at <a href="{canon}">{canon}</a>.</p>' if p.get("canonical_to") else ""}
   <p>{p['intro']}</p>
   <p><small>Prices verified on vendor pages for {known} of {len(rows)} providers below; the rest are marked <em>unknown</em>. Always confirm at checkout. Order: vendor discounts, then free tiers, then standard signups, A–Z. Affiliate status does not affect order.</small></p>
   <h2>Comparison table</h2>
@@ -400,8 +404,9 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
 """
         path = g.ROOT / "compare" / p["slug"] / "index.html"
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(g.page_shell(p["title"], p["desc"], url, body), encoding="utf-8")
-        out.append(f"compare/{p['slug']}")
+        path.write_text(g.page_shell(p["title"], p["desc"], canon, body), encoding="utf-8")
+        if not p.get("canonical_to"):  # canonicalized pages stay reachable but leave the sitemap
+            out.append(f"compare/{p['slug']}")
 
     # Pillar
     url = f"{base}/{PILLAR['slug']}/"
@@ -416,7 +421,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
     sec = []
     for gname, slugs in groups.items():
         items = "".join(
-            f'<li><a href="{base}/compare/{s}/">{esc(pmap[s]["h1"])}</a> — {esc(pmap[s]["desc"])}</li>' for s in slugs
+            f'<li><a href="{base}/{pmap[s].get("canonical_to") or "compare/" + s}/">{esc(pmap[s]["h1"])}</a> — {esc(pmap[s]["desc"])}</li>' for s in slugs
         )
         sec.append(f"<h2>{esc(gname)}</h2><ul>{items}</ul>")
     discounts = [d for d in g.sort_deals_customer_value(deals) if d["offer_type"] == "verified_discount"]
@@ -453,7 +458,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
 
 
 def nav_html(base: str) -> str:
-    links = " · ".join(f'<a href="{base}/compare/{p["slug"]}/">{p["h1"]}</a>' for p in PAGES)
+    links = " · ".join(f'<a href="{base}/{p.get("canonical_to") or "compare/" + p["slug"]}/">{p["h1"]}</a>' for p in PAGES)
     return (
         f'<nav class="compare-nav" style="margin-top:.5rem;"><strong>Comparisons:</strong> '
         f'<a href="{base}/{PILLAR["slug"]}/">AI agent tool deals (overview)</a> · {links}</nav>'

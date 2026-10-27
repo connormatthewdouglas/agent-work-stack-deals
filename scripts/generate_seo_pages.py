@@ -42,6 +42,21 @@ PRIVATE_PATH = Path(os.environ.get(
     str(ROOT.parents[1] / "lanternworks" / "private" / "deals_private_fields.json"),
 ))
 API_V1_PATH = ROOT / "api" / "v1" / "deals.json"
+# Public site config (no secrets): Cloudflare Web Analytics beacon token. Empty = no script emitted.
+SITE_CONFIG_PATH = ROOT / "site_config.json"
+
+
+def analytics_snippet() -> str:
+    try:
+        token = (json.loads(SITE_CONFIG_PATH.read_text(encoding="utf-8")).get("CF_BEACON_TOKEN") or "").strip()
+    except (OSError, ValueError):
+        token = ""
+    if not token:
+        return ""
+    if not re.fullmatch(r"[A-Za-z0-9_-]{8,64}", token):
+        raise SystemExit("site_config.json: CF_BEACON_TOKEN has unexpected characters")
+    beacon = json.dumps({"token": token})
+    return f"""  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{beacon}'></script>\n"""
 # Compliance gate (private, outside the repo; owned by Wick). When present, only deals whose
 # registry status is "approved" are published; others move to a private held file and are
 # restored automatically once approved. When absent (e.g. CI), the feed is used as-is.
@@ -980,7 +995,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
     <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
-</body>
+{analytics_snippet()}</body>
 </html>
 """
 
@@ -1266,7 +1281,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · <a href="changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>
-</body>
+{analytics_snippet()}</body>
 </html>
 """
     path = ROOT / "index.html"
@@ -1306,6 +1321,13 @@ def patch_lanternworks() -> None:
         if needle not in text:
             raise RuntimeError("lanternworks canonical link missing")
         text = text.replace(needle, needle + "\n  " + block, 1)
+
+    # Analytics beacon (idempotent markers; empty when CF_BEACON_TOKEN is unset).
+    a_begin, a_end = "<!-- cf-analytics -->", "<!-- /cf-analytics -->"
+    text = re.sub(re.escape(a_begin) + r".*?" + re.escape(a_end) + r"\n?", "", text, flags=re.S)
+    snip = analytics_snippet()
+    if snip:
+        text = text.replace("</body>", f"{a_begin}\n{snip}{a_end}\n</body>", 1)
 
     marker = "<!-- seo-hubs -->"
     guide_links = " · ".join(
