@@ -13,6 +13,8 @@ update the price ONLY where it was actually parsed:
   STALE_DAYS gets an automatic hold (stale.auto = true): listed under held_stale, never ranked or "verified",
   until a later run parses it again.
 * Manual holds (vendor-level stale such as TensorDock, record-level holds without auto) are left untouched.
+* Marketplace (Vast) records use the automatic rule: held (stale.auto) below MIN_MARKET_OFFERS qualifying offers,
+  released with a fresh median, quote and checked_at once MIN_MARKET_OFFERS+ return.
 * A change larger than MAX_AUTO_CHANGE_PCT is not applied automatically (flagged for a human instead).
 
 Politeness: robots.txt is honoured, one request per URL per run, REQUEST_GAP_S between requests, plain UA that

@@ -8,6 +8,14 @@ older than 7 days, fetches each source_url and flags pages that are unreachable,
 quoted price no longer appears on the fetched page (possible price change: a human must re-check and
 update the record by hand). Exit 1 if anything is flagged. --report FILE writes a Markdown summary
 (used as the GitHub issue body by the scheduled workflow).
+
+Geo-variant vendors (GEO_VARIANT below): some vendors serve a regional pricing page to cloud CI
+runners, so a quoted price can be absent from CI while present from other networks. For a vendor listed
+there ONLY, a "price not found" result is a warning ("unverifiable from CI"), not a failure, and only while
+at least one other quoted price for that vendor is still found on the same page (so a broken, blocked or
+redesigned page still fails). Unreachable pages, invalid records and staleness still fail as usual.
+Warnings appear in the output and report; re-check them from a non-CI network
+(`python3 scripts/check_gpu_sources.py` on another machine) before changing any price.
 """
 from __future__ import annotations
 
@@ -20,6 +28,12 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+GEO_VARIANT = {
+    # 2026-10-27: GitHub runners get a SendPulse SMTP page without the Pro/Enterprise/Pay As You Go prices
+    # that the same URL shows from other networks (checked by hand the same day: all four present).
+    # No region-neutral URL or currency parameter changes this.
+    "SendPulse": "regional pricing page served to CI runners; quoted prices verified from a non-CI network",
+}
 sys.path.insert(0, str(ROOT))
 from core.gpu import MIN_MARKET_OFFERS, STALE_DAYS, load_vendor_files, record_problems, stale_records  # noqa: E402
 from core import stack  # noqa: E402
@@ -50,6 +64,7 @@ def main() -> int:
     a = ap.parse_args()
     docs = load_vendor_files()
     flags: list[str] = []
+    warnings: list[str] = []
     for doc in docs:
         flags += [f"invalid record: {p}" for p in record_problems(doc)]
     # Vendors held out as stale (doc["stale"]) are never ranked, so their record age isn't a live-site failure.
@@ -116,22 +131,31 @@ def main() -> int:
                 flags.append(f"unreachable: {doc['vendor']} {u} -> {st if st else body}")
                 continue
             text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body
+            miss = []
             for o in doc["offers"]:
                 checked += 1
                 missing = [t for t in price_tokens(o["quote"]) if t not in text]
                 if missing:
-                    flags.append(f"price not found on page (re-check by hand): {doc['vendor']} {o['need']} "
-                                 f"({o['plan']}) quote {o['quote']!r} missing {missing} at {u}")
+                    miss.append(f"price not found on page (re-check by hand): {doc['vendor']} {o['need']} "
+                                f"({o['plan']}) quote {o['quote']!r} missing {missing} at {u}")
+            if miss and doc["vendor"] in GEO_VARIANT and len(miss) < len(doc["offers"]):
+                warnings += [f"unverifiable from CI ({GEO_VARIANT[doc['vendor']]}): {m}" for m in miss]
+            else:
+                flags += miss
     n = sum(len(d["records"]) for d in docs) + sum(len(d["offers"]) for d in sdocs)
-    summary = f"{len(docs) + len(sdocs)} vendor files, {n} records, {checked} prices re-found on live pages, {len(flags)} flag(s)"
+    summary = f"{len(docs) + len(sdocs)} vendor files, {n} records, {checked} prices re-found on live pages, {len(flags)} flag(s), {len(warnings)} warning(s)"
     print(summary)
     for f in flags:
         print("FLAG:", f)
+    for w in warnings:
+        print("WARNING:", w)
     if a.report:
         body = [f"Daily GPU pricing source check: {summary}.", "",
                 "Prices change only where scripts/refresh_gpu_prices.py parses them (daily). Re-check each flagged record on its source page, then update "
                 "`data/gpu_pricing/<vendor>.json` (price and `checked_at`) by hand.", ""]
         body += [f"- {f}" for f in flags] or ["- none"]
+        if warnings:
+            body += ["", "Warnings (not failures; geo-variant vendors, re-check from a non-CI network):"] + [f"- {w}" for w in warnings]
         Path(a.report).write_text("\n".join(body) + "\n", encoding="utf-8")
     return 1 if flags else 0
 

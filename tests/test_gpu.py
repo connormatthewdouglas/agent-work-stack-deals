@@ -199,7 +199,7 @@ def test_new_vendor_flags():
             assert "TensorDock" not in body.split("Held out")[0], page
     # Vast: 3 marketplace medians (no H100), tied to the existing affiliate deal, labeled with lowest offer
     vast = [r for r in rates if r["advertiser"] == "Vast.ai"]
-    assert {r["gpu"] for r in vast} <= {"RTX 4090"}  # A100 SXM 80GB held (manual); a thin market is auto-held
+    assert {r["gpu"] for r in vast} <= {"RTX 4090", "A100 SXM"}  # a market below 5 qualifying offers is auto-held
     for r in vast:
         x = _rec("Vast.ai", r["gpu"])
         assert (r["hourly_equiv_usd"], r["lowest_offer_usd"], r["offer_count"]) == (x["hourly_usd"], x["lowest_offer_usd"], x["offer_count"])
@@ -223,18 +223,25 @@ def test_new_vendor_flags():
     assert v100["monthly_cost_usd"] == round(_rec("Lambda", "V100")["hourly_usd"] * 100 * 8, 2) and "8-GPU" in v100["calc"]
 
 
-def test_thin_marketplace_record_held_not_ranked():
+def test_marketplace_hold_is_automatic_and_tracks_offer_count():
+    """Vast records follow the automatic rule: ranked iff >= MIN_MARKET_OFFERS qualifying offers, else held (auto)."""
     from core.deals import compare_gpu_prices
+    from core.gpu import MIN_MARKET_OFFERS
     from core.stack import _gpu_options
     api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
-    vast_a100 = [h for h in api["held_stale"] if h["vendor"] == "Vast.ai" and h["records"][0]["gpu"] == "A100 SXM"]
-    assert len(vast_a100) == 1 and "too thin" in vast_a100[0]["reason"]
-    assert not any(r["advertiser"] == "Vast.ai" and r["gpu"] == "A100 SXM" for r in api["rates"])
-    assert any(r["advertiser"] == "Vast.ai" and r["gpu"] == "RTX 4090" for r in api["rates"]) or any(
-        h["vendor"] == "Vast.ai" and h["records"][0]["gpu"] == "RTX 4090" for h in api["held_stale"])
-    assert all(not (r["advertiser"] == "Vast.ai" and r["gpu"].startswith("A100"))
-               for r in compare_gpu_prices(api, "A100", limit=25)["results"])
-    assert all(not (o["vendor"] == "Vast.ai" and "A100" in o.get("plan", "")) for o in _gpu_options(api, 100, "A100", set()))
+    vast = next(d for d in load_vendor_files() if d["vendor"] == "Vast.ai")
+    for r in vast["records"]:
+        ranked = any(x["advertiser"] == "Vast.ai" and x["gpu"] == r["gpu"] for x in api["rates"])
+        held = any(h["vendor"] == "Vast.ai" and h["records"][0]["gpu"] == r["gpu"] for h in api["held_stale"])
+        if r.get("stale"):
+            assert r["stale"].get("auto") is True and "too thin" in r["stale"]["reason"].lower() or "not re-verified" in r["stale"]["reason"]
+            assert held and not ranked
+            assert all(not (x["advertiser"] == "Vast.ai" and x["gpu"] == r["gpu"])
+                       for x in compare_gpu_prices(api, r["gpu"].split()[0], limit=25)["results"])
+            assert all(not (o["vendor"] == "Vast.ai" and r["gpu"] in o.get("plan", "")) for o in _gpu_options(api, 100, r["gpu"].split()[0], set()))
+        else:
+            assert r["offer_count"] >= MIN_MARKET_OFFERS and ranked and not held
+            assert f"{r['offer_count']} verified" in r["evidence"]["quote"] and f"${r['hourly_usd']:.4f}" in r["evidence"]["quote"]
 
 
 def test_record_level_stale_needs_reason():

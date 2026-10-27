@@ -132,6 +132,11 @@ def test_marketplace_median_and_thin_market_hold():
     assert d["records"][0]["price_usd"] == 0.6 and d["records"][0]["offer_count"] == 5 and not record_problems(d)
     R.refresh([d], Fake(json.dumps({"offers": offers[:3]})), NOW)
     assert d["records"][0]["stale"]["auto"] and d["records"][0]["price_usd"] == 0.6
+    big = [{"dph_total": p, "num_gpus": 1, "gpu_ram": 24 * 1024} for p in (0.5, 0.6, 0.65, 0.7, 0.8, 0.9)]
+    R.refresh([d], Fake(json.dumps({"offers": big})), NOW)  # 5+ again: auto hold released with fresh median + evidence
+    r = d["records"][0]
+    assert "stale" not in r and r["offer_count"] == 6 and r["price_usd"] == 0.675 and r["lowest_offer_usd"] == 0.5
+    assert "6 verified" in r["evidence"]["quote"] and r["verified_at"] == r["evidence"]["checked_at"] and not record_problems(d)
 
 
 def _snap(day, price, status="ranked"):
