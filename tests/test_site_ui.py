@@ -44,3 +44,10 @@ def test_measurement_is_cookieless_and_aggregate():
     assert ids and all(re.fullmatch(r"[a-z0-9-]+", i) for i in ids)
     assert "Disallow: /e/" in (ROOT / "robots.txt").read_text()
     assert "cloudflareinsights" not in (ROOT / "404.html").read_text()
+
+
+def test_homepage_lists_every_published_deal():
+    import json
+    feed = json.loads((ROOT / "deals.json").read_text())["deals"]
+    home = (ROOT / "index.html").read_text()
+    assert len(re.findall(r'<article class="deal"', home)) == len([d for d in feed if not d.get("example")])

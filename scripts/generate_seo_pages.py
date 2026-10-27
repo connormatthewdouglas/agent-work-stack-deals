@@ -1328,19 +1328,18 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     for d in sort_deals_customer_value(deals):
         by_cat[d.get("category") or "other"].append(d)
 
+    # Every category in the feed gets a section; known ones first, then any new category A-Z (never drop deals).
+    cats = [c for c in CATEGORY_ORDER if c in by_cat] + sorted(c for c in by_cat if c not in CATEGORY_ORDER)
     hub_nav = " · ".join(
         f'<a href="{BASE}/categories/{h["slug"]}/">{esc(h["slug"])}</a>' for h in HUBS[:6]
     )
     cat_nav = " · ".join(
         f'<a href="#cat-{c}">{c}</a> · <a href="{BASE}/categories/{hub_slug(c)}/">{c} hub</a>'
-        for c in CATEGORY_ORDER
-        if c in by_cat
+        for c in cats
     )
 
     sections = []
-    for cat in CATEGORY_ORDER:
-        if cat not in by_cat:
-            continue
+    for cat in cats:
         cards = "\n".join(deal_card(d, link_mode="page") for d in by_cat[cat])
         sections.append(
             f'<section id="cat-{esc(cat)}"><h2 class="section-title">Agent deals: {esc(cat)}</h2>\n{cards}\n</section>'
@@ -1381,7 +1380,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     {__import__("compare_pages").nav_html(BASE)}
     <p class="feed"><strong>Agents:</strong> GET <a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a> · helpers in the <a href="https://gist.github.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e">gist</a> / this repo.</p>
   </header>
-{site_ui.filter_form_html([c for c in CATEGORY_ORDER if c in by_cat], [o for o in OFFER_TYPES if any(d.get("offer_type") == o for d in deals)])}
+{site_ui.filter_form_html(cats, [o for o in OFFER_TYPES if any(d.get("offer_type") == o for d in deals)])}
   <main id="content">{body_main}</main>
 {agent_query_howto_html()}
 {site_ui.HOME_JS}
