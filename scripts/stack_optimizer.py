@@ -136,7 +136,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
       return {{vendor:r.advertiser,plan:r.gpu+(r.tier?` (${{r.tier}})`:""),deal_id:r.deal_id,monthly_cost_usd:Math.round(c*100)/100,
         calc:hr?`$${{g(r.price_usd)}}/hr x ${{g(h)}} h`:`$${{g(r.price_usd)}}/mo x ${{n}} server(s), flat regardless of hours`,quote:r.basis,source_url:r.source_url,checked_at:r.verified_at,
         assumptions:["Excludes storage, egress, extra vCPU and taxes.","1 GPU; hourly rates bill while running."].concat(r.interruptible?["Interruptible: the vendor may preempt the job."]:[]),
-        manual_signup_only:manual.has(r.deal_id),redeem_url:r.redeem_url,deal_url:"{gen.BASE}/deals/"+r.deal_id+"/"}}}});
+        manual_signup_only:manual.has(r.deal_id),redeem_url:r.redeem_url,deal_url:"{gen.BASE}/deals/"+r.deal_id.replace(/^deal-/,"").replace(/[^a-zA-Z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").toLowerCase()+"/"}}}});
   }}
   function optimize(q,m,nomanual){{
     return N.filter(k=>q[k]>0).map(k=>{{

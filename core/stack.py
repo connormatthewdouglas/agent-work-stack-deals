@@ -8,8 +8,19 @@ dropped at build time; deals whose signup is manual_only are flagged (and can be
 from __future__ import annotations
 
 import json
+import re
 import math
 from pathlib import Path
+
+
+def deal_page_url(deal_id: str | None, base: str = "https://thelanternworks.com") -> str | None:
+    """Public deal page URL: /deals/<slug>/ where slug drops the 'deal-' prefix (matches the site generator)."""
+    if not deal_id:
+        return None
+    s = deal_id.strip()
+    s = s[5:] if s.startswith("deal-") else s
+    s = re.sub(r"[^a-zA-Z0-9_-]+", "-", s).strip("-").lower() or deal_id
+    return f"{base}/deals/{s}/"
 
 PRICING_DIR = Path(__file__).resolve().parents[1] / "data" / "stack_pricing"
 TRACKED = "cheapest among tracked providers"
@@ -76,7 +87,7 @@ def build_payload(deals: list[dict], docs: list[dict] | None = None, base: str =
                            "min_purchase_usd": o.get("min_purchase_usd"), "source_url": o.get("source_url") or doc["source_url"],
                            "checked_at": o.get("checked_at") or doc["checked_at"], "signup": deal.get("signup"),
                            "signup_note": deal.get("signup_note"), "affiliate": bool(deal.get("affiliate")),
-                           "redeem_url": deal.get("redeem_url"), "deal_url": f"{base}/deals/{deal['id']}/"})
+                           "redeem_url": deal.get("redeem_url"), "deal_url": deal_page_url(deal["id"], base)})
     priced_names = {(by_id[i].get("advertiser") or "").lower() for i in priced_ids}
     untracked = {}
     for need, (_, _, tags) in NEEDS.items():
@@ -154,7 +165,7 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -
                     "signup": "manual_only" if r.get("deal_id") in manual else None,
                     "manual_signup_only": r.get("deal_id") in manual, "signup_note": None,
                     "affiliate": bool(r.get("affiliate")), "redeem_url": r.get("redeem_url"),
-                    "deal_url": f"https://thelanternworks.com/deals/{r.get('deal_id')}/" if r.get("deal_id") else None})
+                    "deal_url": deal_page_url(r.get("deal_id"))})
     return sorted(out, key=lambda x: (x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
 
 

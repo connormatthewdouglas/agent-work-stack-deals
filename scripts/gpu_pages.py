@@ -388,4 +388,35 @@ def write_all(gen, deals: list[dict]) -> list[str]:
     _LINKS[:] = page_links(deals)
     pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if f["page"]}
     cmps = [write_h100_vs(gen, rates), write_per_vram(gen, rates), write_runpod_tiers(gen, rates)]
-    return [write_overview(gen, rates, fams, pages)] + list(pages.values()) + cmps
+    return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + list(pages.values()) + cmps
+
+
+def write_hub(gen, rates: list[dict]) -> str:
+    """/gpu/ hub: entry point linking every GPU page, tool and data endpoint."""
+    path = "gpu"
+    url = f"{gen.BASE}/{path}/"
+    fresh = _freshness(rates) if rates else ""
+    extra = [(p, n) for p, n in (("compare/cheap-gpu-rental", "Cheap GPU rental deals"),
+                                  ("compare/h100-rental-price-comparison", "H100 rental price comparison"))
+             if (ROOT / p / "index.html").exists()]
+    li = lambda items: "".join(f'<li><a href="{gen.BASE}/{p}/">{n}</a></li>' for p, n in items)
+    cheapest = [(p, n) for p, n in _LINKS if p.startswith("gpu/cheapest-")]
+    cmps = [(p, n) for p, n in _LINKS if not p.startswith("gpu/cheapest-")] + extra
+    title = "GPU rental prices, calculator and comparisons | Lantern Works"
+    desc = "Hub for cloud GPU rental pricing: cost calculator, cheapest-GPU pages by model, side-by-side comparisons and the public GPU pricing API."
+    body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › GPU</nav>
+  <h1>GPU rental prices</h1>
+  <p class="meta">{len(rates)} tracked rates{(" · newest check " + fresh) if fresh else ""} · "cheapest" means cheapest among tracked providers</p>
+  <h2>Tools</h2>
+  <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li></ul>
+  <h2>Cheapest GPU by model</h2>
+  <ul>{li(cheapest)}</ul>
+  <h2>Comparisons</h2>
+  <ul>{li(cmps)}</ul>
+  <h2>Deals and data</h2>
+  <ul><li><a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute deals</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices.json">GPU pricing API (JSON)</a></li><li><a href="{gen.BASE}/api/v1/stack-pricing.json">Stack pricing API (JSON)</a></li></ul>
+"""
+    out = ROOT / path / "index.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(gen.page_shell(title, desc, url, body + install_link_snippet(gen.BASE)), encoding="utf-8")
+    return path
