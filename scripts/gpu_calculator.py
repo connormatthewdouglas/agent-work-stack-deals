@@ -45,7 +45,8 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     API_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     esc = gen.esc
     data_js = json.dumps(payload["rates"], ensure_ascii=False).replace("</", "<\\/")
-    gpus = sorted({r["gpu"] for r in payload["rates"]})
+    from core.gpu import FAMILIES
+    gpus = sorted({r["gpu"] for r in payload["rates"]} | {f for f in FAMILIES.values() if any(r["gpu"].startswith(f + " ") for r in payload["rates"])})
     opts = "".join(f'<option value="{esc(g)}">{esc(g)}</option>' for g in gpus)
     unpriced = ", ".join(f'<a href="{gen.BASE}/deals/{gen.slug_for(u["deal_id"])}/">{esc(u["advertiser"])}</a>'
                          for u in payload["unpriced"]) or "none"
@@ -72,6 +73,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     <li>Monthly dedicated servers: flat price × ceil(hours ÷ {HOURS_PER_MONTH}) × GPUs, whatever your usage.</li>
     <li>Excludes storage, egress, extra vCPU, taxes and promo credits. Prices are "from" prices; confirm on the vendor page before spending.</li>
   </ul>
+  <p>Model guides: <a href="{gen.BASE}/gpu/price-comparison/">all GPU prices</a> · <a href="{gen.BASE}/gpu/cheapest-h100-rental/">cheapest H100</a> · <a href="{gen.BASE}/gpu/cheapest-a100-rental/">cheapest A100</a> · <a href="{gen.BASE}/gpu/cheapest-rtx-4090-rental/">cheapest RTX 4090</a></p>
   <h2>Free GPU-adjacent credits</h2>
   <ul>{credits}</ul>
   <h2>Not priced yet</h2>
@@ -87,11 +89,11 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   function esc(s){{return String(s??"").replace(/[&<>"]/g,c=>({{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}}[c]))}}
   function run(){{
     const h=Math.max(0,+$("hours").value||0), g=Math.max(1,Math.floor(+$("gpus").value||1)), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
-    const rows=R.filter(r=>(!m||r.gpu===m)&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
+    const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
       if(r.unit==="hour") return {{...r,cost:r.price_usd*h*g,calc:`$${{r.price_usd}}/hr × ${{h}} h × ${{g}}`}};
       const n=Math.max(1,Math.ceil(h/H))*g; return {{...r,cost:r.price_usd*n,calc:`$${{r.price_usd}}/mo × ${{n}} server(s)`}};
     }}).sort((a,b)=>a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
-    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="nofollow sponsored noopener">${{esc(r.advertiser)}}</a></td><td>${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="nofollow sponsored noopener">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
     $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";
     const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
     history.replaceState(null,"","?"+p);

@@ -1045,7 +1045,10 @@ def write_hub(hub: dict, deals: list[dict]) -> Path:
     cards = "\n".join(deal_card(d, link_mode="page") for d in matched) or "<p>No deals in this hub yet.</p>"
     if hub["slug"] == "gpu-compute":
         cards = (f'<p class="callout"><a href="{BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a>: estimate monthly cost '
-                 f'from verified vendor prices, with the calculation shown.</p>\n') + cards
+                 f'from verified vendor prices, with the calculation shown. Compare '
+                 f'<a href="{BASE}/gpu/price-comparison/">all GPU rental prices</a>, or the cheapest '
+                 f'<a href="{BASE}/gpu/cheapest-h100-rental/">H100</a>, <a href="{BASE}/gpu/cheapest-a100-rental/">A100</a> and '
+                 f'<a href="{BASE}/gpu/cheapest-rtx-4090-rental/">RTX 4090</a> rentals.</p>\n') + cards
     body = f"""
   <p class="crumbs"><a href="{BASE}/">Home</a> · <a href="{BASE}/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>
@@ -1500,7 +1503,9 @@ def main() -> None:
     import compare_pages
     compare_paths = compare_pages.write_compare_pages(sys.modules[__name__], deals)
     import gpu_calculator
+    import gpu_pages
     tool_paths = [gpu_calculator.write(sys.modules[__name__], deals, feed_updated)]
+    tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)

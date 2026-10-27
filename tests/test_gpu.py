@@ -18,7 +18,9 @@ def test_estimate_hourly_vs_flat_and_rank():
     assert th["monthly_cost_usd"] == 109.0
     uc = next(x for x in e if x["deal_id"] == "deal-ucartz-001")
     assert uc["monthly_cost_usd"] == 3128.32
-    assert estimate(rates, 1000, gpu_filter="4090")[0]["monthly_cost_usd"] == round(798.72 * 2, 2)
+    e4090 = estimate(rates, 1000, gpu_filter="4090")
+    assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(798.72 * 2, 2)
+    assert e4090[0]["monthly_cost_usd"] == 340.0  # RunPod Community $0.34/hr x 1000 h
 
 
 def test_affiliate_not_rank_input():
@@ -31,3 +33,14 @@ def test_affiliate_not_rank_input():
 def test_no_commission_fields():
     blob = json.dumps(build_rates(FEED)).lower()
     assert "commission" not in blob and "payout" not in blob
+
+
+def test_families_threshold_and_runpod():
+    from core.gpu import MIN_OFFERS, MIN_VENDORS, families
+    rates = build_rates(FEED)["rates"]
+    assert any(r["deal_id"] == "deal-runpod-001" for r in rates)
+    f = families(rates)
+    for v in f.values():
+        assert v["page"] == (len(v["rates"]) >= MIN_OFFERS and len(v["vendors"]) >= MIN_VENDORS)
+    assert f["h100"]["page"] and f["a100"]["page"] and f["rtx-4090"]["page"]
+    assert all(r["verified_at"] for v in f.values() for r in v["rates"])
