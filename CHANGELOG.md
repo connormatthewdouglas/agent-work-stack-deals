@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — LLM Socket, Originality.ai
+
+- Added LLM Socket (AI-search visibility for Shopify; 7-day free trial, from $9/mo) to the SEO hub; trial and pricing verified on llmsocket.co.
+- Added Originality.ai (AI-content/plagiarism detection; free plan, Pro $12.95/mo billed yearly) to the SEO hub; pricing verified on originality.ai.
+
 ## 2026-10-26 — Helena by Enrich Labs
 
 - Added Helena by Enrich Labs (AI marketing/SEO agent; 3-day free trial, Starter $39/mo) to the AI agents hub; trial and pricing verified on enrichlabs.ai.
