@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Four new deals
+
+- Added [Hosting.com](https://thelanternworks.com/deals/hostingcom-001/), [DreamHost](https://thelanternworks.com/deals/dreamhost/) and [Plesk](https://thelanternworks.com/deals/plesk/) to the hosting hub, [DataForSEO](https://thelanternworks.com/deals/dataforseo/) to the SEO hub, and [La Growth Machine](https://thelanternworks.com/deals/lagrowthmachine/) to the email hub. Prices are from the vendor pages, checked today. Hosting.com's price is not verified, and Plesk is priced in EUR.
+
 ## 2026-10-27 — MCP 0.3.1
 
 - lantern-works-deals-mcp 0.3.1: package metadata and README list all five tools (incl. `optimize_stack`) with uvx and `claude mcp add` install steps; new `examples/` folder (three agent skills and a GPU price monitor).
