@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-26 — Palabra.ai
+
+- Added Palabra.ai (real-time speech-to-speech translation API; $0.04/min, $50 free credits on sign-up) to the AI agents hub; pricing verified on palabra.ai.
+
 ## 2026-10-26 — Appy.ai
 
 - Added Appy.ai (AI coworkers for Slack/Teams; AI Workforce $50/mo, free Starter with $100 credits) to the AI agents hub; pricing verified on appy.ai.
