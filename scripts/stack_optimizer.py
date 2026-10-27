@@ -112,7 +112,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Vendor plan</th><th>Price</th><th>Included</th><th>Overage</th><th>Vendor quote · checked</th></tr></thead><tbody>{offers_rows}</tbody></table></div>
   <p>GPU hours use the <a href="{gen.BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a> data.</p>
   <h2>For agents</h2>
-  <p>MCP: <code>optimize_stack(scrape_pages=50000, proxy_gb=10, emails_sent=10000, gpu_hours=100, gpu_model="H100")</code> (next package release). Data: <a href="{api}">{api}</a>. Inputs can be preset in the URL, e.g. <code>?scrape_pages=50000&amp;emails_sent=10000</code>.</p>
+  <p>MCP: <code>optimize_stack(scrape_pages=50000, proxy_gb=10, emails_sent=10000, gpu_hours=100, gpu_model="H100")</code>. Data: <a href="{api}">{api}</a>. Inputs can be preset in the URL, e.g. <code>?scrape_pages=50000&amp;emails_sent=10000</code>.</p>
   <script>
   const D={js_data};
   const $=id=>document.getElementById(id), N=Object.keys(D.s.needs), fmt=n=>"$"+n.toLocaleString("en-US",{{minimumFractionDigits:2,maximumFractionDigits:2}}), g=n=>n.toLocaleString("en-US",{{maximumFractionDigits:6}});
