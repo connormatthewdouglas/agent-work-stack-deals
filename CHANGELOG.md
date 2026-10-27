@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Claim batch 2, part 3
+
+- Re-checked pricing claims on 31 deals (Moz to SEOWriting.ai): verification dates set where figures were found on vendor pages; others marked "(unverified)", with unconfirmed prices set to unknown. Basin and Uptimia free plans could not be confirmed, so both are relabelled listed_discount.
+
 ## 2026-10-27 — Claim batch 2, part 2
 
 - Re-checked pricing claims on 31 deals (FullEnrich to Modal): verification dates set where figures were found on vendor pages; others marked "(unverified)", with unconfirmed prices set to unknown.
