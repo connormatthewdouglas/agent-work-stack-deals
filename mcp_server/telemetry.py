@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # Empty until the collector is deployed: with no URL, enabling telemetry only counts locally.
-DEFAULT_URL = ""
+DEFAULT_URL = "https://lantern-works-telemetry.lantern-works.workers.dev/v1/events"
 TIMEOUT_S = 2.0
 TOOLS = frozenset({"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack"})
 _lock = threading.Lock()
@@ -76,7 +76,8 @@ def build_payload(counts: dict) -> dict:
 def send(payload: dict, url: str, timeout: float = TIMEOUT_S) -> bool:
     try:
         req = urllib.request.Request(url, data=json.dumps(payload).encode(), method="POST",
-                                     headers={"Content-Type": "application/json"})
+                                     headers={"Content-Type": "application/json",
+                                              "User-Agent": "lantern-works-deals-mcp-telemetry"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return 200 <= r.status < 300
     except Exception:

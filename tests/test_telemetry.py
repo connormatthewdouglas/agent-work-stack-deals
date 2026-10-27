@@ -123,3 +123,20 @@ def test_tools_still_expose_full_schemas():
     assert set(by) == telemetry.TOOLS
     assert "gpu" in by["compare_gpu_prices"].inputSchema["properties"]
     assert "ids" in by["compare_deals"].inputSchema["properties"]
+
+
+def test_send_sets_explicit_user_agent(monkeypatch):
+    # Cloudflare rejects the default Python-urllib UA with 403.
+    seen = {}
+
+    class R:
+        status = 204
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    def fake(req, timeout=None):
+        seen["ua"] = req.get_header("User-agent")
+        return R()
+    monkeypatch.setattr(telemetry.urllib.request, "urlopen", fake)
+    assert telemetry.send({"events": []}, "https://example.invalid/v1/events") is True
+    assert seen["ua"] == "lantern-works-deals-mcp-telemetry"

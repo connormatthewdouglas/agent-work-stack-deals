@@ -9,7 +9,7 @@ from pathlib import Path
 
 PATH = "install"
 TESTED_ON = "2026-10-27"
-TESTED_VERSION = "0.3.2"
+TESTED_VERSION = "0.3.3"
 TOOLS = ("search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack")
 CFG = {"command": "uvx", "args": ["lantern-works-deals-mcp"]}
 CURSOR_LINK = "cursor://anysphere.cursor-deeplink/mcp/install?name=lantern-works-deals&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJsYW50ZXJuLXdvcmtzLWRlYWxzLW1jcCJdfQ=="

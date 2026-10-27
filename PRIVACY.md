@@ -33,7 +33,7 @@ Set `LANTERN_TELEMETRY=1` to help us see which tools are used. It is enabled onl
 
 **Configuration:**
 - `LANTERN_TELEMETRY_URL` overrides the collector address.
-- Until a collector address ships in a release, enabling telemetry only counts locally and sends nothing.
+- Endpoint (0.3.3 and later): `https://lantern-works-telemetry.lantern-works.workers.dev/v1/events`. Public aggregate stats: `https://lantern-works-telemetry.lantern-works.workers.dev/v1/stats`. Versions before 0.3.3 send nothing.
 
 To turn it off, unset `LANTERN_TELEMETRY` or set it to anything other than `1`. You can delete the cache file at any time.
 

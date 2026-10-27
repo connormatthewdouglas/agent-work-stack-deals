@@ -97,6 +97,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-27 — MCP 0.3.3: opt-in telemetry</h2>
+<ul>
+<li>lantern-works-deals-mcp 0.3.3 adds an anonymous tool-call counter that is <strong>off by default</strong> and only runs with <code>LANTERN_TELEMETRY=1</code>. It sends the tool name, version, UTC day and count, at most once a day. No arguments, IDs or IPs. See <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/PRIVACY.md">PRIVACY.md</a>; aggregate counts are public at https://lantern-works-telemetry.lantern-works.workers.dev/v1/stats.</li>
+</ul>
 <h2>2026-10-27 — Check-date wording</h2>
 <ul>
 <li>AlphaVPS, BounceBan, PingPing and Waalaxy: removed check dates from pricing notes that had no recorded verification. Enrich Labs: plan prices confirmed on the vendor page, so its verification date and $39 Starter price are restored; the 3-day trial remains unverified.</li>
