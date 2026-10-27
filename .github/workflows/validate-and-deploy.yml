@@ -52,8 +52,6 @@ jobs:
         env:
           LANTERN_DEALS_FILE: api/v1/deals.json
         run: python3 -m pytest -q tests
-      - name: URL migration / key paths
-        run: python3 scripts/test_url_migration.py
       - name: SKILL.md frontmatter parses; repo /SKILL.md copy matches source
         run: python3 scripts/check_skill.py
       - name: Feed validator
@@ -78,15 +76,20 @@ jobs:
       - name: PyPI clean install + stdio tool calls
         run: python3 scripts/test_pypi_install.py --uvx
 
-  live-skill:
-    # Live /SKILL.md must return 200 and its frontmatter must match source. Advisory on PRs (live lags deploy).
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+  live-checks:
+    # LIVE-site checks (URL migration/key paths/gist==live feed, /SKILL.md frontmatter). These test the deployed
+    # site, so they run after deploy (or on schedule), never as a pre-deploy gate (live always lags a new commit).
+    needs: [deploy]
+    if: always() && (needs.deploy.result == 'success' || github.event_name == 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: pip install pyyaml
+      - run: sleep 60   # let the Pages CDN pick up the new deployment
+        if: needs.deploy.result == 'success'
       - run: python3 scripts/check_skill.py --live
+      - run: python3 scripts/test_url_migration.py
 
   deploy:
     # Deploy is gated on validation. Only from main pushes / manual runs.
