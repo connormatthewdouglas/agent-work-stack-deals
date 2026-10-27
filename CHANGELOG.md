@@ -4,7 +4,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## 2026-10-27 — Four new deals
 
-- Added [Hosting.com](https://thelanternworks.com/deals/hostingcom-001/), [DreamHost](https://thelanternworks.com/deals/dreamhost/) and [Plesk](https://thelanternworks.com/deals/plesk/) to the hosting hub, [DataForSEO](https://thelanternworks.com/deals/dataforseo/) to the SEO hub, and [La Growth Machine](https://thelanternworks.com/deals/lagrowthmachine/) to the email hub. Prices are from the vendor pages, checked today. Hosting.com's price is not verified, and Plesk is priced in EUR.
+- Added [Hosting.com](https://thelanternworks.com/deals/hostingcom-001/), [DreamHost](https://thelanternworks.com/deals/dreamhost-001/) and [Plesk](https://thelanternworks.com/deals/plesk-001/) to the hosting hub, and [DataForSEO](https://thelanternworks.com/deals/dataforseo-001/) to the SEO hub. Prices are from the vendor pages, checked today. Hosting.com's price is not verified, and Plesk is priced in EUR.
 
 ## 2026-10-27 — MCP 0.3.1
 
