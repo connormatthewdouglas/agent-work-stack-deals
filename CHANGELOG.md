@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — GEO Metrics
+
+- Added [GEO Metrics](https://thelanternworks.com/deals/geo-metrics-001/) to the SEO hub. It tracks brand visibility in AI search (ChatGPT, Gemini, Perplexity and others) and offers a free trial. Plans start at €80/mo, checked today.
+
 ## 2026-10-27 — Four new deals
 
 - Added [Hosting.com](https://thelanternworks.com/deals/hostingcom-001/), [DreamHost](https://thelanternworks.com/deals/dreamhost-001/) and [Plesk](https://thelanternworks.com/deals/plesk-001/) to the hosting hub, and [DataForSEO](https://thelanternworks.com/deals/dataforseo-001/) to the SEO hub. Prices are from the vendor pages, checked today. Hosting.com's price is not verified, and Plesk is priced in EUR.
