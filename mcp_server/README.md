@@ -2,7 +2,7 @@
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
-Free, read-only, no API key. Search and compare AI-infra deals and free tiers, and compare tracked GPU rental prices, ranked by customer value (never by affiliate status).
+Free, read-only, no API key. Search and compare AI-infra deals and free tiers, compare tracked GPU rental prices, and price the cheapest stack for your monthly usage, ranked by customer value (never by affiliate status).
 
 ## Quick start
 
@@ -39,6 +39,7 @@ Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern
 | `compare_deals` | `ids` (2-5) | `{order, deals[], note}` best value first |
 | `get_deal` | `id` | the deal's public record |
 | `compare_gpu_prices` | `gpu` (e.g. `H100`, `A100 SXM`, `RTX 4090`), `limit` (1-25, default 10) | `{summary, scope, total, results[], data_source, feed_updated_at, ...}` sorted by `hourly_usd`; each result has `source_url` and `checked_at` |
+| `optimize_stack` | `scrape_pages`, `scrape_pages_js`, `proxy_gb`, `emails_sent`, `search_queries`, `gpu_hours`, `gpu_model`, `exclude_manual_signup` | per-line chosen plan, `monthly_cost_usd`, calc, vendor quote, `source_url`, `checked_at`, assumptions, alternatives; unpublished prices are `unknown` |
 
 `compare_gpu_prices` uses exactly the data published at https://thelanternworks.com/api/v1/gpu-prices.json. Model matching is by whole tokens (`H100` matches `H100 SXM`; `L40` does not match `L40S`). "Cheapest" means cheapest among tracked providers, not the whole market.
 
@@ -46,7 +47,7 @@ Errors: `{"error": {"code": "invalid_argument|invalid_cursor|not_found|feed_unav
 
 ## Data and privacy
 
-Deals: `https://thelanternworks.com/api/v1/deals.json`; GPU prices: `https://thelanternworks.com/api/v1/gpu-prices.json`. Each is cached 5 min (a stale copy is served if a refetch fails). Requests send only `User-Agent: lantern-works-deals-mcp/<version>` (no user, host or install identifiers). Overrides: `LANTERN_DEALS_FILE` / `LANTERN_DEALS_URL`, `LANTERN_GPU_PRICES_FILE` / `LANTERN_GPU_PRICES_URL`. Only an allow-list of public fields is returned.
+Deals: `https://thelanternworks.com/api/v1/deals.json`; stack pricing: `https://thelanternworks.com/api/v1/stack-pricing.json`; GPU prices: `https://thelanternworks.com/api/v1/gpu-prices.json`. Each is cached 5 min (a stale copy is served if a refetch fails). Requests send only `User-Agent: lantern-works-deals-mcp/<version>` (no user, host or install identifiers). Overrides: `LANTERN_DEALS_FILE` / `LANTERN_DEALS_URL`, `LANTERN_GPU_PRICES_FILE` / `LANTERN_GPU_PRICES_URL`, `LANTERN_STACK_PRICING_FILE` / `LANTERN_STACK_PRICING_URL`. Only an allow-list of public fields is returned.
 
 ## From git (fallback)
 
