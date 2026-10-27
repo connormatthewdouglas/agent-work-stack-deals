@@ -25,6 +25,7 @@ RATE_SPECS = [
 ]
 _RP = "deal-runpod-001"
 for _gpu, _vram, _price, _q, _tier in [
+    ("H200", 141, 5.29, "H200 141GB $5.29/hr", "Secure Cloud"),
     ("H100 SXM", 80, 3.99, "H100 SXM 80GB $3.99/hr", "Secure Cloud"),
     ("H100 PCIe", 80, 2.89, "H100 PCIe 80GB $2.89/hr", "Secure Cloud"),
     ("A100 SXM", 80, 1.79, "A100 SXM 80GB $1.79/hr", "Secure Cloud"),
@@ -42,11 +43,25 @@ for _gpu, _vram, _price, _q, _tier in [
     ("A100 PCIe", 80, 1.19, "A100 PCIe $1.19/hr", "Community Cloud"),
     ("RTX 4090", 24, 0.34, "RTX 4090 $0.34/hr", "Community Cloud"),
     ("RTX 3090", 24, 0.22, "RTX 3090 $0.22/hr", "Community Cloud"),
+    ("H200", 141, 3.59, "H200 $3.59/hr", "Community Cloud"),
+    ("L40S", 48, 0.79, "L40S $0.79/hr", "Community Cloud"),
+    ("RTX A6000", 48, 0.33, "RTX A6000 $0.33/hr", "Community Cloud"),
+    ("RTX 5090", 32, 0.69, "RTX 5090 $0.69/hr", "Community Cloud"),
 ]:
     RATE_SPECS.append((_RP, _gpu, _vram, _price, "hour", _q, _tier))
 
+# Modal bills GPU time per second; stored as the exact hourly equivalent (per-second rate x 3600).
+SERVERLESS = "Serverless (per second)"
+for _gpu, _vram, _per_sec, _q in [
+    ("H200 SXM", 141, 0.001261, "Nvidia H200 SXM $0.001261/sec"),
+    ("H100 SXM", 80, 0.001097, "Nvidia H100 SXM5 $0.001097/sec"),
+    ("A100", 80, 0.000694, "Nvidia A100, 80 GB $0.000694/sec"),
+    ("L40S", 48, 0.000542, "Nvidia L40S $0.000542/sec"),
+]:
+    RATE_SPECS.append(("deal-modal-free-001", _gpu, _vram, round(_per_sec * 3600, 4), "hour", _q, SERVERLESS))
+
 # Model families for landing pages: rates whose gpu starts with the family name.
-FAMILIES = {"h100": "H100", "a100": "A100", "rtx-4090": "RTX 4090", "rtx-5090": "RTX 5090",
+FAMILIES = {"h100": "H100", "h200": "H200", "a100": "A100", "l40s": "L40S", "rtx-4090": "RTX 4090", "rtx-5090": "RTX 5090",
             "l40": "L40", "rtx-a6000": "RTX A6000", "rtx-3090": "RTX 3090", "rtx-a5000": "RTX A5000"}
 MIN_OFFERS, MIN_VENDORS = 3, 2  # below this a model gets no standalone page (avoid thin pages)
 
@@ -92,7 +107,7 @@ def build_rates(deals: list[dict]) -> dict:
         rates.append({"deal_id": deal_id, "advertiser": d.get("advertiser"), "gpu": gpu, "vram_gb": vram,
                       "price_usd": price, "unit": unit, "tier": tier,
                       "hourly_equiv_usd": round(price if unit == "hour" else price / HOURS_PER_MONTH, 4),
-                      "billing": "per hour while running" if unit == "hour" else "flat monthly (dedicated server)",
+                      "billing": ("per second while running" if tier == SERVERLESS else "per hour while running") if unit == "hour" else "flat monthly (dedicated server)",
                       "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
                       "verified_at": d.get("verified_at"), "source_url": d.get("source_url"),
                       "redeem_url": d.get("redeem_url"), "basis": quote})

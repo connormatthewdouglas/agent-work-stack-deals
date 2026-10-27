@@ -44,3 +44,20 @@ def test_families_threshold_and_runpod():
         assert v["page"] == (len(v["rates"]) >= MIN_OFFERS and len(v["vendors"]) >= MIN_VENDORS)
     assert f["h100"]["page"] and f["a100"]["page"] and f["rtx-4090"]["page"]
     assert all(r["verified_at"] for v in f.values() for r in v["rates"])
+
+
+def test_new_families_and_modal_per_second():
+    import json
+    from pathlib import Path
+    from core.gpu import SERVERLESS, build_rates, families
+    deals = json.loads((Path(__file__).resolve().parents[1] / "deals.json").read_text())["deals"]
+    data = build_rates(deals)
+    assert not data["problems"]
+    fams = families(data["rates"])
+    for slug in ("h200", "l40s", "rtx-a6000", "rtx-5090"):
+        assert fams[slug]["page"], slug
+    assert not fams["rtx-3090"]["page"]  # only one verified vendor
+    modal = [r for r in data["rates"] if r["tier"] == SERVERLESS]
+    assert modal and all(r["billing"] == "per second while running" for r in modal)
+    h200 = next(r for r in modal if r["gpu"] == "H200 SXM")
+    assert abs(h200["price_usd"] - 0.001261 * 3600) < 1e-4

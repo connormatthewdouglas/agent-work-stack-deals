@@ -423,6 +423,10 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
         items = "".join(
             f'<li><a href="{base}/{pmap[s].get("canonical_to") or "compare/" + s}/">{esc(pmap[s]["h1"])}</a> — {esc(pmap[s]["desc"])}</li>' for s in slugs
         )
+        if gname == "GPU & hosting":
+            import gpu_pages
+            items += "".join(f'<li><a href="{base}/{p}/">{esc(n[0].upper() + n[1:])}</a> — verified rates, checked dates</li>'
+                             for p, n in gpu_pages.page_links(deals))
         sec.append(f"<h2>{esc(gname)}</h2><ul>{items}</ul>")
     discounts = [d for d in g.sort_deals_customer_value(deals) if d["offer_type"] == "verified_discount"]
     frees = [d for d in g.sort_deals_customer_value(deals) if d["offer_type"] == "free_tier"]

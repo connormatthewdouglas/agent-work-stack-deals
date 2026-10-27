@@ -1089,9 +1089,8 @@ def write_hub(hub: dict, deals: list[dict]) -> Path:
     if hub["slug"] == "gpu-compute":
         cards = (f'<p class="callout"><a href="{BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a>: estimate monthly cost '
                  f'from verified vendor prices, with the calculation shown. Compare '
-                 f'<a href="{BASE}/gpu/price-comparison/">all GPU rental prices</a>, or the cheapest '
-                 f'<a href="{BASE}/gpu/cheapest-h100-rental/">H100</a>, <a href="{BASE}/gpu/cheapest-a100-rental/">A100</a> and '
-                 f'<a href="{BASE}/gpu/cheapest-rtx-4090-rental/">RTX 4090</a> rentals.</p>\n') + cards
+                 f'<a href="{BASE}/gpu/price-comparison/">all GPU rental prices</a>, or see: '
+                 f'{__import__("gpu_pages").links_html(BASE, deals)}.</p>\n') + cards
     body = f"""
   <p class="crumbs"><a href="{BASE}/">Home</a> · <a href="{BASE}/lanternworks/">Lantern Works</a> · Category hubs</p>
   <header>

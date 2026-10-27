@@ -73,7 +73,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     <li>Monthly dedicated servers: flat price × ceil(hours ÷ {HOURS_PER_MONTH}) × GPUs, whatever your usage.</li>
     <li>Excludes storage, egress, extra vCPU, taxes and promo credits. Prices are "from" prices; confirm on the vendor page before spending.</li>
   </ul>
-  <p>Model guides: <a href="{gen.BASE}/gpu/price-comparison/">all GPU prices</a> · <a href="{gen.BASE}/gpu/cheapest-h100-rental/">cheapest H100</a> · <a href="{gen.BASE}/gpu/cheapest-a100-rental/">cheapest A100</a> · <a href="{gen.BASE}/gpu/cheapest-rtx-4090-rental/">cheapest RTX 4090</a></p>
+  <p>Model guides and comparisons: <a href="{gen.BASE}/gpu/price-comparison/">all GPU prices</a> · {__import__("gpu_pages").links_html(gen.BASE, deals)}</p>
   <h2>Free GPU-adjacent credits</h2>
   <ul>{credits}</ul>
   <h2>Not priced yet</h2>
