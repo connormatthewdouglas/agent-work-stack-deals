@@ -2,6 +2,13 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — Daily GPU price refresh with history; MCP 0.3.4
+
+- GPU prices are now re-read daily from each tracked provider's public pricing page or API by a scheduled GitHub Action (robots.txt respected, polite rate). A rate changes only where its price was actually parsed, with a new `source_url`, quote and `checked_at`; unreadable rates keep their last value and are held out of rankings after 7 days without re-verification.
+- Dated snapshots in `data/gpu_pricing/snapshots/`, a per-GPU/provider series at https://thelanternworks.com/api/v1/gpu-prices/history.json, and a "Recent price changes" list (among tracked providers) on [/gpu/](https://thelanternworks.com/gpu/) and each GPU page.
+- lantern-works-deals-mcp 0.3.4: `compare_gpu_prices(..., include_history=true)` adds each rate's price history and recent changes.
+- CI fails if any GPU rate changes without a source URL, quote and check time.
+
 ## 2026-10-27 — MCP 0.3.3: opt-in telemetry
 
 - lantern-works-deals-mcp 0.3.3 adds an anonymous tool-call counter that is **off by default** and only runs with `LANTERN_TELEMETRY=1`. It sends the tool name, version, UTC day and count, at most once a day. No arguments, IDs or IPs. See [PRIVACY.md](https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/PRIVACY.md); aggregate counts are public at https://lantern-works-telemetry.lantern-works.workers.dev/v1/stats.
