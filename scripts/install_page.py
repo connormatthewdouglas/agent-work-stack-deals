@@ -40,6 +40,9 @@ def write(g) -> str:
   <h2>Claude Code</h2>
   {_pre("claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp")}
 
+  <p>Or as a Claude Code plugin (skill + MCP server) from our free, self-hosted marketplace:</p>
+  {_pre("/plugin marketplace add connormatthewdouglas/agent-work-stack-deals" + chr(10) + "/plugin install lantern-works-deals@lantern-works")}
+
   <h2>Claude Desktop</h2>
   <p>Settings → Developer → Edit Config (<code>claude_desktop_config.json</code>):</p>
   {_pre(desktop)}

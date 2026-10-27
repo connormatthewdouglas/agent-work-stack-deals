@@ -98,6 +98,11 @@ def test_versions_consistent_and_reported(srv):
     assert VERSION == pyver == sj["version"] == sj["packages"][0]["version"] == srv.__version__
     assert srv.mcp._mcp_server.create_initialization_options().server_version == VERSION
     assert USER_AGENT == f"lantern-works-deals-mcp/{VERSION}"
+    plugin = json.loads((ROOT / "plugins" / "lantern-works-deals" / ".claude-plugin" / "plugin.json").read_text())
+    assert plugin["version"] == VERSION
+    market = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
+    assert [x["name"] for x in market["plugins"]] == [plugin["name"]]
+    assert f"lantern-works-deals-mcp=={VERSION}" in (ROOT / "Dockerfile").read_text()
 
 
 def test_user_agent_sent(monkeypatch):

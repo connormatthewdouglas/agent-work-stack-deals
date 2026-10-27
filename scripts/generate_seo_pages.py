@@ -617,6 +617,10 @@ def write_skill_copies() -> None:
     """
     src = SKILL_SRC.read_bytes()
     (ROOT / ".agents" / "skills" / "lantern-works-deals" / "SKILL.md").write_bytes(src)
+    # Claude Code plugin (listed in .claude-plugin/marketplace.json) ships the same skill.
+    plug = ROOT / "plugins" / "lantern-works-deals" / "skills" / "lantern-works-deals" / "SKILL.md"
+    plug.parent.mkdir(parents=True, exist_ok=True)
+    plug.write_bytes(src)
     (ROOT / "SKILL.md").write_bytes(b"\n" + src)
 
 

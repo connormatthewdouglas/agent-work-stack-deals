@@ -58,6 +58,10 @@ def main() -> int:
         return 1
     print(f"source ok: name={fm['name']!r}, keys={sorted(fm)}")
     errs += check_served("repo /SKILL.md", (ROOT / "SKILL.md").read_bytes(), src, fm)
+    for copy in (ROOT / ".agents/skills/lantern-works-deals/SKILL.md",
+                 ROOT / "plugins/lantern-works-deals/skills/lantern-works-deals/SKILL.md"):
+        if copy.read_bytes() != src:
+            errs.append(f"{copy.relative_to(ROOT)} is not byte-identical to the source skill")
     if "--live" in sys.argv:
         req = urllib.request.Request(LIVE, headers={"User-Agent": "LanternWorksSkillCheck/1.0", "Cache-Control": "no-cache"})
         with urllib.request.urlopen(req, timeout=30) as r:
