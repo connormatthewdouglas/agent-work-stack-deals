@@ -40,7 +40,7 @@ def search_deals(query: str | None = None, category: str | None = None, offer_ty
                  cursor: str | None = None) -> dict:
     """Search agent work-stack deals (compute, search, email, unblock, hosting...).
 
-    offer_type: verified_discount | free_tier | trial | standard_referral | credit_only_referral.
+    offer_type: verified_discount | listed_discount (not confirmed; verified_at null) | free_tier | trial | standard_referral | credit_only_referral.
     max_price excludes deals with unknown price. limit 1-25. Pass next_cursor back as cursor to page.
     """
     return _run(core.search, query=query, category=category, offer_type=offer_type, max_price=max_price,

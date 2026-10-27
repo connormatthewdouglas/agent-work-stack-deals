@@ -64,7 +64,7 @@ PRIVATE_DIR = PRIVATE_PATH.parent
 COMPLIANCE_PATH = Path(os.environ.get("LANTERN_COMPLIANCE_REGISTRY", str(PRIVATE_DIR / "compliance_registry.json")))
 HELD_PATH = Path(os.environ.get("LANTERN_HELD_DEALS", str(PRIVATE_DIR / "held_deals.json")))
 SCHEMA_PATH = ROOT / "schema.json"
-OFFER_TYPE_RANK = {"verified_discount": 0, "free_tier": 1, "trial": 2, "standard_referral": 2, "credit_only_referral": 2}
+OFFER_TYPE_RANK = {"verified_discount": 0, "free_tier": 1, "listed_discount": 2, "trial": 2, "standard_referral": 2, "credit_only_referral": 2}
 OFFER_TYPES = tuple(OFFER_TYPE_RANK)
 # No dedicated OG share image in the repo — omit og:image / twitter:image.
 
@@ -83,6 +83,7 @@ CSS = """
     .badge.public { background: #e3f2fd; color: #0d47a1; }
     .badge.affiliate { background: #e8f5e9; }
     .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
     .badge.fresh-new { background: #dcfce7; color: #14532d; }
     .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
     .freshness { font-size: .85rem; color: #555; }
@@ -467,7 +468,8 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
     dist = Counter(d.get("offer_type") for d in deals)
     cats = sorted({d.get("category") for d in deals if d.get("category")})
     ot_desc = {
-        "verified_discount": "Vendor-published discount or code.",
+        "verified_discount": "Vendor-published discount or code, confirmed on the vendor page (verified_at set).",
+        "listed_discount": "Discount listed for the offer but not confirmed on the vendor page (verified_at null). Treat as unverified.",
         "free_tier": "Ongoing free plan.",
         "trial": "Time-limited or one-time free credit.",
         "standard_referral": "Normal pricing through a signup/referral link (no discount).",
@@ -853,6 +855,8 @@ def badges(deal: dict) -> str:
         bits.append('<span class="badge affiliate">affiliate</span>')
     elif not is_example(deal):
         bits.append('<span class="badge public">public / non-affiliate</span>')
+    if not deal.get("verified_at") and not is_example(deal):
+        bits.append('<span class="badge unverified">unverified</span>')
     if deal.get("agent_only"):
         bits.append('<span class="badge agent">agent-only</span>')
     if deal.get("claim_note"):
@@ -1019,7 +1023,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 <body>
 {body}
   <footer>
-    <p>Verified-on dates reflect feed <code>updated_at</code> / research fetch day. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
@@ -1035,7 +1039,8 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
     page_url = f"{BASE}/deals/{slug}/"
     example = is_example(deal)
     robots = "noindex,follow" if example else "index,follow"
-    verified = (feed_updated or VERIFIED)[:10]
+    verified_line = (f'<p class="verified">Verified-on: {esc(str(deal["verified_at"])[:10])}</p>' if deal.get("verified_at")
+                     else '<p class="verified unverified">Not verified: listed from the vendor or affiliate page; confirm terms on the vendor site before use.</p>')
     desc = (
         f"{deal.get('title')} — {deal.get('category')} deal from {deal.get('advertiser')}. "
         f"{(deal.get('unit') or '')[:120]}"
@@ -1059,7 +1064,7 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
     <p class="tags">{tags_html(deal)}</p>
     {pricing_note_html(deal)}
     {fresh_line}
-    <p class="verified">Verified-on: {esc(verified)}</p>
+    {verified_line}
     <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
     <p class="redeem">{cta_html(deal)}</p>
     {gbox}

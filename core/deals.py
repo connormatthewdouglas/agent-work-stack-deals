@@ -16,8 +16,8 @@ from pathlib import Path
 from typing import Any
 
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
-OFFER_TYPES = ("verified_discount", "free_tier", "trial", "standard_referral", "credit_only_referral")
-OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0,
+OFFER_TYPES = ("verified_discount", "listed_discount", "free_tier", "trial", "standard_referral", "credit_only_referral")
+OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0, "listed_discount": 1.0,
                     "standard_referral": 0.0, "credit_only_referral": -0.5}
 # Allow-list: anything not here (e.g. commission/payout/internal fields) is dropped.
 PUBLIC_FIELDS = ("id", "title", "advertiser", "category", "offer_type", "tags", "affiliate", "agent_only",

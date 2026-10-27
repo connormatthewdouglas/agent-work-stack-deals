@@ -35,6 +35,8 @@ def facts(d: dict) -> tuple[list[str], list[str]]:
     pt = price_text(d)
     if d.get("offer_type") == "verified_discount":
         pros.append("Vendor-published discount: " + short(d.get("unit") or "see deal page", 120))
+    if d.get("offer_type") == "listed_discount":
+        cons.append("Listed discount not confirmed on the vendor page: " + short(d.get("unit") or "see deal page", 120))
     if d.get("offer_type") == "free_tier" or re.search(r"\bfree (plan|tier|credits?|trial|usage|basic|developer|compute|starter)\b|\bfree \$|\$0(?![.\d])|credits? free|free credit", t, re.I):
         pros.append("Free plan, trial or credits to test before paying")
     if re.search(r"no card|no credit card|no payment method", t, re.I):
@@ -349,9 +351,9 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
                 parts = [x.strip() for x in re.split(r"[;,]\s|\.\s", pt) if re.search(p["focus"], x)]
                 pt = "; ".join(parts) or None
             ptm[d["id"]] = pt
-            price = esc(short(pt, 320)) if pt else ("<em>unknown</em> (no H100 price verified)" if p.get("focus") else "<em>unknown</em>")
+            price = (esc(short(pt, 320)) + ("" if d.get("verified_at") else " <em>(not verified)</em>")) if pt else ("<em>unknown</em> (no H100 price verified)" if p.get("focus") else "<em>unknown</em>")
             free = "Yes" if (d.get("offer_type") == "free_tier" or (pt and re.search(r"\bfree (plan|tier|credits?|trial|usage|basic|developer)\b|\$0(?![.\d])|free credit|credits? free", pt, re.I))) else "Not verified"
-            kind = "Vendor discount" if d["offer_type"] == "verified_discount" else ("Free tier" if d["offer_type"] == "free_tier" else ("Trial" if d["offer_type"] == "trial" else "Standard signup"))
+            kind = "Vendor discount" if d["offer_type"] == "verified_discount" else "Listed discount (unverified)" if d["offer_type"] == "listed_discount" else ("Free tier" if d["offer_type"] == "free_tier" else ("Trial" if d["offer_type"] == "trial" else "Standard signup"))
             tr.append(
                 f'<tr><td><a href="{deal_link(base, g.slug_for, d)}">{esc(d["advertiser"])}</a></td>'
                 f"<td>{esc(kind)}</td><td>{price}</td><td>{free}</td></tr>"
@@ -384,7 +386,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
   <p><small>Prices verified on vendor pages for {known} of {len(rows)} providers below; the rest are marked <em>unknown</em>. Always confirm at checkout. Order: vendor discounts, then free tiers, then standard signups, A–Z. Affiliate status does not affect order.</small></p>
   <h2>Comparison table</h2>
   <div style="overflow-x:auto"><table>
-  <thead><tr><th>Provider</th><th>Offer</th><th>Published pricing (verified)</th><th>Free option</th></tr></thead>
+  <thead><tr><th>Provider</th><th>Offer</th><th>Published pricing</th><th>Free option</th></tr></thead>
   <tbody>
   {''.join(tr)}
   </tbody></table></div>
@@ -428,8 +430,8 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
             items += "".join(f'<li><a href="{base}/{p}/">{esc(n[0].upper() + n[1:])}</a> — verified rates, checked dates</li>'
                              for p, n in gpu_pages.page_links(deals))
         sec.append(f"<h2>{esc(gname)}</h2><ul>{items}</ul>")
-    discounts = [d for d in g.sort_deals_customer_value(deals) if d["offer_type"] == "verified_discount"]
-    frees = [d for d in g.sort_deals_customer_value(deals) if d["offer_type"] == "free_tier"]
+    discounts = [d for d in g.sort_deals_customer_value(deals) if d["offer_type"] == "verified_discount" and d.get("verified_at")]
+    frees = [d for d in g.sort_deals_customer_value(deals) if d["offer_type"] == "free_tier" and d.get("verified_at")]
     dl = "".join(f'<li><a href="{deal_link(base, g.slug_for, d)}">{esc(d["advertiser"])}</a>: {esc(short(d.get("unit") or "", 140))}</li>' for d in discounts)
     fl = "".join(f'<li><a href="{deal_link(base, g.slug_for, d)}">{esc(d["advertiser"])}</a>: {esc(short(d.get("unit") or "", 140))}</li>' for d in frees)
     hubs = " · ".join(f'<a href="{base}/categories/{h["slug"]}/">{esc(h["title"])}</a>' for h in g.HUBS)

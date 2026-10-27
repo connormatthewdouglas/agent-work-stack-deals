@@ -67,6 +67,16 @@ def check_schema(feed: dict) -> None:
     for d in deals:
         if d.get("offer_type") not in gen.OFFER_TYPES:
             err(f"{d.get('id')}.offer_type missing/invalid: {d.get('offer_type')!r} (allowed: {', '.join(gen.OFFER_TYPES)})")
+        # Truthfulness: nothing may claim verification without a verified_at timestamp.
+        if d.get("offer_type") == "verified_discount" and not d.get("verified_at"):
+            err(f"{d.get('id')}: offer_type verified_discount requires verified_at (re-verify or use listed_discount)")
+        page = ROOT / "deals" / gen.slug_for(d["id"]) / "index.html"
+        if page.exists():
+            html_text = page.read_text(encoding="utf-8")
+            if not d.get("verified_at") and "Verified-on:" in html_text:
+                err(f"{d.get('id')}: deal page shows Verified-on but verified_at is null")
+            if d.get("verified_at") and f"Verified-on: {str(d['verified_at'])[:10]}" not in html_text:
+                err(f"{d.get('id')}: deal page Verified-on date does not match verified_at")
     from collections import Counter
     dist = Counter(d.get("offer_type") for d in deals)
     print("offer_type " + " ".join(f"{k}={dist.get(k, 0)}" for k in gen.OFFER_TYPES))

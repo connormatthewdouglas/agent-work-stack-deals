@@ -203,12 +203,13 @@
         "offer_type": {
           "enum": [
             "verified_discount",
+            "listed_discount",
             "free_tier",
             "trial",
             "standard_referral",
             "credit_only_referral"
           ],
-          "description": "Offer label. verified_discount = vendor-published discount/code; free_tier = ongoing free plan; trial = time-limited or one-time free credit; standard_referral = normal price via signup/referral link; credit_only_referral = referrer earns platform credit only. Unclear cases use the most conservative label."
+          "description": "Offer label. verified_discount = vendor-published discount/code confirmed on the vendor page (requires verified_at); listed_discount = discount listed for this offer but not confirmed on the vendor page (no verified_at); free_tier = ongoing free plan; trial = time-limited or one-time free credit; standard_referral = normal price via signup/referral link; credit_only_referral = referrer earns platform credit only. Unclear cases use the most conservative label."
         },
         "verified_at": {
           "$ref": "#/$defs/nullableTimestamp",
