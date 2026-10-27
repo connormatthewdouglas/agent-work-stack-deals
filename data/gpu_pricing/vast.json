@@ -2,7 +2,7 @@
   "vendor": "Vast.ai",
   "deal_id": "deal-vastai-001",
   "source_url": "https://vast.ai/pricing",
-  "checked_at": "2026-10-27T09:05:01-04:00",
+  "checked_at": "2026-10-27T09:17:17-04:00",
   "billing_granularity": "per-second",
   "extras": {
     "egress": {
@@ -29,71 +29,48 @@
       "vendor": "Vast.ai",
       "gpu": "A100 SXM",
       "vram_gb": 80,
-      "price_usd": 1.0291,
+      "price_usd": 1.1354,
       "billing_unit": "hourly",
-      "hourly_usd": 1.0291,
+      "hourly_usd": 1.1354,
       "interruptible": false,
-      "tier": "Marketplace on-demand (variable; median)",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
       "form_factor": "SXM",
-      "quote": "Vast public offers API: 12 rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total min $0.6006/hr, median $1.0291/hr",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22type%22%3A%22on-demand%22%7D",
-      "checked_at": "2026-10-27T09:05:01-04:00",
+      "quote": "Vast public offers API: 10 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1354/hr, min $1.0022/hr",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "checked_at": "2026-10-27T09:17:17-04:00",
       "price_status": "marketplace",
-      "price_basis": "median per-GPU price of rentable on-demand offers",
-      "lowest_offer_usd": 0.6006,
-      "offer_count": 12,
+      "price_basis": "median per-GPU price (dph_total / num_gpus) of verified, rentable, on-demand 80 GB offers",
+      "lowest_offer_usd": 1.0022,
+      "offer_count": 10,
       "evidence": {
-        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22type%22%3A%22on-demand%22%7D",
-        "quote": "Vast public offers API: 12 rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total min $0.6006/hr, median $1.0291/hr",
-        "checked_at": "2026-10-27T09:05:01-04:00"
-      }
-    },
-    {
-      "vendor": "Vast.ai",
-      "gpu": "A100 PCIe",
-      "vram_gb": 80,
-      "price_usd": 1.0008,
-      "billing_unit": "hourly",
-      "hourly_usd": 1.0008,
-      "interruptible": false,
-      "tier": "Marketplace on-demand (variable; median)",
-      "form_factor": "PCIe",
-      "quote": "Vast public offers API: 6 rentable on-demand A100 PCIe 80GB offers; per-GPU dph_total min $0.8733/hr, median $1.0008/hr",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22type%22%3A%22on-demand%22%7D",
-      "checked_at": "2026-10-27T09:05:01-04:00",
-      "price_status": "marketplace",
-      "price_basis": "median per-GPU price of rentable on-demand offers",
-      "lowest_offer_usd": 0.8733,
-      "offer_count": 6,
-      "evidence": {
-        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22type%22%3A%22on-demand%22%7D",
-        "quote": "Vast public offers API: 6 rentable on-demand A100 PCIe 80GB offers; per-GPU dph_total min $0.8733/hr, median $1.0008/hr",
-        "checked_at": "2026-10-27T09:05:01-04:00"
+        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+        "quote": "Vast public offers API: 10 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1354/hr, min $1.0022/hr",
+        "checked_at": "2026-10-27T09:17:17-04:00"
       }
     },
     {
       "vendor": "Vast.ai",
       "gpu": "RTX 4090",
       "vram_gb": 24,
-      "price_usd": 0.4689,
+      "price_usd": 0.5106,
       "billing_unit": "hourly",
-      "hourly_usd": 0.4689,
+      "hourly_usd": 0.5106,
       "interruptible": false,
-      "tier": "Marketplace on-demand (variable; median)",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
       "form_factor": null,
-      "quote": "Vast public offers API: 43 rentable on-demand RTX 4090 24GB offers; per-GPU dph_total min $0.3489/hr, median $0.4689/hr",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22type%22%3A%22on-demand%22%7D",
-      "checked_at": "2026-10-27T09:05:01-04:00",
+      "quote": "Vast public offers API: 40 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.5106/hr, min $0.3744/hr",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "checked_at": "2026-10-27T09:17:17-04:00",
       "price_status": "marketplace",
-      "price_basis": "median per-GPU price of rentable on-demand offers",
-      "lowest_offer_usd": 0.3489,
-      "offer_count": 43,
+      "price_basis": "median per-GPU price (dph_total / num_gpus) of verified, rentable, on-demand 24 GB offers",
+      "lowest_offer_usd": 0.3744,
+      "offer_count": 40,
       "evidence": {
-        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22type%22%3A%22on-demand%22%7D",
-        "quote": "Vast public offers API: 43 rentable on-demand RTX 4090 24GB offers; per-GPU dph_total min $0.3489/hr, median $0.4689/hr",
-        "checked_at": "2026-10-27T09:05:01-04:00"
+        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+        "quote": "Vast public offers API: 40 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.5106/hr, min $0.3744/hr",
+        "checked_at": "2026-10-27T09:17:17-04:00"
       }
     }
   ],
-  "market_note": "Marketplace prices are set by hosts and change minute to minute; published figure is the median per-GPU offer at check time, with the lowest offer and offer count."
+  "market_note": "Marketplace prices are set by hosts and change minute to minute. Published figure is the median per-GPU price of verified, rentable, on-demand offers with the exact VRAM shown, plus the lowest offer and offer count. Models with fewer than 5 such offers are not published (A100 PCIe 80GB had 1 at the 09:17 EDT check; H100 SXM had 4 earlier)."
 }

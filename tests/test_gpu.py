@@ -129,7 +129,7 @@ def test_every_record_has_live_evidence():
             assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
             assert ev["checked_at"] == r["checked_at"]
             n += 1
-    assert n == 62  # 36 original + Lambda 13 + TensorDock 10 (held stale) + Vast 3
+    assert n == 61  # 36 original + Lambda 13 + TensorDock 10 (held stale) + Vast 2
     blob = "".join(p.read_text() for p in (Path(__file__).resolve().parents[1] / "data" / "gpu_pricing").glob("*.json"))
     assert "/private" not in blob and "referral_terms" not in blob and not re.search(r"commission|payout", blob, re.I)
 
@@ -182,12 +182,15 @@ def test_new_vendor_flags():
             assert "TensorDock" not in body.split("Held out")[0], page
     # Vast: 3 marketplace medians (no H100), tied to the existing affiliate deal, labeled with lowest offer
     vast = [r for r in rates if r["advertiser"] == "Vast.ai"]
-    assert sorted(r["gpu"] for r in vast) == ["A100 PCIe", "A100 SXM", "RTX 4090"]
+    assert sorted(r["gpu"] for r in vast) == ["A100 SXM", "RTX 4090"]  # A100 PCIe 80GB: 1 verified offer, not published
+    assert {r["gpu"]: (r["hourly_equiv_usd"], r["lowest_offer_usd"], r["offer_count"]) for r in vast} == {
+        "A100 SXM": (1.1354, 1.0022, 10), "RTX 4090": (0.5106, 0.3744, 40)}
+    assert all('"verified":{"eq":true}' in __import__("urllib.parse").parse.unquote(r["source_url"]) for r in vast)
     assert all(r["deal_id"] == "deal-vastai-001" and r["price_status"] == "marketplace"
                and r["lowest_offer_usd"] <= r["hourly_equiv_usd"] and r["offer_count"] >= 5 for r in vast)
     res = compare_gpu_prices(api, "RTX 4090", limit=25)["results"]
     v = next(r for r in res if r["advertiser"] == "Vast.ai")
-    assert v["price_status"] == "marketplace" and v["lowest_offer_usd"] == 0.3489
+    assert v["price_status"] == "marketplace" and v["lowest_offer_usd"] == 0.3744
     o = next(x for x in _gpu_options(api, 100, "RTX 4090", set()) if x["vendor"] == "Vast.ai")
     assert any("marketplace" in a for a in o["assumptions"])
     doc = next(d for d in load_vendor_files() if d["vendor"] == "Vast.ai")

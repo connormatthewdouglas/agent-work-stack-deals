@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from core.gpu import STALE_DAYS, load_vendor_files, record_problems, stale_records  # noqa: E402
+from core.gpu import MIN_MARKET_OFFERS, STALE_DAYS, load_vendor_files, record_problems, stale_records  # noqa: E402
 from core import stack  # noqa: E402
 
 UA = "Mozilla/5.0 (compatible; LanternWorksPriceCheck/1.0; +https://thelanternworks.com/for-agents/)"
@@ -76,7 +76,9 @@ def main() -> int:
                     # and report today's median for a human re-check instead.
                     try:
                         offers = json.loads(body).get("offers") or []
-                        per = sorted(o["dph_total"] / max(1, o.get("num_gpus") or 1) for o in offers)
+                        per = sorted(o["dph_total"] / max(1, o.get("num_gpus") or 1) for o in offers
+                                     if o.get("verified", True) and o.get("rentable", True) and not o.get("rented")
+                                     and o.get("gpu_ram") and round(o["gpu_ram"] / 1024) == r["vram_gb"])
                     except (ValueError, KeyError, TypeError, AttributeError):
                         per = None
                     if per is None:
@@ -84,8 +86,11 @@ def main() -> int:
                     elif not per:
                         flags.append(f"marketplace has no live offers: {doc['vendor']} {r['gpu']} at {r['source_url']}")
                     else:
-                        print(f"  {doc['vendor']} {r['gpu']}: live {len(per)} offers, min ${per[0]:.4f}, "
-                              f"median ${statistics.median(per):.4f} (published median ${r['hourly_usd']})")
+                        print(f"  {doc['vendor']} {r['gpu']} {r['vram_gb']} GB verified on-demand: live {len(per)} offers, "
+                              f"min ${per[0]:.4f}, median ${statistics.median(per):.4f} (published median ${r['hourly_usd']})")
+                        if len(per) < MIN_MARKET_OFFERS:
+                            flags.append(f"marketplace too thin to publish ({len(per)} < {MIN_MARKET_OFFERS} offers): "
+                                         f"{doc['vendor']} {r['gpu']} {r['vram_gb']} GB at {r['source_url']}")
                     continue
                 text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body
                 missing = [t for t in price_tokens(r["quote"]) if t not in text]
