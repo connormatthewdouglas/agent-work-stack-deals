@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — 9Proxy correction
+
+- 9Proxy: removed the 5% invite-discount claim, which nothing on 9proxy.com supports. It is now a standard referral listing with the verified starting prices ($0.018/IP, $0.68/GB, checked 2026-10-27).
+
 ## 2026-10-27 — Claim batch 1
 
 - 18 claims re-checked on vendor pages: verification dates set for Hyperbrowser (5,000 free credits, now free_tier), 9Proxy prices (source now 9proxy.com), IPGeolocation plan prices, Wonderchat, AgentMail startup eligibility and PDFCrowd API plans.
