@@ -59,6 +59,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--version", default="latest", help="'latest' = newest release on PyPI (so CI covers each new release as soon as it is published)")
     ap.add_argument("--uvx", action="store_true", help="also test via uvx")
+    ap.add_argument("--docker", help="test a built Docker image (docker run -i --rm IMAGE) instead of a pip/uvx install")
     ap.add_argument("--wheel", help="pre-upload check: install this local wheel instead of PyPI (skips uvx)")
     a = ap.parse_args()
     if a.version == "latest":
@@ -74,8 +75,12 @@ def main():
         vd = os.path.join(tmp, "venv")
         venv.create(vd, with_pip=True)
         py = os.path.join(vd, "bin", "python")
-        run([py, "-m", "pip", "install", "-q", "--no-cache-dir", "--isolated", target], env=env, cwd=tmp)
         cl = os.path.join(tmp, "client.py"); open(cl, "w").write(CLIENT)
+        if a.docker:
+            run([py, "-m", "pip", "install", "-q", "--no-cache-dir", "--isolated", "mcp>=1.10,<2"], env=env, cwd=tmp)
+            run([py, cl, a.version, "docker", "run", "-i", "--rm", a.docker], env=env, cwd=tmp)
+            print("RESULT: ok"); return
+        run([py, "-m", "pip", "install", "-q", "--no-cache-dir", "--isolated", target], env=env, cwd=tmp)
         run([py, cl, a.version, os.path.join(vd, "bin", PKG)], env=env, cwd=tmp)
         if a.uvx and not a.wheel:
             uvx = shutil.which("uvx") or sys.exit("uvx not found")
