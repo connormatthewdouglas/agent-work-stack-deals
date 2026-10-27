@@ -15,7 +15,7 @@ AI agents need a discoverable way to find Lantern Works inventory beyond pasting
 | JSON feed | https://thelanternworks.com/deals.json |
 | Human page | https://thelanternworks.com/lanternworks/ |
 | Deals list | https://thelanternworks.com/ |
-| Agent Skill | [../.agents/skills/lantern-works-deals/SKILL.md](../.agents/skills/lantern-works-deals/SKILL.md) |
+| Agent Skill | [../skills/lantern-works-deals/SKILL.md](../skills/lantern-works-deals/SKILL.md) (live: https://thelanternworks.com/SKILL.md) |
 | Query CLI | [../query_deals.py](../query_deals.py) · [../USAGE.md](../USAGE.md) |
 
 ## Filter contract

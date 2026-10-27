@@ -16,13 +16,34 @@ Data: `https://thelanternworks.com/api/v1/deals.json`, cached 5 min (stale copy 
 
 ## Install
 
+Published on [PyPI](https://pypi.org/project/lantern-works-deals-mcp/) as `lantern-works-deals-mcp` and in the MCP Registry as `io.github.connormatthewdouglas/lantern-works-deals`. With [uv](https://docs.astral.sh/uv/):
+
+```bash
+uvx lantern-works-deals-mcp   # stdio server
+```
+
+Claude Desktop (`claude_desktop_config.json`) / Cursor (`.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "lantern-works-deals": {
+      "command": "uvx",
+      "args": ["lantern-works-deals-mcp"]
+    }
+  }
+}
+```
+
+Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`.
+
+### Fallback: from git
+
 ```bash
 git clone https://github.com/connormatthewdouglas/agent-work-stack-deals.git
 cd agent-work-stack-deals
 python3 -m venv .venv && .venv/bin/pip install -r mcp_server/requirements.txt
 ```
-
-Claude Desktop (`claude_desktop_config.json`) / Cursor (`.cursor/mcp.json`):
 
 ```json
 {
@@ -42,19 +63,12 @@ Claude Desktop (`claude_desktop_config.json`) / Cursor (`.cursor/mcp.json`):
 .venv/bin/python mcp_server/smoke/smoke_client.py   # real stdio client session, live feed
 ```
 
-## Package (built and tested locally, not yet on PyPI)
+## Package
 
-`pyproject.toml` at the repo root builds `lantern-works-deals-mcp` with a `lantern-works-deals-mcp` console command:
-
-```bash
-python3 -m build && pip install dist/lantern_works_deals_mcp-0.1.0-py3-none-any.whl
-lantern-works-deals-mcp   # stdio server
-```
-
-Once published, the config becomes `{"command": "uvx", "args": ["lantern-works-deals-mcp"]}`.
+`pyproject.toml` at the repo root builds `lantern-works-deals-mcp` (published 0.1.0) with a `lantern-works-deals-mcp` console command. Local build: `python3 -m build`.
 
 ## Client validation
 
 Transcripts in `smoke/`: official Python SDK client (`transcript.txt`), MCP Inspector CLI (`inspector_cli_transcript.txt`), OpenAI Agents SDK `MCPServerStdio` (`agents_sdk_transcript.txt`).
 
-`server.json` passes `mcp-publisher validate` and has not been submitted.
+`server.json` is published in the MCP Registry as `io.github.connormatthewdouglas/lantern-works-deals`.

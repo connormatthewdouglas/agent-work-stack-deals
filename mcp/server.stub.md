@@ -28,7 +28,7 @@ ISO-8601 compare against `deal.updated_at`. Rows missing `updated_at` are exclud
 ## Discovery
 Point directories / install docs at:
 - this repo’s `mcp/tools.manifest.json`
-- Agent Skill: `.agents/skills/lantern-works-deals/SKILL.md`
+- Agent Skill: `skills/lantern-works-deals/SKILL.md` (live: https://thelanternworks.com/SKILL.md)
 
 ## Non-goals
 Payout rails, vendor outreach, consumer affiliate networks, mutating the feed.

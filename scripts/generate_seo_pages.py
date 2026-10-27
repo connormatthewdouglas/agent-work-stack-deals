@@ -514,7 +514,7 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
 
   <h2>Skill and MCP</h2>
   <ul>
-    <li>Agent skill: <a href="{BASE}/skills/lantern-works-deals/SKILL.html">lantern-works-deals</a> (source <code>skills/lantern-works-deals/SKILL.md</code> in the repo). Copy it into your agent's skills folder.</li>
+    <li>Agent skill: raw <a href="{BASE}/SKILL.md">{BASE}/SKILL.md</a> (also rendered at <a href="{BASE}/skills/lantern-works-deals/SKILL.html">SKILL.html</a>; source <code>skills/lantern-works-deals/SKILL.md</code> in the <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/skills/lantern-works-deals/SKILL.md">repo</a>). Copy it into your agent's skills folder.</li>
     <li>MCP: a read-only <strong>local (stdio)</strong> server with tools <code>search_deals</code>, <code>compare_deals</code> and <code>get_deal</code>. There is no hosted endpoint. Results are ranked by customer value, never by affiliate status.</li>
   </ul>
 
@@ -522,10 +522,23 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
   <p><a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> lists structured GPU rates (per hour or per month) taken from verified pricing notes, each with its <code>deal_id</code> and source quote. Deals without a verified price are under <code>unpriced</code>. The human version is the <a href="{BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a>.</p>
 
   <h2>Install the MCP server (local stdio)</h2>
+  <p>Published on <a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a> as <code>lantern-works-deals-mcp</code> and in the MCP Registry as <code>io.github.connormatthewdouglas/lantern-works-deals</code>. With <a href="https://docs.astral.sh/uv/">uv</a> installed, run:</p>
+  <pre>uvx lantern-works-deals-mcp</pre>
+  <p>Add it to your client's MCP config (Claude Desktop <code>claude_desktop_config.json</code>, Cursor <code>.cursor/mcp.json</code>):</p>
+  <pre>{{
+  "mcpServers": {{
+    "lantern-works-deals": {{
+      "command": "uvx",
+      "args": ["lantern-works-deals-mcp"]
+    }}
+  }}
+}}</pre>
+  <p>Without uv: <code>pip install lantern-works-deals-mcp</code>, then use <code>"command": "lantern-works-deals-mcp"</code>.</p>
+  <p>Fallback, from git:</p>
   <pre>git clone https://github.com/connormatthewdouglas/agent-work-stack-deals.git
 cd agent-work-stack-deals
 python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r mcp_server/requirements.txt</pre>
-  <p>Add it to your client's MCP config (Claude Desktop <code>claude_desktop_config.json</code>, Cursor <code>.cursor/mcp.json</code>), using absolute paths:</p>
+  <p>Then point your client at it, using absolute paths:</p>
   <pre>{{
   "mcpServers": {{
     "lantern-works-deals": {{
@@ -549,6 +562,21 @@ python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r mcp_server/requirement
                               "How AI agents query the Lantern Works deals feed: endpoints, JSON Schema, offer types, examples.",
                               f"{BASE}/for-agents/", body), encoding="utf-8")
     return out
+
+
+SKILL_SRC = ROOT / "skills" / "lantern-works-deals" / "SKILL.md"
+
+
+def write_skill_copies() -> None:
+    """Mirror the canonical skill so it can't drift.
+
+    /.agents/... gets a byte-identical copy. /SKILL.md gets the same bytes behind one
+    leading newline: GitHub Pages (Jekyll) renders any .md that *starts* with YAML
+    front matter to .html and serves no raw file, so the newline keeps /SKILL.md raw.
+    """
+    src = SKILL_SRC.read_bytes()
+    (ROOT / ".agents" / "skills" / "lantern-works-deals" / "SKILL.md").write_bytes(src)
+    (ROOT / "SKILL.md").write_bytes(b"\n" + src)
 
 
 def write_api_v1() -> Path:
@@ -1484,6 +1512,7 @@ def ensure_robots() -> None:
 
 
 def main() -> None:
+    write_skill_copies()
     feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
     assert_public_clean(feed)
     feed = apply_compliance_gate(feed)
