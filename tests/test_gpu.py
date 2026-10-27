@@ -8,7 +8,7 @@ FEED = json.loads((Path(__file__).resolve().parents[1] / "deals.json").read_text
 def test_all_specs_verified_against_feed():
     r = build_rates(FEED)
     live = [d for d in load_vendor_files() if not d.get("stale")]
-    assert r["problems"] == [] and len(r["rates"]) == sum(len(d["records"]) for d in live)
+    assert r["problems"] == [] and len(r["rates"]) == sum(1 for d in live for x in d["records"] if not x.get("stale"))
 
 
 def test_estimate_hourly_vs_flat_and_rank():
@@ -100,7 +100,8 @@ def test_published_api_matches_records():
     api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
     assert api["rates"] == build_rates(FEED)["rates"]
     assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale")}
-    assert {h["vendor"] for h in api["held_stale"]} == {d["vendor"] for d in load_vendor_files() if d.get("stale")}
+    held = {d["vendor"] for d in load_vendor_files() if d.get("stale") or any(r.get("stale") for r in d["records"])}
+    assert {h["vendor"] for h in api["held_stale"]} == held
 
 
 def test_gpu_pages_carry_accuracy_notes_and_tracked_wording():
@@ -170,7 +171,8 @@ def test_new_vendor_flags():
     api = json.loads((root / "api" / "v1" / "gpu-prices.json").read_text())
     rates = api["rates"]
     # TensorDock: stale, held out of every ranking surface
-    assert [h["vendor"] for h in api["held_stale"]] == ["TensorDock"] and api["held_stale"][0]["page_last_updated"] == "2024-07-24"
+    td = [h for h in api["held_stale"] if h["vendor"] == "TensorDock"]
+    assert len(td) == 1 and td[0]["page_last_updated"] == "2024-07-24"
     assert not any(r["advertiser"] == "TensorDock" for r in rates)
     for g in ("RTX 4090", "A100", "H100", "V100"):
         assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25)["results"])
@@ -182,7 +184,7 @@ def test_new_vendor_flags():
             assert "TensorDock" not in body.split("Held out")[0], page
     # Vast: 3 marketplace medians (no H100), tied to the existing affiliate deal, labeled with lowest offer
     vast = [r for r in rates if r["advertiser"] == "Vast.ai"]
-    assert sorted(r["gpu"] for r in vast) == ["A100 SXM", "RTX 4090"]  # A100 PCIe 80GB: 1 verified offer, not published
+    assert sorted(r["gpu"] for r in vast) == ["RTX 4090"]  # A100 SXM 80GB held (3 < 5 offers); A100 PCIe 80GB: 1 verified offer, not published
     assert {r["gpu"]: (r["hourly_equiv_usd"], r["lowest_offer_usd"], r["offer_count"]) for r in vast} == {
         "A100 SXM": (1.1354, 1.0022, 10), "RTX 4090": (0.5106, 0.3744, 40)}
     assert all('"verified":{"eq":true}' in __import__("urllib.parse").parse.unquote(r["source_url"]) for r in vast)
@@ -202,3 +204,23 @@ def test_new_vendor_flags():
     e = estimate(rates, 100, gpu_filter="V100")
     v100 = next(x for x in e if x["advertiser"] == "Lambda")
     assert v100["monthly_cost_usd"] == round(0.79 * 100 * 8, 2) and "8-GPU" in v100["calc"]
+
+
+def test_thin_marketplace_record_held_not_ranked():
+    from core.deals import compare_gpu_prices
+    from core.stack import _gpu_options
+    api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    vast_a100 = [h for h in api["held_stale"] if h["vendor"] == "Vast.ai" and h["records"][0]["gpu"] == "A100 SXM"]
+    assert len(vast_a100) == 1 and "too thin" in vast_a100[0]["reason"]
+    assert not any(r["advertiser"] == "Vast.ai" and r["gpu"] == "A100 SXM" for r in api["rates"])
+    assert any(r["advertiser"] == "Vast.ai" and r["gpu"] == "RTX 4090" for r in api["rates"])
+    assert all(not (r["advertiser"] == "Vast.ai" and r["gpu"].startswith("A100"))
+               for r in compare_gpu_prices(api, "A100", limit=25)["results"])
+    assert all(not (o["vendor"] == "Vast.ai" and "A100" in o.get("plan", "")) for o in _gpu_options(api, 100, "A100", set()))
+
+
+def test_record_level_stale_needs_reason():
+    from core.gpu import record_problems
+    doc = json.loads((Path(__file__).resolve().parents[1] / "data" / "gpu_pricing" / "vast.json").read_text())
+    doc["records"][0]["stale"] = {}
+    assert any("stale needs a reason" in p for p in record_problems(doc))

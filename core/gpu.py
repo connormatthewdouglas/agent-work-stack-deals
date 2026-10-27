@@ -6,7 +6,7 @@ Multi-GPU servers carry gpu_count (> 1) and server_hourly_usd; price_usd is the 
 hourly_usd is always PER GPU (server price / gpu_count), so every ranking is per GPU.
 Optional flags: min_gpus (instance only sold with N GPUs; estimates charge at least N); price_status
 "marketplace" (variable host prices: hourly_usd is the median, plus lowest_offer_usd and offer_count >=
-MIN_MARKET_OFFERS); vendor-level `stale` {reason, page_last_updated} holds the vendor out of `rates` (listed
+MIN_MARKET_OFFERS; a thinner market gets a record-level `stale` {reason} hold); vendor-level `stale` {reason, page_last_updated} holds the vendor out of `rates` (listed
 under `held_stale` instead) so no comparison, page, MCP tool or optimizer can rank it.
 deal_id may be null for vendors with no deal in the feed (links then go to the vendor's own page).
 scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits).
@@ -55,6 +55,9 @@ def record_problems(doc: dict) -> list[str]:
             out.append(f"{name}: extras.{k} needs status published|unknown, text, source_url")
     for i, r in enumerate(doc.get("records") or []):
         tag = f"{name} record {i} ({r.get('gpu')})"
+        rst = r.get("stale")
+        if rst is not None and not (isinstance(rst, dict) and rst.get("reason")):
+            out.append(f"{tag}: stale needs a reason")
         miss = [k for k in RECORD_FIELDS if k not in r]
         if miss:
             out.append(f"{tag}: missing {miss}")
@@ -121,6 +124,8 @@ def stale_records(docs: list[dict], now: datetime | None = None, days: int = STA
     out = []
     for doc in docs:
         for r in doc.get("records") or []:
+            if r.get("stale"):
+                continue  # held records are never ranked; their age isn't a live-site failure
             age = now - datetime.fromisoformat(r["checked_at"])
             if age > timedelta(days=days):
                 out.append(f"{doc['vendor']} {r['gpu']} ({r['tier']}): checked_at {r['checked_at']} is {age.days} days old")
@@ -184,7 +189,16 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
         vendors.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                         "checked_at": doc["checked_at"], "billing_granularity": doc.get("billing_granularity"),
                         "extras": doc["extras"], "market_note": doc.get("market_note")})
+        held_recs = [r for r in doc["records"] if r.get("stale")]
+        for r in held_recs:
+            # Record-level hold (e.g. marketplace too thin: < MIN_MARKET_OFFERS offers): listed, never ranked.
+            held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
+                         "checked_at": r["checked_at"], "reason": r["stale"]["reason"],
+                         "page_last_updated": r["stale"].get("page_last_updated"),
+                         "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}]})
         for r in doc["records"]:
+            if r.get("stale"):
+                continue
             monthly = r["billing_unit"] == "monthly"
             n = r.get("gpu_count", 1)
             rates.append({

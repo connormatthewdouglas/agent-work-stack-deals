@@ -88,7 +88,9 @@ def main() -> int:
                     else:
                         print(f"  {doc['vendor']} {r['gpu']} {r['vram_gb']} GB verified on-demand: live {len(per)} offers, "
                               f"min ${per[0]:.4f}, median ${statistics.median(per):.4f} (published median ${r['hourly_usd']})")
-                        if len(per) < MIN_MARKET_OFFERS:
+                        if r.get("stale"):
+                            print(f"  held (not ranked): {r['stale']['reason']}")
+                        elif len(per) < MIN_MARKET_OFFERS:
                             flags.append(f"marketplace too thin to publish ({len(per)} < {MIN_MARKET_OFFERS} offers): "
                                          f"{doc['vendor']} {r['gpu']} {r['vram_gb']} GB at {r['source_url']}")
                     continue
