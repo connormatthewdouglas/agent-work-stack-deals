@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-27 — MCP 0.3.1
+
+- lantern-works-deals-mcp 0.3.1: package metadata and README list all five tools (incl. `optimize_stack`) with uvx and `claude mcp add` install steps; new `examples/` folder (three agent skills and a GPU price monitor).
+
 ## 2026-10-27 — Agent Stack Optimizer
 
 - New [Agent Stack Optimizer](https://thelanternworks.com/tools/stack-optimizer/): enter monthly needs (pages to scrape, JS-rendered pages, residential proxy GB, transactional emails, search queries, GPU hours) and get the cheapest suitable plan per need among tracked providers. Every line shows the vendor quote, source page, check date and assumptions; unpublished prices say "unknown"; manual-signup-only vendors are flagged and can be skipped.
