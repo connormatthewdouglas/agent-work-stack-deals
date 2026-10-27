@@ -132,8 +132,10 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -
         if model and not (r.get("gpu") == model or str(r.get("gpu", "")).startswith(model + " ")
                           or model.lower() in str(r.get("gpu", "")).lower().split()):
             continue
+        mg = r.get("min_gpus") or 1
         if r.get("unit") == "hour":
-            cost, calc = r["price_usd"] * hours, f"${r['price_usd']:g}/hr x {hours:,g} h"
+            cost, calc = r["price_usd"] * hours * mg, f"${r['price_usd']:g}/hr x {hours:,g} h" + (
+                f" x {mg} GPUs (sold only as {mg}-GPU instances)" if mg > 1 else "")
         else:
             n = max(1, math.ceil(hours / hpm))
             per = r.get("gpu_count") or 1
@@ -144,7 +146,11 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -
                     "deal_id": r.get("deal_id"), "monthly_cost_usd": round(cost, 2), "calc": calc, "quote": r.get("basis"),
                     "source_url": r.get("source_url"), "checked_at": r.get("verified_at"),
                     "assumptions": ["Excludes storage, egress, extra vCPU and taxes.", "1 GPU; hourly rates bill while running."]
-                    + (["Interruptible: the vendor may preempt the job."] if r.get("interruptible") else []),
+                    + (["Interruptible: the vendor may preempt the job."] if r.get("interruptible") else [])
+                    + ([f"Variable marketplace price: median of {r.get('offer_count')} offers at check time; lowest offer "
+                        f"${r.get('lowest_offer_usd'):g}/hr. Prices change minute to minute."]
+                       if r.get("price_status") == "marketplace" else []),
+                    "price_status": r.get("price_status", "listed"),
                     "signup": "manual_only" if r.get("deal_id") in manual else None,
                     "manual_signup_only": r.get("deal_id") in manual, "signup_note": None,
                     "affiliate": bool(r.get("affiliate")), "redeem_url": r.get("redeem_url"),

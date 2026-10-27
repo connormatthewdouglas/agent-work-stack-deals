@@ -95,7 +95,8 @@ class StackPricingLoader(FeedLoader):
 
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
                "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id",
-               "gpu_count", "server_price_usd", "server_hourly_usd", "evidence")
+               "gpu_count", "server_price_usd", "server_hourly_usd", "evidence", "min_gpus", "price_status",
+               "price_basis", "lowest_offer_usd", "offer_count")
 
 
 def _tokens(s: str) -> list[str]:
@@ -131,8 +132,12 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10) -> dict:
     return {
         "gpu": gpu,
         "summary": (f"Cheapest among tracked providers: {c['advertiser']} {c['gpu']} at ${c['hourly_usd']:g}/hr "
-                    f"({c['tier']}, checked {(c['checked_at'] or '')[:10]}). This is the cheapest among tracked "
-                    "providers only, not the whole market."),
+                    f"({c['tier']}, checked {(c['checked_at'] or '')[:10]})"
+                    + (f"; variable marketplace median, lowest offer ${c['lowest_offer_usd']:g}/hr"
+                       if c.get("price_status") == "marketplace" else "")
+                    + (f"; sold only as {c['min_gpus']}-GPU instances" if (c.get("min_gpus") or 1) > 1 else "")
+                    + ". This is the cheapest among tracked providers only, not the whole market. "
+                    "Vendors with stale published prices are held out."),
         "scope": "cheapest among tracked providers",
         "total": len(rows), "count": len(results), "results": results,
         "sorted_by": "hourly_usd ascending (monthly plans converted at hours_per_month)",

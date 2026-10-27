@@ -32,6 +32,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
             "A daily job re-fetches every source_url and flags records older than 7 days or unreachable pages; prices are never auto-edited.",
             "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
+            "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
             "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
             "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"unknown\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
         ],
@@ -39,6 +40,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "vendors": data["vendors"],
         "free_credits": data["free_credits"],
         "unpriced": data["unpriced"],
+        "held_stale": data["held_stale"],
     }
     gen.assert_public_clean(payload)
     return payload
@@ -82,6 +84,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <ul>{credits}</ul>
   <h2>Not priced yet</h2>
   <p>These GPU deals have no verified, structured GPU price in the feed, so they're left out instead of guessed: {unpriced}.</p>
+  <p>Held out as stale (published prices not current, never ranked): {", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a> (vendor page last updated {esc(h.get("page_last_updated") or "unknown")})' for h in payload["held_stale"]) or "none"}.</p>
   <h2>For agents</h2>
   <p>Machine-readable rates: <a href="{api}">{api}</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). Inputs can be preset in the URL, e.g. <code>?hours=300&amp;gpu=A100</code>.</p>
   <script>
@@ -94,10 +97,10 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   function run(){{
     const h=Math.max(0,+$("hours").value||0), g=Math.max(1,Math.floor(+$("gpus").value||1)), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
     const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
-      if(r.unit==="hour") return {{...r,cost:r.price_usd*h*g,calc:`$${{r.price_usd}}/hr × ${{h}} h × ${{g}}`}};
+      if(r.unit==="hour"){{const gg=Math.max(g,r.min_gpus||1);return {{...r,cost:r.price_usd*h*gg,calc:`$${{r.price_usd}}/hr × ${{h}} h × ${{gg}}`+(gg>g?` (sold only as ${{gg}}-GPU instances)`:"")+(r.price_status==="marketplace"?`; variable marketplace median, lowest offer $${{r.lowest_offer_usd}}/hr`:"")}};}}
       const n=Math.max(1,Math.ceil(h/H))*g; return {{...r,cost:r.price_usd*n,calc:(r.gpu_count>1?`$${{r.price_usd}}/GPU-mo × ${{n}} (sold as ${{r.gpu_count}}-GPU servers at $${{r.server_price_usd}}/mo)`:`$${{r.price_usd}}/mo × ${{n}} server(s)`)}};
     }}).sort((a,b)=>a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
-    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="nofollow sponsored noopener" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"referral":"public"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
     $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest among tracked providers: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";
     const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
     $("permalink").href="?"+p;

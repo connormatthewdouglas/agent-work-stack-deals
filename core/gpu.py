@@ -4,6 +4,11 @@ Each record carries vendor, GPU, VRAM, price + billing unit, interruptible, sour
 `evidence` object {source_url, quote, checked_at} from the last live check of the vendor page.
 Multi-GPU servers carry gpu_count (> 1) and server_hourly_usd; price_usd is the vendor's server price and
 hourly_usd is always PER GPU (server price / gpu_count), so every ranking is per GPU.
+Optional flags: min_gpus (instance only sold with N GPUs; estimates charge at least N); price_status
+"marketplace" (variable host prices: hourly_usd is the median, plus lowest_offer_usd and offer_count >=
+MIN_MARKET_OFFERS); vendor-level `stale` {reason, page_last_updated} holds the vendor out of `rates` (listed
+under `held_stale` instead) so no comparison, page, MCP tool or optimizer can rank it.
+deal_id may be null for vendors with no deal in the feed (links then go to the vendor's own page).
 scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits).
 Ranking is by estimated cost for the user's hours, never by affiliate status or commission.
 """
@@ -23,6 +28,7 @@ RECORD_FIELDS = ("vendor", "gpu", "vram_gb", "price_usd", "billing_unit", "hourl
 PRICING_DIR = Path(__file__).resolve().parents[1] / "data" / "gpu_pricing"
 STALE_DAYS = 7
 EVIDENCE_FIELDS = ("source_url", "quote", "checked_at")
+MIN_MARKET_OFFERS = 5
 MAX_QUOTE = 200
 
 
@@ -35,9 +41,14 @@ def load_vendor_files(directory: Path | None = None) -> list[dict]:
 def record_problems(doc: dict) -> list[str]:
     """Schema/consistency checks for one vendor file. Empty list = valid."""
     out, name = [], doc.get("vendor") or "?"
-    for k in ("vendor", "deal_id", "source_url", "checked_at", "records", "extras"):
+    for k in ("vendor", "source_url", "checked_at", "records", "extras"):
         if not doc.get(k):
             out.append(f"{name}: missing {k}")
+    if "deal_id" not in doc or not (doc["deal_id"] is None or isinstance(doc["deal_id"], str) and doc["deal_id"]):
+        out.append(f"{name}: deal_id must be a feed deal id or null")
+    st = doc.get("stale")
+    if st is not None and not (isinstance(st, dict) and st.get("reason")):
+        out.append(f"{name}: stale needs a reason")
     for k in ("egress", "storage", "interruption"):
         x = (doc.get("extras") or {}).get(k) or {}
         if x.get("status") not in ("published", "unknown") or not x.get("text") or not x.get("source_url"):
@@ -68,6 +79,20 @@ def record_problems(doc: dict) -> list[str]:
             out.append(f"{tag}: gpu_count {n} needs server_hourly_usd = price_usd x {factor:g}")
         if n == 1 and "server_hourly_usd" in r:
             out.append(f"{tag}: server_hourly_usd only for gpu_count > 1")
+        mg = r.get("min_gpus", 1)
+        if not (isinstance(mg, int) and not isinstance(mg, bool) and mg >= 1):
+            out.append(f"{tag}: min_gpus must be an integer >= 1")
+        ps = r.get("price_status", "listed")
+        if ps not in ("listed", "marketplace"):
+            out.append(f"{tag}: price_status must be listed|marketplace")
+        if ps == "marketplace":
+            lo, cnt = r.get("lowest_offer_usd"), r.get("offer_count")
+            if not (isinstance(lo, (int, float)) and 0 < lo <= r["hourly_usd"]):
+                out.append(f"{tag}: marketplace needs 0 < lowest_offer_usd <= hourly_usd (median)")
+            if not (isinstance(cnt, int) and cnt >= MIN_MARKET_OFFERS):
+                out.append(f"{tag}: marketplace median needs offer_count >= {MIN_MARKET_OFFERS}")
+            if not r.get("price_basis"):
+                out.append(f"{tag}: marketplace needs price_basis")
         ev = r.get("evidence")
         if not isinstance(ev, dict) or any(not ev.get(k) for k in EVIDENCE_FIELDS):
             out.append(f"{tag}: evidence needs {EVIDENCE_FIELDS}")
@@ -139,19 +164,26 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
     monthly (unit 'month') price; per-second prices are carried as price_per_second_usd."""
     by_id = {d["id"]: d for d in deals}
     docs = load_vendor_files() if vendor_docs is None else vendor_docs
-    rates, problems, vendors = [], [], []
+    rates, problems, vendors, held = [], [], [], []
     for doc in docs:
         bad = record_problems(doc)
         if bad:
             problems += bad
             continue
-        d = by_id.get(doc["deal_id"])
-        if not d:
+        d = by_id.get(doc["deal_id"]) if doc["deal_id"] else {}
+        if d is None:
             problems.append(f"{doc['deal_id']}: not in public feed")
+            continue
+        if doc.get("stale"):
+            held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
+                         "checked_at": doc["checked_at"], "reason": doc["stale"]["reason"],
+                         "page_last_updated": doc["stale"].get("page_last_updated"),
+                         "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}
+                                     for r in doc["records"]]})
             continue
         vendors.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                         "checked_at": doc["checked_at"], "billing_granularity": doc.get("billing_granularity"),
-                        "extras": doc["extras"]})
+                        "extras": doc["extras"], "market_note": doc.get("market_note")})
         for r in doc["records"]:
             monthly = r["billing_unit"] == "monthly"
             n = r.get("gpu_count", 1)
@@ -162,6 +194,10 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "gpu_count": n,
                 "server_price_usd": r["price_usd"] if n > 1 else None,
                 "server_hourly_usd": r.get("server_hourly_usd"),
+                "min_gpus": r.get("min_gpus", 1),
+                "price_status": r.get("price_status", "listed"),
+                "price_basis": r.get("price_basis"),
+                "lowest_offer_usd": r.get("lowest_offer_usd"), "offer_count": r.get("offer_count"),
                 "unit": "month" if monthly else "hour", "tier": r["tier"],
                 "hourly_equiv_usd": r["hourly_usd"],
                 "billing": {"per-second": "per second while running", "hourly": "per hour while running",
@@ -171,14 +207,15 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
                 "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
                 "verified_at": r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
-                "redeem_url": d.get("redeem_url"), "basis": r["quote"], "evidence": r["evidence"]})
+                "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"]})
     priced = {r["deal_id"] for r in rates}
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}
                 for d in sorted(deals, key=lambda x: x["id"]) if is_gpu_deal(d) and d["id"] not in priced]
     credits = [{"deal_id": d["id"], "advertiser": d.get("advertiser"), "unit": d.get("unit")}
                for d in deals if is_gpu_deal(d) and d.get("offer_type") in ("free_tier", "trial")]
-    return {"rates": rates, "vendors": vendors, "unpriced": unpriced, "free_credits": credits, "problems": problems}
+    return {"rates": rates, "vendors": vendors, "held_stale": held, "unpriced": unpriced, "free_credits": credits,
+            "problems": problems}
 
 
 def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filter: str | None = None,
@@ -192,9 +229,14 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
             continue
         if min_vram_gb and (r["vram_gb"] or 0) < min_vram_gb:
             continue
+        g = max(gpus, r.get("min_gpus") or 1)
         if r["unit"] == "hour":
-            cost = r["price_usd"] * hours_per_month * gpus
-            basis = f"${r['price_usd']}/hr x {hours_per_month} h x {gpus} GPU"
+            cost = r["price_usd"] * hours_per_month * g
+            basis = f"${r['price_usd']}/hr x {hours_per_month} h x {g} GPU"
+            if g > gpus:
+                basis += f" (sold only as {g}-GPU instances)"
+            if r.get("price_status") == "marketplace":
+                basis += f"; variable marketplace median, lowest offer ${r['lowest_offer_usd']}/hr"
         else:
             n = max(1, math.ceil(hours_per_month / HOURS_PER_MONTH)) * gpus
             cost = r["price_usd"] * n

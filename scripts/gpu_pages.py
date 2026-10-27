@@ -24,9 +24,23 @@ def _money(x: float) -> str:
     return f"${x:,.2f}"
 
 
+def _vendor_url(gen, r: dict) -> str:
+    return f"{gen.BASE}/deals/{gen.slug_for(r['deal_id'])}/" if r.get("deal_id") else (r.get("source_url") or "")
+
+
+def _vendor_link(gen, r: dict) -> str:
+    rel = "" if r.get("deal_id") else ' rel="noopener"'
+    return f"<a href=\"{gen.esc(_vendor_url(gen, r))}\"{rel}>{gen.esc(r['advertiser'])}</a>"
+
+
 def _rate_str(r: dict) -> str:
     if r["unit"] == "hour":
-        return f"${r['price_usd']:g}/hr"
+        s = f"${r['price_usd']:g}/hr"
+        if r.get("price_status") == "marketplace":
+            s += f" (variable marketplace median; lowest offer ${r['lowest_offer_usd']:g}/hr, {r['offer_count']} offers)"
+        if (r.get("min_gpus") or 1) > 1:
+            s += f" (sold only as {r['min_gpus']}-GPU instances)"
+        return s
     if (r.get("gpu_count") or 1) > 1:
         return f"${r['price_usd']:,.2f}/GPU-mo ({r['gpu_count']}-GPU server ${r['server_price_usd']:,.2f}/mo)"
     return f"${r['price_usd']:,.2f}/mo"
@@ -38,7 +52,7 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     for i, r in enumerate(rows, 1):
         trs.append(
             f"<tr><td>{i}</td><td>{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
-            f"<td><a href=\"{gen.BASE}/deals/{gen.slug_for(r['deal_id'])}/\">{esc(r['advertiser'])}</a></td>"
+            f"<td>{_vendor_link(gen, r)}</td>"
             f"<td>{esc(r['tier'])}</td><td>{esc(_rate_str(r))}</td>"
             f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[(r['deal_id'], r['gpu'], r['tier'])])}</td>"
             f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['basis'])}”</a></td>"
@@ -50,7 +64,7 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
 
 def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, str]], gen) -> str:
     items = [{"@type": "ListItem", "position": i, "name": f"{r['advertiser']} {r['gpu']} ({r['tier']}) {_rate_str(r)}",
-              "url": f"{gen.BASE}/deals/{gen.slug_for(r['deal_id'])}/"} for i, r in enumerate(rows, 1)]
+              "url": _vendor_url(gen, r)} for i, r in enumerate(rows, 1)]
     graph = [{"@type": "ItemList", "name": name, "url": page_url, "itemListOrder": "https://schema.org/ItemListOrderAscending",
               "numberOfItems": len(items), "itemListElement": items},
              {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q,
@@ -214,7 +228,7 @@ def _simple_table(head, rows):
 
 
 def _vendor_cell(gen, r):
-    return f"<a href=\"{gen.BASE}/deals/{gen.slug_for(r['deal_id'])}/\">{gen.esc(r['advertiser'])}</a>"
+    return _vendor_link(gen, r)
 
 
 def _quote_cell(gen, r):

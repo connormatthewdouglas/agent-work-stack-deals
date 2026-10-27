@@ -7,7 +7,8 @@ FEED = json.loads((Path(__file__).resolve().parents[1] / "deals.json").read_text
 
 def test_all_specs_verified_against_feed():
     r = build_rates(FEED)
-    assert r["problems"] == [] and len(r["rates"]) == sum(len(d["records"]) for d in load_vendor_files())
+    live = [d for d in load_vendor_files() if not d.get("stale")]
+    assert r["problems"] == [] and len(r["rates"]) == sum(len(d["records"]) for d in live)
 
 
 def test_estimate_hourly_vs_flat_and_rank():
@@ -25,8 +26,8 @@ def test_estimate_hourly_vs_flat_and_rank():
 
 def test_affiliate_not_rank_input():
     rates = build_rates(FEED)["rates"]
-    a = [x["deal_id"] + x["gpu"] for x in estimate(rates, 200)]
-    b = [x["deal_id"] + x["gpu"] for x in estimate([{**r, "affiliate": not r["affiliate"]} for r in rates], 200)]
+    a = [(x["advertiser"], x["gpu"], x["tier"]) for x in estimate(rates, 200)]
+    b = [(x["advertiser"], x["gpu"], x["tier"]) for x in estimate([{**r, "affiliate": not r["affiliate"]} for r in rates], 200)]
     assert a == b
 
 
@@ -98,7 +99,8 @@ def test_record_problems_and_staleness_detected():
 def test_published_api_matches_records():
     api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
     assert api["rates"] == build_rates(FEED)["rates"]
-    assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files()}
+    assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale")}
+    assert {h["vendor"] for h in api["held_stale"]} == {d["vendor"] for d in load_vendor_files() if d.get("stale")}
 
 
 def test_gpu_pages_carry_accuracy_notes_and_tracked_wording():
@@ -127,7 +129,7 @@ def test_every_record_has_live_evidence():
             assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
             assert ev["checked_at"] == r["checked_at"]
             n += 1
-    assert n == 36
+    assert n == 62  # 36 original + Lambda 13 + TensorDock 10 (held stale) + Vast 3
     blob = "".join(p.read_text() for p in (Path(__file__).resolve().parents[1] / "data" / "gpu_pricing").glob("*.json"))
     assert "/private" not in blob and "referral_terms" not in blob and not re.search(r"commission|payout", blob, re.I)
 
@@ -158,3 +160,42 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
     opts = _gpu_options(data, 730, "A100", set())
     o = next(x for x in opts if x["vendor"] == "Ucartz")
     assert o["monthly_cost_usd"] == 1564.16 and "2-GPU" in o["calc"]
+
+
+def test_new_vendor_flags():
+    from core.deals import compare_gpu_prices
+    from core.stack import _gpu_options
+    from core.gpu import record_problems
+    root = Path(__file__).resolve().parents[1]
+    api = json.loads((root / "api" / "v1" / "gpu-prices.json").read_text())
+    rates = api["rates"]
+    # TensorDock: stale, held out of every ranking surface
+    assert [h["vendor"] for h in api["held_stale"]] == ["TensorDock"] and api["held_stale"][0]["page_last_updated"] == "2024-07-24"
+    assert not any(r["advertiser"] == "TensorDock" for r in rates)
+    for g in ("RTX 4090", "A100", "H100", "V100"):
+        assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25)["results"])
+    assert all(o["vendor"] != "TensorDock" for o in _gpu_options(api, 100, None, set()))
+    for page in ("gpu/price-comparison/index.html", "gpu/cheapest-rtx-4090-rental/index.html"):
+        f = root / page
+        if f.exists():
+            body = f.read_text().split("</head>")[1]
+            assert "TensorDock" not in body.split("Held out")[0], page
+    # Vast: 3 marketplace medians (no H100), tied to the existing affiliate deal, labeled with lowest offer
+    vast = [r for r in rates if r["advertiser"] == "Vast.ai"]
+    assert sorted(r["gpu"] for r in vast) == ["A100 PCIe", "A100 SXM", "RTX 4090"]
+    assert all(r["deal_id"] == "deal-vastai-001" and r["price_status"] == "marketplace"
+               and r["lowest_offer_usd"] <= r["hourly_equiv_usd"] and r["offer_count"] >= 5 for r in vast)
+    res = compare_gpu_prices(api, "RTX 4090", limit=25)["results"]
+    v = next(r for r in res if r["advertiser"] == "Vast.ai")
+    assert v["price_status"] == "marketplace" and v["lowest_offer_usd"] == 0.3489
+    o = next(x for x in _gpu_options(api, 100, "RTX 4090", set()) if x["vendor"] == "Vast.ai")
+    assert any("marketplace" in a for a in o["assumptions"])
+    doc = next(d for d in load_vendor_files() if d["vendor"] == "Vast.ai")
+    thin = {**doc, "records": [{**doc["records"][0], "offer_count": 4}]}
+    assert any("offer_count" in p for p in record_problems(thin))
+    # Lambda: 13 records, no deal (links to vendor page), 8x-only instances charge 8 GPUs
+    lam = [r for r in rates if r["advertiser"] == "Lambda"]
+    assert len(lam) == 13 and all(r["deal_id"] is None and not r["affiliate"] and r["redeem_url"] == "https://lambda.ai/pricing" for r in lam)
+    e = estimate(rates, 100, gpu_filter="V100")
+    v100 = next(x for x in e if x["advertiser"] == "Lambda")
+    assert v100["monthly_cost_usd"] == round(0.79 * 100 * 8, 2) and "8-GPU" in v100["calc"]
