@@ -20,7 +20,8 @@ async def main(ver, cmd):
     v = tuple(int(x) for x in ver.split(".")[:3])
     want = {"search_deals", "compare_deals", "get_deal"} | ({"compare_gpu_prices"} if ver != "0.1.0" else set()) \
         | ({"optimize_stack"} if v >= (0, 3, 0) else set()) \
-        | ({"optimize_agent_stack"} if v >= (0, 3, 6) else set())
+        | ({"optimize_agent_stack"} if v >= (0, 3, 6) else set()) \
+        | ({"get_price_changes"} if v >= (0, 3, 7) else set())
     params = StdioServerParameters(command=cmd[0], args=cmd[1:])
     async with stdio_client(params) as (r, w):
         async with ClientSession(r, w) as s:
@@ -57,6 +58,12 @@ async def main(ver, cmd):
             info = s_init.serverInfo
             if ver != "0.1.0":  # 0.1.0 reported the mcp SDK version (fixed in 0.2.0)
                 assert info.version == ver, (info.version, ver)
+            if "get_price_changes" in names:
+                pc = body(await s.call_tool("get_price_changes", {"since": "2026-10-27"}))
+                assert "changes" in pc and pc["next_refresh_utc"].endswith("10:23:00Z"), pc
+                g = body(await s.call_tool("compare_gpu_prices", {"gpu": "H100", "limit": 1}))
+                assert g["data_checked_at"] and "get_price_changes(" in g["refresh_hint"], g
+                msg += f" price_changes={pc['total']}"
             print(f"ok server={info.name}/{info.version} tools={names} search={len(deals)} get={ids[0]} compare={ids}{msg}")
 
 asyncio.run(main(sys.argv[1], sys.argv[2:]))

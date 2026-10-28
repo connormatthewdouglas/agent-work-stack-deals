@@ -120,7 +120,8 @@ def test_tools_still_expose_full_schemas():
     from mcp_server import server
     tools = asyncio.run(server.mcp.list_tools())
     by = {t.name: t for t in tools}
-    assert set(by) == telemetry.TOOLS
+    # get_price_changes is deliberately not counted (0.3.7 added no new tracking)
+    assert set(by) - {"get_price_changes"} == telemetry.TOOLS and "get_price_changes" not in telemetry.TOOLS
     assert "gpu" in by["compare_gpu_prices"].inputSchema["properties"]
     assert "ids" in by["compare_deals"].inputSchema["properties"]
 

@@ -97,6 +97,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-28 (evening): MCP server 0.3.7</h2>
+<ul>
+<li>New read-only tool <code>get_price_changes(since=None, gpu=None, limit=50)</code>. It lists GPU price moves among tracked providers, newest first, each with old and new hourly price, change_pct, direction and the vendor source_url. Without <code>since</code> it returns the latest day&#x27;s moves (/api/v1/gpu-price-changes.json); with <code>since=&#x27;YYYY-MM-DD&#x27;</code> it returns every move on or after that date (/api/v1/gpu-prices/history.json).</li>
+<li><code>compare_gpu_prices</code> and <code>optimize_agent_stack</code> now return <code>data_checked_at</code>, <code>next_refresh_utc</code> (the daily 10:23 UTC refresh) and a one-line hint to call <code>get_price_changes</code>.</li>
+<li>No new telemetry: <code>get_price_changes</code> is not counted.</li>
+</ul>
 <h2>2026-10-28 — Plan an agent stack from a description; MCP 0.3.6</h2>
 <ul>
 <li>New MCP tool <code>optimize_agent_stack</code>: describe the agent you&#x27;re building in plain text (plus optional fields: workload, GPU hours or model size, scraping/search/LLM needs, monthly budget). A deterministic keyword/regex parse (no LLM) maps it to components (GPU, scraping, proxies, search API, LLM API, email, hosting, database, monitoring) and returns the cheapest option with a cited price among tracked providers for each, with the math, source URL, check date and a referral disclosure where the link is a referral link. Components without a cited price say &quot;no sourced price tracked&quot;; nothing is estimated. Pulled listings are excluded and manual-only signups are flagged.</li>

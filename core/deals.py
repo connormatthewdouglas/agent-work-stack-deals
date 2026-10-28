@@ -11,17 +11,19 @@ import json
 import os
 import time
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.6"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.7"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
 GPU_PRICES_URL = "https://thelanternworks.com/api/v1/gpu-prices.json"
 STACK_PRICING_URL = "https://thelanternworks.com/api/v1/stack-pricing.json"
 GPU_HISTORY_URL = "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+GPU_CHANGES_URL = "https://thelanternworks.com/api/v1/gpu-price-changes.json"
+REFRESH_UTC = (10, 23)  # .github/workflows/gpu-refresh.yml cron "23 10 * * *"
 OFFER_TYPES = ("verified_discount", "listed_discount", "free_tier", "trial", "standard_referral", "credit_only_referral")
 OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0, "listed_discount": 1.0,
                     "standard_referral": 0.0, "credit_only_referral": -0.5}
@@ -92,6 +94,100 @@ class GpuHistoryLoader(FeedLoader):
     """The published /api/v1/gpu-prices/history.json (daily snapshots as change points). LANTERN_GPU_HISTORY_FILE overrides."""
     DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (GPU_HISTORY_URL, "LANTERN_GPU_HISTORY_URL",
                                                        "LANTERN_GPU_HISTORY_FILE", "series", "GPU price history")
+
+
+class GpuChangesLoader(FeedLoader):
+    """The published /api/v1/gpu-price-changes.json (moves between the two latest daily snapshots). LANTERN_GPU_CHANGES_FILE overrides."""
+    DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (GPU_CHANGES_URL, "LANTERN_GPU_CHANGES_URL",
+                                                       "LANTERN_GPU_CHANGES_FILE", "changes", "GPU price changes")
+
+
+def next_refresh_utc(now: datetime | None = None) -> str:
+    """Next scheduled daily price refresh (10:23 UTC). GitHub cron can start a few minutes late."""
+    now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    nxt = now.replace(hour=REFRESH_UTC[0], minute=REFRESH_UTC[1], second=0, microsecond=0)
+    if nxt <= now:
+        nxt += timedelta(days=1)
+    return nxt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def latest_checked_at(values) -> str | None:
+    """Newest timestamp among values (ISO strings), returned in UTC."""
+    best = None
+    for v in values:
+        dt = _parse_dt(v)
+        if dt and dt.tzinfo and (best is None or dt > best):
+            best = dt
+    return best.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if best else None
+
+
+def freshness(data_checked_at: str | None, now: datetime | None = None) -> dict:
+    since = (data_checked_at or "")[:10] or None
+    return {"data_checked_at": data_checked_at, "next_refresh_utc": next_refresh_utc(now),
+            "refresh_hint": "Prices refresh daily; call get_price_changes(" + (f"since='{since}'" if since else "") +
+                            ") to see what moved."}
+
+
+def price_changes(latest: dict | None, history: dict | None, since: str | None = None, gpu: str | None = None,
+                  limit: int = 50) -> dict:
+    """GPU price moves among tracked providers. since=None: the latest daily move (/api/v1/gpu-price-changes.json);
+    since='YYYY-MM-DD': every move on or after that date (/api/v1/gpu-prices/history.json). Newest first."""
+    if since is not None:
+        try:
+            since = date.fromisoformat(str(since)[:10]).isoformat()
+        except ValueError:
+            raise DealError("invalid_argument", "since must be a date like 2026-10-27") from None
+    limit = max(1, min(int(limit or 50), 200))
+    if since is None:
+        doc = latest or {}
+        rows = [{"date": doc.get("date"), "vendor": c.get("vendor"), "gpu": c.get("gpu"), "tier": c.get("tier"),
+                 "gpu_count": c.get("gpu_count", 1), "from_hourly_usd": c.get("old_hourly_usd"),
+                 "to_hourly_usd": c.get("new_hourly_usd"), "change_pct": c.get("pct"), "source_url": c.get("source_url"),
+                 "verified_at": c.get("verified_at"), "change": c.get("change")} for c in doc.get("changes") or []]
+        window = {"from": doc.get("previous_date"), "to": doc.get("date")}
+        src, covered = GPU_CHANGES_URL, None
+    else:
+        doc = history or {}
+        rows = [{"date": c.get("date"), "vendor": c.get("vendor"), "gpu": c.get("gpu"), "tier": c.get("tier"),
+                 "vram_gb": c.get("vram_gb"), "from_hourly_usd": c.get("from_hourly_usd"),
+                 "to_hourly_usd": c.get("to_hourly_usd"), "change_pct": c.get("change_pct"),
+                 "status": c.get("status"), "source_url": c.get("source_url")}
+                for c in doc.get("changes") or [] if (c.get("date") or "") >= since]
+        window = {"from": since, "to": doc.get("last_snapshot")}
+        src, covered = GPU_HISTORY_URL, {"first_snapshot": doc.get("first_snapshot"), "last_snapshot": doc.get("last_snapshot"),
+                                         "snapshot_count": doc.get("snapshot_count")}
+    if gpu:
+        q = gpu.lower()
+        rows = [r for r in rows if q in (r.get("gpu") or "").lower()]
+    for r in rows:
+        a, b = r.get("from_hourly_usd"), r.get("to_hourly_usd")
+        kind = r.pop("change", None)
+        r["direction"] = ("down" if b < a else "up" if b > a else "same") if (a is not None and b is not None) else \
+            (kind if kind in ("new", "removed") else "new" if a is None else "removed")
+    rank = {"down": 0, "up": 1, "removed": 2, "new": 3, "same": 4}
+    rows.sort(key=lambda r: (r.get("vendor") or "", r.get("gpu") or ""))
+    rows.sort(key=lambda r: rank[r["direction"]])
+    rows.sort(key=lambda r: r.get("date") or "", reverse=True)
+    down = sum(r["direction"] == "down" for r in rows)
+    up = sum(r["direction"] == "up" for r in rows)
+    added = sum(r["direction"] == "new" for r in rows)
+    removed = sum(r["direction"] == "removed" for r in rows)
+    out = {"scope": "tracked providers only (not the whole market); prices per GPU-hour, USD",
+           "window": window, "total": len(rows), "count": min(len(rows), limit), "price_drops": down, "price_rises": up,
+           "newly_tracked": added, "no_longer_tracked": removed,
+           "changes": rows[:limit], "data_source": src,
+           "summary": (f"{len(rows)} tracked GPU price change(s)" + (f" for '{gpu}'" if gpu else "") +
+                       f" between {window['from']} and {window['to']}: {down} down, {up} up, {added} newly tracked, {removed} no longer tracked."),
+           "sorted_by": "date (newest first), then price drops, rises, removals, new rates",
+           "note": "'new' = a rate first tracked in this window (no earlier price to compare). Each change cites the vendor source_url it was read from. Confirm on the vendor page before spending."}
+    if covered:
+        out["history_coverage"] = covered
+        if covered.get("first_snapshot") and since < covered["first_snapshot"]:
+            out["note"] += f" History starts {covered['first_snapshot']}; nothing earlier is tracked."
+    out.update(freshness(latest_checked_at([doc.get("date") and f"{doc.get('date')}T00:00:00+00:00"] +
+                                           [r.get("verified_at") for r in rows])))
+    out.pop("refresh_hint")
+    return out
 
 
 class StackPricingLoader(FeedLoader):

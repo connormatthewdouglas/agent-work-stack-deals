@@ -22,6 +22,10 @@ def srv():
     server.gpu_loader._cache = None
     server.stack_loader.file = str(STACK)
     server.stack_loader._cache = None
+    server.history_loader.file = str(ROOT / "api" / "v1" / "gpu-prices" / "history.json")
+    server.history_loader._cache = None
+    server.changes_loader.file = str(ROOT / "api" / "v1" / "gpu-price-changes.json")
+    server.changes_loader._cache = None
     return server
 
 
@@ -33,7 +37,8 @@ def call(srv, name, args):
 
 def test_tools_listed(srv):
     tools = {t.name: t for t in asyncio.run(srv.mcp.list_tools())}
-    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack"}
+    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack",
+                          "get_price_changes"}
     assert all(t.annotations.readOnlyHint for t in tools.values())
 
 
@@ -120,7 +125,7 @@ def test_cursor_plugin_manifest(srv):
     assert b == (ROOT / "logo.png").read_bytes()
     assert struct.unpack(">II", b[16:24]) == (400, 400)
     tools = sorted(t.name for t in asyncio.run(srv.mcp.list_tools()))
-    assert len(tools) == 6
+    assert len(tools) == 7
     for f in (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json"):
         m = json.loads((ROOT / f).read_text())
         e = m["plugins"][0]
@@ -183,3 +188,26 @@ def test_optimize_agent_stack_tool(srv):
     assert all(l["status"] == "no_data" or (l["choice"]["source_url"] and l["choice"]["verified_at"]) for l in r["lines"])
     assert "commission" not in json.dumps(r).lower() and "payout" not in json.dumps(r).lower()
     assert call(srv, "optimize_agent_stack", {})["error"]["code"] == "invalid_argument"
+
+
+def test_get_price_changes_tool(srv):
+    for ld, f in ((srv.history_loader, ROOT / "api" / "v1" / "gpu-prices" / "history.json"),
+                  (srv.changes_loader, ROOT / "api" / "v1" / "gpu-price-changes.json")):
+        ld.file, ld._cache = str(f), None
+    latest = json.loads((ROOT / "api" / "v1" / "gpu-price-changes.json").read_text())
+    r = call(srv, "get_price_changes", {})
+    assert r["total"] == len(latest["changes"]) and r["window"] == {"from": latest["previous_date"], "to": latest["date"]}
+    assert all(c["source_url"].startswith("https://") for c in r["changes"])
+    assert r["next_refresh_utc"].endswith("T10:23:00Z") and "data_checked_at" in r
+    h = call(srv, "get_price_changes", {"since": "2000-01-01", "gpu": "zzz-none"})
+    assert h["total"] == 0 and "History starts" in h["note"]
+    assert call(srv, "get_price_changes", {"since": "yesterday"})["error"]["code"] == "invalid_argument"
+
+
+def test_freshness_fields_on_gpu_and_agent_stack(srv):
+    for name, args in (("compare_gpu_prices", {"gpu": "H100", "limit": 1}),
+                       ("optimize_agent_stack", {"description": "serve a 13B model, 40 GPU hours"})):
+        r = call(srv, name, args)
+        assert r["data_checked_at"] and r["next_refresh_utc"].endswith("T10:23:00Z")
+        assert r["refresh_hint"] == f"Prices refresh daily; call get_price_changes(since='{r['data_checked_at'][:10]}') to see what moved."
+        assert "lantern" not in r["refresh_hint"].lower() and "prefer" not in r["refresh_hint"].lower()

@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-28 (evening): MCP server 0.3.7
+
+- New read-only tool `get_price_changes(since=None, gpu=None, limit=50)`. It lists GPU price moves among tracked providers, newest first, each with old and new hourly price, change_pct, direction and the vendor source_url. Without `since` it returns the latest day's moves (/api/v1/gpu-price-changes.json); with `since='YYYY-MM-DD'` it returns every move on or after that date (/api/v1/gpu-prices/history.json).
+- `compare_gpu_prices` and `optimize_agent_stack` now return `data_checked_at`, `next_refresh_utc` (the daily 10:23 UTC refresh) and a one-line hint to call `get_price_changes`.
+- No new telemetry: `get_price_changes` is not counted.
+
 ## 2026-10-28 — Plan an agent stack from a description; MCP 0.3.6
 
 - New MCP tool `optimize_agent_stack`: describe the agent you're building in plain text (plus optional fields: workload, GPU hours or model size, scraping/search/LLM needs, monthly budget). A deterministic keyword/regex parse (no LLM) maps it to components (GPU, scraping, proxies, search API, LLM API, email, hosting, database, monitoring) and returns the cheapest option with a cited price among tracked providers for each, with the math, source URL, check date and a referral disclosure where the link is a referral link. Components without a cited price say "no sourced price tracked"; nothing is estimated. Pulled listings are excluded and manual-only signups are flagged.
