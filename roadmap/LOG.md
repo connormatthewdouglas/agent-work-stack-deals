@@ -54,3 +54,14 @@ Numbers from a run at ~6:10 PM ET on Oct 28 (pypistats has data only for 2026-10
   - Vast.ai A100 SXM, $1.3389 → $1.1378 (−15.0%).
   - Vast.ai RTX 4090, $0.5022 → $0.5175 (+3.0%).
 - **Known gap:** with `since`, `data_checked_at` is null, because history rows carry no verified_at. `next_refresh_utc` is still set. Fix in the next release.
+
+## 2026-10-28 7:20 PM ET: 0.3.8 fix
+
+- **Fix:** with `since`, `get_price_changes` no longer returns a blank `data_checked_at`.
+  - It falls back to the newest daily snapshot date and explains the source in a new `data_checked_at_basis` field.
+  - Live result for `since='2026-10-27'`: `2026-10-28`, basis "date of the newest daily snapshot".
+  - Test: `test_data_checked_at_never_blank_with_since`.
+- **Released:**
+  - PyPI: https://pypi.org/project/lantern-works-deals-mcp/0.3.8/
+  - MCP Registry: 0.3.8 (latest).
+- **Clean-env check:** `test_pypi_install.py --version 0.3.8 --uvx` passed for both pip and uvx. The install page now says it's tested on 0.3.8.
