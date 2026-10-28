@@ -11,5 +11,6 @@ Copy-and-adapt examples for the Lantern Works deals feed, GPU price API and MCP 
 | `langgraph-cheapest-h100/` | LangChain/LangGraph via `langchain-mcp-adapters`: launch the MCP server with uvx and find the cheapest H100 (`compare_gpu_prices`, no LLM key needed) |
 | `crewai-cheapest-gpu/` | CrewAI `MCPServerAdapter`: cheapest GPU for a described job (direct tool path tested, LLM path untested; referral links labeled) |
 | `openai-agents-cheapest-gpu/` | OpenAI Agents SDK `MCPServerStdio`: cheapest GPU for a described job (direct tool path tested, LLM path untested; referral links labeled) |
+| `stack-optimizer/` | OpenAI Agents SDK `MCPServerStdio`: describe an agent's job, get the cheapest cited stack from `optimize_agent_stack` (direct tool path tested, LLM path untested; referral links labeled) |
 
 Install one skill: `npx skills add https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/cheapest-gpu` (works once merged to main). Prices exclude storage, egress and taxes; confirm on the vendor page before spending. MIT.
