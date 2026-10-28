@@ -33,7 +33,9 @@ def write(g) -> str:
     vscode = json.dumps({"servers": {"lantern-works-deals": {"type": "stdio", **CFG}}}, indent=2)
     tools = ", ".join(f"<code>{t}</code>" for t in TOOLS)
     body = f"""  <nav class="crumbs"><a href="{base}/">Lantern Works</a> › <a href="{base}/for-agents/">For agents</a> › Install</nav>
-  <h1>GPU price monitor for your agent</h1>
+  <h1>GPU price comparison for agents, checked daily</h1>
+  <p>Free, read-only MCP server (<code>uvx lantern-works-deals-mcp</code>, version {TESTED_VERSION}); <code>compare_gpu_prices</code> is the main tool. Rate and provider counts change daily: see the live <a href="{base}/api/v1/gpu-prices.json">feed</a>. Some result links are referral links.</p>
+  <h2>GPU price monitor for your agent</h2>
   <p><strong>Know when GPU prices move.</strong> Lantern Works re-reads every tracked GPU rental rate daily from the vendor's own pricing page. Your agent can check what moved since yesterday and act on it, every day, with no API key:</p>
   <ul>
     <li><a href="{base}/api/v1/gpu-price-changes.json">/api/v1/gpu-price-changes.json</a>: rates that went down, up, newly tracked or dropped out between the last two daily snapshots, each with the vendor's source page (<a href="{base}/api/v1/gpu-price-changes.xml">RSS</a>).</li>

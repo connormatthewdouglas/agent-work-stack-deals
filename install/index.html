@@ -90,7 +90,9 @@
   <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">GPU prices</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">All GPU rates</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/" aria-current="page">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
 <div id="content">
   <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/for-agents/">For agents</a> › Install</nav>
-  <h1>GPU price monitor for your agent</h1>
+  <h1>GPU price comparison for agents, checked daily</h1>
+  <p>Free, read-only MCP server (<code>uvx lantern-works-deals-mcp</code>, version 0.3.5); <code>compare_gpu_prices</code> is the main tool. Rate and provider counts change daily: see the live <a href="https://thelanternworks.com/api/v1/gpu-prices.json">feed</a>. Some result links are referral links.</p>
+  <h2>GPU price monitor for your agent</h2>
   <p><strong>Know when GPU prices move.</strong> Lantern Works re-reads every tracked GPU rental rate daily from the vendor's own pricing page. Your agent can check what moved since yesterday and act on it, every day, with no API key:</p>
   <ul>
     <li><a href="https://thelanternworks.com/api/v1/gpu-price-changes.json">/api/v1/gpu-price-changes.json</a>: rates that went down, up, newly tracked or dropped out between the last two daily snapshots, each with the vendor's source page (<a href="https://thelanternworks.com/api/v1/gpu-price-changes.xml">RSS</a>).</li>
