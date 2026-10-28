@@ -153,6 +153,15 @@
   <p>Command <code>uvx</code>, args <code>["lantern-works-deals-mcp"]</code>, transport stdio. pipx: <code>pipx run lantern-works-deals-mcp</code>. Docker: build the repo's <code>Dockerfile</code> and run <code>docker run -i --rm &lt;image&gt;</code>. Optional env: <code>LANTERN_DEALS_FILE</code>, <code>LANTERN_GPU_PRICES_FILE</code> (offline JSON).</p>
   <p>The server only fetches the two public JSON files below and sends <code>User-Agent: lantern-works-deals-mcp/&lt;version&gt;</code>, nothing that identifies you.</p>
 
+  <h2>Framework examples</h2>
+  <ul>
+    <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/langgraph-cheapest-h100">LangGraph / LangChain</a>: cheapest H100 via <code>langchain-mcp-adapters</code> (tool called directly, no LLM key needed)</li>
+    <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/crewai-cheapest-gpu">CrewAI</a>: cheapest GPU for a described job via <code>MCPServerAdapter</code> (direct tool path tested; LLM agent path untested)</li>
+    <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/openai-agents-cheapest-gpu">OpenAI Agents SDK</a>: cheapest GPU for a described job via <code>MCPServerStdio</code> (direct tool path tested; LLM agent path untested)</li>
+    <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/gpu-price-monitor">GPU price monitor</a>: zero-dependency script that alerts when a tracked rate drops by a set percent, using the <a href="https://thelanternworks.com/api/v1/gpu-prices/history.json">price history API</a></li>
+  </ul>
+  <p>Some tool results include referral links (<code>affiliate: true</code>, <code>redeem_url</code>). <code>source_url</code> is the vendor's own pricing page.</p>
+
   <h2>Privacy and telemetry</h2>
   <p>Telemetry is <strong>off by default</strong>. Setting <code>LANTERN_TELEMETRY=1</code> in the server's environment opts in to an anonymous count of tool calls, sent at most once a day. Each count is only the tool name, package version, UTC day and number of calls. No arguments, IDs or IPs are sent or stored, and telemetry never blocks a tool call. Details: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/PRIVACY.md">PRIVACY.md</a>.</p>
   <h2>No MCP? Use the JSON</h2>
