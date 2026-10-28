@@ -188,3 +188,16 @@ def test_mcp_compare_include_history():
                                                   {"date": "2026-11-03", "hourly_usd": 1.89, "status": "ranked"}]
     assert out["history"]["recent_changes"][0]["to_hourly_usd"] == 1.89
     assert "history" not in core.compare_gpu_prices(data, "A100", 5)
+
+
+def test_freshness_check_warns_then_fails():
+    import importlib.util
+    from datetime import timedelta
+    spec = importlib.util.spec_from_file_location("fresh", Path(__file__).resolve().parents[1] / "scripts" / "check_gpu_freshness.py")
+    F = importlib.util.module_from_spec(spec); spec.loader.exec_module(F)
+    from core.gpu import load_vendor_files
+    last = max(datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() for r in d["records"])
+    assert F.status(last + timedelta(hours=1))[0] == 0
+    code, msgs = F.status(last + timedelta(hours=25))
+    assert code == 0 and any("::warning::" in m for m in msgs)
+    assert F.status(last + timedelta(hours=27))[0] == 1
