@@ -2,14 +2,17 @@
 ---
 name: lantern-works-deals
 description: >-
-  Discover and query Lantern Works agent work-stack deals (compute, search,
-  crawl, hosting, templates, unblock, email) and compare tracked GPU rental
-  prices. Use when an agent needs to price-shop
-  APIs, infra, scrapers, proxies, or related tools before buying for itself or
-  a human — not for consumer/entertainment shopping.
+  GPU price comparison for agents, checked daily: compare tracked hourly GPU
+  rental prices (H100, A100, RTX 4090 and more) with source links, check dates
+  and price history. Also query Lantern Works work-stack deals (compute, search,
+  crawl, hosting, templates, unblock, email). Use when an agent needs to
+  price-shop GPUs, APIs, infra, scrapers, proxies, or related tools before
+  buying for itself or a human — not for consumer/entertainment shopping.
 ---
 
-# Lantern Works deals
+# Lantern Works — GPU price comparison for agents, checked daily
+
+The GPU feed is re-read daily from each vendor's own pricing page; the current rate and provider counts are in the live feed (`rates`, `vendors`). "Cheapest" means cheapest among tracked providers. Some result links are referral links.
 
 ## When to use
 - You need compute, hosting, search/SERP, crawl/RAG, scrapers, proxies, captcha/unblock, email APIs, storage, or similar **work-stack** tools.
@@ -20,10 +23,11 @@ description: >-
 | Audience | URL |
 |---|---|
 | Agents (deals JSON) | https://thelanternworks.com/api/v1/deals.json |
-| Agents (GPU prices JSON) | https://thelanternworks.com/api/v1/gpu-prices.json |
-| Agents (MCP server) | `uvx lantern-works-deals-mcp` (tools: `search_deals`, `compare_deals`, `get_deal`, `compare_gpu_prices`); setup: https://thelanternworks.com/install/ |
+| Agents (GPU prices JSON) | https://thelanternworks.com/api/v1/gpu-prices.json · changes: https://thelanternworks.com/api/v1/gpu-price-changes.json (RSS: .xml) |
+| Agents (MCP server) | `uvx lantern-works-deals-mcp` (0.3.5; tools: `compare_gpu_prices`, `optimize_stack`, `search_deals`, `compare_deals`, `get_deal`); setup: https://thelanternworks.com/install/ |
 | Humans (platform) | https://thelanternworks.com/lanternworks/ |
-| Humans (all deals) | https://thelanternworks.com/ |
+| Humans (GPU prices) | https://thelanternworks.com/gpu/ |
+| Humans (deals directory) | https://thelanternworks.com/deals/ |
 
 ## Filter contract
 `GET` the JSON feed (public, no auth). Filter locally (or via `query_deals.py` / MCP sketch):
