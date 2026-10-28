@@ -14,7 +14,8 @@ runners, so a quoted price can be absent from CI while present from other networ
 there ONLY, a "price not found" result is a warning ("unverifiable from CI"), not a failure, and only while
 at least one other quoted price for that vendor is still found on the same page (so a broken, blocked or
 redesigned page still fails). Unreachable pages, invalid records and staleness still fail as usual.
-Warnings appear in the output and report; re-check them from a non-CI network
+A ranked marketplace record that is momentarily below MIN_MARKET_OFFERS is also only a warning: the daily
+refresh auto-holds it (and releases it again at 5+ offers). Warnings appear in the output and report; re-check them from a non-CI network
 (`python3 scripts/check_gpu_sources.py` on another machine) before changing any price.
 """
 from __future__ import annotations
@@ -92,7 +93,8 @@ def main() -> int:
                     try:
                         offers = json.loads(body).get("offers") or []
                         per = sorted(o["dph_total"] / max(1, o.get("num_gpus") or 1) for o in offers
-                                     if o.get("verified", True) and o.get("rentable", True) and not o.get("rented")
+                                     if o.get("verified", True) and o.get("verification", "verified") == "verified"
+                                     and not o.get("is_bid") and o.get("rentable", True) and not o.get("rented")
                                      and o.get("gpu_ram") and round(o["gpu_ram"] / 1024) == r["vram_gb"])
                     except (ValueError, KeyError, TypeError, AttributeError):
                         per = None
@@ -106,7 +108,9 @@ def main() -> int:
                         if r.get("stale"):
                             print(f"  held (not ranked): {r['stale']['reason']}")
                         elif len(per) < MIN_MARKET_OFFERS:
-                            flags.append(f"marketplace too thin to publish ({len(per)} < {MIN_MARKET_OFFERS} offers): "
+                            # Expected market churn: refresh_gpu_prices.py auto-holds the record at its next run
+                            # (and releases it at 5+ offers), so this is a warning, not a failure.
+                            warnings.append(f"marketplace thin right now, auto-held at next refresh ({len(per)} < {MIN_MARKET_OFFERS} offers): "
                                          f"{doc['vendor']} {r['gpu']} {r['vram_gb']} GB at {r['source_url']}")
                     continue
                 text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body

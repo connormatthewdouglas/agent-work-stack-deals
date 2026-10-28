@@ -196,8 +196,21 @@ def test_freshness_check_warns_then_fails():
     spec = importlib.util.spec_from_file_location("fresh", Path(__file__).resolve().parents[1] / "scripts" / "check_gpu_freshness.py")
     F = importlib.util.module_from_spec(spec); spec.loader.exec_module(F)
     from core.gpu import load_vendor_files
-    last = max(datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() for r in d["records"])
+    last = min(datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() if not d.get("stale") for r in d["records"])
     assert F.status(last + timedelta(hours=1))[0] == 0
     code, msgs = F.status(last + timedelta(hours=25))
     assert code == 0 and any("::warning::" in m for m in msgs)
     assert F.status(last + timedelta(hours=27))[0] == 1
+
+
+def test_marketplace_filter_units_and_variants():
+    """Per-GPU price = machine dph_total / num_gpus; only the record's VRAM size; no bids, no unverified offers."""
+    gb = 1024
+    offers = [{"dph_total": 0.5, "num_gpus": 1, "gpu_ram": 24564},
+              {"dph_total": 1.2, "num_gpus": 2, "gpu_ram": 24564},          # 2-GPU machine -> 0.60 per GPU
+              {"dph_total": 2.4, "num_gpus": 4, "gpu_ram": 24564},          # 4-GPU machine -> 0.60 per GPU
+              {"dph_total": 0.7, "num_gpus": 1, "gpu_ram": 49140},          # 48 GB modded 4090: other VRAM, excluded
+              {"dph_total": 0.1, "num_gpus": 1, "gpu_ram": 24 * gb, "is_bid": True},          # interruptible bid: excluded
+              {"dph_total": 0.2, "num_gpus": 1, "gpu_ram": 24 * gb, "verification": "unverified"},  # excluded
+              {"dph_total": 0.3, "num_gpus": 1, "gpu_ram": 24 * gb, "rented": True}]          # excluded
+    assert R.market_stats(json.dumps({"offers": offers}), 24) == [0.5, 0.6, 0.6]

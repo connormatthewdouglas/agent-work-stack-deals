@@ -252,7 +252,7 @@ def accuracy_html(gen, rates: list[dict]) -> str:
     extras = _simple_table(["Vendor", "Egress", "Storage", "Interruption / billing terms"],
                            [[esc(d["vendor"]), cell(d["extras"]["egress"]), cell(d["extras"]["storage"]), cell(d["extras"]["interruption"])]
                             for d in sorted(docs, key=lambda d: d["vendor"])])
-    hw = sorted({(r["gpu"], r.get("vram_gb"), r.get("form_factor") or "not stated") for r in rates}, key=lambda t: (t[0], t[2]))
+    hw = sorted({(r["gpu"], r.get("vram_gb"), r.get("form_factor") or "not stated") for r in rates}, key=lambda t: (t[0], t[2], t[1] or 0))
     hw_txt = "; ".join(f"{esc(g)}{f' {v} GB' if v else ''} ({esc(ff)})" for g, v, ff in hw)
     intr = sorted({f"{r['advertiser']} {r['gpu']}" for r in rates if r.get("interruptible")})
     intr_txt = (f"Interruptible (preemptible) rates listed here: {esc(', '.join(intr))}. All other rates are on-demand: the vendor doesn't publish preemption for them."

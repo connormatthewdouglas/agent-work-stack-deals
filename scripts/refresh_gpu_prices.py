@@ -174,7 +174,8 @@ def market_stats(body: str, vram_gb: int) -> list[float] | None:
     try:
         offers = json.loads(body).get("offers") or []
         return sorted(o["dph_total"] / max(1, o.get("num_gpus") or 1) for o in offers
-                      if o.get("verified", True) and o.get("rentable", True) and not o.get("rented")
+                      if o.get("verified", True) and o.get("verification", "verified") == "verified"
+                      and not o.get("is_bid") and o.get("rentable", True) and not o.get("rented")
                       and o.get("gpu_ram") and round(o["gpu_ram"] / 1024) == vram_gb)
     except (ValueError, KeyError, TypeError, AttributeError):
         return None
