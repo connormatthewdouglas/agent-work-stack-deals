@@ -6,8 +6,12 @@ name: GPU price refresh
 # committed by github-actions[bot]; the gated deploy (tests incl. test_gpu.py) is then dispatched,
 # since pushes made with GITHUB_TOKEN do not trigger other workflows.
 on:
+  # GitHub cron is best-effort: runs can start hours late or be dropped under load. The second slot is a
+  # fallback that no-ops when today's (UTC) snapshot already exists; scripts/check_gpu_freshness.py in
+  # live-checks warns on a missing snapshot and fails when the last refresh is > 26 h old.
   schedule:
-    - cron: "23 10 * * *"
+    - cron: "23 10 * * *"    # primary
+    - cron: "47 14 * * *"    # fallback (skips if today's snapshot exists)
   workflow_dispatch:
 
 permissions:
@@ -26,11 +30,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Fallback slot - skip if today's snapshot already exists
+        id: gate
+        env:
+          SLOT: ${{ github.event.schedule }}
+        run: |
+          f="data/gpu_pricing/snapshots/$(date -u +%F).json"
+          if [ "$SLOT" = "47 14 * * *" ] && [ -f "$f" ]; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "Fallback slot: $f exists, nothing to do." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
         with:
           python-version: "3.12"
       - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
+        if: steps.gate.outputs.skip != '1'
       - name: Refresh, regenerate, gate, commit, push (rebase-retry)
+        if: steps.gate.outputs.skip != '1'
         env:
           GH_TOKEN: ${{ github.token }}
           LANTERN_DEALS_FILE: api/v1/deals.json

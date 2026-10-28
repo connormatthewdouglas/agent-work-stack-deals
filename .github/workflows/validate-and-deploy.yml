@@ -122,6 +122,8 @@ jobs:
         if: needs.deploy.result == 'success'
       - run: python3 scripts/check_skill.py --live
       - run: python3 scripts/test_url_migration.py
+      - name: GPU refresh freshness (warn if no snapshot today / > 24 h; fail if last refresh > 26 h)
+        run: python3 scripts/check_gpu_freshness.py
       - name: GPU pricing sources (daily via schedule; stale > 7 days, unreachable, or quoted price missing => fail). Never edits prices.
         id: gpusrc
         run: python3 scripts/check_gpu_sources.py --report gpu-sources-report.md
