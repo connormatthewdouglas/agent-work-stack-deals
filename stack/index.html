@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plan an agent stack: cheapest cited GPU, scraping, proxy, search, LLM and email costs — Lantern Works</title>
+  <meta name="description" content="Describe the agent you&#x27;re building and see the cheapest option with a cited price per component among tracked providers, with the math, source links and check dates. No sourced price means no number." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/stack/" />
+  <meta property="og:title" content="Plan an agent stack: cheapest cited GPU, scraping, proxy, search, LLM and email costs — Lantern Works" />
+  <meta property="og:description" content="Describe the agent you&#x27;re building and see the cheapest option with a cited price per component among tracked providers, with the math, source links and check dates. No sourced price means no number." />
+  <meta property="og:url" content="https://thelanternworks.com/stack/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Plan an agent stack: cheapest cited GPU, scraping, proxy, search, LLM and email costs — Lantern Works" />
+  <meta name="twitter:description" content="Describe the agent you&#x27;re building and see the cheapest option with a cited price per component among tracked providers, with the math, source links and check dates. No sourced price means no number." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+  <!-- brand -->
+  <link rel="icon" href="https://thelanternworks.com/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://thelanternworks.com/favicon-32.png" />
+  <link rel="apple-touch-icon" href="https://thelanternworks.com/apple-touch-icon.png" />
+  <meta property="og:image" content="https://thelanternworks.com/logo.png" />
+  <meta property="og:image:width" content="400" />
+  <meta property="og:image:height" content="400" />
+  <meta property="og:image:alt" content="Lantern Works lantern logo" />
+  <meta name="twitter:image" content="https://thelanternworks.com/logo.png" />
+  <!-- /brand -->
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">GPU prices</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">All GPU rates</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/stack/" aria-current="page">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
+
+  <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> › Plan an agent stack</p>
+  <h1>Plan an agent stack</h1>
+  <p>Describe the agent you're building. A keyword parse (no AI model) maps it to components (GPU, scraping, proxies,
+  search API, LLM API, email, hosting, database, monitoring) and shows the cheapest option with a cited price among
+  tracked providers. Where no tracked vendor publishes a price, it says <strong>no sourced price tracked</strong>. Vendors we
+  don't track may cost less. Referral links are labelled and never affect ranking. Data as of 2026-10-27.</p>
+  <form id="sf" onsubmit="return false" hidden>
+    <label class="wide">What does your agent do? <textarea id="d" rows="3" style="width:100%" placeholder="Scrapes 20k JS-rendered pages a month through 5 GB of residential proxies, runs 3,000 search queries, summarizes with an LLM and sends 2,000 emails."></textarea></label>
+    <p><button type="button" id="go">Plan it</button></p>
+  </form>
+  <div id="res" aria-live="polite"></div>
+  <h2>Example agents</h2>
+  <h3>Research agent</h3><p><em>“Scrapes 20k JS-rendered pages a month through 5 GB of residential proxies, runs 3,000 search queries, summarizes with an LLM and sends 2,000 emails.”</em></p><table><thead><tr><th>Component</th><th>Monthly</th><th>Cheapest cited option</th><th>Source</th></tr></thead><tbody><tr><td>Web scraping (JS rendering) <small>20,000 pages/month</small></td><td><strong>$69.00/mo</strong></td><td><a href="https://thelanternworks.com/deals/zenrows-free-001/">ZenRows</a> Launch<br><small>20,000 x 5 = 100,000 credits; within 250,000 included at $69/mo</small></td><td><a href="https://www.zenrows.com/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr><tr><td>Residential proxies <small>5 GB/month</small></td><td><strong>$3.40/mo</strong></td><td><a href="https://thelanternworks.com/deals/9proxy-001/">9Proxy</a> Residential (per GB)<br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>$0/mo incl. 0 + 5 x $0.68 per 1 extra</small></td><td><a href="https://9proxy.com/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr><tr><td>LLM API</td><td><strong>$0.00/mo (entry plan)</strong></td><td><a href="https://thelanternworks.com/deals/groq-free-001/">Groq</a> Free plan with documented model rate limits (RPM/RPD/TPM) in Groq console docs<br><small>free tier ($0); cheapest cited entry price among tracked providers; your usage may need a bigger plan</small></td><td><a href="https://console.groq.com/docs/rate-limits" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr><tr><td>Transactional email <small>2,000 emails/month</small></td><td><strong>$0.00/mo</strong></td><td><a href="https://thelanternworks.com/deals/emailit-001/">Emailit</a> Pay as you go<br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>within 3,000 included at $0/mo</small></td><td><a href="https://emailit.com/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr><tr><td>Web search API <small>3,000 queries/month</small></td><td><strong>$4.00/mo</strong></td><td><a href="https://thelanternworks.com/deals/exa-001/">Exa</a> Starter credits + pay as you go<br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>$0/mo incl. 2,500 + 1 x $4 per 1,000 extra</small></td><td><a href="https://exa.ai/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr></tbody></table><p><strong>Estimate: $69.00 (scraping) + $3.40 (proxy) + $0.00 (llm_api) + $0.00 (email) + $4.00 (search) = $76.40/mo</strong></p><p><a href="https://thelanternworks.com/tools/stack-optimizer/?scrape_pages_js=20000&amp;proxy_gb=5&amp;emails_sent=2000&amp;search_queries=3000">Adjust these quantities in the Stack Optimizer</a></p><h3>Self-hosted model</h3><p><em>“Serves a 13B model on one GPU for 200 GPU hours a month, hosted API with uptime monitoring.”</em></p><table><thead><tr><th>Component</th><th>Monthly</th><th>Cheapest cited option</th><th>Source</th></tr></thead><tbody><tr><td>GPU compute <small>200 GPU-hours/month</small></td><td><strong>$66.00/mo</strong></td><td><a href="https://thelanternworks.com/deals/runpod-001/">RunPod</a> RTX A6000 (Community Cloud) <strong>Manual signup only</strong><br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>$0.33/hr x 200 h</small></td><td><a href="https://www.runpod.io/pricing" rel="noopener">source</a><br><small>checked 2026-10-28</small></td></tr><tr><td>Hosting / VPS</td><td><strong>$0.00/mo (entry plan)</strong></td><td><a href="https://thelanternworks.com/deals/render-free-001/">Render</a> Free compute plans for web services, Key Value, and Postgres (limits apply); Hobby workspace $0/mo + compute; static sites always free<br><small>free tier ($0); cheapest cited entry price among tracked providers; your usage may need a bigger plan</small></td><td><a href="https://render.com/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr><tr><td>Monitoring</td><td><strong>$0.00/mo (entry plan)</strong></td><td><a href="https://thelanternworks.com/deals/hyperping-001/">Hyperping</a> Free plan (uptime monitors and one basic status page)<br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>entry price $0/mo (Free plan (uptime monitors and one basic status page)); cheapest cited entry price among tracked providers; your usage may need a bigger plan</small></td><td><a href="https://hyperping.com/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr></tbody></table><p><strong>Estimate: $66.00 (gpu) + $0.00 (hosting) + $0.00 (monitoring) = $66.00/mo</strong></p><p><a href="https://thelanternworks.com/tools/stack-optimizer/?gpu_hours=200">Adjust these quantities in the Stack Optimizer</a></p><h3>Outreach agent</h3><p><em>“Finds leads with 5,000 search queries, scrapes 10k pages and sends 10,000 emails a month.”</em></p><table><thead><tr><th>Component</th><th>Monthly</th><th>Cheapest cited option</th><th>Source</th></tr></thead><tbody><tr><td>Web scraping <small>10,000 pages/month</small></td><td><strong>$0.00/mo</strong></td><td><a href="https://thelanternworks.com/deals/exa-001/">Exa</a> Starter credits + pay as you go<br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>within 10,000 included at $0/mo</small></td><td><a href="https://exa.ai/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr><tr><td>Transactional email <small>10,000 emails/month</small></td><td><strong>$0.00/mo</strong></td><td><a href="https://thelanternworks.com/deals/sendpulse-001/">SendPulse</a> Basic (free)<br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>within 12,000 included at $0/mo</small></td><td><a href="https://sendpulse.com/prices/smtp" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr><tr><td>Web search API <small>5,000 queries/month</small></td><td><strong>$12.00/mo</strong></td><td><a href="https://thelanternworks.com/deals/exa-001/">Exa</a> Starter credits + pay as you go<br><small>Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.</small><br><small>$0/mo incl. 2,500 + 3 x $4 per 1,000 extra</small></td><td><a href="https://exa.ai/pricing" rel="noopener">source</a><br><small>checked 2026-10-27</small></td></tr></tbody></table><p><strong>Estimate: $0.00 (scraping) + $0.00 (email) + $12.00 (search) = $12.00/mo</strong></p><p><a href="https://thelanternworks.com/tools/stack-optimizer/?scrape_pages=10000&amp;emails_sent=10000&amp;search_queries=5000">Adjust these quantities in the Stack Optimizer</a></p>
+  <p>Agents can do the same over MCP: <code>optimize_agent_stack</code> in <a href="https://thelanternworks.com/install/">lantern-works-deals-mcp</a>.
+  Quantities per need: <a href="https://thelanternworks.com/tools/stack-optimizer/">Stack Optimizer</a>. Data:
+  <a href="https://thelanternworks.com/api/v1/gpu-prices.json">gpu-prices.json</a>, <a href="https://thelanternworks.com/api/v1/stack-pricing.json">stack-pricing.json</a>,
+  <a href="https://thelanternworks.com/api/v1/deals.json">deals.json</a>.</p>
+  <script>
+  const S={"comp": {"gpu": "\\bgpus?\\b|\\bh100\\b|\\ba100\\b|\\bh200\\b|\\bl40s?\\b|\\brtx\\s?\\d{4}\\b|\\bfine[- ]?tun\\w*|\\btrain(?:ing)?\\b|\\bself[- ]host\\w*\\s+(?:an?\\s+)?(?:llm|model)|\\bvllm\\b|\\bollama\\b|\\b\\d+(?:\\.\\d+)?\\s?b\\b(?:\\s+(?:param|model))?", "scraping": "\\bscrap\\w*|\\bcrawl\\w*|\\bextract\\w*\\s+(?:data|content)\\s+from\\s+(?:web|site)", "proxy": "\\bprox(?:y|ies)\\b|\\bresidential\\s+ips?\\b|\\bip\\s+rotation\\b", "search": "\\bserp\\b|\\bsearch\\s+(?:api|engine|results)\\b|\\bweb\\s+search\\b|\\bgoogle\\s+results\\b", "llm_api": "\\bllms?\\b|\\bgpt\\b|\\bclaude\\b|\\bopenai\\b|\\blanguage\\s+model|\\bchat\\s?bot|\\bsummari[sz]\\w*|\\binference\\s+api\\b", "email": "\\be-?mails?\\b|\\bsmtp\\b|\\bnewsletters?\\b", "hosting": "\\bhost(?:ing|ed)?\\b(?!\\s+(?:an?\\s+)?(?:llm|model))|\\bvps\\b|\\bdeploy\\w*|\\bserver\\b", "database": "\\bdatabase\\b|\\bpostgres\\w*|\\bvector\\s+(?:db|store|database)\\b|\\brag\\b", "monitoring": "\\bmonitor\\w*|\\buptime\\b|\\bobservability\\b|\\blogs?\\b"}, "labels": {"gpu": "GPU compute", "scraping": "Web scraping", "proxy": "Residential proxies", "search": "Web search API", "llm_api": "LLM API", "email": "Transactional email", "hosting": "Hosting / VPS", "database": "Database", "monitoring": "Monitoring"}, "qty": {"gpu_hours": "(\\d[\\d,]*(?:\\.\\d+)?)\\s*([km])?\\s*(?:gpu[- ]?)?(?:hours|hrs|h)\\b", "scrape_pages": "(\\d[\\d,]*(?:\\.\\d+)?)\\s*([km])?(?:\\s+[a-z-]+){0,3}?\\s*(?:pages|urls|sites?)\\b", "proxy_gb": "(\\d[\\d,]*(?:\\.\\d+)?)\\s*([km])?\\s*gb\\b(?:\\s+of)?(?:\\s+(?:proxy|residential|traffic|bandwidth))?", "search_queries": "(\\d[\\d,]*(?:\\.\\d+)?)\\s*([km])?\\s*(?:search(?:es)?|queries|serp\\s+(?:calls|requests))\\b", "emails_sent": "(\\d[\\d,]*(?:\\.\\d+)?)\\s*([km])?(?:\\s+[a-z-]+){0,2}?\\s*e-?mails?\\b"}, "js": "\\bjs\\b|javascript|headless|render\\w*|dynamic\\s+(?:pages|sites)|single[- ]page\\s+app|\\bspa\\b", "entry": {"llm_api": {"label": "LLM API", "row": {"vendor": "Groq", "plan": "Free plan with documented model rate limits (RPM/RPD/TPM) in Groq console docs", "calc": "free tier ($0)", "source_url": "https://console.groq.com/docs/rate-limits", "verified_at": "2026-10-27T01:45:00-04:00", "deal_url": "https://thelanternworks.com/deals/groq-free-001/", "referral_disclosure": null, "manual_signup_only": false}}, "hosting": {"label": "Hosting / VPS", "row": {"vendor": "Render", "plan": "Free compute plans for web services, Key Value, and Postgres (limits apply); Hobby workspace $0/mo + compute; static sites always free", "calc": "free tier ($0)", "source_url": "https://render.com/pricing", "verified_at": "2026-10-27T13:16:19-04:00", "deal_url": "https://thelanternworks.com/deals/render-free-001/", "referral_disclosure": null, "manual_signup_only": false}}, "database": {"label": "Database", "row": {"vendor": "Jet Admin", "plan": "Free plan", "calc": "entry price $0/mo (Free plan)", "source_url": "https://www.jetadmin.io/pricing", "verified_at": "2026-10-27T13:16:19-04:00", "deal_url": "https://thelanternworks.com/deals/jetadmin-001/", "referral_disclosure": "Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.", "manual_signup_only": false}}, "monitoring": {"label": "Monitoring", "row": {"vendor": "Hyperping", "plan": "Free plan (uptime monitors and one basic status page)", "calc": "entry price $0/mo (Free plan (uptime monitors and one basic status page))", "source_url": "https://hyperping.com/pricing", "verified_at": "2026-10-27T13:16:19-04:00", "deal_url": "https://thelanternworks.com/deals/hyperping-001/", "referral_disclosure": "Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking.", "manual_signup_only": false}}}, "nodata": "no sourced price tracked", "opt": "https://thelanternworks.com/tools/stack-optimizer/"};
+  const $=id=>document.getElementById(id), E=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+  const num=(n,s)=>parseFloat(n.replace(/,/g,""))*({k:1e3,m:1e6}[(s||"").toLowerCase()]||1);
+  function parse(t){t=t.slice(0,2000).toLowerCase();const comps=[],q={};
+    for(const [c,rx] of Object.entries(S.comp))if(new RegExp(rx).test(t))comps.push(c);
+    for(const [k,rx] of Object.entries(S.qty)){const m=t.match(new RegExp(rx));if(m)q[k]=num(m[1],m[2])}
+    if(q.proxy_gb&&!comps.includes("proxy"))delete q.proxy_gb; if(q.emails_sent&&!comps.includes("email"))delete q.emails_sent;
+    for(const [k,c] of [["gpu_hours","gpu"],["scrape_pages","scraping"],["proxy_gb","proxy"],["search_queries","search"],["emails_sent","email"]])if(q[k]&&!comps.includes(c))comps.push(c);
+    if(q.scrape_pages&&new RegExp(S.js).test(t)){q.scrape_pages_js=q.scrape_pages;delete q.scrape_pages}
+    const g=t.match(/\b(h100|h200|a100|b200|l40s|l4|a10g?|rtx\s?\d{4})\b/);let gm=null;if(g){const u=g[1].toUpperCase().replace(/\s/g,"");gm=u.startsWith("RTX")?"RTX "+u.slice(3):u}
+    return {comps,q,gm}}
+  function show(){const r=parse($("d").value);if(!r.comps.length){$("res").innerHTML="<p>No components recognised. Mention e.g. GPU, scraping, proxies, search API, LLM, email, hosting, database or monitoring.</p>";return}
+    const p=new URLSearchParams();for(const [k,v] of Object.entries(r.q))if(v)p.set(k,v);if(r.gm)p.set("gpu",r.gm);
+    const opt=r.comps.filter(c=>!S.entry[c]);let h="<p>Found: "+r.comps.map(c=>E(S.labels[c])).join(", ")+"</p>";
+    if(opt.length)h+='<p><a href="'+S.opt+(p.toString()?"?"+p:"")+'"><strong>Price '+opt.map(c=>E(S.labels[c])).join(", ")+' in the Stack Optimizer</strong></a> ('+(Object.keys(r.q).length?"quantities prefilled; check them":"add monthly quantities there")+")</p>";
+    const rows=r.comps.filter(c=>S.entry[c]).map(c=>{const x=S.entry[c].row;if(!x)return "<tr><td>"+E(S.labels[c])+"</td><td colspan=3><strong>"+E(S.nodata)+"</strong></td></tr>";
+      return "<tr><td>"+E(S.labels[c])+"</td><td>"+E(x.calc)+"</td><td>"+(x.deal_url?'<a href="'+E(x.deal_url)+'">'+E(x.vendor)+"</a>":E(x.vendor))+(x.manual_signup_only?" <strong>Manual signup only</strong>":"")+(x.referral_disclosure?"<br><small>"+E(x.referral_disclosure)+"</small>":"")+'</td><td><a href="'+E(x.source_url)+'" rel="noopener">source</a> <small>checked '+E(String(x.verified_at).slice(0,10))+"</small></td></tr>"}).join("");
+    if(rows)h+="<p>Cheapest cited entry prices (your usage may need a bigger plan):</p><table><thead><tr><th>Component</th><th>Price</th><th>Vendor</th><th>Source</th></tr></thead><tbody>"+rows+"</tbody></table>";
+    $("res").innerHTML=h;document.dispatchEvent(new CustomEvent("lw:event",{detail:"stack"}))}
+  $("go").addEventListener("click",show);$("sf").hidden=false;
+  </script>
+
+</div>
+  <footer>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 // Stores ONLY aggregate counts per (day, tool, version). Never stores IPs, headers or IDs.
 // POST /v1/events  {"events":[{"t":tool,"v":version,"d":"YYYY-MM-DD","n":count}, ...]}
 // GET  /v1/stats?days=30  -> read-only aggregates
-export const TOOLS = new Set(["search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack"]);
+export const TOOLS = new Set(["search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack"]);
 export const MAX_BODY = 4096, MAX_EVENTS = 50, MAX_N = 10000, MAX_AGE_DAYS = 8;
 const VERSION_RE = /^\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;

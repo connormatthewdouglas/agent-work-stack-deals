@@ -33,7 +33,7 @@ def call(srv, name, args):
 
 def test_tools_listed(srv):
     tools = {t.name: t for t in asyncio.run(srv.mcp.list_tools())}
-    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack"}
+    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack"}
     assert all(t.annotations.readOnlyHint for t in tools.values())
 
 
@@ -120,7 +120,7 @@ def test_cursor_plugin_manifest(srv):
     assert b == (ROOT / "logo.png").read_bytes()
     assert struct.unpack(">II", b[16:24]) == (400, 400)
     tools = sorted(t.name for t in asyncio.run(srv.mcp.list_tools()))
-    assert len(tools) == 5
+    assert len(tools) == 6
     for f in (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json"):
         m = json.loads((ROOT / f).read_text())
         e = m["plugins"][0]
@@ -175,3 +175,11 @@ def test_compare_gpu_prices_include_history(srv):
     srv.history_loader._cache = None
     r = call(srv, "compare_gpu_prices", {"gpu": "H100", "include_history": True})
     assert r["results"] and r["history"]["error"]  # history failure never breaks the comparison
+
+
+def test_optimize_agent_stack_tool(srv):
+    r = call(srv, "optimize_agent_stack", {"description": "scrapes 20k JS pages via 5 GB residential proxies, 100 GPU hours on an H100"})
+    assert {l["component"] for l in r["lines"]} >= {"scraping", "proxy", "gpu"}
+    assert all(l["status"] == "no_data" or (l["choice"]["source_url"] and l["choice"]["verified_at"]) for l in r["lines"])
+    assert "commission" not in json.dumps(r).lower() and "payout" not in json.dumps(r).lower()
+    assert call(srv, "optimize_agent_stack", {})["error"]["code"] == "invalid_argument"

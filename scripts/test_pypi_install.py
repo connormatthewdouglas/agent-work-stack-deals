@@ -20,6 +20,7 @@ async def main(ver, cmd):
     v = tuple(int(x) for x in ver.split(".")[:3])
     want = {"search_deals", "compare_deals", "get_deal"} | ({"compare_gpu_prices"} if ver != "0.1.0" else set()) \
         | ({"optimize_stack"} if v >= (0, 3, 0) else set())
+        | ({"optimize_agent_stack"} if v >= (0, 3, 6) else set())
     params = StdioServerParameters(command=cmd[0], args=cmd[1:])
     async with stdio_client(params) as (r, w):
         async with ClientSession(r, w) as s:
@@ -48,6 +49,10 @@ async def main(ver, cmd):
                 st = body(await s.call_tool("optimize_stack", {"scrape_pages": 50000, "emails_sent": 10000, "gpu_hours": 100, "gpu_model": "H100"}))
                 assert len(st["lines"]) == 3 and all(l["status"] == "unknown" or (l["choice"]["source_url"] and l["choice"]["checked_at"]) for l in st["lines"]), st
                 msg += f" stack=${st['total_monthly_usd']}"
+            if "optimize_agent_stack" in names:
+                ag = body(await s.call_tool("optimize_agent_stack", {"description": "scrapes 20k pages via 5 GB residential proxies, 3,000 search queries, 100 GPU hours on an H100"}))
+                assert ag["lines"] and all(l["status"] == "no_data" or (l["choice"]["source_url"] and l["choice"]["verified_at"]) for l in ag["lines"]), ag
+                msg += f" agent_stack=${ag['monthly_estimate_usd']}"
             assert want <= set(names), (want, names)
             info = s_init.serverInfo
             if ver != "0.1.0":  # 0.1.0 reported the mcp SDK version (fixed in 0.2.0)

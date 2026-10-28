@@ -438,12 +438,8 @@ HELD_IDS: set[str] = set()
 # Listings pulled for affiliate-terms conflicts. Stored as sha256(deal id) so the public repo does not
 # name them. Pulled deals are never published (registry present or not), get no stub page, and their
 # old /deals/<slug>/ directory is deleted so the URL 404s. Registry status "pulled" adds to this set.
-PULLED_ID_SHA256 = frozenset({
-    "f483983f5dade785816b1dff9ea0dafdf845cfda1f4dab1d18f7526dc8d67827",
-    "37cbce2d8ff08ee5d9c16b5ba3ec1214a5ea81631fdf9d16695aa42359c50f3b",
-    "48f2b01deb93e9410c524852b038ab0d24c2f3c559df6d2c1265726ef4b80a5d",
-    "39855a1e80d49dd19e11c1986b7607d96fa861d0925f73f05974abb691c409ad",
-})
+sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+from core.compliance import PULLED_ID_SHA256  # noqa: E402  (shared with the MCP tools)
 PULLED_IDS: set[str] = set()
 # Plain link only: affiliate terms forbid coupon/discount wording on these listings.
 NO_COUPON_WORDING_IDS = frozenset({"deal-scraperapi-001"})
@@ -1716,6 +1712,8 @@ def main() -> None:
     tool_paths = [gpu_calculator.write(sys.modules[__name__], deals, feed_updated)]
     import stack_optimizer
     tool_paths.append(stack_optimizer.write(sys.modules[__name__], deals, feed_updated))
+    import stack_page
+    tool_paths.append(stack_page.write(sys.modules[__name__], deals, feed_updated))
     tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)
     import install_page
     tool_paths.append(install_page.write(sys.modules[__name__]))

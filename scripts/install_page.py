@@ -10,7 +10,7 @@ from pathlib import Path
 PATH = "install"
 TESTED_ON = "2026-10-28"
 TESTED_VERSION = "0.3.5"
-TOOLS = ("compare_gpu_prices", "optimize_stack", "search_deals", "compare_deals", "get_deal")
+TOOLS = ("compare_gpu_prices", "optimize_stack", "optimize_agent_stack", "search_deals", "compare_deals", "get_deal")
 CFG = {"command": "uvx", "args": ["lantern-works-deals-mcp"]}
 CURSOR_LINK = "cursor://anysphere.cursor-deeplink/mcp/install?name=lantern-works-deals&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJsYW50ZXJuLXdvcmtzLWRlYWxzLW1jcCJdfQ=="
 VSCODE_LINK = ("https://vscode.dev/redirect/mcp/install?name=lantern-works-deals&config="

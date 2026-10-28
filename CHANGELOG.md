@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-28 — Plan an agent stack from a description; MCP 0.3.6
+
+- New MCP tool `optimize_agent_stack`: describe the agent you're building in plain text (plus optional fields: workload, GPU hours or model size, scraping/search/LLM needs, monthly budget). A deterministic keyword/regex parse (no LLM) maps it to components (GPU, scraping, proxies, search API, LLM API, email, hosting, database, monitoring) and returns the cheapest option with a cited price among tracked providers for each, with the math, source URL, check date and a referral disclosure where the link is a referral link. Components without a cited price say "no sourced price tracked"; nothing is estimated. Pulled listings are excluded and manual-only signups are flagged.
+- New page: [/stack/](https://thelanternworks.com/stack/) (in the nav and sitemap). It uses the same parse and data, prices three example agents, and hands quantities to the [Stack Optimizer](https://thelanternworks.com/tools/stack-optimizer/) prefilled.
+- lantern-works-deals-mcp 0.3.6 adds the tool; `optimize_stack` and the other tools are unchanged.
+
 ## 2026-10-28 — GPU-first homepage; GPU price changes feed; MCP 0.3.5
 
 - The homepage now leads with GPU price comparison for agents, checked daily: the cheapest, median and highest H100, A100 and RTX 4090 rates among tracked providers, generated from the feed, plus the install command. The deals directory moved to [/deals/](https://thelanternworks.com/deals/) (nav and footer links); old `/?q=…` and `/#cat-…` links forward there, and deal pages keep their URLs.

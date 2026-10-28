@@ -87,7 +87,7 @@
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
-  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">GPU prices</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">All GPU rates</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/" aria-current="page">Changelog</a></nav>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">GPU prices</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">All GPU rates</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/" aria-current="page">Changelog</a></nav>
 <div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Changelog</p>
@@ -97,6 +97,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-28 — Plan an agent stack from a description; MCP 0.3.6</h2>
+<ul>
+<li>New MCP tool <code>optimize_agent_stack</code>: describe the agent you&#x27;re building in plain text (plus optional fields: workload, GPU hours or model size, scraping/search/LLM needs, monthly budget). A deterministic keyword/regex parse (no LLM) maps it to components (GPU, scraping, proxies, search API, LLM API, email, hosting, database, monitoring) and returns the cheapest option with a cited price among tracked providers for each, with the math, source URL, check date and a referral disclosure where the link is a referral link. Components without a cited price say &quot;no sourced price tracked&quot;; nothing is estimated. Pulled listings are excluded and manual-only signups are flagged.</li>
+<li>New page: <a href="https://thelanternworks.com/stack/">/stack/</a> (in the nav and sitemap). It uses the same parse and data, prices three example agents, and hands quantities to the <a href="https://thelanternworks.com/tools/stack-optimizer/">Stack Optimizer</a> prefilled.</li>
+<li>lantern-works-deals-mcp 0.3.6 adds the tool; <code>optimize_stack</code> and the other tools are unchanged.</li>
+</ul>
 <h2>2026-10-28 — GPU-first homepage; GPU price changes feed; MCP 0.3.5</h2>
 <ul>
 <li>The homepage now leads with GPU price comparison for agents, checked daily: the cheapest, median and highest H100, A100 and RTX 4090 rates among tracked providers, generated from the feed, plus the install command. The deals directory moved to <a href="https://thelanternworks.com/deals/">/deals/</a> (nav and footer links); old <code>/?q=…</code> and <code>/#cat-…</code> links forward there, and deal pages keep their URLs.</li>

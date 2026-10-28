@@ -26,7 +26,7 @@ from pathlib import Path
 # Empty until the collector is deployed: with no URL, enabling telemetry only counts locally.
 DEFAULT_URL = "https://lantern-works-telemetry.lantern-works.workers.dev/v1/events"
 TIMEOUT_S = 2.0
-TOOLS = frozenset({"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack"})
+TOOLS = frozenset({"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack"})
 _lock = threading.Lock()
 
 
