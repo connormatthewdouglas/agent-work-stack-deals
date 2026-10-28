@@ -1,15 +1,16 @@
-# Lantern Works — agent deals directory
+# Lantern Works — GPU price comparison for agents, checked daily
 
-**Lantern Works** publishes a curated directory of affiliate and public offers for AI agents (and humans directing them): compute and GPU rental, unblock/scrapers, email, search, hosting, and related work-stack tools. Results are ranked by customer value (price, free tier, fit), never by affiliate status.
+**Lantern Works** tracks hourly GPU rental prices (H100, A100, RTX 4090 and more) across cloud providers, re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate, plus daily price history. Agents get it through the `compare_gpu_prices` MCP tool (`include_history=true` for price history) or plain JSON. "Cheapest" always means cheapest among tracked providers. It also keeps a directory of work-stack deals (scraping/unblock, email, search, hosting), ranked by customer value (price, free tier, fit), never by affiliate status. Some result links are referral links.
 
-- **Browse:** [thelanternworks.com](https://thelanternworks.com/) · [About](https://thelanternworks.com/lanternworks/)
+- **GPU prices:** [thelanternworks.com](https://thelanternworks.com/) · [/gpu/](https://thelanternworks.com/gpu/) · JSON [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · history [api/v1/gpu-prices/history.json](https://thelanternworks.com/api/v1/gpu-prices/history.json) · what moved since yesterday [api/v1/gpu-price-changes.json](https://thelanternworks.com/api/v1/gpu-price-changes.json) ([RSS](https://thelanternworks.com/api/v1/gpu-price-changes.xml))
+- **Deals directory:** [thelanternworks.com/deals/](https://thelanternworks.com/deals/) · [About](https://thelanternworks.com/lanternworks/)
 - **Agent feed (JSON, no auth):** [thelanternworks.com/api/v1/deals.json](https://thelanternworks.com/api/v1/deals.json) (same bytes as `/deals.json`) · mirror: [gist](https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json)
-- **GPU prices:** [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · **Stack pricing:** [api/v1/stack-pricing.json](https://thelanternworks.com/api/v1/stack-pricing.json)
+- **Stack pricing:** [api/v1/stack-pricing.json](https://thelanternworks.com/api/v1/stack-pricing.json)
 - **Query CLI:** `python3 query_deals.py --category unblock --max-price 20` (filter contract: [USAGE.md](USAGE.md))
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.4, read-only, stdio)
+## MCP server (v0.3.5, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -17,11 +18,11 @@ Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.or
 
 | Tool | What it does |
 |---|---|
+| `compare_gpu_prices` | Hourly rental prices for a GPU model (e.g. `H100`, `A100 SXM`, `RTX 4090`) across tracked providers, cheapest first, each with `source_url` and `checked_at`. "Cheapest" means cheapest among tracked providers, not the whole market. `include_history=true` adds each rate's price history and recent price changes (daily snapshots). |
+| `optimize_stack` | Given monthly usage (pages scraped, proxy GB, emails, search queries, GPU hours/model), pick the cheapest tracked plan per line and total the monthly cost, with the calculation, sources and alternatives; unpublished prices are reported as `unknown`. |
 | `search_deals` | Search the deals feed by text, `category`, `offer_type`, `max_price` and `tags`; paginated summaries (`limit` 1-25, `cursor`). |
 | `compare_deals` | Compare 2-5 deals by id side by side, best customer value first. |
 | `get_deal` | Return the full public record for one deal id. |
-| `compare_gpu_prices` | Hourly rental prices for a GPU model (e.g. `H100`, `A100 SXM`, `RTX 4090`) across tracked providers, cheapest first, each with `source_url` and `checked_at`. "Cheapest" means cheapest among tracked providers, not the whole market. `include_history=true` adds each rate's price history and recent price changes (daily snapshots). |
-| `optimize_stack` | Given monthly usage (pages scraped, proxy GB, emails, search queries, GPU hours/model), pick the cheapest tracked plan per line and total the monthly cost, with the calculation, sources and alternatives; unpublished prices are reported as `unknown`. |
 
 ### Install
 

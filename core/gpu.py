@@ -269,3 +269,8 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
                 basis = f"${r['price_usd']}/mo x {n} server(s), flat regardless of hours"
         out.append({**r, "monthly_cost_usd": round(cost, 2), "calc": basis})
     return sorted(out, key=lambda x: (x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
+
+
+def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) -> int:
+    """The one public GPU rate count: ranked rates published in /api/v1/gpu-prices.json. Never hardcode it."""
+    return len(build_rates(deals, vendor_docs)["rates"])

@@ -18,6 +18,7 @@ PAGE_PATH = "tools/stack-optimizer"
 API_PATH = ROOT / "api" / "v1" / "stack-pricing.json"
 EXAMPLE = {"scrape_pages": 50000, "proxy_gb": 10, "emails_sent": 10000, "gpu_hours": 100}
 EXAMPLE_GPU = "H100"
+DEFAULT_VIEW = ("gpu_hours",)  # shown by default; scraping, proxy, email and search sit behind the "more needs" toggle
 
 
 def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
@@ -69,9 +70,13 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
                          ensure_ascii=False).replace("</", "<\\/")
     models = sorted({r["gpu"].split(" ")[0] if r["gpu"].split(" ")[0] in ("H100", "H200", "A100", "L40S", "B200") else r["gpu"] for r in gpu["rates"]})
     opts = "".join(f'<option{" selected" if m == EXAMPLE_GPU else ""}>{esc(m)}</option>' for m in models)
-    fields = "".join(
-        f'<label>{esc(v["label"])} <small>({esc(v["unit"])})</small> <input id="n-{k}" name="{k}" type="number" min="0" step="any" value="{EXAMPLE.get(k, 0)}" inputmode="decimal"></label>'
-        for k, v in payload["needs"].items())
+    def _field(k, v):
+        return (f'<label>{esc(v["label"])} <small>({esc(v["unit"])})</small> <input id="n-{k}" name="{k}" type="number" min="0" step="any" '
+                f'value="{EXAMPLE.get(k, 0)}" inputmode="decimal"></label>')
+    fields = "".join(_field(k, v) for k, v in payload["needs"].items() if k in DEFAULT_VIEW)
+    more_fields = "".join(_field(k, v) for k, v in payload["needs"].items() if k not in DEFAULT_VIEW)
+    gpu_example = stack.optimize(payload, {"gpu_hours": EXAMPLE["gpu_hours"]}, gpu, gpu_model=EXAMPLE_GPU)
+    gpu_rows = "".join(_cell_line(gen, l) for l in gpu_example["lines"])
     offers_rows = "".join(
         f'<tr><td>{esc(payload["needs"][o["need"]]["label"])}</td><td><a href="{esc(o["deal_url"])}">{esc(o["vendor"])}</a> {esc(o["plan"])}'
         f'{" <strong>Manual signup only</strong>" if o["signup"] == "manual_only" else ""}</td>'
@@ -84,19 +89,26 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     api = f"{gen.BASE}/api/v1/stack-pricing.json"
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › Tools › Agent Stack Optimizer</nav>
   <h1>Agent Stack Optimizer</h1>
-  <p>Tell it what your agent needs each month (pages to scrape, proxy traffic, emails, searches, GPU hours) and it picks the cheapest suitable plan per need, {stack.TRACKED} (vendors we don't track may cost less). Every line shows the vendor quote, its source page, when we checked it, and the assumptions. If a vendor doesn't publish a number, the line says <strong>No published price</strong>; nothing is guessed. Referral links never change the order.</p>
+  <p>Start with GPU hours: enter how many your agent needs each month and it picks the cheapest tracked GPU rate. Turn on <em>more needs</em> to add scraping, proxy traffic, email and search. It picks the cheapest suitable plan per need, {stack.TRACKED} (vendors we don't track may cost less). Every line shows the vendor quote, its source page, when we checked it, and the assumptions. If a vendor doesn't publish a number, the line says <strong>No published price</strong>; nothing is guessed. Referral links never change the order.</p>
   <form id="opt" onsubmit="return false" aria-label="Monthly needs" hidden>
     <label class="wide">Describe your needs (optional) <input id="desc" type="text" placeholder="scrape 50k pages/mo + 10 GB residential proxies + send 10k emails + 100 H100-hours"></label>
     <p><button type="button" id="parse">Fill the form from this text</button> <small id="parsed" aria-live="polite"></small></p>
     {fields}
     <label>GPU model <select id="gpumodel"><option value="">Any</option>{opts}</select></label>
+    <label class="wide check"><input id="showmore" type="checkbox"> More needs: also price scraping, proxies, email and search</label>
+    <fieldset id="more" class="wide" hidden style="border:0;padding:0;margin:0;display:contents">{more_fields}</fieldset>
     <label><input id="nomanual" type="checkbox"> Skip plans that need a manual signup</label>
   </form>
   <div id="out" aria-live="polite" hidden></div>
   <p id="plink" hidden><a id="permalink" href="?">Link to this stack</a></p>
   <noscript><p>The interactive optimizer needs JavaScript. Below is a worked example and every tracked offer; agents can call the <code>optimize_stack</code> MCP tool or read <a href="{api}">{api}</a>.</p></noscript>
 
-  <h2 id="example">Example: 50,000 pages + 10 GB residential proxies + 10,000 emails + 100 H100 hours</h2>
+  <h2 id="example">Example: {EXAMPLE["gpu_hours"]} {EXAMPLE_GPU} hours a month</h2>
+  <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Cheapest tracked plan</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>{gpu_rows}</tbody></table></div>
+  <p>Compare every GPU rate on the <a href="{gen.BASE}/gpu/">GPU price comparison</a>.</p>
+
+  <details id="more-needs"><summary>More needs: scraping, proxies, email and search (full-stack example and every tracked offer)</summary>
+  <h3>Example: 50,000 pages + 10 GB residential proxies + 10,000 emails + 100 H100 hours</h3>
   <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Cheapest tracked plan</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>{ex_rows}</tbody></table></div>
   <p>Total of priced lines: <strong>${example["total_monthly_usd"]:,.2f}/month</strong>{"" if example["total_is_complete"] else " (some needs have no published price)"}.{" Manual signup needed for: " + esc(", ".join(example["manual_signup_needs"])) + "." if example["manual_signup_needs"] else ""}</p>
 
@@ -108,8 +120,9 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     <li>Plans marked <strong>Manual signup only</strong> need a human to sign up; agents shouldn't automate it.</li>
     <li>Prices are re-fetched from each source page daily; confirm on the vendor page before you spend.</li>
   </ul>
-  <h2>Every tracked offer</h2>
+  <h3>Every tracked offer</h3>
   <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Vendor plan</th><th>Price</th><th>Included</th><th>Overage</th><th>Vendor quote · checked</th></tr></thead><tbody>{offers_rows}</tbody></table></div>
+  </details>
   <p>GPU hours use the <a href="{gen.BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a> data.</p>
   <h2>For agents</h2>
   <p>MCP: <code>optimize_stack(scrape_pages=50000, proxy_gb=10, emails_sent=10000, gpu_hours=100, gpu_model="H100")</code>. Data: <a href="{api}">{api}</a>. Inputs can be preset in the URL, e.g. <code>?scrape_pages=50000&amp;emails_sent=10000</code>.</p>
@@ -167,7 +180,10 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
       return `<tr>${{head}}<td><strong>${{fmt(c.monthly_cost_usd)}}</strong></td><td><a href="${{esc(c.redeem_url||c.deal_url)}}" rel="nofollow sponsored noopener" data-deal="${{esc(c.deal_id)}}">${{esc(c.vendor)}}</a> ${{esc(c.plan)}}${{c.manual_signup_only?" <strong>Manual signup only</strong>":""}}<br><small>${{esc(c.calc)}}</small>${{more}}</td><td>${{src(c)}}</td><td><small>${{esc(c.assumptions.join(" "))}}</small></td></tr>`}}).join("");
     $("out").innerHTML=`<p><strong>Estimated ${{fmt(tot)}}/month</strong> for the priced lines${{unk.length?`; no published price for: ${{esc(unk.join(", "))}}`:""}}. Cheapest among tracked providers per need.</p><div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Plan (calculation)</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>${{rows}}</tbody></table></div>`;
   }}
-  function read(){{const q={{}};for(const k of N)q[k]=Math.max(0,+$("n-"+k).value||0);return q}}
+  const DEF={json.dumps(list(DEFAULT_VIEW))};
+  function read(){{const q={{}},more=$("showmore").checked;for(const k of N)q[k]=(DEF.includes(k)||more)?Math.max(0,+$("n-"+k).value||0):0;return q}}
+  function showMore(on){{$("showmore").checked=on;$("more").hidden=!on}}
+  $("showmore").addEventListener("change",e=>showMore(e.target.checked));
   function run(){{
     const q=read(),m=$("gpumodel").value,nm=$("nomanual").checked; render(optimize(q,m,nm));
     const p=new URLSearchParams();for(const k of N)if(q[k])p.set(k,q[k]);if(m)p.set("gpu",m);if(nm)p.set("nomanual","1");$("permalink").href="?"+p;
@@ -183,11 +199,12 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     const gm=/(h100|h200|a100|l40s|b200|rtx\\s*\\d{{4}})/i.exec(t);return {{q,gm:gm?gm[1].toUpperCase().replace(/RTX\\s*/,"RTX "):""}};
   }}
   $("parse").addEventListener("click",()=>{{const r=parse($("desc").value);for(const k of N)$("n-"+k).value=r.q[k]||0;
+    if(N.some(k=>!DEF.includes(k)&&r.q[k]))showMore(true);
     if(r.gm&&[...$("gpumodel").options].some(o=>o.value===r.gm))$("gpumodel").value=r.gm;
     const got=Object.keys(r.q).filter(k=>r.q[k]);$("parsed").textContent=got.length?"Filled: "+got.map(k=>D.s.needs[k].label+" "+g(r.q[k])).join(", ")+". Check the numbers.":"Couldn't read any quantities; fill the fields instead.";run();
     document.dispatchEvent(new CustomEvent("lw:event",{{detail:"optimizer"}}))}});
   const u=new URLSearchParams(location.search);
-  if([...u.keys()].length){{for(const k of N)$("n-"+k).value=u.get(k)||0;if(u.get("gpu")!==null)$("gpumodel").value=u.get("gpu");$("nomanual").checked=u.get("nomanual")==="1"}}
+  if([...u.keys()].length){{for(const k of N)$("n-"+k).value=u.get(k)||0;if(u.get("gpu")!==null)$("gpumodel").value=u.get("gpu");$("nomanual").checked=u.get("nomanual")==="1";showMore(N.some(k=>!DEF.includes(k)&&+(u.get(k)||0)>0))}}
   $("opt").hidden=false;$("out").hidden=false;$("plink").hidden=false;
   $("opt").addEventListener("input",run);run();
   $("opt").addEventListener("input",()=>document.dispatchEvent(new CustomEvent("lw:event",{{detail:"optimizer"}})),{{once:true}});

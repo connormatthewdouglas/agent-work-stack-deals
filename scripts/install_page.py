@@ -10,7 +10,7 @@ from pathlib import Path
 PATH = "install"
 TESTED_ON = "2026-10-27"
 TESTED_VERSION = "0.3.4"
-TOOLS = ("search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack")
+TOOLS = ("compare_gpu_prices", "optimize_stack", "search_deals", "compare_deals", "get_deal")
 CFG = {"command": "uvx", "args": ["lantern-works-deals-mcp"]}
 CURSOR_LINK = "cursor://anysphere.cursor-deeplink/mcp/install?name=lantern-works-deals&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJsYW50ZXJuLXdvcmtzLWRlYWxzLW1jcCJdfQ=="
 VSCODE_LINK = ("https://vscode.dev/redirect/mcp/install?name=lantern-works-deals&config="
@@ -33,7 +33,15 @@ def write(g) -> str:
     vscode = json.dumps({"servers": {"lantern-works-deals": {"type": "stdio", **CFG}}}, indent=2)
     tools = ", ".join(f"<code>{t}</code>" for t in TOOLS)
     body = f"""  <nav class="crumbs"><a href="{base}/">Lantern Works</a> › <a href="{base}/for-agents/">For agents</a> › Install</nav>
-  <h1>Add Lantern Works to your agent</h1>
+  <h1>GPU price monitor for your agent</h1>
+  <p><strong>Know when GPU prices move.</strong> Lantern Works re-reads every tracked GPU rental rate daily from the vendor's own pricing page. Your agent can check what moved since yesterday and act on it, every day, with no API key:</p>
+  <ul>
+    <li><a href="{base}/api/v1/gpu-price-changes.json">/api/v1/gpu-price-changes.json</a>: rates that went down, up, newly tracked or dropped out between the last two daily snapshots, each with the vendor's source page (<a href="{base}/api/v1/gpu-price-changes.xml">RSS</a>).</li>
+    <li><code>compare_gpu_prices(gpu="H100", include_history=true)</code>: today's cheapest rates among tracked providers plus each rate's price history and recent changes.</li>
+    <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/gpu-price-monitor">GPU price monitor example</a>: a zero-dependency script that alerts when a tracked rate drops by a set percent. Run it on a daily cron.</li>
+  </ul>
+  {_pre("uvx lantern-works-deals-mcp")}
+  <h2>Add Lantern Works to your agent</h2>
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: {tools}.</p>
   <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> ({TESTED_VERSION}) initializes over stdio and all {len(TOOLS)} tools return results.</p>
 

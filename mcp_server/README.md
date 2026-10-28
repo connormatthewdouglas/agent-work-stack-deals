@@ -1,8 +1,8 @@
-# Lantern Works deals — MCP server (v0.3.4, read-only, stdio)
+# Lantern Works deals — MCP server (v0.3.5, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
-Free, read-only, no API key. Search and compare AI-infra deals and free tiers, compare tracked GPU rental prices, and price the cheapest stack for your monthly usage, ranked by customer value (never by affiliate status).
+Free, read-only, no API key. **GPU price comparison for agents, checked daily:** `compare_gpu_prices` returns hourly rental prices for H100, A100, RTX 4090 and more across tracked providers, cheapest first, each with the vendor's source page and check date; `include_history=true` adds daily price history and recent changes. Also prices the cheapest stack for your monthly usage (`optimize_stack`) and, last, searches and compares AI-infra deals and free tiers, ranked by customer value (never by affiliate status). Some result links are referral links.
 
 ## Quick start
 
@@ -35,11 +35,11 @@ Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern
 
 | Tool | Args | Returns |
 |---|---|---|
+| `compare_gpu_prices` | `gpu` (e.g. `H100`, `A100 SXM`, `RTX 4090`), `limit` (1-25, default 10), `include_history` (default false) | `{summary, scope, total, results[], data_source, feed_updated_at, ...}` sorted by `hourly_usd`; each result has `source_url` and `checked_at`. With `include_history=true`, each result adds `price_history` (daily-snapshot change points) and the response adds `history.recent_changes` (last 30 days) |
+| `optimize_stack` | `scrape_pages`, `scrape_pages_js`, `proxy_gb`, `emails_sent`, `search_queries`, `gpu_hours`, `gpu_model`, `exclude_manual_signup` | per-line chosen plan, `monthly_cost_usd`, calc, vendor quote, `source_url`, `checked_at`, assumptions, alternatives; unpublished prices are `unknown` |
 | `search_deals` | `query`, `category`, `offer_type`, `max_price`, `tags[]`, `limit` (1-25, default 10), `cursor` | `{total, count, results[], next_cursor}` (summary fields only) |
 | `compare_deals` | `ids` (2-5) | `{order, deals[], note}` best value first |
 | `get_deal` | `id` | the deal's public record |
-| `compare_gpu_prices` | `gpu` (e.g. `H100`, `A100 SXM`, `RTX 4090`), `limit` (1-25, default 10), `include_history` (default false) | `{summary, scope, total, results[], data_source, feed_updated_at, ...}` sorted by `hourly_usd`; each result has `source_url` and `checked_at`. With `include_history=true`, each result adds `price_history` (daily-snapshot change points) and the response adds `history.recent_changes` (last 30 days) |
-| `optimize_stack` | `scrape_pages`, `scrape_pages_js`, `proxy_gb`, `emails_sent`, `search_queries`, `gpu_hours`, `gpu_model`, `exclude_manual_signup` | per-line chosen plan, `monthly_cost_usd`, calc, vendor quote, `source_url`, `checked_at`, assumptions, alternatives; unpublished prices are `unknown` |
 
 `compare_gpu_prices` uses exactly the data published at https://thelanternworks.com/api/v1/gpu-prices.json (history: https://thelanternworks.com/api/v1/gpu-prices/history.json). Prices are re-read daily from each vendor's own page or API and change only where a price was parsed; a rate not re-verified for 7 days is held out of rankings. Model matching is by whole tokens (`H100` matches `H100 SXM`; `L40` does not match `L40S`). "Cheapest" means cheapest among tracked providers, not the whole market.
 

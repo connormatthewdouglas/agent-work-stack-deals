@@ -160,7 +160,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(f['rates'])}</td><td>{gen.esc(', '.join(f['vendors']))}</td>"
                        f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
-    title = f"GPU rental price comparison: {len(rates)} verified rates (H100, H200, A100, L40S, RTX 4090) — {fresh}"
+    title = f"GPU rental price comparison: {gen.live_rate_count()} verified rates (H100, H200, A100, L40S, RTX 4090) — {fresh}"
     desc = f"Compare verified cloud GPU rental prices from {', '.join(vendors)}: per-hour and monthly, sorted by cost, with vendor quotes and dates."
     faqs = [
         ("Which GPU rental is cheapest per hour among tracked providers?",
@@ -171,7 +171,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     ]
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU price comparison</nav>
   <h1>GPU rental price comparison</h1>
-  <p class="meta">Prices verified through {fresh} · {len(rates)} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
+  <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
   <h2>By GPU model</h2>
   <table class="howto"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest rate</th></tr></thead><tbody>
@@ -329,8 +329,8 @@ def write_per_vram(gen, rates):
             ("Why rank by VRAM?", "Model size usually decides which GPU you can use at all. Price per GB of VRAM shows the lowest-cost way among tracked providers to fit a "
              "model in memory; it ignores speed, so a faster GPU can still finish a job for less."),
             ("Which rates are included?", f"Only hourly rates checked on {day} on the vendor's own pricing page. Monthly dedicated servers are excluded.")]
-    return _cmp_page(gen, PER_VRAM, f"Cloud GPU price per GB of VRAM, cheapest among tracked providers: {len(rows)} rates checked {day}",
-                     f"Cloud GPU rental ranked by price per GB of VRAM per hour, from {len(rows)} hourly rates checked {day} on vendor pricing pages.",
+    return _cmp_page(gen, PER_VRAM, f"Cloud GPU price per GB of VRAM, cheapest among tracked providers ({day})",
+                     f"Cloud GPU rental ranked by price per GB of VRAM per hour: the hourly-billed subset of {gen.live_rate_count()} tracked rates, checked {day} on vendor pricing pages.",
                      "Cloud GPU per GB of VRAM: cheapest among tracked providers", "Price per GB of VRAM",
                      "Hourly rate divided by GPU memory. Useful when you need a model to fit and are deciding which card to rent.",
                      t, rows, faqs, day)
@@ -441,7 +441,7 @@ def write_hub(gen, rates: list[dict]) -> str:
     desc = "Hub for cloud GPU rental pricing: cost calculator, cheapest-GPU pages by model, side-by-side comparisons and the public GPU pricing API."
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › GPU</nav>
   <h1>GPU rental prices</h1>
-  <p class="meta">{len(rates)} tracked rates{(" · newest check " + fresh) if fresh else ""} · "cheapest" means cheapest among tracked providers</p>
+  <p class="meta">{gen.live_rate_count()} tracked rates{(" · newest check " + fresh) if fresh else ""} · "cheapest" means cheapest among tracked providers</p>
 {changes_html(gen)}  <h2>Tools</h2>
   <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li></ul>
   <h2>Cheapest GPU by model</h2>

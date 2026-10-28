@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKIP = ("changelog/", "node_modules/", "collector/", "lanternworks/", "mcp_server/", "plugins/", "examples/", ".git/")
 BAD = r"(?:unknown|n/?a|null|none|tbd|undefined|nan|—|–|-|\?)"
 PATTERNS = [
-    re.compile(rf"\bprice[s]?\s*(?:is|are|:)?\s*{BAD}\b", re.I),
+    re.compile(rf"\bprices?(?:\s*:\s*|\s+(?:is|are)\s+){BAD}(?![\w-])", re.I),
     re.compile(rf"\b{BAD}\s+price", re.I) if False else re.compile(r"\bunknown\s+price", re.I),
     re.compile(r"(?:marked|shown as|show|stay|says?|set to|are)\s+[“\"']?unknown", re.I),
     re.compile(r"\$\s*(?:null|none|nan|undefined)\b", re.I),

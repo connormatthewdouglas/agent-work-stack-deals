@@ -87,7 +87,7 @@
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
-  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">All deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU prices</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/" aria-current="page">Changelog</a></nav>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">GPU prices</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">All GPU rates</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/" aria-current="page">Changelog</a></nav>
 <div id="content">
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · Changelog</p>
@@ -97,6 +97,14 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-28 — GPU-first homepage; GPU price changes feed; MCP 0.3.5</h2>
+<ul>
+<li>The homepage now leads with GPU price comparison for agents, checked daily: the cheapest, median and highest H100, A100 and RTX 4090 rates among tracked providers, generated from the feed, plus the install command. The deals directory moved to <a href="https://thelanternworks.com/deals/">/deals/</a> (nav and footer links); old <code>/?q=…</code> and <code>/#cat-…</code> links forward there, and deal pages keep their URLs.</li>
+<li>New: https://thelanternworks.com/api/v1/gpu-price-changes.json (what moved since yesterday&#x27;s snapshot, each with the vendor source) and its RSS feed, https://thelanternworks.com/api/v1/gpu-price-changes.xml. /install/ leads with the price monitor.</li>
+<li>No price renders as &quot;unknown&quot; any more: deals without a single verified price show their plan prices, a cited GPU rate or an honest pricing-model label (<code>price_label</code> in the feed, schema 1.4.0). CI fails if any page or API output shows an unknown or blank price.</li>
+<li>The GPU rate count is generated from the feed everywhere (CI fails on a hardcoded count). The Stack optimizer shows GPU hours by default; scraping, proxies, email and search are behind &quot;More needs&quot;.</li>
+<li>lantern-works-deals-mcp 0.3.5: <code>compare_gpu_prices</code> is registered first; docs and plugin manifests lead with GPU prices and price history.</li>
+</ul>
 <h2>2026-10-27 — Daily GPU price refresh with history; MCP 0.3.4</h2>
 <ul>
 <li>GPU prices are now re-read daily from each tracked provider&#x27;s public pricing page or API by a scheduled GitHub Action (robots.txt respected, polite rate). A rate changes only where its price was actually parsed, with a new <code>source_url</code>, quote and <code>checked_at</code>; unreadable rates keep their last value and are held out of rankings after 7 days without re-verification.</li>
@@ -709,7 +717,7 @@
 </div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
-    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">All deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>

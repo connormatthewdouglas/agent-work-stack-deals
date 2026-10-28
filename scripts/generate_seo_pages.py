@@ -907,6 +907,17 @@ def gpu_rates() -> list:
     return _GPU_RATES
 
 
+def live_rate_count() -> int:
+    """The single public GPU rate count (ranked rates in /api/v1/gpu-prices.json), from the feed; never hardcoded."""
+    sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    from core.gpu import live_rate_count as _lrc
+    return _lrc(load_deals_for_count())
+
+
+def load_deals_for_count() -> list[dict]:
+    return [d for d in json.loads(DEALS_PATH.read_text(encoding="utf-8"))["deals"] if not d.get("example")]
+
+
 def deal_price_label(deal: dict) -> str:
     sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
     from core.price_label import price_label
@@ -1049,7 +1060,7 @@ def social_meta(title: str, description: str, canonical: str, og_type: str = "we
   <meta name="twitter:description" content="{esc(description)}" />"""
 
 
-def homepage_json_ld(deals: list[dict]) -> str:
+def homepage_json_ld(deals: list[dict], home: bool = False) -> str:
     """WebSite + Organization + CollectionPage/ItemList for the deals board."""
     org_id = f"{BASE}/#organization"
     website_id = f"{BASE}/#website"
@@ -1085,20 +1096,20 @@ def homepage_json_ld(deals: list[dict]) -> str:
         {
             "@type": "WebSite",
             "@id": website_id,
-            "name": "Agent work-stack deals",
+            "name": "Lantern Works",
             "url": f"{BASE}/",
             "description": (
-                "Deals for AI agents: compute, scrapers/unblock, templates, search APIs, hosting. "
-                "Affiliate-backed offers + machine-readable JSON feed."
+                "GPU rental price comparison for agents, checked daily (H100, A100, RTX 4090 and more), "
+                "plus agent work-stack deals and a machine-readable JSON feed."
             ),
             "publisher": {"@id": org_id},
             "inLanguage": "en",
         },
         {
             "@type": "CollectionPage",
-            "@id": f"{BASE}/#collection",
+            "@id": f"{BASE}/deals/#collection",
             "name": "Agent work-stack deals",
-            "url": f"{BASE}/",
+            "url": f"{BASE}/deals/",
             "isPartOf": {"@id": website_id},
             "about": {"@id": org_id},
             "mainEntity": {
@@ -1109,6 +1120,8 @@ def homepage_json_ld(deals: list[dict]) -> str:
             },
         },
     ]
+    if home:
+        graph = graph[:2]
     return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=2)
 
 
@@ -1131,7 +1144,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 </div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
-    <p><strong>Lantern Works</strong> · <a href="{BASE}/">All deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
@@ -1269,7 +1282,7 @@ def write_guide(guide: dict, by_id: dict[str, dict]) -> Path:
         f'<a href="{BASE}/guides/{g["slug"]}/">{esc(g["title"])}</a>'
         for g in GUIDES
         if g["slug"] != guide["slug"]
-    ) + f""" · <a href="{BASE}/">all deals</a></p>
+    ) + f""" · <a href="{BASE}/deals/">all deals</a></p>
 """
     (out_dir / "index.html").write_text(
         page_shell(f'{guide["title"]} — Lantern Works', guide["description"], page_url, body),
@@ -1292,6 +1305,9 @@ def guides_nav_html() -> str:
 def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list[str] | None = None, compare_paths: list[str] | None = None) -> Path:
     urls = [
         (f"{BASE}/", "1.0"),
+        (f"{BASE}/deals/", "0.9"),
+        (f"{BASE}/api/v1/gpu-price-changes.json", "0.6"),
+        (f"{BASE}/api/v1/gpu-price-changes.xml", "0.6"),
         (f"{BASE}/lanternworks/", "0.8"),
         (f"{BASE}/changelog/", "0.7"),
         (f"{BASE}/for-agents/", "0.8"),
@@ -1398,17 +1414,18 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   <title>{esc(index_title)}</title>
   <meta name="description" content="{esc(index_desc)}" />
   <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="{BASE}/" />
-{social_meta(index_title, index_desc, f"{BASE}/")}
+  <link rel="canonical" href="{BASE}/deals/" />
+{social_meta(index_title, index_desc, f"{BASE}/deals/")}
   <script type="application/ld+json">
 {homepage_json_ld(deals)}
   </script>
   <style>{CSS}</style>
 </head>
 <body>
-{site_ui.nav_html(BASE, BASE + "/")}  <header>
+{site_ui.nav_html(BASE, BASE + "/deals/")}  <header>
+    <nav class="crumbs"><a href="{BASE}/">Lantern Works</a> › Deals</nav>
     <h1>Agent work-stack deals</h1>
-    <p style="font-size:.9rem;"><a href="lanternworks/">About Lantern Works</a> · <a href="changelog/">Changelog</a></p>
+    <p style="font-size:.9rem;"><a href="{BASE}/lanternworks/">About Lantern Works</a> · <a href="{BASE}/changelog/">Changelog</a> · Looking for GPU prices? <a href="{BASE}/gpu/">GPU price comparison</a></p>
     <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Default order: real discounts, then verified free tiers, then standard signups (A–Z). Affiliate status does not affect ranking. Where there is no single verified price, cards show the plan prices or pricing model; no price is guessed.</p>
     <nav>Jump: {cat_nav}</nav>
     <nav style="margin-top:.35rem;">Hubs: {hub_nav}</nav>
@@ -1420,13 +1437,13 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   <main id="content">{body_main}</main>
 {agent_query_howto_html()}
 {site_ui.HOME_JS}
-  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="lanternworks/">About</a> · <a href="changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
 </html>
 """
-    path = ROOT / "index.html"
+    path = ROOT / "deals" / "index.html"
     path.write_text(html_doc, encoding="utf-8")
     return path
 
@@ -1483,7 +1500,7 @@ def patch_lanternworks() -> None:
         f'<a href="{BASE}/categories/serp-apis/">serp-apis</a> · '
         f'<a href="{BASE}/categories/gpu-compute/">gpu-compute</a> · '
         f'<a href="{BASE}/categories/email-apis/">email-apis</a> · '
-        f'<a href="{BASE}/">all deals</a> · '
+        f'<a href="{BASE}/deals/">all deals</a> · '
         f'<a href="{BASE}/changelog/">changelog</a></p>\n'
         f'    <p class="meta">Stack guides: {guide_links}</p>\n'
     )
@@ -1618,7 +1635,7 @@ def write_changelog() -> Path:
 def write_404() -> None:
     """GitHub Pages 404. Virtual analytics routes (/e/...) only exist in history; if one is reloaded, go back.
     No analytics beacon here, so a reload never counts twice."""
-    body = (f'  <h1>Page not found</h1>\n  <p><a href="{BASE}/">Browse all deals</a> or use the links above.</p>\n'
+    body = (f'  <h1>Page not found</h1>\n  <p><a href="{BASE}/gpu/">Compare GPU prices</a>, <a href="{BASE}/deals/">browse all deals</a> or use the links above.</p>\n'
             '  <script>if(location.pathname.startsWith("/e/")){history.length>1?history.back():location.replace("/")}</script>\n')
     html_doc = page_shell("Page not found — Lantern Works", "Page not found.", f"{BASE}/404.html", body, robots="noindex")
     (ROOT / "404.html").write_text(html_doc.replace(analytics_snippet(), ""), encoding="utf-8")
@@ -1705,6 +1722,10 @@ def main() -> None:
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)
+    import home_page
+    home_page.write(sys.modules[__name__], deals, feed_updated)
+    import gpu_changes_feed
+    gpu_changes_feed.write(sys.modules[__name__])
     patch_lanternworks()
     ensure_robots()
     write_404()
@@ -1722,7 +1743,7 @@ def main() -> None:
     print(f"guide_pages={len(guide_paths)}")
     # home + lanternworks + changelog + hubs + guides + deals
     print(f"compare_pages={len(compare_paths)}")
-    print(f"sitemap_urls={4 + len(compare_paths) + len(tool_paths) + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
+    print(f"sitemap_urls={7 + len(compare_paths) + len(tool_paths) + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
     print(f"deals={len(deals)}")
 
 

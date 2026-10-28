@@ -2,6 +2,14 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-28 — GPU-first homepage; GPU price changes feed; MCP 0.3.5
+
+- The homepage now leads with GPU price comparison for agents, checked daily: the cheapest, median and highest H100, A100 and RTX 4090 rates among tracked providers, generated from the feed, plus the install command. The deals directory moved to [/deals/](https://thelanternworks.com/deals/) (nav and footer links); old `/?q=…` and `/#cat-…` links forward there, and deal pages keep their URLs.
+- New: https://thelanternworks.com/api/v1/gpu-price-changes.json (what moved since yesterday's snapshot, each with the vendor source) and its RSS feed, https://thelanternworks.com/api/v1/gpu-price-changes.xml. /install/ leads with the price monitor.
+- No price renders as "unknown" any more: deals without a single verified price show their plan prices, a cited GPU rate or an honest pricing-model label (`price_label` in the feed, schema 1.4.0). CI fails if any page or API output shows an unknown or blank price.
+- The GPU rate count is generated from the feed everywhere (CI fails on a hardcoded count). The Stack optimizer shows GPU hours by default; scraping, proxies, email and search are behind "More needs".
+- lantern-works-deals-mcp 0.3.5: `compare_gpu_prices` is registered first; docs and plugin manifests lead with GPU prices and price history.
+
 ## 2026-10-27 — Daily GPU price refresh with history; MCP 0.3.4
 
 - GPU prices are now re-read daily from each tracked provider's public pricing page or API by a scheduled GitHub Action (robots.txt respected, polite rate). A rate changes only where its price was actually parsed, with a new `source_url`, quote and `checked_at`; unreadable rates keep their last value and are held out of rankings after 7 days without re-verification.
