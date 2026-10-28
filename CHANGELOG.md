@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-28 (evening): MCP server 0.3.8
+
+- Fix: `get_price_changes(since=...)` no longer returns a blank `data_checked_at`. When the history source has no per-row check time, it falls back to the newest daily snapshot date and says so in the new `data_checked_at_basis` field.
+
 ## 2026-10-28 (evening): MCP server 0.3.7
 
 - New read-only tool `get_price_changes(since=None, gpu=None, limit=50)`. It lists GPU price moves among tracked providers, newest first, each with old and new hourly price, change_pct, direction and the vendor source_url. Without `since` it returns the latest day's moves (/api/v1/gpu-price-changes.json); with `since='YYYY-MM-DD'` it returns every move on or after that date (/api/v1/gpu-prices/history.json).

@@ -97,6 +97,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-28 (evening): MCP server 0.3.8</h2>
+<ul>
+<li>Fix: <code>get_price_changes(since=...)</code> no longer returns a blank <code>data_checked_at</code>. When the history source has no per-row check time, it falls back to the newest daily snapshot date and says so in the new <code>data_checked_at_basis</code> field.</li>
+</ul>
 <h2>2026-10-28 (evening): MCP server 0.3.7</h2>
 <ul>
 <li>New read-only tool <code>get_price_changes(since=None, gpu=None, limit=50)</code>. It lists GPU price moves among tracked providers, newest first, each with old and new hourly price, change_pct, direction and the vendor source_url. Without <code>since</code> it returns the latest day&#x27;s moves (/api/v1/gpu-price-changes.json); with <code>since=&#x27;YYYY-MM-DD&#x27;</code> it returns every move on or after that date (/api/v1/gpu-prices/history.json).</li>

@@ -51,3 +51,10 @@ def test_since_filters_history_and_gpu():
 def test_bad_since_rejected():
     with pytest.raises(DealError):
         price_changes(None, HIST, since="last week")
+
+
+def test_data_checked_at_never_blank_with_since():
+    r = price_changes(None, HIST, since="2026-10-01")
+    assert r["data_checked_at"] == "2026-10-28" and "snapshot" in r["data_checked_at_basis"]
+    assert price_changes(None, HIST, since="2026-10-01", gpu="none-such")["data_checked_at"] == "2026-10-28"
+    assert price_changes(LATEST, None)["data_checked_at"] == "2026-10-28T10:32:00Z"

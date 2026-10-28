@@ -15,7 +15,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.7"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.8"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -184,8 +184,14 @@ def price_changes(latest: dict | None, history: dict | None, since: str | None =
         out["history_coverage"] = covered
         if covered.get("first_snapshot") and since < covered["first_snapshot"]:
             out["note"] += f" History starts {covered['first_snapshot']}; nothing earlier is tracked."
-    out.update(freshness(latest_checked_at([doc.get("date") and f"{doc.get('date')}T00:00:00+00:00"] +
-                                           [r.get("verified_at") for r in rows])))
+    checked = latest_checked_at([r.get("verified_at") for r in rows] +
+                                [c.get("verified_at") for c in doc.get("changes") or [] if isinstance(c, dict)])
+    basis = "newest verified_at among the changes"
+    if not checked:  # history rows carry no check time: fall back to the newest daily snapshot date
+        checked = doc.get("last_snapshot") or doc.get("date") or window.get("to")
+        basis = "date of the newest daily snapshot (no per-row check time in this source)"
+    out.update(freshness(checked))
+    out["data_checked_at_basis"] = basis if checked else "unknown: source had no snapshot date"
     out.pop("refresh_hint")
     return out
 

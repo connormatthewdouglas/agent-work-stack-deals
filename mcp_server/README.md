@@ -1,4 +1,4 @@
-# Lantern Works deals — MCP server (v0.3.7, read-only, stdio)
+# Lantern Works deals — MCP server (v0.3.8, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
