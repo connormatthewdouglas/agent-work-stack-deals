@@ -23,3 +23,34 @@ Numbers from a run at ~6:10 PM ET on Oct 28 (pypistats has data only for 2026-10
 - **Distinct opt-in installs and repeat operators:** not measurable. The collector stores no install ID (by design), and adding one would be new tracking that needs approval.
 - **Cloudflare beacon:** not queried. This needs a read-only CF_API_TOKEN + CF_ACCOUNT_ID + CF_SITE_TAG; for now, use the dashboard.
 - **Goal status:** installs ~153 / 50, but this is an unverified upper bound. Repeat operators: unknown / 10.
+
+## 2026-10-28 7:09 PM ET: stack posts live + adoption baseline
+
+- **Stack Optimizer posts:**
+  - dev.to: https://dev.to/lanternworks/describe-your-agent-get-the-cheapest-sourced-infra-stack-bci
+  - Hashnode: https://lanternworks.hashnode.dev/describe-your-agent-get-the-cheapest-sourced-infra-stack
+  - Both return HTTP 200, and the Hashnode post's canonical points to the dev.to URL (checked 7:09 PM ET).
+- **Adoption baseline** (`scripts/adoption_report.py`, run about 7:07 PM ET), against the goal of 50 installs and 10 repeat operators:
+  - PyPI has **no Oct 28 data yet**; the latest day is still 2026-10-27 UTC. The 7:02 PM run got HTTP 502 from pypistats; the rerun succeeded.
+  - Oct 27: 847 downloads without mirrors − 520 with no OS in the user agent − 174 from our CI = **~153 estimated external installs**. This is an upper bound, not a confirmed count.
+  - Opt-in telemetry: 0 real calls (2 test rows with version 0.0.0 excluded).
+  - Distinct installs and repeat operators: **not measurable**; the collector stores no IDs.
+  - Cloudflare beacon: not queried (no API token).
+  - Goal status: installs ~153 / 50 (upper bound); repeat operators unknown / 10.
+
+## 2026-10-28 evening: 0.3.7, built for repeat use (no new tracking)
+
+- **New tool `get_price_changes(since=None, gpu=None, limit=50)`.** Without `since`, it returns the latest day's moves (/api/v1/gpu-price-changes.json). With `since='YYYY-MM-DD'`, it returns every move on or after that date (/api/v1/gpu-prices/history.json). Every change cites the vendor's source_url.
+- **Freshness fields:** `compare_gpu_prices` and `optimize_agent_stack` now return `data_checked_at`, `next_refresh_utc` (the daily 10:23 UTC refresh) and a neutral hint: "Prices refresh daily; call get_price_changes(since='…') to see what moved."
+- **Telemetry:** no new tracking; `get_price_changes` is not counted.
+- **Commits:**
+  - bad6c3a: the tool, freshness fields, tests and README quickstart.
+  - 8c5d1fe: install page TESTED_VERSION 0.3.7.
+  - CI run 40785000424: all jobs green (tests, validate, docker, pypi-install, deploy, live-checks).
+- **Releases:**
+  - PyPI: https://pypi.org/project/lantern-works-deals-mcp/0.3.7/
+  - MCP Registry: io.github.connormatthewdouglas/lantern-works-deals 0.3.7 (latest).
+- **Clean-env check:** `scripts/test_pypi_install.py --version 0.3.7 --uvx` passed for both pip and uvx. It lists 7 tools; `get_price_changes(since='2026-10-27')` returns 2 changes:
+  - Vast.ai A100 SXM, $1.3389 → $1.1378 (−15.0%).
+  - Vast.ai RTX 4090, $0.5022 → $0.5175 (+3.0%).
+- **Known gap:** with `since`, `data_checked_at` is null, because history rows carry no verified_at. `next_refresh_utc` is still set. Fix in the next release.
