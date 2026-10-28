@@ -19,7 +19,7 @@ from mcp.client.stdio import stdio_client
 async def main(ver, cmd):
     v = tuple(int(x) for x in ver.split(".")[:3])
     want = {"search_deals", "compare_deals", "get_deal"} | ({"compare_gpu_prices"} if ver != "0.1.0" else set()) \
-        | ({"optimize_stack"} if v >= (0, 3, 0) else set())
+        | ({"optimize_stack"} if v >= (0, 3, 0) else set()) \
         | ({"optimize_agent_stack"} if v >= (0, 3, 6) else set())
     params = StdioServerParameters(command=cmd[0], args=cmd[1:])
     async with stdio_client(params) as (r, w):
