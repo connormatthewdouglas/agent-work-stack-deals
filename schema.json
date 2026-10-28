@@ -3,7 +3,7 @@
   "$id": "https://thelanternworks.com/schema.json",
   "title": "Lantern Works deal feed",
   "description": "Schema for /deals.json and /api/v1/deals.json. Public fields only: commission, payout, and compliance data are private and must never appear here.",
-  "x-schema-version": "1.3.0",
+  "x-schema-version": "1.4.0",
   "type": "object",
   "required": [
     "schema_version",
@@ -19,7 +19,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "1.3.0",
+      "const": "1.4.0",
       "description": "Version of this schema the feed conforms to (semver)."
     },
     "feed_version": {
@@ -232,6 +232,13 @@
             "null"
           ],
           "description": "Human-readable signup restriction shown on the deal page."
+        },
+        "price_label": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Honest pricing label when price_usd is null (pricing model, plan prices in pricing_note, or GPU rates in /api/v1/gpu-prices.json). Never a guessed number."
         }
       },
       "additionalProperties": false

@@ -240,14 +240,14 @@ TRACKED = "cheapest among tracked providers"
 
 def accuracy_html(gen, rates: list[dict]) -> str:
     """Caveats shown on every GPU page, compare page and the calculator: GPU-hours vs wall-clock, hardware,
-    cited egress/storage extras (or 'unknown'), interruptible vs on-demand. Built only from data/gpu_pricing records."""
+    cited egress/storage extras (or 'Not published'), interruptible vs on-demand. Built only from data/gpu_pricing records."""
     esc = gen.esc
     names = {r["advertiser"] for r in rates}
     docs = [d for d in load_vendor_files() if not names or d["vendor"] in names]
 
     def cell(x):
         if x["status"] != "published":
-            return f"<em>unknown</em>: {esc(x['text'])} (<a href=\"{esc(x['source_url'])}\" rel=\"noopener\">checked {esc(x['checked_at'][:10])}</a>)"
+            return f"Not published: {esc(x['text'])} (<a href=\"{esc(x['source_url'])}\" rel=\"noopener\">checked {esc(x['checked_at'][:10])}</a>)"
         return f"{esc(x['text'])} (<a href=\"{esc(x['source_url'])}\" rel=\"noopener\">source, {esc(x['checked_at'][:10])}</a>)"
     extras = _simple_table(["Vendor", "Egress", "Storage", "Interruption / billing terms"],
                            [[esc(d["vendor"]), cell(d["extras"]["egress"]), cell(d["extras"]["storage"]), cell(d["extras"]["interruption"])]
@@ -264,7 +264,7 @@ def accuracy_html(gen, rates: list[dict]) -> str:
   <h3>Hardware differences</h3>
   <p>The same GPU name can mean different hardware. SXM modules link GPUs over NVLink and run at higher power limits than PCIe cards, so an H100 SXM is usually faster than an H100 PCIe, especially for multi-GPU training. Interconnect between GPUs and nodes (NVLink, InfiniBand, plain Ethernet) is rarely listed on pricing pages; treat it as unknown unless the vendor states it. VRAM decides which models fit at all. Hardware as listed: {hw_txt}.</p>
   <h3>Egress and storage extras</h3>
-  <p>Totals on this page exclude these. Each cell cites the vendor page it came from; <em>unknown</em> means the vendor doesn't publish it there.</p>
+  <p>Totals on this page exclude these. Each cell cites the vendor page it came from; "Not published" means the vendor doesn't publish it there.</p>
 {extras}
   <h3>Interruptible vs on-demand</h3>
   <p>Interruptible (preemptible or spot) capacity can be stopped by the vendor mid-job and is usually cheaper; on-demand runs until you stop it. {intr_txt}</p>

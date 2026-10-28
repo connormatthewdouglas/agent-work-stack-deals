@@ -46,7 +46,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
             "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
             "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
-            "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"unknown\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
+            "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"not published\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
         ],
         "rates": data["rates"],
         "vendors": data["vendors"],
@@ -97,7 +97,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <ul>{credits}</ul>
   <h2>Not priced yet</h2>
   <p>These GPU deals have no verified, structured GPU price in the feed, so they're left out instead of guessed: {unpriced}.</p>
-  <p>Held out as stale (published prices not current, never ranked): {", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a> (vendor page last updated {esc(h.get("page_last_updated") or "unknown")})' for h in payload["held_stale"]) or "none"}.</p>
+  <p>Held out as stale (published prices not current, never ranked): {", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a> (vendor page last updated {esc(h.get("page_last_updated") or "not stated")})' for h in payload["held_stale"]) or "none"}.</p>
   <h2>For agents</h2>
   <p>Machine-readable rates: <a href="{api}">{api}</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). Inputs can be preset in the URL, e.g. <code>?hours=300&amp;gpu=A100</code>.</p>
   <script>

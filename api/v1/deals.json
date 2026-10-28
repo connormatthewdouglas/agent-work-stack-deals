@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.3.0",
+  "schema_version": "1.4.0",
   "feed_version": "0.1.0",
   "title": "Agent work-stack deal feed",
-  "description": "Public read-only JSON feed of agent-oriented offers for compute, unblock/scraping, search, email, hosting, SEO, templates, and AI agents. Includes standard signups (some via affiliate links, marked affiliate: true), verified public free tiers, and vendor-published discounts. Unknown prices are null.",
+  "description": "Public read-only JSON feed of agent-oriented offers for compute, unblock/scraping, search, email, hosting, SEO, templates, and AI agents. Includes standard signups (some via affiliate links, marked affiliate: true), verified public free tiers, and vendor-published discounts. Where there is no single verified price, price_usd is null and price_label gives the pricing model; no price is guessed.",
   "access": "public-read-only",
   "updated_at": "2026-10-27T13:55:00-04:00",
   "query": {
@@ -30,12 +30,12 @@
     "filters": {
       "category": "Exact match on deal.category (e.g. search, unblock, compute, hosting, email).",
       "affiliate": "Boolean. true = affiliate/referral listings; false = public/non-affiliate.",
-      "free_tier": "Public free tiers: affiliate == false or offer_type == \"free_tier\". price_usd null means UNKNOWN, not free; price_usd 0 is used only for verified free tiers.",
+      "free_tier": "Public free tiers: affiliate == false or offer_type == \"free_tier\". price_usd null means no single verified price (see price_label), not free; price_usd 0 is used only for verified free tiers.",
       "non_affiliate": "Alias of free_tier / affiliate=false.",
       "updated_since": "ISO-8601 datetime. Keep deals whose updated_at is present and >= this instant; deals missing updated_at are dropped when this filter is set.",
       "tag": "Require all listed tags (AND). Repeatable in CLI.",
       "agent_only": "Only deals with agent_only == true.",
-      "max_price": "Inclusive max on price_usd. Rows with null (unknown) price are excluded.",
+      "max_price": "Inclusive max on price_usd. Rows with null price_usd are excluded.",
       "real_only": "Exclude example == true (default). Use include_examples to keep synthetic rows.",
       "id": "Exact deal id match.",
       "offer_type": "verified_discount | free_tier | trial | standard_referral | credit_only_referral. verified_discount = vendor-published discount or code; free_tier = ongoing free plan; trial = time-limited or one-time free credit; standard_referral = normal pricing via a signup/referral link (no discount); credit_only_referral = referral that pays the referrer in platform credit, no buyer discount. Unclear cases use the most conservative label."
@@ -78,7 +78,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": "2026-10-27T01:45:00-04:00"
+      "verified_at": "2026-10-27T01:45:00-04:00",
+      "price_label": "Discount on vendor pricing; see vendor site"
     },
     {
       "agent_only": false,
@@ -108,7 +109,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": "2026-10-27T10:30:00-04:00",
-      "verified_at": "2026-10-27T10:14:40-04:00"
+      "verified_at": "2026-10-27T10:14:40-04:00",
+      "price_label": "Discount on vendor pricing; see vendor site"
     },
     {
       "agent_only": false,
@@ -137,7 +139,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": "2026-10-27T01:45:00-04:00"
+      "verified_at": "2026-10-27T01:45:00-04:00",
+      "price_label": "Discount on vendor pricing; see vendor site"
     },
     {
       "id": "deal-proxystore-001",
@@ -165,7 +168,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": "2026-10-27T10:30:00-04:00",
-      "verified_at": "2026-10-27T10:14:40-04:00"
+      "verified_at": "2026-10-27T10:14:40-04:00",
+      "price_label": "Discount on vendor pricing; see vendor site"
     },
     {
       "agent_only": false,
@@ -1342,7 +1346,8 @@
       "currency": "USD",
       "billing_period": null,
       "verified_at": "2026-10-27T01:51:00-04:00",
-      "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100"
+      "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
+      "price_label": "Hourly GPU rates: see /api/v1/gpu-prices.json"
     },
     {
       "id": "deal-9proxy-001",
@@ -1375,7 +1380,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T11:17:47-04:00"
+      "verified_at": "2026-10-27T11:17:47-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-adspower-001",
@@ -1405,7 +1411,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T19:15:00-04:00"
+      "verified_at": "2026-10-23T19:15:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "agent_only": false,
@@ -1470,7 +1477,8 @@
       "pricing_note": "Per aiclicks.io/pricing (checked 2026-10-26): Starter $59/mo (30 prompts, 3 AI platforms); Pro $189/mo (150 prompts); Business $499/mo (300+ prompts, 6 platforms). 3-day free trial on every plan (unverified); yearly billing up to 29% off. Listed price $59 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-albato-001",
@@ -1503,7 +1511,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T20:15:00-04:00"
+      "verified_at": "2026-10-25T20:15:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-alphavps-001",
@@ -1537,7 +1546,8 @@
       "pricing_note": "USD price not verified: alphavps.com lists EUR prices, with Cloud VPS from €2.54/mo, High-Performance VPS from €4.24/mo, Storage VPS from €1.67/mo, dedicated servers at live-stock pricing and GPU servers at custom pricing. No setup fees; 14-day money-back on VPS.",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:55:00-04:00",
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-anotherwrapper-001",
@@ -1571,7 +1581,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T22:58:00-04:00"
+      "verified_at": "2026-10-25T22:58:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-apilayer-001",
@@ -1600,7 +1611,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-appy-ai-001",
@@ -1633,7 +1645,8 @@
       "pricing_note": "Per appy.ai/pricing (checked 2026-10-26): Starter Free ($100 in free credits, no credit card, unlimited users, no renewal); AI Workforce $50/month (20,000 credits monthly, native Slack/Teams agents, priority support). The $100 credit is Appy.ai's standard signup offer, not a referral-only perk. Listed price $50 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-basin-001",
@@ -1699,7 +1712,8 @@
       "verified_at": "2026-10-27T13:16:19-04:00",
       "billing_period": "month",
       "category": "email-apis",
-      "offer_type": "standard_referral"
+      "offer_type": "standard_referral",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-betterstack-001",
@@ -1727,7 +1741,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-bolna-001",
@@ -1759,7 +1774,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-24T13:00:00-04:00"
+      "verified_at": "2026-10-24T13:00:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-botdog-001",
@@ -1791,7 +1807,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-botpress-001",
@@ -1822,7 +1839,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-24T10:25:00-04:00"
+      "verified_at": "2026-10-24T10:25:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-bounceban-001",
@@ -1855,7 +1873,8 @@
       "promo_code": null,
       "expires_at": null,
       "offer_type": "standard_referral",
-      "updated_at": "2026-10-27T13:55:00-04:00"
+      "updated_at": "2026-10-27T13:55:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-bouncer-001",
@@ -1888,7 +1907,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": "usage",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-browseract-001",
@@ -1921,7 +1941,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-buildship-001",
@@ -1953,7 +1974,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-bunny-001",
@@ -1981,7 +2003,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-chipp-001",
@@ -2010,7 +2033,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T20:39:00-04:00"
+      "verified_at": "2026-10-23T20:39:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-cleanproxies-001",
@@ -2037,7 +2061,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-cloreai-001",
@@ -2069,7 +2094,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": "usage",
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-cometapi-001",
@@ -2103,7 +2129,8 @@
       "pricing_note": "Per cometapi.com/pricing (checked 2026-10-26): pay as you go, no subscription; official-provider models billed at 0.8x the official rate (20% below list), e.g. DeepSeek V4.1 Flash $0.12/M input vs $0.15 official. Media models are priced per image, clip or second. Credits do not expire.",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-26T18:24:00-04:00",
-      "verified_at": "2026-10-26T18:21:00-04:00"
+      "verified_at": "2026-10-26T18:21:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-contentbot-001",
@@ -2135,7 +2162,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-dataforseo-001",
@@ -2169,7 +2197,8 @@
       "offer_type": "trial",
       "currency": "USD",
       "billing_period": "usage",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-dataimpulse-001",
@@ -2197,7 +2226,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-dmarcly-001",
@@ -2231,7 +2261,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-dreamhost-001",
@@ -2296,7 +2327,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-24T16:30:00-04:00"
+      "verified_at": "2026-10-24T16:30:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-emailable-001",
@@ -2329,7 +2361,8 @@
       "pricing_note": "Per emailable.com/pricing (checked 2026-10-26): every new account starts with 250 free credits; pay-as-you-go credits never expire; credits for unknown results and duplicates are returned. Plan prices vary by volume and billing option, so price_usd is null.",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-emailit-001",
@@ -2363,7 +2396,8 @@
       "pricing_note": "Per emailit.com/pricing (checked 2026-10-26): Free $0 (3,000 credits/mo, 100 emails/day); pay as you go $2 per 10,000 credits; Pro $20/mo billed yearly or $25 monthly (100K credits/mo) (unverified); Business $200/mo billed yearly or $250 monthly (2.5M credits/mo). Referral perk (+5,000 monthly credits, or +10,000 on Pro/Business) is per the Emailit partner program and not shown on the public pricing page. Listed price $20 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified). Listed regular price $25 could not be confirmed on the vendor page (2026-10-27), so list_price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-emaillistverify-001",
@@ -2392,7 +2426,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T18:54:00-04:00"
+      "verified_at": "2026-10-23T18:54:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-emailoctopus-001",
@@ -2425,7 +2460,8 @@
       "pricing_note": "Pricing per emailoctopus.com/pricing: Starter Free (2,500 subscribers, 10,000 emails/mo, EmailOctopus branding); Pro from $9/mo billed yearly at the smallest subscriber tier (price scales with subscribers; yearly saves 10%). 20% lifetime discount for nonprofits; custom quotes above 500,000 subscribers.",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-enrichlabs-001",
@@ -2493,7 +2529,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-24T12:25:00-04:00"
+      "verified_at": "2026-10-24T12:25:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-findymail-001",
@@ -2527,7 +2564,8 @@
       "verified_at": "2026-10-27T13:16:19-04:00",
       "billing_period": "month",
       "category": "email-apis",
-      "offer_type": "standard_referral"
+      "offer_type": "standard_referral",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-firecrawl-001",
@@ -2554,7 +2592,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": "2026-10-27T01:55:00-04:00",
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "agent_only": false,
@@ -2585,7 +2624,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": "2026-10-27T10:30:00-04:00",
-      "verified_at": "2026-10-27T10:14:40-04:00"
+      "verified_at": "2026-10-27T10:14:40-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-flowlu-001",
@@ -2618,7 +2658,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T20:32:00-04:00"
+      "verified_at": "2026-10-25T20:32:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "agent_only": false,
@@ -2681,7 +2722,8 @@
       "pricing_note": "Pricing per folderly.com/pricing: sender reputation maintenance $96 per mailbox/month billed yearly (save 20%); inbox placement tests free 2/mo, $79/mo for 100 tests/month, or $799/yr (save 15%); spam-placement alerts $0/mo. A 10% referral coupon was not shown on folderly.com (unverified); verify at checkout.",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-fullenrich-001",
@@ -2713,7 +2755,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-geo-metrics-001",
@@ -2747,7 +2790,8 @@
       "offer_type": "trial",
       "currency": "USD",
       "billing_period": "month",
-      "verified_at": "2026-10-27T08:52:00-04:00"
+      "verified_at": "2026-10-27T08:52:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-geonode-001",
@@ -2774,7 +2818,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-getsales-001",
@@ -2806,7 +2851,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-gigagpu-001",
@@ -2838,7 +2884,8 @@
       "pricing_note": "Dedicated bare-metal servers with a single GPU card (e.g. RTX 3050 6GB, RTX 5060 Ti 16GB, RTX 3090 24GB, RTX 5080 16GB, Radeon AI Pro R9700 32GB); full root, NVMe, 1Gbps, UK datacenter, monthly billing, no contracts (per gigagpu.com). Monthly prices were not stated on the fetched page; check at checkout.",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-24T19:20:00-04:00"
+      "verified_at": "2026-10-24T19:20:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-glorycloud-001",
@@ -2867,7 +2914,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-gologin-001",
@@ -2897,7 +2945,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T18:51:00-04:00"
+      "verified_at": "2026-10-23T18:51:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-gumlet-001",
@@ -2929,7 +2978,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-26T08:25:00-04:00"
+      "verified_at": "2026-10-26T08:25:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-heyo-001",
@@ -2960,7 +3010,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-hostingcom-001",
@@ -2993,7 +3044,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-hostwinds-001",
@@ -3092,7 +3144,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-incogniton-001",
@@ -3122,7 +3175,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T19:19:00-04:00"
+      "verified_at": "2026-10-23T19:19:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-infatica-001",
@@ -3150,7 +3204,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-interserver-001",
@@ -3183,7 +3238,8 @@
       "pricing_note": "Price not yet verified; see interserver.net/vps and interserver.net/webhosting for current plans.",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-26T12:50:00-04:00",
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-ipfoxy-001",
@@ -3212,7 +3268,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-keywordinsights-001",
@@ -3244,7 +3301,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": "month",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-keywordseverywhere-001",
@@ -3277,7 +3335,8 @@
       "pricing_note": "Per keywordseverywhere.com/pricing (checked 2026-10-26): Bronze $7/mo ($84/yr, 100K credits/yr, 1 seat) (unverified); Silver $14/mo ($168/yr, 400K) (unverified); Gold $40/mo ($480/yr, 2M) (unverified); Platinum $120/mo ($1,440/yr, 8M) (unverified); billed annually. Credit packs: $80 for 200,000 credits. Credits expire after one year. Listed price $7 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "agent_only": false,
@@ -3309,7 +3368,8 @@
       "docs_url": "https://keywordspeopleuse.com/pricing",
       "source_url": "https://keywordspeopleuse.com/pricing",
       "agent_instructions": "Sign up via the redeem_url affiliate link. The 7-day trial requires a credit card (unverified); cancel before it ends if not continuing. Confirm current prices on keywordspeopleuse.com/pricing. Only use this authorized affiliate link.",
-      "pricing_note": "Per keywordspeopleuse.com/pricing (checked 2026-10-26): Lite $15/month (150 credits), Standard $39/month, Pro $79/month, Unlimited $299/month; yearly billing gives 2 months free (unverified); 7-day free trial, credit card required (unverified). Listed price $15 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified)."
+      "pricing_note": "Per keywordspeopleuse.com/pricing (checked 2026-10-26): Lite $15/month (150 credits), Standard $39/month, Pro $79/month, Unlimited $299/month; yearly billing gives 2 months free (unverified); 7-day free trial, credit card required (unverified). Listed price $15 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-klenty-001",
@@ -3342,7 +3402,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-kymaapi-001",
@@ -3378,7 +3439,8 @@
       "updated_at": "2026-10-27T10:30:00-04:00",
       "verified_at": "2026-10-27T10:30:00-04:00",
       "signup": "manual_only",
-      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion."
+      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion.",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-latenode-001",
@@ -3409,7 +3471,8 @@
       "pricing_note": "Free plan forever, then pay-as-you-go per CPU second (first 10,000 CPU sec free) with paid add-ons (per latenode.com/pricing).",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-leadmagic-001",
@@ -3441,7 +3504,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-lightningproxies-001",
@@ -3468,7 +3532,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-linkwhisper-001",
@@ -3500,7 +3565,8 @@
       "pricing_note": "Pricing per linkwhisper.com/pricing (billed yearly): Starter $97/yr (1 site, 2,000 AI credits), Growth $197/yr (3 sites), Pro $297/yr (10 sites), Agency $497/yr (50 sites) (unverified); 14-day money-back guarantee on initial licenses.",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T21:00:00-04:00"
+      "verified_at": "2026-10-25T21:00:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-livetennisapi-001",
@@ -3567,7 +3633,8 @@
       "docs_url": "https://llmsocket.co",
       "source_url": "https://llmsocket.co",
       "pricing_note": "Per llmsocket.co (checked 2026-10-26): up to 100 products $9/mo or $81/yr; up to 500 $29/mo or $261/yr; up to 10,000 $79/mo or $711/yr; unlimited $149/mo or $1,341/yr. Yearly billing saves 25%. 7-day free trial on every plan, billed through Shopify (unverified). Listed price $9 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
-      "offer_type": "trial"
+      "offer_type": "trial",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "category": "seo",
@@ -3631,7 +3698,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-mailfloss-001",
@@ -3663,7 +3731,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-mailkite-001",
@@ -3696,7 +3765,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-mailreach-001",
@@ -3728,7 +3798,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-mailveri-001",
@@ -3761,7 +3832,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-marblism-001",
@@ -3794,7 +3866,8 @@
       "expires_at": null,
       "updated_at": "2026-10-27T13:40:00-04:00",
       "verified_at": "2026-10-27T13:16:19-04:00",
-      "billing_period": "month"
+      "billing_period": "month",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-meertrack-001",
@@ -3827,7 +3900,8 @@
       "pricing_note": "Per meertrack.com/pricing (checked 2026-10-26): $19 per competitor per month; limited-time 25% off the first 3 months ($14.25/competitor/mo). Includes export, API and MCP access. A free trial is advertised but its length and terms were not verified. Listed price $19 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-millis-001",
@@ -3859,7 +3933,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-morelogin-001",
@@ -3889,7 +3964,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T19:24:00-04:00"
+      "verified_at": "2026-10-23T19:24:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-moz-001",
@@ -3922,7 +3998,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": "month",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "category": "seo",
@@ -3954,7 +4031,8 @@
       "docs_url": "https://nightwatch.io/pricing/",
       "source_url": "https://nightwatch.io/pricing/",
       "agent_instructions": "Sign up via the redeem_url affiliate link and start with the 14-day free trial (no credit card) (unverified). Only track sites you are authorized to manage. Only use this authorized affiliate link.",
-      "pricing_note": "Per nightwatch.io/pricing (checked 2026-10-26): every plan includes a 14-day free trial, no credit card required (unverified); yearly billing saves 20%. Plans are priced in EUR, so price_usd is null."
+      "pricing_note": "Per nightwatch.io/pricing (checked 2026-10-26): every plan includes a 14-day free trial, no credit card required (unverified); yearly billing saves 20%. Plans are priced in EUR, so price_usd is null.",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-novita-001",
@@ -3983,7 +4061,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-nstbrowser-001",
@@ -4013,7 +4092,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T18:48:30-04:00"
+      "verified_at": "2026-10-23T18:48:30-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-outseta-001",
@@ -4048,7 +4128,8 @@
       "pricing_note": "Per outseta.com/pricing (checked 2026-10-26), billed monthly: Start $47/mo (up to 1,000 contacts, 2% transaction fee); Scale $127/mo; Pro $247/mo. Annual billing is cheaper (e.g. Scale $97/mo, Pro $197/mo). 14-day free trial (unverified); no per-user fees. Listed price $47 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-palabra-001",
@@ -4150,7 +4231,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T11:17:47-04:00"
+      "verified_at": "2026-10-27T11:17:47-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "agent_only": false,
@@ -4182,7 +4264,8 @@
       "docs_url": null,
       "source_url": "https://piapi.ai/pricing",
       "agent_instructions": "Sign up via the redeem_url affiliate link. Follow the vendor's terms and content policies for generated media. Confirm current prices on piapi.ai/pricing. Only use this authorized affiliate link.",
-      "pricing_note": "Per piapi.ai/pricing (checked 2026-10-26): Free plan $0/mo; Creator $15/mo with $10 bonus credits per cycle; Pro $60/mo; Enterprise $100/mo. API usage is pay-as-you-go and billed separately; new accounts start with $0.50 in free credits. Listed price $15 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified)."
+      "pricing_note": "Per piapi.ai/pricing (checked 2026-10-26): Free plan $0/mo; Creator $15/mo with $10 bonus credits per cycle; Pro $60/mo; Enterprise $100/mo. API usage is pay-as-you-go and billed separately; new accounts start with $0.50 in free credits. Listed price $15 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-pingping-001",
@@ -4214,7 +4297,8 @@
       "pricing_note": "USD price not verified: pingping.io lists EUR pricing, with Starter €6/mo (5 websites), Growth €30/mo (25) and Scale €90/mo (100), billed monthly; annual saves one month. 14-day free trial, no free plan (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:55:00-04:00",
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-plesk-001",
@@ -4248,7 +4332,8 @@
       "offer_type": "trial",
       "currency": "USD",
       "billing_period": "month",
-      "verified_at": "2026-10-27T13:40:00-04:00"
+      "verified_at": "2026-10-27T13:40:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-postiz-001",
@@ -4280,7 +4365,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-postmark-001",
@@ -4308,7 +4394,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-premiuminboxes-001",
@@ -4341,7 +4428,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T17:25:00-04:00"
+      "verified_at": "2026-10-25T17:25:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-pressmage-001",
@@ -4373,7 +4461,8 @@
       "pricing_note": "Per pressmage.com/pricing (checked 2026-10-26): Apprentice (unmanaged) $14/mo; Journeyman (semi-managed) $39/mo or $390/yr; Archmage (managed) $69/mo or $690/yr. Backup add-ons are extra. Listed price $39 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-prospeo-001",
@@ -4405,7 +4494,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-proxiesvision-001",
@@ -4433,7 +4523,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-proxy6-001",
@@ -4461,7 +4552,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-proxydocker-001",
@@ -4521,7 +4613,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-proxyline-001",
@@ -4549,7 +4642,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-proxyrack-001",
@@ -4584,7 +4678,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T18:05:00-04:00"
+      "verified_at": "2026-10-25T18:05:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-proxyscrape-001",
@@ -4611,7 +4706,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-proxywing-001",
@@ -4639,7 +4735,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-quickchat-001",
@@ -4669,7 +4766,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-racknerd-001",
@@ -4730,7 +4828,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-rb2b-001",
@@ -4764,7 +4863,8 @@
       "pricing_note": "Per rb2b.com/pricing (checked 2026-10-26): Free $0/mo (company-level ID only, 150 monthly resolutions); Starter $79/mo; Pro from $149/mo with a 7-day free trial; Pro+ from $199/mo. Listed price $79 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-reachinbox-001",
@@ -4796,7 +4896,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-realmarketapi-001",
@@ -4860,7 +4961,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-robofy-001",
@@ -4893,7 +4995,8 @@
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
       "verified_at": "2026-10-27T13:16:19-04:00",
-      "billing_period": "month"
+      "billing_period": "month",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-runable-001",
@@ -4924,7 +5027,8 @@
       "billing_period": null,
       "verified_at": "2026-10-23T20:40:00-04:00",
       "signup": "manual_only",
-      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion."
+      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion.",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-runpod-001",
@@ -4957,7 +5061,8 @@
       "pricing_note": "Pods, on-demand per GPU-hour (per runpod.io/pricing, page updated 2026-10-08, checked 2026-10-27). Secure Cloud: H200 141GB $5.29/hr, H100 SXM 80GB $3.99/hr, H100 PCIe 80GB $2.89/hr, A100 SXM 80GB $1.79/hr, A100 PCIe 80GB $1.79/hr, L40S 48GB $1.09/hr, L40 48GB $0.82/hr, RTX A6000 48GB $0.59/hr, RTX 5090 32GB $1.19/hr, RTX 4090 24GB $0.89/hr, RTX 3090 24GB $0.50/hr, RTX A5000 24GB $0.27/hr (unverified). Community Cloud: H100 SXM $2.69/hr, H100 PCIe $1.99/hr, A100 SXM $1.39/hr, A100 PCIe $1.19/hr, RTX 4090 $0.34/hr, RTX 3090 $0.22/hr, H200 $3.59/hr, L40S $0.79/hr, RTX A6000 $0.33/hr, RTX 5090 $0.69/hr. Storage billed separately (from $0.05/GB/mo).",
       "source_url": "https://www.runpod.io/pricing",
       "signup": "manual_only",
-      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion."
+      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion.",
+      "price_label": "Hourly GPU rates: see /api/v1/gpu-prices.json"
     },
     {
       "id": "deal-salesblink-001",
@@ -4991,7 +5096,8 @@
       "pricing_note": "Per salesblink.io/pricing (checked 2026-10-26): Starter $29/mo monthly ($25/mo billed annually), up to 10,000 emails, MCP for AI agents; Growth $99/mo ($79 annually) adds API, skill and CLI; Business $199/mo ($179 annually). 14-day free trial, no credit card (unverified). Listed price $29 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-salesforge-001",
@@ -5024,7 +5130,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-scrapedo-001",
@@ -5052,7 +5159,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-scrapeops-001",
@@ -5080,7 +5188,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-scraperapi-001",
@@ -5108,7 +5217,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": "2026-10-27T10:30:00-04:00",
-      "verified_at": "2026-10-27T10:14:40-04:00"
+      "verified_at": "2026-10-27T10:14:40-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-scrapingant-001",
@@ -5136,7 +5246,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "agent_only": false,
@@ -5194,7 +5305,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-sealch-001",
@@ -5226,7 +5338,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-searchapi-001",
@@ -5260,7 +5373,8 @@
       "updated_at": "2026-10-27T13:40:00-04:00",
       "verified_at": "2026-10-27T13:16:19-04:00",
       "signup": "manual_only",
-      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion."
+      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion.",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-sendpulse-001",
@@ -5292,7 +5406,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-seobility-001",
@@ -5321,7 +5436,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T18:43:19-04:00"
+      "verified_at": "2026-10-23T18:43:19-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-seowritingai-001",
@@ -5353,7 +5469,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-serptool-001",
@@ -5382,7 +5499,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-shifter-001",
@@ -5411,7 +5529,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T18:36:58-04:00"
+      "verified_at": "2026-10-23T18:36:58-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-shortpixel-001",
@@ -5444,7 +5563,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-26T08:55:00-04:00"
+      "verified_at": "2026-10-26T08:55:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-siliconflow-cn-001",
@@ -5476,7 +5596,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-24T13:25:00-04:00"
+      "verified_at": "2026-10-24T13:25:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "agent_only": false,
@@ -5509,7 +5630,8 @@
       "docs_url": "https://www.smartlead.ai/pricing",
       "source_url": "https://www.smartlead.ai/pricing",
       "agent_instructions": "Sign up via the redeem_url affiliate link. Follow anti-spam law (CAN-SPAM, GDPR/PECR): contact only lawfully sourced prospects, honour opt-outs, and use your own sending domains. Confirm current prices on smartlead.ai/pricing. Only use this authorized affiliate link.",
-      "pricing_note": "Per smartlead.ai/pricing (checked 2026-10-26): Base $39/month, Pro $94/month, Smart $174/month, Prime $379/month billed monthly (about 17% off yearly); free trial offered; site banner advertises 50% off the first month. Listed price $39 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified)."
+      "pricing_note": "Per smartlead.ai/pricing (checked 2026-10-26): Base $39/month, Pro $94/month, Smart $174/month, Prime $379/month billed monthly (about 17% off yearly); free trial offered; site banner advertises 50% off the first month. Listed price $39 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-smartreach-001",
@@ -5541,7 +5663,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T17:30:00-04:00"
+      "verified_at": "2026-10-25T17:30:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-smtp2go-001",
@@ -5569,7 +5692,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-snovio-001",
@@ -5600,7 +5724,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T18:05:56-04:00"
+      "verified_at": "2026-10-23T18:05:56-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-softshellweb-001",
@@ -5632,7 +5757,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T09:58:00-04:00"
+      "verified_at": "2026-10-25T09:58:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "agent_only": false,
@@ -5664,7 +5790,8 @@
       "docs_url": "https://speakai.co/pricing/",
       "source_url": "https://speakai.co/pricing/",
       "agent_instructions": "Sign up via the redeem_url affiliate link. Only transcribe media you have rights and consent to process. Confirm current prices on speakai.co/pricing. Only use this authorized affiliate link.",
-      "pricing_note": "Per speakai.co/pricing (checked 2026-10-26): Pro is US$25 per member/month billed monthly or US$20/month billed annually (US$240/yr), with 25 credits per member monthly; pay-as-you-go credits at 1 credit = US$1 with no subscription. Listed price $25 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified)."
+      "pricing_note": "Per speakai.co/pricing (checked 2026-10-26): Pro is US$25 per member/month billed monthly or US$20/month billed annually (US$240/yr), with 25 credits per member monthly; pay-as-you-go credits at 1 credit = US$1 with no subscription. Listed price $25 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "agent_only": false,
@@ -5722,7 +5849,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-telemetry-tracker-001",
@@ -5753,7 +5881,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T08:20:00-04:00"
+      "verified_at": "2026-10-25T08:20:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-thundercompute-001",
@@ -5787,7 +5916,8 @@
       "currency": "USD",
       "billing_period": null,
       "verified_at": "2026-10-27T13:16:19-04:00",
-      "source_url": "https://www.thundercompute.com/pricing"
+      "source_url": "https://www.thundercompute.com/pricing",
+      "price_label": "Hourly GPU rates: see /api/v1/gpu-prices.json"
     },
     {
       "id": "deal-trillet-001",
@@ -5820,7 +5950,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-trueproxies-001",
@@ -5847,7 +5978,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-twin-001",
@@ -5880,7 +6012,8 @@
       "pricing_note": "Per twin.so/pricing (checked 2026-10-26): Plus $29/mo (unlimited agents and scheduled runs); Pro $149/mo (adds browser agent, lead prospecting, research); Store from $399/mo. 7-day free trial, no credit card required (unverified). Listed price $29 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-ucartz-001",
@@ -5945,7 +6078,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-23T19:33:00-04:00"
+      "verified_at": "2026-10-23T19:33:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-unrealspeech-001",
@@ -5979,7 +6113,8 @@
       "billing_period": null,
       "verified_at": "2026-10-27T13:16:19-04:00",
       "signup": "manual_only",
-      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion."
+      "signup_note": "Sign up manually, no automated signup: the vendor's terms ban bot or automated account creation and promotion.",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-uplead-001",
@@ -6012,7 +6147,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-uptimewolf-001",
@@ -6044,7 +6180,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-uptimia-001",
@@ -6110,7 +6247,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-25T20:08:00-04:00"
+      "verified_at": "2026-10-25T20:08:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-vapi-001",
@@ -6142,7 +6280,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-vastai-001",
@@ -6170,7 +6309,8 @@
       "currency": "USD",
       "billing_period": null,
       "updated_at": null,
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Hourly GPU rates: see /api/v1/gpu-prices.json"
     },
     {
       "id": "deal-waalaxy-001",
@@ -6205,7 +6345,8 @@
       "pricing_note": "Price not verified in USD: waalaxy.com/pricing lists Pro, Advanced and Business plans in EUR (Pro from €19/user/month) with monthly, quarterly and yearly billing. Landing page advertises a 14-day free trial (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:55:00-04:00",
-      "verified_at": null
+      "verified_at": null,
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-wavespeed-001",
@@ -6238,7 +6379,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-webgee-001",
@@ -6304,7 +6446,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-26T08:25:00-04:00"
+      "verified_at": "2026-10-26T08:25:00-04:00",
+      "price_label": "Pricing on vendor site"
     },
     {
       "id": "deal-windsor-001",
@@ -6338,7 +6481,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-woodpecker-001",
@@ -6372,7 +6516,8 @@
       "pricing_note": "Per woodpecker.co/pricing (checked 2026-10-26): Email plan from $35/mo billed monthly ($280/yr billed yearly) for 500 contacted prospects and 8,000 emails/mo (unverified); price scales with volume; Multichannel and LinkedIn plans cost extra. 14-day free trial (unverified). Listed price $35 could not be confirmed on the vendor page (2026-10-27), so price_usd is null (unverified).",
       "offer_type": "standard_referral",
       "updated_at": "2026-10-27T13:40:00-04:00",
-      "verified_at": "2026-10-26T15:33:00-04:00"
+      "verified_at": "2026-10-26T15:33:00-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-writesonic-001",
@@ -6404,7 +6549,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-xcloud-001",
@@ -6438,7 +6584,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     },
     {
       "id": "deal-zapmail-001",
@@ -6471,7 +6618,8 @@
       "offer_type": "standard_referral",
       "currency": "USD",
       "billing_period": null,
-      "verified_at": "2026-10-27T13:16:19-04:00"
+      "verified_at": "2026-10-27T13:16:19-04:00",
+      "price_label": "Plan prices listed (see details)"
     }
   ]
 }

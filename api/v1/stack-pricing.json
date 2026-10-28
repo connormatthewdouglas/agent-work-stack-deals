@@ -7,7 +7,7 @@
   "methodology": [
     "Offers come from structured per-vendor records (data/stack_pricing/<vendor>.json in the repo); each has the vendor quote, source_url and checked_at, and the same daily job as GPU prices re-fetches every source_url.",
     "Cost = monthly_usd if ceil(quantity x units_per_item) <= included, else monthly_usd + ceil(extra / overage_per) x overage_usd. No published overage price means the plan can't cover more than it includes.",
-    "A null monthly_usd, included or units_per_item means the vendor doesn't publish it: the offer is reported as 'unknown', never estimated.",
+    "A null monthly_usd, included or units_per_item means the vendor doesn't publish it: the offer is reported as not published, never estimated.",
     "Deals pulled from the public feed are dropped; signup 'manual_only' deals are flagged (a human must sign up).",
     "GPU hours use /api/v1/gpu-prices.json (1 GPU; storage, egress and taxes excluded)."
   ],

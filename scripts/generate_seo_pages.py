@@ -550,7 +550,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <h2>Record shape</h2>
   <p>Each item in <code>deals[]</code> has: <code>id</code>, <code>title</code>, <code>category</code>, <code>tags</code>, <code>advertiser</code>, <code>offer_type</code>, <code>affiliate</code>, <code>price_usd</code>, <code>list_price_usd</code>, <code>currency</code>, <code>unit</code>, <code>billing_period</code>, <code>promo_code</code>, <code>redeem_url</code>, <code>expires_at</code>, <code>verified_at</code>, <code>updated_at</code>, <code>agent_instructions</code>, plus optional <code>docs_url</code>, <code>source_url</code>, <code>pricing_note</code>, <code>claim_note</code>. See the schema for types.</p>
   <ul>
-    <li><code>price_usd: null</code> means <strong>unknown</strong>, not free. <code>0</code> is used only for verified free tiers.</li>
+    <li><code>price_usd: null</code> means no single verified price (multi-plan, usage-based or not captured), not free; pages show the plan prices from <code>pricing_note</code>, a cited GPU rate, or the pricing model instead. <code>0</code> is used only for verified free tiers.</li>
     <li><code>verified_at: null</code> means no verification date is recorded. Dates are never back-filled.</li>
     <li><code>affiliate: true</code> marks referral links. It does not affect ranking.</li>
     <li>Categories in the feed now: {", ".join(f"<code>{esc(c)}</code>" for c in cats)}.</li>
@@ -578,7 +578,7 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
 
   <h2>GPU prices</h2>
   <p><a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> lists structured GPU rates (per hour or per month) taken from verified pricing notes, each with its <code>deal_id</code> and source quote. Deals without a verified price are under <code>unpriced</code>. The human version is the <a href="{BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a>.</p>
-  <p><a href="{BASE}/api/v1/stack-pricing.json">{BASE}/api/v1/stack-pricing.json</a> has cited plan prices for scraping, residential proxies, transactional email and search APIs (each offer has <code>quote</code>, <code>source_url</code>, <code>checked_at</code>; unpublished numbers are <code>null</code> = unknown). The <a href="{BASE}/tools/stack-optimizer/">Agent Stack Optimizer</a> picks the cheapest suitable plan per need among tracked providers.</p>
+  <p><a href="{BASE}/api/v1/stack-pricing.json">{BASE}/api/v1/stack-pricing.json</a> has cited plan prices for scraping, residential proxies, transactional email and search APIs (each offer has <code>quote</code>, <code>source_url</code>, <code>checked_at</code>; unpublished numbers are <code>null</code> = not published). The <a href="{BASE}/tools/stack-optimizer/">Agent Stack Optimizer</a> picks the cheapest suitable plan per need among tracked providers.</p>
 
   <h2>Install the MCP server (local stdio)</h2>
   <p>Published on <a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a> as <code>lantern-works-deals-mcp</code> and in the MCP Registry as <code>io.github.connormatthewdouglas/lantern-works-deals</code>. With <a href="https://docs.astral.sh/uv/">uv</a> installed, run:</p>
@@ -894,13 +894,33 @@ def freshness_bits(deal: dict, *, now: datetime | None = None) -> tuple[str, str
     return badge, date_line
 
 
+_GPU_RATES: list | None = None
+
+
+def gpu_rates() -> list:
+    """Ranked, cited GPU rates (data/gpu_pricing) used to label deals that have no single price_usd."""
+    global _GPU_RATES
+    if _GPU_RATES is None:
+        sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+        from core.gpu import build_rates
+        _GPU_RATES = build_rates(json.loads((ROOT / "deals.json").read_text())["deals"])["rates"]
+    return _GPU_RATES
+
+
+def deal_price_label(deal: dict) -> str:
+    sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    from core.price_label import price_label
+    return price_label(deal, gpu_rates())[0]
+
+
 def price_bits(deal: dict) -> str:
     price = deal.get("price_usd")
     unit = deal.get("unit") or ""
     list_p = deal.get("list_price_usd")
     parts = []
     if price is None:
-        parts.append("<strong>Price: unknown</strong>")
+        # Never "unknown": cited GPU rate, plan prices in the note, or an honest offer-type label.
+        return f"<strong>{esc(deal_price_label(deal))}</strong>"
     if price is not None:
         parts.append(f"<strong>${esc(price)}</strong>")
         if list_p is not None:
@@ -985,7 +1005,7 @@ def filter_attrs(deal: dict) -> str:
     """Data attributes read by the homepage search/filter/compare script (public fields only)."""
     price = deal.get("price_usd")
     vals = {"offer": deal.get("offer_type") or "", "offer-label": site_ui.OFFER_LABELS.get(deal.get("offer_type") or "", ""),
-            "price": "" if price is None else price, "unit": deal.get("unit") or "", "advertiser": deal.get("advertiser") or "",
+            "price": "" if price is None else price, "price-label": deal_price_label(deal) if price is None else "", "unit": deal.get("unit") or "", "advertiser": deal.get("advertiser") or "",
             "free": "1" if (deal.get("offer_type") == "free_tier" or is_free_tierish(deal)) else "0", "verified": "1" if deal.get("verified_at") else "0",
             "verified-at": deal.get("verified_at") or ""}
     return "".join(f' data-{k}="{esc(v)}"' for k, v in vals.items())
@@ -1314,7 +1334,7 @@ def agent_query_howto_html() -> str:
       <tbody>
         <tr><td><code>category</code></td><td>Exact category (<code>compute</code>, <code>email</code>, <code>hosting</code>, <code>search</code>, <code>unblock</code>, …)</td></tr>
         <tr><td><code>affiliate</code></td><td><code>true</code> = referral; <code>false</code> = public/non-affiliate</td></tr>
-        <tr><td><code>free_tier</code> / <code>non_affiliate</code></td><td><code>affiliate == false</code> or <code>offer_type == "free_tier"</code>. <code>price_usd: null</code> means unknown, not free.</td></tr>
+        <tr><td><code>free_tier</code> / <code>non_affiliate</code></td><td><code>affiliate == false</code> or <code>offer_type == "free_tier"</code>. <code>price_usd: null</code> means no single verified price, not free.</td></tr>
         <tr><td><code>updated_since</code></td><td>ISO-8601; keep deals with <code>updated_at &gt;=</code> value; drop rows missing <code>updated_at</code></td></tr>
         <tr><td><code>tag</code></td><td>Require tags (AND)</td></tr>
         <tr><td><code>agent_only</code></td><td>Only <code>agent_only == true</code></td></tr>
@@ -1389,7 +1409,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
 {site_ui.nav_html(BASE, BASE + "/")}  <header>
     <h1>Agent work-stack deals</h1>
     <p style="font-size:.9rem;"><a href="lanternworks/">About Lantern Works</a> · <a href="changelog/">Changelog</a></p>
-    <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Default order: real discounts, then verified free tiers, then standard signups (A–Z). Affiliate status does not affect ranking. Unknown prices show as “unknown”.</p>
+    <p>Affiliate-backed offers plus <strong>public / non-affiliate</strong> free tiers and vendor-published coupons for AI agents (and humans directing them). Free to browse. Default order: real discounts, then verified free tiers, then standard signups (A–Z). Affiliate status does not affect ranking. Where there is no single verified price, cards show the plan prices or pricing model; no price is guessed.</p>
     <nav>Jump: {cat_nav}</nav>
     <nav style="margin-top:.35rem;">Hubs: {hub_nav}</nav>
     {guides_nav_html()}

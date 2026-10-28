@@ -1,7 +1,7 @@
 """Agent Stack Optimizer page (/tools/stack-optimizer/) + machine-readable /api/v1/stack-pricing.json.
 
 Static and client-side; the same logic as core/stack.py (MCP tool optimize_stack). Prices come only from
-cited records in data/stack_pricing/ and /api/v1/gpu-prices.json; anything unpublished is "unknown".
+cited records in data/stack_pricing/ and /api/v1/gpu-prices.json; anything unpublished says "No published price".
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "methodology": [
             "Offers come from structured per-vendor records (data/stack_pricing/<vendor>.json in the repo); each has the vendor quote, source_url and checked_at, and the same daily job as GPU prices re-fetches every source_url.",
             "Cost = monthly_usd if ceil(quantity x units_per_item) <= included, else monthly_usd + ceil(extra / overage_per) x overage_usd. No published overage price means the plan can't cover more than it includes.",
-            "A null monthly_usd, included or units_per_item means the vendor doesn't publish it: the offer is reported as 'unknown', never estimated.",
+            "A null monthly_usd, included or units_per_item means the vendor doesn't publish it: the offer is reported as not published, never estimated.",
             "Deals pulled from the public feed are dropped; signup 'manual_only' deals are flagged (a human must sign up).",
             "GPU hours use /api/v1/gpu-prices.json (1 GPU; storage, egress and taxes excluded).",
         ],
@@ -45,7 +45,7 @@ def _cell_line(gen, l: dict) -> str:
     esc = gen.esc
     c = l["choice"]
     if not c:
-        return (f'<tr><td>{esc(l["label"])}<br><small>{l["quantity"]:,} {esc(l["unit"])}</small></td><td><strong>unknown</strong></td>'
+        return (f'<tr><td>{esc(l["label"])}<br><small>{l["quantity"]:,} {esc(l["unit"])}</small></td><td><strong>No published price</strong></td>'
                 f'<td colspan="3">No tracked provider publishes a price that covers this.</td></tr>')
     flag = ' <strong>Manual signup only</strong>' if c["manual_signup_only"] else ""
     return (f'<tr><td>{esc(l["label"])}<br><small>{l["quantity"]:,} {esc(l["unit"])}</small></td>'
@@ -75,16 +75,16 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     offers_rows = "".join(
         f'<tr><td>{esc(payload["needs"][o["need"]]["label"])}</td><td><a href="{esc(o["deal_url"])}">{esc(o["vendor"])}</a> {esc(o["plan"])}'
         f'{" <strong>Manual signup only</strong>" if o["signup"] == "manual_only" else ""}</td>'
-        f'<td>{"unknown" if o["monthly_usd"] is None else "$" + format(o["monthly_usd"], ",g") + "/mo"}</td>'
-        f'<td>{"unknown" if o["included"] is None else format(o["included"], ",")}{"" if o["units_per_item"] in (1, None) else " credits"}'
-        f'{" (" + format(o["units_per_item"], "g") + " per item)" if o["units_per_item"] not in (1, None) else (" (per-item usage unknown)" if o["units_per_item"] is None else "")}</td>'
+        f'<td>{"Usage-based, see vendor" if o["monthly_usd"] is None else "$" + format(o["monthly_usd"], ",g") + "/mo"}</td>'
+        f'<td>{"Not published" if o["included"] is None else format(o["included"], ",")}{"" if o["units_per_item"] in (1, None) else " credits"}'
+        f'{" (" + format(o["units_per_item"], "g") + " per item)" if o["units_per_item"] not in (1, None) else (" (per-item usage not published)" if o["units_per_item"] is None else "")}</td>'
         f'<td>{"none published" if o["overage_usd"] is None else "$" + format(o["overage_usd"], "g") + " per " + format(o["overage_per"], ",g")}</td>'
         f'<td><a href="{esc(o["source_url"])}" rel="noopener">“{esc(o["quote"])}”</a> · {esc(o["checked_at"][:10])}</td></tr>'
         for o in payload["offers"])
     api = f"{gen.BASE}/api/v1/stack-pricing.json"
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › Tools › Agent Stack Optimizer</nav>
   <h1>Agent Stack Optimizer</h1>
-  <p>Tell it what your agent needs each month (pages to scrape, proxy traffic, emails, searches, GPU hours) and it picks the cheapest suitable plan per need, {stack.TRACKED} (vendors we don't track may cost less). Every line shows the vendor quote, its source page, when we checked it, and the assumptions. If a vendor doesn't publish a number, the line says <strong>unknown</strong>; nothing is guessed. Referral links never change the order.</p>
+  <p>Tell it what your agent needs each month (pages to scrape, proxy traffic, emails, searches, GPU hours) and it picks the cheapest suitable plan per need, {stack.TRACKED} (vendors we don't track may cost less). Every line shows the vendor quote, its source page, when we checked it, and the assumptions. If a vendor doesn't publish a number, the line says <strong>No published price</strong>; nothing is guessed. Referral links never change the order.</p>
   <form id="opt" onsubmit="return false" aria-label="Monthly needs" hidden>
     <label class="wide">Describe your needs (optional) <input id="desc" type="text" placeholder="scrape 50k pages/mo + 10 GB residential proxies + send 10k emails + 100 H100-hours"></label>
     <p><button type="button" id="parse">Fill the form from this text</button> <small id="parsed" aria-live="polite"></small></p>
@@ -98,7 +98,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
 
   <h2 id="example">Example: 50,000 pages + 10 GB residential proxies + 10,000 emails + 100 H100 hours</h2>
   <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Cheapest tracked plan</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>{ex_rows}</tbody></table></div>
-  <p>Total of priced lines: <strong>${example["total_monthly_usd"]:,.2f}/month</strong>{"" if example["total_is_complete"] else " (some needs unknown)"}.{" Manual signup needed for: " + esc(", ".join(example["manual_signup_needs"])) + "." if example["manual_signup_needs"] else ""}</p>
+  <p>Total of priced lines: <strong>${example["total_monthly_usd"]:,.2f}/month</strong>{"" if example["total_is_complete"] else " (some needs have no published price)"}.{" Manual signup needed for: " + esc(", ".join(example["manual_signup_needs"])) + "." if example["manual_signup_needs"] else ""}</p>
 
   <h2>How it's calculated</h2>
   <ul>
@@ -160,12 +160,12 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
       const head=`<td>${{esc(l.need.label)}}<br><small>${{g(l.q)}} ${{esc(l.need.unit)}}</small></td>`;
       let more="";
       if(l.alts.length)more+=`<br><small>Next: ${{l.alts.map(a=>`${{esc(a.vendor)}} ${{esc(a.plan)}} ${{fmt(a.monthly_cost_usd)}}`).join("; ")}}</small>`;
-      if(l.unknown.length)more+=`<br><small>Price unknown: ${{l.unknown.map(u=>`<a href="${{esc(u.source_url)}}" rel="noopener">${{esc(u.vendor)}}</a> (${{esc(u.reason)}})`).join("; ")}}</small>`;
+      if(l.unknown.length)more+=`<br><small>No published price: ${{l.unknown.map(u=>`<a href="${{esc(u.source_url)}}" rel="noopener">${{esc(u.vendor)}}</a> (${{esc(u.reason)}})`).join("; ")}}</small>`;
       if(l.untracked.length)more+=`<br><small>Not priced yet: ${{l.untracked.length}} other tracked deal(s), e.g. ${{l.untracked.slice(0,5).map(esc).join(", ")}}</small>`;
-      if(!c){{unk.push(l.need.label);return `<tr>${{head}}<td><strong>unknown</strong></td><td colspan="3">No tracked provider publishes a price that covers this volume.${{more}}</td></tr>`}}
+      if(!c){{unk.push(l.need.label);return `<tr>${{head}}<td><strong>No published price</strong></td><td colspan="3">No tracked provider publishes a price that covers this volume.${{more}}</td></tr>`}}
       tot+=c.monthly_cost_usd;
       return `<tr>${{head}}<td><strong>${{fmt(c.monthly_cost_usd)}}</strong></td><td><a href="${{esc(c.redeem_url||c.deal_url)}}" rel="nofollow sponsored noopener" data-deal="${{esc(c.deal_id)}}">${{esc(c.vendor)}}</a> ${{esc(c.plan)}}${{c.manual_signup_only?" <strong>Manual signup only</strong>":""}}<br><small>${{esc(c.calc)}}</small>${{more}}</td><td>${{src(c)}}</td><td><small>${{esc(c.assumptions.join(" "))}}</small></td></tr>`}}).join("");
-    $("out").innerHTML=`<p><strong>Estimated ${{fmt(tot)}}/month</strong> for the priced lines${{unk.length?`; unknown: ${{esc(unk.join(", "))}}`:""}}. Cheapest among tracked providers per need.</p><div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Plan (calculation)</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>${{rows}}</tbody></table></div>`;
+    $("out").innerHTML=`<p><strong>Estimated ${{fmt(tot)}}/month</strong> for the priced lines${{unk.length?`; no published price for: ${{esc(unk.join(", "))}}`:""}}. Cheapest among tracked providers per need.</p><div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Plan (calculation)</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>${{rows}}</tbody></table></div>`;
   }}
   function read(){{const q={{}};for(const k of N)q[k]=Math.max(0,+$("n-"+k).value||0);return q}}
   function run(){{
@@ -196,6 +196,6 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     out = ROOT / PAGE_PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(gen.page_shell("Agent Stack Optimizer: cheapest scraping, proxy, email, search and GPU stack — Lantern Works",
-                                  "Describe your agent's monthly needs and get the cheapest suitable plan per need among tracked providers, with vendor quotes, source links, check dates and assumptions. Unknown prices stay unknown.",
+                                  "Describe your agent's monthly needs and get the cheapest suitable plan per need among tracked providers, with vendor quotes, source links, check dates and assumptions. Unpublished prices are never guessed.",
                                   f"{gen.BASE}/{PAGE_PATH}/", body), encoding="utf-8")
     return PAGE_PATH

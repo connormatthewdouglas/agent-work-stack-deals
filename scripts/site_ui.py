@@ -129,8 +129,8 @@ HOME_JS = r"""  <script>
   $("cmp-go").onclick=()=>{
     const rows=[["Deal",c=>`<a href="${esc(c.querySelector("h2 a").href)}">${esc(c.querySelector("h2 a").textContent)}</a>`],
       ["Vendor",c=>esc(c.dataset.advertiser)],["Category",c=>esc(c.dataset.category)],["Offer",c=>esc(c.dataset.offerLabel)],
-      ["Price",c=>c.dataset.price===""?"<em>unknown</em>":"$"+esc(c.dataset.price)+(c.dataset.unit?" / "+esc(c.dataset.unit):"")],
-      ["Free tier",c=>c.dataset.free==="1"?"Yes":"Not verified"],["Verified",c=>c.dataset.verifiedAt?esc(c.dataset.verifiedAt.slice(0,10)):"<em>unverified</em>"],
+      ["Price",c=>c.dataset.price===""?esc(c.dataset.priceLabel||"Pricing on vendor site"):"$"+esc(c.dataset.price)+(c.dataset.unit?" / "+esc(c.dataset.unit):"")],
+      ["Free tier",c=>c.dataset.free==="1"?"Yes":"Not listed"],["Verified",c=>c.dataset.verifiedAt?esc(c.dataset.verifiedAt.slice(0,10)):"<em>unverified</em>"],
       ["Link type",c=>c.dataset.affiliate==="true"?"affiliate (rel=sponsored)":"public"],["Details",c=>esc(c.querySelector(".instructions")?.textContent||"")]];
     $("cmp-table").innerHTML=`<table><thead><tr><td></td>${picked.map(c=>`<th scope="col">${esc(c.dataset.advertiser)}</th>`).join("")}</tr></thead><tbody>${rows.map(([h,f])=>`<tr><th scope="row">${h}</th>${picked.map(c=>`<td>${f(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     document.dispatchEvent(new CustomEvent("lw:event",{detail:"compare"}));

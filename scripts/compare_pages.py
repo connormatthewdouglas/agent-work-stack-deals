@@ -1,7 +1,7 @@
 """Keyword comparison pages (Phase 2 SEO). Built only from verified feed fields.
 
 Price cells come from the deal's public pricing_note / unit text, quoted from the
-vendor page we checked. If neither carries a price, the cell says "unknown".
+vendor page we checked. If neither carries a price, the cell gives the pricing model (never a guessed number).
 No numbers are invented here; prose below makes no vendor price claims of its own.
 """
 from __future__ import annotations
@@ -20,6 +20,14 @@ def price_text(d: dict) -> str | None:
         if t and re.search(r"\$\s?\d|¢|₹|\bfree\b", t, re.I):
             return t
     return None
+
+
+def price_coverage_note(known: int, total: int) -> str:
+    """Generated from the rows on the page, so it can't go stale."""
+    if known == total:
+        return f"Published prices from vendor pages are shown for all {total} providers below."
+    return (f"Published prices from vendor pages are shown for {known} of {total} providers below; for the other "
+            f"{total - known}, the cell gives the vendor's pricing model instead of a number (we don't guess prices).")
 
 
 def short(t: str, n: int = 260) -> str:
@@ -70,8 +78,8 @@ PAGES = [
         "slug": "cheapest-residential-proxies",
         "title": "Residential Proxies (2026): Cheapest Among Tracked Providers, Verified Prices & Deals",
         "h1": "Residential proxies compared: cheapest among tracked providers",
-        "desc": "Residential proxy providers compared on published per-GB / per-IP pricing and live discounts. Prices shown only where verified on the vendor page; otherwise marked unknown.",
-        "intro": "Residential proxies route requests through consumer IP addresses, which makes them harder to block than datacenter IPs and far more expensive. The table lists the providers in our feed, the price we actually saw on the vendor's own page, and any vendor-published discount. Where we could not confirm a price, the cell says <em>unknown</em> rather than guessing.",
+        "desc": "Residential proxy providers compared on published per-GB / per-IP pricing and live discounts. Prices shown only where verified on the vendor page; otherwise the pricing model is given.",
+        "intro": "Residential proxies route requests through consumer IP addresses, which makes them harder to block than datacenter IPs and far more expensive. The table lists the providers in our feed, the price we actually saw on the vendor's own page, and any vendor-published discount. Where a vendor doesn't publish a price, the cell says so rather than guessing.",
         "ids": ["deal-9proxy-001", "deal-proxyrack-001", "deal-brightdata-resi-001", "deal-oxylabs-001", "deal-dataimpulse-001", "deal-geonode-001", "deal-infatica-001", "deal-proxyempire-001", "deal-shifter-001", "deal-ipfoxy-001", "deal-lightningproxies-001"],
         "choose": [
             "Compare on the same unit. Some providers bill per GB of traffic, some per IP, some per thread with unmetered bandwidth. A low per-IP price is not comparable with a per-GB price until you estimate your traffic.",
@@ -82,7 +90,7 @@ PAGES = [
         ],
         "faq": [
             ("Which residential proxy is cheapest among tracked providers?", "Among the providers whose prices we could verify, the lowest published entry price in our feed is shown in the table. Many providers do not publish comparable prices, so the lowest-cost option for your workload depends on traffic volume and success rate; test before committing."),
-            ("Why are some prices marked unknown?", "We only show a price we read on the vendor's own pricing page. If we could not confirm it, we say unknown instead of copying a number from a third-party list."),
+            ("Why do some rows show a pricing model instead of a price?", "We only show a price we read on the vendor's own pricing page. If we could not confirm it, we describe the pricing model instead of copying a number from a third-party list."),
             ("Are residential proxies better than datacenter proxies?", "They are harder to block but usually cost much more. If your targets do not block datacenter IPs, datacenter proxies or a scraping API may be cheaper."),
             ("Do these links cost me more?", "No. Some links are affiliate links; that never changes the price you pay, and it does not change the order of this table."),
         ],
@@ -92,7 +100,7 @@ PAGES = [
         "slug": "best-rotating-proxies-for-web-scraping",
         "title": "Best Rotating Proxies for Web Scraping: Providers & Scraping APIs Compared",
         "h1": "Rotating proxies for web scraping compared",
-        "desc": "Rotating proxy pools and scraping APIs with built-in rotation, compared on verified pricing, free tiers and trade-offs. Unknown prices are marked unknown.",
+        "desc": "Rotating proxy pools and scraping APIs with built-in rotation, compared on verified pricing, free tiers and trade-offs.",
         "intro": "A rotating proxy hands each request (or each session) a different IP, so a scraper is not blocked for hitting a site from one address. You can buy a rotating pool and manage retries yourself, or use a scraping API that rotates IPs, retries and renders JavaScript for you. This page covers both, using only the prices we verified.",
         "ids": ["deal-proxyrack-001", "deal-9proxy-001", "deal-brightdata-resi-001", "deal-oxylabs-001", "deal-proxyscrape-001", "deal-dataimpulse-001", "deal-ipfoxy-001", "deal-zenrows-free-001", "deal-scrapingbee-free-001", "deal-scraperapi-001", "deal-brightdata-api-free-001"],
         "choose": [
@@ -113,7 +121,7 @@ PAGES = [
         "slug": "cheap-gpu-rental",
         "title": "GPU Rental & GPU Cloud Deals (2026): Cheapest Among Tracked Providers, Verified Prices",
         "h1": "GPU rental and cloud deals: cheapest among tracked providers",
-        "desc": "GPU clouds and dedicated GPU servers compared on verified hourly or monthly pricing, free credits and billing model. Unverified prices are shown as unknown.",
+        "desc": "GPU clouds and dedicated GPU servers compared on verified hourly or monthly pricing, free credits and billing model. No price is guessed.",
         "intro": "For inference, fine-tuning or agent workloads that need a GPU, renting beats buying unless the card is busy most of the day. Prices vary by GPU model, region and billing model (per-second serverless, hourly on-demand, or monthly dedicated). The table quotes the prices we read on each vendor's page.",
         "ids": ["deal-thundercompute-001", "deal-99stack-001", "deal-modal-free-001", "deal-gigagpu-001", "deal-runpod-001", "deal-vastai-001", "deal-novita-001"],
         "choose": [
@@ -125,7 +133,7 @@ PAGES = [
         "faq": [
             ("What is the cheapest GPU to rent among tracked providers?", "It depends on the card you need. The table lists each provider's verified per-hour or per-month prices; compare like-for-like GPU models."),
             ("Is serverless GPU cheaper than an hourly instance?", "For intermittent workloads usually yes, because you pay only while code runs. For a GPU busy most of the hour, an on-demand instance is typically cheaper."),
-            ("Why do some providers show unknown?", "Their prices change often or were not on the page we checked, so we do not publish a number we cannot verify."),
+            ("Why do some providers show no number?", "Their prices change often or were not on the page we checked, so we do not publish a number we cannot verify."),
         ],
         "hubs": ["gpu-compute", "compute"],
         "gpu": True,
@@ -136,8 +144,8 @@ PAGES = [
         "canonical_to": "gpu/cheapest-h100-rental",
         "title": "H100 Rental Price Comparison: Verified Per-Hour Prices",
         "h1": "H100 rental price comparison",
-        "desc": "NVIDIA H100 rental prices per hour from vendor pages we verified, plus GPU clouds where the H100 price is not yet verified (shown as unknown).",
-        "intro": "The H100 is the common choice for large-model inference and fine-tuning. Hourly rental prices differ by form factor (SXM vs PCIe), bundled vCPU/RAM and billing model. Only providers whose H100 price we read on their own page show a number; the rest are listed as unknown so you can check them yourself.",
+        "desc": "NVIDIA H100 rental prices per hour from vendor pages we verified, plus GPU clouds where the H100 price is not yet verified (pricing model shown, no number).",
+        "intro": "The H100 is the common choice for large-model inference and fine-tuning. Hourly rental prices differ by form factor (SXM vs PCIe), bundled vCPU/RAM and billing model. Only providers whose H100 price we read on their own page show a number; the rest show their pricing model so you can check them yourself.",
         "ids": ["deal-thundercompute-001", "deal-99stack-001", "deal-runpod-001", "deal-vastai-001", "deal-modal-free-001"],
         "focus": r"H100",
         "choose": [
@@ -148,7 +156,7 @@ PAGES = [
         ],
         "faq": [
             ("How much does it cost to rent an H100?", "The verified per-hour prices we found are in the table. Prices change frequently, so confirm on the vendor page before launching."),
-            ("Is a marketplace cheaper than a GPU cloud?", "Marketplaces can be cheaper but host reliability varies. Managed clouds charge more for consistency. We did not verify marketplace H100 prices, so they show unknown."),
+            ("Is a marketplace cheaper than a GPU cloud?", "Marketplaces can be cheaper but host reliability varies. Managed clouds charge more for consistency. Marketplace H100 prices are shown only where we verified them."),
         ],
         "hubs": ["gpu-compute", "compute"],
         "gpu": True,
@@ -176,7 +184,7 @@ PAGES = [
         "slug": "email-verification-api-comparison",
         "title": "Email Verification API Comparison: Pricing, Free Credits & Trade-offs",
         "h1": "Email verification APIs compared",
-        "desc": "Email verification and list-cleaning APIs compared on verified per-credit pricing, free credits and billing model. Unknown prices are marked unknown.",
+        "desc": "Email verification and list-cleaning APIs compared on verified per-credit pricing, free credits and billing model.",
         "intro": "Verification checks whether an address can receive mail before you send, which protects sender reputation and cuts bounces. Vendors sell pay-as-you-go credit packs or monthly plans. The table quotes the pricing we saw on each vendor's page.",
         "ids": ["deal-mailveri-001", "deal-sealch-001", "deal-mailfloss-001", "deal-emaillistverify-001", "deal-clearbounce-001", "deal-snovio-001", "deal-prospeo-001", "deal-leadmagic-001"],
         "choose": [
@@ -196,7 +204,7 @@ PAGES = [
         "slug": "cold-email-deliverability-warmup-tools",
         "title": "Cold Email Deliverability & Inbox Warmup Tools Compared (2026)",
         "h1": "Cold email deliverability and inbox warmup tools",
-        "desc": "Warmup, mailbox providers, placement testing and DMARC tools compared on verified pricing. Honest pros and cons; unknown prices marked unknown.",
+        "desc": "Warmup, mailbox providers, placement testing and DMARC tools compared on verified pricing. Honest pros and cons; no guessed prices.",
         "intro": "Deliverability depends on authenticated domains (SPF, DKIM, DMARC), mailbox reputation, sending volume and content people want. Tools here cover parts of that: buying sending mailboxes, warming them, testing inbox placement and monitoring DMARC. None of them fixes unwanted email.",
         "ids": ["deal-mailreach-001", "deal-folderly-001", "deal-inboxkit-001", "deal-zapmail-001", "deal-premiuminboxes-001", "deal-relay-mailboxes-001", "deal-dmarcly-001", "deal-heyo-001", "deal-reachinbox-001", "deal-salesforge-001"],
         "choose": [
@@ -236,7 +244,7 @@ PAGES = [
         "slug": "serp-api-comparison",
         "title": "SERP API Comparison: Search APIs for Agents, Free Tiers & Pricing",
         "h1": "SERP and search APIs compared",
-        "desc": "Google SERP scrapers and AI search APIs compared on verified free tiers and per-request pricing. Unknown prices are marked unknown.",
+        "desc": "Google SERP scrapers and AI search APIs compared on verified free tiers and per-request pricing.",
         "intro": "Agents need search results either as raw SERP data (titles, links, positions) or as AI-ready search with extracted content. SERP APIs suit rank tracking and SEO; AI search APIs suit retrieval for agents. Both are compared here using verified free-tier limits and prices.",
         "ids": ["deal-serpapi-free-001", "deal-tavily-free-001", "deal-exa-001", "deal-brightdata-api-free-001", "deal-apilayer-001", "deal-scrapingdog-001", "deal-serptool-001"],
         "choose": [
@@ -293,7 +301,7 @@ PAGES = [
         "slug": "web-scraping-api-deals",
         "title": "Web Scraping API Deals: Free Credits, Discounts & Pricing Compared",
         "h1": "Web scraping API deals",
-        "desc": "Scraping and crawling APIs for agents compared on verified free credits, discounts and pricing. Unknown prices are marked unknown.",
+        "desc": "Scraping and crawling APIs for agents compared on verified free credits, discounts and pricing.",
         "intro": "Scraping APIs fetch pages through rotating proxies, solve blocks and often render JavaScript or return LLM-ready markdown. Many offer recurring free credits, which is enough for light agent use. The table shows verified offers first.",
         "ids": ["deal-firecrawl-001", "deal-apify-startups-001", "deal-firecrawl-free-001", "deal-zenrows-free-001", "deal-scrapingbee-free-001", "deal-apify-free-001", "deal-brightdata-api-free-001", "deal-jina-reader-free-001", "deal-scraperapi-001", "deal-browseract-001", "deal-scrapedo-001", "deal-scrapingant-001", "deal-supadata-001"],
         "choose": [
@@ -354,8 +362,17 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
                 parts = [x.strip() for x in re.split(r"[;,]\s|\.\s", pt) if re.search(p["focus"], x)]
                 pt = "; ".join(parts) or None
             ptm[d["id"]] = pt
-            price = (esc(short(pt, 320)) + ("" if d.get("verified_at") else " <em>(not verified)</em>")) if pt else ("<em>unknown</em> (no H100 price verified)" if p.get("focus") else "<em>unknown</em>")
-            free = "Yes" if (d.get("offer_type") == "free_tier" or (pt and re.search(r"\bfree (plan|tier|credits?|trial|usage|basic|developer)\b|\$0(?![.\d])|free credit|credits? free", pt, re.I))) else "Not verified"
+            if not pt:
+                from core.gpu import build_rates
+                from core.price_label import price_label
+                rates = [r for r in build_rates(deals)["rates"] if not p.get("focus") or r["gpu"].startswith("H100")]
+                lab, kind = price_label(d, rates)
+                if kind == "gpu":
+                    ptm[d["id"]] = lab
+                price = esc(lab) if kind != "plans" else esc(lab)
+            else:
+                price = esc(short(pt, 320)) + ("" if d.get("verified_at") else " <em>(not verified)</em>")
+            free = "Yes" if (d.get("offer_type") == "free_tier" or (pt and re.search(r"\bfree (plan|tier|credits?|trial|usage|basic|developer)\b|\$0(?![.\d])|free credit|credits? free", pt, re.I))) else "Not listed"
             kind = "Vendor discount" if d["offer_type"] == "verified_discount" else "Listed discount (unverified)" if d["offer_type"] == "listed_discount" else ("Free tier" if d["offer_type"] == "free_tier" else ("Trial" if d["offer_type"] == "trial" else "Standard signup"))
             tr.append(
                 f'<tr><td><a href="{deal_link(base, g.slug_for, d)}">{esc(d["advertiser"])}</a></td>'
@@ -392,7 +409,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
   <h1>{esc(p['h1'])}</h1>
   {f'<p class="callout"><strong>Updated page:</strong> verified per-hour H100 prices, sorted by cost, are now at <a href="{canon}">{canon}</a>.</p>' if p.get("canonical_to") else ""}
   <p>{p['intro']}</p>
-  <p><small>Prices verified on vendor pages for {known} of {len(rows)} providers below; the rest are marked <em>unknown</em>. Always confirm at checkout. Order: vendor discounts, then free tiers, then standard signups, A–Z. Affiliate status does not affect order.</small></p>
+  <p><small>{price_coverage_note(known, len(rows))} Always confirm at checkout. Order: vendor discounts, then free tiers, then standard signups, A–Z. Affiliate status does not affect order.</small></p>
   <h2>Comparison table</h2>
   <div style="overflow-x:auto"><table>
   <thead><tr><th>Provider</th><th>Offer</th><th>Published pricing</th><th>Free option</th></tr></thead>
@@ -445,7 +462,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
     fl = "".join(f'<li><a href="{deal_link(base, g.slug_for, d)}">{esc(d["advertiser"])}</a>: {esc(short(d.get("unit") or "", 140))}</li>' for d in frees)
     hubs = " · ".join(f'<a href="{base}/categories/{h["slug"]}/">{esc(h["title"])}</a>' for h in g.HUBS)
     faq = [
-        ("How are deals verified?", "Each listing links to the vendor page it was checked against and carries a verified-on date. Prices are quoted only when seen on the vendor's own page; otherwise they are shown as unknown."),
+        ("How are deals verified?", "Each listing links to the vendor page it was checked against and carries a verified-on date. Prices are quoted only when seen on the vendor's own page; otherwise the listing gives the pricing model, never a guessed number."),
         ("How are deals ranked?", "Vendor-published discounts first, then verified free tiers, then standard signups, alphabetically by vendor. Whether a link is an affiliate link does not affect ranking."),
         ("Can agents read this data directly?", "Yes. The full feed is available as JSON, with a query script and MCP spec described on the homepage."),
     ]

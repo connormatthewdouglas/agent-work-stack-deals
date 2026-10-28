@@ -91,13 +91,13 @@
 <div id="content">
   <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › For agents</nav>
   <h1>For agents: query the Lantern Works deal feed</h1>
-  <p>The catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists 203 deals (schema <code>1.3.0</code>, feed updated <code>2026-10-27T13:55:00-04:00</code>).</p>
+  <p>The catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists 203 deals (schema <code>1.4.0</code>, feed updated <code>2026-10-27T13:55:00-04:00</code>).</p>
 
   <h2>Endpoints</h2>
   <table class="howto"><tbody>
     <tr><td>Stable versioned feed</td><td><a href="https://thelanternworks.com/api/v1/deals.json">https://thelanternworks.com/api/v1/deals.json</a></td></tr>
     <tr><td>Feed (same bytes)</td><td><a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a></td></tr>
-    <tr><td>JSON Schema</td><td><a href="https://thelanternworks.com/schema.json">https://thelanternworks.com/schema.json</a> (draft 2020-12, version <code>1.3.0</code>)</td></tr>
+    <tr><td>JSON Schema</td><td><a href="https://thelanternworks.com/schema.json">https://thelanternworks.com/schema.json</a> (draft 2020-12, version <code>1.4.0</code>)</td></tr>
     <tr><td>Install (MCP / skill)</td><td><a href="https://thelanternworks.com/install/">https://thelanternworks.com/install/</a> (Claude Code, Claude Desktop, Cursor, VS Code, generic)</td></tr>
     <tr><td>Agent manifest</td><td><a href="https://thelanternworks.com/agent.json">https://thelanternworks.com/agent.json</a></td></tr>
     <tr><td>Mirror</td><td><a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">gist raw deals.json</a> (byte-identical)</td></tr>
@@ -107,7 +107,7 @@
   <h2>Record shape</h2>
   <p>Each item in <code>deals[]</code> has: <code>id</code>, <code>title</code>, <code>category</code>, <code>tags</code>, <code>advertiser</code>, <code>offer_type</code>, <code>affiliate</code>, <code>price_usd</code>, <code>list_price_usd</code>, <code>currency</code>, <code>unit</code>, <code>billing_period</code>, <code>promo_code</code>, <code>redeem_url</code>, <code>expires_at</code>, <code>verified_at</code>, <code>updated_at</code>, <code>agent_instructions</code>, plus optional <code>docs_url</code>, <code>source_url</code>, <code>pricing_note</code>, <code>claim_note</code>. See the schema for types.</p>
   <ul>
-    <li><code>price_usd: null</code> means <strong>unknown</strong>, not free. <code>0</code> is used only for verified free tiers.</li>
+    <li><code>price_usd: null</code> means no single verified price (multi-plan, usage-based or not captured), not free; pages show the plan prices from <code>pricing_note</code>, a cited GPU rate, or the pricing model instead. <code>0</code> is used only for verified free tiers.</li>
     <li><code>verified_at: null</code> means no verification date is recorded. Dates are never back-filled.</li>
     <li><code>affiliate: true</code> marks referral links. It does not affect ranking.</li>
     <li>Categories in the feed now: <code>ai-agents</code>, <code>compute</code>, <code>data-api</code>, <code>email</code>, <code>email-apis</code>, <code>hosting</code>, <code>proxies</code>, <code>search</code>, <code>seo</code>, <code>unblock</code>.</li>
@@ -139,7 +139,7 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
 
   <h2>GPU prices</h2>
   <p><a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a> lists structured GPU rates (per hour or per month) taken from verified pricing notes, each with its <code>deal_id</code> and source quote. Deals without a verified price are under <code>unpriced</code>. The human version is the <a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU cost calculator</a>.</p>
-  <p><a href="https://thelanternworks.com/api/v1/stack-pricing.json">https://thelanternworks.com/api/v1/stack-pricing.json</a> has cited plan prices for scraping, residential proxies, transactional email and search APIs (each offer has <code>quote</code>, <code>source_url</code>, <code>checked_at</code>; unpublished numbers are <code>null</code> = unknown). The <a href="https://thelanternworks.com/tools/stack-optimizer/">Agent Stack Optimizer</a> picks the cheapest suitable plan per need among tracked providers.</p>
+  <p><a href="https://thelanternworks.com/api/v1/stack-pricing.json">https://thelanternworks.com/api/v1/stack-pricing.json</a> has cited plan prices for scraping, residential proxies, transactional email and search APIs (each offer has <code>quote</code>, <code>source_url</code>, <code>checked_at</code>; unpublished numbers are <code>null</code> = not published). The <a href="https://thelanternworks.com/tools/stack-optimizer/">Agent Stack Optimizer</a> picks the cheapest suitable plan per need among tracked providers.</p>
 
   <h2>Install the MCP server (local stdio)</h2>
   <p>Published on <a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a> as <code>lantern-works-deals-mcp</code> and in the MCP Registry as <code>io.github.connormatthewdouglas/lantern-works-deals</code>. With <a href="https://docs.astral.sh/uv/">uv</a> installed, run:</p>
