@@ -153,6 +153,11 @@
   <p>Command <code>uvx</code>, args <code>["lantern-works-deals-mcp"]</code>, transport stdio. pipx: <code>pipx run lantern-works-deals-mcp</code>. Docker: build the repo's <code>Dockerfile</code> and run <code>docker run -i --rm &lt;image&gt;</code>. Optional env: <code>LANTERN_DEALS_FILE</code>, <code>LANTERN_GPU_PRICES_FILE</code> (offline JSON).</p>
   <p>The server only fetches the two public JSON files below and sends <code>User-Agent: lantern-works-deals-mcp/&lt;version&gt;</code>, nothing that identifies you.</p>
 
+  <h2>Demo: cheapest H100 for 100 hours</h2>
+  <p>A ~30-second terminal recording with live data from 2026-10-28. It starts <code>uvx lantern-works-deals-mcp</code>, calls <code>compare_gpu_prices</code> for H100, then compares the 100-hour total of the cheapest tracked rate with the next one and with the most expensive one. Each rate shows its source and check time, and referral links are labeled. Prices change; tracked providers only.</p>
+  <p><img src="/docs/demo/cheapest-h100-100h.gif" alt="Terminal demo: compare_gpu_prices for H100, 100-hour totals for tracked providers" width="1094" height="605" loading="lazy" style="max-width:100%;height:auto"></p>
+  <p>Recording: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/demo/cheapest-h100-100h.cast">asciinema .cast</a> (play with <code>asciinema play</code>) · script: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/demo/demo.py">docs/demo/demo.py</a></p>
+
   <h2>Framework examples</h2>
   <ul>
     <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/langgraph-cheapest-h100">LangGraph / LangChain</a>: cheapest H100 via <code>langchain-mcp-adapters</code> (tool called directly, no LLM key needed)</li>
