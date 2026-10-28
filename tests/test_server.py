@@ -114,9 +114,10 @@ def test_cursor_plugin_manifest(srv):
     pdir = ROOT / "plugins" / "lantern-works-deals"
     cur = json.loads((pdir / ".cursor-plugin" / "plugin.json").read_text())
     assert cur["name"] == "lantern-works-deals" and cur["version"] == VERSION
-    # logo: raw GitHub URL of the repo-root logo.png (same file the site serves at /logo.png)
-    assert cur["logo"] == "https://raw.githubusercontent.com/connormatthewdouglas/agent-work-stack-deals/main/logo.png"
-    b = (ROOT / "logo.png").read_bytes()
+    # logo: relative path to a committed copy of the site logo (Cursor checklist prefers relative paths)
+    assert cur["logo"] == "logo.png"
+    b = (pdir / "logo.png").read_bytes()
+    assert b == (ROOT / "logo.png").read_bytes()
     assert struct.unpack(">II", b[16:24]) == (400, 400)
     tools = sorted(t.name for t in asyncio.run(srv.mcp.list_tools()))
     assert len(tools) == 5
