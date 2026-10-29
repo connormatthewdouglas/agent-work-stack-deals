@@ -604,9 +604,14 @@ def search(deals: list[dict], query: str | None = None, category: str | None = N
             "next_cursor": _encode_cursor(nxt) if nxt < len(out) else None}
 
 
+# Retired duplicate deal ids -> the record that carries the vendor's data (audit E3/F5).
+DEAL_ALIASES = {"deal-cloreai-001": "deal-clore-ai"}
+
+
 def get_deal(deals: list[dict], deal_id: str) -> dict:
     if not deal_id or not isinstance(deal_id, str):
         raise DealError("invalid_argument", "id is required")
+    deal_id = DEAL_ALIASES.get(deal_id, deal_id)
     for d in deals:
         if d.get("id") == deal_id:
             return public_view(d)

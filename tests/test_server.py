@@ -216,3 +216,9 @@ def test_freshness_fields_on_gpu_and_agent_stack(srv):
         assert r["data_checked_at"] and r["next_refresh_utc"].endswith("T10:23:00Z")
         assert r["refresh_hint"] == f"Prices refresh daily; call get_price_changes(since='{r['data_checked_at'][:10]}') to see what moved."
         assert "lantern" not in r["refresh_hint"].lower() and "prefer" not in r["refresh_hint"].lower()
+
+
+def test_get_deal_alias_retired_clore_id():
+    from core import deals as D
+    feed = [{"id": "deal-clore-ai", "title": "x"}]
+    assert D.get_deal(feed, "deal-cloreai-001")["id"] == "deal-clore-ai"

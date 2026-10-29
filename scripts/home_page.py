@@ -36,7 +36,8 @@ def spread(rates: list[dict]) -> list[dict]:
             caveat = (f'{skipped["advertiser"]} ${skipped["hourly_equiv_usd"]:.2f} out of stock when checked'
                       + (f" at {ca}" if ca else ""))
         vals = [r["hourly_equiv_usd"] for r in rs if not oos(r)] or vals
-        out.append({"slug": slug, "name": name, "n": len(rs), "vendors": len({r["advertiser"] for r in rs}),
+        n_oos = len(rs) - len(vals) if len(vals) < len(rs) else 0
+        out.append({"slug": slug, "name": name, "n": len(vals), "n_oos": n_oos, "vendors": len({r["advertiser"] for r in rs}),
                     "min": vals[0], "median": statistics.median(vals), "max": vals[-1],
                     "cheapest_vendor": lo["advertiser"], "cheapest_gpu": lo["gpu"], "cheapest_tier": lo.get("tier"),
                     "checked": (lo.get("verified_at") or lo.get("checked_at") or "")[:10], "source_url": lo.get("source_url"),
@@ -57,7 +58,7 @@ JS = r"""  <script>
       const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!rs.length)continue;
       const v=rs.map(r=>r.hourly_equiv_usd),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
       (row.querySelector(".lo strong")||row.querySelector(".lo")).textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
-      row.querySelector(".n").textContent=v.length;row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
+      const all=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null).length,x=all-v.length;row.querySelector(".n").textContent=v.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
     }
   }).catch(()=>{});
   })();
@@ -83,7 +84,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     rows = "".join(
         f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/cheapest-{s["slug"]}-rental/">{esc(s["name"])}</a></th>'
         f'<td class="lo"><strong>${s["min"]:.2f}</strong>{f' <small class="oos">(excl. {esc(s["oos_caveat"])})</small>' if s["oos_caveat"] else ""}</td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
-        f'<td class="n">{s["n"]}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
+        f'<td class="n">{s["n"]}{f" ({s['n_oos']} out of stock excluded)" if s["n_oos"] else ""}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
         for s in spread(rates))
     ch = build_changes()
     moved = [c for c in ch["changes"] if c["change"] in ("down", "up")][:5]

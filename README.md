@@ -68,7 +68,7 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 
 `data/gpu_throughput.json` (schema `lantern-works-gpu-throughput/1`) holds **published** throughput and peak-spec figures for H100 (SXM, PCIe 80GB, NVL), A100 (40/80GB, SXM vs PCIe), L40S and RTX 4090, from NVIDIA spec sheets and MLPerf Inference results (closed division, Offline). Each figure carries `gpu`, `variant`, `workload`, `metric`, `unit`, `value`, `conditions` (precision, sparsity, scenario, batch, `gpu_count`, `per_gpu`), `source_url`, `source_title`, `publication_date`, `retrieved_at` (UTC) and a verbatim `quote`.
 
-Rules: values are copied from the quote, never estimated or derived. Multi-GPU MLPerf results are whole-system numbers (`per_gpu: false`) and are not divided per GPU. Vendor TFLOPS are theoretical peaks, not job throughput. Missing combinations are listed in `gaps` with `gap: true` and a reason. `tests/test_gpu_throughput.py` enforces this. Nothing reads this file yet; `estimate_job_cost` still needs a user-supplied throughput.
+Rules: values are copied from the quote, never estimated or derived. Multi-GPU MLPerf results are whole-system numbers (`per_gpu: false`) and are not divided per GPU. Vendor TFLOPS are theoretical peaks, not job throughput. Missing combinations are listed in `gaps` with `gap: true` and a reason. `tests/test_gpu_throughput.py` enforces this. `estimate_job_cost` reads it (since 0.3.21): for inference workloads with no user throughput it uses a directly applicable cited figure and reports `throughput_basis="published_benchmark"` with the source; training and uncovered GPU/model pairs still need a user-supplied throughput.
 
 ## Report a wrong price
 
