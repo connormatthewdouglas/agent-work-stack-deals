@@ -1,4 +1,4 @@
-"""T20 Phase A: cost-per-job estimator (user-supplied duration or user-supplied throughput only).
+"""T20 Phase A/B: cost-per-job estimator (user-supplied duration/throughput; Phase B: published benchmark fallback via core.throughput).
 
 Pricing is NOT reimplemented: every candidate is priced by gpu.estimate() (the shared T35 whole-instance
 calculation: instances = ceil(max(gpus, min_gpus) / gpus_per_instance), all allocated GPUs billed).
@@ -13,6 +13,7 @@ import math
 from . import data_age
 from .gpu import estimate
 from .ids import rate_id
+from . import throughput as _tp
 
 MAX_TOP = 25
 LABEL = "compute subtotal only; excludes storage, egress, vCPU/RAM add-ons and tax"
@@ -60,17 +61,35 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
     assumptions = []
     if job_hours is not None and (work_units is not None or tput is not None):
         raise JobCostError("invalid_argument", "give job_hours OR (work_units + throughput_units_per_gpu_hour), not both")
+    basis, source = "user_supplied", None
     if job_hours is None:
         if work_units is None or tput is None:
+            fig, why = (None, None)
+            if tput is None and workload:
+                fig, why = _tp.lookup(gpu_l, workload)
             miss = f"throughput for {gpu_l}" + (f" running {workload}" if workload else "")
-            raise JobCostError("not_found", f"missing: {miss}. No cited throughput is tracked (no benchmark library yet), "
-                                            "so no duration is estimated. Pass job_hours, or work_units plus "
-                                            "throughput_units_per_gpu_hour from your own benchmark.")
-        job_hours = work_units / (tput * gpus_per_job)
-        assumptions.append(f"{work_units:g} work units at {tput:g} units/GPU-hour (your benchmark) on {gpus_per_job} GPUs "
-                           f"= {job_hours:.4g} h (your input; linear scaling across GPUs assumed)")
-    assumptions.insert(0, f"Assumes {job_hours:.4g} h on {gpus_per_job} GPUs (your input)")
-    if workload:
+            if fig is None:
+                raise JobCostError("not_found", f"missing: {miss}. No directly applicable cited throughput"
+                                                + (f" ({why})" if why else "") + ", so no duration is estimated. Pass "
+                                                "job_hours, or work_units plus throughput_units_per_gpu_hour from your own benchmark.")
+            if work_units is None:
+                raise JobCostError("not_found", f"missing: work_units ({fig['unit']}) for {workload}. A published "
+                                                f"throughput exists ({fig['throughput_source']['url']}); pass work_units "
+                                                f"in {fig['unit']} to estimate a duration.")
+            tput, basis, source = fig["value_per_gpu_hour"], "published_benchmark", fig["throughput_source"]
+            job_hours = work_units / (tput * gpus_per_job)
+            assumptions.append(f"{work_units:g} {fig['unit']} at {tput:.6g} {fig['unit']}/GPU-hour (published benchmark: "
+                               f"{source['benchmark']}"
+                               + ("; derived per-GPU from " + str(source['reported_gpu_count']) + "-GPU result, assumes linear scaling"
+                                  if source["derived"] else "") + f") on {gpus_per_job} GPUs = {job_hours:.4g} h "
+                               "(linear scaling across GPUs assumed)")
+        else:
+            job_hours = work_units / (tput * gpus_per_job)
+            assumptions.append(f"{work_units:g} work units at {tput:g} units/GPU-hour (your benchmark) on {gpus_per_job} GPUs "
+                               f"= {job_hours:.4g} h (your input; linear scaling across GPUs assumed)")
+    assumptions.insert(0, f"Assumes {job_hours:.4g} h on {gpus_per_job} GPUs"
+                          + (" (from published benchmark)" if source else " (your input)"))
+    if workload and not source:
         assumptions.append(f"workload '{workload}' is a label only; no throughput is inferred from it")
 
     import re
@@ -111,6 +130,7 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
             "results": out_rows, "label": LABEL,
             "summary": (f"Cheapest among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
                         f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}."),
-            "assumptions": assumptions, "citations": [],
+            "assumptions": assumptions, "citations": [source["url"]] if source else [],
+            "throughput_basis": basis, "throughput_source": source,
             "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
             "budget_verdict": "unresolved", "excluded_too_old": too_old}
