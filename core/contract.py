@@ -47,6 +47,13 @@ SPEC = {
                       ["id"],
                       ["order", "deals"],
                       ["id", "advertiser", "offer_type", "price_usd", "redeem_url"]),
+    "estimate_job_cost": (["gpu_family", "requested_gpus", "job_hours", "count", "results", "assumptions", "citations",
+                           "missing_costs", "budget_verdict", "quote_id", "issued_at"], "results",
+                          ["rank", "rate_id", "vendor", "allocated_gpus", "instances", "compute_subtotal_usd", "source_url"],
+                          ["summary", "job_hours", "count", "results", "assumptions", "missing_costs", "budget_verdict",
+                           "quote_id", "issued_at"],
+                          ["rank", "rate_id", "vendor", "gpu", "allocated_gpus", "instances", "compute_subtotal_usd",
+                           "source_url", "verified_at", "stale"]),
     "get_deal": (["id"], None, [],
                  ["id", "title", "advertiser", "offer_type", "price_usd", "unit", "redeem_url", "verified_at", "affiliate"], []),
 }
@@ -70,6 +77,10 @@ EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"rate_id": _RATE_ID}}}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
+EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
+    "type": "object", "required": SPEC["estimate_job_cost"][2],
+    "properties": {"rate_id": _RATE_ID, "data_age_hours": _num, "degraded": _bool, "stale": _bool}}},
+    "budget_verdict": {"type": "string", "enum": ["unresolved", "within", "over"]}}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at")
 
 
