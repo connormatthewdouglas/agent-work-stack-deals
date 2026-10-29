@@ -151,12 +151,14 @@ def _(f, ev):
     out = tool(SRV.compare_gpu_prices, "H100", limit=25)
     res = out.get("results") or []
     rows = [r for r in RATES if "h100" in toks(r["gpu"]) and D.tier_class(r) != "reserved"]
-    exp = min(r["hourly_equiv_usd"] for r in rows)
+    # E5: rows the feed marks out of stock are ranked after in-stock/unknown rows, so they are never "cheapest"
+    oos = lambda r: (r.get("availability") or {}).get("in_stock") is False
+    exp = min((r["hourly_equiv_usd"] for r in rows if not oos(r)), default=min(r["hourly_equiv_usd"] for r in rows))
     ev.update(tool_cheapest=res[0] and {k: res[0][k] for k in ("advertiser", "gpu", "tier", "hourly_usd", "tier_class")}, feed_min=exp,
               feed_rows=len(rows), tool_count=out.get("count"))
     if abs(res[0]["hourly_usd"] - exp) > 1e-9: f.append(f"cheapest {res[0]['hourly_usd']} != feed min {exp}")
-    hs = [x["hourly_usd"] for x in res]
-    if hs != sorted(hs): f.append(f"not sorted ascending: {hs}")
+    hs = [(x.get("in_stock") is False, x["hourly_usd"]) for x in res]
+    if hs != sorted(hs): f.append(f"not sorted ascending (out-of-stock last): {hs}")
     if out.get("total") != len(rows) and len(rows) <= 25 and out.get("count") != len(rows): f.append(f"count {out.get('count')} != feed rows {len(rows)}")
     if out.get("scope") != "cheapest among tracked providers": f.append(f"scope={out.get('scope')!r}")
     if "among tracked providers" not in (out.get("summary") or ""): f.append("summary lacks 'among tracked providers'")

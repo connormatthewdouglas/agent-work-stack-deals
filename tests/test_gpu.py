@@ -174,7 +174,7 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
     uc = next(r for r in res if r["advertiser"] == "Ucartz")
     a100 = _rec("Ucartz", "A100")
     assert uc["hourly_usd"] == a100["hourly_usd"] and uc["gpu_count"] == 2 and uc["server_hourly_usd"] == a100["server_hourly_usd"]
-    assert [r["hourly_usd"] for r in res] == sorted(r["hourly_usd"] for r in res)
+    assert [(r["in_stock"] is False, r["hourly_usd"]) for r in res] == sorted((r["in_stock"] is False, r["hourly_usd"]) for r in res)  # E5: out-of-stock last
     opts = _gpu_options(data, 730, "A100", set())
     o = next(x for x in opts if x["vendor"] == "Ucartz")
     # T35: whole servers only. The optimizer bills the full 2x A100 server for 1 GPU.
