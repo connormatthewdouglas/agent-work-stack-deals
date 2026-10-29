@@ -214,3 +214,14 @@ def test_marketplace_filter_units_and_variants():
               {"dph_total": 0.2, "num_gpus": 1, "gpu_ram": 24 * gb, "verification": "unverified"},  # excluded
               {"dph_total": 0.3, "num_gpus": 1, "gpu_ram": 24 * gb, "rented": True}]          # excluded
     assert R.market_stats(json.dumps({"offers": offers}), 24) == [0.5, 0.6, 0.6]
+
+
+def test_shared_quote_line_keeps_sibling_price_current():
+    """Verda puts on-demand and spot on one line; the spot record's quote must not keep an old on-demand price."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import refresh_gpu_prices as rf
+    out = rf._current_quote("1x L40S 48GB $1.863/h $0.9410/h", "1x L40S 48GB $1.882/h $0.9410/h", 0.941, "0.9410")
+    assert out == "1x L40S 48GB $1.882/h $0.9410/h"
+    assert rf._current_quote("A100 $1.79/hr", "NVIDIA A100 SXM 40 GB $1.89", 1.79, "1.89") == "A100 $1.89/hr"

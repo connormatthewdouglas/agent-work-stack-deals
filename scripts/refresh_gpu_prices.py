@@ -131,6 +131,22 @@ def quote_pattern(quote: str) -> tuple[re.Pattern, list[str]]:
     return re.compile(rx), prices
 
 
+def _shape(q: str) -> str:
+    return " ".join(PRICE_RE.sub("$", q or "").split())
+
+
+def _current_quote(display: str, matched: str | None, old, new_s: str) -> str:
+    """Display quote after a check: when it is the same line as the page match (same words, prices aside), use the
+    page text so every price on it is current; otherwise swap just this record's price."""
+    if matched and r_shape_eq(display, matched):
+        return matched
+    return display if float(new_s) == old else _swap_quote_price(display, old, new_s)
+
+
+def r_shape_eq(a: str, b: str) -> bool:
+    return _shape(a) == _shape(b)
+
+
 def _num(s: str) -> float:
     return float(s.replace(",", ""))
 
@@ -288,10 +304,10 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     if abs(new - old) > 1e-9:
                         # use the text matched on the page: a quote holding several prices (e.g. on-demand + spot on one line)
                         # must not keep a sibling's old price (that broke the live source check on 2026-10-29)
-                        r["quote"] = quote if quote else _swap_quote_price(r["quote"], old, new_s)
+                        r["quote"] = _current_quote(r["quote"], quote, old, new_s)
                         _set_price(r, new)
-                    if quote and abs(new - old) <= 1e-9:
-                        r["quote"] = quote  # keep sibling prices in a shared quote line current too
+                    if abs(new - old) <= 1e-9:
+                        r["quote"] = _current_quote(r["quote"], quote, old, new_s)  # sibling prices on the line may move
                     r["evidence"] = {"source_url": r["source_url"], "quote": quote, "checked_at": stamp}
                     r["verified_at"] = r["checked_at"] = stamp
                     if r.get("stale", {}).get("auto"):
