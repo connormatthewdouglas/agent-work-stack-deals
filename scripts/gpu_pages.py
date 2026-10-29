@@ -135,7 +135,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     faqs.append((f"What does a full month of {name} cost?",
                  f"Running one GPU all month ({HOURS_PER_MONTH} h), the lowest verified option among tracked providers is {f0['advertiser']} {f0['gpu']} "
                  f"({f0['tier']}) at about {_money(full[_key(f0)])}."))
-    if any(r["tier"] == "Community Cloud" for r in rows):
+    if any(r["tier"] == "On-demand (Community Cloud)" for r in rows):
         faqs.append(("What is the difference between RunPod Community Cloud and Secure Cloud?",
                      "Both are per-hour pods. Community Cloud runs on vetted third-party hosts and costs less; Secure Cloud runs in "
                      "RunPod's partner data centers. Pick Secure Cloud for sensitive data or stricter uptime needs."))
@@ -340,7 +340,7 @@ def write_h100_vs(gen, rates):
                        [[_vendor_cell(gen, r), f"{gen.esc(r['gpu'])} ({gen.esc(r['tier'])}) {gen.esc(_rate_str(r))}", gen.esc(_VENDOR_FACTS[v])]
                         for v, r in best.items()])
     c = rows[0]
-    secure = [r for r in rows if r["tier"] != "Community Cloud"]
+    secure = [r for r in rows if r["tier"] != "On-demand (Community Cloud)"]
     faqs = [("Which of RunPod, Thunder Compute and Modal is cheapest among tracked providers for an H100?",
              f"As of {day}, the lowest listed H100 rate of the three was {c['advertiser']} {c['gpu']} ({c['tier']}) at {_rate_str(c)}, "
              f"or {_money(c['monthly_cost_usd'])} for {DEFAULT_HOURS} GPU hours."),
@@ -382,8 +382,8 @@ def write_per_vram(gen, rates):
 def write_runpod_tiers(gen, rates):
     day, rs = _today_rates(rates)
     rp = [r for r in rs if r["advertiser"] == "RunPod"]
-    sec = {r["gpu"]: r for r in rp if r["tier"] == "Secure Cloud"}
-    pairs = sorted(((sec[r["gpu"]], r) for r in rp if r["tier"] == "Community Cloud" and r["gpu"] in sec),
+    sec = {r["gpu"]: r for r in rp if r["tier"] == "On-demand (Secure Cloud)"}
+    pairs = sorted(((sec[r["gpu"]], r) for r in rp if r["tier"] == "On-demand (Community Cloud)" and r["gpu"] in sec),
                    key=lambda p: -(1 - p[1]["price_usd"] / p[0]["price_usd"]))
     t = _simple_table(["GPU", "Secure Cloud", "Community Cloud", "Saving", f"Saving over {HOURS_PER_MONTH} h"],
                       [[f"{gen.esc(s['gpu'])} {s['vram_gb']} GB", gen.esc(_rate_str(s)), gen.esc(_rate_str(c)),

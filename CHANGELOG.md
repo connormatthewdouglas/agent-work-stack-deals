@@ -2,6 +2,15 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-29: MCP server 0.3.10 (data-QA audit)
+
+- `compare_gpu_prices` no longer treats different memory sizes as one product: when results mix sizes (A100 40GB and 80GB) the summary names the cheapest per size, and a size in the query (`A100 80GB`) filters to it.
+- New `reserved` tier class for reservation and commitment prices. These are never counted as on-demand.
+- Tier labels are clearer: RunPod "On-demand (Secure Cloud)" and "On-demand (Community Cloud)", consistent "On-demand" casing, and Modal "Serverless, preemptible (per second)", quoting Modal's own preemption text. Validation now fails if `interruptible` doesn't match the tier label. Price history follows the renamed labels.
+- Ucartz A100: `min_gpus` is now 2, because it is sold only as a 2-GPU server.
+- `tier_class` is now in the public JSON feed (api/v1/gpu-prices.json).
+- New vendor Hyperstack (on-demand, spot and reservation per GPU-hour). Novita AI RTX 4090 is listed on-demand only ($0.67/hr).
+
 ## 2026-10-29: MCP server 0.3.9 (audit fixes)
 
 - GPU comparison table: the "Full month" column now equals each row's own rate × 730 h (flat monthly plans as listed). Rows from vendors without a deal id were showing another row's monthly total.

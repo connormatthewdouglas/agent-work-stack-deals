@@ -6,6 +6,7 @@ payout data are never ranking inputs, and only an allow-list of public fields is
 """
 from __future__ import annotations
 
+import re
 import base64
 import json
 import os
@@ -15,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.9"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.10"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -202,11 +203,12 @@ class StackPricingLoader(FeedLoader):
                                                        "LANTERN_STACK_PRICING_FILE", "offers", "stack pricing")
 
 
-TIER_CLASSES = ("on-demand", "community", "marketplace", "interruptible", "dedicated-monthly")
+TIER_CLASSES = ("on-demand", "community", "marketplace", "interruptible", "reserved", "dedicated-monthly")
 TIER_NOTES = {"on-demand": "on-demand from the vendor's own cloud",
               "community": "community-hosted capacity (e.g. RunPod Community Cloud): third-party hosts, not the vendor's own data centres",
               "marketplace": "variable marketplace price set by individual hosts (median shown)",
               "interruptible": "spot/preemptible: the vendor may stop the job",
+              "reserved": "reservation / commitment price ('starting from'); never counted as on-demand",
               "dedicated-monthly": "flat monthly dedicated server"}
 
 
@@ -219,6 +221,8 @@ def tier_class(r: dict) -> str:
         return "marketplace"
     if "community" in tier:
         return "community"
+    if "reserv" in tier or "commit" in tier:
+        return "reserved"
     if r.get("unit") == "month" or r.get("billing_unit") == "monthly":
         return "dedicated-monthly"
     return "on-demand"
@@ -272,14 +276,17 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                        on_demand_only: bool = False) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
-    q = _tokens(gpu)
+    vram_m = re.search(r"\b(\d{2,3})\s*gb\b", gpu or "", re.I)
+    want_vram = int(vram_m.group(1)) if vram_m else None
+    q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu or "", flags=re.I))
     if not q:
-        raise DealError("invalid_argument", "gpu is required, e.g. 'H100', 'A100 SXM', 'RTX 4090'")
+        raise DealError("invalid_argument", "gpu is required, e.g. 'H100', 'A100 SXM', 'A100 80GB', 'RTX 4090'")
     if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIMIT:
         raise DealError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
     rows = [r for r in data.get("rates") or []
             if isinstance(r, dict) and isinstance(r.get("hourly_equiv_usd"), (int, float))
-            and set(q) <= set(_tokens(r.get("gpu", "")))]
+            and set(q) <= set(_tokens(r.get("gpu", "")))
+            and (want_vram is None or r.get("vram_gb") == want_vram)]
     if not rows:
         raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
     excluded = 0
@@ -291,6 +298,15 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         rows = keep
     rows.sort(key=lambda r: (r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
     od = next((r for r in rows if tier_class(r) == "on-demand"), None)
+    # Different memory sizes are different products (an A100 40GB is not an A100 80GB): name the cheapest per size.
+    by_vram = {}
+    for r in rows:
+        by_vram.setdefault(r.get("vram_gb"), r)
+    vram_note = ""
+    if len(by_vram) > 1:
+        vram_note = (" Memory sizes differ, compare like with like: " + "; ".join(
+            f"{v} GB from ${r['hourly_equiv_usd']:g}/hr ({r['advertiser']})" for v, r in sorted(by_vram.items(), key=lambda x: (x[0] is None, x[0] or 0)))
+            + f". Add the size (e.g. '{q[0].upper()} {max(v for v in by_vram if v)}GB') to filter.")
     results = []
     for i, r in enumerate(rows[:limit], 1):
         out = {k: r.get(k) for k in RATE_FIELDS}
@@ -313,7 +329,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     + ("" if results[0]["tier_class"] == "on-demand" or od is None else
                        f" Cheapest on-demand: {od['advertiser']} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
                     + ". This is the cheapest among tracked providers only, not the whole market. "
-                    "Vendors with stale published prices are held out.").replace("). .", ").").replace(".. ", ". "),
+                    "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
         "tier_classes": TIER_NOTES,
         "scope": "cheapest among tracked providers",

@@ -18,7 +18,15 @@ HISTORY_SCHEMA = "lantern-works-gpu-price-history/1"
 SNAPSHOT_DIR = Path(__file__).resolve().parents[1] / "data" / "gpu_pricing" / "snapshots"
 
 
+# Tier labels renamed on 2026-10-29 (audit): old snapshots map onto the new label so price series continue.
+TIER_ALIASES = {"Secure Cloud": "On-demand (Secure Cloud)", "Community Cloud": "On-demand (Community Cloud)",
+                "on-demand": "On-demand", "Serverless (per second)": "Serverless, preemptible (per second)",
+                "dedicated server": "Dedicated server (monthly)",
+                "Lowest (Batch) priority": "Lowest (Batch) priority, interruptible"}
+
+
 def series_key(vendor: str, gpu: str, tier: str, vram_gb, gpu_count=1) -> str:
+    tier = TIER_ALIASES.get(tier, tier)
     return f"{vendor}|{gpu}|{tier}|{vram_gb}|{gpu_count or 1}"
 
 
@@ -56,7 +64,13 @@ def write_snapshot(docs: list[dict], day: str, directory: Path | None = None) ->
 
 def load_snapshots(directory: Path | None = None) -> list[dict]:
     d = Path(directory or SNAPSHOT_DIR)
-    return [json.loads(p.read_text(encoding="utf-8")) for p in sorted(d.glob("????-??-??.json"))]
+    snaps = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(d.glob("????-??-??.json"))]
+    for snap in snaps:  # snapshot files are never rewritten; renamed tier labels are mapped on read
+        for row in snap.get("rows", []):
+            if row.get("tier") in TIER_ALIASES:
+                row["tier"] = TIER_ALIASES[row["tier"]]
+                row["key"] = series_key(row["vendor"], row["gpu"], row["tier"], row.get("vram_gb"), row.get("gpu_count", 1))
+    return snaps
 
 
 def build_history(snapshots: list[dict]) -> dict:

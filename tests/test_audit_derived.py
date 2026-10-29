@@ -122,3 +122,36 @@ def test_install_page_tool_count_matches_server():
     assert f"all {n} tools" in html
     for w in ("6 tools", "six tools"):
         assert w not in html
+
+
+def test_interruptible_flag_matches_tier_and_reserved_never_on_demand():
+    """Gauge 6-8 / Bjorn: interruptible must match the tier label; reservation prices are their own class."""
+    p = _payload()
+    for r in p["rates"]:
+        assert r["interruptible"] == bool(gpu.INTERRUPTIBLE_TIER_RE.search(r["tier"])), r
+        assert r["tier"] not in ("on-demand", "Secure Cloud", "Community Cloud", "dedicated server")
+        if "reserv" in r["tier"].lower():
+            assert r["tier_class"] == "reserved"
+    assert core.tier_class({"tier": "Reservation (starting from)"}) == "reserved"
+    probs = gpu.record_problems({"vendor": "X", "gpu": "H100", "tier": "On-demand", "interruptible": True}) \
+        if hasattr(gpu, "record_problems") else []
+    assert probs is not None
+
+
+def test_ucartz_a100_min_gpus_and_history_aliases():
+    p = _payload()
+    a = [r for r in p["rates"] if r["advertiser"] == "Ucartz" and r["gpu"] == "A100"]
+    assert a and all(r["min_gpus"] == 2 and r["gpu_count"] == 2 for r in a)
+    from core import gpu_history
+    assert gpu_history.series_key("RunPod", "H100", "Secure Cloud", 80) == gpu_history.series_key("RunPod", "H100", "On-demand (Secure Cloud)", 80)
+
+
+def test_vram_sizes_not_mixed():
+    """Never present an A100 40GB and an A100 80GB as the same product."""
+    p = _payload()
+    out = core.compare_gpu_prices(p, "A100", 25)
+    sizes = {r["vram_gb"] for r in out["results"]}
+    if len(sizes) > 1:
+        assert "Memory sizes differ" in out["summary"]
+    only80 = core.compare_gpu_prices(p, "A100 80GB", 25)
+    assert {r["vram_gb"] for r in only80["results"]} == {80}

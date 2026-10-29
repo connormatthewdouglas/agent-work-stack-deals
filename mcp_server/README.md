@@ -1,8 +1,8 @@
-# Lantern Works GPU prices — MCP server (v0.3.9, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.3.10, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
-Free, read-only, no API key. **GPU price comparison for agents, checked daily:** `compare_gpu_prices` returns hourly rental prices for H100, A100, RTX 4090 and more across tracked providers, cheapest first, each with the vendor's source page and check date; `include_history=true` adds daily price history and recent changes. Also prices the cheapest stack for your monthly usage (`optimize_stack`) and, last, searches and compares AI-infra deals and free tiers, ranked by customer value (never by affiliate status). Some result links are referral links.
+Free, read-only, no API key. **GPU price comparison for agents, checked daily:** `compare_gpu_prices` returns hourly rental prices for H100, A100, RTX 4090 and more across tracked providers, cheapest first, each with the vendor's source page and check date; `include_history=true` adds daily price history (since 2026-10-27) and recent changes. Also prices the cheapest stack for your monthly usage (`optimize_stack`) and, last, searches and compares AI-infra deals and free tiers, ranked by customer value (never by affiliate status). Some result links are referral links.
 
 ## Quick start
 
