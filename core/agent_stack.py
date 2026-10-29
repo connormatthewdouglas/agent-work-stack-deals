@@ -42,7 +42,9 @@ QTY_PATTERNS = {
     "emails_sent": _NUM + r"(?:\s+[a-z-]+){0,2}?\s*e-?mails?\b",
 }
 JS_RE = r"\bjs\b|javascript|headless|render\w*|dynamic\s+(?:pages|sites)|single[- ]page\s+app|\bspa\b"
-BUDGET_RE = r"(?:budget|under|max(?:imum)?|up\s+to|less\s+than)\s*(?:of\s*)?\$\s?" + _NUM + r"|\$\s?" + _NUM + r"\s*(?:/|per|a)\s*mo"
+BUDGET_RE = (r"(?:budget|under|max(?:imum)?|up\s+to|less\s+than|spend(?:ing)?|cap)\s*(?:of\s*|is\s*|:\s*)?(?:about\s*)?\$\s?"
+             + _NUM)  # a bare "$N/mo" is a price someone pays (e.g. a free plan at $0/mo), not a budget
+NEGATION_RE = re.compile(r"\b(?:no|without|not|never|don'?t\s+need|doesn'?t\s+need|zero)\s+(?:\w+\s+){0,2}$")
 MODEL_SIZE_RE = r"\b(\d+(?:\.\d+)?)\s?b\b(?:\s*(?:param\w*|model|llm))?"
 
 
@@ -54,11 +56,14 @@ def _n(num: str, suf: str | None) -> float:
 def parse(description: str) -> dict:
     """Deterministic keyword/regex parse. Returns components, quantities, model size, budget and what matched."""
     text = (description or "")[:MAX_DESC].lower()
-    comps, matched = [], {}
+    comps, matched, excluded = [], {}, []
     for c, (_, _, rx, _) in COMPONENTS.items():
-        m = re.search(rx, text)
+        # Skip mentions that are negated ("no GPUs", "without proxies"); count the first non-negated one.
+        m = next((x for x in re.finditer(rx, text) if not NEGATION_RE.search(text[max(0, x.start() - 40):x.start()])), None)
         if m:
             comps.append(c); matched[c] = m.group(0).strip()
+        elif re.search(rx, text):
+            excluded.append(c)
     qty = {}
     for need, rx in QTY_PATTERNS.items():
         m = re.search(rx, text)
@@ -83,13 +88,13 @@ def parse(description: str) -> dict:
     mb = re.search(BUDGET_RE, text)
     if mb:
         g = mb.groups()
-        budget = _n(g[0], g[1]) if g[0] else _n(g[2], g[3])
+        budget = _n(g[0], g[1]) or None  # a $0 "budget" is not a budget
     for need, c in (("gpu_hours", "gpu"), ("scrape_pages", "scraping"), ("proxy_gb", "proxy"),
                     ("search_queries", "search"), ("emails_sent", "email")):
-        if need in qty and c not in comps:
+        if need in qty and c not in comps and c not in excluded:
             comps.append(c); matched.setdefault(c, f"quantity: {qty[need]:g}")
     return {"components": comps, "quantities": qty, "model_size_b": size, "gpu_model": gm, "js_rendering": js,
-            "monthly_budget_usd": budget, "matched": matched}
+            "monthly_budget_usd": budget, "matched": matched, "excluded": excluded}
 
 
 def _disclose(o: dict) -> dict:
@@ -152,7 +157,7 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             if val and comp not in comps:
                 comps.append(comp)
     size = model_size_b if model_size_b is not None else p["model_size_b"]
-    if (gpu_model or size) and "gpu" not in comps:
+    if (gpu_model or size) and "gpu" not in comps and not ("gpu" in p["excluded"] and gpu_model is None and model_size_b is None):
         comps.append("gpu")
     if llm_api and "llm_api" not in comps:
         comps.append("llm_api")
@@ -197,6 +202,8 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                                    "quantized models need less, full fine-tuning needs several times more.")
             hours = q.get("gpu_hours")
             opts = stack._gpu_options(gdata, hours or 1, gpu_model, manual)
+            if exclude_manual_signup:
+                opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
             opts.sort(key=lambda x: (x["monthly_cost_usd"], x["vendor"] or ""))
             if not opts:
                 why = f" with >= {line.get('vram_needed_gb')} GB VRAM on one GPU" if size else ""
@@ -243,7 +250,7 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
     complete = len(known) == len(lines)
     out = {
         "parsed": {"components": comps, "quantities": {k: v for k, v in q.items() if v is not None}, "model_size_b": size,
-                   "gpu_model": gpu_model, "js_rendering": js, "monthly_budget_usd": budget, "matched": p["matched"],
+                   "gpu_model": gpu_model, "js_rendering": js, "monthly_budget_usd": budget, "matched": p["matched"], "excluded": p["excluded"],
                    "method": "deterministic keyword/regex parse; no LLM"},
         "lines": lines,
         "monthly_estimate_usd": total, "estimate_math": math_line, "estimate_is_complete": complete,
