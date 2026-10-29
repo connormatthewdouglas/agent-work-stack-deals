@@ -6,6 +6,7 @@ Replace the math with T35 quote() when it ships; do not grow a second pricing en
 from __future__ import annotations
 
 import html
+import re
 from html import escape as esc_
 import json
 import statistics
@@ -17,7 +18,7 @@ GPUS = {"h100": "H100", "a100": "A100", "l40s": "L40S", "rtx-4090": "RTX 4090"}
 HOURS = (10, 100, 730)
 ET = ZoneInfo("America/New_York")
 LABEL = ("Compute subtotal only, excludes storage, egress, vCPU, tax. Among tracked providers. "
-         "Not an availability claim. Assumes {h} h on 1 GPU.")
+         "Not an availability claim, except rows marked out of stock when checked. Assumes {h} h on 1 GPU.")
 
 
 def eligible(feed: dict, family: str) -> dict[tuple, list[dict]]:
@@ -73,6 +74,14 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
              f"<p>Compute cost of {hours} GPU-hours on one {esc(fam)}, from each vendor's published on-demand rate, "
              f"among tracked providers. {esc(LABEL.format(h=hours))}</p>"]
     faq = []
+    live_all = [((gpu, vram), r) for (gpu, vram), rows in allg.items() for r in rows if not oos(r)]
+    if slug != "rtx-4090" and live_all:
+        best = min(r["hourly_equiv_usd"] for _, r in live_all)
+        names = sorted({f"{r['advertiser']} {gpu} {vram}GB" + ("" if fam == "L40S" or re.search(r"SXM|PCIe|NVLink", gpu) else " (variant not stated)")
+                        for (gpu, vram), r in live_all if r["hourly_equiv_usd"] == best})
+        amts = " / ".join(f"${best * h:,.2f}" for h in HOURS)
+        parts.append(f"<p class=\"pagelow\">Lowest in-stock on-demand {esc(fam)} on this page: {esc(' and '.join(names))} at {amts} "
+                     f"({' / '.join(str(h) for h in HOURS)} h) - variants differ, see tables.</p>")
     if not groups:
         parts.append("<p>No variant of this GPU has two or more eligible vendors today, so no comparison is shown.</p>")
     for (gpu, vram), rows in sorted(groups.items(), key=lambda kv: -len({r['advertiser'] for r in kv[1]})):
@@ -87,7 +96,7 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         if nv >= 3:
             tied = sorted({r["advertiser"] for r, s in zip(rows, subs) if s == lo and not oos(r)})
             who = tied[0] if len(tied) == 1 else " and ".join(tied) + " (tie)"
-            spread = f"Cheapest among tracked providers: {who} at ${lo:,.2f}. " + spread
+            spread = f"Cheapest {head} among tracked providers: {who} at ${lo:,.2f}. " + spread
             faq.append((f"How much does it cost to rent an {head} for {hours} hours?",
                         f"{spread} {LABEL.format(h=hours)}"))
         else:
