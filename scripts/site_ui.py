@@ -8,10 +8,10 @@ from __future__ import annotations
 from html import escape
 
 NAV_ITEMS = [
-    ("", "GPU prices"),
+    ("", "Home"),
     ("deals/", "Deals"),
-    ("ai-agent-tool-deals/", "Compare & categories"),
-    ("gpu/price-comparison/", "All GPU rates"),
+    ("ai-agent-tool-deals/", "Deal categories"),
+    ("gpu/price-comparison/", "GPU price comparison"),
     ("tools/gpu-cost-calculator/", "GPU calculator"),
     ("stack/", "Plan a stack"),
     ("tools/stack-optimizer/", "Stack optimizer"),

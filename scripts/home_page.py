@@ -91,7 +91,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     <h2 id="spread">Today's spread (per GPU-hour, USD)</h2>
     <div style="overflow-x:auto"><table class="howto"><thead><tr><th>GPU</th><th>Cheapest</th><th>Median</th><th>Highest</th><th>Rates</th><th>Cheapest offer</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
-    <p><a href="{BASE}/gpu/"><strong>Compare all GPU prices →</strong></a> · <a href="{BASE}/gpu/price-comparison/">every tracked rate</a> · <a href="{BASE}/tools/gpu-cost-calculator/">cost calculator</a> · <a href="{BASE}/api/v1/gpu-prices/history.json">price history (JSON)</a></p>
+    <p><a href="{BASE}/gpu/price-comparison/"><strong>Compare all GPU prices →</strong></a> · <a href="{BASE}/gpu/">GPU pages by model</a> · <a href="{BASE}/tools/gpu-cost-calculator/">cost calculator</a> · <a href="{BASE}/api/v1/gpu-prices/history.json">price history (JSON)</a></p>
   </section>
   <section aria-labelledby="install">
     <h2 id="install">Give your agent live GPU prices</h2>
