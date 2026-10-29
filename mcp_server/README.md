@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.3.18, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.3.19, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -77,3 +77,7 @@ python3 scripts/test_pypi_install.py --uvx   # clean venv + uvx install from PyP
 ## Package
 
 `pyproject.toml` at the repo root builds `lantern-works-deals-mcp` (MIT) with a `lantern-works-deals-mcp` console command. Published on [PyPI](https://pypi.org/project/lantern-works-deals-mcp/) and in the MCP Registry as `io.github.connormatthewdouglas/lantern-works-deals`.
+
+## License
+
+The package code is MIT. The price and deal data it reads (the Lantern Works feeds) is CC BY 4.0: credit "Lantern Works" and link to https://thelanternworks.com. See https://thelanternworks.com/methodology/#license.

@@ -2,6 +2,9 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.19 (2026-10-29)
+- Split license: code stays MIT (LICENSE); the price and deal data is CC BY 4.0, attributed to Lantern Works (new LICENSE-DATA). Every JSON feed (deals.json, gpu-prices.json, history, gpu-price-changes, api/v1/gpu/*, stack-pricing) carries a `license` field; /methodology/ and the README say the same.
+
 ## 0.3.18 (2026-10-29)
 - `optimize_agent_stack` (#33): quantities start at a word boundary, so "10 H100 gpu hours" and "10x A100 hours" read 10 GPU-hours, not the digits inside the model name. A bare "5090"/"4090" is read as the RTX model.
 

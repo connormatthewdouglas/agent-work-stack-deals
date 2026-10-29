@@ -10,7 +10,7 @@
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.18, read-only, stdio)
+## MCP server (v0.3.19, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -73,3 +73,8 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 - **Migration test:** `python3 scripts/test_url_migration.py` checks old GitHub Pages project URLs 301 to the new domain, key pages return 200, and the feeds match.
 - **Compliance gate:** when the private registry (path set by `LANTERN_COMPLIANCE_REGISTRY`) is present, the generator publishes only deals whose status is `approved`; others move to a private held file and come back automatically once approved. Absent registry (CI) = feed published as-is.
 - **For agents:** https://thelanternworks.com/for-agents/ documents endpoints, schema and offer types.
+
+## License
+
+- Code: MIT, see [LICENSE](LICENSE).
+- Price and deal data (`deals.json`, `api/v1/*.json` including `gpu-prices.json`, the price history and change feed, `data/gpu_pricing/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), see [LICENSE-DATA](LICENSE-DATA). Attribution: "Lantern Works" with a link to https://thelanternworks.com. Every JSON feed carries these terms in its `license` field.

@@ -6,6 +6,7 @@ regenerating the site never changes it unless a snapshot changes.
 from __future__ import annotations
 
 from core import gpu_history
+from core.data_license import DATA_LICENSE
 
 
 def _ranked(snap: dict) -> dict[str, dict]:
@@ -15,6 +16,7 @@ def _ranked(snap: dict) -> dict[str, dict]:
 def build_changes(snapshots: list[dict] | None = None) -> dict:
     snaps = sorted(snapshots if snapshots is not None else gpu_history.load_snapshots(), key=lambda s: s["date"])
     doc = {"schema": "lantern-works-gpu-price-changes/1",
+           "license": DATA_LICENSE,
            "description": "GPU rental rates that moved between the two latest daily snapshots (per GPU-hour, USD). "
                           "Each change links the vendor's own pricing page. 'Cheapest' always means among tracked providers.",
            "date": None, "previous_date": None, "changes": [], "counts": {"down": 0, "up": 0, "new": 0, "removed": 0}}

@@ -15,6 +15,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from .ids import event_id, rate_id, snapshot_id
+from .data_license import DATA_LICENSE
 
 SNAPSHOT_SCHEMA = "lantern-works-gpu-snapshot/1"
 HISTORY_SCHEMA = "lantern-works-gpu-price-history/2"  # /2 adds rate_id, event_id, seq, snapshot_id (T38)
@@ -134,6 +135,7 @@ def build_history(snapshots: list[dict]) -> dict:
     changes.reverse()  # newest first, as before
     dates = sorted(s["date"] for s in snapshots)
     return {"schema": HISTORY_SCHEMA,
+            "license": DATA_LICENSE,
             "scope": "tracked providers only (not the whole market); prices per GPU",
             "first_snapshot": dates[0] if dates else None, "last_snapshot": dates[-1] if dates else None,
             "snapshot_count": len(dates),

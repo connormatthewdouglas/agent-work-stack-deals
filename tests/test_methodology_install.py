@@ -31,6 +31,7 @@ def test_methodology_page_reads_code_constants():
     market = re.search(r"^MIN_MARKET_OFFERS\s*=\s*(\d+)", src, re.M).group(1)
     s = (ROOT / "methodology" / "index.html").read_text(encoding="utf-8")
     assert f"{stale} days" in s and f"fewer than {market} available offers" in s
-    assert "MIT License" in s and "CC BY" not in s and "10:23 UTC" in s
+    assert "MIT License" in s and "CC BY 4.0" in s and "Lantern Works" in s and "10:23 UTC" in s
+    assert "Frosty" not in s
     assert "/methodology/" in (ROOT / "sitemap.xml").read_text(encoding="utf-8")
     assert 'href="/methodology/"' in s or "/methodology/\"" in s

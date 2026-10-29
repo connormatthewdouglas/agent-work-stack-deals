@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from core.gpu import SERVERLESS, families  # noqa: E402
+from core.data_license import DATA_LICENSE  # noqa: E402
 
 OUT = ROOT / "api" / "v1" / "gpu"
 SCHEMA = "lantern-works-gpu-model-view/1"
@@ -56,7 +57,7 @@ def build(slug: str, fam: dict, base: str) -> dict:
             rs = [r for r in rates if bucket(r) == b and r.get("vram_gb") == v]
             cheapest.setdefault(b, []).append({"vram_gb": v, **_row(min(rs, key=_key))})
     ver = [r["verified_at"] for r in rates if r.get("verified_at")]
-    return {"schema": SCHEMA, "model": fam["name"], "slug": slug,
+    return {"schema": SCHEMA, "license": DATA_LICENSE, "model": fam["name"], "slug": slug,
             "url": f"{base}/api/v1/gpu/{slug}.json",
             "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
             "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
@@ -83,7 +84,7 @@ def write(gen, rates: list[dict]) -> list[Path]:
         paths.append(p)
         idx.append({"model": doc["model"], "slug": slug, "url": doc["url"], "row_count": doc["row_count"],
                     "providers": len(doc["providers"]), "last_checked": doc["last_checked"]})
-    index = {"schema": "lantern-works-gpu-model-index/1",
+    index = {"schema": "lantern-works-gpu-model-index/1", "license": DATA_LICENSE,
              "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json; reserved rows excluded from cheapest.",
              "models": idx}
     gen.assert_public_clean(index)

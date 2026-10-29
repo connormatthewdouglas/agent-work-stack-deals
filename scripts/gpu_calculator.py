@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from core.gpu import HOURS_PER_MONTH, build_rates  # noqa: E402
+from core.data_license import DATA_LICENSE  # noqa: E402
 
 PAGE_PATH = "tools/gpu-cost-calculator"
 API_PATH = ROOT / "api" / "v1" / "gpu-prices.json"
@@ -38,6 +39,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         raise SystemExit("gpu pricing records invalid:\n  " + "\n  ".join(data["problems"]))
     payload = {
         "schema": "lantern-works-gpu-prices/1",
+        "license": DATA_LICENSE,
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
         # Derived from the data, never build time (audit T8/M5): the newest of the deal feed's updated_at and every rate's verified_at.
         "feed_updated_at": latest_checked_at([feed_updated] + [r.get("verified_at") for r in data["rates"]]),
