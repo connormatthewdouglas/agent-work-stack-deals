@@ -47,7 +47,10 @@ def test_full_month_is_rate_times_730():
             n = int(next(x for x in g.groups() if x)) if g else 1
             assert full == pytest.approx(round(float(m.group(1).replace(",", "")) * n * HOURS, 2), abs=0.011), c
         else:
-            assert "/mo" in rate and full == pytest.approx(_money(rate.split("/")[0]), abs=0.011), c
+            # T35: flat-monthly multi-GPU servers bill the whole server price.
+            srv = re.search(r"-GPU server \$([\d.,]+)/mo", rate)
+            expect = float(srv.group(1).replace(",", "")) if srv else _money(rate.split("/")[0])
+            assert "/mo" in rate and full == pytest.approx(expect, abs=0.011), c
 
 
 def test_rate_keys_unique():
