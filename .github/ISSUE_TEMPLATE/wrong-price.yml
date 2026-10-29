@@ -1,0 +1,59 @@
+name: Wrong GPU price
+description: Report a GPU rental price on thelanternworks.com that doesn't match the vendor's page.
+title: "[wrong price] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks. Every field below is checked by hand against the vendor's own page before the feed changes. Please don't include account details or anything private.
+  - type: input
+    id: vendor
+    attributes:
+      label: Vendor
+      description: As shown on Lantern Works (e.g. RunPod).
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU
+      description: GPU, VRAM and tier as shown (e.g. H100 SXM 80 GB, On-demand).
+    validations:
+      required: true
+  - type: input
+    id: shown_price
+    attributes:
+      label: Price shown on Lantern Works (USD per GPU-hour)
+    validations:
+      required: true
+  - type: input
+    id: observed_price
+    attributes:
+      label: Price you saw on the vendor's page (USD, with its unit)
+      description: e.g. 2.49/hr per GPU, or 19.92/hr for 8 GPUs.
+    validations:
+      required: true
+  - type: input
+    id: source_url
+    attributes:
+      label: Vendor page URL where you saw it
+    validations:
+      required: true
+  - type: input
+    id: page_url
+    attributes:
+      label: Lantern Works page where you saw our price
+  - type: input
+    id: deal_id
+    attributes:
+      label: Feed deal_id (filled automatically from the report form)
+  - type: input
+    id: observed_at
+    attributes:
+      label: When you checked (date/time and time zone)
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Region, min GPUs, spot vs on-demand, login required, etc.
