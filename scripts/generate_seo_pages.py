@@ -1819,6 +1819,8 @@ def main() -> None:
     tool_paths.append(methodology_page.write(sys.modules[__name__]))
     import free_credits_page
     tool_paths.append(free_credits_page.write(sys.modules[__name__]))
+    import embed_page
+    tool_paths.append(embed_page.write(sys.modules[__name__]))
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)
