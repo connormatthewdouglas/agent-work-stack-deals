@@ -1,0 +1,867 @@
+{
+  "identifier": "lantern-works-deals-mcp",
+  "name": "Lantern Works GPU Prices & Work-Stack Deals",
+  "version": "0.3.14",
+  "description": "Compare tracked hourly GPU rental prices (H100, A100, RTX 4090 and more) with source links, check dates and price history, and search work-stack tool deals (compute, search, crawl, hosting, email). Public data, no auth. Some result links are referral links and are marked as such.",
+  "author": "Lantern Works",
+  "authorUrl": "https://github.com/connormatthewdouglas",
+  "homepage": "https://github.com/connormatthewdouglas/agent-work-stack-deals",
+  "cloudEndpoint": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=lobehub",
+  "category": "developer",
+  "icon": "https://thelanternworks.com/logo.png",
+  "tags": [
+    "gpu",
+    "gpu-pricing",
+    "cloud-compute",
+    "price-comparison",
+    "deals",
+    "developer-tools"
+  ],
+  "tools": [
+    {
+      "name": "compare_gpu_prices",
+      "description": "Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first.\n\nSame data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result\nhas source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.\nlimit 1-25. Unknown model returns not_found listing tracked models.\nEach result has tier_class: on-demand | community | marketplace | interruptible (spot/preemptible) |\nreserved | dedicated-monthly. Reserved (reservation/commitment 'starting from') rates are left out unless\ninclude_reserved=true, and even then they are never reported as cheapest. The cheapest overall can be spot or community capacity; on_demand_only=true keeps only\non-demand rates, and the summary names the cheapest on-demand rate when the overall cheapest isn't.\ninclude_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes\n(price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.\nEach result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).\nmax_data_age_hours (optional) drops older rates; excluded_too_old reports how many were dropped.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "gpu": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "default": 10
+          },
+          "include_history": {
+            "type": "boolean",
+            "default": false
+          },
+          "on_demand_only": {
+            "type": "boolean",
+            "default": false
+          },
+          "include_reserved": {
+            "type": "boolean",
+            "default": false
+          },
+          "max_data_age_hours": {
+            "type": "number",
+            "default": null
+          },
+          "mode": {
+            "type": "string",
+            "default": "full"
+          }
+        },
+        "required": [
+          "gpu"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brief",
+              "full"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_argument",
+                  "invalid_cursor",
+                  "not_found",
+                  "feed_unavailable",
+                  "feed_invalid",
+                  "upstream_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "advertiser",
+                "gpu",
+                "hourly_usd",
+                "source_url",
+                "rank"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": true,
+        "if": {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "ok",
+            "error"
+          ]
+        },
+        "else": {
+          "required": [
+            "ok",
+            "mode",
+            "gpu",
+            "summary",
+            "count",
+            "results"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_price_changes",
+      "description": "GPU rental price changes among tracked providers, newest first, each with old/new hourly price, change_pct,\ndirection and the vendor source_url.\n\nsince: 'YYYY-MM-DD' returns every change on or after that date (daily snapshots in\n/api/v1/gpu-prices/history.json); omitted returns the latest day's moves (/api/v1/gpu-price-changes.json).\ngpu: optional model filter (substring, e.g. 'H100'). limit 1-200. Includes data_checked_at and next_refresh_utc\n(prices refresh daily at about 10:23 UTC), so you can call again after the next refresh to see what moved.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string",
+            "default": null
+          },
+          "gpu": {
+            "type": "string",
+            "default": null
+          },
+          "limit": {
+            "type": "integer",
+            "default": 50
+          },
+          "mode": {
+            "type": "string",
+            "default": "full"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brief",
+              "full"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_argument",
+                  "invalid_cursor",
+                  "not_found",
+                  "feed_unavailable",
+                  "feed_invalid",
+                  "upstream_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "vendor",
+                "gpu",
+                "direction"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": true,
+        "if": {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "ok",
+            "error"
+          ]
+        },
+        "else": {
+          "required": [
+            "ok",
+            "mode",
+            "total",
+            "count",
+            "changes"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "optimize_stack",
+      "description": "Cheapest suitable stack among tracked providers for monthly needs (set the quantities you need, rest 0).\n\nscrape_pages: pages/month without JS rendering. scrape_pages_js: pages/month needing JS rendering.\nproxy_gb: residential proxy GB/month. emails_sent: transactional emails/month. search_queries: search API\nqueries/month. gpu_hours: GPU-hours/month (1 GPU), optionally gpu_model e.g. 'H100', 'A100', 'RTX 4090'.\nEach line has the chosen plan, monthly_cost_usd, calc, vendor quote, source_url, checked_at and assumptions,\nplus alternatives. A vendor price that isn't published is 'unknown' (never estimated). manual_signup_only=true\nmeans a human must sign up (never automate it); exclude_manual_signup=true drops those plans. Same data as\nhttps://thelanternworks.com/api/v1/stack-pricing.json and /tools/stack-optimizer/.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scrape_pages": {
+            "type": "integer",
+            "default": 0
+          },
+          "scrape_pages_js": {
+            "type": "integer",
+            "default": 0
+          },
+          "proxy_gb": {
+            "type": "number",
+            "default": 0
+          },
+          "emails_sent": {
+            "type": "integer",
+            "default": 0
+          },
+          "search_queries": {
+            "type": "integer",
+            "default": 0
+          },
+          "gpu_hours": {
+            "type": "number",
+            "default": 0
+          },
+          "gpu_model": {
+            "type": "string",
+            "default": null
+          },
+          "exclude_manual_signup": {
+            "type": "boolean",
+            "default": false
+          },
+          "mode": {
+            "type": "string",
+            "default": "full"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brief",
+              "full"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_argument",
+                  "invalid_cursor",
+                  "not_found",
+                  "feed_unavailable",
+                  "feed_invalid",
+                  "upstream_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "status"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": true,
+        "if": {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "ok",
+            "error"
+          ]
+        },
+        "else": {
+          "required": [
+            "ok",
+            "mode",
+            "lines",
+            "total_monthly_usd",
+            "total_is_complete"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "optimize_agent_stack",
+      "description": "Estimate a monthly stack cost from a short description of the agent being built.\n\ndescription: free text, e.g. 'scrapes 20k JS pages/month via 5 GB residential proxies, 3k search queries,\nsummarizes with an LLM, budget $300/mo'. Parsed deterministically (keywords/regex, no LLM) into components:\ngpu, scraping, proxy, search, llm_api, email, hosting, database, monitoring. Optional fields override the parse:\ngpu_hours (GPU-hours/month), gpu_model ('H100', 'A100', 'RTX 4090'), model_size_b (billions of params; sets a\nminimum VRAM using FP16 x 1.2), scrape_pages, js_rendering, proxy_gb, search_queries, emails_sent, llm_api,\nmonthly_budget_usd. Each component gets the cheapest option with a cited price among tracked providers, with\ncalc, source_url, verified_at, referral_disclosure (set when the link is a referral link) and manual-signup\nnotes. Components with no cited price say 'no sourced price tracked' (nothing is estimated). Totals show the\nmath and say whether they are complete. Pulled listings are excluded. Every option has data_age_hours, degraded (> 48 h) and stale (> 7 days); max_data_age_hours drops older options (excluded_too_old counts them). Same data as optimize_stack,\ncompare_gpu_prices and the deal feed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "default": ""
+          },
+          "workload": {
+            "type": "string",
+            "default": null
+          },
+          "gpu_hours": {
+            "type": "number",
+            "default": null
+          },
+          "gpu_model": {
+            "type": "string",
+            "default": null
+          },
+          "model_size_b": {
+            "type": "number",
+            "default": null
+          },
+          "scrape_pages": {
+            "type": "number",
+            "default": null
+          },
+          "js_rendering": {
+            "type": "boolean",
+            "default": null
+          },
+          "proxy_gb": {
+            "type": "number",
+            "default": null
+          },
+          "search_queries": {
+            "type": "number",
+            "default": null
+          },
+          "emails_sent": {
+            "type": "number",
+            "default": null
+          },
+          "llm_api": {
+            "type": "boolean",
+            "default": null
+          },
+          "monthly_budget_usd": {
+            "type": "number",
+            "default": null
+          },
+          "exclude_manual_signup": {
+            "type": "boolean",
+            "default": false
+          },
+          "max_data_age_hours": {
+            "type": "number",
+            "default": null
+          },
+          "mode": {
+            "type": "string",
+            "default": "full"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brief",
+              "full"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_argument",
+                  "invalid_cursor",
+                  "not_found",
+                  "feed_unavailable",
+                  "feed_invalid",
+                  "upstream_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "component",
+                "status"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": true,
+        "if": {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "ok",
+            "error"
+          ]
+        },
+        "else": {
+          "required": [
+            "ok",
+            "mode",
+            "lines",
+            "monthly_estimate_usd",
+            "estimate_is_complete"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search_deals",
+      "description": "Search agent work-stack deals (compute, search, email, unblock, hosting...).\n\noffer_type: verified_discount | listed_discount (not confirmed; verified_at null) | free_tier | trial | standard_referral | credit_only_referral.\nmax_price excludes deals with unknown price. limit 1-25. Pass next_cursor back as cursor to page.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "default": null
+          },
+          "category": {
+            "type": "string",
+            "default": null
+          },
+          "offer_type": {
+            "type": "string",
+            "default": null
+          },
+          "max_price": {
+            "type": "number",
+            "default": null
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null
+          },
+          "limit": {
+            "type": "integer",
+            "default": 10
+          },
+          "cursor": {
+            "type": "string",
+            "default": null
+          },
+          "mode": {
+            "type": "string",
+            "default": "full"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brief",
+              "full"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_argument",
+                  "invalid_cursor",
+                  "not_found",
+                  "feed_unavailable",
+                  "feed_invalid",
+                  "upstream_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": true,
+        "if": {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "ok",
+            "error"
+          ]
+        },
+        "else": {
+          "required": [
+            "ok",
+            "mode",
+            "total",
+            "count",
+            "results"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "compare_deals",
+      "description": "Compare 2-5 deals side by side (price, unit, offer type, code, verification), best value first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "default": "full"
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brief",
+              "full"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_argument",
+                  "invalid_cursor",
+                  "not_found",
+                  "feed_unavailable",
+                  "feed_invalid",
+                  "upstream_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "deals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id"
+              ]
+            }
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": true,
+        "if": {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "ok",
+            "error"
+          ]
+        },
+        "else": {
+          "required": [
+            "ok",
+            "mode",
+            "deals"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_deal",
+      "description": "Get one deal's public record by id, including redeem_url and agent_instructions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "default": "full"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brief",
+              "full"
+            ]
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_argument",
+                  "invalid_cursor",
+                  "not_found",
+                  "feed_unavailable",
+                  "feed_invalid",
+                  "upstream_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": true,
+        "if": {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "ok",
+            "error"
+          ]
+        },
+        "else": {
+          "required": [
+            "ok",
+            "mode",
+            "id"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    }
+  ],
+  "resources": [],
+  "prompts": []
+}
