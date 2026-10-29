@@ -106,17 +106,19 @@ def test_hosted_worker_tools_list_has_output_schema():
     import subprocess
     code = """
 import sys, types, json, importlib.util
-sys.path.insert(0, %r)
+sys.path.insert(0, %r); sys.path.insert(0, %r)
 w = types.ModuleType("workers"); w.Response = w.WorkerEntrypoint = object; w.fetch = None; sys.modules["workers"] = w
 spec = importlib.util.spec_from_file_location("hosted_entry", %r); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 print(json.dumps(m._tool_list()))
-""" % (str(ROOT), str(ROOT / "hosted" / "src" / "entry.py"))
+""" % (str(ROOT), str(ROOT / "hosted" / "src"), str(ROOT / "hosted" / "src" / "entry.py"))
     res = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=60)
     assert res.returncode == 0, res.stderr[-2000:]
     listed = {t["name"]: t for t in json.loads(res.stdout.strip().splitlines()[-1])}
     for name in TOOLS:
         assert listed[name]["outputSchema"] == contract.output_schema(name), name
         assert "mode" in listed[name]["inputSchema"]["properties"], name
+    for name in ("create_watch_key", "watch_price", "list_watches", "delete_watch"):  # hosted-only opt-in tools
+        assert name not in TOOLS and listed[name]["outputSchema"]["required"] == ["ok"], name
 
 
 def test_real_mcp_client_roundtrip_validates_structured_content():

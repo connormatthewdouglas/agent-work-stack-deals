@@ -3,7 +3,8 @@
 Runs the SAME tool functions as the PyPI package: mcp_server/server.py is imported with a tiny FastMCP stand-in
 that only records the decorated functions, and the feed loaders are fed the public JSON feeds fetched here.
 Stored data: one aggregate counter per (UTC day, tool, ref channel). No IPs, user agents, request bodies or
-any other per-caller data are read or stored.
+any other per-caller data are read or stored. Exception, opt-in only: hosted price watches (watch_store.py) keep a
+hashed api key, its webhook URL, optional contact email, the watches and per-key daily counts in a separate D1 DB.
 """
 import inspect
 import json
@@ -43,6 +44,7 @@ import core  # noqa: E402
 from core import deals as core_deals  # noqa: E402
 import mcp_server  # noqa: E402,F401
 from mcp_server import server  # noqa: E402
+import watch_store  # noqa: E402
 
 PROTOCOL = "2025-06-18"
 FEEDS = {"loader": core_deals.FEED_URL, "gpu_loader": core_deals.GPU_PRICES_URL,
@@ -51,7 +53,7 @@ FEEDS = {"loader": core_deals.FEED_URL, "gpu_loader": core_deals.GPU_PRICES_URL,
 TTL = 600
 _cache = {}
 REF_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
-CORS = {"access-control-allow-origin": "*", "access-control-allow-headers": "content-type, mcp-protocol-version, mcp-session-id",
+CORS = {"access-control-allow-origin": "*", "access-control-allow-headers": "content-type, authorization, mcp-protocol-version, mcp-session-id",
         "access-control-allow-methods": "GET, POST, OPTIONS"}
 
 
@@ -92,7 +94,12 @@ def _schema(fn):
 def _tool_list():
     return [{"name": fn.__name__, "description": inspect.getdoc(fn) or "", "inputSchema": _schema(fn),
              **({"outputSchema": fn.output_schema} if getattr(fn, "output_schema", None) else {}),
-             "annotations": ann} for fn, ann in TOOLS]
+             "annotations": ann} for fn, ann in TOOLS] + watch_store.tool_list()
+
+
+async def _watch_feeds():
+    await _feeds()
+    return tuple(_cache[u][1] for u in (core_deals.GPU_PRICES_URL, core_deals.GPU_HISTORY_URL, core_deals.GPU_CHANGES_URL))
 
 
 async def _count(env, tool, ref):
@@ -112,7 +119,7 @@ def _err(i, code, msg):
     return {"jsonrpc": "2.0", "id": i, "error": {"code": code, "message": msg}}
 
 
-async def _handle(msg, env, ref):
+async def _handle(msg, env, ref, bearer=None):
     if not isinstance(msg, dict) or msg.get("jsonrpc") != "2.0" or "method" not in msg:
         return _err(msg.get("id") if isinstance(msg, dict) else None, -32600, "Invalid Request")
     i, m, p = msg.get("id"), msg["method"], msg.get("params") or {}
@@ -129,6 +136,13 @@ async def _handle(msg, env, ref):
         return _ok(i, {"tools": _tool_list()})
     if m == "tools/call":
         name, args = p.get("name"), p.get("arguments") or {}
+        if name in watch_store.NAMES:
+            try:
+                out = await watch_store.call(name, args, env, bearer, _watch_feeds)
+            except core_deals.DealError as e:
+                out = {"ok": False, "error": {"code": e.code, "message": e.message}}
+            await _count(env, name, ref)
+            return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": out.get("ok") is False})
         fn = next((f for f, _ in TOOLS if f.__name__ == name), None)
         if fn is None:
             return _err(i, -32602, f"Unknown tool: {name}")
@@ -178,7 +192,7 @@ class Default(WorkerEntrypoint):
             return Response(_stats_html(await _stats(self.env)), headers={"content-type": "text/html; charset=utf-8", **CORS})
         if path == "/stats.json":
             return Response(json.dumps({"schema": "lantern-works-hosted-mcp-stats/1", "note": "anonymous aggregate counts per UTC day, tool and ref; nothing per caller is stored",
-                                        "rows": await _stats(self.env)}), headers={"content-type": "application/json", **CORS})
+                                        "rows": await _stats(self.env), "watches": await watch_store.stats(self.env)}), headers={"content-type": "application/json", **CORS})
         if path in ("/mcp", "/mcp/"):
             if request.method == "GET":
                 return Response("Lantern Works MCP endpoint (streamable HTTP, POST JSON-RPC). Server-sent event streams are not offered; use POST.",
@@ -189,10 +203,12 @@ class Default(WorkerEntrypoint):
                 body = json.loads(await request.text())
             except Exception:
                 return Response(json.dumps(_err(None, -32700, "Parse error")), status=400, headers={"content-type": "application/json", **CORS})
+            auth = request.headers.get("authorization") or ""
+            bearer = auth[7:].strip() if auth.lower().startswith("bearer ") else None
             if isinstance(body, list):
-                out = [r for r in [await _handle(x, self.env, ref) for x in body] if r is not None]
+                out = [r for r in [await _handle(x, self.env, ref, bearer) for x in body] if r is not None]
                 return Response(json.dumps(out) if out else "", status=200 if out else 202, headers={"content-type": "application/json", **CORS})
-            r = await _handle(body, self.env, ref)
+            r = await _handle(body, self.env, ref, bearer)
             if r is None:
                 return Response("", status=202, headers=CORS)
             return Response(json.dumps(r), headers={"content-type": "application/json", **CORS})
@@ -200,3 +216,7 @@ class Default(WorkerEntrypoint):
             return Response("Lantern Works hosted MCP endpoint. POST JSON-RPC to /mcp (streamable HTTP). Public counts: /stats. Docs: https://thelanternworks.com/install/\n",
                             headers={"content-type": "text/plain; charset=utf-8", **CORS})
         return Response("not found\n", status=404, headers=CORS)
+
+    async def scheduled(self, controller, env=None, ctx=None):
+        """Cron (wrangler.toml [triggers]): deliver signed price-watch alerts after the daily feed refresh."""
+        await watch_store.run_cron(env or self.env, _watch_feeds, fetch)

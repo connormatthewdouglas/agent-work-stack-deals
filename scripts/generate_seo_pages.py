@@ -592,7 +592,7 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
   <h2>Skill and MCP</h2>
   <ul>
     <li>Agent skill: raw <a href="{BASE}/SKILL.md">{BASE}/SKILL.md</a> (also rendered at <a href="{BASE}/skills/lantern-works-deals/SKILL.html">SKILL.html</a>; source <code>skills/lantern-works-deals/SKILL.md</code> in the <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/skills/lantern-works-deals/SKILL.md">repo</a>). Copy it into your agent's skills folder.</li>
-    <li>MCP: a read-only <strong>local (stdio)</strong> server with tools <code>search_deals</code>, <code>compare_deals</code> and <code>get_deal</code>. There is no hosted endpoint. Results are ranked by customer value, never by affiliate status.</li>
+    <li>MCP: a read-only <strong>local (stdio)</strong> server with tools <code>search_deals</code>, <code>compare_deals</code> and <code>get_deal</code> (plus GPU price tools). The same tools are also served at a hosted endpoint, <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>, which adds opt-in <a href="#price-watch">price-watch</a> tools. Results are ranked by customer value, never by affiliate status.</li>
   </ul>
 
   <h2>GPU prices</h2>
@@ -626,6 +626,9 @@ python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r mcp_server/requirement
   }}
 }}</pre>
   <p>The server fetches <code>{v1}</code> and caches it for 5 minutes. Set <code>LANTERN_DEALS_FILE</code> to a local JSON path to work offline. Errors come back as <code>{{"error": {{"code", "message"}}}}</code>; page with <code>next_cursor</code>.</p>
+
+  <h2 id="price-watch">GPU price watch (hosted, free, opt-in)</h2>
+  <p>On the hosted endpoint only (<code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>; the local server stays keyless): <code>create_watch_key(webhook_url, email?)</code> returns an <code>api_key</code> and a <code>webhook_signing_secret</code> once. No payment; <code>email</code> is optional contact only. Then <code>watch_price(gpu, max_hourly_usd, region?, kinds?)</code>, <code>list_watches</code>, <code>delete_watch(watch_id)</code>, passing <code>api_key</code> or <code>Authorization: Bearer</code>. After the daily refresh the worker POSTs JSON to your public https webhook when a tracked rate crosses at or below your max, or a matching change (<code>down</code>/<code>up</code>/<code>new</code>) lands at or below it. Each <code>event_id</code> is sent at most once per watch. Verify <code>X-Lantern-Signature: t=&lt;unix&gt;,v1=&lt;hex&gt;</code> = HMAC-SHA256(secret, <code>"&lt;t&gt;.&lt;raw body&gt;"</code>) and reject stale <code>t</code>. Limits: 20 watches and 100 alerts per key per day.</p>
 
   <h2>Handling the data</h2>
   <ul>
