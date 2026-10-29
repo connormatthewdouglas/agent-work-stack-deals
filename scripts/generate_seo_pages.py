@@ -1825,6 +1825,8 @@ def main() -> None:
     tool_paths.append(report_price_page.write(sys.modules[__name__]))
     import gpu_index_page
     tool_paths += gpu_index_page.write_all(sys.modules[__name__])
+    import cost_pages
+    tool_paths += cost_pages.write_all(sys.modules[__name__])
     import embed_page
     tool_paths.append(embed_page.write(sys.modules[__name__]))
     import compare_redirects

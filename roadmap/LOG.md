@@ -2,6 +2,15 @@
 
 Ships with commits, CI runs, URLs and versions (newest first).
 
+## 2026-10-29 — 0.3.23: E5 availability ranking (#45); T41-03 tightened
+- Merged Core's #45: compare_gpu_prices results carry `availability` and `in_stock`; rows marked out of stock rank after in-stock/unknown rows and are never "cheapest"; the summary names a cheaper out-of-stock row with its check time. Home spread A100 now $1.08 (Hyperstack).
+- T41-03 reviewed: still excludes reserved rows from the expected minimum, and now also fails outright if the row shown first is reserved, thin or held (negative check confirmed).
+- Release 211dae8a: PyPI 0.3.23, MCP Registry 0.3.23, worker 7ac09a39. Follow-up 45b28069: index `feed_commit_for_listing_counts` is the last commit of the feed blob (HEAD-independent, so CI's determinism test passes). CI green, T41 live 21/21, 315 tests.
+
+## 2026-10-29 — 0.3.22: Gauge EOD fixes E1–E4, E6–E9
+- E1 /install/ version comes from core.deals.VERSION. E2 both READMEs list 8 tools (+ report_issue_url). E3 duplicate deal-cloreai-001 retired (noindex redirect to /deals/clore-ai/; "Also not counted: 2 vendors"; gist re-synced, byte-identical). E4 "later" dropped from VAST_NOTE and CHANGELOG. E6 CloudRift tier ASCII "On-demand" via core.gpu.normalize_tier (quotes verbatim; 2026-10-29 snapshot keys aligned; test added). E7 PyPI summary lists H100, H200, A100, L40S, RTX 4090/5090. E8 CHANGELOG notes the Massed Compute pull (aa59c8d2). E9 index records a real commit sha.
+- Release ef2f9b28: PyPI 0.3.22, MCP Registry 0.3.22, worker 04574125. Install tests: stdio 8 tools ok, hosted 12.
+
 ## 2026-10-29 — 0.3.21: price alerts back on at $0; #43 + #44
 - Alerts (d1d0e35f): daily GitHub Actions push of HMAC-signed event batches to the worker; worker matches, signs, sends (https-only, public IP after DNS, dedupe by event_id). Proof: run 40954987898 sent=7, all 7 signatures verified; rerun sent=0.
 - Merged #43 (data/gpu_throughput.json, 71 cited figures, 8 gaps) and #44 (estimate_job_cost uses cited MLPerf throughput for inference; training still returns missing).
