@@ -234,7 +234,9 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
 """
     out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(gen.page_shell(title, desc, url, body + install_link_snippet(gen.BASE)), encoding="utf-8")
+    # /gpu/<model>-rental-price/ (spec_pages) is the canonical page for each model; this one stays reachable, out of the sitemap.
+    canon = f"{gen.BASE}/gpu/{slug}-rental-price/"
+    out.write_text(gen.page_shell(title, desc, canon, body + install_link_snippet(gen.BASE)), encoding="utf-8")
     return path
 
 
@@ -534,7 +536,7 @@ def write_all(gen, deals: list[dict]) -> list[str]:
     _LINKS[:] = page_links(deals)
     pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if f["page"]}
     cmps = [write_h100_vs(gen, rates), write_per_vram(gen, rates), write_runpod_tiers(gen, rates)]
-    return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + list(pages.values()) + cmps
+    return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + cmps  # cheapest-* pages: canonical is the -rental-price page, so not in the sitemap
 
 
 def _history():

@@ -269,14 +269,18 @@ def test_whole_server_billing_9_gpus_on_8_gpu_h100_bills_16():
     assert _stack._gpu_options({"rates": [row]}, 10, None, set())[0]["monthly_cost_usd"] == 2.0 * 10 * 8
 
 
-def test_spec_gpu_pages_canonical_to_cheapest_page():
+
+def test_cheapest_pages_canonical_to_rental_price_page():
     import re, pathlib
     root = pathlib.Path(__file__).resolve().parents[1]
     sitemap = (root / "sitemap.xml").read_text()
-    pages = sorted((root / "gpu").glob("*-rental-price/index.html"))
+    pages = sorted((root / "gpu").glob("cheapest-*-rental/index.html"))
     assert pages
     for p in pages:
-        m = re.search(r'<link rel="canonical" href="https://thelanternworks.com/(gpu/cheapest-[^"]+-rental/)"', p.read_text())
+        m = re.search(r'<link rel="canonical" href="https://thelanternworks.com/(gpu/[^"]+-rental-price/)"', p.read_text())
         assert m, p
         assert (root / m.group(1) / "index.html").exists(), m.group(1)
-        assert f"/{p.parent.parent.name}/{p.parent.name}" not in sitemap
+        assert f"/gpu/{p.parent.name}/" not in sitemap
+    for p in sorted((root / "gpu").glob("*-rental-price/index.html")):
+        assert f'<link rel="canonical" href="https://thelanternworks.com/gpu/{p.parent.name}/"' in p.read_text()
+        assert f"/gpu/{p.parent.name}/" in sitemap

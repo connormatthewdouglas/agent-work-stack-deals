@@ -141,7 +141,7 @@ PAGES = [
     {
         "slug": "h100-rental-price-comparison",
         # Superseded by the verified-rate landing page; canonicalized there and dropped from the sitemap.
-        "canonical_to": "gpu/cheapest-h100-rental",
+        "canonical_to": "gpu/h100-rental-price",
         "title": "H100 Rental Price Comparison: Verified Per-Hour Prices",
         "h1": "H100 rental price comparison",
         "desc": "NVIDIA H100 rental prices per hour from vendor pages we verified, plus GPU clouds where the H100 price is not yet verified (pricing model shown, no number).",
