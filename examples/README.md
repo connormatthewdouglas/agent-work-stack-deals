@@ -12,5 +12,6 @@ Copy-and-adapt examples for the Lantern Works deals feed, GPU price API and MCP 
 | `crewai-cheapest-gpu/` | CrewAI `MCPServerAdapter`: cheapest GPU for a described job (direct tool path tested, LLM path untested; referral links labeled) |
 | `openai-agents-cheapest-gpu/` | OpenAI Agents SDK `MCPServerStdio`: cheapest GPU for a described job (direct tool path tested, LLM path untested; referral links labeled) |
 | `stack-optimizer/` | OpenAI Agents SDK `MCPServerStdio`: describe an agent's job, get the cheapest cited stack from `optimize_agent_stack` (direct tool path tested, LLM path untested; referral links labeled) |
+| `gpu-price-watcher/` | `mcp` Python SDK over stdio: tracked GPU price moves since a date from `get_price_changes`, each with the vendor source_url; sample cron line (0.3.8+) |
 
 Install one skill: `npx skills add https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/cheapest-gpu` (works once merged to main). Prices exclude storage, egress and taxes; confirm on the vendor page before spending. MIT.

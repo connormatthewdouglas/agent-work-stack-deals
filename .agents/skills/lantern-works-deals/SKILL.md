@@ -68,6 +68,8 @@ curl -fsSL "https://thelanternworks.com/api/v1/gpu-prices.json" \
 
 The MCP tool `compare_gpu_prices(gpu="H100")` returns the same data, already sorted; add `include_history=true` for each rate's price history and recent changes (also at https://thelanternworks.com/api/v1/gpu-prices/history.json).
 
+To see what moved, call `get_price_changes(since="YYYY-MM-DD")` (or no `since` for the latest day): each change has old and new hourly price, `change_pct`, direction and the vendor `source_url`. `compare_gpu_prices` and `optimize_agent_stack` return `data_checked_at` and `next_refresh_utc` (prices refresh daily at about 10:23 UTC).
+
 ### Optional CLI
 If you have the [agent-work-stack-deals](https://github.com/connormatthewdouglas/agent-work-stack-deals) repo checked out:
 
