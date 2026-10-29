@@ -47,6 +47,20 @@ def _rate_str(r: dict) -> str:
     return f"${r['price_usd']:,.2f}/mo"
 
 
+def _avail_cell(gen, r: dict) -> str:
+    a = r.get("availability") or {}
+    if a.get("in_stock") is None:
+        return "unknown"
+    bits = [a["status"]]
+    if a.get("stock_level"):
+        bits.append(f"stock {a['stock_level']}")
+    if a.get("offer_count") is not None:
+        bits.append(f"{a['offer_count']} offers")
+    t = (a.get("checked_at") or "").replace("T", " ")[:16]
+    sep = " (separate later check)" if r.get("advertiser") == "Vast.ai" else ""
+    return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
+
+
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     esc = gen.esc
     trs = []
@@ -59,14 +73,17 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
             f"<td>{esc(r['tier'])}{badge}</td><td>{esc(_rate_str(r))}</td>"
             f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[_key(r)])}</td>"
             f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['basis'])}”</a></td>"
-            f"<td>{esc((r['verified_at'] or '')[:10])}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
+            f"<td>{esc((r['verified_at'] or '')[:10])}</td><td>{_avail_cell(gen, r)}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
             "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
     return (filt + f"<div style=\"overflow-x:auto\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
             f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
-            "<th>Verified</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>")
+            "<th>Price verified (daily)</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
+            "<p class=\"meta\">Availability: \u201cunknown\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
+            "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. Vast.ai offer counts come from a "
+            "separate, later check than the price quote, so counts and minimums can differ.</p>")
 
 
 def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, str]], gen) -> str:
@@ -173,7 +190,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
 def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) -> str:
     path = "gpu/price-comparison"
     url = f"{gen.BASE}/{path}/"
-    rows = sorted(estimate(rates, DEFAULT_HOURS), key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+    rows = sorted(estimate(rates, DEFAULT_HOURS), key=lambda r: ((r.get("tier_class") == "reserved"), r["hourly_equiv_usd"], r["advertiser"]))  # reserved after all pay-as-you-go
     full = _full_map(rates)
     fresh = _freshness(rows)
     vendors = sorted({r["advertiser"] for r in rates})
@@ -427,6 +444,8 @@ def links_html(base: str, deals: list[dict]) -> str:
 
 def write_all(gen, deals: list[dict]) -> list[str]:
     rates = build_rates(deals)["rates"]
+    import gpu_model_json
+    gpu_model_json.write(gen, rates)
     fams = families(rates)
     _LINKS[:] = page_links(deals)
     pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if f["page"]}

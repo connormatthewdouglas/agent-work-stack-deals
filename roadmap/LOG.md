@@ -121,3 +121,24 @@ Hosted endpoint: https://lantern-works-mcp.lantern-works.workers.dev/mcp (Stream
 | hashnode | https://lanternworks.hashnode.dev/describe-your-agent-get-the-cheapest-sourced-infra-stack | pending (Frosty edits) |
 
 Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.directory (no edit path).
+
+## Oct 29 (midday): 0.3.11 Gauge re-audit release
+- tier_class "reserved" documented (README, CHANGELOG) and excluded from every "cheapest" by default (compare_gpu_prices `include_reserved=false`, stack optimizer, calculator, estimate sort); Hyperstack H200 $2.79 reservation is no longer cheapest H200.
+- verified_at/checked_at/evidence now use each vendor page's own fetch time (fresh refresh 13:55–13:57Z), not the refresh start.
+- Modal stays interruptible with cited quote (modal.com/pricing): "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen."
+- Lambda 8x rows: gpu_count 8, server_hourly B200 $53.52, H100 SXM $31.92, A100 SXM $22.32, V100 $6.32 (= lambda.ai/pricing per-GPU × 8). Verda A100 40GB re-parsed. SaladCloud RTX 4090 $0.16 quote names the "Lowest" priority tier. README: snapshots since 2026-10-27.
+- Shipped: PyPI + MCP Registry 0.3.11 (Registry listing carries hosted `?ref=mcp-registry` remote), hosted Worker redeployed, install page tested 0.3.11. Commits a2a4046, a17bb16; CI 40887899672 green (docker incl.).
+- Pulse report regenerated from the corrected feed (TensorDock "stale" line removed); dev.to post needs 4 edits (feed timestamps, Vast RTX 4090 $0.486 / -6.1%, Vast A100 SXM $1.4383 / +26.4%, TensorDock line).
+
+## Oct 29 (late morning): Gauge leftovers + T17 per-model JSON views
+- Lane change: per-GPU pages, vendor-vs-vendor pages and /gpu/changes + RSS + docs moved to Atrium (handoff: /workspace/agent-deals-feed/HANDOFF-atrium.md; no WIP existed, so no wip branch).
+- /gpu/price-comparison/ sorts reserved rows after all pay-as-you-go rows.
+- All 4 Modal rows carry the preemption quote in evidence (interruption_quote/_source_url/_checked_at; validator accepts this optional triple; refresh preserves it).
+- Verda A100 40GB ($1.593 / $0.7965) and 80GB ($2.226 / $1.113) confirmed in a fresh fetch; raw parsed text at /workspace/gauge/verda-a100-snippet.txt. Rows kept.
+- T17: /api/v1/gpu/index.json + /api/v1/gpu/<family>.json (h100, h200, a100, l40s, l40, rtx-4090, rtx-5090, rtx-a6000, rtx-a5000, rtx-3090): cheapest split by bucket (on-demand, spot-community, serverless, monthly) and VRAM, reserved listed but never cheapest, per-row verified_at, source_url and quote, last_checked = max verified_at. ~14 KB for H100 vs ~133 KB full feed.
+
+## Oct 29 (10:40 AM ET): release 0.3.12 + availability (Mart, release owner)
+- Merged after review + green CI: #20 T3 optimizer fixes, #19 T5 neutral referral disclosure (feed schema 1.5.0; gist re-synced byte-identical), #22 T35 whole-server billing (merged main into the branch to clear a generated-page conflict; 9 GPUs on CoreWeave 8-GPU H100 for 10 h = $984.80), #23 T37 data-age flags + max_data_age_hours.
+- NOT merged: #21 T4 fail-closed. The generator's own gate reports all 203 live deals registry-approved (203/203, 0 mismatches), but writing `compliance_status` into public deals.json trips the private-field guard (`compliance_status` is in PRIVATE_FIELDS / `compliance_` prefix), so the backfill can't ship as designed. Needs a decision: allow a public `compliance_status: approved` field, or switch #21 to a differently named public field.
+- 0.3.12 on PyPI + MCP Registry; hosted Worker redeployed (compare_gpu_prices returns data_age_hours/excluded_too_old live); install page tested 0.3.12.
+- Availability (T11/T19) from Lantern Scout v2 (QA-passed): data/gpu_availability/latest.json via scripts/import_scout_availability.py; each GPU rate gets `availability` {status, in_stock, checked_at, offer_count/stock_level/available_regions, note}. Unknown = "unknown" (never "out of stock"; e.g. RunPod Community Cloud), Vast.ai counts marked consistency-checked only, availability timestamp separate from the daily price `verified_at`, note "Stock changes within minutes ... not a guarantee". 5 of 88 rates have a signal (RunPod Secure H100 SXM/A100 SXM/RTX 4090 stock Low; Vast A100 SXM 9 offers, RTX 4090 46 offers). Import is manual from the box for now (CI can't reach Scout's output).

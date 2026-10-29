@@ -91,6 +91,7 @@ def _schema(fn):
 
 def _tool_list():
     return [{"name": fn.__name__, "description": inspect.getdoc(fn) or "", "inputSchema": _schema(fn),
+             **({"outputSchema": fn.output_schema} if getattr(fn, "output_schema", None) else {}),
              "annotations": ann} for fn, ann in TOOLS]
 
 
@@ -137,9 +138,9 @@ async def _handle(msg, env, ref):
         except TypeError as e:
             return _err(i, -32602, f"Invalid arguments: {e}")
         except core_deals.DealError as e:
-            out = e.to_dict()
+            out = {"ok": False, "error": {"code": e.code, "message": e.message}}
         await _count(env, name, ref)
-        is_err = isinstance(out, dict) and "error" in out and len(out) <= 2
+        is_err = isinstance(out, dict) and (out.get("ok") is False or ("error" in out and len(out) <= 2))
         return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": bool(is_err)})
     return _err(i, -32601, f"Method not found: {m}")
 

@@ -329,7 +329,8 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         if abs(new - old) > 1e-9:
                             eq = _swap_quote_price(eq, old, new_s)
                         r["quote"] = eq
-                    r["evidence"] = {"source_url": r["source_url"], "quote": eq, "checked_at": fstamp}
+                    r["evidence"] = {**{k: v for k, v in (r.get("evidence") or {}).items() if k not in ("source_url", "quote", "checked_at")},
+                                     "source_url": r["source_url"], "quote": eq, "checked_at": fstamp}  # keep extra cited quotes (e.g. Modal preemption)
                     r["verified_at"] = r["checked_at"] = fstamp
                     if r.get("stale", {}).get("auto"):
                         del r["stale"]

@@ -1,0 +1,298 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "model": "L40S",
+  "slug": "l40s",
+  "url": "https://thelanternworks.com/api/v1/gpu/l40s.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-10-29T13:57:45+00:00",
+  "row_count": 8,
+  "providers": [
+    "CoreWeave",
+    "DigitalOcean GPU Droplets",
+    "Modal",
+    "Nebius",
+    "RunPod",
+    "Verda (formerly DataCrunch)"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 48,
+        "provider": "RunPod",
+        "gpu": "L40S",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.09,
+        "unit": "hour",
+        "price_usd": 1.09,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-29T13:56:45+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand L40S cloud GPU rental on Runpod. Community Cloud $0.79/hr, Secure Cloud $1.09/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+        }
+      }
+    ],
+    "spot-community": [
+      {
+        "vram_gb": 48,
+        "provider": "RunPod",
+        "gpu": "L40S",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.79,
+        "unit": "hour",
+        "price_usd": 0.79,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-29T13:56:45+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand L40S cloud GPU rental on Runpod. Community Cloud $0.79/hr, Secure Cloud $1.09/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+        }
+      }
+    ],
+    "serverless": [
+      {
+        "vram_gb": 48,
+        "provider": "Modal",
+        "gpu": "L40S",
+        "tier": "Serverless, preemptible (per second)",
+        "tier_class": "interruptible",
+        "bucket": "serverless",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 1.9512,
+        "unit": "hour",
+        "price_usd": 1.9512,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-29T13:56:26+00:00",
+        "source_url": "https://modal.com/pricing",
+        "quote": "Nvidia L40S $ 0.000542 / sec",
+        "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "RunPod",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.79,
+      "unit": "hour",
+      "price_usd": 0.79,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:45+00:00",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "On-demand L40S cloud GPU rental on Runpod. Community Cloud $0.79/hr, Secure Cloud $1.09/hr.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    },
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "Spot instance (1x GPU)",
+      "tier_class": "interruptible",
+      "bucket": "spot-community",
+      "interruptible": true,
+      "hourly_usd_per_gpu": 0.941,
+      "unit": "hour",
+      "price_usd": 0.941,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:57:45+00:00",
+      "source_url": "https://verda.com/pricing",
+      "quote": "1x L40S 48GB 20 60 GB 48 GB $1.882/h $0.9410/h",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.09,
+      "unit": "hour",
+      "price_usd": 1.09,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:45+00:00",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "On-demand L40S cloud GPU rental on Runpod. Community Cloud $0.79/hr, Secure Cloud $1.09/hr.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    },
+    {
+      "provider": "Nebius",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "On-demand (from, Intel CPU)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.55,
+      "unit": "hour",
+      "price_usd": 1.55,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:34+00:00",
+      "source_url": "https://nebius.com/prices",
+      "quote": "NVIDIA L40S with Intel CPU 8-40 32-160 from $0.74** from $1.55",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    },
+    {
+      "provider": "DigitalOcean GPU Droplets",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.57,
+      "unit": "hour",
+      "price_usd": 1.57,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:09+00:00",
+      "source_url": "https://www.digitalocean.com/pricing/gpu-droplets",
+      "quote": "NVIDIA L40S $1.57 /GPU/hour On-Demand Price",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    },
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "On-demand instance (1x GPU)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.882,
+      "unit": "hour",
+      "price_usd": 1.882,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:57:45+00:00",
+      "source_url": "https://verda.com/pricing",
+      "quote": "1x L40S 48GB 20 60 GB 48 GB $1.882/h",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    },
+    {
+      "provider": "Modal",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "Serverless, preemptible (per second)",
+      "tier_class": "interruptible",
+      "bucket": "serverless",
+      "interruptible": true,
+      "hourly_usd_per_gpu": 1.9512,
+      "unit": "hour",
+      "price_usd": 1.9512,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:26+00:00",
+      "source_url": "https://modal.com/pricing",
+      "quote": "Nvidia L40S $ 0.000542 / sec",
+      "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    },
+    {
+      "provider": "CoreWeave",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "tier": "On-demand, 8-GPU instance",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.25,
+      "unit": "hour",
+      "price_usd": 2.25,
+      "gpu_count": 8,
+      "server_hourly_usd": 18.0,
+      "min_gpus": 8,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:03+00:00",
+      "source_url": "https://www.coreweave.com/pricing",
+      "quote": "NVIDIA L40S On-Demand Price: $18.00 / Hour",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer (unknown, not out of stock)."
+      }
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}

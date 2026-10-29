@@ -26,7 +26,8 @@ def test_estimate_hourly_vs_flat_and_rank():
     assert th["monthly_cost_usd"] == round(_rec("Thunder Compute", "A100")["hourly_usd"] * 100, 2)
     uc = next(x for x in e if x["deal_id"] == "deal-ucartz-001")
     a100 = _rec("Ucartz", "A100")
-    assert uc["monthly_cost_usd"] == round(a100["price_usd"] / 2, 2) and uc["gpu_count"] == 2  # per GPU of a 2x A100 server
+    # T35: whole servers only. 1 GPU on a 2x A100 monthly server bills the full server (2 GPUs), not half of it.
+    assert uc["monthly_cost_usd"] == round(round(a100["price_usd"] / 2, 2) * 2, 2) and uc["gpu_count"] == 2
     e4090 = estimate(rates, 1000, gpu_filter="4090")
     assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(_rec("Ucartz", "RTX 4090")["price_usd"] * 2, 2)
     assert [x["monthly_cost_usd"] for x in e4090] == sorted(x["monthly_cost_usd"] for x in e4090)
@@ -138,7 +139,7 @@ def test_every_record_has_live_evidence():
     for doc in load_vendor_files():
         for r in doc["records"]:
             ev = r["evidence"]
-            assert set(ev) == {"source_url", "quote", "checked_at"}, r["gpu"]
+            assert set(ev) in ({"source_url", "quote", "checked_at"}, {"source_url", "quote", "checked_at", "interruption_quote", "interruption_source_url", "interruption_checked_at"}), r["gpu"]
             assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
             assert ev["checked_at"] == (r.get("verified_at") or r["checked_at"])  # evidence = last parsed price
             from datetime import datetime
@@ -176,7 +177,8 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
     assert [r["hourly_usd"] for r in res] == sorted(r["hourly_usd"] for r in res)
     opts = _gpu_options(data, 730, "A100", set())
     o = next(x for x in opts if x["vendor"] == "Ucartz")
-    assert o["monthly_cost_usd"] == round(a100["price_usd"] / 2, 2) and "2-GPU" in o["calc"]
+    # T35: whole servers only. The optimizer bills the full 2x A100 server for 1 GPU.
+    assert o["monthly_cost_usd"] == round(round(a100["price_usd"] / 2, 2) * 2, 2) and "2-GPU" in o["calc"]
 
 
 def test_new_vendor_flags():
@@ -250,3 +252,18 @@ def test_record_level_stale_needs_reason():
     doc = json.loads((Path(__file__).resolve().parents[1] / "data" / "gpu_pricing" / "vast.json").read_text())
     doc["records"][0]["stale"] = {}
     assert any("stale needs a reason" in p for p in record_problems(doc))
+
+
+def test_whole_server_billing_9_gpus_on_8_gpu_h100_bills_16():
+    """T35: 9 GPUs on an 8-GPU server row must bill two whole servers (16 GPUs), never 9."""
+    from core import gpu as _gpu, stack as _stack
+    row = {"advertiser": "X", "gpu": "H100", "vram_gb": 80, "price_usd": 2.0, "unit": "hour", "gpu_count": 8,
+           "min_gpus": 8, "server_price_usd": 16.0, "tier": "On-demand", "tier_class": "on_demand", "deal_id": None}
+    est = _gpu.estimate([row], 10, gpus=9)[0]
+    assert est["monthly_cost_usd"] == 2.0 * 10 * 16
+    assert "9 requested" in est["calc"] and "16 billed" in est["calc"]
+    assert _gpu.estimate([row], 10, gpus=8)[0]["monthly_cost_usd"] == 2.0 * 10 * 8
+    opt = _stack._gpu_options({"rates": [row]}, 10, None, set(), gpus=9)[0]
+    assert opt["monthly_cost_usd"] == 2.0 * 10 * 16
+    assert "9 requested" in opt["calc"] and "16 billed" in opt["calc"]
+    assert _stack._gpu_options({"rates": [row]}, 10, None, set())[0]["monthly_cost_usd"] == 2.0 * 10 * 8

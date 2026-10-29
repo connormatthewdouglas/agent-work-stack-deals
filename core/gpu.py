@@ -32,6 +32,8 @@ RECORD_FIELDS = ("vendor", "gpu", "vram_gb", "price_usd", "billing_unit", "hourl
 PRICING_DIR = Path(__file__).resolve().parents[1] / "data" / "gpu_pricing"
 STALE_DAYS = 7
 EVIDENCE_FIELDS = ("source_url", "quote", "checked_at")
+# optional second cited quote for the row's interruption/preemption terms (Modal); all three or none
+EVIDENCE_OPTIONAL = ("interruption_quote", "interruption_source_url", "interruption_checked_at")
 MIN_MARKET_OFFERS = 5
 MAX_QUOTE = 200
 
@@ -118,8 +120,13 @@ def record_problems(doc: dict) -> list[str]:
         if not isinstance(ev, dict) or any(not ev.get(k) for k in EVIDENCE_FIELDS):
             out.append(f"{tag}: evidence needs {EVIDENCE_FIELDS}")
         else:
-            if set(ev) - set(EVIDENCE_FIELDS):
-                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS))}")
+            if set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL):
+                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL))}")
+            opt = [k for k in EVIDENCE_OPTIONAL if ev.get(k)]
+            if opt and len(opt) != len(EVIDENCE_OPTIONAL):
+                out.append(f"{tag}: evidence interruption quote needs {EVIDENCE_OPTIONAL}")
+            if ev.get("interruption_source_url") and not str(ev["interruption_source_url"]).startswith("https://"):
+                out.append(f"{tag}: evidence.interruption_source_url must be https")
             if not str(ev["source_url"]).startswith("https://"):
                 out.append(f"{tag}: evidence.source_url must be https")
             if len(ev["quote"]) > MAX_QUOTE:
@@ -189,6 +196,9 @@ def _tier_class(r: dict) -> str:
     return tier_class(r)
 
 
+from .gpu_availability import availability_for  # noqa: E402
+
+
 def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dict:
     """Rates for /api/v1/gpu-prices.json and every GPU page, from the per-vendor records.
 
@@ -250,7 +260,9 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                                            "price_status": r.get("price_status", "listed")}),
                 "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
                 "verified_at": r.get("verified_at") or r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
-                "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"]})
+                "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
+                # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
+                "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"])})
     priced = {r["deal_id"] for r in rates}
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}
@@ -272,16 +284,18 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
             continue
         if min_vram_gb and (r["vram_gb"] or 0) < min_vram_gb:
             continue
-        g = max(gpus, r.get("min_gpus") or 1)
+        per = r.get("gpu_count") or 1
+        servers = math.ceil(max(gpus, r.get("min_gpus") or 1) / per)
+        g = servers * per  # billed GPUs: whole servers/instances only, never fractional
         if r["unit"] == "hour":
             cost = r["price_usd"] * hours_per_month * g
             basis = f"${r['price_usd']}/hr x {hours_per_month} h x {g} GPU"
             if g > gpus:
-                basis += f" (sold only as {g}-GPU instances)"
+                basis += f" ({gpus} requested, {g} billed: " + (f"sold only as whole {per}-GPU servers)" if per > 1 else f"minimum {g} GPUs per instance)")
             if r.get("price_status") == "marketplace":
                 basis += f"; variable marketplace median, lowest offer ${r['lowest_offer_usd']}/hr"
         else:
-            n = max(1, math.ceil(hours_per_month / HOURS_PER_MONTH)) * gpus
+            n = max(1, math.ceil(hours_per_month / HOURS_PER_MONTH)) * g
             cost = r["price_usd"] * n
             per = r.get("gpu_count") or 1
             if per > 1:

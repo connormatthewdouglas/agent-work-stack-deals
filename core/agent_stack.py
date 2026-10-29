@@ -42,7 +42,9 @@ QTY_PATTERNS = {
     "emails_sent": _NUM + r"(?:\s+[a-z-]+){0,2}?\s*e-?mails?\b",
 }
 JS_RE = r"\bjs\b|javascript|headless|render\w*|dynamic\s+(?:pages|sites)|single[- ]page\s+app|\bspa\b"
-BUDGET_RE = r"(?:budget|under|max(?:imum)?|up\s+to|less\s+than)\s*(?:of\s*)?\$\s?" + _NUM + r"|\$\s?" + _NUM + r"\s*(?:/|per|a)\s*mo"
+BUDGET_RE = (r"(?:budget|under|max(?:imum)?|up\s+to|less\s+than|spend(?:ing)?|cap)\s*(?:of\s*|is\s*|:\s*)?(?:about\s*)?\$\s?"
+             + _NUM)  # a bare "$N/mo" is a price someone pays (e.g. a free plan at $0/mo), not a budget
+NEGATION_RE = re.compile(r"\b(?:no|without|not|never|don'?t\s+need|doesn'?t\s+need|zero)\s+(?:\w+\s+){0,2}$")
 MODEL_SIZE_RE = r"\b(\d+(?:\.\d+)?)\s?b\b(?:\s*(?:param\w*|model|llm))?"
 
 
@@ -54,11 +56,14 @@ def _n(num: str, suf: str | None) -> float:
 def parse(description: str) -> dict:
     """Deterministic keyword/regex parse. Returns components, quantities, model size, budget and what matched."""
     text = (description or "")[:MAX_DESC].lower()
-    comps, matched = [], {}
+    comps, matched, excluded = [], {}, []
     for c, (_, _, rx, _) in COMPONENTS.items():
-        m = re.search(rx, text)
+        # Skip mentions that are negated ("no GPUs", "without proxies"); count the first non-negated one.
+        m = next((x for x in re.finditer(rx, text) if not NEGATION_RE.search(text[max(0, x.start() - 40):x.start()])), None)
         if m:
             comps.append(c); matched[c] = m.group(0).strip()
+        elif re.search(rx, text):
+            excluded.append(c)
     qty = {}
     for need, rx in QTY_PATTERNS.items():
         m = re.search(rx, text)
@@ -83,13 +88,13 @@ def parse(description: str) -> dict:
     mb = re.search(BUDGET_RE, text)
     if mb:
         g = mb.groups()
-        budget = _n(g[0], g[1]) if g[0] else _n(g[2], g[3])
+        budget = _n(g[0], g[1]) or None  # a $0 "budget" is not a budget
     for need, c in (("gpu_hours", "gpu"), ("scrape_pages", "scraping"), ("proxy_gb", "proxy"),
                     ("search_queries", "search"), ("emails_sent", "email")):
-        if need in qty and c not in comps:
+        if need in qty and c not in comps and c not in excluded:
             comps.append(c); matched.setdefault(c, f"quantity: {qty[need]:g}")
     return {"components": comps, "quantities": qty, "model_size_b": size, "gpu_model": gm, "js_rendering": js,
-            "monthly_budget_usd": budget, "matched": matched}
+            "monthly_budget_usd": budget, "matched": matched, "excluded": excluded}
 
 
 def _disclose(o: dict) -> dict:
@@ -130,11 +135,41 @@ def _deal_fallback(deals: list[dict], tags: set, allowed: set, manual: set) -> l
     return rows
 
 
+def _apply_data_age(lines: list[dict], max_h, now) -> int:
+    """T37: flag every option with data_age_hours/degraded/stale; with max_h drop older options, promote the
+    freshest remaining alternative, and mark a line no_data if nothing fresh is left. Returns options dropped."""
+    from . import data_age
+    try:
+        max_h = data_age.validate_max_age(max_h)
+    except ValueError as e:
+        raise stack.StackError(str(e))
+    dropped = 0
+    for l in lines:
+        opts = [o for o in [l.get("choice")] + list(l.get("alternatives") or []) if o]
+        for o in opts:
+            o.update(data_age.age_fields(o, now))
+        if max_h is None or not opts:
+            continue
+        keep = [o for o in opts if not data_age.too_old(o, max_h, now)]
+        dropped += len(opts) - len(keep)
+        if keep and keep[0] is l.get("choice"):
+            l["alternatives"] = keep[1:]
+        elif keep:
+            l.update(choice=keep[0], alternatives=keep[1:])
+            if l.get("status") in ("priced", "entry_price"):
+                l["monthly_cost_usd"] = keep[0].get("monthly_cost_usd")
+        else:
+            l.update(status="no_data", choice=None, monthly_cost_usd=None, alternatives=[],
+                     note=f"{NO_DATA} verified within {max_h:g} hours")
+    return dropped
+
+
 def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict | None, *, workload: str | None = None,
          gpu_hours: float | None = None, gpu_model: str | None = None, model_size_b: float | None = None,
          scrape_pages: float | None = None, js_rendering: bool | None = None, proxy_gb: float | None = None,
          search_queries: float | None = None, emails_sent: float | None = None, llm_api: bool | None = None,
-         monthly_budget_usd: float | None = None, exclude_manual_signup: bool = False) -> dict:
+         monthly_budget_usd: float | None = None, exclude_manual_signup: bool = False,
+         max_data_age_hours: float | None = None, now=None) -> dict:
     if not (description or "").strip() and not workload and not any(
             v for v in (gpu_hours, gpu_model, model_size_b, scrape_pages, proxy_gb, search_queries, emails_sent, llm_api)):
         raise stack.StackError("describe the agent (e.g. 'scrapes 20k JS pages and summarizes them with an LLM') or set a field")
@@ -152,7 +187,7 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             if val and comp not in comps:
                 comps.append(comp)
     size = model_size_b if model_size_b is not None else p["model_size_b"]
-    if (gpu_model or size) and "gpu" not in comps:
+    if (gpu_model or size) and "gpu" not in comps and not ("gpu" in p["excluded"] and gpu_model is None and model_size_b is None):
         comps.append("gpu")
     if llm_api and "llm_api" not in comps:
         comps.append("llm_api")
@@ -197,6 +232,8 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                                    "quantized models need less, full fine-tuning needs several times more.")
             hours = q.get("gpu_hours")
             opts = stack._gpu_options(gdata, hours or 1, gpu_model, manual)
+            if exclude_manual_signup:
+                opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
             opts.sort(key=lambda x: (x["monthly_cost_usd"], x["vendor"] or ""))
             if not opts:
                 why = f" with >= {line.get('vram_needed_gb')} GB VRAM on one GPU" if size else ""
@@ -237,19 +274,21 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             line.update(status="no_data", note=NO_DATA, choice=None, monthly_cost_usd=None, alternatives=[])
         lines.append(line)
 
+    excluded_too_old = _apply_data_age(lines, max_data_age_hours, now)
     known = [l for l in lines if l["status"] in ("priced", "entry_price") and isinstance(l["monthly_cost_usd"], (int, float))]
     total = round(sum(l["monthly_cost_usd"] for l in known), 2)
     math_line = " + ".join(f"${l['monthly_cost_usd']:,.2f} ({l['component']})" for l in known) + f" = ${total:,.2f}/mo" if known else None
     complete = len(known) == len(lines)
     out = {
         "parsed": {"components": comps, "quantities": {k: v for k, v in q.items() if v is not None}, "model_size_b": size,
-                   "gpu_model": gpu_model, "js_rendering": js, "monthly_budget_usd": budget, "matched": p["matched"],
+                   "gpu_model": gpu_model, "js_rendering": js, "monthly_budget_usd": budget, "matched": p["matched"], "excluded": p["excluded"],
                    "method": "deterministic keyword/regex parse; no LLM"},
         "lines": lines,
         "monthly_estimate_usd": total, "estimate_math": math_line, "estimate_is_complete": complete,
         "missing_components": [l["component"] for l in lines if l not in known],
         "budget": None,
         "excluded_for_compliance": excluded,
+        "max_data_age_hours": max_data_age_hours, "excluded_too_old": excluded_too_old,
         "manual_signup_components": [l["component"] for l in lines if (l.get("choice") or {}).get("manual_signup_only")],
         "ranking": f"Per component, the {stack.TRACKED} with a cited price (vendors we don't track may cost less). "
                    "Affiliate status is never a ranking factor; referral links are disclosed per option.",
