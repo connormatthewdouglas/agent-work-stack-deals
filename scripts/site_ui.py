@@ -102,7 +102,7 @@ def filter_form_html(categories: list[str], offer_types: list[str]) -> str:
     <p class="wide" style="margin:0"><span id="f-count" aria-live="polite"></span> · <a id="f-link" href="./">Link to these results</a></p>
   </form>
   <noscript><p class="meta">Search, filters and side-by-side compare need JavaScript. All deals are listed below by category, and the <a href="/ai-agent-tool-deals/">comparison pages</a> work without it.</p></noscript>
-  <section id="cmp-view" hidden aria-labelledby="cmp-h" tabindex="-1"><h2 id="cmp-h">Side-by-side comparison</h2><div id="cmp-table" style="overflow-x:auto"></div></section>
+  <section id="cmp-view" hidden aria-labelledby="cmp-h" tabindex="-1"><h2 id="cmp-h">Side-by-side comparison</h2><div id="cmp-table" class="tscroll"></div></section>
   <div id="cmp-tray" hidden role="region" aria-label="Compare selection"><span id="cmp-n"></span><button type="button" id="cmp-go">Compare side by side</button><button type="button" id="cmp-clear">Clear</button></div>
 """
 

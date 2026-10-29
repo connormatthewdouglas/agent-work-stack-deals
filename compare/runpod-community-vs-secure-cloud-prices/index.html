@@ -55,6 +55,8 @@
     table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     table:not(.howto) th { background: #f3f3f3; }
     /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
     .codebox { position: relative; margin: .5rem 0 1rem; }
     .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
     .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
@@ -122,7 +124,7 @@
   <h1>RunPod Community Cloud vs Secure Cloud prices</h1>
   <p class="meta">Prices checked through 2026-10-29 (each row is from its vendor's public pricing page) · sorted by cost · referral status never affects order</p>
   <p>Same GPU, two RunPod tiers. Sorted by the size of the Community Cloud discount.</p>
-<div style="overflow-x:auto"><table class="howto"><thead><tr><th>GPU</th><th>Secure Cloud</th><th>Community Cloud</th><th>Saving</th><th>Saving over 730 h</th></tr></thead><tbody>
+<div class="tscroll"><table class="howto sticky1"><thead><tr><th>GPU</th><th>Secure Cloud</th><th>Community Cloud</th><th>Saving</th><th>Saving over 730 h</th></tr></thead><tbody>
 <tr><td>RTX 4090 24 GB</td><td>$0.89/hr</td><td>$0.34/hr</td><td><strong>62%</strong></td><td>$401.50</td></tr>
 <tr><td>RTX 3090 24 GB</td><td>$0.5/hr</td><td>$0.22/hr</td><td><strong>56%</strong></td><td>$204.40</td></tr>
 <tr><td>RTX A6000 48 GB</td><td>$0.59/hr</td><td>$0.33/hr</td><td><strong>44%</strong></td><td>$189.80</td></tr>
@@ -142,7 +144,7 @@
   <p>The same GPU name can mean different hardware. SXM modules link GPUs over NVLink and run at higher power limits than PCIe cards, so an H100 SXM is usually faster than an H100 PCIe, especially for multi-GPU training. Interconnect between GPUs and nodes (NVLink, InfiniBand, plain Ethernet) is rarely listed on pricing pages; treat it as unknown unless the vendor states it. VRAM decides which models fit at all. Hardware as listed: A100 PCIe 80 GB (PCIe); A100 SXM 80 GB (SXM); H100 PCIe 80 GB (PCIe); H100 SXM 80 GB (SXM); H200 141 GB (not stated); L40S 48 GB (not stated); RTX 3090 24 GB (not stated); RTX 4090 24 GB (not stated); RTX 5090 32 GB (not stated); RTX A6000 48 GB (not stated).</p>
   <h3>Egress and storage extras</h3>
   <p>Totals on this page exclude these. Each cell cites the vendor page it came from; "Not published" means the vendor doesn't publish it there.</p>
-<div style="overflow-x:auto"><table class="howto"><thead><tr><th>Vendor</th><th>Egress</th><th>Storage</th><th>Interruption / billing terms</th></tr></thead><tbody>
+<div class="tscroll"><table class="howto sticky1"><thead><tr><th>Vendor</th><th>Egress</th><th>Storage</th><th>Interruption / billing terms</th></tr></thead><tbody>
 <tr><td>RunPod</td><td>Not published: Not published on the pricing page. (<a href="https://www.runpod.io/pricing" rel="noopener">checked 2026-10-27</a>)</td><td>Container disk $0.10/GB/mo; volume disk $0.10/GB/mo running, $0.20/GB/mo idle; network storage $0.07/GB/mo under 1 TB, $0.05/GB/mo over 1 TB. (<a href="https://www.runpod.io/pricing" rel="noopener">source, 2026-10-27</a>)</td><td>Listed rates are on-demand Pod prices (Secure Cloud and Community Cloud). (<a href="https://www.runpod.io/pricing" rel="noopener">source, 2026-10-27</a>)</td></tr>
 </tbody></table></div>
   <h3>Interruptible vs on-demand</h3>

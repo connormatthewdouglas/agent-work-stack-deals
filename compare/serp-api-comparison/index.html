@@ -55,6 +55,8 @@
     table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     table:not(.howto) th { background: #f3f3f3; }
     /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
     .codebox { position: relative; margin: .5rem 0 1rem; }
     .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
     .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
@@ -126,7 +128,7 @@
   <p>Agents need search results either as raw SERP data (titles, links, positions) or as AI-ready search with extracted content. SERP APIs suit rank tracking and SEO; AI search APIs suit retrieval for agents. Both are compared here using verified free-tier limits and prices.</p>
   <p><small>Published prices from vendor pages are shown for 5 of 7 providers below; for the other 2, the cell gives the vendor's pricing model instead of a number (we don't guess prices). Always confirm at checkout. Order: vendor discounts, then free tiers, then standard signups, A–Z. Affiliate status does not affect order.</small></p>
   <h2>Comparison table</h2>
-  <div style="overflow-x:auto"><table>
+  <div class="tscroll"><table>
   <thead><tr><th>Provider</th><th>Offer</th><th>Published pricing</th><th>Free option</th></tr></thead>
   <tbody>
   <tr><td><a href="https://thelanternworks.com/deals/brightdata-api-free-001/">Bright Data</a></td><td>Free tier</td><td>5,000 free credits/mo (~$7.50); no card; Web Unlocker/SERP/Scraper/Studio/Browser API pool</td><td>Yes</td></tr><tr><td><a href="https://thelanternworks.com/deals/serpapi-free-001/">SerpApi</a></td><td>Free tier</td><td>250 successful searches/mo on Free plan</td><td>Yes</td></tr><tr><td><a href="https://thelanternworks.com/deals/tavily-free-001/">Tavily</a></td><td>Free tier</td><td>Researcher/Free: 1,000 API credits every month</td><td>Yes</td></tr><tr><td><a href="https://thelanternworks.com/deals/apilayer-001/">APILayer</a></td><td>Standard signup</td><td>Pricing on vendor site</td><td>Not listed</td></tr><tr><td><a href="https://thelanternworks.com/deals/exa-001/">Exa</a></td><td>Standard signup</td><td>Free Starter: $10 credits/month plus $10 onboarding bonus, no payment method (unverified); Search from $4/1k requests, Contents $1/1k pages, Deep Search $12/1k, Agent runs $0.012-$1.00 (per exa.ai/pricing) (unverified).</td><td>Not listed</td></tr><tr><td><a href="https://thelanternworks.com/deals/scrapingdog-001/">Scrapingdog</a></td><td>Standard signup</td><td>Per scrapingdog.com/pricing (checked 2026-10-28), quoted verbatim: &quot;LITE $40 /month 200,000 Requests Credits&quot;. Taxes and plan details may vary; confirm on the vendor page.</td><td>Not listed</td></tr><tr><td><a href="https://thelanternworks.com/deals/serptool-001/">SERP-Tool</a></td><td>Standard signup</td><td>Pricing on vendor site</td><td>Not listed</td></tr>

@@ -55,6 +55,8 @@
     table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     table:not(.howto) th { background: #f3f3f3; }
     /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
     .codebox { position: relative; margin: .5rem 0 1rem; }
     .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
     .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
@@ -122,7 +124,7 @@
   <h1>RunPod vs Thunder Compute vs Modal for H100</h1>
   <p class="meta">Prices checked through 2026-10-29 (each row is from its vendor's public pricing page) · sorted by cost · referral status never affects order</p>
   <p>Every H100 option these three vendors list publicly, priced for 100 GPU hours and a full month. Cheapest among tracked providers first.</p>
-<div style="overflow-x:auto"><table class="howto"><thead><tr><th>#</th><th>Vendor</th><th>H100 option</th><th>Rate</th><th>100 h/month</th><th>Full month (730 h)</th><th>Vendor quote</th></tr></thead><tbody>
+<div class="tscroll"><table class="howto sticky1"><thead><tr><th>#</th><th>Vendor</th><th>H100 option</th><th>Rate</th><th>100 h/month</th><th>Full month (730 h)</th><th>Vendor quote</th></tr></thead><tbody>
 <tr><td>1</td><td><a href="https://thelanternworks.com/deals/runpod-001/">RunPod</a></td><td>H100 PCIe · On-demand (Community Cloud)</td><td>$1.99/hr</td><td><strong>$199.00</strong></td><td>$1,452.70</td><td><a href="https://www.runpod.io/pricing" rel="noopener">“On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.”</a></td></tr>
 <tr><td>2</td><td><a href="https://thelanternworks.com/deals/runpod-001/">RunPod</a></td><td>H100 SXM · On-demand (Community Cloud)</td><td>$2.69/hr</td><td><strong>$269.00</strong></td><td>$1,963.70</td><td><a href="https://www.runpod.io/pricing" rel="noopener">“On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $3.99/hr.”</a></td></tr>
 <tr><td>3</td><td><a href="https://thelanternworks.com/deals/runpod-001/">RunPod</a></td><td>H100 PCIe · On-demand (Secure Cloud)</td><td>$2.89/hr</td><td><strong>$289.00</strong></td><td>$2,109.70</td><td><a href="https://www.runpod.io/pricing" rel="noopener">“On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.”</a></td></tr>
@@ -131,7 +133,7 @@
 <tr><td>6</td><td><a href="https://thelanternworks.com/deals/runpod-001/">RunPod</a></td><td>H100 SXM · On-demand (Secure Cloud)</td><td>$3.99/hr</td><td><strong>$399.00</strong></td><td>$2,912.70</td><td><a href="https://www.runpod.io/pricing" rel="noopener">“On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $3.99/hr.”</a></td></tr>
 </tbody></table></div>
   <h2>How they bill</h2>
-<div style="overflow-x:auto"><table class="howto"><thead><tr><th>Vendor</th><th>Lowest-priced H100 (tracked)</th><th>Billing and extras</th></tr></thead><tbody>
+<div class="tscroll"><table class="howto sticky1"><thead><tr><th>Vendor</th><th>Lowest-priced H100 (tracked)</th><th>Billing and extras</th></tr></thead><tbody>
 <tr><td><a href="https://thelanternworks.com/deals/runpod-001/">RunPod</a></td><td>H100 PCIe (On-demand (Community Cloud)) $1.99/hr</td><td>Pods billed per hour (per-second view available); storage extra, network volumes from $0.05/GB/mo.</td></tr>
 <tr><td><a href="https://thelanternworks.com/deals/thundercompute-001/">Thunder Compute</a></td><td>H100 SXM (On-demand) $3.2/hr</td><td>Instances billed per minute while running; first 100 GB disk per GPU included; no egress fees.</td></tr>
 <tr><td><a href="https://thelanternworks.com/deals/modal-free-001/">Modal</a></td><td>H100 SXM (Serverless, preemptible (per second)) $3.9492/hr</td><td>Serverless, billed per second while running; listed rates are preemptible (non-preemptible 3x); $30/month free compute on Starter.</td></tr>
@@ -144,7 +146,7 @@
   <p>The same GPU name can mean different hardware. SXM modules link GPUs over NVLink and run at higher power limits than PCIe cards, so an H100 SXM is usually faster than an H100 PCIe, especially for multi-GPU training. Interconnect between GPUs and nodes (NVLink, InfiniBand, plain Ethernet) is rarely listed on pricing pages; treat it as unknown unless the vendor states it. VRAM decides which models fit at all. Hardware as listed: H100 PCIe 80 GB (PCIe); H100 SXM 80 GB (SXM).</p>
   <h3>Egress and storage extras</h3>
   <p>Totals on this page exclude these. Each cell cites the vendor page it came from; "Not published" means the vendor doesn't publish it there.</p>
-<div style="overflow-x:auto"><table class="howto"><thead><tr><th>Vendor</th><th>Egress</th><th>Storage</th><th>Interruption / billing terms</th></tr></thead><tbody>
+<div class="tscroll"><table class="howto sticky1"><thead><tr><th>Vendor</th><th>Egress</th><th>Storage</th><th>Interruption / billing terms</th></tr></thead><tbody>
 <tr><td>Modal</td><td>Network egress $0.04/GiB; Starter plan includes 1 TiB/month free. (<a href="https://modal.com/pricing" rel="noopener">source, 2026-10-27</a>)</td><td>Volumes $0.09/GiB/mo (includes 1 TiB/mo free). (<a href="https://modal.com/pricing" rel="noopener">source, 2026-10-27</a>)</td><td>&quot;Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.&quot; Non-preemptible resources carry a 3x multiplier on the CPU and memory list price. (<a href="https://modal.com/pricing" rel="noopener">source, 2026-10-29</a>)</td></tr>
 <tr><td>RunPod</td><td>Not published: Not published on the pricing page. (<a href="https://www.runpod.io/pricing" rel="noopener">checked 2026-10-27</a>)</td><td>Container disk $0.10/GB/mo; volume disk $0.10/GB/mo running, $0.20/GB/mo idle; network storage $0.07/GB/mo under 1 TB, $0.05/GB/mo over 1 TB. (<a href="https://www.runpod.io/pricing" rel="noopener">source, 2026-10-27</a>)</td><td>Listed rates are on-demand Pod prices (Secure Cloud and Community Cloud). (<a href="https://www.runpod.io/pricing" rel="noopener">source, 2026-10-27</a>)</td></tr>
 <tr><td>Thunder Compute</td><td>No egress fees ($0.00/GB). (<a href="https://www.thundercompute.com/pricing" rel="noopener">source, 2026-10-27</a>)</td><td>Instance disk: first 100 GB per GPU included, then $0.219/GB/mo while running; snapshots $0.05/GB/mo. (<a href="https://www.thundercompute.com/pricing" rel="noopener">source, 2026-10-27</a>)</td><td>Instances and sandboxes are never preempted. Instances (including extra vCPUs and disk) are billed per minute while running. (<a href="https://www.thundercompute.com/pricing" rel="noopener">source, 2026-10-27</a>)</td></tr>

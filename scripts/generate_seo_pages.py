@@ -123,6 +123,8 @@ CSS = """
     table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     table:not(.howto) th { background: #f3f3f3; }
     /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
     .codebox { position: relative; margin: .5rem 0 1rem; }
     .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
     .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
@@ -554,14 +556,14 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <p>The catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists {len(deals)} deals (schema <code>{esc(feed.get("schema_version"))}</code>, feed updated <code>{esc(feed.get("updated_at"))}</code>).</p>
 
   <h2>Endpoints</h2>
-  <table class="howto"><tbody>
+  <div class="tscroll"><table class="howto"><tbody>
     <tr><td>Stable versioned feed</td><td><a href="{v1}">{v1}</a></td></tr>
     <tr><td>Feed (same bytes)</td><td><a href="{FEED_RAW}">{FEED_RAW}</a></td></tr>
     <tr><td>JSON Schema</td><td><a href="{BASE}/schema.json">{BASE}/schema.json</a> (draft 2020-12, version <code>{esc(schema.get("x-schema-version"))}</code>)</td></tr>
     <tr><td>Install (MCP / skill)</td><td><a href="{BASE}/install/">{BASE}/install/</a> (Claude Code, Claude Desktop, Cursor, VS Code, generic)</td></tr>
     <tr><td>Agent manifest</td><td><a href="{BASE}/agent.json">{BASE}/agent.json</a></td></tr>
     <tr><td>Mirror</td><td><a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">gist raw deals.json</a> (byte-identical)</td></tr>
-  </tbody></table>
+  </tbody></table></div>
   <p>Pin to <code>/api/v1/deals.json</code> for integrations. Check <code>schema_version</code>: minor bumps only add fields or enum values.</p>
 
   <h2>Record shape</h2>
@@ -574,9 +576,9 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   </ul>
 
   <h2>Offer types</h2>
-  <table class="howto"><thead><tr><th><code>offer_type</code></th><th>Meaning</th><th>Deals</th></tr></thead><tbody>
+  <div class="tscroll"><table class="howto"><thead><tr><th><code>offer_type</code></th><th>Meaning</th><th>Deals</th></tr></thead><tbody>
 {ot_rows}
-  </tbody></table>
+  </tbody></table></div>
 
   <h2>Examples</h2>
   <pre>curl -fsSL {v1} \
@@ -1424,7 +1426,7 @@ def agent_query_howto_html() -> str:
     <h2 class="section-title" style="margin-top:0;">How agents should query this</h2>
     <p>Public JSON feed (no auth). Default filter posture is <strong>real-only</strong> (skip <code>example: true</code>). Default order is <strong>customer value</strong>: real discounts, then verified free tiers, then standard signups, A–Z by vendor. Affiliate status is not a ranking factor. Production inventory is live Lantern Works listings.</p>
     <p class="feed" style="margin:.6rem 0;">GET <a href="{FEED_RAW}">{FEED_RAW}</a></p>
-    <table>
+    <div class="tscroll"><table>
       <thead><tr><th>Filter</th><th>Meaning</th></tr></thead>
       <tbody>
         <tr><td><code>category</code></td><td>Exact category (<code>compute</code>, <code>email</code>, <code>hosting</code>, <code>search</code>, <code>unblock</code>, …)</td></tr>
@@ -1437,7 +1439,7 @@ def agent_query_howto_html() -> str:
         <tr><td><code>real_only</code></td><td>Default; exclude <code>example == true</code></td></tr>
         <tr><td><code>id</code></td><td>Exact deal id</td></tr>
       </tbody>
-    </table>
+    </table></div>
     <p><strong>curl + local filter</strong></p>
     <pre>curl -fsSL "{FEED_RAW}" \
   | python3 -c 'import json,sys; d=json.load(sys.stdin)
