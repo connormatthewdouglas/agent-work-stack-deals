@@ -43,8 +43,24 @@ AUTH_SOURCES = ("api.datacrunch.io",)  # Verda: needs an API key, so others can'
 AUTH_LABEL = "authenticated vendor API (not publicly reproducible)"
 
 
-def availability_for(vendor: str, gpu: str, vram_gb, tier: str) -> dict:
+def _from_record(a: dict) -> dict:
+    """Record-level availability (data/gpu_pricing/<vendor>.json "availability"), used only when Scout has no row.
+    Carries its own checked_at and source; in_stock null stays "unknown", never "out of stock"."""
+    if a.get("in_stock") is None:
+        return {"status": "unknown", "in_stock": None, "checked_at": a.get("checked_at"),
+                "source": a.get("source"), "note": _clean(a.get("note")) or UNKNOWN_NOTE}
+    out = {"status": "available when checked" if a["in_stock"] else "out of stock when checked",
+           "in_stock": bool(a["in_stock"]), "checked_at": a.get("checked_at"),
+           "refresh": "manual snapshot, time shown (prices checked daily)", "source": a.get("source"), "note": NOTE}
+    if a.get("note"):
+        out["detail"] = _clean(a["note"])
+    return out
+
+
+def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None) -> dict:
     r = _index().get((vendor, gpu, vram_gb, _tier_key(tier)))
+    if not r and isinstance(record, dict):
+        return _from_record(record)
     if not r or r.get("in_stock") is None:
         out = {"status": "unknown", "in_stock": None, "checked_at": None,
                "note": _clean((r or {}).get("availability_note")) or UNKNOWN_NOTE}

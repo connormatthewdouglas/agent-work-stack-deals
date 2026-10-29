@@ -9,7 +9,8 @@ def test_unknown_is_never_out_of_stock_and_has_note():
     for r in rates:
         a = r["availability"]
         if a["in_stock"] is None:
-            assert a["status"] == "unknown" and a["checked_at"] is None and a["note"]
+            # unknown: no time, unless a record-level check (with its source) found no stock signal
+            assert a["status"] == "unknown" and a["note"] and (a["checked_at"] is None or a.get("source"))
             assert "time shown" not in a["note"]
         else:
             assert "not a guarantee" in a["note"] and "manual snapshot" in a["refresh"]
@@ -53,3 +54,22 @@ def test_verda_auth_label_and_false_is_out_of_stock():
             assert a["status"] == "out of stock when checked"
         if a.get("offer_count") == 0:
             assert a["in_stock"] is False
+
+
+def test_record_level_availability_and_region():
+    rates = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["rates"]
+    new = {r["advertiser"]: r for r in rates if r["advertiser"] in ("Nova Cloud", "RunC.AI")}
+    assert set(new) == {"Nova Cloud", "RunC.AI"}
+    for r in new.values():
+        assert r["region"] and r["source_url"].startswith("https://") and r["availability"]["checked_at"]
+        assert r["availability"]["source"]
+    assert new["Nova Cloud"]["availability"]["in_stock"] is True
+    assert new["RunC.AI"]["availability"]["status"] == "unknown"
+
+
+def test_new_held_rtx4090_vendors_not_ranked():
+    feed = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
+    held = {h["vendor"] for h in feed["held_stale"]}
+    assert {"Genesis Cloud", "SimplePod", "Runcrate", "Beam"} <= held
+    assert not held & {r["advertiser"] for r in feed["rates"]} - {"Clore.ai"}
+    assert not {"TensorDock", "Clore.ai"} & {r["advertiser"] for r in feed["rates"] if r["tier_class"] == "on-demand"}

@@ -270,7 +270,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "billing_unit": r["billing_unit"],
                 "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
-                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note") if r.get(k)}),
+                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region") if r.get(k)}),
                 # Manual snapshot vendors (e.g. Clore.ai): not re-checked daily; held automatically after hold_after.
                 **({"price_check": "manual snapshot", "snapshot_at": r["checked_at"],
                     "hold_after": (datetime.fromisoformat(r["checked_at"]) + timedelta(days=STALE_DAYS)).isoformat()}
@@ -282,7 +282,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "verified_at": r.get("verified_at") or r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
-                "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"])})
+                "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"))})
     priced = {r["deal_id"] for r in rates}
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}

@@ -62,10 +62,16 @@ def test_ovh_marked_ex_tax_and_index_page_linked():
     assert 'href="https://thelanternworks.com/cost/"' in (ROOT / "gpu/index.html").read_text()
 
 
-def test_rtx4090_explains_missing_cheapest_line():
-    s = _page("rtx-4090", 100)
-    sec = s.split("<h2>RTX 4090 24GB</h2>")[1].split("</p>")[0]
-    assert "Cheapest among tracked providers" not in sec and "No &#x27;cheapest&#x27; line: only 2 in-stock vendors" in sec
+def test_rtx4090_has_cheapest_line_with_3_plus_vendors():
+    import json
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    ok = {r["advertiser"] for r in feed["rates"] if r["gpu"] == "RTX 4090" and r["tier_class"] == "on-demand"
+          and not r["interruptible"] and r["availability"].get("in_stock") is not False}
+    assert len(ok) >= 3
+    for h in (10, 100, 730):
+        sec = _page("rtx-4090", h).split("<h2>RTX 4090 24GB</h2>")[1].split("</p>")[0]
+        assert "Cheapest RTX 4090 24GB among tracked providers:" in sec and "No &#x27;cheapest" not in sec
+
 
 
 def test_h1_scoped_cheapest_and_page_lowest():
