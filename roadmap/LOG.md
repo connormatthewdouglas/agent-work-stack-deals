@@ -185,3 +185,11 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Merged Atrium's PR #31: /methodology/ page (sources, daily checks, holds, reserved not ranked) and T28 install snippets for LlamaIndex, Open WebUI, Roo Code and Continue. Merge commit fcf27fc3.
 - License fix before merge (8308581f): the PR said data was CC BY 4.0 and code MIT, but the repo LICENSE is MIT for everything (pyproject license = "MIT"). The page now says code and data are MIT, matching LICENSE. Moving the data to CC BY 4.0 would need a LICENSE change and is the owner's call.
 - Checks: 191 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Hosted /mcp tools/list returns 7 tools, matching the install page. Gist deals.json identical. Sitemap has /methodology/ and the 7 -rental-price pages, no cheapest-* pages; canonicals unchanged. No PyPI release or hosted redeploy. Shared checkout clean.
+
+## 2026-10-29 — PR #30, PR #32 merged; release 0.3.17 (Mart)
+- PR #30 (Relay, T38 price-change cursors and stable event/rate ids): merged main in (59b3aa49), CI green, merge commit 08ca3fa7.
+- PR #32 (T39 rate_id on every compare row and optimizer option, deterministic quote_id receipts): retargeted to main after #30, merged main in (36ccca0d), CI green, merge commit 2cd561ec.
+- Release 0.3.17 (74bef944): PyPI uploaded, MCP Registry published, hosted worker redeployed (version c2489a69). Hosted check: serverInfo 0.3.17; compare_gpu_prices rows carry rate_id; optimize_stack returns the same quote_id on two calls with different issued_at; get_price_changes returns event_id and next_cursor.
+- Checks: 211 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Gist deals.json identical. Canonicals and sitemap unchanged.
+- Main CI live-checks failed on the release push: check_gpu_sources flags Massed Compute L40S On-Demand ($0.97 quote not found on https://massedcompute.com/pricing/; the fetched page has no "L40S" text). Not changed here; needs a re-check by hand or a hold.
+- Moved a stray old clone (main/pr27) out of the repo dir; it was making the tests and validator read old pages.
