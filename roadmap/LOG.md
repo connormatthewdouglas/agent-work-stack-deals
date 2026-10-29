@@ -101,3 +101,23 @@ Decisions relayed by Bjorn under Frosty's delegation:
 - There is no breaking rename: the name stays `lantern-works-deals-mcp`. Display text is GPU-first, and compare_gpu_prices and get_price_changes are listed before search_deals.
 - Stack Optimizer: no new non-GPU lines.
 - Pulse weekly report final and Hashnode variant were regenerated from the live feeds (2026-10-29T13:33:43Z) and are ready for Bjorn to publish.
+
+## 2026-10-29 10:20 AM ET — hosted endpoint ref tags
+Hosted endpoint: https://lantern-works-mcp.lantern-works.workers.dev/mcp (Streamable HTTP). Counts per tool, day and ref: /stats.json.
+
+| ref | Listing | Status |
+| --- | --- | --- |
+| install | https://thelanternworks.com/install/ | live (PR #18) |
+| github-readme | https://github.com/connormatthewdouglas/agent-work-stack-deals#readme | live (existing) |
+| docker | https://github.com/docker/mcp-registry/pull/6278 | PR open |
+| awesome-mcp | https://github.com/punkpeye/awesome-mcp-servers/pull/17770 | PR open |
+| mobinx | https://github.com/MobinX/awesome-mcp-list/pull/977 | PR open |
+| yuzehao | https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/758 | PR open |
+| rohitg00 | https://github.com/rohitg00/awesome-devops-mcp-servers/pull/389 | PR open |
+| e2b | https://github.com/e2b-dev/awesome-ai-agents/pull/1861 | PR open |
+| llmops | https://github.com/tensorchord/Awesome-LLMOps/pull/1067 | PR open (DCO blocked: first commit unsigned) |
+| cline | https://github.com/cline/mcp-marketplace/issues/3319 | issue open |
+| devto | https://dev.to/lanternworks/describe-your-agent-get-the-cheapest-sourced-infra-stack-bci | pending (Frosty edits) |
+| hashnode | https://lanternworks.hashnode.dev/describe-your-agent-get-the-cheapest-sourced-infra-stack | pending (Frosty edits) |
+
+Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.directory (no edit path).
