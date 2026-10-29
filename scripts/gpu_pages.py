@@ -153,7 +153,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             "<th>Price verified</th>" + ("<th>Availability (manual snapshot, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             "<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
-            + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
+            + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. "
                + STOCK_EXPLAINER + " " if has_av else
                "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as a manual snapshot "
                "(" + STOCK_EXPLAINER + ") ")

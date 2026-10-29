@@ -133,3 +133,9 @@ def test_j3_page_ties_match_mcp_rule():
     rows = [{**base, "advertiser": "B"}, {**base, "advertiser": "A"}, {**base, "advertiser": "C", "hourly_equiv_usd": 0.5}]
     assert gp._tied_names(G, rows, rows[0]) == "A and B (tie)"
     assert gp._tied_names(G, rows[2:], rows[2]) == "C"
+
+
+def test_j5_explainer_not_doubled():
+    import glob
+    for f in glob.glob(str(ROOT / "gpu/*/index.html")):
+        assert "Where a status is shown, Where" not in open(f).read()
