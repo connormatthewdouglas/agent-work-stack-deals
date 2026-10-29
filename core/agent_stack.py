@@ -34,9 +34,13 @@ COMPONENTS = {
     "database": ("Database", None, r"\bdatabase\b|\bpostgres\w*|\bvector\s+(?:db|store|database)\b|\brag\b", {"database"}),
     "monitoring": ("Monitoring", None, r"\bmonitor\w*|\buptime\b|\bobservability\b|\blogs?\b", {"uptime-monitoring", "observability", "monitoring"}),
 }
-_NUM = r"(\d[\d,]*(?:\.\d+)?)\s*([km])?"
+# A quantity starts at a word boundary: never the digits inside a GPU model name (H100, A100, L40S, B200, RTX 4090).
+_NUM = r"(?<![a-z\d.])(\d[\d,]*(?:\.\d+)?)\s*([km])?"
+# GPU model names, so "10 H100 GPU hours" / "10x A100 hours" read the hours, not the model number.
+GPU_MODEL_RX = r"(?:rtx\s?\d{4}|[a-z]{1,2}\d{1,3}[a-z]{0,2}|[345]0[5-9]0)"
+GPU_MODEL_RE = r"\b(h100|h200|a100|b200|l40s|l4|a10g?|rtx\s?\d{4}|[345]0[5-9]0)\b"
 QTY_PATTERNS = {
-    "gpu_hours": _NUM + r"\s*(?:gpu[- ]?)?(?:hours|hrs|h)\b",
+    "gpu_hours": _NUM + r"\s*(?:x\s*)?(?:" + GPU_MODEL_RX + r"\s*)?(?:gpu[- ]?)?(?:hours|hrs|h)\b",
     "scrape_pages": _NUM + r"(?:\s+[a-z-]+){0,3}?\s*(?:pages|urls|sites?)\b",
     "proxy_gb": _NUM + r"\s*gb\b(?:\s+of)?(?:\s+(?:proxy|residential|traffic|bandwidth))?",
     "search_queries": _NUM + r"\s*(?:search(?:es)?|queries|serp\s+(?:calls|requests))\b",
@@ -80,10 +84,10 @@ def parse(description: str) -> dict:
     if ms:
         size = float(ms.group(1))
     gm = None
-    mg = re.search(r"\b(h100|h200|a100|b200|l40s|l4|a10g?|rtx\s?\d{4})\b", text)
+    mg = re.search(GPU_MODEL_RE, text)
     if mg:
         g = mg.group(1).upper().replace(" ", "")
-        gm = "RTX " + g[3:] if g.startswith("RTX") else g
+        gm = "RTX " + g[3:] if g.startswith("RTX") else "RTX " + g if g.isdigit() else g
     js = bool(re.search(JS_RE, text))
     budget = None
     mb = re.search(BUDGET_RE, text)
