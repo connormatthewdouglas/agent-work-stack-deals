@@ -47,10 +47,21 @@ def _rate_str(r: dict) -> str:
     return f"${r['price_usd']:,.2f}/mo"
 
 
+def _quote_html(esc, r: dict, n: int = 70) -> str:
+    """H4: short cleaned excerpt; the full verbatim quote is one click away."""
+    q = " ".join(((r.get("evidence") or {}).get("quote") or "").split())
+    src = esc(r.get("source_url") or "")
+    if len(q) <= n:
+        return f"<a href=\"{src}\" rel=\"noopener\">\u201c{esc(q)}\u201d</a>"
+    short = q[:n].rsplit(" ", 1)[0]
+    return (f"<details class=\"quote\"><summary>\u201c{esc(short)}\u2026\u201d</summary>"
+            f"<a href=\"{src}\" rel=\"noopener\">\u201c{esc(q)}\u201d</a></details>")
+
+
 def _avail_cell(gen, r: dict) -> str:
     a = r.get("availability") or {}
     if a.get("in_stock") is None:
-        return "unknown"
+        return "—"
     bits = [a["status"]]
     if a.get("stock_level"):
         bits.append(f"stock {a['stock_level']}")
@@ -92,6 +103,7 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
 def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
     esc = gen.esc
     trs = []
+    has_av = any((r.get("availability") or {}).get("in_stock") is not None for r in rows)
     for i, r in enumerate(rows, 1):
         tc = r.get("tier_class") or "on-demand"
         badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
@@ -100,8 +112,9 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
             f"<td data-label=\"Type\">{esc(r['tier'])}{badge}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
             f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_money(r['monthly_cost_usd'])}</strong></td><td data-label=\"Full month\">{_money(full[_key(r)])}</td>"
-            f"<td data-label=\"Vendor quote\"><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['evidence']['quote'])}”</a></td>"
-            f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td><td data-label=\"Availability\">{_avail_cell(gen, r)}</td><td data-label=\"Label\">{'referral' if r['affiliate'] else 'public'}</td></tr>")
+            f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
+            f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
+            + f"<td data-label=\"Link\">{'Referral link' if r['affiliate'] else 'Direct link'}</td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
@@ -109,11 +122,15 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
     if not show_filter:
         filt = ""
     return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
-            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote (verbatim)</th>"
-            "<th>Price verified</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
-            "<p class=\"meta\">Availability: \u201cunknown\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
-            "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. Vast.ai offer counts come from a "
-            "separate, later check than the price quote, so counts and minimums can differ.</p>")
+            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
+            "<th>Price verified</th>" + ("<th>Availability (manual snapshot, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
+            "<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
+            "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
+            + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
+               "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. " if has_av else
+               "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as a manual snapshot "
+               "(stock changes within minutes, so it is not a guarantee). ")
+            + "Vast.ai offer counts come from a separate, later check than the price quote, so counts and minimums can differ.</p>")
 
 
 def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, str]], gen) -> str:
