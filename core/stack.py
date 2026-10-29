@@ -141,7 +141,7 @@ def _tc(r):
     return tier_class(r)
 
 
-def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -> list[dict]:
+def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, gpus: int = 1) -> list[dict]:
     hpm = gpu_data.get("hours_per_month") or 730
     out = []
     for r in gpu_data.get("rates") or []:
@@ -150,12 +150,14 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -
             continue
         if (r.get("tier_class") or _tc(r)) == "reserved":
             continue  # reservation/commitment "starting from" prices need a term contract; not a pay-as-you-go option
-        mg = r.get("min_gpus") or 1
+        per = r.get("gpu_count") or 1
+        servers = math.ceil(max(gpus, r.get("min_gpus") or 1) / per)
+        mg = servers * per  # billed GPUs: whole servers/instances only
         if r.get("unit") == "hour":
-            cost, calc = r["price_usd"] * hours * mg, f"${r['price_usd']:g}/hr x {hours:,g} h" + (
-                f" x {mg} GPUs (sold only as {mg}-GPU instances)" if mg > 1 else "")
+            cost, calc = r["price_usd"] * hours * mg, f"${r['price_usd']:g}/hr x {hours:,g} h x {mg} GPU" + (
+                (f" ({gpus} requested, {mg} billed: sold only as whole {per}-GPU servers)" if per > 1 else f" ({gpus} requested, {mg} billed: minimum {mg} GPUs per instance)") if mg > gpus else "")
         else:
-            n = max(1, math.ceil(hours / hpm))
+            n = max(1, math.ceil(hours / hpm)) * mg  # GPU-months, whole servers only
             per = r.get("gpu_count") or 1
             cost, calc = r["price_usd"] * n, (f"${r['price_usd']:g}/GPU-mo x {n} (per GPU; sold as {per}-GPU servers at "
                                               f"${r.get('server_price_usd') or 0:,.2f}/mo), flat regardless of hours"

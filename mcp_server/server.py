@@ -99,7 +99,8 @@ def _run(fn, *a, **kw) -> dict:
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
 @_contract
-def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = False, include_reserved: bool = False) -> dict:
+def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = False, include_reserved: bool = False,
+                       max_data_age_hours: float | None = None) -> dict:
     """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
@@ -111,6 +112,8 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     on-demand rates, and the summary names the cheapest on-demand rate when the overall cheapest isn't.
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
+    Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
+    max_data_age_hours (optional) drops older rates; excluded_too_old reports how many were dropped.
     """
     try:
         hist = None
@@ -119,7 +122,8 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
                 hist = history_loader.load()
             except DealError as e:
                 hist = {"series": [], "changes": [], "error": e.message}
-        out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, history=hist, on_demand_only=on_demand_only, include_reserved=include_reserved)
+        out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, history=hist, on_demand_only=on_demand_only, include_reserved=include_reserved,
+                                     max_data_age_hours=max_data_age_hours)
         if hist and hist.get("error"):
             out["history"]["error"] = hist["error"]
         out.update(core.freshness(_gpu_checked_at()))
@@ -196,7 +200,7 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
                          gpu_model: str | None = None, model_size_b: float | None = None, scrape_pages: float | None = None,
                          js_rendering: bool | None = None, proxy_gb: float | None = None, search_queries: float | None = None,
                          emails_sent: float | None = None, llm_api: bool | None = None, monthly_budget_usd: float | None = None,
-                         exclude_manual_signup: bool = False) -> dict:
+                         exclude_manual_signup: bool = False, max_data_age_hours: float | None = None) -> dict:
     """Estimate a monthly stack cost from a short description of the agent being built.
 
     description: free text, e.g. 'scrapes 20k JS pages/month via 5 GB residential proxies, 3k search queries,
@@ -207,7 +211,7 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
     monthly_budget_usd. Each component gets the cheapest option with a cited price among tracked providers, with
     calc, source_url, verified_at, referral_disclosure (set when the link is a referral link) and manual-signup
     notes. Components with no cited price say 'no sourced price tracked' (nothing is estimated). Totals show the
-    math and say whether they are complete. Pulled listings are excluded. Same data as optimize_stack,
+    math and say whether they are complete. Pulled listings are excluded. Every option has data_age_hours, degraded (> 48 h) and stale (> 7 days); max_data_age_hours drops older options (excluded_too_old counts them). Same data as optimize_stack,
     compare_gpu_prices and the deal feed.
     """
     try:
@@ -220,7 +224,8 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
                                gpu_hours=gpu_hours, gpu_model=gpu_model or None, model_size_b=model_size_b,
                                scrape_pages=scrape_pages, js_rendering=js_rendering, proxy_gb=proxy_gb,
                                search_queries=search_queries, emails_sent=emails_sent, llm_api=llm_api,
-                               monthly_budget_usd=monthly_budget_usd, exclude_manual_signup=exclude_manual_signup)
+                               monthly_budget_usd=monthly_budget_usd, exclude_manual_signup=exclude_manual_signup,
+                               max_data_age_hours=max_data_age_hours)
         out["data_sources"] = [core.GPU_PRICES_URL, core.STACK_PRICING_URL, core.FEED_URL]
         out.update(core.freshness(_gpu_checked_at(gpu) if gpu else None))
         return out

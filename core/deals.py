@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.11"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.12"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -273,7 +273,8 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
 
 
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
-                       on_demand_only: bool = False, include_reserved: bool = False) -> dict:
+                       on_demand_only: bool = False, include_reserved: bool = False,
+                       max_data_age_hours: float | None = None, now: datetime | None = None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     vram_m = re.search(r"\b(\d{2,3})\s*gb\b", gpu or "", re.I)
@@ -289,6 +290,19 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             and (want_vram is None or r.get("vram_gb") == want_vram)]
     if not rows:
         raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
+    from . import data_age
+    try:
+        max_h = data_age.validate_max_age(max_data_age_hours)
+    except ValueError as e:
+        raise DealError("invalid_argument", str(e))
+    excluded_too_old = 0
+    if max_h is not None:
+        keep = [r for r in rows if not data_age.too_old(r, max_h, now)]
+        excluded_too_old = len(rows) - len(keep)
+        if not keep:
+            raise DealError("not_found", f"No tracked price for GPU '{gpu}' verified within {max_h:g} hours "
+                                         f"({excluded_too_old} older rates exist; raise or omit max_data_age_hours)")
+        rows = keep
     excluded = 0
     if on_demand_only:
         keep = [r for r in rows if tier_class(r) == "on-demand"]
@@ -323,6 +337,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["tier_class"] = tier_class(r)
         out["tier_note"] = TIER_NOTES[out["tier_class"]]
         out["rank"] = i
+        out.update(data_age.age_fields(r, now))
         results.append(out)
     c = results[0]
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
@@ -340,6 +355,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
         "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
+        "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old,
+        "data_age": {"degraded_after_hours": data_age.DEGRADED_HOURS, "stale_after_hours": data_age.STALE_HOURS,
+                     "stale_count": sum(1 for x in results if x["stale"]), "degraded_count": sum(1 for x in results if x["degraded"])},
         "tier_classes": TIER_NOTES,
         "scope": "cheapest among tracked providers",
         "total": len(rows), "count": len(results), "results": results,

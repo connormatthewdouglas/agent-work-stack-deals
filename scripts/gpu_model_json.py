@@ -37,7 +37,8 @@ def _row(r: dict) -> dict:
            "hourly_usd_per_gpu": r.get("hourly_equiv_usd"), "unit": r["unit"], "price_usd": r["price_usd"],
            "gpu_count": r.get("gpu_count") or 1, "server_hourly_usd": r.get("server_hourly_usd"),
            "min_gpus": r.get("min_gpus") or 1, "price_status": r.get("price_status"),
-           "verified_at": r.get("verified_at"), "source_url": r.get("source_url"), "quote": ev.get("quote"), "interruption_quote": ev.get("interruption_quote")}
+           "verified_at": r.get("verified_at"), "source_url": r.get("source_url"), "quote": ev.get("quote"), "interruption_quote": ev.get("interruption_quote"),
+           "availability": r.get("availability")}
     return {k: v for k, v in out.items() if v is not None}
 
 
