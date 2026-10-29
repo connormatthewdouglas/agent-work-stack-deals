@@ -138,7 +138,7 @@ async def _handle(msg, env, ref, bearer=None):
         name, args = p.get("name"), p.get("arguments") or {}
         if name in watch_store.NAMES:
             try:
-                out = await watch_store.call(name, args, env, bearer, _watch_feeds)
+                out = await watch_store.call(name, args, env, bearer, _watch_feeds, fetch)
             except core_deals.DealError as e:
                 out = {"ok": False, "error": {"code": e.code, "message": e.message}}
             await _count(env, name, ref)

@@ -87,17 +87,31 @@ def feeds_for(snaps, prices, latest=None):
 
 
 class Poster:
-    def __init__(self, status=200):
-        self.calls, self.status = [], status
+    """Fake Workers fetch: DNS-over-HTTPS lookups answer from `dns` (host -> list of IPs; default a public IP);
+    webhook POSTs are recorded in .calls."""
+    def __init__(self, status=200, dns=None):
+        self.calls, self.lookups, self.status, self.dns = [], [], status, dns or {}
 
-    async def __call__(self, url, method, headers, body, redirect):
+    async def __call__(self, url, method, headers, body=None, redirect=None):
+        if url.startswith(W.DOH_URL):
+            assert method == "GET"
+            q = dict(x.split("=", 1) for x in url.split("?", 1)[1].split("&"))
+            self.lookups.append((q["name"], q["type"]))
+            ips = self.dns.get(q["name"], ["93.184.216.34"])
+            want = 28 if q["type"] == "AAAA" else 1
+            ans = [{"type": 28 if ":" in ip else 1, "data": ip} for ip in ips]
+            text = json.dumps({"Answer": [a for a in ans if a["type"] == want]})
+
+            async def _text():
+                return text
+            return types.SimpleNamespace(status=200, text=_text)
         assert method == "POST" and redirect == "manual"
         self.calls.append((url, headers, body))
         return types.SimpleNamespace(status=self.status)
 
 
 def signup(e, url="https://hooks.example.com/lw"):
-    out = run(S.call("create_watch_key", {"webhook_url": url}, e, None, feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))))
+    out = run(S.call("create_watch_key", {"webhook_url": url}, e, None, feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1)), Poster()))
     assert out["ok"], out
     return out
 
@@ -238,7 +252,29 @@ def test_signup_rejects_bad_url_and_needs_master():
     f = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
     assert run(S.call("create_watch_key", {"webhook_url": "https://10.1.2.3/h"}, e, None, f))["ok"] is False
     e.WATCH_SIGNING_MASTER = None
-    assert run(S.call("create_watch_key", {"webhook_url": "https://hooks.example.com/h"}, e, None, f))["error"]["code"] == "watch_unavailable"
+    assert run(S.call("create_watch_key", {"webhook_url": "https://hooks.example.com/h"}, e, None, f, Poster()))["error"]["code"] == "watch_unavailable"
+
+
+@pytest.mark.parametrize("ips", [["10.0.0.7"], ["127.0.0.1"], ["169.254.169.254"], ["93.184.216.34", "192.168.0.2"], ["::1"],
+                                 ["fe80::1"], ["100.64.0.1"], []])
+def test_signup_blocks_hosts_resolving_private(ips):
+    e = env()
+    f = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    out = run(S.call("create_watch_key", {"webhook_url": "https://rebind.example.com/h"}, e, None, f, Poster(dns={"rebind.example.com": ips})))
+    assert out["ok"] is False and out["error"]["code"] == "invalid_argument"
+    # no fetch available -> fails closed
+    assert run(S.call("create_watch_key", {"webhook_url": "https://hooks.example.com/h"}, e, None, f))["ok"] is False
+
+
+def test_cron_rechecks_dns_before_posting():
+    e = env()
+    api = signup(e)["api_key"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    p = Poster(dns={"hooks.example.com": ["10.9.9.9"]})  # DNS changed to a private IP after signup
+    r = run(S.run_cron(e, f2, p))
+    assert r["sent"] == 0 and r["blocked_private"] == 1 and p.calls == []
 
 
 def test_tool_names_no_collision_and_stdio_keyless():

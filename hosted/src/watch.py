@@ -29,6 +29,8 @@ MAX_ALERTS_PER_KEY_PER_DAY = 100
 MAX_CALLS_PER_KEY_PER_DAY = 2000
 MAX_SIGNUPS_PER_DAY = 200
 MAX_POSTS_PER_RUN = 40          # free plan: 50 subrequests per invocation; 3 feed fetches + headroom
+SUBREQUEST_BUDGET = 45          # per cron run after the 3 feed fetches: webhook POSTs + 2 DNS lookups per new host
+DOH_URL = "https://cloudflare-dns.com/dns-query"
 LOOKBACK_DAYS = 7               # failed deliveries are retried on later runs within this window
 BLOCKED_HOST_SUFFIXES = (".localhost", ".local", ".internal", ".lan", ".home.arpa", ".intranet", ".corp")
 
@@ -120,6 +122,26 @@ def validate_webhook_url(url) -> str:
         if not mapped.is_global or mapped.is_multicast:
             raise WatchError("invalid_argument", "webhook_url must not point at a private, loopback, link-local or reserved IP")
     return url
+
+
+def resolved_ips_public(answers_by_type: list[dict]) -> bool:
+    """DoH JSON answers (A and AAAA): True only if at least one address came back and every address is global
+    (no private, loopback, link-local, CGNAT, reserved, multicast or IPv4-mapped private targets)."""
+    ips = []
+    for doc in answers_by_type:
+        for a in (doc or {}).get("Answer") or []:
+            if a.get("type") in (1, 28):
+                try:
+                    ips.append(ipaddress.ip_address(str(a.get("data", "")).strip()))
+                except ValueError:
+                    return False
+    if not ips:
+        return False
+    for ip in ips:
+        ip = getattr(ip, "ipv4_mapped", None) or ip
+        if not ip.is_global or ip.is_multicast:
+            return False
+    return True
 
 
 def validate_email(email):

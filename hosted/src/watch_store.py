@@ -69,6 +69,26 @@ async def _run(db, sql, *a):
     return await db.prepare(sql).bind(*a).run()
 
 
+async def _host_is_public(url, fetch_fn) -> bool:
+    """Resolve the webhook host over DNS-over-HTTPS (A + AAAA) and require every address to be public. Literal IPs
+    were already checked by W.validate_webhook_url. Fails closed: no fetch, a DoH error or no answers -> False."""
+    host = (W.urlsplit(url).hostname or "").lower().rstrip(".")
+    if W._ip_literal(host) is not None:
+        return True
+    if fetch_fn is None:
+        return False
+    docs = []
+    try:
+        for t in ("A", "AAAA"):
+            r = await fetch_fn(f"{W.DOH_URL}?name={host}&type={t}", method="GET", headers={"accept": "application/dns-json"})
+            if not 200 <= int(r.status) < 300:
+                return False
+            docs.append(json.loads(await r.text()))
+    except Exception:
+        return False
+    return W.resolved_ips_public(docs)
+
+
 async def _bump(db, key_id, metric, n=1):
     await _run(db, "INSERT INTO watch_key_counters(key_id, day, metric, n) VALUES (?, ?, ?, ?) "
                    "ON CONFLICT(key_id, day, metric) DO UPDATE SET n = n + excluded.n", key_id, _today(), metric, n)
@@ -88,13 +108,15 @@ async def _auth(db, args, bearer):
     return key_id
 
 
-async def call(name, args, env, bearer, feeds):
+async def call(name, args, env, bearer, feeds, fetch_fn=None):
     """Run one hosted watch tool. feeds: async () -> (prices_doc, history_doc, latest_doc)."""
     db = env.WATCH_DB
     try:
         if name == "create_watch_key":
             url = W.validate_webhook_url(args.get("webhook_url"))
             email = W.validate_email(args.get("email"))
+            if not await _host_is_public(url, fetch_fn):
+                raise W.WatchError("invalid_argument", "webhook_url host must resolve only to public IPs (private, loopback, link-local and reserved addresses are blocked)")
             master = getattr(env, "WATCH_SIGNING_MASTER", None)
             n = await _first(db, "SELECT n FROM watch_metrics WHERE day = ? AND metric = 'signups'", _today())
             if n and n["n"] >= W.MAX_SIGNUPS_PER_DAY:
@@ -170,8 +192,21 @@ async def run_cron(env, feeds, fetch_fn, now=None) -> dict:
             delivered.add((r["watch_id"], r["event_id"]))
     today_alerts = {r["key_id"]: r["n"] for r in await _all(db, "SELECT key_id, n FROM watch_key_counters WHERE day = ? AND metric = 'alerts'", today)}
     plan = W.plan_deliveries(watches, events, delivered, W.rate_regions(prices), today_alerts)
-    ok_rows, per_key, failed = [], {}, 0
+    ok_rows, per_key, failed, blocked = [], {}, 0, 0
+    host_ok, budget = {}, W.SUBREQUEST_BUDGET
     for w, ev, reason in plan:
+        host = (W.urlsplit(w["webhook_url"]).hostname or "").lower()
+        if host not in host_ok:  # re-resolve at send time (DNS can change after signup); 2 subrequests per host
+            if budget < 3:
+                break
+            budget -= 2
+            host_ok[host] = await _host_is_public(w["webhook_url"], fetch_fn)
+        if not host_ok[host]:
+            blocked += 1
+            continue
+        if budget < 1:
+            break
+        budget -= 1
         body = W.dumps(W.payload(w, ev, reason, _now_iso()))
         ts = int(now if now is not None else time.time())
         headers = {"content-type": "application/json", "user-agent": "LanternWorks-PriceWatch/1",
@@ -199,7 +234,7 @@ async def run_cron(env, feeds, fetch_fn, now=None) -> dict:
     if ok_rows or failed:
         await _run(db, "INSERT INTO watch_metrics(day, metric, n) VALUES (?, 'alerts_delivered', ?), (?, 'alerts_failed', ?) "
                        "ON CONFLICT(day, metric) DO UPDATE SET n = n + excluded.n", today, len(ok_rows), today, failed)
-    return {"sent": len(ok_rows), "failed": failed, "planned": len(plan), "events": len(events), "watches": len(watches)}
+    return {"sent": len(ok_rows), "failed": failed, "blocked_private": blocked, "planned": len(plan), "events": len(events), "watches": len(watches)}
 
 
 async def stats(env) -> dict:
