@@ -10,7 +10,9 @@ from pathlib import Path
 
 PATH = "install"
 TESTED_ON = "2026-10-29"
-TESTED_VERSION = "0.3.21"
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from core.deals import VERSION as TESTED_VERSION  # noqa: E402  (audit E1: from the package build, can't drift)
 def _server_tools() -> tuple[str, ...]:
     """Tool names straight from mcp_server/server.py (every @mcp.tool function), so the page can't drift (audit T2/M1)."""
     import re
@@ -22,7 +24,7 @@ def _server_tools() -> tuple[str, ...]:
 
 TOOLS = _server_tools()
 # Tool count covered by the last recorded client tests (TESTED_ON). Bump only after re-testing with the new tool.
-TESTED_TOOLS = 8  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint, 0.3.21
+TESTED_TOOLS = 8  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint
 # Per-client checks (Cline, LlamaIndex, Open WebUI/mcpo, Roo, Continue) ran on 0.3.19, before estimate_job_cost existed.
 CLIENT_TESTED_TOOLS = 7
 

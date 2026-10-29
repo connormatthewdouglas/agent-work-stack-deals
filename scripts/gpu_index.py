@@ -43,10 +43,14 @@ def feed_at_date(repo, date):
         capture_output=True, text=True).stdout.strip()
     if not sha:
         p = os.path.join(repo, "api/v1/gpu-prices.json")
-        return (json.load(open(p)), "working-tree") if os.path.exists(p) else (None, None)
+        return (json.load(open(p)), _head(repo)) if os.path.exists(p) else (None, None)
     blob = subprocess.run(["git", "-C", repo, "show", f"{sha}:api/v1/gpu-prices.json"],
         capture_output=True, text=True).stdout
     return json.loads(blob), sha
+
+def _head(repo):
+    """Commit sha of the build (audit E9), not the non-reproducible 'working-tree'."""
+    return subprocess.run(["git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip() or None
 
 def listing_counts(feed):
     out = {}
@@ -62,7 +66,7 @@ def series_of(row):
 
 def compute_day(repo, path, worktree=False):
     snap = json.load(open(path)); date = snap["date"]
-    feed, sha = feed_at_date(repo, date) if not worktree else (json.load(open(os.path.join(repo, "api/v1/gpu-prices.json"))), "working-tree"); counts = listing_counts(feed)
+    feed, sha = feed_at_date(repo, date) if not worktree else (json.load(open(os.path.join(repo, "api/v1/gpu-prices.json"))), _head(repo)); counts = listing_counts(feed)
     included, excluded = [], []
     for r in snap["rows"]:
         s = series_of(r)

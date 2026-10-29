@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.3.21, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.3.22, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -40,10 +40,11 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 
 | Tool | Args | Returns |
 |---|---|---|
-| `compare_gpu_prices` | `gpu` (e.g. `H100`, `A100 SXM`, `RTX 4090`), `limit` (1-25, default 10), `include_history` (default false), `on_demand_only` (bool, default false) | `{summary, scope, total, results[], data_source, feed_updated_at, ...}` sorted by `hourly_usd`; each result has `source_url` and `checked_at`. With `include_history=true`, each result adds `price_history` (daily-snapshot change points) and the response adds `history.recent_changes` (last 30 days) |
+| `compare_gpu_prices` | `gpu` (e.g. `H100`, `A100 SXM`, `RTX 4090`), `limit` (1-25, default 10), `include_history` (default false), `on_demand_only` (bool, default false) | `{summary, scope, total, results[], data_source, feed_updated_at, ...}` sorted by `hourly_usd`; each result has `source_url`, `checked_at` and `report_issue_url`. With `include_history=true`, each result adds `price_history` (daily-snapshot change points) and the response adds `history.recent_changes` (last 30 days) |
 | `get_price_changes` | `since` (`YYYY-MM-DD`, optional), `gpu` (substring filter, optional), `limit` (1-200, default 50) | GPU price moves among tracked providers, newest first (drops, rises, removals, then newly tracked rates): `from_hourly_usd`, `to_hourly_usd`, `change_pct`, `direction`, `source_url`; `window`, counts, `data_checked_at`, `next_refresh_utc`. Without `since`, the latest day (/api/v1/gpu-price-changes.json); with it, /api/v1/gpu-prices/history.json. Bad date → `invalid_argument` |
 | `optimize_stack` | `scrape_pages`, `scrape_pages_js`, `proxy_gb`, `emails_sent`, `search_queries`, `gpu_hours`, `gpu_model`, `exclude_manual_signup` | per-line chosen plan, `monthly_cost_usd`, calc, vendor quote, `source_url`, `checked_at`, assumptions, alternatives; unpublished prices are `unknown` |
 | `optimize_agent_stack` | `description` (free text) plus optional `workload`, `gpu_hours`, `gpu_model`, `model_size_b`, `scrape_pages`, `js_rendering`, `proxy_gb`, `search_queries`, `emails_sent`, `llm_api`, `monthly_budget_usd`, `exclude_manual_signup` | `parsed` (what the deterministic parse found), per-component cheapest cited option with calc, `source_url`, `verified_at`, `referral_disclosure`, manual-signup notes; `monthly_estimate_usd` with `estimate_math` and `estimate_is_complete`; "no sourced price tracked" where there is no data |
+| `estimate_job_cost` | `gpu_family`, `gpus_per_job`, `job_hours` or (`work_units` + `throughput_units_per_gpu_hour`), optional `workload`, `allow_interruptible` (default false), `min_vram_gb`, `runs_per_month`, `top_n` (default 5), `max_data_age_hours` | cost of one job (compute subtotal), cheapest first: `results[]` with `rate_id`, `allocated_gpus`, `source_url`, `verified_at`, data age; `assumptions`, `citations`, `missing_costs`, `budget_verdict`, `quote_id`. Inference workloads without your throughput use a cited MLPerf figure (`throughput_basis`, `throughput_source`); otherwise `not_found` "missing: throughput" |
 | `search_deals` | `query`, `category`, `offer_type`, `max_price`, `tags[]`, `limit` (1-25, default 10), `cursor` | `{total, count, results[], next_cursor}` (summary fields only) |
 | `compare_deals` | `ids` (2-5) | `{order, deals[], note}` best value first |
 | `get_deal` | `id` | the deal's public record |

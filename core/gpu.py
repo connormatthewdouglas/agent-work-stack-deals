@@ -194,6 +194,17 @@ def is_gpu_deal(d: dict) -> bool:
     return any(t in (d.get("tags") or []) for t in GPU_TAGS)
 
 
+_DASHES = re.compile("[\u2010\u2011\u2012\u2013\u2014\u2015\u2212]")
+
+
+def normalize_tier(t: str | None) -> str | None:
+    """ASCII hyphens and 'On-demand' casing for the tier label (audit E6); evidence quotes stay verbatim."""
+    if t is None:
+        return None
+    t = _DASHES.sub("-", t)
+    return t.replace("On-Demand", "On-demand")
+
+
 def _tier_class(r: dict) -> str:
     from .deals import tier_class
     return tier_class(r)
@@ -252,7 +263,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "price_status": r.get("price_status", "listed"),
                 "price_basis": r.get("price_basis"),
                 "lowest_offer_usd": r.get("lowest_offer_usd"), "offer_count": r.get("offer_count"),
-                "unit": "month" if monthly else "hour", "tier": r["tier"],
+                "unit": "month" if monthly else "hour", "tier": normalize_tier(r["tier"]),
                 "hourly_equiv_usd": r["hourly_usd"],
                 "billing": {"per-second": "per second while running", "hourly": "per hour while running",
                             "monthly": "flat monthly (dedicated server)"}[r["billing_unit"]],

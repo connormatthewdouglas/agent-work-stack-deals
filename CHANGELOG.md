@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.22 (2026-10-29)
+- Data QA fixes (Gauge EOD audit): Clore.ai's duplicate deal record (deal-cloreai-001) is retired, so Clore.ai is no longer listed as unpriced (its priced rows are under deal-clore-ai); the old URL redirects. CloudRift tier labels are normalized to ASCII "On-demand" (the vendor quote stays verbatim). The Vast.ai availability note no longer says "later". GPU Price Index rows record the real build commit sha. /install/ takes its version from the package. Both READMEs list all 8 tools.
+- Massed Compute (L40S, announced in 0.3.14) was pulled on 2026-10-29: its pricing page no longer lists that offer (aa59c8d2).
+
 ## 0.3.21 (2026-10-29)
 - `estimate_job_cost` (T20 Phase B, #44): inference jobs can now use cited published MLPerf throughput figures for H100, A100, L40S and RTX 4090 (data/gpu_throughput.json, #43: 71 cited figures, 8 documented gaps). Each figure carries its source; training jobs and uncited GPU/model pairs still return missing rather than a guess.
 - Hosted endpoint: price-alert webhooks are delivered again after each daily price refresh, HMAC-signed, deduped by event_id, https-only with the private-IP check after DNS resolution.
@@ -47,7 +51,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 - T36 (#24): every MCP tool now publishes a typed outputSchema and returns `ok`; failures return `error {code, message}` with a stable code (invalid_argument, invalid_cursor, not_found, feed_unavailable, feed_invalid, upstream_unavailable, internal_error). New `mode` argument: `full` (default, unchanged output) or `brief` (essential fields only). Same contract on the hosted worker.
 - T4 (#21) fail-closed compliance gate: deals carry a public `publish_status: "approved"` (feed schema 1.6.0), set only from the private review registry; any build without the registry publishes only entries marked approved (possibly none). Private compliance fields are unchanged and stay out of the public feed. All 203 live deals are registry-approved, so the feed count is unchanged (203 deals, 88 GPU rates).
 - GPU availability (Scout v2.3 snapshot): Verda rows labelled "authenticated vendor API (not publicly reproducible)"; a known zero is "out of stock when checked", while no signal stays "unknown"; regions shown where the API gives them.
-- GPU availability: each rate in api/v1/gpu-prices.json and api/v1/gpu/<family>.json carries `availability` from a manual Lantern Scout snapshot, with its own `checked_at` separate from the daily price check. No signal shows "unknown" (with its own note, never "out of stock"); stock changes within minutes and is never a guarantee. Vast.ai offer counts come from a separate, later check than the price quote, so they can differ from the quote. The GPU price tables gained an Availability column.
+- GPU availability: each rate in api/v1/gpu-prices.json and api/v1/gpu/<family>.json carries `availability` from a manual Lantern Scout snapshot, with its own `checked_at` separate from the daily price check. No signal shows "unknown" (with its own note, never "out of stock"); stock changes within minutes and is never a guarantee. Vast.ai offer counts come from a separate check (its own checked_at) from the price quote, so they can differ from the quote. The GPU price tables gained an Availability column.
 
 ## 0.3.12 (2026-10-29)
 

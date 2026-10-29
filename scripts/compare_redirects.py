@@ -34,3 +34,22 @@ def write_all(g) -> list[str]:
         (rev / "index.html").write_text(page, encoding="utf-8")
         made.append(rev.name)
     return made  # not sitemap paths
+
+
+# Retired duplicate deal records -> the record that carries the vendor's prices (audit E3). noindex, not in sitemap.
+RETIRED_DEALS = {"cloreai-001": "clore-ai"}
+
+
+def write_retired_deals(g) -> list[str]:
+    made = []
+    for old, new in RETIRED_DEALS.items():
+        d = Path(g.ROOT) / "deals" / old
+        target = f"{g.BASE}/deals/{new}/"
+        page = g.page_shell("This deal moved", "This deal record was merged into another page.", target,
+                            f'  <p>This deal is now at <a href="{html.escape(target)}">{html.escape(target)}</a>.</p>\n',
+                            robots="noindex,follow")
+        page = page.replace("<head>", f'<head>\n  {MARK}\n  <meta http-equiv="refresh" content="0; url={html.escape(target)}" />', 1)
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "index.html").write_text(page, encoding="utf-8")
+        made.append(old)
+    return made

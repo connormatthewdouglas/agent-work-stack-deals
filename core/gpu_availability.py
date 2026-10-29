@@ -10,7 +10,7 @@ from pathlib import Path
 PATH = Path(__file__).resolve().parents[1] / "data" / "gpu_availability" / "latest.json"
 NOTE = "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee."
 UNKNOWN_NOTE = "No availability signal from this vendor for this offer; unknown, not sold out."
-VAST_NOTE = ("Vast.ai: the offer count is from a separate, later availability check (its own checked_at), not the "
+VAST_NOTE = ("Vast.ai: the offer count is from a separate availability check (its own checked_at), not the "
              "price snapshot; offer counts and prices on the marketplace move between checks, so they can differ "
              "from the count/minimum in the price quote.")
 _CACHE: dict | None = None

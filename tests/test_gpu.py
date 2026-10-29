@@ -284,3 +284,15 @@ def test_cheapest_pages_canonical_to_rental_price_page():
     for p in sorted((root / "gpu").glob("*-rental-price/index.html")):
         assert f'<link rel="canonical" href="https://thelanternworks.com/gpu/{p.parent.name}/"' in p.read_text()
         assert f"/gpu/{p.parent.name}/" in sitemap
+
+
+def test_tier_labels_ascii_normalized():
+    import json
+    from pathlib import Path
+    from core.gpu import normalize_tier
+    assert normalize_tier("On\u2011Demand") == "On-demand"
+    assert normalize_tier("Spot") == "Spot"
+    feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text(encoding="utf-8"))
+    for r in feed["rates"]:
+        assert r["tier"] == normalize_tier(r["tier"]), r["tier"]
+    assert not any(u["deal_id"] == "deal-cloreai-001" for u in feed.get("unpriced", []))

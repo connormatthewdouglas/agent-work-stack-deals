@@ -15,7 +15,7 @@ def test_unknown_is_never_out_of_stock_and_has_note():
             assert "not a guarantee" in a["note"] and "manual snapshot" in a["refresh"]
             assert a["checked_at"] and a["checked_at"] != r["verified_at"]  # separate timestamp from the price
         if r["advertiser"] == "Vast.ai" and a["in_stock"] is not None:
-            assert "separate, later" in a["consistency_note"] and "same snapshot" not in a["consistency_note"]
+            assert "later" not in a["consistency_note"] and "same snapshot" not in a["consistency_note"]
     rp = [r for r in rates if r["advertiser"] == "RunPod" and "Community" in r["tier"]]
     assert rp and all(r["availability"]["status"] == "unknown" or r["availability"]["in_stock"] is not None for r in rp)
     assert any("no stock status" in r["availability"]["note"] for r in rp) and all("out of stock" not in r["availability"]["note"] for r in rp)
