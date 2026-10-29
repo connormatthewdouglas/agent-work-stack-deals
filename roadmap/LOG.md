@@ -180,3 +180,8 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 ## 2026-10-29 — PR #29 merged (Mart)
 - Merged Atrium's PR #29 (390px overflow fixes: tables on /install/, /gpu/price-comparison/, /stack/, /for-agents/ and the stack optimizer wrapped in .tscroll, sticky first column on wide tables, long links/code wrap, pre scrolls). Merge commit 8b57c38c. Markup/CSS only.
 - Checks: 189 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Gist deals.json identical. Canonical setup holds: 7 /gpu/<model>-rental-price/ pages self-canonical and in the sitemap, /gpu/cheapest-*-rental/ canonical to them and out of it, H7 refresh to /gpu/h100-rental-price/. No PyPI release or hosted redeploy. Shared checkout clean, nothing stashed.
+
+## 2026-10-29 — PR #31 merged (Mart)
+- Merged Atrium's PR #31: /methodology/ page (sources, daily checks, holds, reserved not ranked) and T28 install snippets for LlamaIndex, Open WebUI, Roo Code and Continue. Merge commit fcf27fc3.
+- License fix before merge (8308581f): the PR said data was CC BY 4.0 and code MIT, but the repo LICENSE is MIT for everything (pyproject license = "MIT"). The page now says code and data are MIT, matching LICENSE. Moving the data to CC BY 4.0 would need a LICENSE change and is the owner's call.
+- Checks: 191 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Hosted /mcp tools/list returns 7 tools, matching the install page. Gist deals.json identical. Sitemap has /methodology/ and the 7 -rental-price pages, no cheapest-* pages; canonicals unchanged. No PyPI release or hosted redeploy. Shared checkout clean.

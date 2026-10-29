@@ -16,6 +16,7 @@ NAV_ITEMS = [
     ("stack/", "Plan a stack"),
     ("tools/stack-optimizer/", "Stack optimizer"),
     ("install/", "Install (MCP)"),
+    ("methodology/", "Methodology"),
     ("for-agents/", "For agents"),
     ("changelog/", "Changelog"),
 ]
