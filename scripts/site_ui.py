@@ -23,6 +23,10 @@ NAV_ITEMS = [
 SECTIONS = {"ai-agent-tool-deals/": ("compare/", "categories/", "guides/"), "gpu/price-comparison/": ("gpu/",)}
 
 CSS = """
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
     .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
     .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
     .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
@@ -68,6 +72,8 @@ def nav_html(base: str, canonical: str = "") -> str:
             cur = ""
         links.append(f'<a href="{href}"{cur}>{escape(label)}</a>')
     return ('  <a class="skip" href="#content">Skip to content</a>\n'
+            f'  <header class="brandbar"><a class="brand" href="{base}/"><img src="{base}/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a>'
+            '<span class="brand-tag">GPU prices, checked daily</span></header>\n'
             f'  <nav class="sitenav" aria-label="Site">{"".join(links)}</nav>\n')
 
 
