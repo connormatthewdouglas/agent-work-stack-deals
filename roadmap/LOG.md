@@ -90,11 +90,11 @@ Live since about 9:45 AM ET (CI run 40883999616 green: tests, validate, pypi-ins
 - Daily snapshot: the 10:23 UTC cron did not fire on Oct 29. I dispatched it by hand (run 40883019376), and the 2026-10-29 snapshot now exists.
 - Fixed a refresh bug: a quote line shared by on-demand and spot kept a stale sibling price, which failed the live source check. Fixed and tested.
 - Releases: 0.3.9 and 0.3.10 on PyPI; MCP Registry has 0.3.10.
-- Decisions relayed by Bjorn under Frosty's delegation: the package name lantern-works-deals-mcp stays; the display name goes GPU-first; GPU tools come first in the order; the Stack Optimizer gets no new non-GPU lines.
+- Decisions relayed by Bjorn under the owner's delegation: the package name lantern-works-deals-mcp stays; the display name goes GPU-first; GPU tools come first in the order; the Stack Optimizer gets no new non-GPU lines.
 
 ## Oct 29 (late morning): hosted MCP endpoint
 
-Decisions relayed by Bjorn under Frosty's delegation:
+Decisions relayed by Bjorn under the owner's delegation:
 - The hosted MCP endpoint runs on a free Cloudflare Python Worker (`hosted/`, account lanternworks@agentmail.to, free plan, no paid features). URL: https://lantern-works-mcp.lantern-works.workers.dev/mcp. It runs the same `core/` + `mcp_server/server.py` tool functions as the PyPI package (stateless streamable HTTP, JSON responses).
 - It stores only anonymous aggregate call counts per tool per UTC day per `?ref=` channel tag in D1 (no IPs, user agents, arguments or personal data). These are public at /stats and /stats.json.
 - Channel-tagged install links (`?ref=claude-code`, `install-page`, `github-readme`, `pypi-readme`) appear on /install/ and in the READMEs.
@@ -117,8 +117,8 @@ Hosted endpoint: https://lantern-works-mcp.lantern-works.workers.dev/mcp (Stream
 | e2b | https://github.com/e2b-dev/awesome-ai-agents/pull/1861 | PR open |
 | llmops | https://github.com/tensorchord/Awesome-LLMOps/pull/1067 | PR open (DCO blocked: first commit unsigned) |
 | cline | https://github.com/cline/mcp-marketplace/issues/3319 | issue open |
-| devto | https://dev.to/lanternworks/describe-your-agent-get-the-cheapest-sourced-infra-stack-bci | pending (Frosty edits) |
-| hashnode | https://lanternworks.hashnode.dev/describe-your-agent-get-the-cheapest-sourced-infra-stack | pending (Frosty edits) |
+| devto | https://dev.to/lanternworks/describe-your-agent-get-the-cheapest-sourced-infra-stack-bci | pending (owner edits) |
+| hashnode | https://lanternworks.hashnode.dev/describe-your-agent-get-the-cheapest-sourced-infra-stack | pending (owner edits) |
 
 Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.directory (no edit path).
 
