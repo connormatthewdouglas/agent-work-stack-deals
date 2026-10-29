@@ -305,3 +305,52 @@ def test_none_args_inlined_as_null_not_bound():
 
     S._stmt(Db(), "INSERT INTO t(a, b, c) VALUES (?, ?, ?)", ("x", None, 3))
     assert seen == [("INSERT INTO t(a, b, c) VALUES (?, NULL, ?)", ("x", 3))]
+
+
+# ---- push path (daily Actions build -> /internal/watch-events) ---------------------------------------------------
+PUSH = "test-push-secret-not-real"
+
+
+def _pushed(f2):
+    prices, history, latest = run(f2())
+    evs = [{k: x.get(k) for k in W.PUSH_EVENT_KEYS} for x in W.candidate_events(latest, history, "2026-11-02")]
+    body = json.dumps({"events": evs, "regions": {}}, separators=(",", ":"), sort_keys=True)
+    return body
+
+
+def test_push_auth_and_validation():
+    body = json.dumps({"events": []})
+    assert W.parse_push(body, W.sign(PUSH, 1000, body), PUSH, 1000) == ([], {})
+    for hdr, now, sec in [(W.sign("wrong", 1000, body), 1000, PUSH), (W.sign(PUSH, 1000, body), 2000, PUSH), ("", 1000, PUSH),
+                          (W.sign(PUSH, 1000, body), 1000, None)]:
+        with pytest.raises(W.WatchError):
+            W.parse_push(body, hdr, sec, now)
+    big = json.dumps({"events": [{"event_id": f"e{i}", "direction": "down"} for i in range(W.MAX_PUSH_EVENTS + 1)]})
+    with pytest.raises(W.WatchError):
+        W.parse_push(big, W.sign(PUSH, 1, big), PUSH, 1)
+
+
+def test_pushed_events_deliver_signed_once():
+    e = env()
+    key = signup(e)
+    api, secret = key["api_key"], key["webhook_signing_secret"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    p = Poster()
+    assert run(S.deliver(e, evs, regs, p, now=7000))["sent"] == 1
+    url, hdr, sent = p.calls[0]
+    assert W.verify(secret, hdr["x-lantern-signature"], sent, 7000)
+    p2 = Poster()
+    assert run(S.deliver(e, evs, regs, p2))["sent"] == 0 and p2.calls == []  # same event_id never re-sent
+
+
+def test_push_script_batches_are_small_and_valid():
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import push_watch_events as P
+    for b in P.batches("2026-10-29"):
+        body = json.dumps(b, separators=(",", ":"), sort_keys=True)
+        assert len(b["events"]) <= P.BATCH <= W.MAX_PUSH_EVENTS
+        W.parse_push(body, W.sign(PUSH, 1, body), PUSH, 1)

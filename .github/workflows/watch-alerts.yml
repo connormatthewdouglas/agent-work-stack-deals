@@ -1,0 +1,29 @@
+name: watch-alerts
+# After each daily GPU refresh: compute price-watch events from the committed feeds and push small signed batches to
+# the hosted Worker, which matches, signs and sends webhooks (dedupe by event_id in D1). Free plan: no Worker cron.
+on:
+  workflow_run:
+    workflows: ["GPU price refresh"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: watch-alerts
+  cancel-in-progress: false
+jobs:
+  push:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r mcp_server/requirements.txt
+      - name: Push watch events
+        env:
+          WATCH_PUSH_SECRET: ${{ secrets.WATCH_PUSH_SECRET }}
+        run: python3 scripts/push_watch_events.py

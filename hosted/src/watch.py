@@ -285,6 +285,40 @@ def plan_deliveries(watches: list[dict], events: list[dict], delivered: set, reg
     return out
 
 
+MAX_PUSH_EVENTS = 25            # per /internal/watch-events request: keeps each Worker invocation tiny
+MAX_PUSH_BYTES = 65536
+PUSH_EVENT_KEYS = ("event_id", "seq", "date", "rate_id", "vendor", "gpu", "tier", "direction", "from_hourly_usd",
+                   "to_hourly_usd", "change_pct", "source_url")
+
+
+def parse_push(body: str, header: str, secret: str, now: int) -> tuple[list[dict], dict]:
+    """Authenticate (HMAC-SHA256 over 't.body', 5-minute window, same format as alert signatures) and validate a
+    pushed event batch. Returns (events, regions {rate_id: [codes]}). Raises WatchError on anything off."""
+    if not secret:
+        raise WatchError("unavailable", "push not configured")
+    if len(body.encode()) > MAX_PUSH_BYTES:
+        raise WatchError("invalid_argument", "batch too large")
+    if not verify(secret, header or "", body, now):
+        raise WatchError("unauthorized", "bad push signature")
+    try:
+        doc = json.loads(body)
+    except ValueError:
+        raise WatchError("invalid_argument", "body is not JSON")
+    evs = doc.get("events") if isinstance(doc, dict) else None
+    if not isinstance(evs, list) or len(evs) > MAX_PUSH_EVENTS:
+        raise WatchError("invalid_argument", f"events must be a list of at most {MAX_PUSH_EVENTS}")
+    out = []
+    for e in evs:
+        if not isinstance(e, dict) or not isinstance(e.get("event_id"), str) or e.get("direction") not in KINDS:
+            raise WatchError("invalid_argument", "bad event")
+        out.append({k: e.get(k) for k in PUSH_EVENT_KEYS})
+    regions = doc.get("regions") or {}
+    if not isinstance(regions, dict):
+        raise WatchError("invalid_argument", "regions must be an object")
+    regions = {str(k): tuple(str(x) for x in v) for k, v in regions.items() if isinstance(v, list)}
+    return out, regions
+
+
 def new_watch_id() -> str:
     return "w_" + secrets.token_hex(8)
 

@@ -22,5 +22,6 @@ database_id = "6afa052d-5eaf-4b69-9d78-edf538941b45"
 # triggers are included (up to 5 per account). Secret (not in git): npx wrangler secret put WATCH_SIGNING_MASTER
 [triggers]
 # DISABLED 2026-10-29: measured scheduled runs used 67-167 ms CPU (median ~86 ms, 0 watches) vs the free plan 10 ms.
-# Re-enable with: crons = ["50 10 * * *", "50 16 * * *"]
+# Delivery now runs from GitHub Actions (.github/workflows/watch-alerts.yml) pushing signed event batches to
+# /internal/watch-events; secret WATCH_PUSH_SECRET is set with wrangler secret put and as a GitHub secret. No cron needed.
 crons = []

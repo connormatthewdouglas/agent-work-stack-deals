@@ -193,6 +193,18 @@ class Default(WorkerEntrypoint):
         if path == "/stats.json":
             return Response(json.dumps({"schema": "lantern-works-hosted-mcp-stats/1", "note": "anonymous aggregate counts per UTC day, tool and ref; nothing per caller is stored",
                                         "rows": await _stats(self.env), "watches": await watch_store.stats(self.env)}), headers={"content-type": "application/json", **CORS})
+        if path == "/internal/watch-events" and request.method == "POST":
+            # Daily GitHub Actions build pushes precomputed events; this only matches, signs and sends (free-plan CPU).
+            import watch as W
+            body = await request.text()
+            try:
+                events, regions = W.parse_push(body, request.headers.get("x-lantern-push-signature") or "",
+                                               getattr(self.env, "WATCH_PUSH_SECRET", None), int(time.time()))
+            except W.WatchError as e:
+                code = {"unauthorized": 401, "unavailable": 503}.get(e.code, 400)
+                return Response(json.dumps({"ok": False, "error": e.code}), status=code, headers={"content-type": "application/json"})
+            r = await watch_store.deliver(self.env, events, regions, fetch)
+            return Response(json.dumps({"ok": True, **r}), headers={"content-type": "application/json"})
         if path in ("/mcp", "/mcp/"):
             if request.method == "GET":
                 return Response("Lantern Works MCP endpoint (streamable HTTP, POST JSON-RPC). Server-sent event streams are not offered; use POST.",

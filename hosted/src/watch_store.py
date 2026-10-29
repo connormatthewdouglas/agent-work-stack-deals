@@ -191,8 +191,17 @@ async def run_cron(env, feeds, fetch_fn, now=None) -> dict:
     if not master:
         return {"sent": 0, "skipped": "WATCH_SIGNING_MASTER not set"}
     prices, history, latest = await feeds()
+    return await deliver(env, W.candidate_events(latest, history, _today()), W.rate_regions(prices), fetch_fn, now)
+
+
+async def deliver(env, events, regions, fetch_fn, now=None) -> dict:
+    """Match, sign and send for a precomputed event list (pushed by the daily GitHub Actions build, so the Worker never
+    parses the big feeds on this path). Same dedupe, caps, https-only and public-IP (after DNS) checks as the cron."""
+    db = env.WATCH_DB
+    master = getattr(env, "WATCH_SIGNING_MASTER", None)
+    if not master:
+        return {"sent": 0, "skipped": "WATCH_SIGNING_MASTER not set"}
     today = _today()
-    events = W.candidate_events(latest, history, today)
     watches = await _all(db, "SELECT w.watch_id, w.key_id, w.gpu, w.region, w.max_hourly_usd, w.kinds, w.baseline_seq, "
                              "w.baseline_day, k.webhook_url FROM watches w JOIN watch_keys k ON k.key_id = w.key_id WHERE k.disabled = 0")
     for w in watches:
@@ -206,11 +215,16 @@ async def run_cron(env, feeds, fetch_fn, now=None) -> dict:
         for r in await _all(db, f"SELECT watch_id, event_id FROM watch_deliveries WHERE event_id IN ({','.join('?' * len(chunk))})", *chunk):
             delivered.add((r["watch_id"], r["event_id"]))
     today_alerts = {r["key_id"]: r["n"] for r in await _all(db, "SELECT key_id, n FROM watch_key_counters WHERE day = ? AND metric = 'alerts'", today)}
-    plan = W.plan_deliveries(watches, events, delivered, W.rate_regions(prices), today_alerts)
+    plan = W.plan_deliveries(watches, events, delivered, regions, today_alerts)
     ok_rows, per_key, failed, blocked = [], {}, 0, 0
     host_ok, budget = {}, W.SUBREQUEST_BUDGET
     for w, ev, reason in plan:
         host = (W.urlsplit(w["webhook_url"]).hostname or "").lower()
+        try:
+            W.validate_webhook_url(w["webhook_url"])  # https-only + literal/suffix checks again at send time
+        except W.WatchError:
+            blocked += 1
+            continue
         if host not in host_ok:  # re-resolve at send time (DNS can change after signup); 2 subrequests per host
             if budget < 3:
                 break
