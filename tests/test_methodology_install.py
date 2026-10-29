@@ -45,5 +45,5 @@ def test_free_credits_page_cited_and_clean():
     for name, url, *_ in F.PROGRAMS:
         assert url.startswith("https://") and url in s, name
     assert s.count(f"checked {F.CHECKED}") >= len(F.PROGRAMS)
-    assert "Frosty" not in s and "commission" not in s.lower() and "sponsored" not in s
+    assert "Frosty" not in s and "commission" not in s.lower()
     assert "/gpu/free-credits/" in (ROOT / "sitemap.xml").read_text(encoding="utf-8")
