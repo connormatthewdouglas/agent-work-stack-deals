@@ -84,17 +84,17 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
         tc = r.get("tier_class") or "on-demand"
         badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
         trs.append(
-            f"<tr data-tier=\"{esc(tc)}\"><td>{i}</td><td>{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
-            f"<td>{_vendor_link(gen, r)}</td>"
-            f"<td>{esc(r['tier'])}{badge}</td><td>{esc(_rate_str(r))}</td>"
-            f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[_key(r)])}</td>"
-            f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['evidence']['quote'])}”</a></td>"
-            f"<td>{_verified_cell(r, esc)}</td><td>{_avail_cell(gen, r)}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
+            f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
+            f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
+            f"<td data-label=\"Type\">{esc(r['tier'])}{badge}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
+            f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_money(r['monthly_cost_usd'])}</strong></td><td data-label=\"Full month\">{_money(full[_key(r)])}</td>"
+            f"<td data-label=\"Vendor quote\"><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['evidence']['quote'])}”</a></td>"
+            f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td><td data-label=\"Availability\">{_avail_cell(gen, r)}</td><td data-label=\"Label\">{'referral' if r['affiliate'] else 'public'}</td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
             "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
-    return (filt + f"<div style=\"overflow-x:auto\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
+    return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
             f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote (verbatim)</th>"
             "<th>Price verified</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             "<p class=\"meta\">Availability: \u201cunknown\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
@@ -500,8 +500,8 @@ def changes_html(gen, gpu_family: str | None = None, days: int = 30, limit: int 
         for c in ch[:limit])
     return (head + f"  <p>Price changes among tracked providers in the last {days} days, per GPU-hour, from daily snapshots "
             f"since {gen.esc(since or '')}. Full series: <a href=\"{api}\">price history JSON</a>.</p>\n"
-            "  <table><thead><tr><th>Date</th><th>Provider</th><th>GPU</th><th>Price</th><th>Change</th></tr></thead>"
-            f"<tbody>{rows}</tbody></table>\n")
+            "  <div class=\"tscroll\"><table class=\"howto sticky1\"><thead><tr><th>Date</th><th>Provider</th><th>GPU</th><th>Price</th><th>Change</th></tr></thead>"
+            f"<tbody>{rows}</tbody></table></div>\n")
 
 
 def write_hub(gen, rates: list[dict]) -> str:
