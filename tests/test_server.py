@@ -71,7 +71,11 @@ def test_no_commission_text_anywhere(srv):
 def test_compare_gpu_prices_same_data_sorted_sourced(srv):
     data = json.loads(GPU.read_text())
     r = call(srv, "compare_gpu_prices", {"gpu": "H100", "limit": 25})
-    expected = [x for x in data["rates"] if "h100" in x["gpu"].lower().split()]
+    expected = [x for x in data["rates"] if "h100" in x["gpu"].lower().split() and x["tier_class"] != "reserved"]
+    assert r["excluded_reserved"] == sum(1 for x in data["rates"] if "h100" in x["gpu"].lower().split()) - len(expected) >= 1
+    rr = call(srv, "compare_gpu_prices", {"gpu": "H200", "include_reserved": True, "limit": 25})
+    assert rr["results"][0]["tier_class"] != "reserved" and rr["results"][-1]["tier_class"] == "reserved"
+    assert "Hyperstack" not in call(srv, "compare_gpu_prices", {"gpu": "H200", "limit": 1})["summary"] or "Reservation" not in call(srv, "compare_gpu_prices", {"gpu": "H200", "limit": 1})["summary"]
     assert r["total"] == len(expected) and r["count"] == min(25, len(expected)) >= 2
     hourly = [x["hourly_usd"] for x in r["results"]]
     assert hourly == sorted(hourly) and hourly[0] == min(x["hourly_equiv_usd"] for x in expected)

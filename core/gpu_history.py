@@ -67,8 +67,12 @@ def load_snapshots(directory: Path | None = None) -> list[dict]:
     snaps = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(d.glob("????-??-??.json"))]
     for snap in snaps:  # snapshot files are never rewritten; renamed tier labels are mapped on read
         for row in snap.get("rows", []):
-            if row.get("tier") in TIER_ALIASES:
-                row["tier"] = TIER_ALIASES[row["tier"]]
+            m = re.search(r"\((\d+)x GPU\)", row.get("tier") or "")
+            fix_n = m and int(m.group(1)) > 1 and (row.get("gpu_count") or 1) == 1  # Lambda 8x rows got gpu_count 8 on 2026-10-29
+            if fix_n:
+                row["gpu_count"] = int(m.group(1))
+            if row.get("tier") in TIER_ALIASES or fix_n:
+                row["tier"] = TIER_ALIASES.get(row["tier"], row["tier"])
                 row["key"] = series_key(row["vendor"], row["gpu"], row["tier"], row.get("vram_gb"), row.get("gpu_count", 1))
     return snaps
 

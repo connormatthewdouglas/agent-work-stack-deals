@@ -20,7 +20,8 @@ def test_all_specs_verified_against_feed():
 def test_estimate_hourly_vs_flat_and_rank():
     rates = build_rates(FEED)["rates"]
     e = estimate(rates, 100, gpu_filter="A100")
-    assert [x["monthly_cost_usd"] for x in e] == sorted(x["monthly_cost_usd"] for x in e)
+    key = [(x["tier_class"] == "reserved", x["monthly_cost_usd"]) for x in e]
+    assert key == sorted(key) and e[0]["tier_class"] != "reserved"  # reservations never rank first
     th = next(x for x in e if x["deal_id"] == "deal-thundercompute-001")
     assert th["monthly_cost_usd"] == round(_rec("Thunder Compute", "A100")["hourly_usd"] * 100, 2)
     uc = next(x for x in e if x["deal_id"] == "deal-ucartz-001")

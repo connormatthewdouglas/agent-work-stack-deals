@@ -2,6 +2,15 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.11 (2026-10-29)
+
+- New `tier_class` value `reserved`: reservation or commitment "starting from" prices, such as Hyperstack reservations. `compare_gpu_prices` leaves them out by default (`include_reserved=true` adds them back) and never calls them cheapest. Pages and the calculator sort them after pay-as-you-go rates, and the stack optimizers skip them.
+- `verified_at` is now the time each vendor page was actually fetched, not the time the refresh run started.
+- Lambda 8x rows now carry `gpu_count: 8` and `server_hourly_usd`: B200 $53.52, H100 SXM $31.92, A100 SXM $22.32 and V100 $6.32 per 8-GPU instance (8 × the per-GPU price on lambda.ai/pricing). The per-GPU rate is unchanged.
+- Evidence quotes can elide page text with "...". The Hyperstack Spot and Reservation rows and the SaladCloud quote, which now names the priority tier ("Lowest"), are re-parsed daily.
+- Hosted endpoint listed in the MCP Registry (`remotes`, streamable HTTP).
+- README: price history is "daily snapshots since 2026-10-27".
+
 ## 2026-10-29: MCP server 0.3.10 (data-QA audit)
 
 - `compare_gpu_prices` no longer treats different memory sizes as one product: when results mix sizes (A100 40GB and 80GB) the summary names the cheapest per size, and a size in the query (`A100 80GB`) filters to it.

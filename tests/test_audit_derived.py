@@ -155,3 +155,25 @@ def test_vram_sizes_not_mixed():
         assert "Memory sizes differ" in out["summary"]
     only80 = core.compare_gpu_prices(p, "A100 80GB", 25)
     assert {r["vram_gb"] for r in only80["results"]} == {80}
+
+
+def test_gauge_reaudit_quote_ellipsis_per_gpu_and_fetch_time():
+    import sys
+    from datetime import datetime, timezone
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import refresh_gpu_prices as rg
+    # "..." elides page text; price picked by value
+    r = {"price_usd": 0.16, "hourly_usd": 0.16, "tier": "Lowest", "evidence": {"quote": "Low Lowest ... RTX 4090 24 GB $0.25 $0.16"}}
+    assert rg.parse_listed(r, "High Medium Low Lowest RTX 5090 32 GB $0.30 $0.20 RTX 4090 24 GB $0.25 $0.16")[0] == "0.16"
+    # multi-GPU instance quoted per GPU -> server price = per-GPU x gpu_count
+    r = {"price_usd": 31.92, "hourly_usd": 3.99, "gpu_count": 8, "tier": "x", "evidence": {"quote": "H100 SXM 80 GB $3.99"}}
+    assert rg.parse_listed(r, "NVIDIA H100 SXM 80 GB $4.05")[0] == "32.4"
+
+    class F:
+        fetched_at = {"https://v.example/p": datetime(2026, 10, 29, 13, 21, 5, tzinfo=timezone.utc)}
+        def get(self, url): return 200, "GPU A $1.00"
+    doc = {"vendor": "V", "records": [{"gpu": "A", "tier": "On-demand", "price_usd": 1.0, "hourly_usd": 1.0, "billing_unit": "hourly",
+           "quote": "GPU A $1.00", "source_url": "https://v.example/p", "verified_at": "2026-10-28T00:00:00+00:00",
+           "evidence": {"quote": "GPU A $1.00", "source_url": "https://v.example/p", "checked_at": "2026-10-28T00:00:00+00:00"}}]}
+    rg.refresh([doc], F(), datetime(2026, 10, 29, 13, 33, 43, tzinfo=timezone.utc))
+    assert doc["records"][0]["verified_at"] == "2026-10-29T13:21:05+00:00"

@@ -123,9 +123,11 @@ def quote_pattern(quote: str) -> tuple[re.Pattern, list[str]]:
         pos = m.end()
     parts.append(q[pos:])
     lit = lambda s: r"\s*".join(re.escape(w) for w in s.split())
+    # "..." (or "…") in a quote marks elided page text between two literal fragments (bounded, non-greedy).
+    gap = lambda s: r"[\s\S]{0,600}?".join(lit(x) for x in re.split(r"\.\.\.|…", s))
     rx = ""
     for i, part in enumerate(parts):
-        rx += lit(part)
+        rx += gap(part)
         if i < len(prices):
             rx += r"\s*\$\s?([\d,]*\.?\d+)\s*"
     return re.compile(rx), prices
@@ -172,6 +174,11 @@ def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
     quote = r["evidence"]["quote"]
     rx, _ = quote_pattern(quote)
     i = price_index(r, quote)
+    n = r.get("gpu_count", 1) or 1
+    per_gpu = False
+    if i is None and n > 1:  # vendor quotes a per-GPU price for a multi-GPU instance (e.g. Lambda 8x)
+        i = price_index({**r, "price_usd": r["hourly_usd"]}, quote)
+        per_gpu = i is not None
     if i is None:
         return None, None, "evidence quote does not identify this record's price"
     vals, quotes = set(), []
@@ -183,7 +190,10 @@ def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
     if len(vals) > 1:
         return None, None, f"ambiguous: {len(vals)} different values for the same context"
     m = next(rx.finditer(text))
-    return m.group(i + 1).replace(",", ""), quotes[0][:MAX_QUOTE], "parsed"
+    v = m.group(i + 1).replace(",", "")
+    if per_gpu:
+        v = f"{round(_num(v) * n, 4):g}"
+    return v, quotes[0][:MAX_QUOTE], "parsed"
 
 
 def market_stats(body: str, vram_gb: int) -> list[float] | None:
@@ -231,6 +241,8 @@ class Fetcher:
 
     def get(self, url: str) -> tuple[int | None, str]:
         if url not in self.cache:
+            self.fetched_at = getattr(self, "fetched_at", {})
+            self.fetched_at[url] = datetime.now(timezone.utc)
             self.cache[url] = (None, "disallowed by robots.txt") if not self.allowed(url) else self._get(url)
         return self.cache[url]
 
@@ -268,6 +280,9 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
             r.setdefault("verified_at", r["evidence"]["checked_at"])
             manual_hold = r.get("stale") and not r["stale"].get("auto")
             st, body = fetcher.get(r["source_url"])
+            # verified_at = when THIS page was actually fetched (not the run start), when the fetcher records it
+            fat = (getattr(fetcher, "fetched_at", None) or {}).get(r["source_url"])
+            fstamp = _iso(fat) if fat else stamp
             new_s, quote, msg = None, None, ""
             if st != 200:
                 msg = f"unreachable ({st or body})"
@@ -308,8 +323,14 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         _set_price(r, new)
                     if abs(new - old) <= 1e-9:
                         r["quote"] = _current_quote(r["quote"], quote, old, new_s)  # sibling prices on the line may move
-                    r["evidence"] = {"source_url": r["source_url"], "quote": quote, "checked_at": stamp}
-                    r["verified_at"] = r["checked_at"] = stamp
+                    eq = quote
+                    if quote and re.search(r"\.\.\.|…", r["evidence"]["quote"]):  # keep the elided form (stays matchable)
+                        eq = r["evidence"]["quote"]
+                        if abs(new - old) > 1e-9:
+                            eq = _swap_quote_price(eq, old, new_s)
+                        r["quote"] = eq
+                    r["evidence"] = {"source_url": r["source_url"], "quote": eq, "checked_at": fstamp}
+                    r["verified_at"] = r["checked_at"] = fstamp
                     if r.get("stale", {}).get("auto"):
                         del r["stale"]
                     row.update(result="changed" if abs(new - old) > 1e-9 else "unchanged", new=r["hourly_usd"])

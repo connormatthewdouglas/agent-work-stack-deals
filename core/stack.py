@@ -136,6 +136,11 @@ def _line_from_offer(o: dict, c: dict) -> dict:
             "deal_url": o.get("deal_url")}
 
 
+def _tc(r):
+    from .deals import tier_class
+    return tier_class(r)
+
+
 def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -> list[dict]:
     hpm = gpu_data.get("hours_per_month") or 730
     out = []
@@ -143,6 +148,8 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set) -
         if model and not (r.get("gpu") == model or str(r.get("gpu", "")).startswith(model + " ")
                           or model.lower() in str(r.get("gpu", "")).lower().split()):
             continue
+        if (r.get("tier_class") or _tc(r)) == "reserved":
+            continue  # reservation/commitment "starting from" prices need a term contract; not a pay-as-you-go option
         mg = r.get("min_gpus") or 1
         if r.get("unit") == "hour":
             cost, calc = r["price_usd"] * hours * mg, f"${r['price_usd']:g}/hr x {hours:,g} h" + (

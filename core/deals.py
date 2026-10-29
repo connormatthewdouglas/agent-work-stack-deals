@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.10"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.11"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -273,7 +273,7 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
 
 
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
-                       on_demand_only: bool = False) -> dict:
+                       on_demand_only: bool = False, include_reserved: bool = False) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     vram_m = re.search(r"\b(\d{2,3})\s*gb\b", gpu or "", re.I)
@@ -296,7 +296,15 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         if not keep:
             raise DealError("not_found", f"No on-demand tracked price for GPU '{gpu}' ({excluded} spot/community/marketplace/monthly rates exist; retry without on_demand_only)")
         rows = keep
-    rows.sort(key=lambda r: (r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    excluded_reserved = 0
+    if not include_reserved:
+        keep = [r for r in rows if tier_class(r) != "reserved"]
+        excluded_reserved = len(rows) - len(keep)
+        if not keep:
+            raise DealError("not_found", f"Only reservation/commitment prices are tracked for GPU '{gpu}' ({excluded_reserved}); retry with include_reserved=true")
+        rows = keep
+    # Reserved rows (only with include_reserved) sort after pay-as-you-go rows: never reported as "cheapest".
+    rows.sort(key=lambda r: (tier_class(r) == "reserved", r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
     od = next((r for r in rows if tier_class(r) == "on-demand"), None)
     # Different memory sizes are different products (an A100 40GB is not an A100 80GB): name the cheapest per size.
     by_vram = {}
@@ -331,6 +339,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     + ". This is the cheapest among tracked providers only, not the whole market. "
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
+        "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
         "tier_classes": TIER_NOTES,
         "scope": "cheapest among tracked providers",
         "total": len(rows), "count": len(results), "results": results,
