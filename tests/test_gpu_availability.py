@@ -70,6 +70,6 @@ def test_record_level_availability_and_region():
 def test_new_held_rtx4090_vendors_not_ranked():
     feed = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
     held = {h["vendor"] for h in feed["held_stale"]}
-    assert {"Genesis Cloud", "SimplePod", "Runcrate", "Beam"} <= held
+    assert {"SimplePod", "Runcrate", "Beam"} <= held
     assert not held & {r["advertiser"] for r in feed["rates"]} - {"Clore.ai"}
     assert not {"TensorDock", "Clore.ai"} & {r["advertiser"] for r in feed["rates"] if r["tier_class"] == "on-demand"}

@@ -5,7 +5,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 ## 0.3.25 (2026-10-29)
 
 - RTX 4090 coverage: Nova Cloud ($0.42/GPU-hr on-demand, Canada) and RunC.AI ($0.42/GPU-hr on-demand, multi-region) added from their public pricing pages, so the RTX 4090 /cost/ pages and compare_gpu_prices now have 4 in-stock on-demand vendors and a cheapest line.
-- Held (not ranked): Genesis Cloud (page unreachable when checked), SimplePod (inconsistent "from" prices), Runcrate (aggregated lowest live rate), Beam ("from" machine price; task rate is serverless).
+- Held (not ranked): SimplePod (inconsistent "from" prices), Runcrate (aggregated lowest live rate), Beam ("from" machine price; task rate is serverless).
 - Pricing records can carry their own `region` and `availability` (checked_at + source); Scout's availability snapshot still takes precedence, and unknown stays unknown, never out of stock.
 
 ## 0.3.24 (2026-10-29)
