@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -117,7 +127,7 @@
     <li><code>compare_gpu_prices(gpu="H100", include_history=true)</code>: today's cheapest rates among tracked providers plus each rate's price history and recent changes.</li>
     <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/gpu-price-monitor">GPU price monitor example</a>: a zero-dependency script that alerts when a tracked rate drops by a set percent. Run it on a daily cron.</li>
   </ul>
-  <pre>uvx lantern-works-deals-mcp</pre>
+  <div class="codebox"><pre>uvx lantern-works-deals-mcp</pre></div>
   <h2>Add Lantern Works to your agent</h2>
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: <code>compare_gpu_prices</code>, <code>get_price_changes</code>, <code>optimize_stack</code>, <code>optimize_agent_stack</code>, <code>search_deals</code>, <code>compare_deals</code>, <code>get_deal</code>.</p>
   <p class="meta">Tested 2026-10-29: a clean <code>uvx lantern-works-deals-mcp</code> (0.3.16) initializes over stdio and all 7 tools return results.</p>
@@ -125,19 +135,19 @@
 
   <h2>Hosted endpoint (no install)</h2>
   <p>The same 7 read-only tools over streamable HTTP, served from a free Cloudflare Worker: <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>. It counts calls only as anonymous totals per tool per day (no IPs, user agents or arguments), published at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats">/stats</a>. The <code>?ref=</code> tag below just records that the link came from this page (counts at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats.json">/stats.json</a>).</p>
-  <pre>claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</pre>
+  <div class="codebox"><pre>claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</pre></div>
   <p>Claude Desktop / Cursor / VS Code (<code>"type": "http"</code> or <code>"url"</code> server): <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code></p>
 
   <h2>Claude Code</h2>
-  <pre>claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp</pre>
+  <div class="codebox"><pre>claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp</pre></div>
 
   <p>Or as a Claude Code plugin (skill + MCP server) from our free, self-hosted marketplace:</p>
-  <pre>/plugin marketplace add connormatthewdouglas/agent-work-stack-deals
-/plugin install lantern-works-deals@lantern-works</pre>
+  <div class="codebox"><pre>/plugin marketplace add connormatthewdouglas/agent-work-stack-deals
+/plugin install lantern-works-deals@lantern-works</pre></div>
 
   <h2>Claude Desktop</h2>
   <p>Settings → Developer → Edit Config (<code>claude_desktop_config.json</code>):</p>
-  <pre>{
+  <div class="codebox"><pre>{
   &quot;mcpServers&quot;: {
     &quot;lantern-works-deals&quot;: {
       &quot;command&quot;: &quot;uvx&quot;,
@@ -146,7 +156,7 @@
       ]
     }
   }
-}</pre>
+}</pre></div>
   <p>Restart Claude Desktop. If <code>uvx</code> isn't on Claude's PATH, use the absolute path from <code>which uvx</code>.</p>
 
   <h2>Cursor</h2>
@@ -154,7 +164,7 @@
 
   <h2>VS Code (Copilot agent mode)</h2>
   <p><a href="https://vscode.dev/redirect/mcp/install?name=lantern-works-deals&amp;config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22lantern-works-deals-mcp%22%5D%7D">Install in VS Code</a>, or <code>.vscode/mcp.json</code>:</p>
-  <pre>{
+  <div class="codebox"><pre>{
   &quot;servers&quot;: {
     &quot;lantern-works-deals&quot;: {
       &quot;type&quot;: &quot;stdio&quot;,
@@ -164,11 +174,11 @@
       ]
     }
   }
-}</pre>
+}</pre></div>
 
   <h2>Cline</h2>
   <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested 2026-10-29: this exact config started the server and <code>tools/list</code> returned all 7 tools):</p>
-  <pre>{
+  <div class="codebox"><pre>{
   &quot;mcpServers&quot;: {
     &quot;lantern-works-deals&quot;: {
       &quot;command&quot;: &quot;uvx&quot;,
@@ -177,10 +187,10 @@
       ]
     }
   }
-}</pre>
+}</pre></div>
 
   <h2>Skills-based agents (Claude Code skills, OpenClaw)</h2>
-  <pre>npx skills add connormatthewdouglas/agent-work-stack-deals</pre>
+  <div class="codebox"><pre>npx skills add connormatthewdouglas/agent-work-stack-deals</pre></div>
   <p>Installs <a href="https://thelanternworks.com/SKILL.md">SKILL.md</a> (checked 2026-10-29 with <code>-a claude-code</code>). For OpenClaw MCP, use the generic stdio config below.</p>
 
   <h2>Any MCP client (generic)</h2>
@@ -211,6 +221,10 @@
     <li>GPU prices: <a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a></li>
   </ul>
   <p>More: <a href="https://thelanternworks.com/for-agents/">For agents</a> (endpoints, schema, offer types).</p>
+<script>
+document.querySelectorAll(".codebox").forEach(b=>{const btn=document.createElement("button");btn.type="button";btn.className="copy";btn.textContent="Copy";
+btn.addEventListener("click",()=>{navigator.clipboard.writeText(b.querySelector("pre").innerText).then(()=>{btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1500)},()=>{btn.textContent="Select and copy"})});b.appendChild(btn)});
+</script>
 
 </div>
   <footer>

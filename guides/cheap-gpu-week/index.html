@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -117,28 +127,28 @@
   </header>
   <main>
     <section class="deal" id="pick-1">
-      <h2>1. <a href="https://thelanternworks.com/deals/runpod-001/">RunPod — GPU compute credit referral</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2>1. <a href="https://thelanternworks.com/deals/runpod-001/">RunPod — GPU compute credit referral</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="why"><strong>Why:</strong> On-demand and serverless GPU pods with a referral credit path — fast to spin up for agent workers that need a known GPU SKU for a few hours or days.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/runpod-001/">Deal page</a> · RunPod</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://runpod.io?ref=wuct08gl" data-deal="deal-runpod-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.runpod.io/pricing">https://www.runpod.io/pricing</a>.</small></p>
     </section>
 
     <section class="deal" id="pick-2">
-      <h2>2. <a href="https://thelanternworks.com/deals/vastai-001/">Vast.ai — GPU cloud (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2>2. <a href="https://thelanternworks.com/deals/vastai-001/">Vast.ai — GPU cloud (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="why"><strong>Why:</strong> Marketplace pricing on community and datacenter GPUs — often the cheapest week when you can tolerate variable hosts and shop by $/hr.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/vastai-001/">Deal page</a> · Vast.ai</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://cloud.vast.ai/?ref_id=760339" data-deal="deal-vastai-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://cloud.vast.ai/">https://cloud.vast.ai/</a>.</small></p>
     </section>
 
     <section class="deal" id="pick-3">
-      <h2>3. <a href="https://thelanternworks.com/deals/novita-001/">Novita AI — GPU inference API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2>3. <a href="https://thelanternworks.com/deals/novita-001/">Novita AI — GPU inference API (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="why"><strong>Why:</strong> GPU inference API for agents that want a hosted model endpoint instead of managing a raw GPU instance.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/novita-001/">Deal page</a> · Novita AI</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://novita.ai/?ref=mgezngr" data-deal="deal-novita-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://novita.ai/">https://novita.ai/</a>.</small></p>
     </section>
 
     <section class="deal" id="pick-4">
-      <h2>4. <a href="https://thelanternworks.com/deals/modal-free-001/">Modal — $30/month free compute credit (Starter)</a> <span class="badge public">free / public · non-affiliate</span> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2>4. <a href="https://thelanternworks.com/deals/modal-free-001/">Modal — $30/month free compute credit (Starter)</a> <span class="badge public">free / public · non-affiliate</span> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="why"><strong>Why:</strong> Public Starter free compute credit (non-affiliate) — useful for prototyping agent jobs before you move heavier workloads to paid GPU providers.</p>
       <p class="meta"><a href="https://thelanternworks.com/deals/modal-free-001/">Deal page</a> · Modal</p>
       <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://modal.com/pricing" data-deal="deal-modal-free-001">Open offer / signup</a></p>

@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -119,7 +129,7 @@
 <p class="callout"><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU cost calculator</a>: estimate monthly cost from verified vendor prices, with the calculation shown. Compare <a href="https://thelanternworks.com/gpu/price-comparison/">all GPU rental prices</a>, or see: <a href="https://thelanternworks.com/gpu/cheapest-h100-rental/">H100: cheapest among tracked providers</a> · <a href="https://thelanternworks.com/gpu/cheapest-h200-rental/">H200: cheapest among tracked providers</a> · <a href="https://thelanternworks.com/gpu/cheapest-a100-rental/">A100: cheapest among tracked providers</a> · <a href="https://thelanternworks.com/gpu/cheapest-l40s-rental/">L40S: cheapest among tracked providers</a> · <a href="https://thelanternworks.com/gpu/cheapest-rtx-4090-rental/">RTX 4090: cheapest among tracked providers</a> · <a href="https://thelanternworks.com/gpu/cheapest-rtx-5090-rental/">RTX 5090: cheapest among tracked providers</a> · <a href="https://thelanternworks.com/gpu/cheapest-rtx-a6000-rental/">RTX A6000: cheapest among tracked providers</a> · <a href="https://thelanternworks.com/compare/runpod-vs-thunder-compute-vs-modal-h100/">RunPod vs Thunder Compute vs Modal (H100)</a> · <a href="https://thelanternworks.com/compare/cheapest-gpu-per-gb-vram/">GPU price per GB of VRAM</a> · <a href="https://thelanternworks.com/compare/runpod-community-vs-secure-cloud-prices/">RunPod Community vs Secure Cloud</a>.</p>
 
     <article class="deal" id="deal-browserbase-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free: 3 concurrent browsers, 1 browser hour, 1k Search+Fetch" data-advertiser="Browserbase" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/browserbase-001/">Browserbase — Free 3 concurrent / 1 browser hour / 1k Search+Fetch</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/browserbase-001/">Browserbase — Free 3 concurrent / 1 browser hour / 1k Search+Fetch</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / Free: 3 concurrent browsers, 1 browser hour, 1k Search+Fetch · Browserbase</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">browser</span> <span class="tag">browserbase</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -129,7 +139,7 @@
 
 
     <article class="deal" id="deal-browserless-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free $0/mo: 1k units/month, 2 max concurrent browsers; no card required" data-advertiser="Browserless" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/browserless-free-001/">Browserless — Free 1k units/mo / 2 concurrent</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/browserless-free-001/">Browserless — Free 1k units/mo / 2 concurrent</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / Free $0/mo: 1k units/month, 2 max concurrent browsers; no card required · Browserless</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">browser</span> <span class="tag">browserless</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -139,7 +149,7 @@
 
 
     <article class="deal" id="deal-codespaces-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="GitHub Free personal accounts: 120 hrs compute + 15 GB-month storage/mo included for Codespaces" data-advertiser="GitHub" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/codespaces-free-001/">GitHub Codespaces — Free 120 core-hrs + 15 GB-mo (personal)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/codespaces-free-001/">GitHub Codespaces — Free 120 core-hrs + 15 GB-mo (personal)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / GitHub Free personal accounts: 120 hrs compute + 15 GB-month storage/mo included for Codespaces · GitHub</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">compute</span> <span class="tag">codespaces</span> <span class="tag">github</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -149,7 +159,7 @@
 
 
     <article class="deal" id="deal-groq-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free plan with documented model rate limits (RPM/RPD/TPM) in Groq console docs" data-advertiser="Groq" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/groq-free-001/">Groq — Free plan LLM inference (rate-limited)</a> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/groq-free-001/">Groq — Free plan LLM inference (rate-limited)</a> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / Free plan with documented model rate limits (RPM/RPD/TPM) in Groq console docs · Groq</p>
       
       <p class="tags"><span class="tag">llm</span> <span class="tag">inference</span> <span class="tag">groq</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -159,7 +169,7 @@
 
 
     <article class="deal" id="deal-hyperbrowser-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="5,000 free credits" data-advertiser="Hyperbrowser" data-free="1" data-verified="1" data-verified-at="2026-10-27T11:17:47-04:00">
-      <h2><a href="https://thelanternworks.com/deals/hyperbrowser-001/">Hyperbrowser — Free 5,000 credits</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/hyperbrowser-001/">Hyperbrowser — Free 5,000 credits</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / 5,000 free credits · Hyperbrowser</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">browser</span> <span class="tag">hyperbrowser</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -169,7 +179,7 @@
 
 
     <article class="deal" id="deal-kernel-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="$5 free usage/mo refreshed; stealth available on free" data-advertiser="Kernel" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/kernel-001/">Kernel — Free $5 usage/mo (refreshed)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/kernel-001/">Kernel — Free $5 usage/mo (refreshed)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $5 free usage/mo refreshed; stealth available on free · Kernel</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">browser</span> <span class="tag">kernel</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -179,7 +189,7 @@
 
 
     <article class="deal" id="deal-modal-free-001" data-category="compute" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="$30/month free credit on Starter; pay-as-you-go beyond allotment" data-advertiser="Modal" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/modal-free-001/">Modal — $30/month free compute credit (Starter)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/modal-free-001/">Modal — $30/month free compute credit (Starter)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $30/month free credit on Starter; pay-as-you-go beyond allotment · Modal</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">modal</span> <span class="tag">free-credits</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -189,147 +199,147 @@
 
 
     <article class="deal" id="deal-99stack-001" data-category="compute" data-affiliate="true" data-offer="credit_only_referral" data-offer-label="Signup credit" data-price="" data-price-label="From $2.88/GPU-hr (H100), checked 2026-10-29" data-unit="" data-advertiser="99Stack Cloud" data-free="0" data-verified="1" data-verified-at="2026-10-27T01:51:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/99stack-001/">99Stack Cloud — hourly-billed cloud VPS and GPU instances (H100, L40S, A40, etc.) (referral credits) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/99stack-001/">99Stack Cloud — hourly-billed cloud VPS and GPU instances (H100, L40S, A40, etc.) (referral credits) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>From $2.88/GPU-hr (H100), checked 2026-10-29</strong> · 99Stack Cloud</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">vps</span> <span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">cloud</span> <span class="tag">99stack</span> <span class="tag">affiliate</span> <span class="tag">referral</span> <span class="tag">credits</span></p>
-      <p class="instructions">Deploy hourly-billed cloud VPS or GPU instances via 99Stack Cloud&#x27;s redeem_url (pre-paid balance). Delete instances when idle to avoid charges; confirm current rates at launch.</p>
+      <p class="instructions">Deploy hourly-billed cloud VPS or GPU instances via 99Stack Cloud&#x27;s the sign-up link (pre-paid balance). Delete instances when idle to avoid charges; confirm current rates at launch.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.99stack.com/a/4b6237a3-fe0d-4c21-966e-ed3d4de5f928" data-deal="deal-99stack-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100">https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-alphavps-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="per server per month" data-advertiser="AlphaVPS" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/alphavps-001/">AlphaVPS — EU VPS, dedicated and GPU servers (RTX PRO 6000 / RTX 5090)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/alphavps-001/">AlphaVPS — EU VPS, dedicated and GPU servers (RTX PRO 6000 / RTX 5090)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Plan prices listed (see details)</strong> · AlphaVPS</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">vps</span> <span class="tag">gpu</span> <span class="tag">dedicated-server</span> <span class="tag">bare-metal</span> <span class="tag">compute</span> <span class="tag">eu-hosting</span> <span class="tag">alphavps</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link, then choose VPS, dedicated or GPU servers. Billing is available in EUR or USD. VPS plans have a 14-day money-back guarantee. GPU servers (NVIDIA RTX PRO 6000 Blackwell, RTX 5090) are custom-priced, so configure or request a quote. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link, then choose VPS, dedicated or GPU servers. Billing is available in EUR or USD. VPS plans have a 14-day money-back guarantee. GPU servers (NVIDIA RTX PRO 6000 Blackwell, RTX 5090) are custom-priced, so configure or request a quote. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://alphavps.com/clients/aff.php?aff=1171" data-deal="deal-alphavps-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://alphavps.com/">https://alphavps.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-clore-ai" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="From $0.56/GPU-hr (RTX 4090), checked 2026-10-29" data-unit="GPU rental" data-advertiser="Clore.ai" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/clore-ai/">Clore.ai — GPU marketplace (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/clore-ai/">Clore.ai — GPU marketplace (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>From $0.56/GPU-hr (RTX 4090), checked 2026-10-29</strong> · Clore.ai</p>
       
       <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">clore</span> <span class="tag">marketplace</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url (or plain_url) for the Clore.ai peer-to-peer GPU marketplace. Host prices vary; see /api/v1/gpu-prices.json. Referral program terms: docs_url.</p>
+      <p class="instructions">Sign up via the the sign-up link (or the direct vendor link) for the Clore.ai peer-to-peer GPU marketplace. Host prices vary; see /api/v1/gpu-prices.json. Referral program terms: the vendor docs.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://clore.ai/register?ref_id=rymfuis6" data-deal="deal-clore-ai">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://clore.ai/marketplace">https://clore.ai/marketplace</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-cloreai-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="GPU rentals priced per hour by each host on the marketplace" data-advertiser="Clore.ai" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/cloreai-001/">Clore.ai — decentralized GPU marketplace, rent GPUs by the hour</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/cloreai-001/">Clore.ai — decentralized GPU marketplace, rent GPUs by the hour</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Pricing on vendor site</strong> · Clore.ai</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">gpu-marketplace</span> <span class="tag">cloreai</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Register via the redeem_url affiliate link, fund the account, then pick a GPU server on the marketplace and rent it per hour. Prices are set by the individual hosts, so compare offers before renting. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Register via the the sign-up link affiliate link, fund the account, then pick a GPU server on the marketplace and rent it per hour. Prices are set by the individual hosts, so compare offers before renting. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://clore.ai/register?ref_id=rymfuis6" data-deal="deal-cloreai-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://clore.ai/marketplace">https://clore.ai/marketplace</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-cometapi-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="pay per use (per 1M tokens / per image / per second)" data-advertiser="CometAPI" data-free="0" data-verified="1" data-verified-at="2026-10-26T18:21:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/cometapi-001/">CometAPI — unified LLM, image and video API, priced 20% below official rates</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/cometapi-001/">CometAPI — unified LLM, image and video API, priced 20% below official rates</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Plan prices listed (see details)</strong> · CometAPI</p>
       <p class="freshness">Updated Oct 26, 2026</p>
       <p class="tags"><span class="tag">llm</span> <span class="tag">openai-compatible</span> <span class="tag">api</span> <span class="tag">inference</span> <span class="tag">multi-model</span> <span class="tag">pay-per-use</span> <span class="tag">cometapi</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link and add credits. Billing is pay as you go with no subscription or minimum, and credits never expire. Use one API key for chat, image, video and audio models from multiple providers. Per-model rates are on cometapi.com/pricing. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link and add credits. Billing is pay as you go with no subscription or minimum, and credits never expire. Use one API key for chat, image, video and audio models from multiple providers. Per-model rates are on cometapi.com/pricing. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.cometapi.com/?ref=lanternworks" data-deal="deal-cometapi-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.cometapi.com/pricing/">https://www.cometapi.com/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-gigagpu-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="" data-advertiser="GigaGPU" data-free="0" data-verified="1" data-verified-at="2026-10-24T19:20:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/gigagpu-001/">GigaGPU — dedicated bare-metal GPU servers, UK datacenter (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/gigagpu-001/">GigaGPU — dedicated bare-metal GPU servers, UK datacenter (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Pricing on vendor site</strong> · GigaGPU</p>
       <p class="freshness">Updated Oct 24, 2026</p>
       <p class="tags"><span class="tag">gpu</span> <span class="tag">dedicated-server</span> <span class="tag">bare-metal</span> <span class="tag">llm-hosting</span> <span class="tag">inference</span> <span class="tag">gigagpu</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Order a dedicated GPU server (self-hosted LLMs, inference, fine-tuning, rendering) via GigaGPU&#x27;s redeem_url; open it in a browser if a scripted request hits Cloudflare. Confirm current monthly price and specs at checkout before ordering.</p>
+      <p class="instructions">Order a dedicated GPU server (self-hosted LLMs, inference, fine-tuning, rendering) via GigaGPU&#x27;s the sign-up link; open it in a browser if a scripted request hits Cloudflare. Confirm current monthly price and specs at checkout before ordering.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://portal.gigagpu.com/aff.php?aff=44" data-deal="deal-gigagpu-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://gigagpu.com">https://gigagpu.com</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-hostwinds-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="4.99" data-price-label="" data-unit="Unmanaged Linux VPS (1 CPU, 1 GB RAM) per month" data-advertiser="Hostwinds" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/hostwinds-001/">Hostwinds — VPS and cloud hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/hostwinds-001/">Hostwinds — VPS and cloud hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$4.99</strong> / Unmanaged Linux VPS (1 CPU, 1 GB RAM) per month · Hostwinds</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">vps</span> <span class="tag">compute</span> <span class="tag">cloud</span> <span class="tag">hosting</span> <span class="tag">linux</span> <span class="tag">hostwinds</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. Confirm current VPS plans and prices on hostwinds.com before ordering. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. Confirm current VPS plans and prices on hostwinds.com before ordering. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://clients.hostwinds.com/aff.php?aff=10559" data-deal="deal-hostwinds-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.hostwinds.com/vps/unmanaged-linux">https://www.hostwinds.com/vps/unmanaged-linux</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-interserver-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="" data-advertiser="InterServer" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/interserver-001/">InterServer — web hosting and VPS</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/interserver-001/">InterServer — web hosting and VPS</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Pricing on vendor site</strong> · InterServer</p>
       <p class="freshness">Updated Oct 26, 2026</p>
       <p class="tags"><span class="tag">vps</span> <span class="tag">compute</span> <span class="tag">hosting</span> <span class="tag">web-hosting</span> <span class="tag">cloud</span> <span class="tag">interserver</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. Confirm current VPS and web hosting plans and prices on interserver.net before ordering. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. Confirm current VPS and web hosting plans and prices on interserver.net before ordering. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.interserver.net/r/1215777" data-deal="deal-interserver-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.interserver.net/vps/">https://www.interserver.net/vps/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-kymaapi-001" data-category="ai-agents" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="pay per use (per 1M tokens / per image / per second)" data-advertiser="Kyma API" data-free="0" data-verified="1" data-verified-at="2026-10-27T10:30:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/kymaapi-001/">Kyma API — OpenAI-compatible API for 119 models, pay per use</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/kymaapi-001/">Kyma API — OpenAI-compatible API for 119 models, pay per use</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">ai-agents</span> · <strong>Plan prices listed (see details)</strong> · Kyma API</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">llm</span> <span class="tag">openai-compatible</span> <span class="tag">api</span> <span class="tag">inference</span> <span class="tag">multi-model</span> <span class="tag">pay-per-use</span> <span class="tag">kyma</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. After email verification you get a $0.50 credit for eligible free-tier models, with no card required. Point any OpenAI-compatible client at Kyma and choose a model; per-model rates are on kymaapi.com/pricing. There is no subscription; you top up a balance. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. After email verification you get a $0.50 credit for eligible free-tier models, with no card required. Point any OpenAI-compatible client at Kyma and choose a model; per-model rates are on kymaapi.com/pricing. There is no subscription; you top up a balance. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://kymaapi.com/?aff=lanternworks" data-deal="deal-kymaapi-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://kymaapi.com/pricing">https://kymaapi.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-novita-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="From $0.67/GPU-hr (RTX 4090), checked 2026-10-29" data-unit="paid usage" data-advertiser="Novita AI" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/novita-001/">Novita AI — GPU inference API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/novita-001/">Novita AI — GPU inference API (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>From $0.67/GPU-hr (RTX 4090), checked 2026-10-29</strong> · Novita AI</p>
       
       <p class="tags"><span class="tag">gpu</span> <span class="tag">ai</span> <span class="tag">inference</span> <span class="tag">novita</span> <span class="tag">affiliate</span> <span class="tag">compute</span></p>
-      <p class="instructions">Sign up via the redeem_url for Novita AI.</p>
+      <p class="instructions">Sign up via the the sign-up link for Novita AI.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://novita.ai/?ref=mgezngr" data-deal="deal-novita-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://novita.ai/">https://novita.ai/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-racknerd-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="26.99" data-price-label="" data-unit="512 MB KVM VPS plan per year" data-advertiser="RackNerd" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/racknerd-001/">RackNerd — budget KVM VPS and dedicated servers</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/racknerd-001/">RackNerd — budget KVM VPS and dedicated servers</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$26.99</strong> / 512 MB KVM VPS plan per year · RackNerd</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">vps</span> <span class="tag">compute</span> <span class="tag">dedicated-server</span> <span class="tag">budget</span> <span class="tag">kvm</span> <span class="tag">racknerd</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. Confirm current VPS plans, locations and prices on racknerd.com/kvm-vps before ordering. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. Confirm current VPS plans, locations and prices on racknerd.com/kvm-vps before ordering. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://my.racknerd.com/aff.php?aff=21699" data-deal="deal-racknerd-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.racknerd.com/kvm-vps">https://www.racknerd.com/kvm-vps</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-runpod-001" data-category="compute" data-affiliate="true" data-offer="credit_only_referral" data-offer-label="Signup credit" data-price="" data-price-label="From $0.22/GPU-hr (RTX 3090), checked 2026-10-29" data-unit="GPU pods billed per hour (see pricing_note)" data-advertiser="RunPod" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/runpod-001/">RunPod — GPU compute credit referral</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/runpod-001/">RunPod — GPU compute credit referral</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>From $0.22/GPU-hr (RTX 3090), checked 2026-10-29</strong> · RunPod</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">runpod</span> <span class="tag">affiliate</span> <span class="tag">referral</span> <span class="tag">credits</span></p>
-      <p class="instructions">Sign up via the redeem_url for RunPod GPU/Serverless compute. Suited to agent workloads needing GPUs.</p>
+      <p class="instructions">Sign up via the the sign-up link for RunPod GPU/Serverless compute. Suited to agent workloads needing GPUs.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://runpod.io?ref=wuct08gl" data-deal="deal-runpod-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.runpod.io/pricing">https://www.runpod.io/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-scrapingant-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid scraping API (browser + unblock)" data-advertiser="ScrapingAnt" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/scrapingant-001/">ScrapingAnt — web scraping API (browser + unblock)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/scrapingant-001/">ScrapingAnt — web scraping API (browser + unblock)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · ScrapingAnt</p>
       
       <p class="tags"><span class="tag">scrape</span> <span class="tag">api</span> <span class="tag">browser</span> <span class="tag">unblock</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for ScrapingAnt scraping API (browser + unblock).</p>
+      <p class="instructions">Sign up via the the sign-up link for ScrapingAnt scraping API (browser + unblock).</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrapingant.com/?ref=mzmwogv" data-deal="deal-scrapingant-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://scrapingant.com/">https://scrapingant.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-siliconflow-cn-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="" data-advertiser="SiliconFlow (硅基流动, China site)" data-free="0" data-verified="1" data-verified-at="2026-10-24T13:25:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/siliconflow-cn-001/">SiliconFlow China (siliconflow.cn, Chinese-language site) — LLM inference API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/siliconflow-cn-001/">SiliconFlow China (siliconflow.cn, Chinese-language site) — LLM inference API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Pricing on vendor site</strong> · SiliconFlow (硅基流动, China site)</p>
       <p class="freshness">Updated Oct 24, 2026</p>
       <p class="tags"><span class="tag">ai</span> <span class="tag">inference</span> <span class="tag">llm-api</span> <span class="tag">china</span> <span class="tag">chinese-language</span> <span class="tag">siliconflow</span> <span class="tag">affiliate</span> <span class="tag">compute</span></p>
-      <p class="instructions">Use only if the operator can use a Chinese-language site and likely a mainland China account and payment method: pay-as-you-go LLM/multimodal inference API (open models like DeepSeek, Qwen, GLM) priced in CNY via SiliconFlow China&#x27;s redeem_url (siliconflow.cn, not siliconflow.com).</p>
+      <p class="instructions">Use only if the operator can use a Chinese-language site and likely a mainland China account and payment method: pay-as-you-go LLM/multimodal inference API (open models like DeepSeek, Qwen, GLM) priced in CNY via SiliconFlow China&#x27;s the sign-up link (siliconflow.cn, not siliconflow.com).</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://siliconflow.cn/?ref=lanternworks" data-deal="deal-siliconflow-cn-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.siliconflow.cn">https://www.siliconflow.cn</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-steel-001" data-category="compute" data-affiliate="false" data-offer="trial" data-offer-label="Trial" data-price="0" data-price-label="" data-unit="$30 of free credits, one time; 90-day validity; captcha/proxies need $10 deposit" data-advertiser="Steel" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/steel-001/">Steel — $30 one-time free browser usage</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/steel-001/">Steel — $30 one-time free browser usage</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $30 of free credits, one time; 90-day validity; captcha/proxies need $10 deposit · Steel</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">browser</span> <span class="tag">steel</span> <span class="tag">free-credits</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -339,41 +349,41 @@
 
 
     <article class="deal" id="deal-thundercompute-001" data-category="compute" data-affiliate="true" data-offer="credit_only_referral" data-offer-label="Signup credit" data-price="" data-price-label="From $0.35/GPU-hr (RTX A6000), checked 2026-10-29" data-unit="" data-advertiser="Thunder Compute" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/thundercompute-001/">Thunder Compute — low-cost on-demand GPU cloud (A6000, L40, A100, H100) (referral credits) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/thundercompute-001/">Thunder Compute — low-cost on-demand GPU cloud (A6000, L40, A100, H100) (referral credits) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>From $0.35/GPU-hr (RTX A6000), checked 2026-10-29</strong> · Thunder Compute</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">inference</span> <span class="tag">training</span> <span class="tag">thundercompute</span> <span class="tag">affiliate</span> <span class="tag">referral</span> <span class="tag">credits</span></p>
-      <p class="instructions">Launch on-demand GPU instances (A6000, L40, A100, H100) for training or inference via Thunder Compute&#x27;s redeem_url. Stop or delete instances when idle to avoid charges; confirm current rates at launch.</p>
+      <p class="instructions">Launch on-demand GPU instances (A6000, L40, A100, H100) for training or inference via Thunder Compute&#x27;s the sign-up link. Stop or delete instances when idle to avoid charges; confirm current rates at launch.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&amp;utm_medium=referral&amp;utm_source=console" data-deal="deal-thundercompute-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.thundercompute.com/pricing">https://www.thundercompute.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-ucartz-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="798.72" data-price-label="" data-unit="GPU dedicated server (RTX 4090, cheapest dedicated-GPU plan) per month" data-advertiser="Ucartz" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/ucartz-001/">Ucartz — GPU dedicated servers, dedicated servers and hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/ucartz-001/">Ucartz — GPU dedicated servers, dedicated servers and hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>$798.72</strong> / GPU dedicated server (RTX 4090, cheapest dedicated-GPU plan) per month · Ucartz</p>
       <p class="freshness">Updated Oct 29, 2026</p>
       <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">dedicated-server</span> <span class="tag">bare-metal</span> <span class="tag">hosting</span> <span class="tag">vps</span> <span class="tag">ucartz</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. Confirm current GPU server configurations, locations and prices on ucartz.com/gpu-dedicated-servers before ordering. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. Confirm current GPU server configurations, locations and prices on ucartz.com/gpu-dedicated-servers before ordering. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.ucartz.com/clients/aff.php?aff=5132" data-deal="deal-ucartz-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.ucartz.com/gpu-dedicated-servers">https://www.ucartz.com/gpu-dedicated-servers</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-vastai-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="From $0.46/GPU-hr (RTX 4090), checked 2026-10-29" data-unit="GPU rental" data-advertiser="Vast.ai" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/vastai-001/">Vast.ai — GPU cloud (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/vastai-001/">Vast.ai — GPU cloud (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>From $0.46/GPU-hr (RTX 4090), checked 2026-10-29</strong> · Vast.ai</p>
       
       <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">vast</span> <span class="tag">affiliate</span> <span class="tag">cloud</span></p>
-      <p class="instructions">Sign up via the redeem_url for Vast.ai GPU cloud.</p>
+      <p class="instructions">Sign up via the the sign-up link for Vast.ai GPU cloud.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://cloud.vast.ai/?ref_id=760339" data-deal="deal-vastai-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://cloud.vast.ai/">https://cloud.vast.ai/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-wavespeed-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="" data-advertiser="WaveSpeedAI" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/wavespeed-001/">WaveSpeedAI — pay-as-you-go inference API for image, video and audio generative models (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/wavespeed-001/">WaveSpeedAI — pay-as-you-go inference API for image, video and audio generative models (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Plan prices listed (see details)</strong> · WaveSpeedAI</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">ai</span> <span class="tag">inference</span> <span class="tag">image-generation</span> <span class="tag">video-generation</span> <span class="tag">mcp</span> <span class="tag">wavespeed</span> <span class="tag">affiliate</span> <span class="tag">compute</span></p>
-      <p class="instructions">Generate images, video and audio via WaveSpeedAI&#x27;s API, CLI or MCP through the redeem_url. Check per-model pricing before batch jobs; follow model licenses and content policies (no deceptive deepfakes or non-consensual likenesses).</p>
+      <p class="instructions">Generate images, video and audio via WaveSpeedAI&#x27;s API, CLI or MCP through the the sign-up link. Check per-model pricing before batch jobs; follow model licenses and content policies (no deceptive deepfakes or non-consensual likenesses).</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://wavespeed.ai/?ref=lanternworks" data-deal="deal-wavespeed-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://wavespeed.ai/pricing">https://wavespeed.ai/pricing</a>.</small></p>
     </article>
 
