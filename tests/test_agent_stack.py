@@ -126,3 +126,31 @@ def test_tool_description_neutral():
     doc = re.search(r'def optimize_agent_stack\(.*?"""(.*?)"""', src, re.S).group(1).lower()
     assert "lantern" not in doc and "prefer" not in doc and "recommend" not in doc
     assert "no sourced price tracked" in doc and "referral" in doc
+
+
+# T3 regressions -------------------------------------------------------------------------------------------------
+def test_free_plan_price_is_not_a_budget():
+    r = a.plan("scraping agent, currently on the Firecrawl free plan at $0/mo, 5000 pages", DEALS, STACK, GPU)
+    assert r["parsed"]["monthly_budget_usd"] is None and r["budget"] is None
+    assert a.parse("email agent, pays $16/mo for Resend today")["monthly_budget_usd"] is None
+    assert a.parse("budget of $0")["monthly_budget_usd"] is None
+    assert a.parse("scraping agent, budget $50/mo")["monthly_budget_usd"] == 50
+
+
+def test_gpu_branch_honours_manual_signup_exclusion():
+    base = a.plan("fine-tune on H100 100 gpu hours", DEALS, STACK, GPU)
+    gl = next(l for l in base["lines"] if l["component"] == "gpu")
+    assert any(o.get("manual_signup_only") for o in [gl["choice"]] + gl.get("alternatives", [])), "fixture needs a manual-signup GPU vendor"
+    r = a.plan("fine-tune on H100 100 gpu hours", DEALS, STACK, GPU, exclude_manual_signup=True)
+    line = next(l for l in r["lines"] if l["component"] == "gpu")
+    for o in ([line["choice"]] if line.get("choice") else []) + line.get("alternatives", []):
+        assert not o.get("manual_signup_only"), o["vendor"]
+
+
+def test_negated_component_is_not_added():
+    p = a.parse("agent with scraping, no GPUs, budget $50/mo")
+    assert "gpu" not in p["components"] and "gpu" in p["excluded"] and "scraping" in p["components"]
+    r = a.plan("agent with scraping, no GPUs, budget $50/mo", DEALS, STACK, GPU)
+    assert "gpu" not in [l["component"] for l in r["lines"]]
+    assert "gpu" in a.parse("we don't need proxies but run 100 GPU hours on an H100")["components"]
+    assert "proxy" not in a.parse("we don't need proxies but run 100 GPU hours on an H100")["components"]

@@ -982,6 +982,13 @@ def cta_html(deal: dict) -> str:
         extra += f' · code <code>{esc(deal["promo_code"])}</code>'
     if deal.get("claim_note"):
         extra += f' · <em>{esc(deal["claim_note"])}</em>'
+    if deal.get("affiliate"):
+        # T5 Option A: plain disclosure next to the link, plus a direct vendor link (no referral tracking).
+        from core.disclosure import INLINE, plain_url
+        pu = deal.get("plain_url", plain_url(deal))
+        direct = (f' You can also go straight to the vendor: <a rel="noopener noreferrer" href="{esc(pu)}">{esc(pu)}</a>.'
+                  if pu else "")
+        extra += f'<br><small class="disclosure">{INLINE}{direct}</small>'
     return f'<a class="cta" {rel} href="{esc(url)}" data-deal="{esc(deal["id"])}">{label}</a>{extra}'
 
 

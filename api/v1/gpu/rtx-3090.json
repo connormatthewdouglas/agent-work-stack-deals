@@ -1,0 +1,96 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "model": "RTX 3090",
+  "slug": "rtx-3090",
+  "url": "https://thelanternworks.com/api/v1/gpu/rtx-3090.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-10-29T13:56:45+00:00",
+  "row_count": 2,
+  "providers": [
+    "RunPod"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 24,
+        "provider": "RunPod",
+        "gpu": "RTX 3090",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.5,
+        "unit": "hour",
+        "price_usd": 0.5,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-29T13:56:45+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 3090 cloud GPU rental on Runpod. Community Cloud $0.22/hr, Secure Cloud $0.50/hr."
+      }
+    ],
+    "spot-community": [
+      {
+        "vram_gb": 24,
+        "provider": "RunPod",
+        "gpu": "RTX 3090",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.22,
+        "unit": "hour",
+        "price_usd": 0.22,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-29T13:56:45+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 3090 cloud GPU rental on Runpod. Community Cloud $0.22/hr, Secure Cloud $0.50/hr."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "RunPod",
+      "gpu": "RTX 3090",
+      "vram_gb": 24,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.22,
+      "unit": "hour",
+      "price_usd": 0.22,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:45+00:00",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "On-demand RTX 3090 cloud GPU rental on Runpod. Community Cloud $0.22/hr, Secure Cloud $0.50/hr."
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX 3090",
+      "vram_gb": 24,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.5,
+      "unit": "hour",
+      "price_usd": 0.5,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-29T13:56:45+00:00",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "On-demand RTX 3090 cloud GPU rental on Runpod. Community Cloud $0.22/hr, Secure Cloud $0.50/hr."
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}
