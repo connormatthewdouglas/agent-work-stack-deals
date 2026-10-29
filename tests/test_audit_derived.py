@@ -25,7 +25,8 @@ def _money(s):
 
 
 def _rows(html):
-    tbl = html.split('<table class="howto" id="', 1)[1].split("</table>", 1)[0]
+    # all rate tables: pay-as-you-go first, then the reserved/term section (H5)
+    tbl = "".join(t.split("</table>", 1)[0] for t in html.split('<table class="howto" id="')[1:])
     out = []
     for tr in re.findall(r"<tr data-tier=\"([^\"]+)\">(.*?)</tr>", tbl, re.S):
         cells = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", tr[1], re.S)]

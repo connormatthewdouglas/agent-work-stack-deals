@@ -630,6 +630,40 @@ python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r mcp_server/requirement
     return out
 
 
+def write_about(deals: list[dict]) -> Path:
+    """/lanternworks/: human About page. Agent query docs live on /for-agents/."""
+    n = sum(1 for d in deals if not d.get("example"))
+    body = f"""
+  <h1>About Lantern Works</h1>
+  <p class="lede">Lantern Works checks GPU rental prices and other tools AI agents use, every day, and publishes them in one place you can read and agents can query.</p>
+
+  <h2>Who runs it</h2>
+  <p>Lantern Works is a small independent project, with AI agents doing much of the daily checking. A person reviews what goes on the site. Questions, corrections and vendor requests go to <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a>.</p>
+
+  <h2>Why it exists</h2>
+  <p>GPU prices change often and every vendor lists them differently: per GPU or per machine, on-demand or spot, with or without a commitment. Comparing them by hand takes a long time and is easy to get wrong. We wanted one table where an hourly rate means the same thing on every row, with a link to where each number came from.</p>
+
+  <h2>How we check prices</h2>
+  <p>Each tracked offer is checked against the vendor's own public pricing page or API. We record the rate per GPU per hour, the exact text we saw, and when we saw it. If we can't confirm a price, we mark it unknown instead of guessing. Each table shows its own check date, so you can see how old a number is.</p>
+  <p>Lists are sorted by price for the use you pick. Reserved or committed-term prices are shown separately, because they aren't comparable to pay-as-you-go rates. Spot and interruptible offers are labelled. Stock changes within minutes, so availability is a manual snapshot, not a guarantee.</p>
+  <p>The site currently tracks {n} offers. You can see what changed on the <a href="{BASE}/changelog/">changelog</a>.</p>
+
+  <h2>How we make money</h2>
+  <p>Some links are referral links, and we may earn a commission if you sign up through one. That never changes the price you pay, and it never changes the order of a list. Every referral link is labelled.</p>
+
+  <h2>Using it from an agent</h2>
+  <p>Instructions for agents, including the JSON feed, MCP server and query examples, are on the <a href="{BASE}/for-agents/">For agents</a> page.</p>
+
+  <p class="meta">Not investment advice, and not an endorsement of any vendor. Confirm price and terms on the vendor's site before you spend. Contact: <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+"""
+    out = ROOT / "lanternworks" / "index.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(page_shell("About Lantern Works — who runs it and how prices are checked",
+                              "Who runs Lantern Works, why it exists, and how GPU and tool prices are checked.",
+                              f"{BASE}/lanternworks/", body), encoding="utf-8")
+    return out
+
+
 SKILL_SRC = ROOT / "skills" / "lantern-works-deals" / "SKILL.md"
 
 
@@ -1322,6 +1356,7 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
         (f"{BASE}/deals/", "0.9"),
         (f"{BASE}/api/v1/gpu-price-changes.json", "0.6"),
         (f"{BASE}/api/v1/gpu-price-changes.xml", "0.6"),
+        (f"{BASE}/gpu/changes.xml", "0.6"),
         (f"{BASE}/lanternworks/", "0.8"),
         (f"{BASE}/changelog/", "0.7"),
         (f"{BASE}/for-agents/", "0.8"),
@@ -1732,6 +1767,8 @@ def main() -> None:
     tool_paths.append(stack_optimizer.write(sys.modules[__name__], deals, feed_updated))
     import stack_page
     tool_paths.append(stack_page.write(sys.modules[__name__], deals, feed_updated))
+    import spec_pages
+    tool_paths += spec_pages.write_all(sys.modules[__name__])
     tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)
     import install_page
     tool_paths.append(install_page.write(sys.modules[__name__]))
@@ -1742,7 +1779,7 @@ def main() -> None:
     home_page.write(sys.modules[__name__], deals, feed_updated)
     import gpu_changes_feed
     gpu_changes_feed.write(sys.modules[__name__])
-    patch_lanternworks()
+    write_about(deals)
     ensure_robots()
     write_404()
     write_for_agents(deals, feed)

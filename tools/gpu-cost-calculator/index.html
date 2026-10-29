@@ -56,6 +56,24 @@
     .gotchas li { margin: .3rem 0; }
     .gotchas a { font-weight: 600; }
   
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
+    }
     .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
     .sitenav a { margin: 0; }
     .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
@@ -87,7 +105,8 @@
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
-  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">GPU prices</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Compare &amp; categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">All GPU rates</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/" aria-current="page">GPU calculator</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+  <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, checked daily</span></header>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/" aria-current="page">GPU calculator</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
 <div id="content">
   <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/categories/gpu-compute/">GPU &amp; compute</a> › GPU cost calculator</nav>
   <h1>GPU cost calculator</h1>
@@ -100,7 +119,7 @@
     <label><input id="flat" type="checkbox" checked> Include flat monthly servers</label>
   </form>
   <p><span id="summary" aria-live="polite"></span> <a id="permalink" href="?">Link to this estimate</a></p>
-  <div style="overflow-x:auto"><table class="howto" id="results"><thead><tr><th>Est. / month</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Label</th></tr></thead><tbody></tbody></table></div>
+  <div style="overflow-x:auto"><table class="howto" id="results"><thead><tr><th>Est. / month</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Link</th></tr></thead><tbody></tbody></table></div>
   <noscript><p>The calculator needs JavaScript. The same data is at <a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a>.</p></noscript>
 
   <h2>Calculation basis</h2>
@@ -162,7 +181,7 @@
       if(r.unit==="hour"){const gg=Math.max(g,r.min_gpus||1);return {...r,cost:r.price_usd*h*gg,calc:`$${r.price_usd}/hr × ${h} h × ${gg}`+(gg>g?` (sold only as ${gg}-GPU instances)`:"")+(r.price_status==="marketplace"?`; variable marketplace median, lowest offer $${r.lowest_offer_usd}/hr`:"")};}
       const n=Math.max(1,Math.ceil(h/H))*g; return {...r,cost:r.price_usd*n,calc:(r.gpu_count>1?`$${r.price_usd}/GPU-mo × ${n} (sold as ${r.gpu_count}-GPU servers at $${r.server_price_usd}/mo)`:`$${r.price_usd}/mo × ${n} server(s)`)};
     }).sort((a,b)=>((a.tier_class==="reserved")-(b.tier_class==="reserved"))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
-    $("results").tBodies[0].innerHTML=rows.map(r=>`<tr><td><strong>${fmt(r.cost)}</strong></td><td>${esc(r.gpu)}${r.vram_gb?` ${r.vram_gb} GB`:""}</td><td><a href="${esc(r.redeem_url)}" rel="${r.affiliate?"nofollow sponsored noopener":"noopener"}" data-deal="${esc(r.deal_id)}">${esc(r.advertiser)}</a></td><td>${esc(r.tier)}, ${esc(r.billing)}</td><td>${esc(r.calc)}</td><td><a href="${esc(r.source_url)}" rel="noopener">“${esc(r.basis)}”</a> · ${esc((r.verified_at||"").slice(0,10))}</td><td>${r.affiliate?"referral":"public"}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${fmt(r.cost)}</strong></td><td>${esc(r.gpu)}${r.vram_gb?` ${r.vram_gb} GB`:""}</td><td><a href="${esc(r.redeem_url)}" rel="${r.affiliate?"nofollow sponsored noopener":"noopener"}" data-deal="${esc(r.deal_id)}">${esc(r.advertiser)}</a></td><td>${esc(r.tier)}, ${esc(r.billing)}</td><td>${esc(r.calc)}</td><td><a href="${esc(r.source_url)}" rel="noopener">“${esc(r.basis)}”</a> · ${esc((r.verified_at||"").slice(0,10))}</td><td>${r.affiliate?"Referral link":"Direct link"}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
     $("summary").textContent=rows.length?`${rows.length} options. Cheapest among tracked providers: ${rows[0].advertiser} ${rows[0].gpu} at ${fmt(rows[0].cost)}/month.`:"No priced option matches these filters.";
     const p=new URLSearchParams({hours:h,gpus:g}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
     $("permalink").href="?"+p;

@@ -352,6 +352,16 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
         rows = g.sort_deals_customer_value(rows)
         url = f"{base}/compare/{p['slug']}/"
         canon = f"{base}/{p['canonical_to']}/" if p.get("canonical_to") else url
+        if p.get("canonical_to"):  # H7: superseded page is a pointer only (no stale table); GitHub Pages has no server redirects
+            body = (f'  <meta http-equiv="refresh" content="0; url={canon}" />\n'
+                    f'  <nav class="crumbs"><a href="{base}/">Lantern Works</a> › {esc(p["h1"])}</nav>\n'
+                    f'  <h1>This page has moved</h1>\n  <p>Verified per-hour {esc(p["h1"].split(" ")[0])} prices, sorted by cost, are at '
+                    f'<a href="{canon}">{canon}</a>.</p>\n')
+            o = g.ROOT / "compare" / p["slug"] / "index.html"
+            o.parent.mkdir(parents=True, exist_ok=True)
+            o.write_text(g.page_shell(f"Moved: {p['h1']} — Lantern Works", "This page moved to the verified-rate page.", canon, body,
+                                      robots="noindex,follow"), encoding="utf-8")
+            continue
         crumbs = [("Home", f"{base}/"), ("AI agent tool deals", f"{base}/{PILLAR['slug']}/"), (p["h1"], url)]
         tr = []
         ptm = {}

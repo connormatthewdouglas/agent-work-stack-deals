@@ -47,10 +47,23 @@ def _rate_str(r: dict) -> str:
     return f"${r['price_usd']:,.2f}/mo"
 
 
+def _quote_html(esc, r: dict, n: int = 70) -> str:
+    """H4: short cleaned excerpt; the full verbatim quote is one click away."""
+    q = " ".join(((r.get("evidence") or {}).get("quote") or "").split())
+    src = esc(r.get("source_url") or "")
+    if r.get("price_status") == "marketplace":  # Vast.ai, Clore.ai: a summary of API fields, not page text
+        return f"<a href=\"{src}\" rel=\"noopener\">API fields: {esc(q)}</a>"
+    if len(q) <= n:
+        return f"<a href=\"{src}\" rel=\"noopener\">\u201c{esc(q)}\u201d</a>"
+    short = q[:n].rsplit(" ", 1)[0]
+    return (f"<details class=\"quote\"><summary>\u201c{esc(short)}\u2026\u201d</summary>"
+            f"<a href=\"{src}\" rel=\"noopener\">\u201c{esc(q)}\u201d</a></details>")
+
+
 def _avail_cell(gen, r: dict) -> str:
     a = r.get("availability") or {}
     if a.get("in_stock") is None:
-        return "unknown"
+        return "—"
     bits = [a["status"]]
     if a.get("stock_level"):
         bits.append(f"stock {a['stock_level']}")
@@ -63,12 +76,6 @@ def _avail_cell(gen, r: dict) -> str:
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     sep = " (separate later check)" if r.get("advertiser") == "Vast.ai" else ""
     return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
-
-
-def _quote_html(r: dict, esc) -> str:
-    """Marketplace rows (Vast.ai, Clore.ai) summarise API fields; everything else is verbatim page text."""
-    q = esc(r["evidence"]["quote"])
-    return f"API fields: {q}" if r.get("price_status") == "marketplace" else f"\u201c{q}\u201d"
 
 
 def _verified_cell(r: dict, esc) -> str:
@@ -86,28 +93,48 @@ def _pick_cheapest(rs: list[dict]) -> dict:
 
 
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
+    """H5: reserved/term-commitment rows get their own section, sorted by effective hourly rate with the term shown."""
+    payg = [r for r in rows if r.get("tier_class") != "reserved"]
+    res = sorted((r for r in rows if r.get("tier_class") == "reserved"), key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
+    out = _table_one(gen, payg, full) if payg else ""
+    if res:
+        out += ("\n<h3 id=\"reserved-rates\">Reserved and term-commitment prices</h3>\n<p class=\"meta\">These need a reservation or minimum term "
+                "(shown in the Type column), so they are kept out of the list above and are not ranked among pay-as-you-go rates. "
+                "Sorted by effective hourly rate.</p>\n" + _table_one(gen, res, full, show_filter=False))
+    return out
+
+
+def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
     esc = gen.esc
     trs = []
+    has_av = any((r.get("availability") or {}).get("in_stock") is not None for r in rows)
     for i, r in enumerate(rows, 1):
         tc = r.get("tier_class") or "on-demand"
         badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
         trs.append(
-            f"<tr data-tier=\"{esc(tc)}\"><td>{i}</td><td>{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
-            f"<td>{_vendor_link(gen, r)}</td>"
-            f"<td>{esc(r['tier'])}{badge}</td><td>{esc(_rate_str(r))}</td>"
-            f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[_key(r)])}</td>"
-            f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">{_quote_html(r, esc)}</a></td>"
-            f"<td>{_verified_cell(r, esc)}</td><td>{_avail_cell(gen, r)}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
+            f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
+            f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
+            f"<td data-label=\"Type\">{esc(r['tier'])}{badge}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
+            f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_money(r['monthly_cost_usd'])}</strong></td><td data-label=\"Full month\">{_money(full[_key(r)])}</td>"
+            f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
+            f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
+            + f"<td data-label=\"Link\">{'Referral link' if r['affiliate'] else 'Direct link'}</td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
             "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
-    return (filt + f"<div style=\"overflow-x:auto\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
-            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote (verbatim page text; marketplace rows: API fields)</th>"
-            "<th>Price verified</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
-            "<p class=\"meta\">Availability: \u201cunknown\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
-            "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. Vast.ai offer counts come from a "
-            "separate, later check than the price quote, so counts and minimums can differ.</p>")
+    if not show_filter:
+        filt = ""
+    return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
+            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
+            "<th>Price verified</th>" + ("<th>Availability (manual snapshot, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
+            "<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
+            "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
+            + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
+               "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. " if has_av else
+               "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as a manual snapshot "
+               "(stock changes within minutes, so it is not a guarantee). ")
+            + "Vast.ai offer counts come from a separate, later check than the price quote, so counts and minimums can differ.</p>")
 
 
 def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, str]], gen) -> str:
@@ -211,6 +238,27 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     return path
 
 
+def rate_count_note(gen, deals: list[dict]) -> str:
+    """#31: say exactly what the 'N rates from M vendors' headline counts vs the rows in gpu-prices.json."""
+    from collections import Counter
+    doc = build_rates(deals)
+    rates = doc["rates"]
+    tc = Counter(r.get("tier_class") or "on-demand" for r in rates)
+    parts = ", ".join(f"{n} {k}" for k, n in sorted(tc.items(), key=lambda kv: (-kv[1], kv[0])))
+    held = doc.get("held_stale") or []
+    held_n = sum(len(h.get("records") or []) for h in held)
+    held_v = sorted({h["vendor"] for h in held})
+    unp = doc.get("unpriced") or []
+    out = (f"How we count: the headline is every row in <code>rates[]</code> of <a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> "
+           f"({len(rates)} rates from {len({r['advertiser'] for r in rates})} vendors: {gen.esc(parts)}). ")
+    if held_n:
+        out += f"Not counted: {held_n} held_stale record{'s' if held_n != 1 else ''} from {len(held_v)} vendor{'s' if len(held_v) != 1 else ''} (stale or too thin a marketplace, never ranked)"
+        out += f" and {len(unp)} unpriced vendor{'s' if len(unp) != 1 else ''} (no verifiable price). " if unp else ". "
+    elif unp:
+        out += f"Not counted: {len(unp)} unpriced vendor{'s' if len(unp) != 1 else ''} (no verifiable price). "
+    return out + "Reserved rates are counted but kept out of the pay-as-you-go ranking."
+
+
 def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) -> str:
     path = "gpu/price-comparison"
     url = f"{gen.BASE}/{path}/"
@@ -252,6 +300,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU price comparison</nav>
   <h1>GPU rental price comparison</h1>
   <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
+  <p class="meta"><small>{rate_count_note(gen, _DEALS)}</small></p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
   <h2>By GPU model (all {len(rates)} rates)</h2>
   <table class="howto"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest pay-as-you-go rate (reserved excluded)</th></tr></thead><tbody>
@@ -316,7 +365,7 @@ def _vendor_cell(gen, r):
 
 
 def _quote_cell(gen, r):
-    return f"<a href=\"{gen.esc(r['source_url'] or '')}\" rel=\"noopener\">{_quote_html(r, gen.esc)}</a>"
+    return f"<a href=\"{gen.esc(r['source_url'] or '')}\" rel=\"noopener\">“{gen.esc(r['evidence']['quote'])}”</a>"
 
 
 TRACKED = "cheapest among tracked providers"
@@ -466,7 +515,11 @@ def links_html(base: str, deals: list[dict]) -> str:
     return " · ".join(f'<a href="{base}/{p}/">{n}</a>' for p, n in page_links(deals))
 
 
+_DEALS: list[dict] = []
+
+
 def write_all(gen, deals: list[dict]) -> list[str]:
+    _DEALS[:] = deals
     rates = build_rates(deals)["rates"]
     import gpu_model_json
     gpu_model_json.write(gen, rates)
@@ -508,8 +561,8 @@ def changes_html(gen, gpu_family: str | None = None, days: int = 30, limit: int 
         for c in ch[:limit])
     return (head + f"  <p>Price changes among tracked providers in the last {days} days, per GPU-hour, from daily snapshots "
             f"since {gen.esc(since or '')}. Full series: <a href=\"{api}\">price history JSON</a>.</p>\n"
-            "  <table><thead><tr><th>Date</th><th>Provider</th><th>GPU</th><th>Price</th><th>Change</th></tr></thead>"
-            f"<tbody>{rows}</tbody></table>\n")
+            "  <div class=\"tscroll\"><table class=\"howto sticky1\"><thead><tr><th>Date</th><th>Provider</th><th>GPU</th><th>Price</th><th>Change</th></tr></thead>"
+            f"<tbody>{rows}</tbody></table></div>\n")
 
 
 def write_hub(gen, rates: list[dict]) -> str:
@@ -517,8 +570,7 @@ def write_hub(gen, rates: list[dict]) -> str:
     path = "gpu"
     url = f"{gen.BASE}/{path}/"
     fresh = _freshness(rates) if rates else ""
-    extra = [(p, n) for p, n in (("compare/cheap-gpu-rental", "Cheap GPU rental deals"),
-                                  ("compare/h100-rental-price-comparison", "H100 rental price comparison"))
+    extra = [(p, n) for p, n in (("compare/cheap-gpu-rental", "Cheap GPU rental deals"),)
              if (ROOT / p / "index.html").exists()]
     li = lambda items: "".join(f'<li><a href="{gen.BASE}/{p}/">{n}</a></li>' for p, n in items)
     cheapest = [(p, n) for p, n in _LINKS if p.startswith("gpu/cheapest-")]
@@ -532,8 +584,12 @@ def write_hub(gen, rates: list[dict]) -> str:
   <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li></ul>
   <h2>Cheapest GPU by model</h2>
   <ul>{li(cheapest)}</ul>
+  <h2>Rental price by GPU</h2>
+  <ul>{li([(x, x.split("/")[1].replace("-rental-price", "").upper() + " rental price") for x in __import__("spec_pages").SPEC_PATHS if x.endswith("-rental-price")])}</ul>
   <h2>Comparisons</h2>
-  <ul>{li(cmps)}</ul>
+  <ul>{li(cmps + [(x, x.split("/")[1].replace("-gpu-prices", "").replace("-", " ").title()) for x in __import__("spec_pages").SPEC_PATHS if x.startswith("compare/")])}</ul>
+  <h2>Watch prices</h2>
+  <ul><li><a href="{gen.BASE}/gpu/changes/">GPU price changes</a> (<a href="{gen.BASE}/gpu/changes.xml">RSS</a>)</li><li><a href="{gen.BASE}/docs/watch-gpu-prices/">Watch GPU prices (docs)</a></li></ul>
   <h2>Deals and data</h2>
   <ul><li><a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute deals</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices.json">GPU pricing API (JSON)</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices/history.json">GPU price history (JSON)</a></li><li><a href="{gen.BASE}/api/v1/stack-pricing.json">Stack pricing API (JSON)</a></li></ul>
 """

@@ -8,10 +8,10 @@ from __future__ import annotations
 from html import escape
 
 NAV_ITEMS = [
-    ("", "GPU prices"),
+    ("", "Home"),
     ("deals/", "Deals"),
-    ("ai-agent-tool-deals/", "Compare & categories"),
-    ("gpu/price-comparison/", "All GPU rates"),
+    ("ai-agent-tool-deals/", "Deal categories"),
+    ("gpu/price-comparison/", "GPU price comparison"),
     ("tools/gpu-cost-calculator/", "GPU calculator"),
     ("stack/", "Plan a stack"),
     ("tools/stack-optimizer/", "Stack optimizer"),
@@ -23,6 +23,24 @@ NAV_ITEMS = [
 SECTIONS = {"ai-agent-tool-deals/": ("compare/", "categories/", "guides/"), "gpu/price-comparison/": ("gpu/",)}
 
 CSS = """
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
+    }
     .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
     .sitenav a { margin: 0; }
     .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
@@ -56,6 +74,8 @@ def nav_html(base: str, canonical: str = "") -> str:
             cur = ""
         links.append(f'<a href="{href}"{cur}>{escape(label)}</a>')
     return ('  <a class="skip" href="#content">Skip to content</a>\n'
+            f'  <header class="brandbar"><a class="brand" href="{base}/"><img src="{base}/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a>'
+            '<span class="brand-tag">GPU prices, checked daily</span></header>\n'
             f'  <nav class="sitenav" aria-label="Site">{"".join(links)}</nav>\n')
 
 

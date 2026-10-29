@@ -85,13 +85,14 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     body = f"""  <header>
     <h1>{esc(HERO)}</h1>
     <p>Hourly GPU rental prices re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate. <strong><span data-live-count>{count}</span> rates</strong> from {vendors} vendors, newest check {esc(fresh)}. "Cheapest" always means cheapest among tracked providers.</p>
+    <p class="meta"><small>{__import__("gpu_pages").rate_count_note(gen, deals)}</small></p>
   </header>
   <main id="content">
   <section aria-labelledby="spread">
     <h2 id="spread">Today's spread (per GPU-hour, USD)</h2>
     <div style="overflow-x:auto"><table class="howto"><thead><tr><th>GPU</th><th>Cheapest</th><th>Median</th><th>Highest</th><th>Rates</th><th>Cheapest offer</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
-    <p><a href="{BASE}/gpu/"><strong>Compare all GPU prices →</strong></a> · <a href="{BASE}/gpu/price-comparison/">every tracked rate</a> · <a href="{BASE}/tools/gpu-cost-calculator/">cost calculator</a> · <a href="{BASE}/api/v1/gpu-prices/history.json">price history (JSON)</a></p>
+    <p><a href="{BASE}/gpu/price-comparison/"><strong>Compare all GPU prices →</strong></a> · <a href="{BASE}/gpu/">GPU pages by model</a> · <a href="{BASE}/tools/gpu-cost-calculator/">cost calculator</a> · <a href="{BASE}/api/v1/gpu-prices/history.json">price history (JSON)</a></p>
   </section>
   <section aria-labelledby="install">
     <h2 id="install">Give your agent live GPU prices</h2>
