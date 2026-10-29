@@ -22,21 +22,22 @@ _bool = {"type": ["boolean", "null"]}
 # Per tool: (required top-level success keys, list key with rows, required row keys, brief top-level keys, brief row keys)
 SPEC = {
     "compare_gpu_prices": (["gpu", "summary", "count", "results"], "results",
-                           ["advertiser", "gpu", "hourly_usd", "source_url", "rank"],
+                           ["advertiser", "gpu", "hourly_usd", "source_url", "rank", "rate_id"],
                            ["gpu", "summary", "count", "results"],
-                           ["rank", "advertiser", "gpu", "vram_gb", "hourly_usd", "tier_class", "source_url", "checked_at"]),
+                           ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "hourly_usd", "tier_class", "source_url", "checked_at"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
                           ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
                            "change_pct", "source_url"]),
-    "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete"], "lines",
+    "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
-                       ["lines", "total_monthly_usd", "total_is_complete"],
+                       ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
                        ["need", "status", "monthly_cost_usd", "choice"]),
-    "optimize_agent_stack": (["lines", "monthly_estimate_usd", "estimate_is_complete"], "lines",
+    "optimize_agent_stack": (["lines", "monthly_estimate_usd", "estimate_is_complete", "quote_id", "issued_at"], "lines",
                              ["component", "status"],
-                             ["lines", "monthly_estimate_usd", "estimate_is_complete", "missing_components", "budget"],
+                             ["lines", "monthly_estimate_usd", "estimate_is_complete", "missing_components", "budget",
+                              "quote_id", "issued_at"],
                              ["component", "status", "monthly_cost_usd", "choice"]),
     "search_deals": (["total", "count", "results"], "results",
                      ["id"],
@@ -58,7 +59,18 @@ EXTRA_PROPS = {
                                                                "seq": {"type": ["integer", "null"]}, "snapshot_id": _str}}},
     },
 }
-BRIEF_CHOICE_KEYS = ("vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at")
+# T39: rate_id on every compared rate and optimizer option; quote_id receipt on optimize/estimate responses.
+_RATE_ID = {"type": "string", "pattern": "^r_[0-9a-f]{12}$"}
+_OPTION = {"type": ["object", "null"], "properties": {"rate_id": _RATE_ID}, "required": ["rate_id"]}
+_QUOTE = {"quote_id": {"type": "string", "pattern": "^q_[0-9a-f]{20}$"}, "issued_at": {"type": "string", "format": "date-time"},
+          "quote_basis": {"type": "object"}}
+_LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION,
+                                                                     "alternatives": {"type": "array", "items": _OPTION}}}}
+EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
+    "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"rate_id": _RATE_ID}}}}
+EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
+EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
+BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at")
 
 
 def output_schema(tool: str) -> dict:

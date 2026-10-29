@@ -22,13 +22,13 @@ try:  # installed wheel: core is vendored as a subpackage
     from lantern_works_deals_mcp.core import deals as core
     from lantern_works_deals_mcp.core import stack
     from lantern_works_deals_mcp.core import agent_stack
-    from lantern_works_deals_mcp.core import contract
+    from lantern_works_deals_mcp.core import contract, quote
 except ImportError:  # repo checkout: shared top-level core/
     from core import VERSION, DealError, FeedLoader, GpuChangesLoader, GpuHistoryLoader, GpuPricesLoader, StackPricingLoader  # noqa: E402
     from core import deals as core  # noqa: E402
     from core import stack  # noqa: E402
     from core import agent_stack  # noqa: E402
-    from core import contract  # noqa: E402
+    from core import contract, quote  # noqa: E402
 
 INSTRUCTIONS = ("Read-only GPU rental price comparison (compare_gpu_prices, checked daily, with price history; get_price_changes lists what moved), a "
                 "stack cost optimizer (optimize_stack, or optimize_agent_stack from a plain-text agent description), and the Lantern Works agent work-stack deal feed. Results are ranked by "
@@ -166,6 +166,12 @@ def get_price_changes(since: str | None = None, gpu: str | None = None, limit: i
         return e.to_dict()
 
 
+def _data_timestamps(stack_data: dict | None, gpu: dict | None) -> dict:
+    """Data versions a quote was computed from (hashed into quote_id)."""
+    return {"stack_pricing_feed_updated_at": (stack_data or {}).get("feed_updated_at"),
+            "gpu_prices_feed_updated_at": (gpu or {}).get("feed_updated_at")}
+
+
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
 @_contract
@@ -187,9 +193,11 @@ def optimize_stack(scrape_pages: int = 0, scrape_pages_js: int = 0, proxy_gb: fl
     needs = {k: v for k, v in needs.items() if v}
     try:
         gpu = gpu_loader.load() if needs.get("gpu_hours") else None
-        out = stack.optimize(stack_loader.load(), needs, gpu, gpu_model=gpu_model or None,
+        sdata = stack_loader.load()
+        out = stack.optimize(sdata, needs, gpu, gpu_model=gpu_model or None,
                              exclude_manual_signup=exclude_manual_signup)
         out["data_source"] = core.STACK_PRICING_URL
+        out.update(quote.receipt("optimize_stack", out["lines"], _data_timestamps(sdata, gpu)))
         return out
     except stack.StackError as e:
         return DealError("invalid_argument", str(e)).to_dict()
@@ -224,13 +232,15 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
             gpu = gpu_loader.load()
         except DealError:
             gpu = None
-        out = agent_stack.plan(description, loader.deals(), stack_loader.load(), gpu, workload=workload,
+        sdata = stack_loader.load()
+        out = agent_stack.plan(description, loader.deals(), sdata, gpu, workload=workload,
                                gpu_hours=gpu_hours, gpu_model=gpu_model or None, model_size_b=model_size_b,
                                scrape_pages=scrape_pages, js_rendering=js_rendering, proxy_gb=proxy_gb,
                                search_queries=search_queries, emails_sent=emails_sent, llm_api=llm_api,
                                monthly_budget_usd=monthly_budget_usd, exclude_manual_signup=exclude_manual_signup,
                                max_data_age_hours=max_data_age_hours)
         out["data_sources"] = [core.GPU_PRICES_URL, core.STACK_PRICING_URL, core.FEED_URL]
+        out.update(quote.receipt("optimize_agent_stack", out["lines"], _data_timestamps(sdata, gpu)))
         out.update(core.freshness(_gpu_checked_at(gpu) if gpu else None))
         return out
     except stack.StackError as e:
