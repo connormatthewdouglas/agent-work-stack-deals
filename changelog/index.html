@@ -128,6 +128,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.17 (2026-10-29)</h2>
+<ul>
+<li>T38 (#30): <code>get_price_changes</code> accepts <code>cursor</code> (oldest first, with <code>next_cursor</code>, <code>has_more</code>, <code>last_seq</code>) and <code>kinds</code>; every change carries <code>event_id</code>, <code>rate_id</code>, <code>seq</code> and <code>snapshot_id</code>. A cursor that no longer matches the published history returns <code>cursor_expired</code>. History schema is <code>lantern-works-gpu-price-history/2</code>.</li>
+<li>T39 (#32): every <code>compare_gpu_prices</code> row and every optimizer choice and alternative carries a stable <code>rate_id</code>. <code>optimize_stack</code> and <code>optimize_agent_stack</code> return a deterministic <code>quote_id</code> receipt with <code>issued_at</code> and <code>quote_basis</code>.</li>
+<li>Site: /methodology/ page and install snippets for LlamaIndex, Open WebUI, Roo Code and Continue (#31); mobile overflow fixes (#29); plain wording and canonical cleanup (#28).</li>
+</ul>
 <h2>0.3.16 (2026-10-29)</h2>
 <ul>
 <li>Spheron RTX 5090: Spheron rotates this row&#x27;s specs and &quot;Last known&quot; text between fetches, so no stable continuous span ties the GPU to $0.84/hr. The row is marked <code>price_check: &quot;rotating snapshot&quot;</code> (with <code>price_check_note</code>), and the quote is the single span seen at the check.</li>
