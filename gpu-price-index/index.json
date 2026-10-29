@@ -1,0 +1,267 @@
+{
+  "schema": "lantern-works-gpu-price-index/1",
+  "name": "Lantern Works GPU Price Index",
+  "license": {
+    "data": "CC-BY-4.0",
+    "data_license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Lantern Works GPU Price Index (https://thelanternworks.com/gpu-price-index/)",
+    "code": "MIT",
+    "details": "https://thelanternworks.com/methodology/#license"
+  },
+  "attribution_text": "Source: Lantern Works GPU Price Index (thelanternworks.com/gpu-price-index), CC BY 4.0",
+  "source_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "prices_verified_through": "2026-10-29T19:08:23Z",
+  "method": "Per GPU model family (SXM/PCIe/NVLink variants grouped), take each tracked provider's cheapest listed on-demand per-GPU hourly rate; publish the median across providers, plus min, max and provider count. Families with fewer than 2 providers are omitted. Interruptible, community, marketplace, reserved and monthly tiers are excluded. Scope: tracked providers only, not the whole market. Daily history is rebuilt from the price-history change points.",
+  "current": {
+    "A100": {
+      "median_hourly_usd": 1.6915,
+      "min_hourly_usd": 1.09,
+      "max_hourly_usd": 2.7,
+      "provider_count": 6,
+      "providers": [
+        "CoreWeave",
+        "Hyperstack",
+        "Lambda",
+        "RunPod",
+        "Thunder Compute",
+        "Verda (formerly DataCrunch)"
+      ]
+    },
+    "GH200": {
+      "median_hourly_usd": 4.395,
+      "min_hourly_usd": 2.29,
+      "max_hourly_usd": 6.5,
+      "provider_count": 2,
+      "providers": [
+        "CoreWeave",
+        "Lambda"
+      ]
+    },
+    "H100": {
+      "median_hourly_usd": 3.29,
+      "min_hourly_usd": 2.5,
+      "max_hourly_usd": 6.155,
+      "provider_count": 9,
+      "providers": [
+        "99Stack Cloud",
+        "CoreWeave",
+        "DigitalOcean GPU Droplets",
+        "Hyperstack",
+        "Lambda",
+        "Nebius",
+        "RunPod",
+        "Thunder Compute",
+        "Verda (formerly DataCrunch)"
+      ]
+    },
+    "H200": {
+      "median_hourly_usd": 5.345,
+      "min_hourly_usd": 3.99,
+      "max_hourly_usd": 6.305,
+      "provider_count": 6,
+      "providers": [
+        "CoreWeave",
+        "DigitalOcean GPU Droplets",
+        "Hyperstack",
+        "Nebius",
+        "RunPod",
+        "Verda (formerly DataCrunch)"
+      ]
+    },
+    "L40": {
+      "median_hourly_usd": 0.805,
+      "min_hourly_usd": 0.79,
+      "max_hourly_usd": 0.82,
+      "provider_count": 2,
+      "providers": [
+        "RunPod",
+        "Thunder Compute"
+      ]
+    },
+    "L40S": {
+      "median_hourly_usd": 1.56,
+      "min_hourly_usd": 0.63,
+      "max_hourly_usd": 2.25,
+      "provider_count": 8,
+      "providers": [
+        "CloudRift",
+        "CoreWeave",
+        "DigitalOcean GPU Droplets",
+        "Koyeb",
+        "Nebius",
+        "OVHcloud (US)",
+        "RunPod",
+        "Verda (formerly DataCrunch)"
+      ]
+    },
+    "RTX 4090": {
+      "median_hourly_usd": 0.78,
+      "min_hourly_usd": 0.67,
+      "max_hourly_usd": 0.89,
+      "provider_count": 2,
+      "providers": [
+        "Novita AI",
+        "RunPod"
+      ]
+    },
+    "RTX 5090": {
+      "median_hourly_usd": 0.92,
+      "min_hourly_usd": 0.65,
+      "max_hourly_usd": 1.19,
+      "provider_count": 2,
+      "providers": [
+        "CloudRift",
+        "RunPod"
+      ]
+    },
+    "RTX A6000": {
+      "median_hourly_usd": 0.705,
+      "min_hourly_usd": 0.35,
+      "max_hourly_usd": 1.09,
+      "provider_count": 4,
+      "providers": [
+        "Lambda",
+        "RunPod",
+        "Thunder Compute",
+        "Verda (formerly DataCrunch)"
+      ]
+    }
+  },
+  "daily": [
+    {
+      "date": "2026-10-27",
+      "index": {
+        "A100": {
+          "median_hourly_usd": 1.79,
+          "min_hourly_usd": 1.09,
+          "max_hourly_usd": 1.99,
+          "provider_count": 3
+        },
+        "H100": {
+          "median_hourly_usd": 3.045,
+          "min_hourly_usd": 2.8767,
+          "max_hourly_usd": 3.29,
+          "provider_count": 4
+        },
+        "L40": {
+          "median_hourly_usd": 0.805,
+          "min_hourly_usd": 0.79,
+          "max_hourly_usd": 0.82,
+          "provider_count": 2
+        },
+        "RTX A6000": {
+          "median_hourly_usd": 0.59,
+          "min_hourly_usd": 0.35,
+          "max_hourly_usd": 1.09,
+          "provider_count": 3
+        }
+      }
+    },
+    {
+      "date": "2026-10-28",
+      "index": {
+        "A100": {
+          "median_hourly_usd": 1.79,
+          "min_hourly_usd": 1.09,
+          "max_hourly_usd": 2.7,
+          "provider_count": 5
+        },
+        "GH200": {
+          "median_hourly_usd": 4.395,
+          "min_hourly_usd": 2.29,
+          "max_hourly_usd": 6.5,
+          "provider_count": 2
+        },
+        "H100": {
+          "median_hourly_usd": 3.85,
+          "min_hourly_usd": 2.8767,
+          "max_hourly_usd": 6.155,
+          "provider_count": 8
+        },
+        "H200": {
+          "median_hourly_usd": 5.4,
+          "min_hourly_usd": 4.47,
+          "max_hourly_usd": 6.305,
+          "provider_count": 5
+        },
+        "L40": {
+          "median_hourly_usd": 0.805,
+          "min_hourly_usd": 0.79,
+          "max_hourly_usd": 0.82,
+          "provider_count": 2
+        },
+        "L40S": {
+          "median_hourly_usd": 1.57,
+          "min_hourly_usd": 1.09,
+          "max_hourly_usd": 2.25,
+          "provider_count": 5
+        },
+        "RTX A6000": {
+          "median_hourly_usd": 0.701,
+          "min_hourly_usd": 0.35,
+          "max_hourly_usd": 1.09,
+          "provider_count": 4
+        }
+      }
+    },
+    {
+      "date": "2026-10-29",
+      "index": {
+        "A100": {
+          "median_hourly_usd": 1.6915,
+          "min_hourly_usd": 1.09,
+          "max_hourly_usd": 2.7,
+          "provider_count": 6
+        },
+        "GH200": {
+          "median_hourly_usd": 4.395,
+          "min_hourly_usd": 2.29,
+          "max_hourly_usd": 6.5,
+          "provider_count": 2
+        },
+        "H100": {
+          "median_hourly_usd": 3.29,
+          "min_hourly_usd": 2.5,
+          "max_hourly_usd": 6.155,
+          "provider_count": 9
+        },
+        "H200": {
+          "median_hourly_usd": 5.345,
+          "min_hourly_usd": 3.99,
+          "max_hourly_usd": 6.305,
+          "provider_count": 6
+        },
+        "L40": {
+          "median_hourly_usd": 0.805,
+          "min_hourly_usd": 0.79,
+          "max_hourly_usd": 0.82,
+          "provider_count": 2
+        },
+        "L40S": {
+          "median_hourly_usd": 1.56,
+          "min_hourly_usd": 0.63,
+          "max_hourly_usd": 2.25,
+          "provider_count": 8
+        },
+        "RTX 4090": {
+          "median_hourly_usd": 0.78,
+          "min_hourly_usd": 0.67,
+          "max_hourly_usd": 0.89,
+          "provider_count": 2
+        },
+        "RTX 5090": {
+          "median_hourly_usd": 0.92,
+          "min_hourly_usd": 0.65,
+          "max_hourly_usd": 1.19,
+          "provider_count": 2
+        },
+        "RTX A6000": {
+          "median_hourly_usd": 0.705,
+          "min_hourly_usd": 0.35,
+          "max_hourly_usd": 1.09,
+          "provider_count": 4
+        }
+      }
+    }
+  ]
+}

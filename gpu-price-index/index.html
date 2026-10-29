@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GPU Price Index (daily median $/GPU-hour) | Lantern Works</title>
+  <meta name="description" content="Daily median on-demand GPU rental price per GPU-hour across tracked cloud providers, by GPU model. Open data, CC BY 4.0." />
+  <link rel="canonical" href="https://thelanternworks.com/gpu-price-index/" />
+  <link rel="alternate" type="application/json" href="https://thelanternworks.com/gpu-price-index/index.json" />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    table { border-collapse: collapse; background: #fff; width: 100%; font-size: .92rem; }
+    th, td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; }
+    th { background: #f3f3f3; } .tscroll { overflow-x: auto; }
+    .note { font-size: .88rem; color: #444; }
+  </style>
+</head>
+<body>
+<p><a href="/">Lantern Works</a> · <a href="/gpu/price-comparison/">GPU price comparison</a> · <a href="/gpu/changes/">Daily changes</a></p>
+<h1>GPU Price Index</h1>
+<p>Median on-demand rental price per GPU-hour (USD) across tracked providers, by GPU model. Prices checked through 2026-10-29 15:08 ET.</p>
+<div class="tscroll"><table><thead><tr><th>GPU</th><th>Median</th><th>Lowest</th><th>Highest</th><th>Providers</th></tr></thead><tbody><tr><td>A100</td><td>$1.69</td><td>$1.09</td><td>$2.70</td><td>6</td></tr><tr><td>GH200</td><td>$4.39</td><td>$2.29</td><td>$6.50</td><td>2</td></tr><tr><td>H100</td><td>$3.29</td><td>$2.50</td><td>$6.16</td><td>9</td></tr><tr><td>H200</td><td>$5.34</td><td>$3.99</td><td>$6.30</td><td>6</td></tr><tr><td>L40</td><td>$0.81</td><td>$0.79</td><td>$0.82</td><td>2</td></tr><tr><td>L40S</td><td>$1.56</td><td>$0.63</td><td>$2.25</td><td>8</td></tr><tr><td>RTX 4090</td><td>$0.78</td><td>$0.67</td><td>$0.89</td><td>2</td></tr><tr><td>RTX 5090</td><td>$0.92</td><td>$0.65</td><td>$1.19</td><td>2</td></tr><tr><td>RTX A6000</td><td>$0.70</td><td>$0.35</td><td>$1.09</td><td>4</td></tr></tbody></table></div>
+<h2>Daily median history</h2>
+<div class="tscroll"><table><thead><tr><th>Date</th><th>A100</th><th>GH200</th><th>H100</th><th>H200</th><th>L40</th><th>L40S</th><th>RTX 4090</th><th>RTX 5090</th><th>RTX A6000</th></tr></thead><tbody><tr><td>2026-10-27</td><td>$1.79</td><td>—</td><td>$3.04</td><td>—</td><td>$0.81</td><td>—</td><td>—</td><td>—</td><td>$0.59</td></tr><tr><td>2026-10-28</td><td>$1.79</td><td>$4.39</td><td>$3.85</td><td>$5.40</td><td>$0.81</td><td>$1.57</td><td>—</td><td>—</td><td>$0.70</td></tr><tr><td>2026-10-29</td><td>$1.69</td><td>$4.39</td><td>$3.29</td><td>$5.34</td><td>$0.81</td><td>$1.56</td><td>$0.78</td><td>$0.92</td><td>$0.70</td></tr></tbody></table></div>
+<h2>Method</h2>
+<p class="note">Per GPU model family (SXM/PCIe/NVLink variants grouped), take each tracked provider&#x27;s cheapest listed on-demand per-GPU hourly rate; publish the median across providers, plus min, max and provider count. Families with fewer than 2 providers are omitted. Interruptible, community, marketplace, reserved and monthly tiers are excluded. Scope: tracked providers only, not the whole market. Daily history is rebuilt from the price-history change points.</p>
+<h2>Data and licence</h2>
+<p>JSON: <a href="/gpu-price-index/index.json">/gpu-price-index/index.json</a> (also <a href="/api/v1/gpu-price-index.json">/api/v1/gpu-price-index.json</a>). Underlying rates with vendor sources: <a href="/api/v1/gpu-prices.json">/api/v1/gpu-prices.json</a>.</p>
+<p>The index data is licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Please attribute: <em>Source: Lantern Works GPU Price Index (thelanternworks.com/gpu-price-index), CC BY 4.0</em>. Code is MIT.</p>
+<p class="note">Some listed providers have referral programs with Lantern Works; affiliate status does not affect the index.</p>
+</body>
+</html>
