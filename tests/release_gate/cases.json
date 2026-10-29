@@ -1,0 +1,225 @@
+{
+ "suite": "T41 pricing-decision release gate",
+ "version": 1,
+ "created": "2026-10-29",
+ "principle": "Expectations are derived from rules stated in the repo (core/gpu.py, core/deals.py, core/stack.py, gpu-prices.json methodology) and recomputed from the live feed at run time. No price is hardcoded.",
+ "sources": {
+  "gpu_prices": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "gpu_price_changes": "https://thelanternworks.com/api/v1/gpu-price-changes.json",
+  "site_home": "https://thelanternworks.com/",
+  "repo_code": "/workspace/gauge/t41/repo (core/*, mcp_server/server.py tools run in-process against the live feeds; telemetry off)"
+ },
+ "cases": [
+  {
+   "id": "T41-01",
+   "intent": "Can every ranked price be trusted (no unknown price, evidence attached)?",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "Every rate: price_usd and hourly_equiv_usd are numbers > 0; source_url and evidence.source_url start with https://; evidence.quote non-empty and <= 200 chars (core.gpu.MAX_QUOTE); verified_at parses as ISO-8601; the published price (price_usd, or price_per_second_usd, or server_price_usd for multi-GPU monthly) (or the whole-server hourly/monthly price for multi-GPU rows) appears as a $ amount in evidence.quote; every $ amount in 'basis' also appears in evidence.quote (basis and evidence come from the same check); marketplace offer_count / lowest_offer_usd match the counts in evidence.quote.",
+   "why": "Credibility rule: never show an unknown or unsourced price."
+  },
+  {
+   "id": "T41-02",
+   "intent": "Monthly <-> hourly conversion uses 730 h",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "hours_per_month == 730 (core.gpu.HOURS_PER_MONTH). unit=hour rows: hourly_equiv_usd == price_usd. unit=month rows: |hourly_equiv_usd - price_usd/730| <= 0.0001 (per GPU; whole-server price = price_usd * gpu_count +-0.01).",
+   "why": "Agents convert monthly servers to hourly to compare; wrong basis misranks dedicated servers."
+  },
+  {
+   "id": "T41-03",
+   "intent": "What is the cheapest H100 right now?",
+   "inputs": {
+    "tool": "compare_gpu_prices",
+    "gpu": "H100",
+    "limit": 25
+   },
+   "expected": "results sorted by hourly_usd ascending; results[0].hourly_usd == min(hourly_equiv_usd) over live feed rows whose gpu tokens include 'h100' and tier_class != reserved; scope == 'cheapest among tracked providers'; summary contains 'among tracked providers'.",
+   "why": "Core decision: the 'cheapest' answer must equal the feed minimum and be scoped honestly."
+  },
+  {
+   "id": "T41-04",
+   "intent": "Cheapest ON-DEMAND L40S (no spot/community/marketplace)",
+   "inputs": {
+    "tool": "compare_gpu_prices",
+    "gpu": "L40S",
+    "on_demand_only": true,
+    "limit": 25
+   },
+   "expected": "Every result tier_class == 'on-demand'; results[0].hourly_usd == min over feed L40S rows with tier_class on-demand; excluded_non_on_demand == count of non-on-demand, non-reserved L40S rows.",
+   "why": "Agents that cannot tolerate preemption must never be handed a spot price as 'cheapest'."
+  },
+  {
+   "id": "T41-05",
+   "intent": "Reservation prices are never 'cheapest'",
+   "inputs": {
+    "tool": "compare_gpu_prices",
+    "gpu": "H100",
+    "include_reserved": [
+     false,
+     true
+    ]
+   },
+   "expected": "Default call: no reserved rows and excluded_reserved == number of reserved H100 rows in feed. include_reserved=true: every reserved row ranks after every non-reserved row. core.gpu.estimate likewise sorts reserved last.",
+   "why": "'Starting from' commitment prices need a term contract; ranking them first misleads."
+  },
+  {
+   "id": "T41-06",
+   "intent": "Tier labels classify consistently",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "For every row, feed tier_class == core.deals.tier_class(row) and is in TIER_CLASSES; interruptible==true <=> tier_class=='interruptible'; any tier text containing spot/preempt/interrupt has interruptible==true; 'community' tiers -> community.",
+   "why": "Spot/community/on-demand filtering depends on one consistent classification."
+  },
+  {
+   "id": "T41-07",
+   "intent": "Interruptible flag is backed by vendor text",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "Every interruptible==true row has vendor evidence for preemption: evidence.quote or tier contains spot/preempt/interrupt/batch-priority wording, or evidence.interruption_quote is present (non-empty, with https interruption_source_url).",
+   "why": "Calling a standard price 'preemptible' (or vice versa) is an invented attribute."
+  },
+  {
+   "id": "T41-08",
+   "intent": "Only dedicated GPUs are compared",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "No rate where core.gpu.is_non_dedicated(gpu) is true; every rate has vram_gb as a positive number.",
+   "why": "Integrated/shared GPUs (e.g. Radeon 780M) are not GPU rentals."
+  },
+  {
+   "id": "T41-09",
+   "intent": "Multi-GPU-only offers are represented as whole servers",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "min_gpus > 1 => gpu_count == min_gpus and server_hourly_usd (hourly) or server_price_usd (monthly) set; gpu_count > 1 => |server_hourly_usd - price_usd*gpu_count| <= 0.02 for hourly rows; tier text mentioning '8x'/'8-GPU' => min_gpus == 8.",
+   "why": "A 1-GPU estimate on an 8-GPU-only instance must not show 1/8 of the real bill."
+  },
+  {
+   "id": "T41-10",
+   "intent": "Monthly cost for 1 GPU x 730 h is arithmetic on the feed, affiliate-neutral",
+   "inputs": {
+    "function": "core.gpu.estimate",
+    "hours_per_month": 730,
+    "gpus": 1
+   },
+   "expected": "For every hourly row: monthly_cost_usd == round(price_usd*730*billed_gpus,2) where billed_gpus = ceil(max(1,min_gpus)/gpu_count)*gpu_count; monthly rows: price_usd*billed_gpus. Order identical when every affiliate flag is flipped.",
+   "why": "Monthly math must be reproducible; affiliate status must never change rank."
+  },
+  {
+   "id": "T41-11",
+   "intent": "9 GPUs on an 8-GPU-only server bills 16",
+   "inputs": {
+    "function": "core.gpu.estimate + core.stack._gpu_options",
+    "gpus": 9,
+    "hours": 10,
+    "rows": "live feed rows with gpu_count==8"
+   },
+   "expected": "For each live 8-GPU row: monthly_cost_usd == price_usd*10*16 and calc mentions '9 requested' and '16 billed'.",
+   "why": "Whole-server billing (T35) on real rows, not just a synthetic fixture."
+  },
+  {
+   "id": "T41-12",
+   "intent": "Is the data fresh enough to act on?",
+   "inputs": {
+    "tool": "compare_gpu_prices",
+    "gpu": "H100"
+   },
+   "expected": "feed_updated_at >= max(verified_at) - 1 s and within 36 h of now; every compare result has data_age_hours <= 48 (degraded false, stale false); freshness fields next_refresh_utc / data_checked_at present.",
+   "why": "Stale prices presented as current are a credibility failure."
+  },
+  {
+   "id": "T41-13",
+   "intent": "Held/stale vendors are never ranked",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "No (vendor,gpu) in held_stale appears in rates; held_stale entries carry a reason; compare_gpu_prices for each held GPU model returns no row from the held vendor.",
+   "why": "TensorDock-style stale pages must not leak into 'cheapest'."
+  },
+  {
+   "id": "T41-14",
+   "intent": "What moved today? (changes feed + get_price_changes)",
+   "inputs": {
+    "feed": "gpu_price_changes",
+    "tool": "get_price_changes"
+   },
+   "expected": "counts match change list; for up/down: pct == round((new-old)/old*100,1) (+-0.1) and sign matches direction; get_price_changes orders by core.deals rank (down, up, removed, new); next_refresh_utc at 10:23Z; non-blank data_checked_at.",
+   "why": "Price-move alerts drive agent re-checks; arithmetic and ordering must be right."
+  },
+  {
+   "id": "T41-15",
+   "intent": "Change feed agrees with current prices",
+   "inputs": {
+    "feeds": [
+     "gpu_price_changes",
+     "gpu_prices"
+    ]
+   },
+   "expected": "When changes.date == feed date: every up/down/new change's new_hourly_usd equals the current hourly_equiv_usd for the same vendor|gpu|tier|vram|gpu_count; every 'removed' key is absent from rates.",
+   "why": "Two public feeds must not contradict each other."
+  },
+  {
+   "id": "T41-16",
+   "intent": "Site headline matches the feed",
+   "inputs": {
+    "page": "site_home",
+    "feed": "gpu_prices"
+   },
+   "expected": "Homepage 'N rates from M vendors' (or equivalent) N == len(rates) and M == distinct advertisers in rates.",
+   "why": "Humans and agents read the site; totals must not drift from the API."
+  },
+  {
+   "id": "T41-17",
+   "intent": "Unknown / near-miss model names",
+   "inputs": {
+    "tool": "compare_gpu_prices",
+    "gpu": [
+     "Z9999",
+     "L40"
+    ]
+   },
+   "expected": "'Z9999' -> error not_found listing tracked models; 'L40' does NOT return L40S rows (token match), i.e. not_found or only exact 'L40' rows.",
+   "why": "Agents must not get a different GPU than they asked for."
+  },
+  {
+   "id": "T41-18",
+   "intent": "Memory size disambiguation",
+   "inputs": {
+    "tool": "compare_gpu_prices",
+    "gpu": [
+     "A100 80GB",
+     "A100"
+    ]
+   },
+   "expected": "'A100 80GB' results all vram_gb == 80; if feed A100 rows have >1 vram size, the plain 'A100' summary contains 'Memory sizes differ'.",
+   "why": "A100 40GB vs 80GB are different products."
+  },
+  {
+   "id": "T41-19",
+   "intent": "Marketplace medians are labelled and sane",
+   "inputs": {
+    "feed": "gpu_prices"
+   },
+   "expected": "price_status=='marketplace' rows: tier_class 'marketplace', offer_count >= core.gpu.MIN_MARKET_OFFERS, 0 < lowest_offer_usd <= hourly_equiv_usd; non-marketplace rows have offer_count null.",
+   "why": "A median from 2 offers, or a 'lowest' above the median, is not a price."
+  },
+  {
+   "id": "T41-20",
+   "intent": "Stack optimizer picks the cheapest pay-as-you-go GPU",
+   "inputs": {
+    "tool": "optimize_stack",
+    "gpu_hours": 100,
+    "gpu_model": "H100"
+   },
+   "expected": "The gpu line's monthly cost == min over core.stack._gpu_options(live feed,100,'H100') and that option is not reserved; its calc is consistent with price x 100 h x billed GPUs.",
+   "why": "End-to-end decision tool must agree with the comparison data."
+  }
+ ]
+}
