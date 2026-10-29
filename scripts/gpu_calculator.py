@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from core.gpu import HOURS_PER_MONTH, build_rates  # noqa: E402
-from core.data_license import DATA_LICENSE  # noqa: E402
+from core.data_license import DATA_LICENSE, REPORT_ISSUE, REPORT_ISSUE_NOTE  # noqa: E402
 
 PAGE_PATH = "tools/gpu-cost-calculator"
 API_PATH = ROOT / "api" / "v1" / "gpu-prices.json"
@@ -40,6 +40,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     payload = {
         "schema": "lantern-works-gpu-prices/1",
         "license": DATA_LICENSE,
+        "report_issue": REPORT_ISSUE,
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
         # Derived from the data, never build time (audit T8/M5): the newest of the deal feed's updated_at and every rate's verified_at.
         "feed_updated_at": latest_checked_at([feed_updated] + [r.get("verified_at") for r in data["rates"]]),
@@ -56,6 +57,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
             "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
             "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
             "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"not published\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
+            REPORT_ISSUE_NOTE,
         ],
         "rates": data["rates"],
         "vendors": data["vendors"],

@@ -104,6 +104,14 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     return out
 
 
+def _report_q(r: dict) -> str:
+    """T40: /report-price/ prefill from the row's public identity only (no prices beyond the row)."""
+    from urllib.parse import urlencode
+    q = {"deal_id": r.get("deal_id") or "", "vendor": r.get("advertiser") or "", "gpu": r.get("gpu") or "",
+         "tier": r.get("tier") or "", "vram_gb": r.get("vram_gb") or ""}
+    return urlencode({k: v for k, v in q.items() if v})
+
+
 def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
     esc = gen.esc
     trs = []
@@ -118,7 +126,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_money(r['monthly_cost_usd'])}</strong></td><td data-label=\"Full month\">{_money(full[_key(r)])}</td>"
             f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
             f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
-            + f"<td data-label=\"Link\">{'Referral link' if r['affiliate'] else 'Direct link'}</td></tr>")
+            + f"<td data-label=\"Link\">{'Referral link' if r['affiliate'] else 'Direct link'} <a class=\"meta\" rel=\"nofollow\" href=\"{gen.BASE}/report-price/?{esc(_report_q(r))}\">Wrong price?</a></td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "

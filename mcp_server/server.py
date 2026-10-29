@@ -101,7 +101,7 @@ def _run(fn, *a, **kw) -> dict:
 @_contract
 def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = False, include_reserved: bool = False,
                        max_data_age_hours: float | None = None) -> dict:
-    """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first.
+    """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
     has source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.
