@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CoreWeave vs Nebius GPU prices: 3 GPUs compared | Lantern Works</title>
+  <meta name="description" content="CoreWeave vs Nebius on 3 GPUs (H100, H200, L40S): CoreWeave cheaper on 0, Nebius on 3 among tracked providers. Same-tier, per GPU-hour. Checked 2026-10-29." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/compare/coreweave-vs-nebius-gpu-prices" />
+  <meta property="og:title" content="CoreWeave vs Nebius GPU prices: 3 GPUs compared | Lantern Works" />
+  <meta property="og:description" content="CoreWeave vs Nebius on 3 GPUs (H100, H200, L40S): CoreWeave cheaper on 0, Nebius on 3 among tracked providers. Same-tier, per GPU-hour. Checked 2026-10-29." />
+  <meta property="og:url" content="https://thelanternworks.com/compare/coreweave-vs-nebius-gpu-prices" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="CoreWeave vs Nebius GPU prices: 3 GPUs compared | Lantern Works" />
+  <meta name="twitter:description" content="CoreWeave vs Nebius on 3 GPUs (H100, H200, L40S): CoreWeave cheaper on 0, Nebius on 3 among tracked providers. Same-tier, per GPU-hour. Checked 2026-10-29." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
+    }
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+  <!-- brand -->
+  <link rel="icon" href="https://thelanternworks.com/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://thelanternworks.com/favicon-32.png" />
+  <link rel="apple-touch-icon" href="https://thelanternworks.com/apple-touch-icon.png" />
+  <meta property="og:image" content="https://thelanternworks.com/logo.png" />
+  <meta property="og:image:width" content="400" />
+  <meta property="og:image:height" content="400" />
+  <meta property="og:image:alt" content="Lantern Works lantern logo" />
+  <meta name="twitter:image" content="https://thelanternworks.com/logo.png" />
+  <!-- /brand -->
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, checked daily</span></header>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/" aria-current="true">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
+<nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/gpu/">GPU prices</a> › CoreWeave vs Nebius</nav>
+<h1>CoreWeave vs Nebius: GPU rental prices compared</h1>
+<p class="meta">Prices verified 2026-10-29 13:56 UTC (09:56 ET). Cheaper means cheaper in our tracked rates.</p>
+<div class="card"><h2>Summary</h2><p>CoreWeave cheaper in 0 of 3, Nebius in 3, ties 0. (On-demand: CoreWeave 0, Nebius 3)</p></div>
+<p><em>Some links are referral links; Lantern Works may earn credit. Affiliate status is not a ranking factor.</em></p>
+<h2>On-demand</h2><div style="overflow-x:auto"><table class="howto"><thead><tr><th>GPU</th><th>VRAM</th><th><a href="https://www.coreweave.com/pricing" title="NVIDIA HGX H100 On-Demand Price: $49.24 / Hour" rel="noopener">CoreWeave</a> $/GPU-hr</th><th>Nebius $/GPU-hr</th><th>Diff (vs dearer)</th><th>Since 2026-10-28</th><th>Cheaper</th></tr></thead><tbody><tr><td><a href="https://thelanternworks.com/gpu/h100-rental-price">H100</a></td><td>80 GB</td><td>$6.16 (sold as 8-GPU only; server $49.24/hr) <small>(On-demand, 8-GPU instance)</small> <a href="https://www.coreweave.com/pricing" rel="sponsored nofollow noopener">Get deal</a></td><td>$4.50 <small>(On-demand)</small> <a href="https://nebius.com/prices" rel="sponsored nofollow noopener">Get deal</a></td><td>$1.66 (27%)</td><td>CoreWeave: no change<br>Nebius: no change</td><td><strong>Nebius</strong></td></tr><tr><td><a href="https://thelanternworks.com/gpu/h200-rental-price">H200</a></td><td>141 GB</td><td>$6.30 (sold as 8-GPU only; server $50.44/hr) <small>(On-demand, 8-GPU instance)</small> <a href="https://www.coreweave.com/pricing" rel="sponsored nofollow noopener">Get deal</a></td><td>$5.40 <small>(On-demand)</small> <a href="https://nebius.com/prices" rel="sponsored nofollow noopener">Get deal</a></td><td>$0.90 (14%)</td><td>CoreWeave: no change<br>Nebius: no change</td><td><strong>Nebius</strong></td></tr><tr><td><a href="https://thelanternworks.com/gpu/l40s-rental-price">L40S</a></td><td>48 GB</td><td>$2.25 (sold as 8-GPU only; server $18.00/hr) <small>(On-demand, 8-GPU instance)</small> <a href="https://www.coreweave.com/pricing" rel="sponsored nofollow noopener">Get deal</a></td><td>$1.55 <small>(On-demand (from, Intel CPU))</small> <a href="https://nebius.com/prices" rel="sponsored nofollow noopener">Get deal</a></td><td>$0.70 (31%)</td><td>CoreWeave: no change<br>Nebius: no change</td><td><strong>Nebius</strong></td></tr></tbody></table></div>
+<details><summary>GPUs only one vendor prices</summary><p>CoreWeave: A100, GH200</p></details>
+<h2>Billing &amp; extras</h2><div class="card"><h3>CoreWeave</h3><p>Billing granularity: hourly<br>egress: not published / not verified<br>storage: not published / not verified<br>interruption: On-Demand Price per hour is for the whole 8-GPU instance (GH200: 1 GPU). (<a href="https://www.coreweave.com/pricing">source</a>)</p></div><div class="card"><h3>Nebius</h3><p>Billing granularity: hourly<br>egress: not published / not verified<br>storage: not published / not verified<br>interruption: On-demand GPU-hour price; preemptible (spot) prices are dynamic and shown in the Nebius console. (<a href="https://nebius.com/prices">source</a>)</p></div>
+  <h2>Read before comparing</h2>
+  <p>Rankings are the cheapest among tracked providers on our check date, not across the whole market. Vendors we don't track may cost less.</p>
+  <h3>GPU-hours vs wall-clock time</h3>
+  <p>Prices are per GPU-hour: one GPU for one hour. Four GPUs for 10 wall-clock hours is 40 GPU-hours. Per-second billing (serverless) charges only while your code runs; hourly pods bill from start to stop, idle time included; monthly servers bill a flat price whatever you use. A faster GPU can finish the same job in fewer GPU-hours, so the lowest hourly rate isn't always the lowest cost per job.</p>
+  <h3>Hardware differences</h3>
+  <p>The same GPU name can mean different hardware. SXM modules link GPUs over NVLink and run at higher power limits than PCIe cards, so an H100 SXM is usually faster than an H100 PCIe, especially for multi-GPU training. Interconnect between GPUs and nodes (NVLink, InfiniBand, plain Ethernet) is rarely listed on pricing pages; treat it as unknown unless the vendor states it. VRAM decides which models fit at all. Hardware as listed: H100 80 GB (not stated); H200 141 GB (not stated); L40S 48 GB (not stated).</p>
+  <h3>Egress and storage extras</h3>
+  <p>Totals on this page exclude these. Each cell cites the vendor page it came from; "Not published" means the vendor doesn't publish it there.</p>
+<div style="overflow-x:auto"><table class="howto"><thead><tr><th>Vendor</th><th>Egress</th><th>Storage</th><th>Interruption / billing terms</th></tr></thead><tbody>
+<tr><td>CoreWeave</td><td>Not published: Not verified in this pass. (<a href="https://www.coreweave.com/pricing" rel="noopener">checked 2026-10-28</a>)</td><td>Not published: Not verified in this pass. (<a href="https://www.coreweave.com/pricing" rel="noopener">checked 2026-10-28</a>)</td><td>On-Demand Price per hour is for the whole 8-GPU instance (GH200: 1 GPU). (<a href="https://www.coreweave.com/pricing" rel="noopener">source, 2026-10-28</a>)</td></tr>
+<tr><td>Nebius</td><td>Not published: Not verified in this pass. (<a href="https://nebius.com/prices" rel="noopener">checked 2026-10-28</a>)</td><td>Not published: Not verified in this pass. (<a href="https://nebius.com/prices" rel="noopener">checked 2026-10-28</a>)</td><td>On-demand GPU-hour price; preemptible (spot) prices are dynamic and shown in the Nebius console. (<a href="https://nebius.com/prices" rel="noopener">source, 2026-10-28</a>)</td></tr>
+</tbody></table></div>
+  <h3>Interruptible vs on-demand</h3>
+  <p>Interruptible (preemptible or spot) capacity can be stopped by the vendor mid-job and is usually cheaper; on-demand runs until you stop it. Every rate listed here is on-demand; none is marked interruptible by its vendor.</p>
+
+<h2>FAQ</h2><h3>Is CoreWeave or Nebius cheaper for H100 (On-demand)?</h3><p>Nebius is cheaper in our tracked rates: CoreWeave $6.16 vs Nebius $4.50 per GPU-hour.</p><h3>Is CoreWeave or Nebius cheaper for H200 (On-demand)?</h3><p>Nebius is cheaper in our tracked rates: CoreWeave $6.30 vs Nebius $5.40 per GPU-hour.</p><h3>Is CoreWeave or Nebius cheaper for L40S (On-demand)?</h3><p>Nebius is cheaper in our tracked rates: CoreWeave $2.25 vs Nebius $1.55 per GPU-hour.</p><h3>Are egress and storage included?</h3><p>No. Comparisons are compute-only; totals exclude storage, egress, extra vCPU and taxes. See Billing &amp; extras.</p><h2>More</h2><p><a href="https://thelanternworks.com/gpu/">GPU price hub</a> · <a href="https://thelanternworks.com/gpu/changes/">price changes</a> · Data: <a href="https://thelanternworks.com/api/v1/gpu-prices.json">gpu-prices.json</a> · <a href="https://thelanternworks.com/api/v1/gpu-price-changes.json">gpu-price-changes.json</a> (<a href="https://thelanternworks.com/api/v1/gpu-price-changes.xml">RSS</a>) · <a href="https://thelanternworks.com/api/v1/gpu-prices/history.json">history.json</a></p>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "ItemList", "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@type": "Organization", "name": "CoreWeave", "url": "https://www.coreweave.com/pricing"}}, {"@type": "ListItem", "position": 2, "item": {"@type": "Organization", "name": "Nebius", "url": "https://nebius.com/prices"}}]}, {"@type": "Product", "name": "CoreWeave GPU rental (per GPU-hour)", "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": 2.25, "highPrice": 6.305, "offerCount": 3, "offers": [{"@type": "Offer", "price": 6.155, "priceCurrency": "USD", "url": "https://www.coreweave.com/pricing", "description": "H100 80GB On-demand, 8-GPU instance"}, {"@type": "Offer", "price": 6.305, "priceCurrency": "USD", "url": "https://www.coreweave.com/pricing", "description": "H200 141GB On-demand, 8-GPU instance"}, {"@type": "Offer", "price": 2.25, "priceCurrency": "USD", "url": "https://www.coreweave.com/pricing", "description": "L40S 48GB On-demand, 8-GPU instance"}]}}, {"@type": "Product", "name": "Nebius GPU rental (per GPU-hour)", "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": 1.55, "highPrice": 5.4, "offerCount": 3, "offers": [{"@type": "Offer", "price": 4.5, "priceCurrency": "USD", "url": "https://nebius.com/prices", "description": "H100 80GB On-demand"}, {"@type": "Offer", "price": 5.4, "priceCurrency": "USD", "url": "https://nebius.com/prices", "description": "H200 141GB On-demand"}, {"@type": "Offer", "price": 1.55, "priceCurrency": "USD", "url": "https://nebius.com/prices", "description": "L40S 48GB On-demand (from, Intel CPU)"}]}}, {"@type": "Dataset", "name": "CoreWeave vs Nebius GPU prices", "url": "https://thelanternworks.com/compare/coreweave-vs-nebius-gpu-prices", "dateModified": "2026-10-29T13:56:34+00:00", "distribution": [{"@type": "DataDownload", "contentUrl": "https://thelanternworks.com/api/v1/gpu-prices.json", "encodingFormat": "application/json"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is CoreWeave or Nebius cheaper for H100 (On-demand)?", "acceptedAnswer": {"@type": "Answer", "text": "Nebius is cheaper in our tracked rates: CoreWeave $6.16 vs Nebius $4.50 per GPU-hour."}}, {"@type": "Question", "name": "Is CoreWeave or Nebius cheaper for H200 (On-demand)?", "acceptedAnswer": {"@type": "Answer", "text": "Nebius is cheaper in our tracked rates: CoreWeave $6.30 vs Nebius $5.40 per GPU-hour."}}, {"@type": "Question", "name": "Is CoreWeave or Nebius cheaper for L40S (On-demand)?", "acceptedAnswer": {"@type": "Answer", "text": "Nebius is cheaper in our tracked rates: CoreWeave $2.25 vs Nebius $1.55 per GPU-hour."}}, {"@type": "Question", "name": "Are egress and storage included?", "acceptedAnswer": {"@type": "Answer", "text": "No. Comparisons are compute-only; totals exclude storage, egress, extra vCPU and taxes. See Billing & extras."}}]}]}</script>
+
+</div>
+  <footer>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
+    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
+</body>
+</html>

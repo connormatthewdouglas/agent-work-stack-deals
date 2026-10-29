@@ -1356,6 +1356,7 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
         (f"{BASE}/deals/", "0.9"),
         (f"{BASE}/api/v1/gpu-price-changes.json", "0.6"),
         (f"{BASE}/api/v1/gpu-price-changes.xml", "0.6"),
+        (f"{BASE}/gpu/changes.xml", "0.6"),
         (f"{BASE}/lanternworks/", "0.8"),
         (f"{BASE}/changelog/", "0.7"),
         (f"{BASE}/for-agents/", "0.8"),
@@ -1766,6 +1767,8 @@ def main() -> None:
     tool_paths.append(stack_optimizer.write(sys.modules[__name__], deals, feed_updated))
     import stack_page
     tool_paths.append(stack_page.write(sys.modules[__name__], deals, feed_updated))
+    import spec_pages
+    tool_paths += spec_pages.write_all(sys.modules[__name__])
     tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)
     import install_page
     tool_paths.append(install_page.write(sys.modules[__name__]))

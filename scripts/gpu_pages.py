@@ -580,8 +580,12 @@ def write_hub(gen, rates: list[dict]) -> str:
   <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li></ul>
   <h2>Cheapest GPU by model</h2>
   <ul>{li(cheapest)}</ul>
+  <h2>Rental price by GPU</h2>
+  <ul>{li([(x, x.split("/")[1].replace("-rental-price", "").upper() + " rental price") for x in __import__("spec_pages").SPEC_PATHS if x.endswith("-rental-price")])}</ul>
   <h2>Comparisons</h2>
-  <ul>{li(cmps)}</ul>
+  <ul>{li(cmps + [(x, x.split("/")[1].replace("-gpu-prices", "").replace("-", " ").title()) for x in __import__("spec_pages").SPEC_PATHS if x.startswith("compare/")])}</ul>
+  <h2>Watch prices</h2>
+  <ul><li><a href="{gen.BASE}/gpu/changes/">GPU price changes</a> (<a href="{gen.BASE}/gpu/changes.xml">RSS</a>)</li><li><a href="{gen.BASE}/docs/watch-gpu-prices/">Watch GPU prices (docs)</a></li></ul>
   <h2>Deals and data</h2>
   <ul><li><a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute deals</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices.json">GPU pricing API (JSON)</a></li><li><a href="{gen.BASE}/api/v1/gpu-prices/history.json">GPU price history (JSON)</a></li><li><a href="{gen.BASE}/api/v1/stack-pricing.json">Stack pricing API (JSON)</a></li></ul>
 """
