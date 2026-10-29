@@ -2,6 +2,14 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.26
+
+- RTX 4090 /cost/ pages: page-level lowest line computed from the feed, ties named ("Nova Cloud and RunC.AI (tie) RTX 4090 24GB"); stale "only 2 in stock" reason removed.
+- Nova Cloud availability: static schema.org page label now reported as "vendor-labelled in stock (static page label, not a capacity check)", basis vendor_static_label, in_stock null (feed, MCP, pages).
+- `region` added to compare_gpu_prices results and the outputSchema (optional).
+- A100/H100/L40S /cost/ pages: "Lowest on-demand ... on this page (not marked out of stock)".
+- compare_gpu_prices summary names tied cheapest vendors.
+
 ## 0.3.25 (2026-10-29)
 
 - RTX 4090 coverage: Nova Cloud ($0.42/GPU-hr on-demand, Canada) and RunC.AI ($0.42/GPU-hr on-demand, multi-region) added from their public pricing pages, so the RTX 4090 /cost/ pages and compare_gpu_prices now have 4 in-stock on-demand vendors and a cheapest line.

@@ -222,3 +222,19 @@ def test_get_deal_alias_retired_clore_id():
     from core import deals as D
     feed = [{"id": "deal-clore-ai", "title": "x"}]
     assert D.get_deal(feed, "deal-cloreai-001")["id"] == "deal-clore-ai"
+
+
+def test_i3_i5_region_field_and_tie_named(monkeypatch):
+    import os
+    from pathlib import Path
+    from core import deals as D
+    from core import contract
+    assert "region" in D.RATE_FIELDS
+    props = contract.EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]
+    assert props["region"]["type"] == ["string", "null"]
+    monkeypatch.setenv("LANTERN_GPU_PRICES_FILE", str(Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json"))
+    from mcp_server import server as s
+    out = s.compare_gpu_prices("RTX 4090", on_demand_only=True)
+    assert "Nova Cloud and RunC.AI (tie) RTX 4090 at $0.42/hr" in out["summary"]
+    nova = [r for r in out["results"] if r["advertiser"] == "Nova Cloud"][0]
+    assert nova["region"] and nova["availability"]["in_stock"] is None and nova["availability"]["basis"] == "vendor_static_label"

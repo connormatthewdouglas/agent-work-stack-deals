@@ -10,7 +10,11 @@ def test_unknown_is_never_out_of_stock_and_has_note():
         a = r["availability"]
         if a["in_stock"] is None:
             # unknown: no time, unless a record-level check (with its source) found no stock signal
-            assert a["status"] == "unknown" and a["note"] and (a["checked_at"] is None or a.get("source"))
+            assert a["note"] and "within minutes" not in a["note"]
+            if a.get("basis") == "vendor_static_label":
+                assert a["status"].startswith("vendor-labelled in stock (static page label") and a["checked_at"]
+                continue
+            assert a["status"] == "unknown" and (a["checked_at"] is None or a.get("source"))
             assert "time shown" not in a["note"]
         else:
             assert "not a guarantee" in a["note"] and "manual snapshot" in a["refresh"]
@@ -63,7 +67,8 @@ def test_record_level_availability_and_region():
     for r in new.values():
         assert r["region"] and r["source_url"].startswith("https://") and r["availability"]["checked_at"]
         assert r["availability"]["source"]
-    assert new["Nova Cloud"]["availability"]["in_stock"] is True
+    na = new["Nova Cloud"]["availability"]
+    assert na["in_stock"] is None and na["basis"] == "vendor_static_label" and "not a capacity check" in na["status"]
     assert new["RunC.AI"]["availability"]["status"] == "unknown"
 
 

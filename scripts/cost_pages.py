@@ -75,13 +75,22 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
              f"among tracked providers. {esc(LABEL.format(h=hours))}</p>"]
     faq = []
     live_all = [((gpu, vram), r) for (gpu, vram), rows in allg.items() for r in rows if not oos(r)]
-    if slug != "rtx-4090" and live_all:
+    if live_all:
         best = min(r["hourly_equiv_usd"] for _, r in live_all)
-        names = sorted({f"{r['advertiser']} {gpu} {vram}GB" + ("" if fam == "L40S" or re.search(r"SXM|PCIe|NVLink", gpu) else " (variant not stated)")
-                        for (gpu, vram), r in live_all if r["hourly_equiv_usd"] == best})
+        by_label: dict[str, list[str]] = {}
+        for (gpu, vram), r in live_all:
+            if r["hourly_equiv_usd"] == best:
+                lab = f"{gpu} {vram}GB" + ("" if fam in ("L40S", "RTX 4090") or re.search(r"SXM|PCIe|NVLink", gpu) else " (variant not stated)")
+                by_label.setdefault(lab, []).append(r["advertiser"])
+        names = " and ".join((f"{v[0]} {lab}" if len(v := sorted(set(vs))) == 1 else " and ".join(v) + f" (tie) {lab}")
+                             for lab, vs in sorted(by_label.items()))
         amts = " / ".join(f"${best * h:,.2f}" for h in HOURS)
-        parts.append(f"<p class=\"pagelow\">Lowest in-stock on-demand {esc(fam)} on this page: {esc(' and '.join(names))} at {amts} "
-                     f"({' / '.join(str(h) for h in HOURS)} h) - variants differ, see tables.</p>")
+        hrs = " / ".join(str(h) for h in HOURS)
+        if fam == "RTX 4090":  # I1 wording (single variant)
+            line = f"Lowest on-demand {fam} on this page: {names} at {amts} ({hrs} h)"
+        else:
+            line = f"Lowest on-demand {fam} on this page (not marked out of stock): {names} at {amts} ({hrs} h) - variants differ, see tables."
+        parts.append(f"<p class=\"pagelow\">{esc(line)}</p>")
     if not groups:
         parts.append("<p>No variant of this GPU has two or more eligible vendors today, so no comparison is shown.</p>")
     for (gpu, vram), rows in sorted(groups.items(), key=lambda kv: -len({r['advertiser'] for r in kv[1]})):
@@ -100,8 +109,8 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
             faq.append((f"How much does it cost to rent an {head} for {hours} hours?",
                         f"{spread} {LABEL.format(h=hours)}"))
         else:
-            spread += (f" No 'cheapest' line: only {nv} in-stock vendors publish a comparable on-demand rate, and we name a "
-                       "cheapest only with 3 or more (marketplace, community, interruptible and monthly rows are not comparable).")
+            spread += (f" No 'cheapest' line: {nv} vendors not marked out of stock publish a comparable on-demand rate, and we "
+                       "name a cheapest only with 3 or more (marketplace, community, interruptible and monthly rows are not comparable).")
         trs = "".join(
             f"<tr><td data-label=\"Vendor\">{esc(r['advertiser'])}{esc(_tax_note(r))}{_oos_label(r)}</td><td data-label=\"Tier\">{esc(r.get('tier') or '')}</td>"
             f"<td data-label=\"$/GPU-hr\">${r['hourly_equiv_usd']:g}</td><td data-label=\"{hours} h subtotal\"><strong>${s:,.2f}</strong></td>"

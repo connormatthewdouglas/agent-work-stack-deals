@@ -62,6 +62,9 @@ def _quote_html(esc, r: dict, n: int = 70) -> str:
 
 def _avail_cell(gen, r: dict) -> str:
     a = r.get("availability") or {}
+    if a.get("basis") == "vendor_static_label":
+        t = (a.get("checked_at") or "").replace("T", " ")[:16]
+        return gen.esc(a["status"] + (f", seen {t} UTC" if t else ""))
     if a.get("in_stock") is None:
         return "—"
     bits = [a["status"]]

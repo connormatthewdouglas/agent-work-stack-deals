@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.25"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.26"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -341,7 +341,7 @@ def oos_note(r: dict) -> str:
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
                "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id",
                "gpu_count", "server_price_usd", "server_hourly_usd", "evidence", "min_gpus", "price_status",
-               "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability")
+               "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability", "region")
 
 
 def _tokens(s: str) -> list[str]:
@@ -460,6 +460,16 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["report_issue_url"] = report_issue_url(out)  # T40: give this to the user if the row looks wrong
         results.append(out)
     c = results[0]
+    # I5: name every row tied with the cheapest (same price, tier class and stock state)
+    r0 = rows[0]
+    _tie = sorted({x["advertiser"] for x in rows if x["hourly_equiv_usd"] == r0["hourly_equiv_usd"] and x.get("gpu") == r0.get("gpu")
+                   and tier_class(x) == tier_class(r0) and out_of_stock(x) == out_of_stock(r0)})
+    c_who = c["advertiser"] if len(_tie) < 2 else " and ".join(_tie) + " (tie)"
+    od_who = None
+    if od is not None:
+        _ot = sorted({x["advertiser"] for x in rows if tier_class(x) == "on-demand" and not out_of_stock(x)
+                      and x["hourly_equiv_usd"] == od["hourly_equiv_usd"] and x.get("gpu") == od.get("gpu")})
+        od_who = od["advertiser"] if len(_ot) < 2 else " and ".join(_ot) + " (tie)"
     oos_msg = ""
     if oos_cheaper is not None and not out_of_stock(c) and oos_cheaper["hourly_equiv_usd"] < c["hourly_usd"]:
         oos_msg = (f" Cheaper but {oos_note(oos_cheaper)}: {oos_cheaper['advertiser']} {oos_cheaper['gpu']} at "
@@ -469,14 +479,14 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
     return {
         "gpu": gpu,
-        "summary": (f"Cheapest{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c['advertiser']} {c['gpu']} at ${c['hourly_usd']:g}/hr "
+        "summary": (f"Cheapest{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']} at ${c['hourly_usd']:g}/hr "
                     f"({c['tier']}, checked {(c['checked_at'] or '')[:10]})"
                     + (f"; variable marketplace median, lowest offer ${c['lowest_offer_usd']:g}/hr"
                        if c.get("price_status") == "marketplace" else "")
                     + (f"; sold only as {c['min_gpus']}-GPU instances" if (c.get("min_gpus") or 1) > 1 else "")
                     + f". Tier: {results[0]['tier_class']}."
                     + ("" if results[0]["tier_class"] == "on-demand" or od is None else
-                       f" Cheapest on-demand: {od['advertiser']} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
+                       f" Cheapest on-demand: {od_who} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
                     + oos_msg
                     + ". This is the cheapest among tracked providers only, not the whole market. "
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),

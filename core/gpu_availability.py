@@ -13,6 +13,9 @@ UNKNOWN_NOTE = "No availability signal from this vendor for this offer; unknown,
 VAST_NOTE = ("Vast.ai: the offer count is from a separate availability check (its own checked_at), not the "
              "price snapshot; offer counts and prices on the marketplace move between checks, so they can differ "
              "from the count/minimum in the price quote.")
+STATIC_LABEL_STATUS = "vendor-labelled in stock (static page label, not a capacity check)"
+STATIC_LABEL_NOTE = ("The vendor's own page labels this offer in stock; that label is static page markup, not a live "
+                     "capacity check, so it is treated as unknown availability.")
 _CACHE: dict | None = None
 
 
@@ -46,6 +49,10 @@ AUTH_LABEL = "authenticated vendor API (not publicly reproducible)"
 def _from_record(a: dict) -> dict:
     """Record-level availability (data/gpu_pricing/<vendor>.json "availability"), used only when Scout has no row.
     Carries its own checked_at and source; in_stock null stays "unknown", never "out of stock"."""
+    if a.get("basis") == "vendor_static_label":
+        # I2: a static "in stock" label on the vendor's own page is not a capacity check: in_stock stays null
+        return {"status": STATIC_LABEL_STATUS, "in_stock": None, "basis": "vendor_static_label",
+                "checked_at": a.get("checked_at"), "source": a.get("source"), "note": STATIC_LABEL_NOTE}
     if a.get("in_stock") is None:
         return {"status": "unknown", "in_stock": None, "checked_at": a.get("checked_at"),
                 "source": a.get("source"), "note": _clean(a.get("note")) or UNKNOWN_NOTE}

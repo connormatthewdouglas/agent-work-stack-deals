@@ -78,10 +78,10 @@ def test_h1_scoped_cheapest_and_page_lowest():
     a = _page("a100", 100)
     assert "Cheapest among tracked providers" not in a
     assert "Cheapest A100 SXM 80GB among tracked providers: Hyperstack at $160.00" in a
-    assert ("Lowest in-stock on-demand A100 on this page: Thunder Compute A100 80GB (variant not stated) at "
+    assert ("Lowest on-demand A100 on this page (not marked out of stock): Thunder Compute A100 80GB (variant not stated) at "
             "$10.90 / $109.00 / $795.70") in a
     for slug in ("h100", "l40s"):
-        assert "Lowest in-stock on-demand" in _page(slug, 10)
+        assert "on this page (not marked out of stock)" in _page(slug, 10)
     assert "CloudRift L40S 48GB at $6.30" in _page("l40s", 10)
 
 
@@ -89,3 +89,13 @@ def test_h2_availability_wording_all_pages():
     for slug in ("h100", "a100", "l40s", "rtx-4090"):
         for h in (10, 100, 730):
             assert "Not an availability claim, except rows marked out of stock when checked." in _page(slug, h)
+
+
+def test_i1_rtx4090_page_lowest_line_from_feed():
+    for h in (10, 100, 730):
+        s = _page("rtx-4090", h)
+        assert "only 2" not in s and "No &#x27;cheapest" not in s
+    assert ("Lowest on-demand RTX 4090 on this page: Nova Cloud and RunC.AI (tie) RTX 4090 24GB at "
+            "$4.20 / $42.00 / $306.60 (10 / 100 / 730 h)") in _page("rtx-4090", 100)
+    assert "Lowest in-stock" not in "".join(_page(g, 100) for g in ("a100", "h100", "l40s", "rtx-4090"))
+    assert "static page label" in (ROOT / "gpu/rtx-4090/index.html").read_text() if (ROOT / "gpu/rtx-4090/index.html").exists() else True
