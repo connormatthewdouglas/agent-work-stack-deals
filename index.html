@@ -143,6 +143,7 @@
   <header>
     <h1>GPU price comparison for agents, checked daily</h1>
     <p>Hourly GPU rental prices re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate. <strong><span data-live-count>101</span> rates</strong> from 20 vendors, newest check 2026-10-29. "Cheapest" always means cheapest among tracked providers.</p>
+    <p class="meta"><small>How we count: the headline is every row in <code>rates[]</code> of <a href="https://thelanternworks.com/api/v1/gpu-prices.json">gpu-prices.json</a> (101 rates from 20 vendors: 61 on-demand, 13 interruptible, 10 community, 7 reserved, 6 marketplace, 4 dedicated-monthly). Not counted: 13 held_stale records from 2 vendors (stale or too thin a marketplace, never ranked) and 3 unpriced vendors (no verifiable price). Reserved rates are counted but kept out of the pay-as-you-go ranking.</small></p>
   </header>
   <main id="content">
   <section aria-labelledby="spread">

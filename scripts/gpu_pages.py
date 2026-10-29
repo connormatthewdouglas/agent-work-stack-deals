@@ -217,6 +217,27 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     return path
 
 
+def rate_count_note(gen, deals: list[dict]) -> str:
+    """#31: say exactly what the 'N rates from M vendors' headline counts vs the rows in gpu-prices.json."""
+    from collections import Counter
+    doc = build_rates(deals)
+    rates = doc["rates"]
+    tc = Counter(r.get("tier_class") or "on-demand" for r in rates)
+    parts = ", ".join(f"{n} {k}" for k, n in sorted(tc.items(), key=lambda kv: (-kv[1], kv[0])))
+    held = doc.get("held_stale") or []
+    held_n = sum(len(h.get("records") or []) for h in held)
+    held_v = sorted({h["vendor"] for h in held})
+    unp = doc.get("unpriced") or []
+    out = (f"How we count: the headline is every row in <code>rates[]</code> of <a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> "
+           f"({len(rates)} rates from {len({r['advertiser'] for r in rates})} vendors: {gen.esc(parts)}). ")
+    if held_n:
+        out += f"Not counted: {held_n} held_stale record{'s' if held_n != 1 else ''} from {len(held_v)} vendor{'s' if len(held_v) != 1 else ''} (stale or too thin a marketplace, never ranked)"
+        out += f" and {len(unp)} unpriced vendor{'s' if len(unp) != 1 else ''} (no verifiable price). " if unp else ". "
+    elif unp:
+        out += f"Not counted: {len(unp)} unpriced vendor{'s' if len(unp) != 1 else ''} (no verifiable price). "
+    return out + "Reserved rates are counted but kept out of the pay-as-you-go ranking."
+
+
 def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) -> str:
     path = "gpu/price-comparison"
     url = f"{gen.BASE}/{path}/"
@@ -258,6 +279,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU price comparison</nav>
   <h1>GPU rental price comparison</h1>
   <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
+  <p class="meta"><small>{rate_count_note(gen, _DEALS)}</small></p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
   <h2>By GPU model (all {len(rates)} rates)</h2>
   <table class="howto"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest pay-as-you-go rate (reserved excluded)</th></tr></thead><tbody>
@@ -472,7 +494,11 @@ def links_html(base: str, deals: list[dict]) -> str:
     return " · ".join(f'<a href="{base}/{p}/">{n}</a>' for p, n in page_links(deals))
 
 
+_DEALS: list[dict] = []
+
+
 def write_all(gen, deals: list[dict]) -> list[str]:
+    _DEALS[:] = deals
     rates = build_rates(deals)["rates"]
     import gpu_model_json
     gpu_model_json.write(gen, rates)

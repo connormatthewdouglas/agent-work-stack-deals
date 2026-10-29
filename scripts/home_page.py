@@ -85,6 +85,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     body = f"""  <header>
     <h1>{esc(HERO)}</h1>
     <p>Hourly GPU rental prices re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate. <strong><span data-live-count>{count}</span> rates</strong> from {vendors} vendors, newest check {esc(fresh)}. "Cheapest" always means cheapest among tracked providers.</p>
+    <p class="meta"><small>{__import__("gpu_pages").rate_count_note(gen, deals)}</small></p>
   </header>
   <main id="content">
   <section aria-labelledby="spread">
