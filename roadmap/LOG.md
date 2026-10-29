@@ -2,6 +2,12 @@
 
 Ships with commits, CI runs, URLs and versions (newest first).
 
+## 2026-10-29 — 0.3.24: F1 (#46) + Gauge re-audit F2–F6; T24; T12; Web Analytics check
+- T24 (fcfad56a): 12 /cost/{h100,a100,l40s,rtx-4090}-{10,100,730}-hours/ pages, 1 GPU, on-demand only, held/reserved/thin/marketplace/serverless/multi-GPU excluded, variants unmixed, ties named; H100 SXM 100 h reproduces T34 ($320 tie Hyperstack/Thunder, median $399, max $474.60, 5 vendors). In sitemap (Part A is indexable per spec); Part B calculators not built.
+- T12 (31e468b2, worker 30cf9d74): /stats.json watches.weekly_per_key: ISO-week calls/alerts per opt-in key, labelled by HMAC(key id, server secret), 90-day window; counters never pruned earlier.
+- Web Analytics: f512c10 beacon is already the Cloudflare Web Analytics JS beacon; nothing created.
+- 0.3.24 (8634ac53, worker 7a8e51a9): #46 optimizer availability ranking; F2 home counts; F4 README; F5 get_deal alias; F3 client checks re-run on 0.3.23 (LlamaIndex hosted 12/local 8, mcpo 8 routes, Continue/Roo configs parse). F6: index feed_commit = ef2f9b28 (last feed commit), correct. Live: optimize_stack A100 100 h picks Hyperstack $108 and notes out-of-stock Verda $79.65. T41 local+live 21/21; gist same.
+
 ## 2026-10-29 — 0.3.23: E5 availability ranking (#45); T41-03 tightened
 - Merged Core's #45: compare_gpu_prices results carry `availability` and `in_stock`; rows marked out of stock rank after in-stock/unknown rows and are never "cheapest"; the summary names a cheaper out-of-stock row with its check time. Home spread A100 now $1.08 (Hyperstack).
 - T41-03 reviewed: still excludes reserved rows from the expected minimum, and now also fails outright if the row shown first is reserved, thin or held (negative check confirmed).
