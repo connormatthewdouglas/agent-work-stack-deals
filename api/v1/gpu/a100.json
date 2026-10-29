@@ -13,7 +13,7 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-10-29T17:01:10+00:00",
+  "last_checked": "2026-10-29T19:08:18+00:00",
   "row_count": 21,
   "providers": [
     "CoreWeave",
@@ -295,38 +295,6 @@
       }
     },
     {
-      "provider": "Vast.ai",
-      "gpu": "A100 SXM",
-      "vram_gb": 80,
-      "tier": "Marketplace on-demand (verified; median per GPU)",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 1.17,
-      "unit": "hour",
-      "price_usd": 1.17,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "marketplace",
-      "verified_at": "2026-10-29T17:01:01+00:00",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "quote": "Vast public offers API: 16 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1700/hr, min $0.9878/hr",
-      "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-10-29T15:19:30Z",
-        "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
-        "offer_count": 9,
-        "available_regions": [
-          "SE",
-          "TW",
-          "US"
-        ],
-        "consistency_note": "Vast.ai: the offer count is from a separate, later availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
-      }
-    },
-    {
       "provider": "RunPod",
       "gpu": "A100 PCIe",
       "vram_gb": 80,
@@ -473,6 +441,38 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Vast.ai",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "tier_class": "marketplace",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.7043,
+      "unit": "hour",
+      "price_usd": 1.7043,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "marketplace",
+      "verified_at": "2026-10-29T19:08:18+00:00",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "quote": "Vast public offers API: 10 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.7043/hr, min $0.9889/hr",
+      "availability": {
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-10-29T15:19:30Z",
+        "refresh": "manual snapshot, time shown (prices checked daily)",
+        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "offer_count": 9,
+        "available_regions": [
+          "SE",
+          "TW",
+          "US"
+        ],
+        "consistency_note": "Vast.ai: the offer count is from a separate, later availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
       }
     },
     {
