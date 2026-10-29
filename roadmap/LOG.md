@@ -155,3 +155,8 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Gauge (C): Crusoe and Lightning AI rows pulled pending re-verification (they had been live briefly in the 102-rate feed); Vultr/Scaleway not added (403). Added Massed Compute L40S $0.97, kept OVHcloud $1.80 excl. VAT, Koyeb $1.20 (whole GPU), CloudRift, Spheron. Shadeform still held (cents pricing vs T41-01).
 - Clore.ai marketplace: RTX 4090 / RTX 5090 ranked (109 / 125 listings, median + lowest + range); A100 40GB (7), H100 NVL (1), L40S (2) held as thin; no H200. Manual snapshot (API 401s CI): not auto-refreshed, auto-holds after 7 days. deal_id null (no registry entry; referral not used).
 - 0.3.14 on PyPI + MCP Registry; hosted worker redeployed.
+
+## 2026-10-29 ~12:00 ET — Clore deal + 0.3.15 (Mart)
+- 99e0dbc: Clore.ai deal `deal-clore-ai` added; registry-derived publish_status approved (build: approved=204). 203 -> 204 deals, no id dropped. Clore rate rows linked. Gist deals.json synced (identical); gist README untouched.
+- 70de953: 0.3.15 (Gauge re-audit): price-comparison summary excludes reserved (L40S $0.63, RTX 5090 $0.65; new T41-21, 21/21 local); Clore price_check/snapshot_at/hold_after on feed + page; Spheron relabelled marketplace/aggregator and RTX 5090 re-quoted; Massed Compute/Koyeb single-span quotes; basis = summary, evidence.quote = verbatim. Shadeform still held (Gauge: no cents conversion).
+- PyPI + Registry 0.3.15; hosted worker 9d579e2e. Live: 204 deals (all approved), 101 rates, 20 vendors.
