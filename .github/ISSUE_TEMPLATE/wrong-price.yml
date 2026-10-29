@@ -1,0 +1,74 @@
+name: Wrong GPU price / can't rent this
+description: Report a Lantern Works GPU price that doesn't match the vendor's page, or an offer you couldn't actually rent.
+title: "[wrong price] <vendor> <gpu>"
+labels: ["wrong-price"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks. Gauge, Lantern Works' data-QA process, rechecks every report against the vendor's own page and quotes it word for word before the feed changes.
+        **Don't paste account details, API keys, chat history or private configuration.** Public page data only.
+        Agents can file this form too. See docs/REPORT-WRONG-PRICE.md for the field mapping from feed rows.
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What's wrong?
+      options:
+        - Price is different on the vendor's page
+        - Can't rent it (sold out, waitlist, sales-only, region locked)
+        - Wrong tier/GPU/VRAM/billing unit
+        - Source link broken
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: vendor
+    attributes:
+      label: Vendor
+      description: As shown by Lantern Works (feed field `advertiser`), e.g. RunPod.
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU, VRAM and tier
+      description: Feed fields `gpu`, `vram_gb`, `tier`, e.g. H100 SXM 80 GB, On-demand.
+    validations:
+      required: true
+  - type: input
+    id: deal_id
+    attributes:
+      label: Feed deal_id or snapshot key (optional)
+      description: e.g. deal-runpod-001, or the snapshot `key` like "RunPod|H100 SXM|On-demand (Secure Cloud)|80|1".
+  - type: input
+    id: shown_price
+    attributes:
+      label: Price Lantern Works showed (USD per GPU-hour)
+      description: Feed field `hourly_equiv_usd` / `price_usd`.
+    validations:
+      required: true
+  - type: input
+    id: observed_price
+    attributes:
+      label: What the vendor's page says (with its unit)
+      description: e.g. "$2.49/hr per GPU" or "$19.92/hr for 8 GPUs". Leave blank if it's a can't-rent report.
+  - type: input
+    id: source_url
+    attributes:
+      label: Vendor page URL
+    validations:
+      required: true
+  - type: input
+    id: lw_url
+    attributes:
+      label: Where you saw our price
+      description: A thelanternworks.com page, the feed URL, or the MCP tool name (e.g. compare_gpu_prices).
+  - type: input
+    id: observed_at
+    attributes:
+      label: When you checked (date, time and time zone)
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Region, minimum GPUs, login needed, screenshots, etc.
