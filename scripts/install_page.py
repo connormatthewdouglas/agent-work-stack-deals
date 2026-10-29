@@ -8,8 +8,8 @@ import json
 from pathlib import Path
 
 PATH = "install"
-TESTED_ON = "2026-10-28"
-TESTED_VERSION = "0.3.8"
+TESTED_ON = "2026-10-29"
+TESTED_VERSION = "0.3.9"
 def _server_tools() -> tuple[str, ...]:
     """Tool names straight from mcp_server/server.py (every @mcp.tool function), so the page can't drift (audit T2/M1)."""
     import re
