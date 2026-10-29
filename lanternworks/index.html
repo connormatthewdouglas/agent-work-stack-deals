@@ -2,95 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name='impact-site-verification' value='594aa2cb-9310-430a-8577-b47b45c91f8f'>
-  <meta name="impact-site-verification" content="594aa2cb-9310-430a-8577-b47b45c91f8f" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lantern Works — agent work-stack deals</title>
-  <meta name="description" content="Lantern Works: human-readable deals for AI agents (and humans directing them). Affiliate-backed compute, search, crawl, hosting, templates, and unblock tools." />
+  <title>About Lantern Works — who runs it and how prices are checked</title>
+  <meta name="description" content="Who runs Lantern Works, why it exists, and how GPU and tool prices are checked." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://thelanternworks.com/lanternworks/" />
-  <!-- seo-social -->
-  <meta property="og:title" content="Lantern Works — agent work-stack deals" />
-  <meta property="og:description" content="Lantern Works: human-readable deals for AI agents (and humans directing them). Affiliate-backed compute, search, crawl, hosting, templates, AI agents, and unblock tools." />
+  <meta property="og:title" content="About Lantern Works — who runs it and how prices are checked" />
+  <meta property="og:description" content="Who runs Lantern Works, why it exists, and how GPU and tool prices are checked." />
   <meta property="og:url" content="https://thelanternworks.com/lanternworks/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Lantern Works" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Lantern Works — agent work-stack deals" />
-  <meta name="twitter:description" content="Lantern Works: human-readable deals for AI agents (and humans directing them). Affiliate-backed compute, search, crawl, hosting, templates, AI agents, and unblock tools." />
-  <!-- /seo-social -->
+  <meta name="twitter:title" content="About Lantern Works — who runs it and how prices are checked" />
+  <meta name="twitter:description" content="Who runs Lantern Works, why it exists, and how GPU and tool prices are checked." />
   <style>
-    :root {
-      --ink: #14201a;
-      --muted: #4a5a52;
-      --paper: #f7f5f0;
-      --card: #fffefb;
-      --line: #d9d2c5;
-      --accent: #1f6b4a;
-      --accent-soft: #e6f2ec;
-      --warn: #fff3cd;
-      --live: #e8f5e9;
-      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-      color: var(--ink);
-      background: var(--paper);
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
     }
-    body { max-width: 42rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
-    h1 { font-size: 1.85rem; margin: 0 0 .35rem; letter-spacing: -0.02em; }
-    h2 { font-size: 1.2rem; margin: 2rem 0 .6rem; }
-    p, li { color: var(--ink); }
-    .lede { font-size: 1.05rem; color: var(--muted); margin: 0 0 1.25rem; }
-    nav.top { font-size: .9rem; margin-bottom: 1.5rem; }
-    nav.top a { color: var(--accent); margin-right: .75rem; }
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 1rem 1.1rem;
-      margin: .85rem 0;
-    }
-    .panel.live { border-color: #9ccc9c; background: var(--live); }
-    .badge {
-      display: inline-block;
-      font-family: system-ui, sans-serif;
-      font-size: .7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      border-radius: 999px;
-      padding: .15rem .5rem;
-      margin-right: .35rem;
-      background: var(--warn);
-    }
-    .badge.live { background: #c8e6c9; }
-    .badge.agent { background: var(--accent-soft); color: var(--accent); }
-    a { color: var(--accent); }
-    .meta { font-family: system-ui, sans-serif; font-size: .85rem; color: var(--muted); }
-    ul.plain { padding-left: 1.1rem; }
-    .feed {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: .8rem;
-      background: #14201a;
-      color: #e8f0eb;
-      padding: .85rem 1rem;
-      border-radius: 10px;
-      overflow-wrap: anywhere;
-    }
-    .feed a { color: #9fd4b8; }
-    table.surfaces { width: 100%; border-collapse: collapse; font-size: .9rem; }
-    table.surfaces th, table.surfaces td {
-      text-align: left; padding: .45rem .35rem; border-bottom: 1px solid var(--line);
-      font-family: system-ui, sans-serif;
-    }
-    footer {
-      margin-top: 2.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--line);
-      font-size: .85rem;
-      color: var(--muted);
-      font-family: system-ui, sans-serif;
-    }
-    .disclosure { font-size: .8rem; color: var(--muted); margin-top: .75rem; }
-  </style>
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
   <!-- brand -->
   <link rel="icon" href="https://thelanternworks.com/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="https://thelanternworks.com/favicon-32.png" />
@@ -103,94 +104,39 @@
   <!-- /brand -->
 </head>
 <body>
-  <nav class="top">
-    <a href="../">All deals</a>
-    <a href="../changelog/">Changelog</a>
-    <a href="#for-agents">For agents</a>
-    <a href="#for-advertisers">For advertisers</a>
-    <a href="#about">About</a>
-  </nav>
-  <!-- seo-hubs -->
-    <p class="meta">Browse by hub: <a href="https://thelanternworks.com/categories/ai-agents/">ai-agents</a> · <a href="https://thelanternworks.com/categories/scraping-unblock/">scraping-unblock</a> · <a href="https://thelanternworks.com/categories/proxies/">proxies</a> · <a href="https://thelanternworks.com/categories/serp-apis/">serp-apis</a> · <a href="https://thelanternworks.com/categories/gpu-compute/">gpu-compute</a> · <a href="https://thelanternworks.com/categories/email-apis/">email-apis</a> · <a href="https://thelanternworks.com/deals/">all deals</a> · <a href="https://thelanternworks.com/changelog/">changelog</a></p>
-    <p class="meta">Stack guides: <a href="https://thelanternworks.com/guides/agent-scrape-unblock/">Best agent scrape &amp; unblock stack</a> · <a href="https://thelanternworks.com/guides/cheap-gpu-week/">Cheap GPU week for agents</a> · <a href="https://thelanternworks.com/guides/agent-email-outreach/">Best agent email &amp; outreach stack</a></p>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, checked daily</span></header>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
 
+  <h1>About Lantern Works</h1>
+  <p class="lede">Lantern Works checks GPU rental prices and other tools AI agents use, every day, and publishes them in one place you can read and agents can query.</p>
 
-  <header>
-    <h1>Lantern Works</h1>
-    <p class="lede">Disclosed, verified offers for the agent work stack — a page humans can read, plus a JSON feed agents can query.</p>
-  </header>
+  <h2>Who runs it</h2>
+  <p>Lantern Works is a small independent project run by Connor &ldquo;Frosty&rdquo; Douglas, with AI agents doing much of the daily checking. A person reviews what goes on the site. Questions, corrections and vendor requests go to <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a>.</p>
 
-  <section id="what">
-    <h2>What this is</h2>
-    <p>Lantern Works runs an <strong>agent work-stack deals</strong> board: tools agents actually need to get work done — scrapers, SERP APIs, sandboxes, hosting, templates, and related unblock utilities. Humans browse this site. Agents <code>GET</code> the same inventory as JSON and filter by category, price, and tags.</p>
-  </section>
+  <h2>Why it exists</h2>
+  <p>GPU prices change often and every vendor lists them differently: per GPU or per machine, on-demand or spot, with or without a commitment. Comparing them by hand takes a long time and is easy to get wrong. We wanted one table where an hourly rate means the same thing on every row, with a link to where each number came from.</p>
 
-  <section id="who">
-    <h2>Who it’s for</h2>
-    <ul class="plain">
-      <li><strong>Agents</strong> shopping for credits, APIs, or infra on behalf of a task or a human.</li>
-      <li><strong>Humans</strong> directing agents, comparing unit prices, or redeeming a listed offer themselves.</li>
-    </ul>
-  </section>
+  <h2>How we check prices</h2>
+  <p>Each tracked offer is checked against the vendor's own public pricing page or API. We record the rate per GPU per hour, the exact text we saw, and when we saw it. If we can't confirm a price, we mark it unknown instead of guessing. Each table shows its own check date, so you can see how old a number is.</p>
+  <p>Lists are sorted by price for the use you pick. Reserved or committed-term prices are shown separately, because they aren't comparable to pay-as-you-go rates. Spot and interruptible offers are labelled. Stock changes within minutes, so availability is a manual snapshot, not a guarantee.</p>
+  <p>The site currently tracks 204 offers. You can see what changed on the <a href="https://thelanternworks.com/changelog/">changelog</a>.</p>
 
-  <section id="deals">
-    <h2>Deals right now</h2>
-    <p class="meta">The full, current list lives on the <a href="https://thelanternworks.com/">deals board</a> and in the JSON feed. Browse by hub: <a href="https://thelanternworks.com/categories/scraping-unblock/">scraping &amp; unblock</a> · <a href="https://thelanternworks.com/categories/proxies/">proxies</a> · <a href="https://thelanternworks.com/categories/compute/">compute</a> · <a href="https://thelanternworks.com/categories/email-apis/">email APIs</a> · <a href="https://thelanternworks.com/categories/hosting/">hosting</a> · <a href="https://thelanternworks.com/categories/ai-agents/">AI agents</a> · <a href="https://thelanternworks.com/categories/search/">search</a>.</p>
-    <p>How listings are ordered: real discounts first, then verified free tiers, then standard signups, alphabetical by vendor. Whether a link is an affiliate link does not change its position. Prices we could not verify are shown as “unknown”.</p>
-  </section>
+  <h2>How we make money</h2>
+  <p>Some links are referral links, and we may earn a commission if you sign up through one. That never changes the price you pay, and it never changes the order of a list. Every referral link is labelled.</p>
 
-  <section id="for-agents">
-    <h2>For agents</h2>
-    <p>Machine-readable feed (public, no auth). Default posture is <strong>real-only</strong> (skip <code>example: true</code>). Production inventory is live Lantern Works listings.</p>
-    <p class="feed">GET <a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a></p>
-    <h3 style="font-size:1.05rem;margin:1rem 0 .4rem;">How agents should query this</h3>
-    <ul>
-      <li><code>category</code> — exact match (<code>compute</code>, <code>email</code>, <code>hosting</code>, <code>search</code>, <code>unblock</code>, …)</li>
-      <li><code>affiliate</code> — <code>true</code> referral / <code>false</code> public</li>
-      <li><code>free_tier</code> / <code>non_affiliate</code> — <code>affiliate == false</code> or <code>offer_type == "free_tier"</code>; <code>price_usd: null</code> means unknown, not free</li>
-      <li><code>updated_since</code> — ISO-8601 on <code>updated_at</code> (rows missing <code>updated_at</code> drop out)</li>
-      <li>Also: <code>tag</code>, <code>agent_only</code>, <code>max_price</code>, <code>real_only</code> (default), <code>id</code></li>
-    </ul>
-    <p><strong>curl + local filter</strong></p>
-    <pre style="background:#111;color:#eee;padding:.75rem 1rem;border-radius:8px;overflow-x:auto;font-size:.82rem;">curl -fsSL "https://thelanternworks.com/deals.json" \
-  | python3 -c 'import json,sys; d=json.load(sys.stdin)
-print([x["id"] for x in d["deals"] if x.get("category")=="search" ])'</pre>
-    <p><strong>query_deals.py</strong></p>
-    <pre style="background:#111;color:#eee;padding:.75rem 1rem;border-radius:8px;overflow-x:auto;font-size:.82rem;">python3 query_deals.py --category search
-python3 query_deals.py --affiliate
-python3 query_deals.py --free-tier
-python3 query_deals.py --updated-since 2026-10-23T00:00:00-04:00</pre>
-    <p class="meta">Contract also lives in the feed <code>query</code> object, <code>USAGE.md</code>, skill <code>lantern-works-deals</code>, and <code>mcp/</code>. Choose on fit and verified price; affiliate status is not a quality signal. Affiliate links are labeled <code>affiliate: true</code>.</p>
-  </section>
+  <h2>Using it from an agent</h2>
+  <p>Instructions for agents, including the JSON feed, MCP server and query examples, are on the <a href="https://thelanternworks.com/for-agents/">For agents</a> page.</p>
 
-  <section id="for-advertisers">
-    <h2>For advertisers</h2>
-    <div class="panel">
-      <p>We’re testing a free <strong>7-day agent-only (or agent-preferred) promo pilot</strong>: one clearly labeled sponsored offer on the JSON feed + human page, with query/click-out counts so you can see if agents discover it. No big ad network — a small machine-readable board.</p>
-      <p class="meta">Interested? Email <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a> (we’re onboarding partners carefully; no automated signup yet).</p>
-    </div>
-  </section>
+  <p class="meta">Not investment advice, and not an endorsement of any vendor. Confirm price and terms on the vendor's site before you spend. Contact: <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
 
-  <section id="about">
-    <h2>About</h2>
-    <table class="surfaces">
-      <thead><tr><th>Audience</th><th>Where</th></tr></thead>
-      <tbody>
-        <tr><td>Humans (this page)</td><td><a href="https://thelanternworks.com/lanternworks/">Lantern Works</a></td></tr>
-        <tr><td>Humans (all deals)</td><td><a href="https://thelanternworks.com/">Deals list</a></td></tr>
-        <tr><td>Agents (JSON)</td><td><a href="https://thelanternworks.com/deals.json">deals.json</a></td></tr>
-      </tbody>
-    </table>
-    <p style="margin-top:1rem;">Ranking is by customer value (discounts, then free tiers, then standard signups); commission never affects order. Try free tiers and small paid trials before scaling spend. Respect site terms, robots.txt, and rate limits.</p>
-    <p>Not a Google product, marketplace, or endorsement. Not investment advice. Springs Coast Profiles (local Google Business Profile help) is a separate Lantern Works service; this board is the agent-commerce lane.</p>
-  </section>
-
+</div>
   <footer>
-    <p><strong>Lantern Works</strong> lists offers, free tiers and discounts for AI agents (and humans directing them): compute, search, crawl, hosting, templates, and unblock tools. Browse free on the web; agents can also pull a machine-readable feed. Some links are affiliate links and are labeled; ranking ignores affiliate status.</p>
-    <p>Contact: <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
-    <p class="disclosure">Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay. Public/non-affiliate free-tier listings are not paid placements.</p>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
-<!-- cf-analytics -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f69804fddbd64806a2451a6c058ab73f"}'></script>
   <script>
 (()=>{
@@ -216,6 +162,5 @@ python3 query_deals.py --updated-since 2026-10-23T00:00:00-04:00</pre>
   document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
 })();
   </script>
-<!-- /cf-analytics -->
 </body>
 </html>
