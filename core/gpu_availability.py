@@ -33,7 +33,14 @@ def _clean(note):
     if not note:
         return None
     note = str(note).strip()
-    return note[7:].strip() if note.lower().startswith("null = ") else note
+    for pre in ("null = ", "unknown: "):
+        if note.lower().startswith(pre):
+            note = note[len(pre):].strip()
+    return note[:1].upper() + note[1:]
+
+
+AUTH_SOURCES = ("api.datacrunch.io",)  # Verda: needs an API key, so others can't re-run the check
+AUTH_LABEL = "authenticated vendor API (not publicly reproducible)"
 
 
 def availability_for(vendor: str, gpu: str, vram_gb, tier: str) -> dict:
@@ -42,13 +49,17 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str) -> dict:
         out = {"status": "unknown", "in_stock": None, "checked_at": None,
                "note": _clean((r or {}).get("availability_note")) or UNKNOWN_NOTE}
         return out
-    out = {"status": "available when checked" if r["in_stock"] else "no rentable offers when checked",
+    out = {"status": "available when checked" if r["in_stock"] else "out of stock when checked",
            "in_stock": r["in_stock"], "checked_at": r.get("availability_checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)",
            "note": NOTE}
     for k in ("offer_count", "stock_level", "available_regions"):
         if r.get(k) is not None:
             out[k] = r[k]
+    if any(a in (r.get("availability_source") or "") for a in AUTH_SOURCES):
+        out["source_label"] = AUTH_LABEL
+    if r.get("availability_note"):
+        out["detail"] = _clean(r["availability_note"])
     if vendor == "Vast.ai":
         out["consistency_note"] = VAST_NOTE
     return out

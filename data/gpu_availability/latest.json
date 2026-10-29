@@ -1,7 +1,7 @@
 {
   "schema": "lantern-works-gpu-availability/1",
   "source": "Lantern Scout availability collector v2.1 (public vendor APIs, no auth)",
-  "imported_rows": 12,
+  "imported_rows": 18,
   "rows": [
     {
       "vendor": "RunPod",
@@ -10,12 +10,12 @@
       "tier": "On-demand (Community Cloud)",
       "region": "all",
       "available_regions": null,
-      "in_stock": null,
+      "in_stock": true,
       "offer_count": null,
-      "stock_level": null,
+      "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-      "availability_checked_at": "2026-10-29T15:11:57Z",
-      "availability_note": "null = RunPod API returned no stock status for this cloud type; not known, not sold out"
+      "availability_checked_at": "2026-10-29T15:19:39Z",
+      "availability_note": null
     },
     {
       "vendor": "RunPod",
@@ -24,12 +24,12 @@
       "tier": "On-demand (Secure Cloud)",
       "region": "all",
       "available_regions": null,
-      "in_stock": null,
+      "in_stock": true,
       "offer_count": null,
-      "stock_level": null,
+      "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-      "availability_checked_at": "2026-10-29T15:11:54Z",
-      "availability_note": "null = RunPod API returned no stock status for this cloud type; not known, not sold out"
+      "availability_checked_at": "2026-10-29T15:19:37Z",
+      "availability_note": null
     },
     {
       "vendor": "RunPod",
@@ -42,8 +42,8 @@
       "offer_count": null,
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-      "availability_checked_at": "2026-10-29T15:11:57Z",
-      "availability_note": "null = RunPod API returned no stock status for this cloud type; not known, not sold out"
+      "availability_checked_at": "2026-10-29T15:19:39Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time"
     },
     {
       "vendor": "RunPod",
@@ -56,7 +56,7 @@
       "offer_count": null,
       "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-      "availability_checked_at": "2026-10-29T15:11:54Z",
+      "availability_checked_at": "2026-10-29T15:19:37Z",
       "availability_note": null
     },
     {
@@ -70,8 +70,8 @@
       "offer_count": null,
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-      "availability_checked_at": "2026-10-29T15:11:57Z",
-      "availability_note": "null = RunPod API returned no stock status for this cloud type; not known, not sold out"
+      "availability_checked_at": "2026-10-29T15:19:39Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time"
     },
     {
       "vendor": "RunPod",
@@ -84,8 +84,8 @@
       "offer_count": null,
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-      "availability_checked_at": "2026-10-29T15:11:54Z",
-      "availability_note": "null = RunPod API returned no stock status for this cloud type; not known, not sold out"
+      "availability_checked_at": "2026-10-29T15:19:37Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time"
     },
     {
       "vendor": "RunPod",
@@ -98,8 +98,8 @@
       "offer_count": null,
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-      "availability_checked_at": "2026-10-29T15:11:57Z",
-      "availability_note": "null = RunPod API returned no stock status for this cloud type; not known, not sold out"
+      "availability_checked_at": "2026-10-29T15:19:39Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time"
     },
     {
       "vendor": "RunPod",
@@ -112,7 +112,7 @@
       "offer_count": null,
       "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-      "availability_checked_at": "2026-10-29T15:11:54Z",
+      "availability_checked_at": "2026-10-29T15:19:37Z",
       "availability_note": null
     },
     {
@@ -126,8 +126,8 @@
       "offer_count": null,
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-      "availability_checked_at": "2026-10-29T15:11:57Z",
-      "availability_note": "null = RunPod API returned no stock status for this cloud type; not known, not sold out"
+      "availability_checked_at": "2026-10-29T15:19:39Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time"
     },
     {
       "vendor": "RunPod",
@@ -136,12 +136,12 @@
       "tier": "On-demand (Secure Cloud)",
       "region": "all",
       "available_regions": null,
-      "in_stock": true,
+      "in_stock": null,
       "offer_count": null,
-      "stock_level": "Low",
+      "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-      "availability_checked_at": "2026-10-29T15:11:54Z",
-      "availability_note": null
+      "availability_checked_at": "2026-10-29T15:19:37Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time"
     },
     {
       "vendor": "Vast.ai",
@@ -150,16 +150,15 @@
       "tier": "Marketplace on-demand (verified; median per GPU)",
       "region": "all",
       "available_regions": [
-        "FR",
         "SE",
         "TW",
         "US"
       ],
       "in_stock": true,
-      "offer_count": 7,
+      "offer_count": 9,
       "stock_level": null,
       "availability_source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "availability_checked_at": "2026-10-29T15:11:47Z",
+      "availability_checked_at": "2026-10-29T15:19:30Z",
       "availability_note": null
     },
     {
@@ -176,26 +175,115 @@
         "DK",
         "EE",
         "ES",
-        "FI",
         "FR",
-        "HU",
         "IE",
-        "IL",
         "IT",
         "JP",
-        "MY",
+        "MK",
         "NL",
         "NO",
         "SE",
+        "TW",
+        "UA",
         "US",
         "VN"
       ],
       "in_stock": true,
-      "offer_count": 44,
+      "offer_count": 47,
       "stock_level": null,
       "availability_source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "availability_checked_at": "2026-10-29T15:11:52Z",
+      "availability_checked_at": "2026-10-29T15:19:35Z",
       "availability_note": null
+    },
+    {
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand instance (1x GPU)",
+      "region": "all",
+      "available_regions": [
+        "FIN-01"
+      ],
+      "in_stock": true,
+      "offer_count": null,
+      "stock_level": null,
+      "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+      "availability_checked_at": "2026-10-29T15:19:43Z",
+      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+    },
+    {
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "A100 SXM",
+      "vram_gb": 40,
+      "tier": "On-demand instance (1x GPU)",
+      "region": "all",
+      "available_regions": null,
+      "in_stock": false,
+      "offer_count": null,
+      "stock_level": null,
+      "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+      "availability_checked_at": "2026-10-29T15:19:43Z",
+      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+    },
+    {
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "Spot instance (1x GPU)",
+      "region": "all",
+      "available_regions": [
+        "FIN-01"
+      ],
+      "in_stock": true,
+      "offer_count": null,
+      "stock_level": null,
+      "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+      "availability_checked_at": "2026-10-29T15:19:43Z",
+      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+    },
+    {
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "A100 SXM",
+      "vram_gb": 40,
+      "tier": "Spot instance (1x GPU)",
+      "region": "all",
+      "available_regions": null,
+      "in_stock": false,
+      "offer_count": null,
+      "stock_level": null,
+      "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+      "availability_checked_at": "2026-10-29T15:19:43Z",
+      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+    },
+    {
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "H100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand instance (1x GPU)",
+      "region": "all",
+      "available_regions": null,
+      "in_stock": false,
+      "offer_count": null,
+      "stock_level": null,
+      "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+      "availability_checked_at": "2026-10-29T15:19:43Z",
+      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+    },
+    {
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "H100 SXM",
+      "vram_gb": 80,
+      "tier": "Spot instance (1x GPU)",
+      "region": "all",
+      "available_regions": [
+        "FIN-01"
+      ],
+      "in_stock": true,
+      "offer_count": null,
+      "stock_level": null,
+      "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+      "availability_checked_at": "2026-10-29T15:19:43Z",
+      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
     }
   ]
 }

@@ -69,7 +69,7 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "RunPod API returned no stock status for this cloud type; not known, not sold out"
+          "note": "RunPod's public API returned no stock status or price for this cloud type at check time"
         }
       }
     ],
@@ -123,7 +123,7 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "RunPod API returned no stock status for this cloud type; not known, not sold out"
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time"
       }
     },
     {
@@ -168,10 +168,16 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.746/h $2.373/h",
       "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-10-29T15:19:43Z",
+        "refresh": "manual snapshot, time shown (prices checked daily)",
+        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "available_regions": [
+          "FIN-01"
+        ],
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }
     },
     {
@@ -243,7 +249,7 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "RunPod API returned no stock status for this cloud type; not known, not sold out"
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time"
       }
     },
     {
@@ -291,7 +297,7 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "RunPod API returned no stock status for this cloud type; not known, not sold out"
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time"
       }
     },
     {
@@ -436,7 +442,7 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-10-29T15:11:54Z",
+        "checked_at": "2026-10-29T15:19:37Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
         "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
         "stock_level": "Low"
@@ -532,10 +538,13 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.746/h",
       "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-10-29T15:19:43Z",
+        "refresh": "manual snapshot, time shown (prices checked daily)",
+        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }
     },
     {

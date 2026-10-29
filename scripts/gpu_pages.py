@@ -56,6 +56,10 @@ def _avail_cell(gen, r: dict) -> str:
         bits.append(f"stock {a['stock_level']}")
     if a.get("offer_count") is not None:
         bits.append(f"{a['offer_count']} offers")
+    if a.get("available_regions"):
+        bits.append("regions " + "/".join(a["available_regions"][:6]) + ("…" if len(a["available_regions"]) > 6 else ""))
+    if a.get("source_label"):
+        bits.append(a["source_label"])
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     sep = " (separate later check)" if r.get("advertiser") == "Vast.ai" else ""
     return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)

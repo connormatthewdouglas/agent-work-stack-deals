@@ -17,14 +17,14 @@ def test_unknown_is_never_out_of_stock_and_has_note():
         if r["advertiser"] == "Vast.ai" and a["in_stock"] is not None:
             assert "separate, later" in a["consistency_note"] and "same snapshot" not in a["consistency_note"]
     rp = [r for r in rates if r["advertiser"] == "RunPod" and "Community" in r["tier"]]
-    assert rp and all(r["availability"]["status"] == "unknown" for r in rp)
-    assert any("not sold out" in r["availability"]["note"] for r in rp) and all("out of stock" not in r["availability"]["note"] for r in rp)
+    assert rp and all(r["availability"]["status"] == "unknown" or r["availability"]["in_stock"] is not None for r in rp)
+    assert any("no stock status" in r["availability"]["note"] for r in rp) and all("out of stock" not in r["availability"]["note"] for r in rp)
 
 
 def test_pages_never_say_out_of_stock():
     for p in [ROOT / "gpu" / "price-comparison" / "index.html", *ROOT.glob("gpu/cheapest-*/index.html")]:
         t = p.read_text().lower()
-        assert "out of stock" not in t and "stock changes within minutes" in t
+        assert "out of stock" not in t.replace("out of stock when checked", "") and "stock changes within minutes" in t
 
 
 def test_no_stale_cadence_wording():
@@ -42,3 +42,14 @@ def test_marketplace_basis_matches_fields():
         assert int(m.group(1)) == r["offer_count"], r["advertiser"]
         assert abs(float(m.group(2)) - r["price_usd"]) < 1e-4 and abs(float(m.group(3)) - r["lowest_offer_usd"]) < 1e-4
         assert r["basis"] == r["evidence"]["quote"]
+
+
+def test_verda_auth_label_and_false_is_out_of_stock():
+    for r in json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["rates"]:
+        a = r["availability"]
+        if r["advertiser"].startswith("Verda") and a["in_stock"] is not None:
+            assert a["source_label"] == "authenticated vendor API (not publicly reproducible)"
+        if a["in_stock"] is False:
+            assert a["status"] == "out of stock when checked"
+        if a.get("offer_count") == 0:
+            assert a["in_stock"] is False
