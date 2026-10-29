@@ -135,11 +135,41 @@ def _deal_fallback(deals: list[dict], tags: set, allowed: set, manual: set) -> l
     return rows
 
 
+def _apply_data_age(lines: list[dict], max_h, now) -> int:
+    """T37: flag every option with data_age_hours/degraded/stale; with max_h drop older options, promote the
+    freshest remaining alternative, and mark a line no_data if nothing fresh is left. Returns options dropped."""
+    from . import data_age
+    try:
+        max_h = data_age.validate_max_age(max_h)
+    except ValueError as e:
+        raise stack.StackError(str(e))
+    dropped = 0
+    for l in lines:
+        opts = [o for o in [l.get("choice")] + list(l.get("alternatives") or []) if o]
+        for o in opts:
+            o.update(data_age.age_fields(o, now))
+        if max_h is None or not opts:
+            continue
+        keep = [o for o in opts if not data_age.too_old(o, max_h, now)]
+        dropped += len(opts) - len(keep)
+        if keep and keep[0] is l.get("choice"):
+            l["alternatives"] = keep[1:]
+        elif keep:
+            l.update(choice=keep[0], alternatives=keep[1:])
+            if l.get("status") in ("priced", "entry_price"):
+                l["monthly_cost_usd"] = keep[0].get("monthly_cost_usd")
+        else:
+            l.update(status="no_data", choice=None, monthly_cost_usd=None, alternatives=[],
+                     note=f"{NO_DATA} verified within {max_h:g} hours")
+    return dropped
+
+
 def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict | None, *, workload: str | None = None,
          gpu_hours: float | None = None, gpu_model: str | None = None, model_size_b: float | None = None,
          scrape_pages: float | None = None, js_rendering: bool | None = None, proxy_gb: float | None = None,
          search_queries: float | None = None, emails_sent: float | None = None, llm_api: bool | None = None,
-         monthly_budget_usd: float | None = None, exclude_manual_signup: bool = False) -> dict:
+         monthly_budget_usd: float | None = None, exclude_manual_signup: bool = False,
+         max_data_age_hours: float | None = None, now=None) -> dict:
     if not (description or "").strip() and not workload and not any(
             v for v in (gpu_hours, gpu_model, model_size_b, scrape_pages, proxy_gb, search_queries, emails_sent, llm_api)):
         raise stack.StackError("describe the agent (e.g. 'scrapes 20k JS pages and summarizes them with an LLM') or set a field")
@@ -244,6 +274,7 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             line.update(status="no_data", note=NO_DATA, choice=None, monthly_cost_usd=None, alternatives=[])
         lines.append(line)
 
+    excluded_too_old = _apply_data_age(lines, max_data_age_hours, now)
     known = [l for l in lines if l["status"] in ("priced", "entry_price") and isinstance(l["monthly_cost_usd"], (int, float))]
     total = round(sum(l["monthly_cost_usd"] for l in known), 2)
     math_line = " + ".join(f"${l['monthly_cost_usd']:,.2f} ({l['component']})" for l in known) + f" = ${total:,.2f}/mo" if known else None
@@ -257,6 +288,7 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
         "missing_components": [l["component"] for l in lines if l not in known],
         "budget": None,
         "excluded_for_compliance": excluded,
+        "max_data_age_hours": max_data_age_hours, "excluded_too_old": excluded_too_old,
         "manual_signup_components": [l["component"] for l in lines if (l.get("choice") or {}).get("manual_signup_only")],
         "ranking": f"Per component, the {stack.TRACKED} with a cited price (vendors we don't track may cost less). "
                    "Affiliate status is never a ranking factor; referral links are disclosed per option.",
