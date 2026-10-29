@@ -37,7 +37,7 @@ def test_marketplace_basis_matches_fields():
     for r in json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["rates"]:
         if r.get("price_status") != "marketplace" and "Marketplace" not in r["tier"]:
             continue
-        m = re.search(r"(\d+) verified .*median \$([\d.]+)/hr, min \$([\d.]+)/hr", r["basis"])
+        m = re.search(r"(\d+) (?:verified|available) .*median \$([\d.]+)/hr, min \$([\d.]+)/hr", r["basis"])
         assert m, r["basis"]
         assert int(m.group(1)) == r["offer_count"], r["advertiser"]
         assert abs(float(m.group(2)) - r["price_usd"]) < 1e-4 and abs(float(m.group(3)) - r["lowest_offer_usd"]) < 1e-4

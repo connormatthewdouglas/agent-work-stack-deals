@@ -114,7 +114,8 @@ def record_problems(doc: dict) -> list[str]:
             lo, cnt = r.get("lowest_offer_usd"), r.get("offer_count")
             if not (isinstance(lo, (int, float)) and 0 < lo <= r["hourly_usd"]):
                 out.append(f"{tag}: marketplace needs 0 < lowest_offer_usd <= hourly_usd (median)")
-            if not (isinstance(cnt, int) and cnt >= MIN_MARKET_OFFERS):
+            if not (isinstance(cnt, int) and (cnt >= MIN_MARKET_OFFERS or (cnt >= 1 and r.get("stale")))):
+                # A thinner market is allowed only with a record-level stale hold (listed, never ranked).
                 out.append(f"{tag}: marketplace median needs offer_count >= {MIN_MARKET_OFFERS}")
             if not r.get("price_basis"):
                 out.append(f"{tag}: marketplace needs price_basis")

@@ -6,9 +6,10 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-10-29T15:05:08+00:00",
-  "row_count": 7,
+  "last_checked": "2026-10-29T15:27:48+00:00",
+  "row_count": 8,
   "providers": [
+    "Clore.ai",
     "CloudRift",
     "RunPod",
     "Spheron",
@@ -136,6 +137,30 @@
       "verified_at": "2026-10-29T13:56:45+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.19/hr.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Clore.ai",
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "tier": "Marketplace on-demand (host USD listings; median per GPU)",
+      "tier_class": "marketplace",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.7933,
+      "unit": "hour",
+      "price_usd": 0.7933,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "marketplace",
+      "verified_at": "2026-10-29T15:27:48+00:00",
+      "source_url": "https://api.clore.ai/v1/marketplace",
+      "quote": "Clore.ai API: 125 available RTX 5090 32GB host USD listings, range $0.3958-$2.9167; per-GPU median $0.7933/hr, min $0.3958/hr",
       "availability": {
         "status": "unknown",
         "in_stock": null,
