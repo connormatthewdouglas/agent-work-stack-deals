@@ -259,8 +259,10 @@ def estimate_job_cost(gpu_family: str, gpus_per_job: int, job_hours: float | Non
     """Cost of one GPU job (not cost per hour) among tracked providers, cheapest compute subtotal first.
 
     You supply the duration: job_hours, OR work_units plus throughput_units_per_gpu_hour from your own benchmark
-    (job_hours = work_units / (throughput x gpus_per_job)). No throughput is ever guessed from a model name:
-    without one of these the tool returns not_found 'missing: throughput for {gpu}'. Whole-instance billing:
+    (job_hours = work_units / (throughput x gpus_per_job)). If you give workload + work_units but no throughput,
+    a directly applicable published figure (closed-division MLPerf Inference, exact GPU variant, inference only)
+    is used: throughput_basis='published_benchmark' with throughput_source {url, quote, date, benchmark, derived,
+    caveats}; your throughput always wins. Otherwise not_found 'missing: throughput for {gpu}'. Whole-instance billing:
     instances = ceil(gpus_per_job / gpus_per_instance), all allocated GPUs billed (9 GPUs on an 8-GPU-only
     offer bill 16). Reserved and held-stale rates are never ranked; spot/interruptible only if allow_interruptible.
     Each result has rate_id, source_url, verified_at, data_age_hours/degraded/stale. Response has assumptions,
