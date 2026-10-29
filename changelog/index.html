@@ -116,6 +116,13 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.16 (2026-10-29)</h2>
+<ul>
+<li>Spheron RTX 5090: Spheron rotates this row&#x27;s specs and &quot;Last known&quot; text between fetches, so no stable continuous span ties the GPU to $0.84/hr. The row is marked <code>price_check: &quot;rotating snapshot&quot;</code> (with <code>price_check_note</code>), and the quote is the single span seen at the check.</li>
+<li>Hyperstack Spot (H100 PCIe, A100 PCIe), Hyperstack H200 Reservation and SaladCloud RTX 4090 quotes are single continuous spans of page text (no &quot;...&quot; joins).</li>
+<li>Vendor quote column: marketplace rows (Vast.ai, Clore.ai) are labelled &quot;API fields&quot; rather than shown as verbatim page text.</li>
+<li>Release gate docs: <code>python3 tests/release_gate/run_t41.py --source live</code> tests the live site.</li>
+</ul>
 <h2>0.3.15 (2026-10-29)</h2>
 <ul>
 <li>Clore.ai deal added (<code>deal-clore-ai</code>, registry-approved; referral link with inline disclosure and <code>plain_url</code>; referral terms in <code>docs_url</code>); Clore GPU rate rows link to it. Feed: 204 deals.</li>

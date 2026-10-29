@@ -51,6 +51,8 @@ def _quote_html(esc, r: dict, n: int = 70) -> str:
     """H4: short cleaned excerpt; the full verbatim quote is one click away."""
     q = " ".join(((r.get("evidence") or {}).get("quote") or "").split())
     src = esc(r.get("source_url") or "")
+    if r.get("price_status") == "marketplace":  # Vast.ai, Clore.ai: a summary of API fields, not page text
+        return f"<a href=\"{src}\" rel=\"noopener\">API fields: {esc(q)}</a>"
     if len(q) <= n:
         return f"<a href=\"{src}\" rel=\"noopener\">\u201c{esc(q)}\u201d</a>"
     short = q[:n].rsplit(" ", 1)[0]
@@ -79,6 +81,8 @@ def _avail_cell(gen, r: dict) -> str:
 def _verified_cell(r: dict, esc) -> str:
     if r.get("price_check") == "manual snapshot":
         return esc(f"manual snapshot {r['snapshot_at'][:16].replace('T', ' ')} UTC; held after {r['hold_after'][:10]} unless re-checked")
+    if r.get("price_check") == "rotating snapshot":
+        return esc(f"{(r['verified_at'] or '')[:10]} (rotating snapshot: page text changes between checks)")
     return esc(f"{(r['verified_at'] or '')[:10]} (daily)")
 
 

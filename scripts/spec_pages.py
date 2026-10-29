@@ -29,6 +29,8 @@ MIN_SHARED = 3
 DISCLOSURE = "Some links are referral links; Lantern Works may earn credit. Affiliate status is not a ranking factor."
 ET = timezone(timedelta(hours=-4))  # display only; label says ET
 SPEC_PATHS: list[str] = []
+# Near-duplicate of an older page: rel=canonical points there and the URL stays out of the sitemap.
+CANONICAL_OVERRIDE = {"H100": "https://thelanternworks.com/gpu/cheapest-h100-rental/"}
 
 
 def load_feeds() -> dict:
@@ -178,7 +180,7 @@ def qualifying_families(rates) -> dict[str, list]:
 
 
 def gpu_url(gen, fam: str) -> str:
-    return f"{gen.BASE}/gpu/{slug(fam)}-rental-price"
+    return f"{gen.BASE}/gpu/{slug(fam)}-rental-price/"
 
 
 def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
@@ -192,7 +194,7 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     sp = by_b["Spot & community"]
     nv = len({r["advertiser"] for r in rows if bucket(r) != "Reserved"})
     mv = max_verified(rows); day = mv[:10]
-    canon = gpu_url(gen, fam)
+    canon = CANONICAL_OVERRIDE.get(fam, gpu_url(gen, fam))
     title = f"Rent {fam}: price today | Lantern Works"
     desc = (f"{fam} rental from {m(od[0]['hourly_equiv_usd'])}/GPU-hr on-demand ({od[0]['advertiser']}) across {nv} tracked providers."
             if od else f"{fam} rental prices across {nv} tracked providers.")
@@ -291,7 +293,7 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
     ch = {c["key"]: c for c in changes["changes"]}; prev = changes["previous_date"]
     sa, sb = short_vendor(a), short_vendor(b)
     path = f"compare/{slug(sa)}-vs-{slug(sb)}-gpu-prices"
-    canon = f"{gen.BASE}/{path}"
+    canon = f"{gen.BASE}/{path}/"
     wins = {"a": 0, "b": 0, "t": 0}; per_bucket: dict[str, dict] = {}
     for k in shared:
         x, y = ca[k]["hourly_equiv_usd"], cb[k]["hourly_equiv_usd"]
@@ -408,7 +410,8 @@ def write_all(gen) -> list[str]:
         write_pair(gen, a, b, feeds, quals)
     write_changes(gen, feeds)
     write_watch_doc(gen)
-    return list(SPEC_PATHS)
+    dup = {f"gpu/{slug(f)}-rental-price" for f in CANONICAL_OVERRIDE}
+    return [p for p in SPEC_PATHS if p not in dup]
 
 
 if __name__ == "__main__":

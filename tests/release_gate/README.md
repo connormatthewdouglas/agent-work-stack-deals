@@ -1,5 +1,10 @@
 # T41: pricing-decision release gate (Lantern Works)
 
+## How to run
+
+- Live site (what agents see now): `python3 tests/release_gate/run_t41.py --source live`. It fetches the public feeds and pages from thelanternworks.com and exits 1 on any failing case. Run it after each deploy.
+- Local build (CI): `python3 tests/release_gate/run_t41.py --source local`, after `python3 scripts/generate_seo_pages.py`.
+
 There are 21 cases in `cases.json`. Each case is a question an agent would ask, such as "cheapest H100" or "cheapest on-demand L40S". Each one has an expected property taken from the repo's own rules: `core/gpu.py`, `core/deals.py`, `core/stack.py`, and the feed methodology. No price is hardcoded. Every expected value is recomputed from the live feed at run time.
 
 `run_t41.py` works like this:
