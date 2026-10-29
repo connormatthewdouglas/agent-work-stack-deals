@@ -101,7 +101,7 @@
 <ul>
 <li>Vast.ai <code>basis</code> now comes from the same API snapshot as offer_count / median / lowest_offer_usd (the refresh used to keep an older count and minimum in the quote); test checks they match.</li>
 <li>Methodology wording: <code>basis</code> is a summary of the vendor price line; <code>evidence.quote</code> is the verbatim page text.</li>
-<li>New L40S / RTX 5090 coverage (vetted page/API quotes, checked 2026-10-29): Crusoe, OVHcloud (US), Koyeb (serverless, per-second), CloudRift (on-demand plus 1- and 3-month reserved rows), Spheron (RTX 5090 row carries the page&#x27;s &quot;Last known Oct 28&quot;), Lightning AI, and Shadeform resale rows (seller Shadeform, provider named in the tier). Tier labels are the vendors&#x27; own. Vultr is not added yet: its pricing page returns 403 to the daily source check, so it can&#x27;t be re-verified automatically.</li>
+<li>New L40S / RTX 5090 coverage (vetted page/API quotes, checked 2026-10-29): Crusoe, OVHcloud (US), Koyeb (serverless, per-second), CloudRift (on-demand plus 1- and 3-month reserved rows), Spheron (RTX 5090 row carries the page&#x27;s &quot;Last known Oct 28&quot;), Lightning AI. Tier labels are the vendors&#x27; own. Vultr is not added yet: its pricing page returns 403 to the daily source check, so it can&#x27;t be re-verified automatically. Shadeform resale rows are not added yet: its API quotes prices in cents (&quot;hourly_price&quot;:552), so the published $/GPU-hr can&#x27;t be matched to a verbatim dollar amount in the evidence quote (T41-01).</li>
 </ul>
 <h2>0.3.13 (2026-10-29)</h2>
 <ul>

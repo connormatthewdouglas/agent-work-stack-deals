@@ -145,7 +145,7 @@ def test_every_record_has_live_evidence():
             from datetime import datetime
             assert datetime.fromisoformat(r["checked_at"]) >= datetime.fromisoformat(ev["checked_at"])
             n += 1
-    assert n == 121  # + Gauge L40S/RTX 5090 coverage 23 (Crusoe 1, OVHcloud 1, Koyeb 1, CloudRift 6, Spheron 2, Lightning AI 3, Shadeform 9); 36 original + Lambda 13 + TensorDock 10 (held stale) + Vast 2 + Verda 12 + Nebius 3 + DigitalOcean 4 + CoreWeave 5 + SaladCloud 1 + Novita 1 + Hyperstack 12 - Ucartz Radeon 780M 1 (integrated GPU)
+    assert n == 112  # + Gauge L40S/RTX 5090 coverage 14 (Crusoe 1, OVHcloud 1, Koyeb 1, CloudRift 6, Spheron 2, Lightning AI 3); 36 original + Lambda 13 + TensorDock 10 (held stale) + Vast 2 + Verda 12 + Nebius 3 + DigitalOcean 4 + CoreWeave 5 + SaladCloud 1 + Novita 1 + Hyperstack 12 - Ucartz Radeon 780M 1 (integrated GPU)
     blob = "".join(p.read_text() for p in (Path(__file__).resolve().parents[1] / "data" / "gpu_pricing").glob("*.json"))
     assert "/private" not in blob and "referral_terms" not in blob and not re.search(r"commission|payout", blob, re.I)
 
