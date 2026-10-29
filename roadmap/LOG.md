@@ -73,3 +73,21 @@ Numbers from a run at ~6:10 PM ET on Oct 28 (pypistats has data only for 2026-10
 - Review: CodeRabbit on #389 just acknowledged the earlier fix; no reply needed. e2b cla-bot cannot match commit author "Lantern Works <lanternworks@agentmail.to>" to a GitHub user (commits 7959e99, d0e6f81). Fixing it means re-authoring and force-pushing the fork branch; not done, needs approval.
 - MCP Registry live (0.3.8 active): "GPU rental prices checked daily, with price history; stack optimizer; AI-infra deals." Names no tools, so it does not mention all 7.
 - Skipped Glama, mcp.so and mcp.directory as instructed.
+
+## Oct 29 morning: audit pass (Pax T1–T10 + Gauge data-QA), 0.3.9 + 0.3.10
+
+Live since about 9:45 AM ET (CI run 40883999616 green: tests, validate, pypi-install, docker, deploy, live-checks).
+
+- T1/M2: the full-month column on /gpu/ tables is now rate × 730 (flat monthly plans as listed), with the basis in the header. Root cause: vendors with no deal id shared a lookup key, so rows showed another row's total. Test: every row is checked against its own rate.
+- M1: /install/ now says 7 tools. The list is read from mcp_server/server.py so it can't drift. Grep found no current page saying 5 or 6 tools, apart from the historical changelog.
+- T6/M3: "By GPU model (all N rates)" now counts every rate. Models outside the main families get their own rows, and the generator asserts the sum equals the headline.
+- T7/M4: removed the Ucartz Radeon 780M row; validation rejects integrated GPUs. deal-ucartz-001 now starts at the RTX 4090 dedicated plan ($798.72/mo). Gist re-synced.
+- T8/M5: feed_updated_at and /stack/ "Data as of" now come from the data. New prices_verified_through field.
+- T9/M6: tier_class on every rate (on-demand, community, marketplace, interruptible, reserved, dedicated-monthly). Non-on-demand rows carry a badge, the tables have an "On-demand only" filter, compare_gpu_prices takes on_demand_only, and the summary names the cheapest on-demand rate.
+- T10: RTX 4090 now has 6 rates from 5 vendors. Added SaladCloud ($0.16, Lowest/Batch, interruptible) and Novita AI ($0.67 on-demand, referral). Novita spot was left out as unreconciled. Hyperstack was added (12 rates, including reservation as its own tier). Shadeform was skipped because no region was available.
+- Gauge items: tier casing fixed; RunPod is now "On-demand (Secure/Community Cloud)"; Modal is kept as preemptible with the vendor quote cited; interruptible must match the tier; Ucartz A100 min_gpus=2; A100 40/80 GB is never mixed (per-size summary, "A100 80GB" filter); tier_class is in the JSON feed; README says history runs "since 2026-10-27".
+- Lambda 8x rows were left as they are. Lambda quotes the price per GPU, so the CoreWeave server-price schema would break quote verification; min_gpus=8 already enforces 8-GPU estimates.
+- Daily snapshot: the 10:23 UTC cron did not fire on Oct 29. I dispatched it by hand (run 40883019376), and the 2026-10-29 snapshot now exists.
+- Fixed a refresh bug: a quote line shared by on-demand and spot kept a stale sibling price, which failed the live source check. Fixed and tested.
+- Releases: 0.3.9 and 0.3.10 on PyPI; MCP Registry has 0.3.10.
+- Decisions relayed by Bjorn under Frosty's delegation: the package name lantern-works-deals-mcp stays; the display name goes GPU-first; GPU tools come first in the order; the Stack Optimizer gets no new non-GPU lines.
