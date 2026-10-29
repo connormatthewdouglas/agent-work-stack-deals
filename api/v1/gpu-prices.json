@@ -1,13 +1,13 @@
 {
   "schema": "lantern-works-gpu-prices/1",
   "source_feed": "https://thelanternworks.com/api/v1/deals.json",
-  "feed_updated_at": "2026-10-29T13:57:45Z",
-  "prices_verified_through": "2026-10-29T13:57:45Z",
+  "feed_updated_at": "2026-10-29T15:05:08Z",
+  "prices_verified_through": "2026-10-29T15:05:08Z",
   "deal_feed_updated_at": "2026-10-29T09:30:00-04:00",
   "hours_per_month": 730,
   "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
   "methodology": [
-    "Rates come from structured per-vendor pricing records (data/gpu_pricing/<vendor>.json in the repo); each rate has source_url and checked_at, and 'basis' is the exact vendor quote.",
+    "Rates come from structured per-vendor pricing records (data/gpu_pricing/<vendor>.json in the repo); each rate has source_url and checked_at, and 'basis' is a short summary of the vendor's price line (not always word for word); evidence.quote is the verbatim text found on the source page at checked_at.",
     "A daily job re-reads every source_url (robots.txt respected) and updates a price only where it parsed it from the vendor's own page or API; verified_at is when the price was last parsed, checked_at the last attempt. A rate not re-verified for 7 days is held (held_stale) and never ranked. Price history: /api/v1/gpu-prices/history.json.",
     "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
     "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
@@ -50,6 +50,258 @@
         "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
         "quote": "G4-gpu-h100-240m-12c 4800 GiB 240 GB 12 vCPUs 50 TB $2.8767 /hr $2 100 /mo",
         "checked_at": "2026-10-29T13:55:59+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "CloudRift",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 0.63,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "On‑Demand",
+      "hourly_equiv_usd": 0.63,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:03+00:00",
+      "checked_at": "2026-10-29T15:05:03+00:00",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "redeem_url": "https://www.cloudrift.ai/pricing",
+      "basis": "L40S NVIDIA On‑Demand $0.63 1 mo $0.57 3 mo $0.54 48 GB VRAM",
+      "evidence": {
+        "source_url": "https://www.cloudrift.ai/pricing",
+        "quote": "L40S NVIDIA On‑Demand $0.63 1 mo $0.57 3 mo $0.54 48 GB VRAM",
+        "checked_at": "2026-10-29T15:05:03+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "CloudRift",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 0.57,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "1 Month (reserved, \"1 mo\")",
+      "hourly_equiv_usd": 0.57,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "reserved",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:03+00:00",
+      "checked_at": "2026-10-29T15:05:03+00:00",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "redeem_url": "https://www.cloudrift.ai/pricing",
+      "basis": "L40S NVIDIA On‑Demand $0.63 1 mo $0.57 3 mo $0.54 48 GB VRAM",
+      "evidence": {
+        "source_url": "https://www.cloudrift.ai/pricing",
+        "quote": "L40S NVIDIA On‑Demand $0.63 1 mo $0.57 3 mo $0.54 48 GB VRAM",
+        "checked_at": "2026-10-29T15:05:03+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "CloudRift",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 0.54,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "3 Month (reserved, \"3 mo\")",
+      "hourly_equiv_usd": 0.54,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "reserved",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:03+00:00",
+      "checked_at": "2026-10-29T15:05:03+00:00",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "redeem_url": "https://www.cloudrift.ai/pricing",
+      "basis": "L40S NVIDIA On‑Demand $0.63 1 mo $0.57 3 mo $0.54 48 GB VRAM",
+      "evidence": {
+        "source_url": "https://www.cloudrift.ai/pricing",
+        "quote": "L40S NVIDIA On‑Demand $0.63 1 mo $0.57 3 mo $0.54 48 GB VRAM",
+        "checked_at": "2026-10-29T15:05:03+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "CloudRift",
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "price_usd": 0.65,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "On‑Demand",
+      "hourly_equiv_usd": 0.65,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:03+00:00",
+      "checked_at": "2026-10-29T15:05:03+00:00",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "redeem_url": "https://www.cloudrift.ai/pricing",
+      "basis": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
+      "evidence": {
+        "source_url": "https://www.cloudrift.ai/pricing",
+        "quote": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
+        "checked_at": "2026-10-29T15:05:03+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "CloudRift",
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "price_usd": 0.59,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "1 Month (reserved, \"1 mo\")",
+      "hourly_equiv_usd": 0.59,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "reserved",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:03+00:00",
+      "checked_at": "2026-10-29T15:05:03+00:00",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "redeem_url": "https://www.cloudrift.ai/pricing",
+      "basis": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
+      "evidence": {
+        "source_url": "https://www.cloudrift.ai/pricing",
+        "quote": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
+        "checked_at": "2026-10-29T15:05:03+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "CloudRift",
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "price_usd": 0.55,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "3 Month (reserved, \"3 mo\")",
+      "hourly_equiv_usd": 0.55,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "reserved",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:03+00:00",
+      "checked_at": "2026-10-29T15:05:03+00:00",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "redeem_url": "https://www.cloudrift.ai/pricing",
+      "basis": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
+      "evidence": {
+        "source_url": "https://www.cloudrift.ai/pricing",
+        "quote": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
+        "checked_at": "2026-10-29T15:05:03+00:00"
       },
       "availability": {
         "status": "unknown",
@@ -260,6 +512,48 @@
         "source_url": "https://www.coreweave.com/pricing",
         "quote": "NVIDIA GH200 On-Demand Price: $6.50 / Hour",
         "checked_at": "2026-10-29T13:56:03+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "Crusoe",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 1.5,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "On-demand",
+      "hourly_equiv_usd": 1.5,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:01:50+00:00",
+      "checked_at": "2026-10-29T15:01:50+00:00",
+      "source_url": "https://crusoe.ai/cloud/pricing",
+      "redeem_url": "https://crusoe.ai/cloud/pricing",
+      "basis": "GPU model On-demand Current spot … NVIDIA L40S 48GB … $1.50 / GPU-hr",
+      "evidence": {
+        "source_url": "https://crusoe.ai/cloud/pricing",
+        "quote": "GPU model On-demand Current spot … NVIDIA L40S 48GB … $1.50 / GPU-hr",
+        "checked_at": "2026-10-29T15:01:50+00:00"
       },
       "availability": {
         "status": "unknown",
@@ -942,6 +1236,49 @@
     },
     {
       "deal_id": null,
+      "advertiser": "Koyeb",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 1.2,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "Serverless GPU instance (per-second billing)",
+      "hourly_equiv_usd": 1.2,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "platform_fee_note": "Koyeb Pro plan platform fee is separate (\"Pro $ 29 /mo +compute\"); per-second billing, scale-to-zero serverless containers with a whole L40S per instance.",
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:02:50+00:00",
+      "checked_at": "2026-10-29T15:02:50+00:00",
+      "source_url": "https://www.koyeb.com/pricing",
+      "redeem_url": "https://www.koyeb.com/pricing",
+      "basis": "L40S 48GB VRAM 15 64GB 160GB $ 1.20 /hr … L40S vRAM 48GB vRAM 48GB $ 1.20 /hour $ 0.000333 /sec",
+      "evidence": {
+        "source_url": "https://www.koyeb.com/pricing",
+        "quote": "L40S 48GB VRAM 15 64GB 160GB $ 1.20 /hr … L40S vRAM 48GB vRAM 48GB $ 1.20 /hour $ 0.000333 /sec",
+        "checked_at": "2026-10-29T15:02:50+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
       "advertiser": "Lambda",
       "gpu": "B200",
       "vram_gb": 180,
@@ -1487,6 +1824,132 @@
       }
     },
     {
+      "deal_id": null,
+      "advertiser": "Lightning AI",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 3.54,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "Pay-as-you-go (\"Cost/GPU/hr*\", not interruptible)",
+      "hourly_equiv_usd": 3.54,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:04:59+00:00",
+      "checked_at": "2026-10-29T15:04:59+00:00",
+      "source_url": "https://lightning.ai/pricing",
+      "redeem_url": "https://lightning.ai/pricing",
+      "basis": "L40S 1 48 GB $3.54",
+      "evidence": {
+        "source_url": "https://lightning.ai/pricing",
+        "quote": "L40S 1 48 GB $3.54",
+        "checked_at": "2026-10-29T15:04:59+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "Lightning AI",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 2.97,
+      "gpu_count": 4,
+      "server_price_usd": 11.88,
+      "server_hourly_usd": 11.88,
+      "min_gpus": 4,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "Pay-as-you-go (\"Cost/GPU/hr*\", not interruptible)",
+      "hourly_equiv_usd": 2.97,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:04:59+00:00",
+      "checked_at": "2026-10-29T15:04:59+00:00",
+      "source_url": "https://lightning.ai/pricing",
+      "redeem_url": "https://lightning.ai/pricing",
+      "basis": "L40S 4 48 GB $2.97",
+      "evidence": {
+        "source_url": "https://lightning.ai/pricing",
+        "quote": "L40S 4 48 GB $2.97",
+        "checked_at": "2026-10-29T15:04:59+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "Lightning AI",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 4.21,
+      "gpu_count": 8,
+      "server_price_usd": 33.68,
+      "server_hourly_usd": 33.68,
+      "min_gpus": 8,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "Pay-as-you-go (\"Cost/GPU/hr*\", not interruptible)",
+      "hourly_equiv_usd": 4.21,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:04:59+00:00",
+      "checked_at": "2026-10-29T15:04:59+00:00",
+      "source_url": "https://lightning.ai/pricing",
+      "redeem_url": "https://lightning.ai/pricing",
+      "basis": "L40S 8 48 GB $4.21",
+      "evidence": {
+        "source_url": "https://lightning.ai/pricing",
+        "quote": "L40S 8 48 GB $4.21",
+        "checked_at": "2026-10-29T15:04:59+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
       "deal_id": "deal-modal-free-001",
       "advertiser": "Modal",
       "gpu": "H200 SXM",
@@ -1826,6 +2289,48 @@
         "source_url": "https://novita.ai/gpu-instance/gpu/rtx-4090",
         "quote": "RTX 4090 On-Demand The specific price is subject to the computing power market. $0.67/GPU/hr",
         "checked_at": "2026-10-29T13:56:39+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "OVHcloud (US)",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 1.8,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "Public Cloud GPU instance, hourly (\"Price ( excl. taxes / hour)\")",
+      "hourly_equiv_usd": 1.8,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:02:54+00:00",
+      "checked_at": "2026-10-29T15:02:54+00:00",
+      "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+      "redeem_url": "https://us.ovhcloud.com/public-cloud/prices/",
+      "basis": "l40s-90 90 GB 15 1x L40S ( 48 GB HBM2) 400 GB NVMe 8 Gbit/s 8 Gbit/s max. $1.8 $1,296",
+      "evidence": {
+        "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+        "quote": "l40s-90 90 GB 15 1x L40S ( 48 GB HBM2) 400 GB NVMe 8 Gbit/s 8 Gbit/s max. $1.8 $1,296",
+        "checked_at": "2026-10-29T15:02:54+00:00"
       },
       "availability": {
         "status": "unknown",
@@ -2807,6 +3312,91 @@
       }
     },
     {
+      "deal_id": null,
+      "advertiser": "Spheron",
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "price_usd": 0.84,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "On-demand (page: \"On-demand by default, reserved pricing when you commit\")",
+      "hourly_equiv_usd": 0.84,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "availability_note": "Last known Oct 28",
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:08+00:00",
+      "checked_at": "2026-10-29T15:05:08+00:00",
+      "source_url": "https://www.spheron.network/pricing/",
+      "redeem_url": "https://www.spheron.network/pricing/",
+      "basis": "12 RTX 5090 Blackwell 32 GB 24 GB RAM 8 vCPUs 200 GB NVMe $0.84 /hr Last known Oct 28",
+      "evidence": {
+        "source_url": "https://www.spheron.network/pricing/",
+        "quote": "12 RTX 5090 Blackwell 32 GB 24 GB RAM 8 vCPUs 200 GB NVMe $0.84 /hr Last known Oct 28",
+        "checked_at": "2026-10-29T15:05:08+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "Spheron",
+      "gpu": "L40S",
+      "vram_gb": 48,
+      "price_usd": 0.96,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "lowest_offer_usd": null,
+      "offer_count": null,
+      "unit": "hour",
+      "tier": "On-demand (page: \"On-demand by default, reserved pricing when you commit\")",
+      "hourly_equiv_usd": 0.96,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-10-29T15:05:08+00:00",
+      "checked_at": "2026-10-29T15:05:08+00:00",
+      "source_url": "https://www.spheron.network/pricing/",
+      "redeem_url": "https://www.spheron.network/pricing/",
+      "basis": "14 L40S Ada 48 GB 72 GB RAM 12 vCPUs 625 GB NVMe $0.96 /hr",
+      "evidence": {
+        "source_url": "https://www.spheron.network/pricing/",
+        "quote": "14 L40S Ada 48 GB 72 GB RAM 12 vCPUs 625 GB NVMe $0.96 /hr",
+        "checked_at": "2026-10-29T15:05:08+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
       "deal_id": "deal-thundercompute-001",
       "advertiser": "Thunder Compute",
       "gpu": "RTX A6000",
@@ -3171,7 +3761,7 @@
       "checked_at": "2026-10-29T13:57:36+00:00",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
       "redeem_url": "https://cloud.vast.ai/?ref_id=760339",
-      "basis": "Vast public offers API: 7 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.4383/hr, min $1.1347/hr",
+      "basis": "Vast public offers API: 6 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.4383/hr, min $1.3389/hr",
       "evidence": {
         "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
         "quote": "Vast public offers API: 6 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.4383/hr, min $1.3389/hr",
@@ -3222,7 +3812,7 @@
       "checked_at": "2026-10-29T13:57:42+00:00",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
       "redeem_url": "https://cloud.vast.ai/?ref_id=760339",
-      "basis": "Vast public offers API: 42 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4860/hr, min $0.3356/hr",
+      "basis": "Vast public offers API: 43 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4860/hr, min $0.3887/hr",
       "evidence": {
         "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
         "quote": "Vast public offers API: 43 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4860/hr, min $0.3887/hr",
@@ -3795,6 +4385,34 @@
       "market_note": null
     },
     {
+      "vendor": "CloudRift",
+      "deal_id": null,
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "checked_at": "2026-10-29T15:05:03+00:00",
+      "billing_granularity": "hourly",
+      "extras": {
+        "egress": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.cloudrift.ai/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "storage": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.cloudrift.ai/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "interruption": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.cloudrift.ai/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        }
+      },
+      "market_note": null
+    },
+    {
       "vendor": "CoreWeave",
       "deal_id": null,
       "source_url": "https://www.coreweave.com/pricing",
@@ -3818,6 +4436,34 @@
           "text": "On-Demand Price per hour is for the whole 8-GPU instance (GH200: 1 GPU).",
           "source_url": "https://www.coreweave.com/pricing",
           "checked_at": "2026-10-28T13:12:17+00:00"
+        }
+      },
+      "market_note": null
+    },
+    {
+      "vendor": "Crusoe",
+      "deal_id": null,
+      "source_url": "https://crusoe.ai/cloud/pricing",
+      "checked_at": "2026-10-29T15:01:50+00:00",
+      "billing_granularity": "hourly",
+      "extras": {
+        "egress": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://crusoe.ai/cloud/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "storage": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://crusoe.ai/cloud/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "interruption": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://crusoe.ai/cloud/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
         }
       },
       "market_note": null
@@ -3879,6 +4525,34 @@
       "market_note": null
     },
     {
+      "vendor": "Koyeb",
+      "deal_id": null,
+      "source_url": "https://www.koyeb.com/pricing",
+      "checked_at": "2026-10-29T15:02:50+00:00",
+      "billing_granularity": "per-second",
+      "extras": {
+        "egress": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.koyeb.com/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "storage": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.koyeb.com/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "interruption": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.koyeb.com/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        }
+      },
+      "market_note": null
+    },
+    {
       "vendor": "Lambda",
       "deal_id": null,
       "source_url": "https://lambda.ai/pricing",
@@ -3902,6 +4576,34 @@
           "text": "On-demand self-serve instances; price per GPU/hr plus sales tax.",
           "source_url": "https://lambda.ai/pricing",
           "checked_at": "2026-10-27T09:05:01-04:00"
+        }
+      },
+      "market_note": null
+    },
+    {
+      "vendor": "Lightning AI",
+      "deal_id": null,
+      "source_url": "https://lightning.ai/pricing",
+      "checked_at": "2026-10-29T15:04:59+00:00",
+      "billing_granularity": "per-second",
+      "extras": {
+        "egress": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://lightning.ai/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "storage": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://lightning.ai/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "interruption": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://lightning.ai/pricing",
+          "checked_at": "2026-10-29T15:06:44+00:00"
         }
       },
       "market_note": null
@@ -3991,6 +4693,34 @@
       "market_note": null
     },
     {
+      "vendor": "OVHcloud (US)",
+      "deal_id": null,
+      "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+      "checked_at": "2026-10-29T15:02:54+00:00",
+      "billing_granularity": "hourly",
+      "extras": {
+        "egress": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "storage": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "interruption": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        }
+      },
+      "market_note": null
+    },
+    {
       "vendor": "RunPod",
       "deal_id": "deal-runpod-001",
       "source_url": "https://www.runpod.io/pricing",
@@ -4048,6 +4778,34 @@
           "text": "Not published on the pricing page.",
           "source_url": "https://salad.com/pricing",
           "checked_at": "2026-10-29T13:15:00+00:00"
+        }
+      },
+      "market_note": null
+    },
+    {
+      "vendor": "Spheron",
+      "deal_id": null,
+      "source_url": "https://www.spheron.network/pricing/",
+      "checked_at": "2026-10-29T15:05:08+00:00",
+      "billing_granularity": "hourly",
+      "extras": {
+        "egress": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.spheron.network/pricing/",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "storage": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.spheron.network/pricing/",
+          "checked_at": "2026-10-29T15:06:44+00:00"
+        },
+        "interruption": {
+          "status": "unknown",
+          "text": "Not verified in this pass.",
+          "source_url": "https://www.spheron.network/pricing/",
+          "checked_at": "2026-10-29T15:06:44+00:00"
         }
       },
       "market_note": null

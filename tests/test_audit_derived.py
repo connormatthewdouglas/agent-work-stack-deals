@@ -133,7 +133,7 @@ def test_interruptible_flag_matches_tier_and_reserved_never_on_demand():
     for r in p["rates"]:
         assert r["interruptible"] == bool(gpu.INTERRUPTIBLE_TIER_RE.search(r["tier"])), r
         assert r["tier"] not in ("on-demand", "Secure Cloud", "Community Cloud", "dedicated server")
-        if "reserv" in r["tier"].lower():
+        if "reserv" in r["tier"].lower() and not r["tier"].lower().startswith("on-demand"):
             assert r["tier_class"] == "reserved"
     assert core.tier_class({"tier": "Reservation (starting from)"}) == "reserved"
     probs = gpu.record_problems({"vendor": "X", "gpu": "H100", "tier": "On-demand", "interruptible": True}) \

@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.14 (2026-10-29)
+- Vast.ai `basis` now comes from the same API snapshot as offer_count / median / lowest_offer_usd (the refresh used to keep an older count and minimum in the quote); test checks they match.
+- Methodology wording: `basis` is a summary of the vendor price line; `evidence.quote` is the verbatim page text.
+- New L40S / RTX 5090 coverage (vetted page/API quotes, checked 2026-10-29): Crusoe, OVHcloud (US), Koyeb (serverless, per-second), CloudRift (on-demand plus 1- and 3-month reserved rows), Spheron (RTX 5090 row carries the page's "Last known Oct 28"), Lightning AI. Tier labels are the vendors' own. Vultr is not added yet: its pricing page returns 403 to the daily source check, so it can't be re-verified automatically. Shadeform resale rows are not added yet: its API quotes prices in cents ("hourly_price":552), so the published $/GPU-hr can't be matched to a verbatim dollar amount in the evidence quote (T41-01).
+
 ## 0.3.13 (2026-10-29)
 - T36 (#24): every MCP tool now publishes a typed outputSchema and returns `ok`; failures return `error {code, message}` with a stable code (invalid_argument, invalid_cursor, not_found, feed_unavailable, feed_invalid, upstream_unavailable, internal_error). New `mode` argument: `full` (default, unchanged output) or `brief` (essential fields only). Same contract on the hosted worker.
 - T4 (#21) fail-closed compliance gate: deals carry a public `publish_status: "approved"` (feed schema 1.6.0), set only from the private review registry; any build without the registry publishes only entries marked approved (possibly none). Private compliance fields are unchanged and stay out of the public feed. All 203 live deals are registry-approved, so the feed count is unchanged (203 deals, 88 GPU rates).

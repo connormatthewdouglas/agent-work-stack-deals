@@ -323,6 +323,8 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         _set_price(r, new)
                     if abs(new - old) <= 1e-9:
                         r["quote"] = _current_quote(r["quote"], quote, old, new_s)  # sibling prices on the line may move
+                    if quote and r.get("price_status") == "marketplace":
+                        r["quote"] = quote  # count/median/min all from this one API snapshot (Vast basis drifted 2026-10-29)
                     eq = quote
                     if quote and re.search(r"\.\.\.|…", r["evidence"]["quote"]):  # keep the elided form (stays matchable)
                         eq = r["evidence"]["quote"]

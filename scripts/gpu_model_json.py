@@ -19,7 +19,7 @@ BUCKETS = ("on-demand", "spot-community", "serverless", "reserved", "monthly")
 
 def bucket(r: dict) -> str:
     tc = r.get("tier_class") or "on-demand"
-    if r.get("tier") == SERVERLESS:
+    if r.get("tier") == SERVERLESS or "serverless" in (r.get("tier") or "").lower():
         return "serverless"
     if tc == "reserved":
         return "reserved"
