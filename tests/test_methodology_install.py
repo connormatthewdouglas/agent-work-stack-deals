@@ -35,3 +35,16 @@ def test_methodology_page_reads_code_constants():
     assert "Frosty" not in s
     assert "/methodology/" in (ROOT / "sitemap.xml").read_text(encoding="utf-8")
     assert 'href="/methodology/"' in s or "/methodology/\"" in s
+
+
+def test_free_credits_page_cited_and_clean():
+    s = (ROOT / "gpu" / "free-credits" / "index.html").read_text(encoding="utf-8")
+    import sys as _s
+    _s.path.insert(0, str(ROOT / "scripts"))
+    import free_credits_page as F
+    for name, url, *_ in F.PROGRAMS:
+        assert url.startswith("https://") and url in s, name
+    assert s.count(f"checked {F.CHECKED}") >= len(F.PROGRAMS)
+    main = s.split("<h1>", 1)[1].split("</table>", 1)[0]
+    assert "Frosty" not in s and "commission" not in main.lower() and "?ref=" not in main
+    assert "/gpu/free-credits/" in (ROOT / "sitemap.xml").read_text(encoding="utf-8")
