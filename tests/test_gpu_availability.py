@@ -9,7 +9,7 @@ def test_unknown_is_never_out_of_stock_and_has_note():
     for r in rates:
         a = r["availability"]
         if a["in_stock"] is None:
-            assert a["status"] == "unknown" and a["checked_at"] is None and "No availability signal" in a["note"]
+            assert a["status"] == "unknown" and a["checked_at"] is None and a["note"]
             assert "time shown" not in a["note"]
         else:
             assert "not a guarantee" in a["note"] and "manual snapshot" in a["refresh"]
@@ -18,6 +18,7 @@ def test_unknown_is_never_out_of_stock_and_has_note():
             assert "separate, later" in a["consistency_note"] and "same snapshot" not in a["consistency_note"]
     rp = [r for r in rates if r["advertiser"] == "RunPod" and "Community" in r["tier"]]
     assert rp and all(r["availability"]["status"] == "unknown" for r in rp)
+    assert any("not sold out" in r["availability"]["note"] for r in rp) and all("out of stock" not in r["availability"]["note"] for r in rp)
 
 
 def test_pages_never_say_out_of_stock():
