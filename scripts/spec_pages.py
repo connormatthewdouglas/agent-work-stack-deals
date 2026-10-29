@@ -30,7 +30,7 @@ DISCLOSURE = "Some links are referral links; Lantern Works may earn credit. Affi
 ET = timezone(timedelta(hours=-4))  # display only; label says ET
 SPEC_PATHS: list[str] = []
 # Near-duplicate of an older page: rel=canonical points there and the URL stays out of the sitemap.
-CANONICAL_OVERRIDE = {"H100": "https://thelanternworks.com/gpu/cheapest-h100-rental/"}
+CANONICAL_OVERRIDE: dict[str, str] = {}  # filled per family in write_all: /gpu/cheapest-<gpu>-rental/ is canonical (test checks the target exists)
 
 
 def load_feeds() -> dict:
@@ -404,6 +404,9 @@ def write_all(gen) -> list[str]:
     feeds = load_feeds()
     rates = rankable(feeds["prices"])
     quals = qualifying_families(rates)
+    CANONICAL_OVERRIDE.clear()
+    for fam in quals:
+        CANONICAL_OVERRIDE[fam] = f"{gen.BASE}/gpu/cheapest-{slug(fam)}-rental/"
     for fam, rows in sorted(quals.items()):
         write_gpu_page(gen, fam, rows, feeds, quals)
     for a, b in PAIRS:
