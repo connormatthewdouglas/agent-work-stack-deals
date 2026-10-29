@@ -112,6 +112,9 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
         raise JobCostError("not_found", f"No rankable hourly rate tracked for '{gpu_l}'"
                                         + (f" ({too_old} older rates excluded by max_data_age_hours)" if too_old else ""))
     priced = estimate(rows, job_hours, gpus_per_job, min_vram_gb=min_vram_gb)
+    from .deals import oos_note, out_of_stock
+    from .stack import avail_fields
+    priced.sort(key=out_of_stock)  # F1: stable; explicit out-of-stock rows rank after in-stock/unknown rows
     out_rows = []
     for i, r in enumerate(priced[:top_n], 1):
         per = r.get("gpu_count") or 1
@@ -121,15 +124,23 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
                "gpus_per_instance": per, "requested_gpus": gpus_per_job, "allocated_gpus": inst * per, "instances": inst,
                "job_hours": round(job_hours, 4), "compute_subtotal_usd": r["monthly_cost_usd"], "calc": r["calc"],
                "deal_id": r.get("deal_id"), "source_url": r.get("source_url"), "verified_at": r.get("verified_at"),
-               "checked_at": r.get("checked_at"), **data_age.age_fields(r, now)}
+               "checked_at": r.get("checked_at"), **data_age.age_fields(r, now), **avail_fields(r)}
         if runs:
             row["monthly_subtotal_usd"] = round(r["monthly_cost_usd"] * runs, 2)
         out_rows.append(row)
     best = out_rows[0]
+    oos_msg = ""
+    if out_of_stock(priced[0]):
+        oos_msg = f" Note: this row was {oos_note(priced[0])}; no in-stock or unknown-availability row matched."
+    else:
+        cheaper = [r for r in priced if out_of_stock(r) and r["monthly_cost_usd"] < priced[0]["monthly_cost_usd"]]
+        if cheaper:
+            c = min(cheaper, key=lambda r: r["monthly_cost_usd"])
+            oos_msg = (f" Cheaper but {oos_note(c)}: {c.get('advertiser')} {c.get('gpu')} at ${c['monthly_cost_usd']:,.2f}; not picked.")
     return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4), "count": len(out_rows),
             "results": out_rows, "label": LABEL,
             "summary": (f"Cheapest among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
-                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}."),
+                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}." + oos_msg),
             "assumptions": assumptions, "citations": [source["url"]] if source else [],
             "throughput_basis": basis, "throughput_source": source,
             "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],

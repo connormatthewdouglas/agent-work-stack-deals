@@ -144,6 +144,31 @@ def _tc(r):
     return tier_class(r)
 
 
+def avail_fields(r: dict) -> dict:
+    """E5/F1: feed availability passed through as-is (None when absent; never invented)."""
+    from .deals import oos_note, out_of_stock
+    a = r.get("availability") if isinstance(r.get("availability"), dict) else None
+    f = {"availability": a, "in_stock": a.get("in_stock") if a else None}
+    if out_of_stock(r):
+        f["availability_note"] = oos_note(r) + "; ranked after in-stock/unknown rows"
+    return f
+
+
+def oos_caveat(opts: list[dict]) -> str | None:
+    """F1: note when the pick is out of stock (all rows were) or a cheaper row was skipped for being out of stock."""
+    if not opts:
+        return None
+    ch = opts[0]
+    if ch.get("in_stock") is False:
+        return f"{ch['vendor']} {ch['plan']} was {ch['availability_note'].split(';')[0]}; no in-stock or unknown-availability row matched."
+    cheaper = [o for o in opts if o.get("in_stock") is False and o["monthly_cost_usd"] < ch["monthly_cost_usd"]]
+    if not cheaper:
+        return None
+    c = min(cheaper, key=lambda o: o["monthly_cost_usd"])
+    return (f"Cheaper but {c['availability_note'].split(';')[0]}: {c['vendor']} {c['plan']} "
+            f"${c['monthly_cost_usd']:,.2f}/mo ({c['calc']}); not picked.")
+
+
 def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, gpus: int = 1) -> list[dict]:
     hpm = gpu_data.get("hours_per_month") or 730
     out = []
@@ -177,8 +202,9 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, g
                     "signup": "manual_only" if r.get("deal_id") in manual else None,
                     "manual_signup_only": r.get("deal_id") in manual, "signup_note": None,
                     "affiliate": bool(r.get("affiliate")), "redeem_url": r.get("redeem_url"),
-                    "deal_url": deal_page_url(r.get("deal_id"))})
-    return sorted(out, key=lambda x: (x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
+                    "deal_url": deal_page_url(r.get("deal_id")), **avail_fields(r)})
+    # F1: explicit out-of-stock rows (in_stock False) never outrank in-stock/unknown rows
+    return sorted(out, key=lambda x: (x["in_stock"] is False, x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
 
 
 class StackError(ValueError):
@@ -237,6 +263,8 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
         if best_per_vendor:
             line.update(status="priced", choice=best_per_vendor[0], monthly_cost_usd=best_per_vendor[0]["monthly_cost_usd"],
                         alternatives=best_per_vendor[1:1 + alternatives])
+            if need == "gpu_hours" and (n := oos_caveat(priced)):
+                line["availability_note"] = n
         else:
             line.update(status="unknown", choice=None, monthly_cost_usd="unknown", alternatives=[])
         uv = {}

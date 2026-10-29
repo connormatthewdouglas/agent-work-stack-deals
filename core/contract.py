@@ -71,11 +71,13 @@ _RATE_ID = {"type": "string", "pattern": "^r_[0-9a-f]{12}$"}
 _OPTION = {"type": ["object", "null"], "properties": {"rate_id": _RATE_ID}, "required": ["rate_id"]}
 _QUOTE = {"quote_id": {"type": "string", "pattern": "^q_[0-9a-f]{20}$"}, "issued_at": {"type": "string", "format": "date-time"},
           "quote_basis": {"type": "object"}}
-_LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION,
-                                                                     "alternatives": {"type": "array", "items": _OPTION}}}}
 # E5: availability passed through from the feed as-is (null when the feed has none; never invented).
 _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock": {"type": ["boolean", "null"]},
                                                      "checked_at": _str, "note": _str}}
+_AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str}
+_OPTION = {**_OPTION, "properties": {**_OPTION["properties"], **_AVAIL_PROPS}}
+_LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION, "availability_note": _str,
+                                                                     "alternatives": {"type": "array", "items": _OPTION}}}}
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"rate_id": _RATE_ID, "report_issue_url": _str,
                                                                           "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}}}}}
@@ -83,7 +85,7 @@ EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINE
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
     "type": "object", "required": SPEC["estimate_job_cost"][2],
-    "properties": {"rate_id": _RATE_ID, "data_age_hours": _num, "degraded": _bool, "stale": _bool}}},
+    "properties": {"rate_id": _RATE_ID, "data_age_hours": _num, "degraded": _bool, "stale": _bool, **_AVAIL_PROPS}}},
     "budget_verdict": {"type": "string", "enum": ["unresolved", "within", "over"]}}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at")
 

@@ -239,7 +239,7 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             opts = stack._gpu_options(gdata, hours or 1, gpu_model, manual)
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
-            opts.sort(key=lambda x: (x["monthly_cost_usd"], x["vendor"] or ""))
+            opts.sort(key=lambda x: (x.get("in_stock") is False, x["monthly_cost_usd"], x["vendor"] or ""))
             if not opts:
                 why = f" with >= {line.get('vram_needed_gb')} GB VRAM on one GPU" if size else ""
                 lines.append({**line, "status": "no_data", "note": NO_DATA + why + (f" for {gpu_model}" if gpu_model else ""),
@@ -252,6 +252,8 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                 best = opts[0]
                 line.update(status="needs_quantity", choice=best, monthly_cost_usd=None, alternatives=opts[1:4],
                             note=f"cheapest sourced rate shown (calc at 1 hour: {best['calc']}); give gpu_hours for a monthly estimate")
+            if n := stack.oos_caveat(opts):
+                line["availability_note"] = n
             lines.append(line); continue
         if need:
             qty = q.get(need)
