@@ -65,9 +65,17 @@ def _avail_cell(gen, r: dict) -> str:
     return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
 
 
+def _quote_html(r: dict, esc) -> str:
+    """Marketplace rows (Vast.ai, Clore.ai) summarise API fields; everything else is verbatim page text."""
+    q = esc(r["evidence"]["quote"])
+    return f"API fields: {q}" if r.get("price_status") == "marketplace" else f"\u201c{q}\u201d"
+
+
 def _verified_cell(r: dict, esc) -> str:
     if r.get("price_check") == "manual snapshot":
         return esc(f"manual snapshot {r['snapshot_at'][:16].replace('T', ' ')} UTC; held after {r['hold_after'][:10]} unless re-checked")
+    if r.get("price_check") == "rotating snapshot":
+        return esc(f"{(r['verified_at'] or '')[:10]} (rotating snapshot: page text changes between checks)")
     return esc(f"{(r['verified_at'] or '')[:10]} (daily)")
 
 
@@ -88,14 +96,14 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
             f"<td>{_vendor_link(gen, r)}</td>"
             f"<td>{esc(r['tier'])}{badge}</td><td>{esc(_rate_str(r))}</td>"
             f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[_key(r)])}</td>"
-            f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['evidence']['quote'])}”</a></td>"
+            f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">{_quote_html(r, esc)}</a></td>"
             f"<td>{_verified_cell(r, esc)}</td><td>{_avail_cell(gen, r)}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
             "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
     return (filt + f"<div style=\"overflow-x:auto\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
-            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote (verbatim)</th>"
+            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote (verbatim page text; marketplace rows: API fields)</th>"
             "<th>Price verified</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             "<p class=\"meta\">Availability: \u201cunknown\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
             "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. Vast.ai offer counts come from a "
@@ -308,7 +316,7 @@ def _vendor_cell(gen, r):
 
 
 def _quote_cell(gen, r):
-    return f"<a href=\"{gen.esc(r['source_url'] or '')}\" rel=\"noopener\">“{gen.esc(r['evidence']['quote'])}”</a>"
+    return f"<a href=\"{gen.esc(r['source_url'] or '')}\" rel=\"noopener\">{_quote_html(r, gen.esc)}</a>"
 
 
 TRACKED = "cheapest among tracked providers"

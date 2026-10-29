@@ -8,7 +8,7 @@
   "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
   "methodology": [
     "Rates come from structured per-vendor pricing records (data/gpu_pricing/<vendor>.json in the repo); each rate has source_url and checked_at, and 'basis' is a summary of the vendor's price line, not a verbatim quote; evidence.quote is the verbatim text found on the source page (or API) at checked_at.",
-    "price_check 'manual snapshot' rows (e.g. Clore.ai, whose API blocks the daily job) are not re-checked daily: snapshot_at is when they were captured and hold_after is when they are automatically held unless re-checked.",
+    "price_check 'manual snapshot' rows (e.g. Clore.ai, whose API blocks the daily job) are not re-checked daily: snapshot_at is when they were captured and hold_after is when they are automatically held unless re-checked. price_check 'rotating snapshot' rows (Spheron RTX 5090) are re-read daily, but the vendor rotates the row text, so the quote is the span seen at checked_at. For marketplace rows (Vast.ai, Clore.ai) evidence.quote summarises API fields rather than page text.",
     "A daily job re-reads every source_url (robots.txt respected) and updates a price only where it parsed it from the vendor's own page or API; verified_at is when the price was last parsed, checked_at the last attempt. A rate not re-verified for 7 days is held (held_stale) and never ranked. Price history: /api/v1/gpu-prices/history.json.",
     "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
     "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
@@ -1126,10 +1126,10 @@
       "checked_at": "2026-10-29T13:56:14+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "redeem_url": "https://www.hyperstack.cloud/gpu-pricing",
-      "basis": "Spot VM Pricing ... NVIDIA H100 PCIe $2.00",
+      "basis": "Spot VM Pricing Learn More GPU Model Spot VM NVIDIA H100 PCIe $2.00",
       "evidence": {
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
-        "quote": "Spot VM Pricing ... NVIDIA H100 PCIe $2.00",
+        "quote": "Spot VM Pricing Learn More GPU Model Spot VM NVIDIA H100 PCIe $2.00",
         "checked_at": "2026-10-29T13:56:14+00:00"
       },
       "availability": {
@@ -1169,10 +1169,10 @@
       "checked_at": "2026-10-29T13:56:14+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "redeem_url": "https://www.hyperstack.cloud/gpu-pricing",
-      "basis": "Spot VM ... NVIDIA A100 $1.08",
+      "basis": "GPU Model Spot VM NVIDIA H100 PCIe $2.00 NVIDIA RTX Pro 6000 SE $1.48 NVIDIA A100 $1.08",
       "evidence": {
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
-        "quote": "Spot VM ... NVIDIA A100 $1.08",
+        "quote": "GPU Model Spot VM NVIDIA H100 PCIe $2.00 NVIDIA RTX Pro 6000 SE $1.48 NVIDIA A100 $1.08",
         "checked_at": "2026-10-29T13:56:14+00:00"
       },
       "availability": {
@@ -1212,10 +1212,10 @@
       "checked_at": "2026-10-29T13:56:14+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "redeem_url": "https://www.hyperstack.cloud/gpu-pricing",
-      "basis": "Reservation Pricing ... NVIDIA H200 SXM $2.79 Reserve here",
+      "basis": "Reservation Pricing GPU Model Starting from Reserve NVIDIA H200 SXM $2.79 Reserve here",
       "evidence": {
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
-        "quote": "Reservation Pricing ... NVIDIA H200 SXM $2.79 Reserve here",
+        "quote": "Reservation Pricing GPU Model Starting from Reserve NVIDIA H200 SXM $2.79 Reserve here",
         "checked_at": "2026-10-29T13:56:14+00:00"
       },
       "availability": {
@@ -3340,10 +3340,10 @@
       "checked_at": "2026-10-29T13:57:18+00:00",
       "source_url": "https://salad.com/pricing",
       "redeem_url": "https://salad.com/pricing",
-      "basis": "USD per GPU-hour by priority tier ... GPU VRAM High Medium Low Lowest ... RTX 4090 24 GB $0.440 $0.347 $0.253 $0.160",
+      "basis": "GPU VRAM High Medium Low Lowest $/mo (Lowest) RTX 5090 32 GB $0.600 $0.483 $0.367 $0.250 $182.50 RTX 4090 24 GB $0.440 $0.347 $0.253 $0.160",
       "evidence": {
         "source_url": "https://salad.com/pricing",
-        "quote": "USD per GPU-hour by priority tier ... GPU VRAM High Medium Low Lowest ... RTX 4090 24 GB $0.440 $0.347 $0.253 $0.160",
+        "quote": "GPU VRAM High Medium Low Lowest $/mo (Lowest) RTX 5090 32 GB $0.600 $0.483 $0.367 $0.250 $182.50 RTX 4090 24 GB $0.440 $0.347 $0.253 $0.160",
         "checked_at": "2026-10-29T13:57:18+00:00"
       },
       "availability": {
@@ -3376,7 +3376,8 @@
       "interruptible": false,
       "form_factor": null,
       "platform_fee_note": "Spheron aggregates capacity from several providers; the listed rate is the page's single current price, not a median of offers.",
-      "price_check": "daily",
+      "price_check": "rotating snapshot",
+      "price_check_note": "Spheron rotates the specs and \"Last known\" text in this row between fetches, so no stable span ties the GPU to the price; the quote is the span seen at checked_at.",
       "tier_class": "marketplace",
       "offer_type": null,
       "affiliate": false,
@@ -3384,10 +3385,10 @@
       "checked_at": "2026-10-29T15:05:08+00:00",
       "source_url": "https://www.spheron.network/pricing/",
       "redeem_url": "https://www.spheron.network/pricing/",
-      "basis": "12 RTX 5090 Blackwell 32 GB 200 GB RAM 120 vCPUs 7200 GB NVMe $0.84 /hr",
+      "basis": "RTX 5090 Blackwell 32 GB 24 GB RAM 8 vCPUs 200 GB NVMe $0.84 /hr",
       "evidence": {
         "source_url": "https://www.spheron.network/pricing/",
-        "quote": "12 RTX 5090 Blackwell 32 GB 200 GB RAM 120 vCPUs 7200 GB NVMe $0.84 /hr",
+        "quote": "RTX 5090 Blackwell 32 GB 24 GB RAM 8 vCPUs 200 GB NVMe $0.84 /hr",
         "checked_at": "2026-10-29T15:05:08+00:00"
       },
       "availability": {

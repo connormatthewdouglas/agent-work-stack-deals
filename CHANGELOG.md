@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.16 (2026-10-29)
+- Spheron RTX 5090: Spheron rotates this row's specs and "Last known" text between fetches, so no stable continuous span ties the GPU to $0.84/hr. The row is marked `price_check: "rotating snapshot"` (with `price_check_note`), and the quote is the single span seen at the check.
+- Hyperstack Spot (H100 PCIe, A100 PCIe), Hyperstack H200 Reservation and SaladCloud RTX 4090 quotes are single continuous spans of page text (no "..." joins).
+- Vendor quote column: marketplace rows (Vast.ai, Clore.ai) are labelled "API fields" rather than shown as verbatim page text.
+- Release gate docs: `python3 tests/release_gate/run_t41.py --source live` tests the live site.
+
 ## 0.3.15 (2026-10-29)
 - Clore.ai deal added (`deal-clore-ai`, registry-approved; referral link with inline disclosure and `plain_url`; referral terms in `docs_url`); Clore GPU rate rows link to it. Feed: 204 deals.
 - Fix (regression in 0.3.14): the per-model summary on /gpu/price-comparison/ picked CloudRift reserved rows as the lowest rate (L40S $0.54, RTX 5090 $0.55). It now shows the cheapest pay-as-you-go rate, as compare_gpu_prices does (L40S $0.63, RTX 5090 $0.65). New release-gate case T41-21 checks that table.
