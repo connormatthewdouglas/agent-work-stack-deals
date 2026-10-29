@@ -662,7 +662,7 @@ def write_about(deals: list[dict]) -> Path:
 
   <h2>How we check prices</h2>
   <p>Each tracked offer is checked against the vendor's own public pricing page or API. We record the rate per GPU per hour, the exact text we saw, and when we saw it. If we can't confirm a price, we mark it unknown instead of guessing. Each table shows its own check date, so you can see how old a number is.</p>
-  <p>Lists are sorted by price for the use you pick. Reserved or committed-term prices are shown separately, because they aren't comparable to pay-as-you-go rates. Spot and interruptible offers are labelled. Stock changes within minutes, so availability is a manual snapshot, not a guarantee.</p>
+  <p>Lists are sorted by price for the use you pick. Reserved or committed-term prices are shown separately, because they aren't comparable to pay-as-you-go rates. Spot and interruptible offers are labelled. <strong>Availability:</strong> Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; &ldquo;vendor-labelled&rdquo; means a fixed label on the vendor's page, not a capacity check; &ldquo;&mdash;&rdquo; or &ldquo;unknown&rdquo; means no signal, not sold out.</p>
   <p>The site currently tracks {n} offers. You can see what changed on the <a href="{BASE}/changelog/">changelog</a>.</p>
 
   <h2>How we make money</h2>

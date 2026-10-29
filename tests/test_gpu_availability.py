@@ -29,7 +29,8 @@ def test_unknown_is_never_out_of_stock_and_has_note():
 def test_pages_never_say_out_of_stock():
     for p in [ROOT / "gpu" / "price-comparison" / "index.html", *ROOT.glob("gpu/cheapest-*/index.html")]:
         t = p.read_text().lower()
-        assert "out of stock" not in t.replace("out of stock when checked", "") and "stock changes within minutes" in t
+        t2 = t.replace("out of stock when checked", "").replace("not marked out of stock", "")
+        assert "out of stock" not in t2 and "statuses from a vendor&#x27;s live stock check can change within minutes" in t.replace("'", "&#x27;")
 
 
 def test_no_stale_cadence_wording():

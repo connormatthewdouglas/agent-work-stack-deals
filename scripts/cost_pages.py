@@ -87,7 +87,7 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         amts = " / ".join(f"${best * h:,.2f}" for h in HOURS)
         hrs = " / ".join(str(h) for h in HOURS)
         if fam == "RTX 4090":  # I1 wording (single variant)
-            line = f"Lowest on-demand {fam} on this page: {names} at {amts} ({hrs} h)"
+            line = f"Lowest on-demand {fam} on this page (not marked out of stock): {names} at {amts} ({hrs} h)"
         else:
             line = f"Lowest on-demand {fam} on this page (not marked out of stock): {names} at {amts} ({hrs} h) - variants differ, see tables."
         parts.append(f"<p class=\"pagelow\">{esc(line)}</p>")
@@ -126,7 +126,7 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
             f"<li>{esc(r['advertiser'])} {esc(gpu)} {vram}GB ({esc(r.get('tier') or '')}): ${r['hourly_equiv_usd']:g}/GPU-hr, "
             f"${r['hourly_equiv_usd'] * hours:,.2f} for {hours} h{esc(_tax_note(r))}{_oos_label(r)}</li>"
             for (gpu, vram), rows in sorted(single.items()) for r in rows)
-        parts.append("<h2>Other variants (not compared)</h2><p>These eligible rows are the only in-stock vendor for their exact "
+        parts.append("<h2>Other variants (not compared)</h2><p>These eligible rows are the only vendor not marked out of stock for their exact "
                      "variant (form factor and memory), so they are listed but not ranked; variants are never mixed:</p>"
                      f"<ul>{items}</ul>")
     other = " · ".join(f'<a href="{base}/cost/{slug}-{h}-hours/">{h} h</a>' for h in HOURS if h != hours)

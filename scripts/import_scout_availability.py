@@ -2,7 +2,7 @@
 
 Source (on the box, not in CI): /workspace/lantern-scout/out/feed_enriched_v2_latest.json. Only public fields are kept.
 Rules: unknown stays null (shown as 'unknown', never 'out of stock'); availability has its own timestamp and cadence,
-separate from the daily price check; Vast.ai counts come from a separate, later check than the price quote. Run by hand (manual snapshot)."""
+separate from the daily price check; Vast.ai counts come from a separate check at the time shown, not the price-quote check. Run by hand (manual snapshot)."""
 from __future__ import annotations
 
 import json

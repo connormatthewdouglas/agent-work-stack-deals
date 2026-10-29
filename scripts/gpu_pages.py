@@ -77,7 +77,7 @@ def _avail_cell(gen, r: dict) -> str:
     if a.get("source_label"):
         bits.append(a["source_label"])
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
-    sep = " (separate later check)" if r.get("advertiser") == "Vast.ai" else ""
+    sep = " (separate check, time shown)" if r.get("advertiser") == "Vast.ai" else ""
     return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
 
 
@@ -87,6 +87,18 @@ def _verified_cell(r: dict, esc) -> str:
     if r.get("price_check") == "rotating snapshot":
         return esc(f"{(r['verified_at'] or '')[:10]} (rotating snapshot: page text changes between checks)")
     return esc(f"{(r['verified_at'] or '')[:10]} (daily)")
+
+
+STOCK_EXPLAINER = ("Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; \u201cvendor-labelled\u201d means a fixed label on the vendor's page, not a capacity check; \u201c\u2014\u201d or \u201cunknown\u201d means no signal, not sold out.")
+
+
+def _tied_names(gen, rows, best) -> str:
+    """J3: same tie rule as compare_gpu_prices (core/deals.py): same GPU, tier class, stock state and hourly rate."""
+    from core.deals import out_of_stock
+    tc = lambda r: r.get("tier_class") or "on-demand"
+    names = sorted({r["advertiser"] for r in rows if r.get("gpu") == best.get("gpu") and tc(r) == tc(best)
+                    and out_of_stock(r) == out_of_stock(best) and r["hourly_equiv_usd"] == best["hourly_equiv_usd"]})
+    return gen.esc(best["advertiser"] if len(names) < 2 else " and ".join(names) + " (tie)")
 
 
 def _pick_cheapest(rs: list[dict]) -> dict:
@@ -142,10 +154,10 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             "<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
             + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
-               "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. " if has_av else
+               + STOCK_EXPLAINER + " " if has_av else
                "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as a manual snapshot "
-               "(stock changes within minutes, so it is not a guarantee). ")
-            + "Vast.ai offer counts come from a separate, later check than the price quote, so counts and minimums can differ.</p>")
+               "(" + STOCK_EXPLAINER + ") ")
+            + "Vast.ai offer counts come from a separate check at the time shown, not the price-quote check, so counts and minimums can differ.</p>")
 
 
 def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, str]], gen) -> str:
@@ -169,7 +181,7 @@ def _od_note(gen, rows, cheapest) -> str:
     if tc == "on-demand":
         return " (on-demand)"
     od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand"), None)
-    tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {gen.esc(od['advertiser'])} {gen.esc(od['gpu'])} ({gen.esc(od['tier'])}) at "
+    tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {_tied_names(gen, rows, od)} {gen.esc(od['gpu'])} ({gen.esc(od['tier'])}) at "
             f"{_money(od['monthly_cost_usd'])}") if od else "; no on-demand rate is tracked for this model"
     return f" — note: that rate is <strong>{gen.esc(tc)}</strong>{tail}"
 
@@ -234,7 +246,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/price-comparison/">GPU prices</a> › {gen.esc(name)}</nav>
   <h1>{gen.esc(name)} rental: cheapest among tracked providers</h1>
   <p class="meta">Prices verified through {fresh} · {len(rows)} offers from {len(fam['vendors'])} vendors · sorted by cost for {DEFAULT_HOURS} GPU hours/month</p>
-  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{gen.esc(cheapest['advertiser'])} {gen.esc(cheapest['gpu'])} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
+  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, rows, cheapest)} {gen.esc(cheapest['gpu'])} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
 {_table(gen, rows, full)}
   <p>Basis: hourly rate × hours; dedicated servers are a flat monthly price. One GPU. Excludes storage, egress and tax.</p>
 {accuracy_html(gen, fam['rates'])}{changes_html(gen, slug)}  <h2>FAQ</h2>

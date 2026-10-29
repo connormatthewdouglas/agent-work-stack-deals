@@ -95,7 +95,41 @@ def test_i1_rtx4090_page_lowest_line_from_feed():
     for h in (10, 100, 730):
         s = _page("rtx-4090", h)
         assert "only 2" not in s and "No &#x27;cheapest" not in s
-    assert ("Lowest on-demand RTX 4090 on this page: Nova Cloud and RunC.AI (tie) RTX 4090 24GB at "
+    assert ("Lowest on-demand RTX 4090 on this page (not marked out of stock): Nova Cloud and RunC.AI (tie) RTX 4090 24GB at "
             "$4.20 / $42.00 / $306.60 (10 / 100 / 730 h)") in _page("rtx-4090", 100)
     assert "Lowest in-stock" not in "".join(_page(g, 100) for g in ("a100", "h100", "l40s", "rtx-4090"))
     assert "static page label" in (ROOT / "gpu/rtx-4090/index.html").read_text() if (ROOT / "gpu/rtx-4090/index.html").exists() else True
+
+
+def test_j_site_wording():
+    for g in ("a100", "h100"):
+        for h in (10, 100, 730):
+            s = _page(g, h)
+            assert "only in-stock vendor" not in s
+    assert "only vendor not marked out of stock for their exact" in _page("h100", 100) + _page("a100", 100)
+    inst = (ROOT / "install/index.html").read_text()
+    from core.deals import VERSION
+    assert inst.count("version 0.3.23") == inst.count("history: tested on version 0.3.23") and f"current version {VERSION}" in inst
+    cheap = (ROOT / "gpu/cheapest-rtx-4090-rental/index.html").read_text()
+    assert "Nova Cloud and RunC.AI (tie) RTX 4090" in cheap
+    exp = "Where a status is shown, it is a snapshot from the time in the row, not a guarantee."
+    for p in ("gpu/price-comparison/index.html", "gpu/cheapest-rtx-4090-rental/index.html", "tools/gpu-cost-calculator/index.html"):
+        t = (ROOT / p).read_text()
+        assert "separate later check" not in t and "separate, later check" not in t
+    assert exp in (ROOT / "gpu/price-comparison/index.html").read_text()
+    assert exp in (ROOT / "lanternworks/index.html").read_text()
+    import glob
+    specs = [open(f).read() for f in glob.glob(str(ROOT / "gpu/*/index.html"))]
+    assert any("vendor-labelled" in t and exp in t for t in specs)
+
+
+def test_j3_page_ties_match_mcp_rule():
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import gpu_pages as gp
+    class G:
+        esc = staticmethod(lambda s: s)
+    base = {"gpu": "X", "tier_class": "on-demand", "hourly_equiv_usd": 0.42}
+    rows = [{**base, "advertiser": "B"}, {**base, "advertiser": "A"}, {**base, "advertiser": "C", "hourly_equiv_usd": 0.5}]
+    assert gp._tied_names(G, rows, rows[0]) == "A and B (tie)"
+    assert gp._tied_names(G, rows[2:], rows[2]) == "C"
