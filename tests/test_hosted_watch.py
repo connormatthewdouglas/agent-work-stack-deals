@@ -285,3 +285,23 @@ def test_tool_names_no_collision_and_stdio_keyless():
     assert "api_key" not in src
     for t in S.tool_list():
         assert t["outputSchema"]["required"] == ["ok"]
+
+
+def test_none_args_inlined_as_null_not_bound():
+    """Pyodide passes Python None to D1 as JS undefined, which D1 rejects: None must become a NULL literal."""
+    seen = []
+
+    class St:
+        def __init__(self, sql):
+            self.sql = sql
+
+        def bind(self, *a):
+            seen.append((self.sql, a))
+            return self
+
+    class Db:
+        def prepare(self, sql):
+            return St(sql)
+
+    S._stmt(Db(), "INSERT INTO t(a, b, c) VALUES (?, ?, ?)", ("x", None, 3))
+    assert seen == [("INSERT INTO t(a, b, c) VALUES (?, NULL, ?)", ("x", 3))]

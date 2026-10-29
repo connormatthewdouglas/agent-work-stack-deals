@@ -56,17 +56,32 @@ def _rows(res):
     return [r if isinstance(r, dict) else (r.to_py() if hasattr(r, "to_py") else dict(r)) for r in rows]
 
 
+def _stmt(db, sql, a):
+    """D1 rejects a Python None bound from Pyodide (it arrives as JS undefined): inline NULL for None args."""
+    if any(x is None for x in a):
+        parts, out = sql.split("?"), []
+        assert len(parts) == len(a) + 1, "placeholder count"
+        sql, keep = parts[0], []
+        for x, rest in zip(a, parts[1:]):
+            sql += ("NULL" if x is None else "?") + rest
+            if x is not None:
+                keep.append(x)
+        a = keep
+    st = db.prepare(sql)
+    return st.bind(*a) if a else st
+
+
 async def _all(db, sql, *a):
-    return _rows(await db.prepare(sql).bind(*a).all())
+    return _rows(await _stmt(db, sql, a).all())
 
 
 async def _first(db, sql, *a):
-    r = _rows(await db.prepare(sql).bind(*a).all())
+    r = _rows(await _stmt(db, sql, a).all())
     return r[0] if r else None
 
 
 async def _run(db, sql, *a):
-    return await db.prepare(sql).bind(*a).run()
+    return await _stmt(db, sql, a).run()
 
 
 async def _host_is_public(url, fetch_fn) -> bool:
