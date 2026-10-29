@@ -15,6 +15,7 @@ https://github.com/connormatthewdouglas/agent-work-stack-deals/issues/new?templa
 | `deal_id` | `deal_id` (or the snapshot `key`) |
 | `shown_price` | `hourly_equiv_usd` |
 | `source_url` | `source_url` |
+| `page_url` | where you saw our price (page, feed URL or MCP tool name) |
 | `observed_price`, `observed_at`, `notes` | what you saw, when (with time zone) |
 
 Example:
