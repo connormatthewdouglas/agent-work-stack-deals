@@ -160,3 +160,8 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - 99e0dbc: Clore.ai deal `deal-clore-ai` added; registry-derived publish_status approved (build: approved=204). 203 -> 204 deals, no id dropped. Clore rate rows linked. Gist deals.json synced (identical); gist README untouched.
 - 70de953: 0.3.15 (Gauge re-audit): price-comparison summary excludes reserved (L40S $0.63, RTX 5090 $0.65; new T41-21, 21/21 local); Clore price_check/snapshot_at/hold_after on feed + page; Spheron relabelled marketplace/aggregator and RTX 5090 re-quoted; Massed Compute/Koyeb single-span quotes; basis = summary, evidence.quote = verbatim. Shadeform still held (Gauge: no cents conversion).
 - PyPI + Registry 0.3.15; hosted worker 9d579e2e. Live: 204 deals (all approved), 101 rates, 20 vendors.
+
+## 2026-10-29 ~12:30 ET — 0.3.16 (Mart)
+- d091505: Spheron RTX 5090 marked price_check "rotating snapshot" (row specs/"Last known" rotate between fetches; no stable span); Hyperstack Spot/Reservation and SaladCloud quotes are single continuous spans; Vast/Clore quotes labelled "API fields"; tests/release_gate/README documents `--source live`.
+- PyPI + Registry 0.3.16 (pypi-install needed 2 reruns for PyPI lag); hosted worker f7996149. T41 21/21 local and live. Gist deals.json identical. Live: 204 deals, 101 rates, 20 vendors.
+- Note: daily refresh reported Spheron L40S "quoted context not found" in a dry run; L40S quote may need the same treatment if it rotates.
