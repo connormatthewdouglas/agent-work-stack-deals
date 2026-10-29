@@ -49,8 +49,13 @@ def feed_at_date(repo, date):
     return json.loads(blob), sha
 
 def _head(repo):
-    """Commit sha of the build (audit E9), not the non-reproducible 'working-tree'."""
-    return subprocess.run(["git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip() or None
+    """Sha of the last commit that touched api/v1/gpu-prices.json, if the working-tree feed is that exact blob (audit E9:
+    a real, reproducible commit instead of 'working-tree'; independent of HEAD so the committed output stays stable)."""
+    run = lambda *a: subprocess.run(["git", "-C", repo, *a], capture_output=True, text=True).stdout.strip()
+    sha = run("log", "-1", "--format=%H", "--", "api/v1/gpu-prices.json")
+    if sha and run("rev-parse", f"{sha}:api/v1/gpu-prices.json") == run("hash-object", "api/v1/gpu-prices.json"):
+        return sha
+    return "uncommitted"
 
 def listing_counts(feed):
     out = {}
