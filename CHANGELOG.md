@@ -2,6 +2,9 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.18 (2026-10-29)
+- `optimize_agent_stack` (#33): quantities start at a word boundary, so "10 H100 gpu hours" and "10x A100 hours" read 10 GPU-hours, not the digits inside the model name. A bare "5090"/"4090" is read as the RTX model.
+
 ## 0.3.17 (2026-10-29)
 - T38 (#30): `get_price_changes` accepts `cursor` (oldest first, with `next_cursor`, `has_more`, `last_seq`) and `kinds`; every change carries `event_id`, `rate_id`, `seq` and `snapshot_id`. A cursor that no longer matches the published history returns `cursor_expired`. History schema is `lantern-works-gpu-price-history/2`.
 - T39 (#32): every `compare_gpu_prices` row and every optimizer choice and alternative carries a stable `rate_id`. `optimize_stack` and `optimize_agent_stack` return a deterministic `quote_id` receipt with `issued_at` and `quote_basis`.

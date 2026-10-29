@@ -128,6 +128,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.18 (2026-10-29)</h2>
+<ul>
+<li><code>optimize_agent_stack</code> (#33): quantities start at a word boundary, so &quot;10 H100 gpu hours&quot; and &quot;10x A100 hours&quot; read 10 GPU-hours, not the digits inside the model name. A bare &quot;5090&quot;/&quot;4090&quot; is read as the RTX model.</li>
+</ul>
 <h2>0.3.17 (2026-10-29)</h2>
 <ul>
 <li>T38 (#30): <code>get_price_changes</code> accepts <code>cursor</code> (oldest first, with <code>next_cursor</code>, <code>has_more</code>, <code>last_seq</code>) and <code>kinds</code>; every change carries <code>event_id</code>, <code>rate_id</code>, <code>seq</code> and <code>snapshot_id</code>. A cursor that no longer matches the published history returns <code>cursor_expired</code>. History schema is <code>lantern-works-gpu-price-history/2</code>.</li>
