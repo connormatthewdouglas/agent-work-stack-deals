@@ -8,6 +8,8 @@
 - **Stack pricing:** [api/v1/stack-pricing.json](https://thelanternworks.com/api/v1/stack-pricing.json)
 - **Query CLI:** `python3 query_deals.py --category unblock --max-price 20` (filter contract: [USAGE.md](USAGE.md))
 
+**What it saves (example):** on-demand H100, 1 GPU 24/7, lowest tracked rate $2.50/hr vs the median provider's $3.29/hr = **$576.70/month** (prices checked 2026-10-29 ~1 PM ET; [worked example](examples/savings-demo/)).
+
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
 ## MCP server (v0.3.19, read-only, stdio)

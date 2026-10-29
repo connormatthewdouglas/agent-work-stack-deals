@@ -80,6 +80,7 @@ def write(g) -> str:
   </ul>
   {_pre("uvx lantern-works-deals-mcp")}
   <p class="meta">Jump to: <a href="#hosted">Hosted endpoint</a> · <a href="#claude-code">Claude Code</a> · <a href="#claude-desktop">Claude Desktop</a> · <a href="#cursor">Cursor</a> · <a href="#vscode">VS Code</a> · <a href="#cline">Cline</a> · <a href="#llamaindex">LlamaIndex</a> · <a href="#openwebui">Open WebUI</a> · <a href="#roo-code">Roo Code</a> · <a href="#continue">Continue</a> · <a href="#generic">Any MCP client</a> · <a href="#examples">Framework examples</a> · <a href="{base}/methodology/">How prices are checked</a></p>
+  <p><strong>What it saves (example):</strong> on-demand H100, 1 GPU 24/7: lowest tracked rate $2.50/hr vs the median provider's $3.29/hr is $576.70/month (prices checked 2026-10-29 ~1 PM ET; <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/savings-demo">worked example</a>).</p>
   <h2 id="add">Add Lantern Works to your agent</h2>
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: {tools}.</p>
   <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> ({TESTED_VERSION}) initializes over stdio and all {len(TOOLS)} tools return results.</p>
