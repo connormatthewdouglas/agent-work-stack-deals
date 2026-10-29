@@ -523,8 +523,7 @@ def write_hub(gen, rates: list[dict]) -> str:
     path = "gpu"
     url = f"{gen.BASE}/{path}/"
     fresh = _freshness(rates) if rates else ""
-    extra = [(p, n) for p, n in (("compare/cheap-gpu-rental", "Cheap GPU rental deals"),
-                                  ("compare/h100-rental-price-comparison", "H100 rental price comparison"))
+    extra = [(p, n) for p, n in (("compare/cheap-gpu-rental", "Cheap GPU rental deals"),)
              if (ROOT / p / "index.html").exists()]
     li = lambda items: "".join(f'<li><a href="{gen.BASE}/{p}/">{n}</a></li>' for p, n in items)
     cheapest = [(p, n) for p, n in _LINKS if p.startswith("gpu/cheapest-")]
