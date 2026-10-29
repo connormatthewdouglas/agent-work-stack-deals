@@ -275,6 +275,15 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
             report += [{"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "result": "held (vendor-level, untouched)"}
                        for r in doc["records"]]
             continue
+        if doc.get("manual_snapshot"):
+            # Not auto-refreshed (Clore.ai: API 401s CI; Vast parser doesn't apply). Staleness hold still applies below.
+            for r in doc["records"]:
+                r.setdefault("verified_at", r["evidence"]["checked_at"])
+                if not r.get("stale") and now - datetime.fromisoformat(r["verified_at"]) > timedelta(days=stale_days):
+                    r["stale"] = {"reason": f"Manual snapshot not re-verified for > {stale_days} days", "auto": True}
+            report += [{"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "result": "manual snapshot (not auto-refreshed)"}
+                       for r in doc["records"]]
+            continue
         for r in doc["records"]:
             row = {"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "old": r["hourly_usd"]}
             r.setdefault("verified_at", r["evidence"]["checked_at"])

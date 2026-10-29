@@ -14,6 +14,8 @@ runners, so a quoted price can be absent from CI while present from other networ
 there ONLY, a "price not found" result is a warning ("unverifiable from CI"), not a failure, and only while
 at least one other quoted price for that vendor is still found on the same page (so a broken, blocked or
 redesigned page still fails). Unreachable pages, invalid records and staleness still fail as usual.
+Vendors with a top-level "manual_snapshot" (e.g. Clore.ai) are not re-checked here: unreachable is a warning,
+and staleness still holds them after STALE_DAYS.
 A ranked marketplace record that is momentarily below MIN_MARKET_OFFERS is also only a warning: the daily
 refresh auto-holds it (and releases it again at 5+ offers). Warnings appear in the output and report; re-check them from a non-CI network
 (`python3 scripts/check_gpu_sources.py` on another machine) before changing any price.
@@ -81,12 +83,18 @@ def main() -> int:
                     st, body = pages[u]
                     print(f"{doc['vendor']}: {u} -> {st if st else body}")
                     if st != 200:
-                        flags.append(f"unreachable: {doc['vendor']} {u} -> {st if st else body}")
+                        (warnings if doc.get("manual_snapshot") else flags).append(
+                            f"unreachable: {doc['vendor']} {u} -> {st if st else body}")
             for r in doc["records"]:
                 st, body = pages[r["source_url"]]
                 if st != 200:
                     continue
                 checked += 1
+                if doc.get("manual_snapshot"):
+                    # Manual snapshot (e.g. Clore.ai, whose API 401s CI runners): not re-checked here; the record
+                    # auto-holds after STALE_DAYS unless a person re-snapshots it.
+                    warnings.append(f"manual snapshot, not re-checked from CI: {doc['vendor']} {r['gpu']} (checked {r['checked_at']})")
+                    continue
                 if r.get("price_status") == "marketplace":
                     # Host-set prices move minute to minute: exact figures can't be re-found. Require live offers
                     # and report today's median for a human re-check instead.

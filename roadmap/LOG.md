@@ -149,3 +149,9 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Availability: Gauge's 4 fixes (manual-snapshot label with per-row time, Vast count = separate later check, own note for unknown rows, CHANGELOG). Re-imported Scout v2.1 (11:11 AM ET files): 12 rows with a signal, 5 in stock; RunPod nulls use Scout's availability_note ("returned no stock status ... not known, not sold out").
 - Gap: no MCP tool takes a GPU count, so "9x H100 bills 16" is only reachable through core (stack._gpu_options), verified on live data: CoreWeave $984.80, Lambda 8x $638.40, both "9 requested, 16 billed".
 - 0.3.13 on PyPI + MCP Registry; uvx serverInfo 0.3.13; install page tested 0.3.13.
+
+## 2026-10-29 ~11:45 ET — 0.3.14 (Mart)
+- PR #25 (T41 release gate) merged after the Vast basis fix; local `run_t41.py --source local` 20/20.
+- Gauge (C): Crusoe and Lightning AI rows pulled pending re-verification (they had been live briefly in the 102-rate feed); Vultr/Scaleway not added (403). Added Massed Compute L40S $0.97, kept OVHcloud $1.80 excl. VAT, Koyeb $1.20 (whole GPU), CloudRift, Spheron. Shadeform still held (cents pricing vs T41-01).
+- Clore.ai marketplace: RTX 4090 / RTX 5090 ranked (109 / 125 listings, median + lowest + range); A100 40GB (7), H100 NVL (1), L40S (2) held as thin; no H200. Manual snapshot (API 401s CI): not auto-refreshed, auto-holds after 7 days. deal_id null (no registry entry; referral not used).
+- 0.3.14 on PyPI + MCP Registry; hosted worker redeployed.
