@@ -65,4 +65,4 @@ def test_ovh_marked_ex_tax_and_index_page_linked():
 def test_rtx4090_explains_missing_cheapest_line():
     s = _page("rtx-4090", 100)
     sec = s.split("<h2>RTX 4090 24GB</h2>")[1].split("</p>")[0]
-    assert "Cheapest among tracked providers" not in sec and "No 'cheapest' line: only 2 in-stock vendors" in sec
+    assert "Cheapest among tracked providers" not in sec and "No &#x27;cheapest&#x27; line: only 2 in-stock vendors" in sec
