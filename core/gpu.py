@@ -272,16 +272,18 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
             continue
         if min_vram_gb and (r["vram_gb"] or 0) < min_vram_gb:
             continue
-        g = max(gpus, r.get("min_gpus") or 1)
+        per = r.get("gpu_count") or 1
+        servers = math.ceil(max(gpus, r.get("min_gpus") or 1) / per)
+        g = servers * per  # billed GPUs: whole servers/instances only, never fractional
         if r["unit"] == "hour":
             cost = r["price_usd"] * hours_per_month * g
             basis = f"${r['price_usd']}/hr x {hours_per_month} h x {g} GPU"
             if g > gpus:
-                basis += f" (sold only as {g}-GPU instances)"
+                basis += f" ({gpus} requested, {g} billed: " + (f"sold only as whole {per}-GPU servers)" if per > 1 else f"minimum {g} GPUs per instance)")
             if r.get("price_status") == "marketplace":
                 basis += f"; variable marketplace median, lowest offer ${r['lowest_offer_usd']}/hr"
         else:
-            n = max(1, math.ceil(hours_per_month / HOURS_PER_MONTH)) * gpus
+            n = max(1, math.ceil(hours_per_month / HOURS_PER_MONTH)) * g
             cost = r["price_usd"] * n
             per = r.get("gpu_count") or 1
             if per > 1:
