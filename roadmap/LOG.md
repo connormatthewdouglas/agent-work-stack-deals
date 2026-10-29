@@ -171,3 +171,8 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Conflict in scripts/gpu_pages.py resolved: one `_quote_html(esc, r)` (short excerpt; marketplace rows keep the "API fields:" label); rotating-snapshot verified label kept.
 - H7 kept as meta-refresh; target /gpu/cheapest-h100-rental/ has a self canonical. /gpu/h100-rental-price/ now has rel=canonical to /gpu/cheapest-h100-rental/ and is out of the sitemap. Spec-page canonicals now end in "/".
 - Checks: 188 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Gist deals.json identical. No package code changed, so no PyPI release or hosted redeploy.
+
+## 2026-10-29 — PR #28 merged (Mart)
+- Merged Atrium's PR #28 (Pax H8: plain wording for feed field names on deal pages, "Referral link"/"Direct link"/"Price not verified" badges, collapsible /deals/ categories, install code boxes with copy button, one table style; #31 rate-count note now explains marketplace medians, reserved rows and held prices). Merge commit 90270cb5.
+- Canonicals (owner decision, shipped in the same deploy): each /gpu/<model>-rental-price/ is canonical and in the sitemap; each /gpu/cheapest-<model>-rental/ has rel=canonical to it and is out of the sitemap (content not merged yet). H7 meta-refresh on /compare/h100-rental-price-comparison/ now points to /gpu/h100-rental-price/. The earlier H100 canonical from #27 is reverted. Test added in tests/test_gpu.py.
+- Checks: 189 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Gist deals.json identical. No package code changed, so no PyPI release or hosted redeploy. Shared checkout was clean, nothing stashed.
