@@ -166,7 +166,7 @@ HOME_JS = r"""  <script>
 
 # Privacy-safe usage counts through the existing Cloudflare Web Analytics beacon, which has no custom events
 # but counts SPA route changes as page views (history.pushState / popstate). Each event becomes one aggregate
-# page view of a virtual path: /e/out/<deal-id>/, /e/search/, /e/calculator/, /e/compare/. No cookies,
+# page view of a virtual path: /e/out/<deal-id>/ (or /e/out/h-<vendor-hostname>/ for outbound links without a deal id), /e/search/, /e/calculator/, /e/compare/. No cookies,
 # storage, identifiers or query values are sent; search terms are never recorded. Emitted only with the beacon.
 TRACK_JS = r"""  <script>
 (()=>{
@@ -181,8 +181,14 @@ TRACK_JS = r"""  <script>
   window.lwTrack=lwTrack;
   let bypass=false;
   document.addEventListener("click",ev=>{
-    const a=ev.target.closest&&ev.target.closest("a[data-deal]"); if(!a||bypass) return;
-    const id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+    const a=ev.target.closest&&ev.target.closest("a[href]"); if(!a||bypass) return;
+    let id;
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,""); }
+    else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
+      let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
+      if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;
+      id="out/h-"+u.hostname.toLowerCase().replace(/^www\./,"").replace(/[^a-z0-9-]/g,"-").slice(0,60);
+    }
     const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
     if(!sameTab){ lwTrack(id); return; }
     ev.preventDefault();

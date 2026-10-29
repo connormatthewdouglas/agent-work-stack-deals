@@ -206,3 +206,14 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - At Gauge's request: deleted data/gpu_pricing/massed-compute.json (Gauge's prepared diff; test count 114 -> 113). Its pricing page no longer lists L40S. Same pattern as dd32f4b4. Removed the row from today's snapshot (2026-10-29) so the change feed doesn't report it as "new". No Massed deal entry or page existed, so no label change was needed; no $0.97 remains on any page or feed.
 - tests/test_quote_receipts.py::test_every_compare_row_has_the_feed_rate_id now reads the local api/v1/gpu-prices.json (patched loader), not the live site, so data pulls can deploy.
 - No package code change, so no PyPI release.
+
+## 2026-10-29 — PR #34 hosted price watches merged and deployed (Mart)
+- Reviewed head 9ea1094c (CI green). Keys stored as SHA-256 hashes only; signing secret derived from WATCH_SIGNING_MASTER, never stored; only optional email beyond the webhook URL; https-only, port 443, literal private/loopback/link-local/numeric IP forms blocked; per-key 2000 calls/day, 20 watches, 100 alerts/day, 200 signups/day; own D1 DB; stats counter code unchanged (stats.json gains a `watches` aggregate); no name collision with the 7 tools; no secrets in the repo.
+- Fixes on the PR: 96de7495 DNS check (DoH A+AAAA at signup and before each cron POST, fail closed, subrequest budget); b02e7672 None D1 args inlined as NULL (create_watch_key 500'd live: Pyodide None -> JS undefined); 6ab36547 cron disabled + install page says alert delivery is paused. Merge 5e4d0b81.
+- Deploy: D1 lantern-works-hosted-watches 6afa052d-5eaf-4b69-9d78-edf538941b45 + schema; WATCH_SIGNING_MASTER set from a generator (copy in a 600 file outside the repo, never printed). Worker version 37907d3c-7edc-49a9-81ba-838b8a6015a3. Live: localtest.me (resolves to 127.0.0.1) rejected; create key, watch_price, list (1), delete_watch, list (0) all OK. T41 live 21/21.
+- Cron CPU (forced every-minute schedule, 11 runs, 0 watches): 67-167 ms, median ~86 ms vs the free plan's 10 ms. Cron disabled (crons = []); alerts are not delivered until the cron is made cheaper or moved off the Worker.
+- Cron count: the CLI can't list other Workers' crons on this account (MCP connector is for a different account); deploys with 2 and 3 schedules were accepted, now 0.
+
+## 2026-10-29 — T30 outbound click counts (Mart)
+- Beacon from f512c10 confirmed: Cloudflare Web Analytics (cookieless) counts virtual /e/out/<deal-id>/ page views; the tracker sends only that path (no cookies, storage, user agent, query or search text) and nothing is stored by us.
+- Added: outbound vendor links without a deal id (GPU tables) now count as /e/out/h-<vendor-hostname>/. New scripts/click_report.py: private per-vendor daily counts from the GraphQL API (aggregate date x path), writes only outside the repo (600). Needs a read-only Analytics token (CF_API_TOKEN, CF_ACCOUNT_ID, CF_SITE_TAG), not set yet.
