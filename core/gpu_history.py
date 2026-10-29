@@ -8,13 +8,16 @@ are among tracked providers only, not the whole market.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from datetime import date, timedelta
 from pathlib import Path
 
+from .ids import event_id, rate_id, snapshot_id
+
 SNAPSHOT_SCHEMA = "lantern-works-gpu-snapshot/1"
-HISTORY_SCHEMA = "lantern-works-gpu-price-history/1"
+HISTORY_SCHEMA = "lantern-works-gpu-price-history/2"  # /2 adds rate_id, event_id, seq, snapshot_id (T38)
 SNAPSHOT_DIR = Path(__file__).resolve().parents[1] / "data" / "gpu_pricing" / "snapshots"
 
 
@@ -78,23 +81,33 @@ def load_snapshots(directory: Path | None = None) -> list[dict]:
 
 
 def build_history(snapshots: list[dict]) -> dict:
-    """Series with change points + a flat, newest-first list of price changes between consecutive snapshots."""
+    """Series with change points + a flat, newest-first list of price changes between consecutive snapshots.
+
+    Every change carries rate_id (core.ids), event_id = '<date>:<rate_id>:<up|down>', the snapshot_id it came from,
+    and seq: a 1-based position in (date, event_id) order, oldest first. Snapshots are append-only, so re-running on
+    the same snapshots gives identical ids and seqs, and a new day only appends higher seqs (cursor-safe)."""
     series: dict[str, dict] = {}
     changes: list[dict] = []
+    snap_ids: dict[str, str] = {}
     for snap in sorted(snapshots, key=lambda s: s["date"]):
         day = snap["date"]
+        snap_ids[day] = sid = snapshot_id(snap)
         seen = set()
         for row in snap["rows"]:
             k = row["key"]
             seen.add(k)
             s = series.get(k)
             if s is None:
-                s = series[k] = {"key": k, **{f: row[f] for f in ("vendor", "gpu", "tier", "vram_gb", "gpu_count", "billing_unit")},
+                s = series[k] = {"key": k, "rate_id": rate_id(row),
+                                 **{f: row[f] for f in ("vendor", "gpu", "tier", "vram_gb", "gpu_count", "billing_unit")},
                                  "first_seen": day, "points": []}
             last = s["points"][-1] if s["points"] else None
             if last and last.get("status") != "removed" and last["hourly_usd"] != row["hourly_usd"]:
                 old, new = last["hourly_usd"], row["hourly_usd"]
-                changes.append({"date": day, "key": k, "vendor": row["vendor"], "gpu": row["gpu"], "tier": row["tier"],
+                kind = "down" if new < old else "up"
+                changes.append({"date": day, "key": k, "rate_id": s["rate_id"],
+                                "event_id": event_id(day, s["rate_id"], kind), "snapshot_id": sid,
+                                "vendor": row["vendor"], "gpu": row["gpu"], "tier": row["tier"],
                                 "vram_gb": row["vram_gb"], "from_hourly_usd": old, "to_hourly_usd": new,
                                 "change_pct": round((new - old) / old * 100, 1) if old else None,
                                 "status": row["status"], "source_url": row["source_url"]})
@@ -108,14 +121,27 @@ def build_history(snapshots: list[dict]) -> dict:
                 p = s["points"][-1]
                 s["points"].append({"date": day, "price_usd": p["price_usd"], "hourly_usd": p["hourly_usd"],
                                     "status": "removed", "verified_at": p["verified_at"]})
-    changes.sort(key=lambda c: (c["date"], c["key"]), reverse=True)
+    # Two series with one rate_id on the same day would collide; disambiguate deterministically by key.
+    by_eid: dict[str, list[dict]] = {}
+    for c in changes:
+        by_eid.setdefault(c["event_id"], []).append(c)
+    for dup in (v for v in by_eid.values() if len(v) > 1):
+        for c in dup:
+            c["event_id"] += "~" + hashlib.sha1(c["key"].encode("utf-8")).hexdigest()[:6]
+    changes.sort(key=lambda c: (c["date"], c["event_id"]))
+    for i, c in enumerate(changes, 1):
+        c["seq"] = i
+    changes.reverse()  # newest first, as before
     dates = sorted(s["date"] for s in snapshots)
     return {"schema": HISTORY_SCHEMA,
             "scope": "tracked providers only (not the whole market); prices per GPU",
             "first_snapshot": dates[0] if dates else None, "last_snapshot": dates[-1] if dates else None,
             "snapshot_count": len(dates),
+            "snapshot_ids": [snap_ids[d] for d in dates],
+            "last_seq": len(changes),
             "note": ("points are change points: each point is the first snapshot date at that price/status; "
-                     "status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked."),
+                     "status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. "
+                     "changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors)."),
             "series": sorted(series.values(), key=lambda s: s["key"]), "changes": changes}
 
 
