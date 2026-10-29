@@ -200,7 +200,7 @@ def _(f, ev):
 
 @case("T41-06")
 def _(f, ev):
-    rx = re.compile(r"spot|preempt|interrupt", re.I)
+    rx = G.INTERRUPTIBLE_TIER_RE  # canonical: "not interruptible" / "non-interruptible" labels are not spot
     for r in RATES:
         tc = D.tier_class(r)
         if r.get("tier_class") != tc: f.append(f"{rid(r)}: feed tier_class {r.get('tier_class')} != computed {tc}")
