@@ -1,6 +1,6 @@
 {
   "schema": "lantern-works-gpu-throughput/1",
-  "generated_at": "2026-10-29T20:53:58Z",
+  "generated_at": "2026-10-29T20:56:26Z",
   "license": "CC BY 4.0 (Lantern Works compilation); figures remain attributed to their sources",
   "description": "Published GPU throughput and peak-spec figures for H100/A100/L40S/RTX 4090. Every value is copied verbatim from the cited source; nothing is estimated or derived. Whole-system MLPerf results are NOT divided per GPU (conditions.per_gpu=false).",
   "rules": [
@@ -11,9 +11,9 @@
   ],
   "figures": [
     {
-      "id": "tp-h100-sxm-peak-spec-tf32-tensor-core-peak-tf32",
+      "id": "tp-h100-sxm-80gb-peak-spec-tf32-tensor-core-peak-tf32",
       "gpu": "H100",
-      "variant": "SXM",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "peak_spec",
       "metric": "TF32 Tensor Core peak",
@@ -33,13 +33,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "TF32 Tensor Core* | H100 SXM: 989 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-sxm-peak-spec-bfloat16-tensor-core-peak-bf16",
+      "id": "tp-h100-sxm-80gb-peak-spec-bfloat16-tensor-core-peak-bf16",
       "gpu": "H100",
-      "variant": "SXM",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "peak_spec",
       "metric": "BFLOAT16 Tensor Core peak",
@@ -59,13 +59,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "BFLOAT16 Tensor Core* | H100 SXM: 1,979 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-sxm-peak-spec-fp16-tensor-core-peak-fp16",
+      "id": "tp-h100-sxm-80gb-peak-spec-fp16-tensor-core-peak-fp16",
       "gpu": "H100",
-      "variant": "SXM",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "peak_spec",
       "metric": "FP16 Tensor Core peak",
@@ -85,13 +85,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP16 Tensor Core* | H100 SXM: 1,979 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-sxm-peak-spec-fp8-tensor-core-peak-fp8",
+      "id": "tp-h100-sxm-80gb-peak-spec-fp8-tensor-core-peak-fp8",
       "gpu": "H100",
-      "variant": "SXM",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "peak_spec",
       "metric": "FP8 Tensor Core peak",
@@ -111,13 +111,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP8 Tensor Core* | H100 SXM: 3,958 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-sxm-peak-spec-fp32-peak-fp32",
+      "id": "tp-h100-sxm-80gb-peak-spec-fp32-peak-fp32",
       "gpu": "H100",
-      "variant": "SXM",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "peak_spec",
       "metric": "FP32 peak",
@@ -137,13 +137,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP32 | H100 SXM: 67 teraFLOPS"
     },
     {
-      "id": "tp-h100-sxm-peak-spec-gpu-memory-bandwidth-none",
+      "id": "tp-h100-sxm-80gb-peak-spec-gpu-memory-bandwidth-none",
       "gpu": "H100",
-      "variant": "SXM",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "peak_spec",
       "metric": "GPU memory bandwidth",
@@ -163,13 +163,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "GPU Memory Bandwidth | H100 SXM: 3.35TB/s"
     },
     {
-      "id": "tp-h100-nvl-peak-spec-tf32-tensor-core-peak-tf32",
+      "id": "tp-h100-nvl-94gb-peak-spec-tf32-tensor-core-peak-tf32",
       "gpu": "H100",
-      "variant": "NVL",
+      "variant": "NVL 94GB",
       "memory_gb": 94,
       "workload": "peak_spec",
       "metric": "TF32 Tensor Core peak",
@@ -189,13 +189,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "TF32 Tensor Core* | H100 NVL: 835 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-nvl-peak-spec-bfloat16-tensor-core-peak-bf16",
+      "id": "tp-h100-nvl-94gb-peak-spec-bfloat16-tensor-core-peak-bf16",
       "gpu": "H100",
-      "variant": "NVL",
+      "variant": "NVL 94GB",
       "memory_gb": 94,
       "workload": "peak_spec",
       "metric": "BFLOAT16 Tensor Core peak",
@@ -215,13 +215,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "BFLOAT16 Tensor Core* | H100 NVL: 1,671 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-nvl-peak-spec-fp16-tensor-core-peak-fp16",
+      "id": "tp-h100-nvl-94gb-peak-spec-fp16-tensor-core-peak-fp16",
       "gpu": "H100",
-      "variant": "NVL",
+      "variant": "NVL 94GB",
       "memory_gb": 94,
       "workload": "peak_spec",
       "metric": "FP16 Tensor Core peak",
@@ -241,13 +241,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP16 Tensor Core* | H100 NVL: 1,671 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-nvl-peak-spec-fp8-tensor-core-peak-fp8",
+      "id": "tp-h100-nvl-94gb-peak-spec-fp8-tensor-core-peak-fp8",
       "gpu": "H100",
-      "variant": "NVL",
+      "variant": "NVL 94GB",
       "memory_gb": 94,
       "workload": "peak_spec",
       "metric": "FP8 Tensor Core peak",
@@ -267,13 +267,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP8 Tensor Core* | H100 NVL: 3,341 teraFLOPS (table footnote: \"* With sparsity\")"
     },
     {
-      "id": "tp-h100-nvl-peak-spec-fp32-peak-fp32",
+      "id": "tp-h100-nvl-94gb-peak-spec-fp32-peak-fp32",
       "gpu": "H100",
-      "variant": "NVL",
+      "variant": "NVL 94GB",
       "memory_gb": 94,
       "workload": "peak_spec",
       "metric": "FP32 peak",
@@ -293,13 +293,13 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP32 | H100 NVL: 60 teraFLOPS"
     },
     {
-      "id": "tp-h100-nvl-peak-spec-gpu-memory-bandwidth-none",
+      "id": "tp-h100-nvl-94gb-peak-spec-gpu-memory-bandwidth-none",
       "gpu": "H100",
-      "variant": "NVL",
+      "variant": "NVL 94GB",
       "memory_gb": 94,
       "workload": "peak_spec",
       "metric": "GPU memory bandwidth",
@@ -319,7 +319,7 @@
       "source_title": "NVIDIA H100 Tensor Core GPU (product page, Product Specifications table)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "GPU Memory Bandwidth | H100 NVL: 3.9TB/s"
     },
     {
@@ -345,7 +345,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tensor Float 32 (TF32) 156 TFLOPS | 312 TFLOPS* (\"* With sparsity\") (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -371,7 +371,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "BFLOAT16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -397,7 +397,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -423,7 +423,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP32 19.5 TFLOPS (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -449,7 +449,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "GPU Memory Bandwidth 1,555GB/s 1,935GB/s 1,555GB/s 2,039GB/s (columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM) -> A100 PCIe 40GB: 1,555GB/s"
     },
     {
@@ -475,7 +475,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tensor Float 32 (TF32) 156 TFLOPS | 312 TFLOPS* (\"* With sparsity\") (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -501,7 +501,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "BFLOAT16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -527,7 +527,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -553,7 +553,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP32 19.5 TFLOPS (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -579,7 +579,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "GPU Memory Bandwidth 1,555GB/s 1,935GB/s 1,555GB/s 2,039GB/s (columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM) -> A100 PCIe 80GB: 1,935GB/s"
     },
     {
@@ -605,7 +605,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tensor Float 32 (TF32) 156 TFLOPS | 312 TFLOPS* (\"* With sparsity\") (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -631,7 +631,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "BFLOAT16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -657,7 +657,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -683,7 +683,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP32 19.5 TFLOPS (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -709,7 +709,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "GPU Memory Bandwidth 1,555GB/s 1,935GB/s 1,555GB/s 2,039GB/s (columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM) -> A100 SXM 40GB: 1,555GB/s"
     },
     {
@@ -735,7 +735,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tensor Float 32 (TF32) 156 TFLOPS | 312 TFLOPS* (\"* With sparsity\") (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -761,7 +761,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "BFLOAT16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -787,7 +787,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -813,7 +813,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP32 19.5 TFLOPS (one value shared across all four A100 columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM)"
     },
     {
@@ -839,7 +839,7 @@
       "source_title": "NVIDIA A100 Tensor Core GPU datasheet (1758950-r4)",
       "publication_date": "2021-06-24",
       "date_note": "date from the PDF's CreationDate metadata",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "GPU Memory Bandwidth 1,555GB/s 1,935GB/s 1,555GB/s 2,039GB/s (columns: 40GB PCIe, 80GB PCIe, 40GB SXM, 80GB SXM) -> A100 SXM 80GB: 2,039GB/s"
     },
     {
@@ -865,7 +865,7 @@
       "source_title": "NVIDIA L40S GPU (product page, specifications)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "TF32 Tensor Core TFLOPS 183 I 366* (page footnote: \"*With Sparsity\")"
     },
     {
@@ -891,7 +891,7 @@
       "source_title": "NVIDIA L40S GPU (product page, specifications)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "BFLOAT16 Tensor Core TFLOPS 362.05 I 733* (page footnote: \"*With Sparsity\")"
     },
     {
@@ -917,7 +917,7 @@
       "source_title": "NVIDIA L40S GPU (product page, specifications)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP16 Tensor Core 362.05 I 733* (page footnote: \"*With Sparsity\")"
     },
     {
@@ -943,7 +943,7 @@
       "source_title": "NVIDIA L40S GPU (product page, specifications)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP8 Tensor Core 733 I 1,466* (page footnote: \"*With Sparsity\")"
     },
     {
@@ -969,7 +969,7 @@
       "source_title": "NVIDIA L40S GPU (product page, specifications)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "FP32 TFLOPS 91.6"
     },
     {
@@ -995,7 +995,7 @@
       "source_title": "NVIDIA L40S GPU (product page, specifications)",
       "publication_date": null,
       "date_note": "live product page; no publication date shown",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "GPU Memory 48GB GDDR6 with ECC | Memory Bandwidth 864GB/s"
     },
     {
@@ -1021,7 +1021,7 @@
       "source_title": "NVIDIA Ada GPU Architecture whitepaper (v2.02), Appendix A Table 2 - GeForce RTX 4090 Full Specifications",
       "publication_date": "2023-11-03",
       "date_note": "date from the PDF's CreationDate metadata (whitepaper v2.02)",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Peak FP8 Tensor TFLOPS with FP16 Accumulate | RTX 4090: 660.6/1321.2(2) (footnote 2: \"Effective TOPS / TFLOPS using the new Sparsity Feature\")"
     },
     {
@@ -1047,7 +1047,7 @@
       "source_title": "NVIDIA Ada GPU Architecture whitepaper (v2.02), Appendix A Table 2 - GeForce RTX 4090 Full Specifications",
       "publication_date": "2023-11-03",
       "date_note": "date from the PDF's CreationDate metadata (whitepaper v2.02)",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Peak FP16 Tensor TFLOPS with FP16 Accumulate | RTX 4090: 330.3/660.6(2) (footnote 2: \"Effective TOPS / TFLOPS using the new Sparsity Feature\")"
     },
     {
@@ -1073,7 +1073,7 @@
       "source_title": "NVIDIA Ada GPU Architecture whitepaper (v2.02), Appendix A Table 2 - GeForce RTX 4090 Full Specifications",
       "publication_date": "2023-11-03",
       "date_note": "date from the PDF's CreationDate metadata (whitepaper v2.02)",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Peak FP16 Tensor TFLOPS with FP32 Accumulate | RTX 4090: 165.2/330.4(2) (footnote 2: \"Effective TOPS / TFLOPS using the new Sparsity Feature\")"
     },
     {
@@ -1099,7 +1099,7 @@
       "source_title": "NVIDIA Ada GPU Architecture whitepaper (v2.02), Appendix A Table 2 - GeForce RTX 4090 Full Specifications",
       "publication_date": "2023-11-03",
       "date_note": "date from the PDF's CreationDate metadata (whitepaper v2.02)",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Peak BF16 Tensor TFLOPS with FP32 Accumulate | RTX 4090: 165.2/330.4(2) (footnote 2: \"Effective TOPS / TFLOPS using the new Sparsity Feature\")"
     },
     {
@@ -1125,7 +1125,7 @@
       "source_title": "NVIDIA Ada GPU Architecture whitepaper (v2.02), Appendix A Table 2 - GeForce RTX 4090 Full Specifications",
       "publication_date": "2023-11-03",
       "date_note": "date from the PDF's CreationDate metadata (whitepaper v2.02)",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Peak TF32 Tensor TFLOPS | RTX 4090: 82.6/165.2(2) (footnote 2: \"Effective TOPS / TFLOPS using the new Sparsity Feature\")"
     },
     {
@@ -1151,7 +1151,7 @@
       "source_title": "NVIDIA Ada GPU Architecture whitepaper (v2.02), Appendix A Table 2 - GeForce RTX 4090 Full Specifications",
       "publication_date": "2023-11-03",
       "date_note": "date from the PDF's CreationDate metadata (whitepaper v2.02)",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Peak FP32 TFLOPS (non-Tensor) | RTX 4090: 82.6"
     },
     {
@@ -1177,13 +1177,13 @@
       "source_title": "NVIDIA Ada GPU Architecture whitepaper (v2.02), Appendix A Table 2 - GeForce RTX 4090 Full Specifications",
       "publication_date": "2023-11-03",
       "date_note": "date from the PDF's CreationDate metadata (whitepaper v2.02)",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Memory Bandwidth | RTX 4090: 1008 GB/sec"
     },
     {
-      "id": "tp-h100-sxm5-80gb-bert-large-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
+      "id": "tp-h100-sxm-80gb-bert-large-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
       "gpu": "H100",
-      "variant": "SXM5 80GB",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "bert-large",
       "workload_name": "BERT-Large (MLPerf bert-99)",
@@ -1211,13 +1211,13 @@
       "source_title": "MLPerf Inference v4.0 results - NVIDIA DGX-H100_H100-SXM-80GBx1_TRT - bert-99 Offline mlperf_log_summary.txt",
       "publication_date": "2024-03-27",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/03/mlperf-inference-v4/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 9081.51"
     },
     {
-      "id": "tp-h100-sxm5-80gb-resnet50-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int8-submission-measurements-json",
+      "id": "tp-h100-sxm-80gb-resnet50-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int8-submission-measurements-json",
       "gpu": "H100",
-      "variant": "SXM5 80GB",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "resnet50",
       "workload_name": "ResNet-50 (MLPerf resnet50)",
@@ -1245,13 +1245,13 @@
       "source_title": "MLPerf Inference v4.0 results - NVIDIA DGX-H100_H100-SXM-80GBx1_TRT - resnet50 Offline mlperf_log_summary.txt",
       "publication_date": "2024-03-27",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/03/mlperf-inference-v4/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 88714.3"
     },
     {
-      "id": "tp-h100-sxm5-80gb-sdxl-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
+      "id": "tp-h100-sxm-80gb-sdxl-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
       "gpu": "H100",
-      "variant": "SXM5 80GB",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "sdxl",
       "workload_name": "Stable Diffusion XL (MLPerf stable-diffusion-xl)",
@@ -1279,13 +1279,13 @@
       "source_title": "MLPerf Inference v4.0 results - NVIDIA DGX-H100_H100-SXM-80GBx1_TRT - stable-diffusion-xl Offline mlperf_log_summary.txt",
       "publication_date": "2024-03-27",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/03/mlperf-inference-v4/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 1.64178"
     },
     {
-      "id": "tp-h100-sxm5-80gb-llama2-70b-mlperf-inference-v5-0-closed-datacenter-offline-throughput-weights-fp8-mlperf-v5-0-summary-results-json-weight-data-types",
+      "id": "tp-h100-sxm-80gb-llama2-70b-mlperf-inference-v5-0-closed-datacenter-offline-throughput-weights-fp8-mlperf-v5-0-summary-results-json-weight-data-types",
       "gpu": "H100",
-      "variant": "SXM5 80GB",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "llama2-70b",
       "workload_name": "Llama 2 70B (MLPerf llama2-70b-99)",
@@ -1313,7 +1313,7 @@
       "source_title": "MLPerf Inference v5.0 results - NVIDIA DGX-H100_H100-SXM-80GBx8_TRT - llama2-70b-99 Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tokens per second: 31306.8"
     },
     {
@@ -1347,7 +1347,7 @@
       "source_title": "MLPerf Inference v3.1 results - NVIDIA H100-PCIe-80GBx1_TRT - bert-99 Offline mlperf_log_summary.txt",
       "publication_date": "2023-09-11",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2023/09/mlperf-results-highlight-growing-importance-of-generative-ai-and-storage/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 5711"
     },
     {
@@ -1381,7 +1381,7 @@
       "source_title": "MLPerf Inference v3.1 results - NVIDIA H100-PCIe-80GBx1_TRT - resnet50 Offline mlperf_log_summary.txt",
       "publication_date": "2023-09-11",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2023/09/mlperf-results-highlight-growing-importance-of-generative-ai-and-storage/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 54851.4"
     },
     {
@@ -1415,7 +1415,7 @@
       "source_title": "MLPerf Inference v5.0 results - Quanta_Cloud_Technology D54U_3U_H100_PCIe_80GBx4_TRT - llama2-70b-99 Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tokens per second: 7013.17"
     },
     {
@@ -1449,7 +1449,7 @@
       "source_title": "MLPerf Inference v5.0 results - Quanta_Cloud_Technology D54U_3U_H100_PCIe_80GBx4_TRT - stable-diffusion-xl Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 5.34798"
     },
     {
@@ -1483,7 +1483,7 @@
       "source_title": "MLPerf Inference v5.0 results - Cisco X215M8_H100NVLx2_TRT - llama2-70b-99 Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tokens per second: 3879.95"
     },
     {
@@ -1517,7 +1517,7 @@
       "source_title": "MLPerf Inference v5.0 results - Lenovo H100-NVL-94GBx4_TRT - stable-diffusion-xl Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 6.45611"
     },
     {
@@ -1551,7 +1551,7 @@
       "source_title": "MLPerf Inference v5.0 results - Lenovo H100-NVL-94GBx4_TRT - resnet50 Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 278849"
     },
     {
@@ -1585,13 +1585,13 @@
       "source_title": "MLPerf Inference v4.1 results - Lenovo SR675_V3_8xH100_NVL_TRT - bert-99 Offline mlperf_log_summary.txt",
       "publication_date": "2024-08-28",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/08/mlperf-inference-v4-1-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 47655.3"
     },
     {
-      "id": "tp-a100-sxm4-80gb-bert-large-mlperf-inference-v3-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
+      "id": "tp-a100-sxm-80gb-bert-large-mlperf-inference-v3-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
       "gpu": "A100",
-      "variant": "SXM4 80GB",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "bert-large",
       "workload_name": "BERT-Large (MLPerf bert-99)",
@@ -1619,13 +1619,13 @@
       "source_title": "MLPerf Inference v3.0 results - NVIDIA DGX-A100_A100-SXM-80GBx1_TRT - bert-99 Offline mlperf_log_summary.txt",
       "publication_date": null,
       "date_note": "MLPerf Inference v3.0 (submission deadline 2023-03-03 per github.com/mlcommons/inference README); public release date not verified",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 3590.46"
     },
     {
-      "id": "tp-a100-sxm4-80gb-resnet50-mlperf-inference-v3-0-closed-datacenter-offline-throughput-weights-int8-inputs-int8-submission-measurements-json",
+      "id": "tp-a100-sxm-80gb-resnet50-mlperf-inference-v3-0-closed-datacenter-offline-throughput-weights-int8-inputs-int8-submission-measurements-json",
       "gpu": "A100",
-      "variant": "SXM4 80GB",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "resnet50",
       "workload_name": "ResNet-50 (MLPerf resnet50)",
@@ -1653,13 +1653,13 @@
       "source_title": "MLPerf Inference v3.0 results - NVIDIA DGX-A100_A100-SXM-80GBx1_TRT - resnet50 Offline mlperf_log_summary.txt",
       "publication_date": null,
       "date_note": "MLPerf Inference v3.0 (submission deadline 2023-03-03 per github.com/mlcommons/inference README); public release date not verified",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 42379.3"
     },
     {
-      "id": "tp-a100-sxm4-80gb-gpt-j-6b-mlperf-inference-v3-1-closed-datacenter-offline-throughput-weights-fp16-inputs-int32-submission-measurements-json",
+      "id": "tp-a100-sxm-80gb-gpt-j-6b-mlperf-inference-v3-1-closed-datacenter-offline-throughput-weights-fp16-inputs-int32-submission-measurements-json",
       "gpu": "A100",
-      "variant": "SXM4 80GB",
+      "variant": "SXM 80GB",
       "memory_gb": 80,
       "workload": "gpt-j-6b",
       "workload_name": "GPT-J 6B (MLPerf gptj-99)",
@@ -1687,7 +1687,7 @@
       "source_title": "MLPerf Inference v3.1 results - Dell XE9680_A100_SXM_80GBx8_TRT - gptj-99 Offline mlperf_log_summary.txt",
       "publication_date": "2023-09-11",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2023/09/mlperf-results-highlight-growing-importance-of-generative-ai-and-storage/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 42.3161"
     },
     {
@@ -1721,7 +1721,7 @@
       "source_title": "MLPerf Inference v3.0 results - NVIDIA A100-PCIe-80GBx1_TRT - bert-99 Offline mlperf_log_summary.txt",
       "publication_date": null,
       "date_note": "MLPerf Inference v3.0 (submission deadline 2023-03-03 per github.com/mlcommons/inference README); public release date not verified",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 3168.14"
     },
     {
@@ -1755,7 +1755,7 @@
       "source_title": "MLPerf Inference v3.0 results - NVIDIA A100-PCIe-80GBx1_TRT - resnet50 Offline mlperf_log_summary.txt",
       "publication_date": null,
       "date_note": "MLPerf Inference v3.0 (submission deadline 2023-03-03 per github.com/mlcommons/inference README); public release date not verified",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 39152.4"
     },
     {
@@ -1789,7 +1789,7 @@
       "source_title": "MLPerf Inference v3.1 results - Dell R750xa_A100_PCIe_80GBx4_TRT - gptj-99 Offline mlperf_log_summary.txt",
       "publication_date": "2023-09-11",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2023/09/mlperf-results-highlight-growing-importance-of-generative-ai-and-storage/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 14.7035"
     },
     {
@@ -1823,7 +1823,7 @@
       "source_title": "MLPerf Inference v5.0 results - Dell XE7745_L40Sx8_TRT - llama2-70b-99 Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Tokens per second: 3481.53"
     },
     {
@@ -1857,7 +1857,7 @@
       "source_title": "MLPerf Inference v5.0 results - Dell XE7745_L40Sx8_TRT - stable-diffusion-xl Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 6.21681"
     },
     {
@@ -1891,7 +1891,7 @@
       "source_title": "MLPerf Inference v5.0 results - Dell XE7745_L40Sx8_TRT - resnet50 Offline mlperf_log_summary.txt",
       "publication_date": "2025-04-02",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2025/04/mlperf-inference-v5-0-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 345721"
     },
     {
@@ -1925,13 +1925,13 @@
       "source_title": "MLPerf Inference v4.1 results - Quanta_Cloud_Technology D54U_3U_L40S_PCIe_48GBx4_TRT - bert-99 Offline mlperf_log_summary.txt",
       "publication_date": "2024-08-28",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/08/mlperf-inference-v4-1-results/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 13248.3"
     },
     {
-      "id": "tp-rtx-4090-24gb-bert-large-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
+      "id": "tp-rtx-4090-geforce-24gb-bert-large-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int32-submission-measurements-json",
       "gpu": "RTX 4090",
-      "variant": "24GB",
+      "variant": "GeForce 24GB",
       "memory_gb": 24,
       "workload": "bert-large",
       "workload_name": "BERT-Large (MLPerf bert-99)",
@@ -1959,13 +1959,13 @@
       "source_title": "MLPerf Inference v4.0 results - CTuning PCSPECIALIST_AMD_AM5_PC_with_Nvidia_RTX_4090-nvidia_original-gpu-tensorrt-vdefault-default_config - bert-99 Offline mlperf_log_summary.txt",
       "publication_date": "2024-03-27",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/03/mlperf-inference-v4/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 4102.44"
     },
     {
-      "id": "tp-rtx-4090-24gb-resnet50-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int8-submission-measurements-json",
+      "id": "tp-rtx-4090-geforce-24gb-resnet50-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-int8-inputs-int8-submission-measurements-json",
       "gpu": "RTX 4090",
-      "variant": "24GB",
+      "variant": "GeForce 24GB",
       "memory_gb": 24,
       "workload": "resnet50",
       "workload_name": "ResNet-50 (MLPerf resnet50)",
@@ -1993,13 +1993,13 @@
       "source_title": "MLPerf Inference v4.0 results - CTuning PCSPECIALIST_AMD_AM5_PC_with_Nvidia_RTX_4090-nvidia_original-gpu-tensorrt-vdefault-default_config - resnet50 Offline mlperf_log_summary.txt",
       "publication_date": "2024-03-27",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/03/mlperf-inference-v4/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 45267"
     },
     {
-      "id": "tp-rtx-4090-24gb-gpt-j-6b-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-fp16-inputs-int32-submission-measurements-json",
+      "id": "tp-rtx-4090-geforce-24gb-gpt-j-6b-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-fp16-inputs-int32-submission-measurements-json",
       "gpu": "RTX 4090",
-      "variant": "24GB",
+      "variant": "GeForce 24GB",
       "memory_gb": 24,
       "workload": "gpt-j-6b",
       "workload_name": "GPT-J 6B (MLPerf gptj-99)",
@@ -2027,13 +2027,13 @@
       "source_title": "MLPerf Inference v4.0 results - CTuning PCSPECIALIST_AMD_AM5_PC_with_Nvidia_RTX_4090-nvidia_original-gpu-tensorrt-vdefault-default_config - gptj-99 Offline mlperf_log_summary.txt",
       "publication_date": "2024-03-27",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/03/mlperf-inference-v4/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 4.66193"
     },
     {
-      "id": "tp-rtx-4090-24gb-sdxl-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-fp32-inputs-fp32-submission-measurements-json",
+      "id": "tp-rtx-4090-geforce-24gb-sdxl-mlperf-inference-v4-0-closed-datacenter-offline-throughput-weights-fp32-inputs-fp32-submission-measurements-json",
       "gpu": "RTX 4090",
-      "variant": "24GB",
+      "variant": "GeForce 24GB",
       "memory_gb": 24,
       "workload": "sdxl",
       "workload_name": "Stable Diffusion XL (MLPerf stable-diffusion-xl)",
@@ -2061,7 +2061,7 @@
       "source_title": "MLPerf Inference v4.0 results - CTuning PCSPECIALIST_AMD_AM5_with_Nvidia_RTX_4090-reference-gpu-pytorch-v2.1.2-default_config - stable-diffusion-xl Offline mlperf_log_summary.txt",
       "publication_date": "2024-03-27",
       "date_note": "MLCommons round announcement: https://mlcommons.org/2024/03/mlperf-inference-v4/",
-      "retrieved_at": "2026-10-29T20:53:58Z",
+      "retrieved_at": "2026-10-29T20:56:26Z",
       "quote": "Samples per second: 0.396513"
     }
   ],
