@@ -2,6 +2,11 @@
 
 Ships with commits, CI runs, URLs and versions (newest first).
 
+## 2026-10-29 — 0.3.21: price alerts back on at $0; #43 + #44
+- Alerts (d1d0e35f): daily GitHub Actions push of HMAC-signed event batches to the worker; worker matches, signs, sends (https-only, public IP after DNS, dedupe by event_id). Proof: run 40954987898 sent=7, all 7 signatures verified; rerun sent=0.
+- Merged #43 (data/gpu_throughput.json, 71 cited figures, 8 gaps) and #44 (estimate_job_cost uses cited MLPerf throughput for inference; training still returns missing).
+- Release 2b396207: PyPI 0.3.21, MCP Registry 0.3.21, worker 96cbb5ca. stdio 8 tools ok, hosted 12 (8 read-only ok). T41 live 21/21. 309 tests.
+
 ## 2026-10-29 — 0.3.20: estimate_job_cost, report_issue_url, GPU Price Index; Atrium batch; T33
 
 - aa40add2 (#38, T33): /gpu/free-credits/ now generated (scripts/free_credits_page.py), each amount quoted from the program's official page with its URL and a 2026-10-29 check date; in the sitemap; no referral links.
