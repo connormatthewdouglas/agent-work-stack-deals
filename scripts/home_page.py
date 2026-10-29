@@ -26,11 +26,21 @@ def spread(rates: list[dict]) -> list[dict]:
         if not rs:
             continue
         vals = [r["hourly_equiv_usd"] for r in rs]
-        lo = rs[0]
+        # E5: "cheapest" is the cheapest row not marked out of stock when checked (unknown counts as available).
+        oos = lambda r: isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is False
+        lo = next((r for r in rs if not oos(r)), rs[0])
+        skipped = next((r for r in rs if oos(r)), None)
+        caveat = ""
+        if skipped is not None and skipped["hourly_equiv_usd"] < lo["hourly_equiv_usd"]:
+            ca = skipped["availability"].get("checked_at")
+            caveat = (f'{skipped["advertiser"]} ${skipped["hourly_equiv_usd"]:.2f} out of stock when checked'
+                      + (f" at {ca}" if ca else ""))
+        vals = [r["hourly_equiv_usd"] for r in rs if not oos(r)] or vals
         out.append({"slug": slug, "name": name, "n": len(rs), "vendors": len({r["advertiser"] for r in rs}),
                     "min": vals[0], "median": statistics.median(vals), "max": vals[-1],
                     "cheapest_vendor": lo["advertiser"], "cheapest_gpu": lo["gpu"], "cheapest_tier": lo.get("tier"),
-                    "checked": (lo.get("verified_at") or lo.get("checked_at") or "")[:10], "source_url": lo.get("source_url")})
+                    "checked": (lo.get("verified_at") or lo.get("checked_at") or "")[:10], "source_url": lo.get("source_url"),
+                    "oos_caveat": caveat, "cheapest_price": lo["hourly_equiv_usd"]})
     return out
 
 
@@ -43,10 +53,10 @@ JS = r"""  <script>
     if(!d||!Array.isArray(d.rates))return;
     const c=document.querySelectorAll("[data-live-count]");c.forEach(e=>e.textContent=d.rates.length);
     for(const k in FAM){
-      const rs=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null).sort((a,b)=>a.hourly_equiv_usd-b.hourly_equiv_usd);
+      const rs=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&!(r.availability&&r.availability.in_stock===false)).sort((a,b)=>a.hourly_equiv_usd-b.hourly_equiv_usd);
       const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!rs.length)continue;
       const v=rs.map(r=>r.hourly_equiv_usd),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
-      row.querySelector(".lo").textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
+      (row.querySelector(".lo strong")||row.querySelector(".lo")).textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
       row.querySelector(".n").textContent=v.length;row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
     }
   }).catch(()=>{});
@@ -72,7 +82,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     fresh = max(((r.get("verified_at") or "")[:10] for r in rates), default="")
     rows = "".join(
         f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/cheapest-{s["slug"]}-rental/">{esc(s["name"])}</a></th>'
-        f'<td class="lo"><strong>${s["min"]:.2f}</strong></td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
+        f'<td class="lo"><strong>${s["min"]:.2f}</strong>{f' <small class="oos">(excl. {esc(s["oos_caveat"])})</small>' if s["oos_caveat"] else ""}</td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
         f'<td class="n">{s["n"]}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
         for s in spread(rates))
     ch = build_changes()

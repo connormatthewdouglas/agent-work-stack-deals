@@ -73,8 +73,12 @@ _QUOTE = {"quote_id": {"type": "string", "pattern": "^q_[0-9a-f]{20}$"}, "issued
           "quote_basis": {"type": "object"}}
 _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION,
                                                                      "alternatives": {"type": "array", "items": _OPTION}}}}
+# E5: availability passed through from the feed as-is (null when the feed has none; never invented).
+_AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock": {"type": ["boolean", "null"]},
+                                                     "checked_at": _str, "note": _str}}
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
-    "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"rate_id": _RATE_ID, "report_issue_url": _str}}}}
+    "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"rate_id": _RATE_ID, "report_issue_url": _str,
+                                                                          "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}}}}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {

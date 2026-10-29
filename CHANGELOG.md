@@ -2,6 +2,9 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.23 (2026-10-29)
+- `compare_gpu_prices` results carry `availability` and `in_stock` (E5, #45). Rows the feed marks "out of stock when checked" are kept and flagged but rank after in-stock and unknown-availability rows, so they are never called cheapest; the summary names a cheaper out-of-stock row with its check time. The home page spread follows the same rule. Unknown availability is never treated as out of stock.
+
 ## 0.3.22 (2026-10-29)
 - Data QA fixes (Gauge EOD audit): Clore.ai's duplicate deal record (deal-cloreai-001) is retired, so Clore.ai is no longer listed as unpriced (its priced rows are under deal-clore-ai); the old URL redirects. CloudRift tier labels are normalized to ASCII "On-demand" (the vendor quote stays verbatim). The Vast.ai availability note no longer says "later". GPU Price Index rows record the real build commit sha. /install/ takes its version from the package. Both READMEs list all 8 tools.
 - Massed Compute (L40S, announced in 0.3.14) was pulled on 2026-10-29: its pricing page no longer lists that offer (aa59c8d2).

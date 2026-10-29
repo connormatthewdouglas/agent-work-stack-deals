@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.22"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.23"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -327,10 +327,21 @@ def tier_class(r: dict) -> str:
     return "on-demand"
 
 
+def out_of_stock(r: dict) -> bool:
+    """E5: True only when the feed explicitly marks the row out of stock (in_stock is False). Unknown is not out of stock."""
+    a = r.get("availability")
+    return isinstance(a, dict) and a.get("in_stock") is False
+
+
+def oos_note(r: dict) -> str:
+    a = r.get("availability") or {}
+    return "out of stock when checked" + (f" at {a['checked_at']}" if a.get("checked_at") else "")
+
+
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
                "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id",
                "gpu_count", "server_price_usd", "server_hourly_usd", "evidence", "min_gpus", "price_status",
-               "price_basis", "lowest_offer_usd", "offer_count", "interruptible")
+               "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability")
 
 
 def _tokens(s: str) -> list[str]:
@@ -418,7 +429,10 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             raise DealError("not_found", f"Only reservation/commitment prices are tracked for GPU '{gpu}' ({excluded_reserved}); retry with include_reserved=true")
         rows = keep
     # Reserved rows (only with include_reserved) sort after pay-as-you-go rows: never reported as "cheapest".
-    rows.sort(key=lambda r: (tier_class(r) == "reserved", r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
+    oos_cheaper = min((r for r in rows if out_of_stock(r) and tier_class(r) != "reserved"),
+                      key=lambda r: r["hourly_equiv_usd"], default=None)
+    rows.sort(key=lambda r: (tier_class(r) == "reserved", out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
     od = next((r for r in rows if tier_class(r) == "on-demand"), None)
     # Different memory sizes are different products (an A100 40GB is not an A100 80GB): name the cheapest per size.
     by_vram = {}
@@ -437,16 +451,25 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["tier_class"] = tier_class(r)
         out["tier_note"] = TIER_NOTES[out["tier_class"]]
         out["rank"] = i
+        out["in_stock"] = (out.get("availability") or {}).get("in_stock") if isinstance(out.get("availability"), dict) else None
+        if out_of_stock(r):
+            out["availability_note"] = oos_note(r) + "; ranked after in-stock/unknown rows"
         out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
         out.update(data_age.age_fields(r, now))
         from .report_issue import report_issue_url
         out["report_issue_url"] = report_issue_url(out)  # T40: give this to the user if the row looks wrong
         results.append(out)
     c = results[0]
+    oos_msg = ""
+    if oos_cheaper is not None and not out_of_stock(c) and oos_cheaper["hourly_equiv_usd"] < c["hourly_usd"]:
+        oos_msg = (f" Cheaper but {oos_note(oos_cheaper)}: {oos_cheaper['advertiser']} {oos_cheaper['gpu']} at "
+                   f"${oos_cheaper['hourly_equiv_usd']:g}/hr ({oos_cheaper.get('tier')}).")
+    elif out_of_stock(c):
+        oos_msg = f" Note: this row was {oos_note(c)}; no in-stock or unknown-availability row matched."
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
     return {
         "gpu": gpu,
-        "summary": (f"Cheapest among tracked providers: {c['advertiser']} {c['gpu']} at ${c['hourly_usd']:g}/hr "
+        "summary": (f"Cheapest{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c['advertiser']} {c['gpu']} at ${c['hourly_usd']:g}/hr "
                     f"({c['tier']}, checked {(c['checked_at'] or '')[:10]})"
                     + (f"; variable marketplace median, lowest offer ${c['lowest_offer_usd']:g}/hr"
                        if c.get("price_status") == "marketplace" else "")
@@ -454,6 +477,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     + f". Tier: {results[0]['tier_class']}."
                     + ("" if results[0]["tier_class"] == "on-demand" or od is None else
                        f" Cheapest on-demand: {od['advertiser']} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
+                    + oos_msg
                     + ". This is the cheapest among tracked providers only, not the whole market. "
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,

@@ -151,12 +151,21 @@ def _(f, ev):
     out = tool(SRV.compare_gpu_prices, "H100", limit=25)
     res = out.get("results") or []
     rows = [r for r in RATES if "h100" in toks(r["gpu"]) and D.tier_class(r) != "reserved"]
-    exp = min(r["hourly_equiv_usd"] for r in rows)
+    # E5: rows the feed marks out of stock are ranked after in-stock/unknown rows, so they are never "cheapest"
+    oos = lambda r: (r.get("availability") or {}).get("in_stock") is False
+    exp = min((r["hourly_equiv_usd"] for r in rows if not oos(r)), default=min(r["hourly_equiv_usd"] for r in rows))
     ev.update(tool_cheapest=res[0] and {k: res[0][k] for k in ("advertiser", "gpu", "tier", "hourly_usd", "tier_class")}, feed_min=exp,
               feed_rows=len(rows), tool_count=out.get("count"))
     if abs(res[0]["hourly_usd"] - exp) > 1e-9: f.append(f"cheapest {res[0]['hourly_usd']} != feed min {exp}")
-    hs = [x["hourly_usd"] for x in res]
-    if hs != sorted(hs): f.append(f"not sorted ascending: {hs}")
+    # Never weaker than before E5: the row shown as cheapest must not be reserved, thin or held, whatever its price.
+    if res[0].get("tier_class") == "reserved": f.append("reserved row shown as cheapest")
+    if res[0].get("price_status") in ("thin", "held", "held_stale"): f.append(f"{res[0].get('price_status')} row shown as cheapest")
+    held_keys = {(h.get("vendor"), x.get("gpu"), x.get("tier")) for h in (FEED.get("held_stale") or []) for x in (h.get("records") or [])}
+    ranked_keys = {(r.get("advertiser"), r.get("gpu"), r.get("tier")) for r in RATES}
+    held_keys -= ranked_keys  # same label also ranked (fresh) is fine; only a held-only row may not lead
+    if (res[0].get("advertiser"), res[0].get("gpu"), res[0].get("tier")) in held_keys: f.append("held/thin row shown as cheapest")
+    hs = [(x.get("in_stock") is False, x["hourly_usd"]) for x in res]
+    if hs != sorted(hs): f.append(f"not sorted ascending (out-of-stock last): {hs}")
     if out.get("total") != len(rows) and len(rows) <= 25 and out.get("count") != len(rows): f.append(f"count {out.get('count')} != feed rows {len(rows)}")
     if out.get("scope") != "cheapest among tracked providers": f.append(f"scope={out.get('scope')!r}")
     if "among tracked providers" not in (out.get("summary") or ""): f.append("summary lacks 'among tracked providers'")

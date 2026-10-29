@@ -128,6 +128,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.23 (2026-10-29)</h2>
+<ul>
+<li><code>compare_gpu_prices</code> results carry <code>availability</code> and <code>in_stock</code> (E5, #45). Rows the feed marks &quot;out of stock when checked&quot; are kept and flagged but rank after in-stock and unknown-availability rows, so they are never called cheapest; the summary names a cheaper out-of-stock row with its check time. The home page spread follows the same rule. Unknown availability is never treated as out of stock.</li>
+</ul>
 <h2>0.3.22 (2026-10-29)</h2>
 <ul>
 <li>Data QA fixes (Gauge EOD audit): Clore.ai&#x27;s duplicate deal record (deal-cloreai-001) is retired, so Clore.ai is no longer listed as unpriced (its priced rows are under deal-clore-ai); the old URL redirects. CloudRift tier labels are normalized to ASCII &quot;On-demand&quot; (the vendor quote stays verbatim). The Vast.ai availability note no longer says &quot;later&quot;. GPU Price Index rows record the real build commit sha. /install/ takes its version from the package. Both READMEs list all 8 tools.</li>
