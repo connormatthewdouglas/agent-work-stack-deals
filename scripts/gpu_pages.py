@@ -78,6 +78,18 @@ def _pick_cheapest(rs: list[dict]) -> dict:
 
 
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
+    """H5: reserved/term-commitment rows get their own section, sorted by effective hourly rate with the term shown."""
+    payg = [r for r in rows if r.get("tier_class") != "reserved"]
+    res = sorted((r for r in rows if r.get("tier_class") == "reserved"), key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
+    out = _table_one(gen, payg, full) if payg else ""
+    if res:
+        out += ("\n<h3 id=\"reserved-rates\">Reserved and term-commitment prices</h3>\n<p class=\"meta\">These need a reservation or minimum term "
+                "(shown in the Type column), so they are kept out of the list above and are not ranked among pay-as-you-go rates. "
+                "Sorted by effective hourly rate.</p>\n" + _table_one(gen, res, full, show_filter=False))
+    return out
+
+
+def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
     esc = gen.esc
     trs = []
     for i, r in enumerate(rows, 1):
@@ -94,6 +106,8 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
             "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
+    if not show_filter:
+        filt = ""
     return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
             f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote (verbatim)</th>"
             "<th>Price verified</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
