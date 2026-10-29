@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import copy
 
-ERROR_CODES = ("invalid_argument", "invalid_cursor", "not_found", "feed_unavailable", "feed_invalid",
+ERROR_CODES = ("invalid_argument", "invalid_cursor", "cursor_expired", "not_found", "feed_unavailable", "feed_invalid",
                "upstream_unavailable", "internal_error")
 MODES = ("brief", "full")
 
@@ -27,8 +27,9 @@ SPEC = {
                            ["rank", "advertiser", "gpu", "vram_gb", "hourly_usd", "tier_class", "source_url", "checked_at"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
-                          ["summary", "total", "count", "changes"],
-                          ["date", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd", "change_pct", "source_url"]),
+                          ["summary", "total", "count", "changes", "next_cursor", "has_more"],
+                          ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
+                           "change_pct", "source_url"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete"],
@@ -48,6 +49,15 @@ SPEC = {
     "get_deal": (["id"], None, [],
                  ["id", "title", "advertiser", "offer_type", "price_usd", "unit", "redeem_url", "verified_at", "affiliate"], []),
 }
+# Optional typed fields beyond the required ones (T38 paging for get_price_changes).
+EXTRA_PROPS = {
+    "get_price_changes": {
+        "next_cursor": _str, "has_more": _bool, "last_seq": {"type": ["integer", "null"]},
+        "changes": {"type": "array", "items": {"type": "object", "required": ["vendor", "gpu", "direction"],
+                                                "properties": {"event_id": _str, "rate_id": _str, "key": _str,
+                                                               "seq": {"type": ["integer", "null"]}, "snapshot_id": _str}}},
+    },
+}
 BRIEF_CHOICE_KEYS = ("vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at")
 
 
@@ -56,6 +66,7 @@ def output_schema(tool: str) -> dict:
     props = {"ok": {"type": "boolean"}, "mode": {"type": "string", "enum": list(MODES)}, "error": ERROR_SCHEMA}
     if list_key:
         props[list_key] = {"type": "array", "items": {"type": "object", "required": row_req}}
+    props.update(EXTRA_PROPS.get(tool, {}))
     return {
         "type": "object",
         "required": ["ok"],

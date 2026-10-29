@@ -142,22 +142,26 @@ def _gpu_checked_at(gpu: dict | None = None) -> str | None:
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_contract
-def get_price_changes(since: str | None = None, gpu: str | None = None, limit: int = 50) -> dict:
-    """GPU rental price changes among tracked providers, newest first, each with old/new hourly price, change_pct,
-    direction and the vendor source_url.
+def get_price_changes(since: str | None = None, gpu: str | None = None, limit: int = 50, cursor: str | None = None,
+                      kinds: list[str] | None = None) -> dict:
+    """GPU rental price changes among tracked providers, each with old/new hourly price, change_pct, direction,
+    the vendor source_url, a stable event_id (dedupe key) and rate_id.
 
-    since: 'YYYY-MM-DD' returns every change on or after that date (daily snapshots in
+    since: 'YYYY-MM-DD' returns every change on or after that date, newest first (daily snapshots in
     /api/v1/gpu-prices/history.json); omitted returns the latest day's moves (/api/v1/gpu-price-changes.json).
-    gpu: optional model filter (substring, e.g. 'H100'). limit 1-200. Includes data_checked_at and next_refresh_utc
-    (prices refresh daily at about 10:23 UTC), so you can call again after the next refresh to see what moved.
+    cursor: pass next_cursor from a previous call to get every change after it, oldest first, with has_more;
+    loop until has_more is false, and store next_cursor only after processing (a watcher never misses or repeats
+    events). error cursor_expired means re-sync with since and dedupe by event_id.
+    kinds: optional subset of down, up, new, removed, same. gpu: optional model filter (substring, e.g. 'H100').
+    limit 1-200. Includes data_checked_at and next_refresh_utc (prices refresh daily at about 10:23 UTC).
     """
     try:
         latest = hist = None
-        if since is None:
+        if since is None and cursor is None:
             latest = changes_loader.load()
         else:
             hist = history_loader.load()
-        return core.price_changes(latest, hist, since=since, gpu=gpu, limit=limit)
+        return core.price_changes(latest, hist, since=since, gpu=gpu, limit=limit, cursor=cursor, kinds=kinds)
     except DealError as e:
         return e.to_dict()
 
