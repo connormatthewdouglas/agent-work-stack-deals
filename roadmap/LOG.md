@@ -65,3 +65,11 @@ Numbers from a run at ~6:10 PM ET on Oct 28 (pypistats has data only for 2026-10
   - PyPI: https://pypi.org/project/lantern-works-deals-mcp/0.3.8/
   - MCP Registry: 0.3.8 (latest).
 - **Clean-env check:** `test_pypi_install.py --version 0.3.8 --uvx` passed for both pip and uvx. The install page now says it's tested on 0.3.8.
+
+## 2026-10-28 8:30 PM ET — 0.3.8 / get_price_changes rollout
+- Verified lantern-works-deals-mcp 0.3.8 from PyPI in a clean venv: 7 tools (adds get_price_changes). get_price_changes(since="2026-10-21") returned 2 moves (Vast.ai A100 SXM $1.3389 -> $1.1378/hr, -15%; Vast.ai RTX 4090 $0.5022 -> $0.5175/hr, +3%), each with a vendor source_url. compare_gpu_prices and optimize_agent_stack return data_checked_at, next_refresh_utc and refresh_hint.
+- PR #17 (examples/gpu-price-watcher with real output + cron line; links in install_page.py, README, examples/README; SKILL.md get_price_changes note in the source + 3 copies; manifest mcp_server block listing 7 tools at 0.3.8) CI green, merged as 81c12004be25462775301a0606e6864f9a385a59. SKILL.md already said 0.3.8 with 7 tools.
+- Listings set to 0.3.8 / 7 tools (commit + PR body): docker/mcp-registry#6278 (commit 9ba4fe8, pin -> 81c1200), MobinX#977 (88257e4), punkpeye#17770 (78c869c), YuzeHao2023#758 (d5e7b64), rohitg00#389 (df421aa), e2b#1861 (d0e6f81); cline#3319 issue body edited. Disclosure line kept.
+- Review: CodeRabbit on #389 just acknowledged the earlier fix; no reply needed. e2b cla-bot cannot match commit author "Lantern Works <lanternworks@agentmail.to>" to a GitHub user (commits 7959e99, d0e6f81). Fixing it means re-authoring and force-pushing the fork branch; not done, needs approval.
+- MCP Registry live (0.3.8 active): "GPU rental prices checked daily, with price history; stack optimizer; AI-infra deals." Names no tools, so it does not mention all 7.
+- Skipped Glama, mcp.so and mcp.directory as instructed.
