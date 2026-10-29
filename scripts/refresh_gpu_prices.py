@@ -286,8 +286,12 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     new_s = None
                 else:
                     if abs(new - old) > 1e-9:
-                        r["quote"] = (quote if r.get("price_status") == "marketplace" else _swap_quote_price(r["quote"], old, new_s))
+                        # use the text matched on the page: a quote holding several prices (e.g. on-demand + spot on one line)
+                        # must not keep a sibling's old price (that broke the live source check on 2026-10-29)
+                        r["quote"] = quote if quote else _swap_quote_price(r["quote"], old, new_s)
                         _set_price(r, new)
+                    if quote and abs(new - old) <= 1e-9:
+                        r["quote"] = quote  # keep sibling prices in a shared quote line current too
                     r["evidence"] = {"source_url": r["source_url"], "quote": quote, "checked_at": stamp}
                     r["verified_at"] = r["checked_at"] = stamp
                     if r.get("stale", {}).get("auto"):
