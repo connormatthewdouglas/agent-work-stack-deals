@@ -120,7 +120,7 @@ def test_published_api_matches_records():
 def test_gpu_pages_carry_accuracy_notes_and_tracked_wording():
     import re
     root = Path(__file__).resolve().parents[1]
-    pages = [p for p in (root / "gpu").glob("*/index.html") if p.parent.name != "free-credits"] + [root / "tools/gpu-cost-calculator/index.html"]
+    pages = [p for p in (root / "gpu").glob("*/index.html") if p.parent.name not in ("free-credits", "index")] + [root / "tools/gpu-cost-calculator/index.html"]
     pages += [root / "compare" / s / "index.html" for s in ("cheap-gpu-rental", "cheapest-gpu-per-gb-vram",
                                                           "runpod-vs-thunder-compute-vs-modal-h100", "runpod-community-vs-secure-cloud-prices")]
     assert len(pages) >= 11

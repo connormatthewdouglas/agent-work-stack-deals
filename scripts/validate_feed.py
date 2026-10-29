@@ -216,6 +216,29 @@ def check_links(feed: dict) -> None:
     print(f"links_checked={len(urls)} ok={n_ok} soft={sum(r[0]=='soft' for r in results)} errors={sum(r[0]=='error' for r in results)}")
 
 
+def check_gpu_index() -> None:
+    """T21: gpu-price-index.json shape: values null or > 0, vendors >= 1 when set, dates == snapshot dates,
+    monthly basis == round(median * 730, 2), license present."""
+    p = ROOT / "api" / "v1" / "gpu-price-index.json"
+    if not p.exists():
+        err("api/v1/gpu-price-index.json missing"); return
+    idx = json.loads(p.read_text(encoding="utf-8"))
+    if (idx.get("license") != "CC-BY-4.0") or not idx.get("attribution"):
+        err("gpu-price-index: license/attribution missing")
+    snaps = sorted(f.stem for f in (ROOT / "data" / "gpu_pricing" / "snapshots").glob("*.json"))
+    if [d["date"] for d in idx.get("history", [])] != snaps:
+        err("gpu-price-index: history dates != snapshot dates")
+    for d in idx.get("history", []):
+        for s, v in d["series"].items():
+            m = v.get("median_usd_per_gpu_hour")
+            if m is None:
+                continue
+            if not m > 0 or (v.get("min_usd_per_gpu_hour") or 0) <= 0 or v.get("vendors", 0) < 1:
+                err(f"gpu-price-index {d['date']} {s}: bad value/vendors")
+            if v.get("monthly_basis_usd") != round(m * 730, 2):
+                err(f"gpu-price-index {d['date']} {s}: monthly_basis_usd != round(median*730, 2)")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gist", action="store_true", help="check gist mirror byte parity")
@@ -226,6 +249,7 @@ def main() -> int:
     check_schema(feed)
     check_private(feed)
     check_static()
+    check_gpu_index()
     check_compliance(feed)
     if a.gist:
         check_gist()

@@ -1823,6 +1823,8 @@ def main() -> None:
     tool_paths.append(free_credits_page.write(sys.modules[__name__]))
     import report_price_page
     tool_paths.append(report_price_page.write(sys.modules[__name__]))
+    import gpu_index_page
+    tool_paths += gpu_index_page.write_all(sys.modules[__name__])
     import embed_page
     tool_paths.append(embed_page.write(sys.modules[__name__]))
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
