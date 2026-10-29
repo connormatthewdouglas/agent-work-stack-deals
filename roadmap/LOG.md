@@ -201,3 +201,8 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Owner approved CC BY 4.0 for the data (11:07 AM ET). Code stays MIT (LICENSE). New LICENSE-DATA: CC BY 4.0 legal text, attribution "Lantern Works". Every JSON feed (deals.json, api/v1/deals.json, gpu-prices.json, history.json, gpu-price-changes.json, api/v1/gpu/*.json, stack-pricing.json) carries a `license` object; schema.json allows it. /methodology/, README and mcp_server/README updated; LICENSE-DATA ships in the wheel.
 - Commit 9f7d969e. PyPI 0.3.19, MCP Registry 0.3.19, hosted worker 62cadded (serverInfo 0.3.19). Gist deals.json patched, identical. T41 21/21 local and live. Live: /methodology/ shows CC BY 4.0; live deals.json, api/v1/deals.json, gpu-prices.json, history.json carry license data CC-BY-4.0.
 - live-checks still fails on the Massed Compute L40S source check (unchanged).
+
+## 2026-10-29 — Pulled Massed Compute L40S $0.97 pending re-verify (Mart)
+- At Gauge's request: deleted data/gpu_pricing/massed-compute.json (Gauge's prepared diff; test count 114 -> 113). Its pricing page no longer lists L40S. Same pattern as dd32f4b4. Removed the row from today's snapshot (2026-10-29) so the change feed doesn't report it as "new". No Massed deal entry or page existed, so no label change was needed; no $0.97 remains on any page or feed.
+- tests/test_quote_receipts.py::test_every_compare_row_has_the_feed_rate_id now reads the local api/v1/gpu-prices.json (patched loader), not the live site, so data pulls can deploy.
+- No package code change, so no PyPI release.

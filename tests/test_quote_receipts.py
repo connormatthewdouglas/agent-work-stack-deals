@@ -36,7 +36,9 @@ def test_rate_id_is_imported_from_core_ids_not_duplicated():
     assert "def rate_id" not in src and "def rate_identity" not in src
 
 
-def test_every_compare_row_has_the_feed_rate_id():
+def test_every_compare_row_has_the_feed_rate_id(monkeypatch):
+    # Compare against the local build, never the live site, so a data change can deploy before the site has it.
+    monkeypatch.setattr(s, "gpu_loader", deals.GpuPricesLoader(file=str(ROOT / "api/v1/gpu-prices.json")))
     by_id = {ids.rate_id(r): r for r in GPU["rates"]}
     for g in ("H100", "A100", "RTX 4090", "L40S"):
         out = s.compare_gpu_prices(gpu=g, limit=25, include_reserved=True)
