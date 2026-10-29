@@ -72,14 +72,14 @@ def write(g) -> str:
     <li>The deal feed shows when it was last updated (<code>updated_at</code>), and every deal shows when it was last verified (<code>verified_at</code>).</li>
   </ul>
 
-  <h2 id="license">Data license</h2>
-  <p>The price and deal data (the JSON feeds under <code>/api/v1/</code> and the tables on this site) are licensed under <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener">Creative Commons Attribution 4.0 International (CC BY 4.0)</a>. You may copy, share and adapt the data, including commercially, as long as you credit Lantern Works and link to <a href="{base}/">{html.escape(base.replace("https://", ""))}</a>. The code is separately licensed under <a href="{repo}/blob/main/LICENSE">MIT</a>. Prices change; always confirm on the vendor's page before spending.</p>
+  <h2 id="license">License</h2>
+  <p>The code and the price and deal data (the JSON feeds under <code>/api/v1/</code> and the tables on this site) are released under the <a href="{repo}/blob/main/LICENSE" rel="license noopener">MIT License</a>, the same license as the repository. You may copy, share and adapt them, including commercially, as long as the MIT copyright and permission notice is kept. A credit and link to <a href="{base}/">{html.escape(base.replace("https://", ""))}</a> is appreciated. Prices change; always confirm on the vendor's page before spending.</p>
 
   <p class="meta">More: <a href="{base}/for-agents/">For agents</a> (feed schema) · <a href="{base}/install/">Install the MCP server</a> · <a href="{repo}">Source code</a></p>
 """
     out = Path(g.ROOT) / PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(g.page_shell("Methodology: how Lantern Works collects, verifies and holds prices",
-                                "Where Lantern Works prices come from, how they are checked daily, when they are held, why reserved rates are not ranked cheapest, and the CC BY 4.0 data license.",
+                                "Where Lantern Works prices come from, how they are checked daily, when they are held, why reserved rates are not ranked cheapest, and the license (MIT, code and data).",
                                 f"{base}/{PATH}/", body), encoding="utf-8")
     return PATH
