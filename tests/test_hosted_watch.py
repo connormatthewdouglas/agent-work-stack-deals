@@ -1,6 +1,7 @@
 """Hosted price watches: key/URL safety, signing, matching, never-twice dedupe, caps, and an end-to-end cron on a
 sqlite-backed fake D1. The local stdio server must stay keyless (no watch tools)."""
 from __future__ import annotations
+import re
 
 import asyncio
 import json
@@ -181,6 +182,13 @@ def test_end_to_end_crossing_fires_once_signed():
     assert lst["count"] == 1 and lst["alerts_delivered"] == 1
     st = run(S.stats(e))
     assert st["active_watches"] == 1 and st["alerts_delivered_total"] == 1
+    # T12: weekly per-key aggregates, HMAC key label only, nothing identifying
+    wk = st["weekly_per_key"]["weeks"]
+    assert len(wk) == 1 and wk[0]["alerts"] == 1 and wk[0]["calls"] >= 2 and re.fullmatch(r"\d{4}-W\d{2}", wk[0]["week"])
+    kid = lst.get("key_id") or W.parse_key(api)
+    blob = json.dumps(st)
+    assert kid not in blob and api not in blob and "webhook" not in json.dumps(wk) and re.fullmatch(r"k_[0-9a-f]{16}", wk[0]["key"])
+    assert S.STATS_RETENTION_DAYS >= 90
 
 
 def test_failed_post_is_retried_then_once():

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import watch as W
 
@@ -273,5 +273,29 @@ async def stats(env) -> dict:
         rows = await _all(db, "SELECT day, metric, n FROM watch_metrics WHERE metric = 'alerts_delivered' ORDER BY day DESC LIMIT 90")
     except Exception:
         return {"active_watches": None, "alerts_delivered_total": None, "alerts_delivered_by_day": []}
-    return {"active_watches": (active or {}).get("n", 0), "alerts_delivered_total": sum(r["n"] for r in rows),
-            "alerts_delivered_by_day": [{"day": r["day"], "n": r["n"]} for r in rows]}
+    out = {"active_watches": (active or {}).get("n", 0), "alerts_delivered_total": sum(r["n"] for r in rows),
+           "alerts_delivered_by_day": [{"day": r["day"], "n": r["n"]} for r in rows]}
+    out["weekly_per_key"] = await weekly_per_key(env)
+    return out
+
+
+STATS_RETENTION_DAYS = 90  # per-key daily counters are never pruned before this (T12); published window = same
+
+
+async def weekly_per_key(env, today=None) -> dict:
+    """T12: weekly (ISO week, UTC) per-key totals of tool calls and alerts, last 90 days. Keys appear only as an
+    HMAC label (W.stats_key_hash); no key_id, key hash, webhook URL or email is published."""
+    master = getattr(env, "WATCH_SIGNING_MASTER", None)
+    note = ("per opt-in watch key, ISO week (UTC), last %d days; key label = HMAC of the key id with a server secret, "
+            "not reversible; nothing else about the key is published" % STATS_RETENTION_DAYS)
+    if not master:
+        return {"note": note, "weeks": []}
+    since = (datetime.fromisoformat(today or _today()).date() - timedelta(days=STATS_RETENTION_DAYS)).isoformat()
+    rows = await _all(env.WATCH_DB, "SELECT key_id, day, metric, n FROM watch_key_counters WHERE day >= ? AND metric IN ('calls', 'alerts')", since)
+    agg: dict = {}
+    for r in rows:
+        k = (W.iso_week(r["day"]), W.stats_key_hash(master, r["key_id"]))
+        a = agg.setdefault(k, {"calls": 0, "alerts": 0})
+        a[r["metric"]] += r["n"]
+    weeks = [{"week": wk, "key": kh, **v} for (wk, kh), v in sorted(agg.items(), key=lambda kv: (kv[0][0], kv[0][1]), reverse=True)]
+    return {"note": note, "since": since, "weeks": weeks}

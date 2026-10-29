@@ -174,7 +174,7 @@ def _stats_html(rows):
     return f"""<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lantern Works hosted MCP: public call counts</title><style>body{{font-family:system-ui,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem}}td,th{{border-bottom:1px solid #ddd;padding:.3rem .6rem;text-align:left}}</style>
 <h1>Hosted MCP endpoint: tool calls per day</h1>
-<p>Anonymous aggregate counts only: one counter per UTC day, tool and <code>?ref=</code> channel tag. No IP addresses, user agents, arguments or any per-caller data are stored. Machine-readable: <a href="/stats.json">/stats.json</a>. Endpoint: <code>/mcp</code>. Source: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/hosted">hosted/</a>.</p>
+<p>Anonymous aggregate counts only: one counter per UTC day, tool and <code>?ref=</code> channel tag. No IP addresses, user agents, arguments or any per-caller data are stored. Opt-in price-watch keys (hosted only) also get weekly per-key totals of calls and alerts for the last 90 days in /stats.json, labelled only by a non-reversible HMAC of the key id. Machine-readable: <a href="/stats.json">/stats.json</a>. Endpoint: <code>/mcp</code>. Source: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/hosted">hosted/</a>.</p>
 <h2>Totals</h2><ul>{tt or '<li>No calls yet.</li>'}</ul>
 <h2>By day</h2><table><tr><th>Day (UTC)</th><th>Tool</th><th>Ref</th><th>Calls</th></tr>{trs}</table></html>"""
 

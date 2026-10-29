@@ -62,6 +62,17 @@ def check_key(key: str, stored_hash: str | None) -> bool:
     return bool(stored_hash) and hmac.compare_digest(key_hash(key), stored_hash)
 
 
+def stats_key_hash(master: str, key_id: str) -> str:
+    """Public, non-reversible label for a key in /stats.json (T12): HMAC with the Worker secret, so the 12-hex key_id
+    can't be brute-forced from the published value. Stable per key; not the key, its hash, or its key_id."""
+    return "k_" + hmac.new(master.encode(), ("stats-v1:" + key_id).encode(), hashlib.sha256).hexdigest()[:16]
+
+
+def iso_week(day: str) -> str:
+    y, w, _ = date.fromisoformat(day).isocalendar()
+    return f"{y}-W{w:02d}"
+
+
 def signing_secret(master: str, key_id: str) -> str:
     if not master:
         raise WatchError("watch_unavailable", "watches are not configured on this deployment")
