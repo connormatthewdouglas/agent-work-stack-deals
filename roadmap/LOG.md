@@ -193,3 +193,11 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Checks: 211 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Gist deals.json identical. Canonicals and sitemap unchanged.
 - Main CI live-checks failed on the release push: check_gpu_sources flags Massed Compute L40S On-Demand ($0.97 quote not found on https://massedcompute.com/pricing/; the fetched page has no "L40S" text). Not changed here; needs a re-check by hand or a hold.
 - Moved a stray old clone (main/pr27) out of the repo dir; it was making the tests and validator read old pages.
+
+## 2026-10-29 — PR #33 merged; release 0.3.18 (Mart)
+- PR #33 (optimizer "10 H100 gpu hours" parse): merge commit 0056af02. Release 0.3.18 (96763588): PyPI, MCP Registry, hosted worker 778ff94c; hosted check: serverInfo 0.3.18, "10 H100 gpu hours" gives quantity 10. #33 arrived after 0.3.17 had shipped, so it went out as its own version. Docker failed on PyPI lag; rerun passed.
+
+## 2026-10-29 — Split license; release 0.3.19 (Mart)
+- Owner approved CC BY 4.0 for the data (11:07 AM ET). Code stays MIT (LICENSE). New LICENSE-DATA: CC BY 4.0 legal text, attribution "Lantern Works". Every JSON feed (deals.json, api/v1/deals.json, gpu-prices.json, history.json, gpu-price-changes.json, api/v1/gpu/*.json, stack-pricing.json) carries a `license` object; schema.json allows it. /methodology/, README and mcp_server/README updated; LICENSE-DATA ships in the wheel.
+- Commit 9f7d969e. PyPI 0.3.19, MCP Registry 0.3.19, hosted worker 62cadded (serverInfo 0.3.19). Gist deals.json patched, identical. T41 21/21 local and live. Live: /methodology/ shows CC BY 4.0; live deals.json, api/v1/deals.json, gpu-prices.json, history.json carry license data CC-BY-4.0.
+- live-checks still fails on the Massed Compute L40S source check (unchanged).
