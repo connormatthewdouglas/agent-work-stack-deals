@@ -60,7 +60,8 @@ def analytics_snippet() -> str:
 # Compliance gate (private, outside the repo; owned by Wick). When present, only deals whose
 # registry status is "approved" are published; others move to a private held file and are
 # restored automatically once approved. When absent (e.g. CI), fail closed: only entries marked
-# compliance_status "approved" in the feed are published (possibly none).
+# publish_status "approved" in the feed are published (possibly none). publish_status is the public
+# field, set ONLY from the private registry when it is present; compliance_* stays private.
 PRIVATE_DIR = PRIVATE_PATH.parent
 COMPLIANCE_PATH = Path(os.environ.get("LANTERN_COMPLIANCE_REGISTRY", str(PRIVATE_DIR / "compliance_registry.json")))
 HELD_PATH = Path(os.environ.get("LANTERN_HELD_DEALS", str(PRIVATE_DIR / "held_deals.json")))
@@ -487,8 +488,8 @@ def apply_compliance_gate(feed: dict) -> dict:
         if bad:
             raise SystemExit(f"pulled listing(s) present in deals.json: {len(bad)}; remove them")
         # Fail closed (T4): with no registry we can't confirm approval, so publish only entries the feed itself
-        # marks compliance_status "approved" (possibly none). deals.json itself is not rewritten.
-        approved = [d for d in feed["deals"] if str(d.get("compliance_status") or "").lower() == "approved"]
+        # marks publish_status "approved" (possibly none). deals.json itself is not rewritten.
+        approved = [d for d in feed["deals"] if d.get("publish_status") == "approved"]
         HELD_IDS.update(d["id"] for d in feed["deals"] if d not in approved)
         print(f"compliance_gate=absent (fail closed) approved={len(approved)} held={len(feed['deals']) - len(approved)}")
         return {**feed, "deals": sort_deals_customer_value(approved)}
@@ -503,10 +504,15 @@ def apply_compliance_gate(feed: dict) -> dict:
         if status == "pulled":
             PULLED_IDS.add(d["id"])
         (approved if status == "approved" and not is_pulled(d["id"]) else blocked).append(d)
-    before = [d["id"] for d in feed["deals"]]
+    before = json.dumps(feed["deals"], sort_keys=True)
+    # publish_status is derived only from the registry: approved deals get it, everything else loses it.
+    for d in approved:
+        d["publish_status"] = "approved"
+    for d in blocked:
+        d.pop("publish_status", None)
     feed["deals"] = sort_deals_customer_value(approved)
     HELD_PATH.write_text(json.dumps(sorted(blocked, key=lambda d: d["id"]), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    if [d["id"] for d in feed["deals"]] != before:
+    if json.dumps(feed["deals"], sort_keys=True) != before:
         DEALS_PATH.write_text(json.dumps(feed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     HELD_IDS.update(d["id"] for d in blocked)
     for e_slug, e in entries.items():
