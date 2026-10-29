@@ -26,3 +26,12 @@ def test_manual_snapshot_not_auto_refreshed_but_ages_out():
     assert [r.get("stale") for r in a["records"]] == [r.get("stale") for r in d["records"]]
     b = copy.deepcopy(d); m.refresh([b], F(), now + timedelta(days=8))
     assert all(r.get("stale") for r in b["records"])
+
+
+def test_manual_snapshot_fields_in_feed_and_page():
+    feed = json.loads(pathlib.Path("api/v1/gpu-prices.json").read_text())
+    clore = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai"]
+    assert clore and all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in clore)
+    assert all(r["price_check"] == "daily" for r in feed["rates"] if r["advertiser"] != "Clore.ai")
+    page = pathlib.Path("gpu/price-comparison/index.html").read_text()
+    assert "manual snapshot 2026-10-29 15:27 UTC; held after 2026-11-05" in page and "Price verified (daily)" not in page

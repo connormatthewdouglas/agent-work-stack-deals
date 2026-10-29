@@ -2,6 +2,14 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.15 (2026-10-29)
+- Clore.ai deal added (`deal-clore-ai`, registry-approved; referral link with inline disclosure and `plain_url`; referral terms in `docs_url`); Clore GPU rate rows link to it. Feed: 204 deals.
+- Fix (regression in 0.3.14): the per-model summary on /gpu/price-comparison/ picked CloudRift reserved rows as the lowest rate (L40S $0.54, RTX 5090 $0.55). It now shows the cheapest pay-as-you-go rate, as compare_gpu_prices does (L40S $0.63, RTX 5090 $0.65). New release-gate case T41-21 checks that table.
+- Rates carry `price_check` ("daily" or "manual snapshot"); manual-snapshot rows (Clore.ai) also carry `snapshot_at` and `hold_after`, and the page shows them instead of a daily verified date.
+- Spheron is labelled a marketplace/aggregator listing (its page: "Live rates across 5+ providers"); its RTX 5090 quote is re-read from the current page ($0.84/hr). It is a single listed price, not a median of offers.
+- Massed Compute and Koyeb evidence quotes are single continuous spans of page text.
+- Methodology: `basis` is a summary of the vendor price line, not a verbatim quote; `evidence.quote` is the verbatim text. GPU tables now show the verbatim evidence quote.
+
 ## 0.3.14 (2026-10-29)
 - Vast.ai `basis` now comes from the same API snapshot as offer_count / median / lowest_offer_usd (the refresh used to keep an older count and minimum in the quote); test checks they match.
 - Methodology wording: `basis` is a summary of the vendor price line; `evidence.quote` is the verbatim page text.

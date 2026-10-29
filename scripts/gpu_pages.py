@@ -65,6 +65,18 @@ def _avail_cell(gen, r: dict) -> str:
     return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
 
 
+def _verified_cell(r: dict, esc) -> str:
+    if r.get("price_check") == "manual snapshot":
+        return esc(f"manual snapshot {r['snapshot_at'][:16].replace('T', ' ')} UTC; held after {r['hold_after'][:10]} unless re-checked")
+    return esc(f"{(r['verified_at'] or '')[:10]} (daily)")
+
+
+def _pick_cheapest(rs: list[dict]) -> dict:
+    """Headline cheapest per model: pay-as-you-go only, like compare_gpu_prices (reserved/commitment rows never win)."""
+    payg = [r for r in rs if r.get("tier_class") != "reserved"] or rs
+    return min(payg, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+
+
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     esc = gen.esc
     trs = []
@@ -76,15 +88,15 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
             f"<td>{_vendor_link(gen, r)}</td>"
             f"<td>{esc(r['tier'])}{badge}</td><td>{esc(_rate_str(r))}</td>"
             f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[_key(r)])}</td>"
-            f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['basis'])}”</a></td>"
-            f"<td>{esc((r['verified_at'] or '')[:10])}</td><td>{_avail_cell(gen, r)}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
+            f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['evidence']['quote'])}”</a></td>"
+            f"<td>{_verified_cell(r, esc)}</td><td>{_avail_cell(gen, r)}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
             "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
     return (filt + f"<div style=\"overflow-x:auto\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
-            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
-            "<th>Price verified (daily)</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
+            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote (verbatim)</th>"
+            "<th>Price verified</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             "<p class=\"meta\">Availability: \u201cunknown\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
             "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. Vast.ai offer counts come from a "
             "separate, later check than the price quote, so counts and minimums can differ.</p>")
@@ -202,7 +214,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     for slug, f in fams.items():
         if not f["rates"]:
             continue
-        lo = min(f["rates"], key=lambda r: r["hourly_equiv_usd"])
+        lo = _pick_cheapest(f["rates"])
         link = f'<a href="{gen.BASE}/{pages[slug]}/">{gen.esc(f["name"])}</a>' if slug in pages else gen.esc(f["name"])
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(f['rates'])}</td><td>{gen.esc(', '.join(f['vendors']))}</td>"
@@ -214,7 +226,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
             others.setdefault(r["gpu"], []).append(r)
     for name in sorted(others):
         rs = others[name]
-        lo = min(rs, key=lambda r: r["hourly_equiv_usd"])
+        lo = _pick_cheapest(rs)
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
                        f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
@@ -234,7 +246,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
   <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
   <h2>By GPU model (all {len(rates)} rates)</h2>
-  <table class="howto"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest rate</th></tr></thead><tbody>
+  <table class="howto"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest pay-as-you-go rate (reserved excluded)</th></tr></thead><tbody>
 {chr(10).join(summary)}
   </tbody></table>
   <p>Comparisons: {" · ".join(f'<a href="{gen.BASE}/{p}/">{n}</a>' for p, n in _LINKS)}</p>
@@ -296,7 +308,7 @@ def _vendor_cell(gen, r):
 
 
 def _quote_cell(gen, r):
-    return f"<a href=\"{gen.esc(r['source_url'] or '')}\" rel=\"noopener\">“{gen.esc(r['basis'])}”</a>"
+    return f"<a href=\"{gen.esc(r['source_url'] or '')}\" rel=\"noopener\">“{gen.esc(r['evidence']['quote'])}”</a>"
 
 
 TRACKED = "cheapest among tracked providers"

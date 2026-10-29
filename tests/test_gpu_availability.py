@@ -35,7 +35,7 @@ def test_no_stale_cadence_wording():
 def test_marketplace_basis_matches_fields():
     import re
     for r in json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["rates"]:
-        if r.get("price_status") != "marketplace" and "Marketplace" not in r["tier"]:
+        if r.get("price_status") != "marketplace":  # listed-price aggregators (Spheron) have no median/offer_count
             continue
         m = re.search(r"(\d+) (?:verified|available) .*median \$([\d.]+)/hr, min \$([\d.]+)/hr", r["basis"])
         assert m, r["basis"]

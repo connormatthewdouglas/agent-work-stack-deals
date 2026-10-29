@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""T41 pricing-decision release gate. Runs 20 cases LIVE against the public Lantern Works feeds and the repo's
+"""T41 pricing-decision release gate. Runs 21 cases LIVE against the public Lantern Works feeds and the repo's
 own core/ + mcp_server tools (in-process, telemetry off). Usage: python3 run_t41.py [out.json]"""
 from __future__ import annotations
 import html, json, math, os, re, subprocess, sys, time, traceback
@@ -31,7 +31,7 @@ BASE = "https://thelanternworks.com"
 
 
 _LOCAL_PATHS = {"/api/v1/gpu-prices.json": "api/v1/gpu-prices.json", "/api/v1/gpu-price-changes.json": "api/v1/gpu-price-changes.json",
-                "/": "index.html"}
+                "/": "index.html", "/gpu/price-comparison/": "gpu/price-comparison/index.html"}
 
 
 def fetch(url: str) -> tuple[str, str]:
@@ -62,6 +62,7 @@ def toks(s):
 feed_txt, feed_at = fetch(f"{BASE}/api/v1/gpu-prices.json")
 ch_txt, ch_at = fetch(f"{BASE}/api/v1/gpu-price-changes.json")
 home_txt, home_at = fetch(f"{BASE}/")
+cmp_txt, cmp_at = fetch(f"{BASE}/gpu/price-comparison/")
 FEED, CH = json.loads(feed_txt), json.loads(ch_txt)
 RATES = FEED["rates"]
 
@@ -430,6 +431,29 @@ def _(f, ev):
         if exp is not None and abs(ch["monthly_cost_usd"] - exp) > 0.011: f.append(f"choice cost {ch['monthly_cost_usd']} != {exp}")
     ev.update(choice=f"{ch.get('vendor')} {ch.get('plan')} ${ch.get('monthly_cost_usd')} calc={ch.get('calc')!r}",
               min_option=f"{opts[0]['vendor']} {opts[0]['plan']} ${opts[0]['monthly_cost_usd']}")
+
+
+@case("T41-21")
+def _(f, ev):
+    # /gpu/price-comparison/ per-model summary: the "lowest" cell must be the cheapest pay-as-you-go rate
+    # (reserved/commitment rows never win, same rule as compare_gpu_prices).
+    tbl = cmp_txt.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
+    rows = re.findall(r"<tr><td>(.*?)</td><td>(\d+)</td><td>.*?</td><td>(.*?)</td></tr>", tbl)
+    if not rows: f.append("summary table not found"); return
+    seen = []
+    for model_cell, _n, low in rows:
+        name = html.unescape(re.sub(r"<[^>]+>", "", model_cell)).replace("(few verified offers)", "").strip()
+        rs = [r for r in RATES if r["gpu"] == name or r["gpu"].startswith(name + " ")] if G.family_of(name) else [r for r in RATES if r["gpu"] == name]
+        payg = [r for r in rs if D.tier_class(r) != "reserved"] or rs
+        if not payg: f.append(f"{name}: no rates in feed"); continue
+        best = min(r["hourly_equiv_usd"] for r in payg)
+        m = re.search(r"\$([\d,.]+)/(hr|mo|GPU-mo)", html.unescape(low))
+        got = float(m.group(1).replace(",", "")) if m else None
+        lo_rows = [r for r in payg if r["hourly_equiv_usd"] == best]
+        exp = lo_rows[0]["price_usd"]
+        if got is None or abs(got - exp) > 0.005: f.append(f"{name}: page lowest {html.unescape(low)!r} != pay-as-you-go min ${exp}")
+        seen.append(f"{name}: {html.unescape(low)[:60]}")
+    ev.update(rows=seen, page_fetched_at=cmp_at)
 
 
 passed = sum(r["status"] == "PASS" for r in results)

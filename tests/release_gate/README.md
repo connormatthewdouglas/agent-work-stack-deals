@@ -1,6 +1,6 @@
 # T41: pricing-decision release gate (Lantern Works)
 
-There are 20 cases in `cases.json`. Each case is a question an agent would ask, such as "cheapest H100" or "cheapest on-demand L40S". Each one has an expected property taken from the repo's own rules: `core/gpu.py`, `core/deals.py`, `core/stack.py`, and the feed methodology. No price is hardcoded. Every expected value is recomputed from the live feed at run time.
+There are 21 cases in `cases.json`. Each case is a question an agent would ask, such as "cheapest H100" or "cheapest on-demand L40S". Each one has an expected property taken from the repo's own rules: `core/gpu.py`, `core/deals.py`, `core/stack.py`, and the feed methodology. No price is hardcoded. Every expected value is recomputed from the live feed at run time.
 
 `run_t41.py` works like this:
 - It fetches `/api/v1/gpu-prices.json`, `/api/v1/gpu-price-changes.json`, and the homepage. Requests are sequential, 3 s apart, and back off on 429 or 5xx.

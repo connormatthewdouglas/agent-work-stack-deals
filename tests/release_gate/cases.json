@@ -220,6 +220,16 @@
    },
    "expected": "The gpu line's monthly cost == min over core.stack._gpu_options(live feed,100,'H100') and that option is not reserved; its calc is consistent with price x 100 h x billed GPUs.",
    "why": "End-to-end decision tool must agree with the comparison data."
+  },
+  {
+   "id": "T41-21",
+   "intent": "GPU price-comparison page per-model summary shows the cheapest pay-as-you-go rate (reserved tier excluded, same rule as compare_gpu_prices)",
+   "inputs": {
+    "page": "https://thelanternworks.com/gpu/price-comparison/",
+    "table": "per-model summary"
+   },
+   "expected": "For each model row, the lowest rate shown == min hourly_equiv_usd over that model's non-reserved rates in the live feed.",
+   "why": "Regression 0.3.15: CloudRift reserved rows (L40S $0.54, RTX 5090 $0.55) were shown as cheapest."
   }
  ]
 }

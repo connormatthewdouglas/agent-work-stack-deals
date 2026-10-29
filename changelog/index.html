@@ -97,6 +97,15 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.15 (2026-10-29)</h2>
+<ul>
+<li>Clore.ai deal added (<code>deal-clore-ai</code>, registry-approved; referral link with inline disclosure and <code>plain_url</code>; referral terms in <code>docs_url</code>); Clore GPU rate rows link to it. Feed: 204 deals.</li>
+<li>Fix (regression in 0.3.14): the per-model summary on /gpu/price-comparison/ picked CloudRift reserved rows as the lowest rate (L40S $0.54, RTX 5090 $0.55). It now shows the cheapest pay-as-you-go rate, as compare_gpu_prices does (L40S $0.63, RTX 5090 $0.65). New release-gate case T41-21 checks that table.</li>
+<li>Rates carry <code>price_check</code> (&quot;daily&quot; or &quot;manual snapshot&quot;); manual-snapshot rows (Clore.ai) also carry <code>snapshot_at</code> and <code>hold_after</code>, and the page shows them instead of a daily verified date.</li>
+<li>Spheron is labelled a marketplace/aggregator listing (its page: &quot;Live rates across 5+ providers&quot;); its RTX 5090 quote is re-read from the current page ($0.84/hr). It is a single listed price, not a median of offers.</li>
+<li>Massed Compute and Koyeb evidence quotes are single continuous spans of page text.</li>
+<li>Methodology: <code>basis</code> is a summary of the vendor price line, not a verbatim quote; <code>evidence.quote</code> is the verbatim text. GPU tables now show the verbatim evidence quote.</li>
+</ul>
 <h2>0.3.14 (2026-10-29)</h2>
 <ul>
 <li>Vast.ai <code>basis</code> now comes from the same API snapshot as offer_count / median / lowest_offer_usd (the refresh used to keep an older count and minimum in the quote); test checks they match.</li>
