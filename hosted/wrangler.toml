@@ -11,12 +11,12 @@ database_name = "lantern-works-hosted-mcp-stats"
 database_id = "67b5b2c6-7b12-4008-a977-a2636d007a8a"
 
 # Price watches (hosted only): own D1 database, separate from the anonymous stats DB above.
-# Create once: npx wrangler d1 create lantern-works-hosted-watches  -> paste its id below (placeholder until then)
+# Create once: npx wrangler d1 create lantern-works-hosted-watches  -> paste its id below (done 2026-10-29)
 #              npx wrangler d1 execute lantern-works-hosted-watches --remote --file=watch_schema.sql
 [[d1_databases]]
 binding = "WATCH_DB"
 database_name = "lantern-works-hosted-watches"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "6afa052d-5eaf-4b69-9d78-edf538941b45"
 
 # Price watches: daily alert run after the ~10:23 UTC refresh + one retry run. Free plan: cron
 # triggers are included (up to 5 per account). Secret (not in git): npx wrangler secret put WATCH_SIGNING_MASTER
