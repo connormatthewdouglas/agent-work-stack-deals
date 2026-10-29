@@ -57,7 +57,8 @@ def _avail_cell(gen, r: dict) -> str:
     if a.get("offer_count") is not None:
         bits.append(f"{a['offer_count']} offers")
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
-    return gen.esc(", ".join(bits) + (f" ({t} UTC)" if t else ""))
+    sep = " (separate later check)" if r.get("advertiser") == "Vast.ai" else ""
+    return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
 
 
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
@@ -79,9 +80,10 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
             "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
     return (filt + f"<div style=\"overflow-x:auto\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
             f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
-            "<th>Price verified (daily)</th><th>Availability (checked ~4 h)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
-            "<p class=\"meta\">Availability: \u201cunknown\u201d means no public stock signal was found for that offer. Stock changes within minutes; "
-            "a snapshot is not a guarantee. Vast.ai offer counts are consistency-checked against the same snapshot only.</p>")
+            "<th>Price verified (daily)</th><th>Availability (manual snapshot, time shown)</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
+            "<p class=\"meta\">Availability: \u201cunknown\u201d means no availability signal from this vendor for that offer. Where a status is shown, "
+            "it is a manual snapshot at the time in the row; stock changes within minutes, so it is not a guarantee. Vast.ai offer counts come from a "
+            "separate, later check than the price quote, so counts and minimums can differ.</p>")
 
 
 def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, str]], gen) -> str:
