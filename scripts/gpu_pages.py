@@ -598,7 +598,7 @@ def write_hub(gen, rates: list[dict]) -> str:
   <h1>GPU rental prices</h1>
   <p class="meta">{gen.live_rate_count()} tracked rates{(" · newest check " + fresh) if fresh else ""} · "cheapest" means cheapest among tracked providers</p>
 {changes_html(gen)}  <h2>Tools</h2>
-  <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li><li><a href="{gen.BASE}/gpu/index/">GPU Price Index</a> (daily median per GPU, CC BY 4.0)</li><li><a href="{gen.BASE}/gpu/free-credits/">Free GPU and cloud credit programs</a></li></ul>
+  <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li><li><a href="{gen.BASE}/gpu/index/">GPU Price Index</a> (daily median per GPU, CC BY 4.0)</li><li><a href="{gen.BASE}/cost/">GPU rental cost for 10, 100 or 730 hours</a></li><li><a href="{gen.BASE}/gpu/free-credits/">Free GPU and cloud credit programs</a></li></ul>
   <h2>Cheapest GPU by model</h2>
   <ul>{li(cheapest)}</ul>
   <h2>Rental price by GPU</h2>

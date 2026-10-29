@@ -6,6 +6,7 @@ Replace the math with T35 quote() when it ships; do not grow a second pricing en
 from __future__ import annotations
 
 import html
+from html import escape as esc_
 import json
 import statistics
 from datetime import datetime, timezone
@@ -32,8 +33,24 @@ def eligible(feed: dict, family: str) -> dict[tuple, list[dict]]:
                 or (r.get("min_gpus") or 1) != 1 or r.get("price_status") not in (None, "listed")):
             continue
         out.setdefault((g, r.get("vram_gb")), []).append(r)
-    return {k: sorted(v, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"])) for k, v in out.items()
-            if len({r["advertiser"] for r in v}) >= 2}
+    return {k: sorted(v, key=lambda r: (oos(r), r["hourly_equiv_usd"], r["advertiser"])) for k, v in out.items()}
+
+
+def oos(r: dict) -> bool:
+    """Feed explicitly marks the row out of stock when checked (unknown is not out of stock)."""
+    a = r.get("availability")
+    return isinstance(a, dict) and a.get("in_stock") is False
+
+
+def _tax_note(r: dict) -> str:
+    t = ((r.get("tier") or "") + " " + json.dumps(r.get("evidence") or "")).lower()
+    return " (excl. tax/VAT)" if ("excl" in t and ("tax" in t or "vat" in t)) else ""
+
+
+def _oos_label(r: dict) -> str:
+    if not oos(r):
+        return ""
+    return f' <small class="oos">(out of stock when checked at {html.escape(_et(r["availability"].get("checked_at")))})</small>'
 
 
 def _et(ts: str | None) -> str:
@@ -46,7 +63,10 @@ def _et(ts: str | None) -> str:
 def page(g, feed: dict, slug: str, hours: int) -> str:
     esc, base = html.escape, g.BASE
     fam = GPUS[slug]
-    groups = eligible(feed, fam)
+    allg = eligible(feed, fam)
+    vendors_ok = lambda rows: len({r["advertiser"] for r in rows if not oos(r)}) >= 2
+    groups = {k: v for k, v in allg.items() if vendors_ok(v)}
+    single = {k: v for k, v in allg.items() if not vendors_ok(v)}
     title = f"Cost to rent {fam} for {hours} hours (1 GPU)"
     canon = f"{base}/cost/{slug}-{hours}-hours/"
     parts = [f"<h1>{esc(title)}</h1>",
@@ -57,19 +77,24 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         parts.append("<p>No variant of this GPU has two or more eligible vendors today, so no comparison is shown.</p>")
     for (gpu, vram), rows in sorted(groups.items(), key=lambda kv: -len({r['advertiser'] for r in kv[1]})):
         subs = [round(r["hourly_equiv_usd"] * hours, 2) for r in rows]
-        nv = len({r["advertiser"] for r in rows})
-        lo, md, hi = min(subs), statistics.median(subs), max(subs)
+        live = [s for r, s in zip(rows, subs) if not oos(r)]
+        nv = len({r["advertiser"] for r in rows if not oos(r)})
+        n_oos = len(rows) - len(live)
+        lo, md, hi = min(live), statistics.median(live), max(live)
         head = f"{gpu} {vram}GB" if vram else gpu
-        spread = (f"Lowest ${lo:,.2f}, median ${md:,.2f}, highest ${hi:,.2f} across {len(rows)} rates from {nv} vendors "
-                  f"(spread ${hi - lo:,.2f}).")
+        spread = (f"Lowest ${lo:,.2f}, median ${md:,.2f}, highest ${hi:,.2f} across {len(live)} rates from {nv} vendors "
+                  f"(spread ${hi - lo:,.2f})." + (f" {n_oos} out-of-stock rate{'s' if n_oos > 1 else ''} excluded and listed last." if n_oos else ""))
         if nv >= 3:
-            tied = sorted({r["advertiser"] for r, s in zip(rows, subs) if s == lo})
+            tied = sorted({r["advertiser"] for r, s in zip(rows, subs) if s == lo and not oos(r)})
             who = tied[0] if len(tied) == 1 else " and ".join(tied) + " (tie)"
             spread = f"Cheapest among tracked providers: {who} at ${lo:,.2f}. " + spread
             faq.append((f"How much does it cost to rent an {head} for {hours} hours?",
                         f"{spread} {LABEL.format(h=hours)}"))
+        else:
+            spread += (f" No 'cheapest' line: only {nv} in-stock vendors publish a comparable on-demand rate, and we name a "
+                       "cheapest only with 3 or more (marketplace, community, interruptible and monthly rows are not comparable).")
         trs = "".join(
-            f"<tr><td data-label=\"Vendor\">{esc(r['advertiser'])}</td><td data-label=\"Tier\">{esc(r.get('tier') or '')}</td>"
+            f"<tr><td data-label=\"Vendor\">{esc(r['advertiser'])}{esc(_tax_note(r))}{_oos_label(r)}</td><td data-label=\"Tier\">{esc(r.get('tier') or '')}</td>"
             f"<td data-label=\"$/GPU-hr\">${r['hourly_equiv_usd']:g}</td><td data-label=\"{hours} h subtotal\"><strong>${s:,.2f}</strong></td>"
             f"<td data-label=\"Verified\">{esc(_et(r.get('verified_at')))}</td>"
             f"<td data-label=\"Source\"><a rel=\"nofollow noopener\" href=\"{esc(r['source_url'])}\">vendor page</a></td>"
@@ -78,10 +103,19 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         parts.append(f"<h2>{esc(head)}</h2><p>{esc(spread)}</p><div class=\"tscroll\"><table class=\"howto sticky1\"><thead><tr>"
                      f"<th>Vendor</th><th>Tier</th><th>$/GPU-hr</th><th>{hours} h subtotal</th><th>Verified</th><th>Source</th><th>Link</th>"
                      f"</tr></thead><tbody>{trs}</tbody></table></div>")
+    if single:
+        items = "".join(
+            f"<li>{esc(r['advertiser'])} {esc(gpu)} {vram}GB ({esc(r.get('tier') or '')}): ${r['hourly_equiv_usd']:g}/GPU-hr, "
+            f"${r['hourly_equiv_usd'] * hours:,.2f} for {hours} h{esc(_tax_note(r))}{_oos_label(r)}</li>"
+            for (gpu, vram), rows in sorted(single.items()) for r in rows)
+        parts.append("<h2>Other variants (not compared)</h2><p>These eligible rows are the only in-stock vendor for their exact "
+                     "variant (form factor and memory), so they are listed but not ranked; variants are never mixed:</p>"
+                     f"<ul>{items}</ul>")
     other = " · ".join(f'<a href="{base}/cost/{slug}-{h}-hours/">{h} h</a>' for h in HOURS if h != hours)
     parts.append(
-        "<h2>What's not included</h2><p>Storage, egress, vCPU/RAM add-ons, region, tax and availability (stock is not checked "
-        "here). Multi-GPU and 8-GPU-only offers are left out: multi-GPU quotes need whole-instance pricing, coming later. "
+        "<h2>What's not included</h2><p>Storage, egress, vCPU/RAM add-ons, region and tax. Availability is a manual snapshot: "
+        "rows marked out of stock when checked are listed last and left out of lowest, median and cheapest; other rows are "
+        "not an availability claim. Multi-GPU and 8-GPU-only offers are left out: multi-GPU quotes need whole-instance pricing, coming later. "
         "Spot, community, marketplace, serverless, reserved and held or thin prices are never shown here.</p>"
         f"<p>Other durations: {other}. Full price list: <a href=\"{base}/gpu/{slug}-rental-price/\">{esc(fam)} rental prices</a>. "
         f"For your own hours or throughput, use the MCP tool <code>estimate_job_cost</code>.</p>"
@@ -109,4 +143,14 @@ def write_all(g) -> list[str]:
             (root / p).mkdir(parents=True, exist_ok=True)
             (root / p / "index.html").write_text(page(g, feed, slug, h), encoding="utf-8")
             paths.append(p)
+    rows = "".join(f"<li>{esc_(GPUS[slug])}: " + " · ".join(f'<a href="{g.BASE}/cost/{slug}-{h}-hours/">{h} hours</a>' for h in HOURS)
+                   + "</li>" for slug in GPUS)
+    body = ("<h1>GPU rental cost for a fixed number of hours</h1><p>Compute subtotal for 10, 100 or 730 GPU-hours on one GPU, "
+            "from published on-demand rates among tracked providers, recomputed from the daily feed. Out-of-stock rows rank last "
+            "and are excluded from lowest, median and cheapest.</p>" f"<ul>{rows}</ul>"
+            f'<p>Full price lists: <a href="{g.BASE}/gpu/">GPU prices</a>.</p>\n')
+    (root / "cost").mkdir(exist_ok=True)
+    (root / "cost" / "index.html").write_text(g.page_shell("GPU rental cost by hours", "Cost of 10, 100 or 730 GPU-hours on H100, A100, L40S and RTX 4090 across tracked providers.",
+                                                           f"{g.BASE}/cost/", body), encoding="utf-8")
+    paths.append("cost")
     return paths
