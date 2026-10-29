@@ -156,3 +156,24 @@ def test_mcp_tool_cursor_and_latest_ids(monkeypatch):
     monkeypatch.setattr(server.changes_loader, "load", lambda *a, **k: latest)
     out = server.get_price_changes()
     assert all(c["event_id"].startswith(latest["date"] + ":r_") and c["key"] for c in out["changes"])
+
+
+def test_spec_pages_accepts_history_v2_and_rejects_unknown(monkeypatch):
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import spec_pages
+    feeds = spec_pages.load_feeds()  # committed api/v1 feeds, history is /2
+    assert feeds["history"]["schema"].endswith("/2")
+    real = json.loads
+    monkeypatch.setattr(spec_pages.json, "loads", lambda s, *a, **k: {**real(s), "schema": "lantern-works-gpu-price-history/9"})
+    with pytest.raises(SystemExit):
+        spec_pages.load_feeds()
+
+
+def test_generate_seo_pages_runs_against_committed_history(tmp_path):
+    import shutil
+    import subprocess
+    dst = tmp_path / "repo"
+    shutil.copytree(ROOT, dst, ignore=shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache", "node_modules"))
+    r = subprocess.run([sys.executable, "scripts/generate_seo_pages.py"], cwd=dst, capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr[-2000:]
+    assert (dst / "gpu" / "changes" / "index.html").exists()
