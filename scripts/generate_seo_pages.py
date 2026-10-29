@@ -118,6 +118,16 @@ CSS = """
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -782,7 +792,7 @@ def auto_gotchas(deal: dict, twins: list[dict] | None = None) -> list[str]:
     elif promo:
         notes.append(
             f"Authorized promo code on this listing: <code>{esc(promo)}</code>. "
-            "Do not invent other codes — use redeem_url with this code only."
+            "Do not invent other codes; use this listing's sign-up link with this code only."
         )
     else:
         notes.append(
@@ -989,6 +999,26 @@ def pricing_note_html(deal: dict) -> str:
     return f'<p class="meta">Published pricing (verify on vendor site): {esc(pn)}</p>'
 
 
+_PLAIN = [
+    (re.compile(r"redeem_url is an affiliate \(referral\) link; see disclosure\.?"), "The sign-up link is a referral link (see the disclosure)."),
+    (re.compile(r"plain_url \(when set\) is the direct vendor link\.?"), "A direct vendor link without referral tracking is listed under it."),
+    (re.compile(r"\(unverified\)"), "(not yet verified)"),
+    (re.compile(r"\bredeem_url\b"), "the sign-up link"),
+    (re.compile(r"\bplain_url\b"), "the direct vendor link"),
+    (re.compile(r"\bpromo_code\b"), "promo code"),
+    (re.compile(r"\bdocs_url\b"), "the vendor docs"),
+    (re.compile(r"\bsource_url\b"), "the vendor pricing page"),
+]
+_CLAIM_WORDS = {"apply-not-code": "apply on the vendor site (no code)"}
+
+
+def plain_words(text: str) -> str:
+    """H8: user-facing wording for feed text that names internal fields. The JSON feed keeps the raw text."""
+    for rx, rep_ in _PLAIN:
+        text = rx.sub(rep_, text)
+    return re.sub(r"(^|[.!?]\s+)the ", lambda m: m.group(1) + "The ", text)
+
+
 def badges(deal: dict) -> str:
     bits = []
     fresh_badge, _ = freshness_bits(deal)
@@ -997,15 +1027,15 @@ def badges(deal: dict) -> str:
     if is_example(deal):
         bits.append('<span class="badge example">example</span>')
     if deal.get("affiliate"):
-        bits.append('<span class="badge affiliate">affiliate</span>')
+        bits.append('<span class="badge affiliate">Referral link</span>')
     elif not is_example(deal):
-        bits.append('<span class="badge public">public / non-affiliate</span>')
+        bits.append('<span class="badge public">Direct link</span>')
     if not deal.get("verified_at") and not is_example(deal):
-        bits.append('<span class="badge unverified">unverified</span>')
+        bits.append('<span class="badge unverified">Price not verified</span>')
     if deal.get("agent_only"):
         bits.append('<span class="badge agent">agent-only</span>')
     if deal.get("claim_note"):
-        bits.append(f'<span class="badge">{esc(deal["claim_note"])}</span>')
+        bits.append(f'<span class="badge">{esc(_CLAIM_WORDS.get(deal["claim_note"], deal["claim_note"]))}</span>')
     return " ".join(bits)
 
 
@@ -1026,7 +1056,7 @@ def cta_html(deal: dict) -> str:
     if deal.get("promo_code"):
         extra += f' · code <code>{esc(deal["promo_code"])}</code>'
     if deal.get("claim_note"):
-        extra += f' · <em>{esc(deal["claim_note"])}</em>'
+        extra += f' · <em>{esc(_CLAIM_WORDS.get(deal["claim_note"], deal["claim_note"]))}</em>'
     if deal.get("affiliate"):
         # T5 Option A: plain disclosure next to the link, plus a direct vendor link (no referral tracking).
         from core.disclosure import INLINE, plain_url
@@ -1089,7 +1119,7 @@ def deal_card(deal: dict, link_mode: str = "page") -> str:
       <p class="meta"><span class="cat">{esc(deal.get('category'))}</span> · {price_bits(deal)} · {esc(deal.get('advertiser'))}</p>
       {fresh_line}
       <p class="tags">{tags_html(deal)}</p>
-      <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>
+      <p class="instructions">{esc(plain_words(deal.get('agent_instructions') or ''))}</p>
       <p class="redeem">{cta_html(deal)}</p>
     </article>
 """
@@ -1233,7 +1263,7 @@ def write_deal_page(deal: dict, feed_updated: str, *, curated_gotchas: dict[str,
     {pricing_note_html(deal)}
     {fresh_line}
     {verified_line}
-    <p class="instructions">{esc(deal.get('agent_instructions') or '')}</p>{signup_html(deal)}
+    <p class="instructions">{esc(plain_words(deal.get('agent_instructions') or ''))}</p>{signup_html(deal)}
     <p class="redeem">{cta_html(deal)}</p>
     {gbox}
     {"<p><em>Sample inventory placeholder — not a live merchant offer.</em></p>" if example else ""}
@@ -1440,10 +1470,12 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
     )
 
     sections = []
-    for cat in cats:
+    for i, cat in enumerate(cats):
         cards = "\n".join(deal_card(d, link_mode="page") for d in by_cat[cat])
+        # H8: one collapsible section per category (first open) so 200+ cards don't render at once.
         sections.append(
-            f'<section id="cat-{esc(cat)}"><h2 class="section-title">Agent deals: {esc(cat)}</h2>\n{cards}\n</section>'
+            f'<section id="cat-{esc(cat)}" class="catsec"><details{" open" if i == 0 else ""}><summary><h2 class="section-title">Agent deals: {esc(cat)} '
+            f'<small>({len(by_cat[cat])})</small></h2></summary>\n{cards}\n</details></section>'
         )
 
     body_main = "\n".join(sections)
@@ -1486,6 +1518,12 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
   <main id="content">{body_main}</main>
 {agent_query_howto_html()}
 {site_ui.HOME_JS}
+<script>
+(()=>{{const op=()=>{{const t=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));
+if(t){{const d=t.closest("details")||t.querySelector("details");if(d)d.open=true;}}}};
+addEventListener("hashchange",op);op();
+const f=document.getElementById("filters");if(f)f.addEventListener("input",()=>document.querySelectorAll("section.catsec details").forEach(d=>d.open=true));}})();
+</script>
   <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>

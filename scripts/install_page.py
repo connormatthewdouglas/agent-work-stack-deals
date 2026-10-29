@@ -33,7 +33,15 @@ def link_snippet(base: str) -> str:
 
 
 def _pre(s: str) -> str:
-    return f"<pre>{html.escape(s)}</pre>"
+    # H8: styled box with a copy button (button is added by COPY_JS; plain <pre> still works without JS).
+    return f'<div class="codebox"><pre>{html.escape(s)}</pre></div>'
+
+
+COPY_JS = """<script>
+document.querySelectorAll(".codebox").forEach(b=>{const btn=document.createElement("button");btn.type="button";btn.className="copy";btn.textContent="Copy";
+btn.addEventListener("click",()=>{navigator.clipboard.writeText(b.querySelector("pre").innerText).then(()=>{btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1500)},()=>{btn.textContent="Select and copy"})});b.appendChild(btn)});
+</script>
+"""
 
 
 def write(g) -> str:
@@ -115,7 +123,7 @@ def write(g) -> str:
     <li>GPU prices: <a href="{base}/api/v1/gpu-prices.json">{base}/api/v1/gpu-prices.json</a></li>
   </ul>
   <p>More: <a href="{base}/for-agents/">For agents</a> (endpoints, schema, offer types).</p>
-"""
+""" + COPY_JS
     out = Path(g.ROOT) / PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(g.page_shell("Install Lantern Works in your agent (MCP, Claude Code, Cursor, VS Code)",

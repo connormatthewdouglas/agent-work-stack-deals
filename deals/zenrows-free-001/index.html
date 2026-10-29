@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -111,7 +121,7 @@
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · <a href="https://thelanternworks.com/categories/scraping-unblock/">scraping-unblock</a> · <a href="https://thelanternworks.com/categories/unblock/">unblock</a></p>
   <article class="deal" id="deal-zenrows-free-001">
-    <h1>ZenRows — Free 5,000 credits/mo (no card) <span class="badge public">public / non-affiliate</span></h1>
+    <h1>ZenRows — Free 5,000 credits/mo (no card) <span class="badge public">Direct link</span></h1>
     <p class="meta"><span class="cat">unblock</span> · <strong>$0</strong> / Free plan: 5,000 credits every month; recurring; no credit card · Advertiser: ZenRows</p>
     <p class="tags"><span class="tag">scrape</span> <span class="tag">unblock</span> <span class="tag">zenrows</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
     

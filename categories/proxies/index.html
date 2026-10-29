@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -118,251 +128,251 @@
   <main>
 
     <article class="deal" id="deal-brightdata-resi-001" data-category="unblock" data-affiliate="false" data-offer="verified_discount" data-offer-label="Vendor discount" data-price="" data-price-label="Discount on vendor pricing; see vendor site" data-unit="50% off residential proxies for 3 months" data-advertiser="Bright Data" data-free="1" data-verified="1" data-verified-at="2026-10-27T10:14:40-04:00">
-      <h2><a href="https://thelanternworks.com/deals/brightdata-resi-001/">Bright Data — Residential proxies 50% off 3 mo (RESIGB50)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/brightdata-resi-001/">Bright Data — Residential proxies 50% off 3 mo (RESIGB50)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Discount on vendor pricing; see vendor site</strong> · Bright Data</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">proxy</span> <span class="tag">residential</span> <span class="tag">brightdata</span> <span class="tag">coupon</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
-      <p class="instructions">Create Bright Data account. Apply promo_code RESIGB50 in Billing for residential proxies (3 months). Do not use Bright Data 25% API/Unlocker/SERP coupon tiles.</p>
+      <p class="instructions">Create Bright Data account. Apply promo code RESIGB50 in Billing for residential proxies (3 months). Do not use Bright Data 25% API/Unlocker/SERP coupon tiles.</p>
       <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://brightdata.com/pricing/proxy-network/residential-proxies" data-deal="deal-brightdata-resi-001">Open offer / signup</a> · code <code>RESIGB50</code></p>
     </article>
 
 
     <article class="deal" id="deal-oxylabs-001" data-category="unblock" data-affiliate="false" data-offer="verified_discount" data-offer-label="Vendor discount" data-price="" data-price-label="Discount on vendor pricing; see vendor site" data-unit="30% off first month (new clients); free credits available on eligible plans" data-advertiser="Oxylabs" data-free="1" data-verified="1" data-verified-at="2026-10-27T01:45:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/oxylabs-001/">Oxylabs — 30% first month new clients (DISCOUNT30)</a> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/oxylabs-001/">Oxylabs — 30% first month new clients (DISCOUNT30)</a> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Discount on vendor pricing; see vendor site</strong> · Oxylabs</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">oxylabs</span> <span class="tag">coupon</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
-      <p class="instructions">New Oxylabs clients only. Use promo_code DISCOUNT30 at checkout on eligible Micro/Starter/Advanced plans. Confirm current terms on the coupon page before paying.</p>
+      <p class="instructions">New Oxylabs clients only. Use promo code DISCOUNT30 at checkout on eligible Micro/Starter/Advanced plans. Confirm current terms on the coupon page before paying.</p>
       <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://oxylabs.io/products/coupon-codes" data-deal="deal-oxylabs-001">Open offer / signup</a> · code <code>DISCOUNT30</code></p>
     </article>
 
 
     <article class="deal" id="deal-proxystore-001" data-category="unblock" data-affiliate="true" data-offer="verified_discount" data-offer-label="Vendor discount" data-price="" data-price-label="Discount on vendor pricing; see vendor site" data-unit="paid proxy plans; referred users get 5% off first order" data-advertiser="Proxy-Store" data-free="0" data-verified="1" data-verified-at="2026-10-27T10:14:40-04:00">
-      <h2><a href="https://thelanternworks.com/deals/proxystore-001/">Proxy-Store — proxies (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxystore-001/">Proxy-Store — proxies (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Discount on vendor pricing; see vendor site</strong> · Proxy-Store</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">proxy-store</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for Proxy-Store proxies. Optional coupon for referred users: yfmhOSr6 (5% first order).</p>
+      <p class="instructions">Sign up via the the sign-up link for Proxy-Store proxies. Optional coupon for referred users: yfmhOSr6 (5% first order).</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxy-store.com/?ref=183166" data-deal="deal-proxystore-001">Redeem / signup</a> · code <code>yfmhOSr6</code><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://proxy-store.com/">https://proxy-store.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-9proxy-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="Residential proxies; starting from $0.018/IP or $0.68/GB (per 9proxy.com pricing)" data-advertiser="9Proxy" data-free="0" data-verified="1" data-verified-at="2026-10-27T11:17:47-04:00">
-      <h2><a href="https://thelanternworks.com/deals/9proxy-001/">9Proxy — residential proxies from $0.018/IP or $0.68/GB</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/9proxy-001/">9Proxy — residential proxies from $0.018/IP or $0.68/GB</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Plan prices listed (see details)</strong> · 9Proxy</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">proxy</span> <span class="tag">residential-proxy</span> <span class="tag">unblock</span> <span class="tag">scrape</span> <span class="tag">9proxy</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. Starting prices: $0.018/IP or $0.68/GB; confirm current plan prices on 9proxy.com before buying. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. Starting prices: $0.018/IP or $0.68/GB; confirm current plan prices on 9proxy.com before buying. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://9proxy.com/sign-up?inviteCode=9P_8KsTzWv6" data-deal="deal-9proxy-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://9proxy.com/">https://9proxy.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-cleanproxies-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="3.0" data-price-label="" data-unit="per ISP proxy IP at the 5-IP tier (lower per-IP at volume)" data-advertiser="CleanProxies" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/cleanproxies-001/">CleanProxies — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/cleanproxies-001/">CleanProxies — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$3.0</strong> / per ISP proxy IP at the 5-IP tier (lower per-IP at volume) · CleanProxies</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">cleanproxies</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for CleanProxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for CleanProxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.cleanproxies.com/?referral_code=822553zd" data-deal="deal-cleanproxies-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://cleanproxies.com/pricing">https://cleanproxies.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-dataimpulse-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid plans" data-advertiser="DataImpulse" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/dataimpulse-001/">DataImpulse — residential proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/dataimpulse-001/">DataImpulse — residential proxies (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · DataImpulse</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">residential</span> <span class="tag">dataimpulse</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for DataImpulse.</p>
+      <p class="instructions">Sign up via the the sign-up link for DataImpulse.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://dataimpulse.com/?aff=5d92862f-3eb4-4ed4-97dd-66df695a6def" data-deal="deal-dataimpulse-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://dataimpulse.com/">https://dataimpulse.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-geonode-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="0.27" data-price-label="" data-unit="per GB residential proxy traffic (from)" data-advertiser="Geonode" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/geonode-001/">Geonode — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/geonode-001/">Geonode — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$0.27</strong> / per GB residential proxy traffic (from) · Geonode</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">geonode</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for Geonode.</p>
+      <p class="instructions">Sign up via the the sign-up link for Geonode.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://geonode.com/?ref=lanternworks" data-deal="deal-geonode-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://geonode.com/pricing">https://geonode.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-glorycloud-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid proxy plans" data-advertiser="GloryCloud" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/glorycloud-001/">GloryCloud (GoProxy) — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/glorycloud-001/">GloryCloud (GoProxy) — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · GloryCloud</p>
       
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">glorycloud</span> <span class="tag">goproxy</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for GloryCloud (formerly GoProxy) proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for GloryCloud (formerly GoProxy) proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.glorycloud.com/?ref=l2fzpl" data-deal="deal-glorycloud-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.glorycloud.com/">https://www.glorycloud.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-infatica-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="0.3" data-price-label="" data-unit="per GB residential proxy traffic (from)" data-advertiser="Infatica" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/infatica-001/">Infatica — proxies &amp; scraper APIs (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/infatica-001/">Infatica — proxies &amp; scraper APIs (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$0.3</strong> / per GB residential proxy traffic (from) · Infatica</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">scrape</span> <span class="tag">infatica</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for Infatica proxies &amp; scraper APIs.</p>
+      <p class="instructions">Sign up via the the sign-up link for Infatica proxies &amp; scraper APIs.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://dashboard.infatica.io/aff.php?aff=899" data-deal="deal-infatica-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://infatica.io/pricing/">https://infatica.io/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-ipfoxy-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="1.99" data-price-label="" data-unit="per GB rotating residential proxy traffic (from)" data-advertiser="IPFoxy" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/ipfoxy-001/">IPFoxy — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/ipfoxy-001/">IPFoxy — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$1.99</strong> / per GB rotating residential proxy traffic (from) · IPFoxy</p>
       
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">ipfoxy</span> <span class="tag">affiliate</span> <span class="tag">dedicated</span></p>
-      <p class="instructions">Sign up via the redeem_url for IPFoxy proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for IPFoxy proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.ipfoxy.com/invite/lanternworks" data-deal="deal-ipfoxy-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.ipfoxy.com/pricing">https://www.ipfoxy.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-lightningproxies-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid plans" data-advertiser="Lightning Proxies" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/lightningproxies-001/">Lightning Proxies — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/lightningproxies-001/">Lightning Proxies — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · Lightning Proxies</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">lightning</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for Lightning Proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for Lightning Proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://app.lightningproxies.net/auth/register?referral=DB8F4A0C" data-deal="deal-lightningproxies-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://app.lightningproxies.net/">https://app.lightningproxies.net/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxiesvision-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid proxy plans" data-advertiser="Proxies.VISION" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/proxiesvision-001/">Proxies.VISION — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxiesvision-001/">Proxies.VISION — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · Proxies.VISION</p>
       
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">proxiesvision</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for Proxies.VISION proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for Proxies.VISION proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxies.vision/register?ref=PV-7ZB9KT" data-deal="deal-proxiesvision-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://proxies.vision/">https://proxies.vision/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxy6-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid proxy plans" data-advertiser="PROXY6" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/proxy6-001/">PROXY6 — personal anonymous proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxy6-001/">PROXY6 — personal anonymous proxies (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · PROXY6</p>
       
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">proxy6</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for PROXY6 proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for PROXY6 proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxy6.net/?r=1075085" data-deal="deal-proxy6-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://proxy6.net/">https://proxy6.net/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxydocker-001" data-category="proxies" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="9.95" data-price-label="" data-unit="Premium plan, per month (billed monthly)" data-advertiser="Proxydocker" data-free="0" data-verified="1" data-verified-at="2026-10-26T08:25:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/proxydocker-001/">Proxydocker — proxy lists and proxy API (free list plus premium plans)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxydocker-001/">Proxydocker — proxy lists and proxy API (free list plus premium plans)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">proxies</span> · <strong>$9.95</strong> / Premium plan, per month (billed monthly) · Proxydocker</p>
       <p class="freshness">Updated Oct 26, 2026</p>
       <p class="tags"><span class="tag">proxy</span> <span class="tag">proxies</span> <span class="tag">proxy-list</span> <span class="tag">proxy-api</span> <span class="tag">scrape</span> <span class="tag">proxydocker</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. The free proxy list is public; premium adds API access. Use proxies only for lawful scraping that respects site terms and robots rules. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. The free proxy list is public; premium adds API access. Use proxies only for lawful scraping that respects site terms and robots rules. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxydocker.com/r/z9k7gevk" data-deal="deal-proxydocker-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.proxydocker.com/">https://www.proxydocker.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxyempire-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="1.5" data-price-label="" data-unit="per GB rotating residential proxy traffic" data-advertiser="ProxyEmpire" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/proxyempire-001/">ProxyEmpire — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxyempire-001/">ProxyEmpire — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$1.5</strong> / per GB rotating residential proxy traffic · ProxyEmpire</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">proxyempire</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for ProxyEmpire.</p>
+      <p class="instructions">Sign up via the the sign-up link for ProxyEmpire.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxyempire.io/?ref=lanternworks" data-deal="deal-proxyempire-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://proxyempire.io/pricing/">https://proxyempire.io/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxyline-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid proxy plans" data-advertiser="Proxyline" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/proxyline-001/">Proxyline — anonymous proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxyline-001/">Proxyline — anonymous proxies (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · Proxyline</p>
       
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">proxyline</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for Proxyline proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for Proxyline proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxyline.net?ref=570595" data-deal="deal-proxyline-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://proxyline.net/">https://proxyline.net/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxyrack-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="" data-advertiser="Proxyrack" data-free="0" data-verified="1" data-verified-at="2026-10-25T18:05:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/proxyrack-001/">Proxyrack — residential, datacenter and mobile proxies plus scraper API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxyrack-001/">Proxyrack — residential, datacenter and mobile proxies plus scraper API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Plan prices listed (see details)</strong> · Proxyrack</p>
       <p class="freshness">Updated Oct 25, 2026</p>
       <p class="tags"><span class="tag">proxy</span> <span class="tag">proxies</span> <span class="tag">residential</span> <span class="tag">datacenter</span> <span class="tag">mobile</span> <span class="tag">scrape</span> <span class="tag">unblock</span> <span class="tag">proxyrack</span> <span class="tag">affiliate</span> <span class="tag">firstpromoter</span></p>
-      <p class="instructions">Use Proxyrack proxies or the scraper API via the redeem_url. Scrape responsibly: respect target sites&#x27; Terms of Service and robots.txt, rate-limit requests, collect only public data, comply with GDPR/CCPA and other privacy laws, and never use proxies for fraud, credential stuffing, account abuse or bypassing paywalls/authentication. Follow Proxyrack&#x27;s acceptable-use policy.</p>
+      <p class="instructions">Use Proxyrack proxies or the scraper API via the the sign-up link. Scrape responsibly: respect target sites&#x27; Terms of Service and robots.txt, rate-limit requests, collect only public data, comply with GDPR/CCPA and other privacy laws, and never use proxies for fraud, credential stuffing, account abuse or bypassing paywalls/authentication. Follow Proxyrack&#x27;s acceptable-use policy.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxyrack.com?fpr=lanternworks" data-deal="deal-proxyrack-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.proxyrack.com/pricing/">https://www.proxyrack.com/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxyscrape-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid proxy plans" data-advertiser="ProxyScrape" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/proxyscrape-001/">ProxyScrape — proxy API (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxyscrape-001/">ProxyScrape — proxy API (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · ProxyScrape</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">scrape</span> <span class="tag">unblock</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for ProxyScrape proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for ProxyScrape proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxyscrape.com/?ref=lanternworks" data-deal="deal-proxyscrape-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://proxyscrape.com/">https://proxyscrape.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-proxywing-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid proxy plans" data-advertiser="ProxyWing" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/proxywing-001/">ProxyWing — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/proxywing-001/">ProxyWing — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · ProxyWing</p>
       
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">proxywing</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for ProxyWing proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for ProxyWing proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://proxywing.com/?ref=3138" data-deal="deal-proxywing-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://proxywing.com/">https://proxywing.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-raxyproxy-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="1.69" data-price-label="" data-unit="per GB residential proxy traffic (from)" data-advertiser="RaxyProxy" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/raxyproxy-001/">RaxyProxy — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/raxyproxy-001/">RaxyProxy — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$1.69</strong> / per GB residential proxy traffic (from) · RaxyProxy</p>
       
       <p class="tags"><span class="tag">proxies</span> <span class="tag">scraping</span> <span class="tag">unblock</span> <span class="tag">raxyproxy</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for RaxyProxy proxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for RaxyProxy proxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://raxyproxy.com/go/jmukqvpu" data-deal="deal-raxyproxy-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://raxyproxy.com/pricing">https://raxyproxy.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-scrapedo-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="29" data-price-label="" data-unit="Hobby plan per month (250,000 successful API credits)" data-advertiser="Scrape.do" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/scrapedo-001/">Scrape.do — scrape/unblock API (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/scrapedo-001/">Scrape.do — scrape/unblock API (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$29</strong> / Hobby plan per month (250,000 successful API credits) · Scrape.do</p>
       
       <p class="tags"><span class="tag">scrape</span> <span class="tag">unblock</span> <span class="tag">scrapedo</span> <span class="tag">affiliate</span> <span class="tag">proxy</span></p>
-      <p class="instructions">Sign up via the redeem_url for Scrape.do scrape/unblock API. Suited to agents that need reliable HTML fetch with unblock.</p>
+      <p class="instructions">Sign up via the the sign-up link for Scrape.do scrape/unblock API. Suited to agents that need reliable HTML fetch with unblock.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrape.do?fpr=lanternworks" data-deal="deal-scrapedo-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://scrape.do/pricing/">https://scrape.do/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-scrapeops-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid scrape plans" data-advertiser="ScrapeOps" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/scrapeops-001/">ScrapeOps — scrape proxy routing (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/scrapeops-001/">ScrapeOps — scrape proxy routing (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Pricing on vendor site</strong> · ScrapeOps</p>
       
       <p class="tags"><span class="tag">scrape</span> <span class="tag">proxy</span> <span class="tag">scrapeops</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for ScrapeOps. Optional coupon START10-FS3Lvdbr — discount not verified; verify at checkout.</p>
+      <p class="instructions">Sign up via the the sign-up link for ScrapeOps. Optional coupon START10-FS3Lvdbr — discount not verified; verify at checkout.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://scrapeops.io?fpr=lanternworks" data-deal="deal-scrapeops-001">Redeem / signup</a> · code <code>START10-FS3Lvdbr</code><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://scrapeops.io/">https://scrapeops.io/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-scraperapi-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="7-day trial with 5,000 API credits (no card), then free plan 1,000 API credits (5 concurrent); paid plans from $49/mo" data-advertiser="ScraperAPI" data-free="0" data-verified="1" data-verified-at="2026-10-27T10:14:40-04:00">
-      <h2><a href="https://thelanternworks.com/deals/scraperapi-001/">ScraperAPI — scrape/proxy API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/scraperapi-001/">ScraperAPI — scrape/proxy API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>Plan prices listed (see details)</strong> · ScraperAPI</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">scrape</span> <span class="tag">proxy</span> <span class="tag">scraperapi</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for ScraperAPI scrape/proxy API (rotating proxies, CAPTCHA/anti-bot handling, JS rendering). Start on the free trial/free plan first.</p>
+      <p class="instructions">Sign up via the the sign-up link for ScraperAPI scrape/proxy API (rotating proxies, CAPTCHA/anti-bot handling, JS rendering). Start on the free trial/free plan first.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.scraperapi.com/?fp_ref=connor-f2e155" data-deal="deal-scraperapi-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.scraperapi.com/">https://www.scraperapi.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-shifter-001" data-category="proxies" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid Shifter plans" data-advertiser="Shifter" data-free="0" data-verified="1" data-verified-at="2026-10-23T18:36:58-04:00">
-      <h2><a href="https://thelanternworks.com/deals/shifter-001/">Shifter — residential proxies &amp; scraping (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/shifter-001/">Shifter — residential proxies &amp; scraping (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">proxies</span> · <strong>Pricing on vendor site</strong> · Shifter</p>
       <p class="freshness">Updated Oct 23, 2026</p>
       <p class="tags"><span class="tag">proxies</span> <span class="tag">residential</span> <span class="tag">scrape</span> <span class="tag">shifter</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for Shifter proxies/scraping.</p>
+      <p class="instructions">Sign up via the the sign-up link for Shifter proxies/scraping.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://shifter.io/r/zyDM/register" data-deal="deal-shifter-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://shifter.io">https://shifter.io</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-trueproxies-001" data-category="unblock" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="1.1" data-price-label="" data-unit="1 GB residential traffic pack (from)" data-advertiser="TrueProxies" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/trueproxies-001/">TrueProxies — proxies (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/trueproxies-001/">TrueProxies — proxies (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">unblock</span> · <strong>$1.1</strong> / 1 GB residential traffic pack (from) · TrueProxies</p>
       
       <p class="tags"><span class="tag">proxy</span> <span class="tag">trueproxies</span> <span class="tag">affiliate</span> <span class="tag">unblock</span></p>
-      <p class="instructions">Sign up via the redeem_url for TrueProxies.</p>
+      <p class="instructions">Sign up via the the sign-up link for TrueProxies.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://trueproxies.com?ref=EKWS3K5S" data-deal="deal-trueproxies-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://trueproxies.com/pricing">https://trueproxies.com/pricing</a>.</small></p>
     </article>
 

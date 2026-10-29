@@ -30,7 +30,7 @@ DISCLOSURE = "Some links are referral links; Lantern Works may earn credit. Affi
 ET = timezone(timedelta(hours=-4))  # display only; label says ET
 SPEC_PATHS: list[str] = []
 # Near-duplicate of an older page: rel=canonical points there and the URL stays out of the sitemap.
-CANONICAL_OVERRIDE = {"H100": "https://thelanternworks.com/gpu/cheapest-h100-rental/"}
+CANONICAL_OVERRIDE: dict[str, str] = {}  # none: /gpu/<gpu>-rental-price/ pages are canonical
 
 
 def load_feeds() -> dict:

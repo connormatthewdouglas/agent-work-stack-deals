@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -111,13 +121,13 @@
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · <a href="https://thelanternworks.com/categories/hosting/">hosting</a></p>
   <article class="deal" id="deal-basin-001">
-    <h1>Basin — form backend API and form builder (free plan) <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h1>
+    <h1>Basin — form backend API and form builder (free plan) <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h1>
     <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free plan: 1 form endpoint, 50 submissions per month (unverified) · Advertiser: Basin</p>
     <p class="tags"><span class="tag">hosting</span> <span class="tag">forms</span> <span class="tag">form-backend</span> <span class="tag">api</span> <span class="tag">free-tier</span> <span class="tag">basin</span> <span class="tag">affiliate</span></p>
     <p class="meta">Published pricing (verify on vendor site): Per usebasin.com/pricing (checked 2026-10-26): Free $0/mo (1 form endpoint, 50 submissions/mo, 30-day data retention); paid plans from $12.50/mo billed yearly (Starter), Growth $24.17/mo billed yearly; extra submissions from $5.25 per 1,000.</p>
     <p class="freshness">Updated Oct 27, 2026</p>
     <p class="verified">Verified-on: 2026-10-27</p>
-    <p class="instructions">Start on the free plan via the redeem_url affiliate link. Point your HTML form&#x27;s action at your Basin endpoint. Confirm current plans on usebasin.com/pricing. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+    <p class="instructions">Start on the free plan via the the sign-up link affiliate link. Point your HTML form&#x27;s action at your Basin endpoint. Confirm current plans on usebasin.com/pricing. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
     <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://usebasin.com?via=lanternworks" data-deal="deal-basin-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://usebasin.com/pricing">https://usebasin.com/pricing</a>.</small></p>
     
     <aside class="gotchas" aria-label="Before you redeem">

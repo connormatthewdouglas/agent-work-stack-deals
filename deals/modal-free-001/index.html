@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -111,7 +121,7 @@
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · <a href="https://thelanternworks.com/categories/gpu-compute/">gpu-compute</a> · <a href="https://thelanternworks.com/categories/compute/">compute</a></p>
   <article class="deal" id="deal-modal-free-001">
-    <h1>Modal — $30/month free compute credit (Starter) <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h1>
+    <h1>Modal — $30/month free compute credit (Starter) <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h1>
     <p class="meta"><span class="cat">compute</span> · <strong>$0</strong> / $30/month free credit on Starter; pay-as-you-go beyond allotment · Advertiser: Modal</p>
     <p class="tags"><span class="tag">gpu</span> <span class="tag">compute</span> <span class="tag">modal</span> <span class="tag">free-credits</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
     <p class="meta">Published pricing (verify on vendor site): Beyond the free credit, GPU tasks bill per second while running (per modal.com/pricing, checked 2026-10-27): Nvidia H200 SXM $0.001261/sec, Nvidia H100 SXM5 $0.001097/sec, Nvidia A100, 80 GB $0.000694/sec, Nvidia L40S $0.000542/sec. Functions are preemptible by default; non-preemptible execution is 3x and region selection 1.15-1.75x base prices. CPU and memory billed separately.</p>

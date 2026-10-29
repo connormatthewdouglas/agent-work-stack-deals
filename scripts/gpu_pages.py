@@ -234,7 +234,9 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
 """
     out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(gen.page_shell(title, desc, url, body + install_link_snippet(gen.BASE)), encoding="utf-8")
+    # /gpu/<model>-rental-price/ (spec_pages) is the canonical page for each model; this one stays reachable, out of the sitemap.
+    canon = f"{gen.BASE}/gpu/{slug}-rental-price/"
+    out.write_text(gen.page_shell(title, desc, canon, body + install_link_snippet(gen.BASE)), encoding="utf-8")
     return path
 
 
@@ -249,14 +251,21 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     held_n = sum(len(h.get("records") or []) for h in held)
     held_v = sorted({h["vendor"] for h in held})
     unp = doc.get("unpriced") or []
-    out = (f"How we count: the headline is every row in <code>rates[]</code> of <a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> "
-           f"({len(rates)} rates from {len({r['advertiser'] for r in rates})} vendors: {gen.esc(parts)}). ")
+    pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
+    med = [r for r in rates if r.get("offer_count")]
+    resv = tc.get("reserved", 0)
+    out = (f"How we count: {pl(len(rates), 'rate')} from {pl(len({r['advertiser'] for r in rates}), 'vendor')}, which is every priced row in "
+           f"<a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> ({gen.esc(parts)}). ")
+    if med:
+        out += (f"{pl(len(med), 'of those rows is a marketplace median', ) if len(med) == 1 else str(len(med)) + ' of those rows are marketplace medians'} "
+                f"(each summarises many listings from {gen.esc(', '.join(sorted({r['advertiser'] for r in med})))}, not one offer). ")
+    if resv:
+        out += f"{pl(resv, 'reserved or term-contract rate')} {'is' if resv == 1 else 'are'} included in the count but left out of the cheapest among tracked providers ranking. "
     if held_n:
-        out += f"Not counted: {held_n} held_stale record{'s' if held_n != 1 else ''} from {len(held_v)} vendor{'s' if len(held_v) != 1 else ''} (stale or too thin a marketplace, never ranked)"
-        out += f" and {len(unp)} unpriced vendor{'s' if len(unp) != 1 else ''} (no verifiable price). " if unp else ". "
-    elif unp:
-        out += f"Not counted: {len(unp)} unpriced vendor{'s' if len(unp) != 1 else ''} (no verifiable price). "
-    return out + "Reserved rates are counted but kept out of the pay-as-you-go ranking."
+        out += f"Not counted: {pl(held_n, 'price')} from {pl(len(held_v), 'vendor')} we're holding back because the page was stale or the marketplace too thin. "
+    if unp:
+        out += f"{'Also not counted' if held_n else 'Not counted'}: {pl(len(unp), 'vendor')} with no price we could verify."
+    return out
 
 
 def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) -> str:
@@ -527,7 +536,7 @@ def write_all(gen, deals: list[dict]) -> list[str]:
     _LINKS[:] = page_links(deals)
     pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if f["page"]}
     cmps = [write_h100_vs(gen, rates), write_per_vram(gen, rates), write_runpod_tiers(gen, rates)]
-    return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + list(pages.values()) + cmps
+    return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + cmps  # cheapest-* pages: canonical is the -rental-price page, so not in the sitemap
 
 
 def _history():

@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -118,7 +128,7 @@
   <main>
 
     <article class="deal" id="deal-agentmail-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="3 inboxes, 3,000 emails/mo, 100/day, 3 GB; no card" data-advertiser="AgentMail" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/agentmail-free-001/">AgentMail — Free 3 inboxes / 3,000 emails/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/agentmail-free-001/">AgentMail — Free 3 inboxes / 3,000 emails/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3 inboxes, 3,000 emails/mo, 100/day, 3 GB; no card · AgentMail</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">email</span> <span class="tag">agentmail</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -128,7 +138,7 @@
 
 
     <article class="deal" id="deal-cloudflare-workers-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Workers Free: 100,000 requests/day; 10 ms CPU time per invocation; no card required to start" data-advertiser="Cloudflare" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/cloudflare-workers-free-001/">Cloudflare Workers — Free 100,000 requests/day</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/cloudflare-workers-free-001/">Cloudflare Workers — Free 100,000 requests/day</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Workers Free: 100,000 requests/day; 10 ms CPU time per invocation; no card required to start · Cloudflare</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">cloudflare</span> <span class="tag">workers</span> <span class="tag">serverless</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -138,37 +148,37 @@
 
 
     <article class="deal" id="deal-cyberpanel-001" data-category="hosting" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="CyberPanel core control panel (self-hosted on your own server)" data-advertiser="CyberPanel" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/cyberpanel-001/">CyberPanel — free open-source web hosting control panel</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/cyberpanel-001/">CyberPanel — free open-source web hosting control panel</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / CyberPanel core control panel (self-hosted on your own server) · CyberPanel</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">control-panel</span> <span class="tag">open-source</span> <span class="tag">openlitespeed</span> <span class="tag">vps</span> <span class="tag">free-tier</span> <span class="tag">cyberpanel</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Install the free open-source CyberPanel control panel on your own server via the redeem_url affiliate link. Premium add-ons are optional; confirm current add-on prices on cyberpanel.net/cyberpanel-addons before buying. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Install the free open-source CyberPanel control panel on your own server via the the sign-up link affiliate link. Premium add-ons are optional; confirm current add-on prices on cyberpanel.net/cyberpanel-addons before buying. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://cyberpanel.net/?ref=mq3kvhz2h2dj" data-deal="deal-cyberpanel-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://cyberpanel.net/cyberpanel-addons">https://cyberpanel.net/cyberpanel-addons</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-hyperping-001" data-category="hosting" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free plan (uptime monitors and one basic status page)" data-advertiser="Hyperping" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/hyperping-001/">Hyperping — uptime monitoring, status pages and on-call (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/hyperping-001/">Hyperping — uptime monitoring, status pages and on-call (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free plan (uptime monitors and one basic status page) · Hyperping</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">status-page</span> <span class="tag">on-call</span> <span class="tag">free-tier</span> <span class="tag">hyperping</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Start on the free plan via the redeem_url affiliate link (no card). Confirm current plan limits on hyperping.com/pricing. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Start on the free plan via the the sign-up link affiliate link (no card). Confirm current plan limits on hyperping.com/pricing. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://hyperping.com/?via=lanternworks" data-deal="deal-hyperping-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://hyperping.com/pricing">https://hyperping.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-jetadmin-001" data-category="hosting" data-affiliate="true" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free plan" data-advertiser="Jet Admin" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/jetadmin-001/">Jet Admin — no-code internal tools and client portals (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/jetadmin-001/">Jet Admin — no-code internal tools and client portals (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free plan · Jet Admin</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">no-code</span> <span class="tag">internal-tools</span> <span class="tag">app-builder</span> <span class="tag">database</span> <span class="tag">free-tier</span> <span class="tag">jetadmin</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Start on the free plan via the redeem_url affiliate link to build internal tools on your existing databases and APIs. Confirm current plans on jetadmin.io/pricing. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Start on the free plan via the the sign-up link affiliate link to build internal tools on your existing databases and APIs. Confirm current plans on jetadmin.io/pricing. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://jetadmin.io?via=lanternworks" data-deal="deal-jetadmin-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.jetadmin.io/pricing">https://www.jetadmin.io/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-neon-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free $0: 100 CU-hours/project, scale-to-zero, 1 GB storage/project; no time limit; no credit card" data-advertiser="Neon" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/neon-free-001/">Neon — Free Postgres tier (no card)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/neon-free-001/">Neon — Free Postgres tier (no card)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free $0: 100 CU-hours/project, scale-to-zero, 1 GB storage/project; no time limit; no credit card · Neon</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">postgres</span> <span class="tag">neon</span> <span class="tag">database</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -178,7 +188,7 @@
 
 
     <article class="deal" id="deal-postmark-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free Developer plan: 100 emails/mo forever; free trial / no credit card to start" data-advertiser="Postmark" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/postmark-free-001/">Postmark — Free Developer 100 emails/mo (no card)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/postmark-free-001/">Postmark — Free Developer 100 emails/mo (no card)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free Developer plan: 100 emails/mo forever; free trial / no credit card to start · Postmark</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">email</span> <span class="tag">postmark</span> <span class="tag">transactional</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -188,7 +198,7 @@
 
 
     <article class="deal" id="deal-railway-trial-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="$5 one-time trial (30 days), then Free plan $1 credit/mo (no rollover)" data-advertiser="Railway" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/railway-trial-001/">Railway — $5 trial / 30 days then $1/mo free usage</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/railway-trial-001/">Railway — $5 trial / 30 days then $1/mo free usage</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / $5 one-time trial (30 days), then Free plan $1 credit/mo (no rollover) · Railway</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">railway</span> <span class="tag">free-trial</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -198,7 +208,7 @@
 
 
     <article class="deal" id="deal-render-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free compute plans for web services, Key Value, and Postgres (limits apply); Hobby workspace $0/mo + compute; static sites always free" data-advertiser="Render" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/render-free-001/">Render — Free compute (web/KV/Postgres) + Hobby $0/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/render-free-001/">Render — Free compute (web/KV/Postgres) + Hobby $0/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free compute plans for web services, Key Value, and Postgres (limits apply); Hobby workspace $0/mo + compute; static sites always free · Render</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">render</span> <span class="tag">free-tier</span> <span class="tag">paas</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -208,7 +218,7 @@
 
 
     <article class="deal" id="deal-resend-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="3,000 transactional emails/mo on Free" data-advertiser="Resend" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/resend-free-001/">Resend — Free 3,000 transactional emails/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/resend-free-001/">Resend — Free 3,000 transactional emails/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3,000 transactional emails/mo on Free · Resend</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">email</span> <span class="tag">resend</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -218,7 +228,7 @@
 
 
     <article class="deal" id="deal-turso-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free $0/mo: 100 databases, 5GB storage, 500M rows read / 10M rows written /mo; no credit card" data-advertiser="Turso" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:40:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/turso-free-001/">Turso — Free Cloud SQLite tier (no card)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/turso-free-001/">Turso — Free Cloud SQLite tier (no card)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free $0/mo: 100 databases, 5GB storage, 500M rows read / 10M rows written /mo; no credit card · Turso</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">sqlite</span> <span class="tag">turso</span> <span class="tag">database</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -228,7 +238,7 @@
 
 
     <article class="deal" id="deal-upstash-redis-free-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Free: 250 MB data, 10 GB bandwidth, 500K commands/mo; 1 free DB; agent instant start available" data-advertiser="Upstash" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:40:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/upstash-redis-free-001/">Upstash Redis — Free 250MB / 500K commands/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/upstash-redis-free-001/">Upstash Redis — Free 250MB / 500K commands/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free: 250 MB data, 10 GB bandwidth, 500K commands/mo; 1 free DB; agent instant start available · Upstash</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">redis</span> <span class="tag">upstash</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -238,7 +248,7 @@
 
 
     <article class="deal" id="deal-vercel-hobby-001" data-category="hosting" data-affiliate="false" data-offer="free_tier" data-offer-label="Free tier" data-price="0" data-price-label="" data-unit="Hobby $0/mo for personal/non-commercial use; usage caps (cannot buy overages on Hobby)" data-advertiser="Vercel" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/vercel-hobby-001/">Vercel — Hobby plan $0/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/vercel-hobby-001/">Vercel — Hobby plan $0/mo</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Hobby $0/mo for personal/non-commercial use; usage caps (cannot buy overages on Hobby) · Vercel</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">vercel</span> <span class="tag">hobby</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -248,57 +258,57 @@
 
 
     <article class="deal" id="deal-agentmail-startup-001" data-category="hosting" data-affiliate="false" data-offer="listed_discount" data-offer-label="Listed discount (unverified)" data-price="0" data-price-label="" data-unit="3 months Startup tier free (unverified); apply — eligibility reviewed" data-advertiser="AgentMail" data-free="1" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/agentmail-startup-001/">AgentMail — Startup program 3 mo Startup tier free (apply) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span> <span class="badge">apply-not-code</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/agentmail-startup-001/">AgentMail — Startup program 3 mo Startup tier free (apply) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span> <span class="badge">apply on the vendor site (no code)</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / 3 months Startup tier free (unverified); apply — eligibility reviewed · AgentMail</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">email</span> <span class="tag">agentmail</span> <span class="tag">startup</span> <span class="tag">apply</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
       <p class="instructions">Apply at AgentMail /startups. Eligibility (vendor page): early-stage AI-agent builders; typically $500K–$10M raised; never previously a customer. No public promo code. Wait for approval email.</p>
-      <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://www.agentmail.to/startups" data-deal="deal-agentmail-startup-001">Open offer / signup</a> · <em>apply-not-code</em></p>
+      <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://www.agentmail.to/startups" data-deal="deal-agentmail-startup-001">Open offer / signup</a> · <em>apply on the vendor site (no code)</em></p>
     </article>
 
 
     <article class="deal" id="deal-basin-001" data-category="hosting" data-affiliate="true" data-offer="listed_discount" data-offer-label="Listed discount (unverified)" data-price="0" data-price-label="" data-unit="Free plan: 1 form endpoint, 50 submissions per month (unverified)" data-advertiser="Basin" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/basin-001/">Basin — form backend API and form builder (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/basin-001/">Basin — form backend API and form builder (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free plan: 1 form endpoint, 50 submissions per month (unverified) · Basin</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">forms</span> <span class="tag">form-backend</span> <span class="tag">api</span> <span class="tag">free-tier</span> <span class="tag">basin</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Start on the free plan via the redeem_url affiliate link. Point your HTML form&#x27;s action at your Basin endpoint. Confirm current plans on usebasin.com/pricing. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Start on the free plan via the the sign-up link affiliate link. Point your HTML form&#x27;s action at your Basin endpoint. Confirm current plans on usebasin.com/pricing. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://usebasin.com?via=lanternworks" data-deal="deal-basin-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://usebasin.com/pricing">https://usebasin.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-betterstack-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="paid uptime/logs plans" data-advertiser="Better Stack" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/betterstack-001/">Better Stack — uptime, logs, incidents (affiliate)</a> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/betterstack-001/">Better Stack — uptime, logs, incidents (affiliate)</a> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Pricing on vendor site</strong> · Better Stack</p>
       
       <p class="tags"><span class="tag">uptime</span> <span class="tag">logs</span> <span class="tag">observability</span> <span class="tag">affiliate</span> <span class="tag">betterstack</span></p>
-      <p class="instructions">Sign up via the redeem_url for Better Stack (uptime, logs, incidents).</p>
+      <p class="instructions">Sign up via the the sign-up link for Better Stack (uptime, logs, incidents).</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://betterstack.com/?ref=b-jo4b" data-deal="deal-betterstack-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://betterstack.com/">https://betterstack.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-bunny-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="0.01" data-price-label="" data-unit="per GB CDN traffic, Europe &amp; North America standard network ($1 monthly minimum)" data-advertiser="Bunny.net" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/bunny-001/">Bunny.net — CDN &amp; edge storage (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/bunny-001/">Bunny.net — CDN &amp; edge storage (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0.01</strong> / per GB CDN traffic, Europe &amp; North America standard network ($1 monthly minimum) · Bunny.net</p>
       
       <p class="tags"><span class="tag">cdn</span> <span class="tag">hosting</span> <span class="tag">bunny</span> <span class="tag">storage</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for Bunny.net CDN and edge storage.</p>
+      <p class="instructions">Sign up via the the sign-up link for Bunny.net CDN and edge storage.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://bunny.net?ref=xrflx381px" data-deal="deal-bunny-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://bunny.net/pricing/">https://bunny.net/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-dreamhost-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="2.89" data-price-label="" data-unit="Web Hosting Launch, first year per month (renews at $10.99/mo); 30-day money-back guarantee" data-advertiser="DreamHost" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/dreamhost-001/">DreamHost — shared web hosting (from $2.89/mo first year)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/dreamhost-001/">DreamHost — shared web hosting (from $2.89/mo first year)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$2.89</strong> <s>$10.99</s> / Web Hosting Launch, first year per month (renews at $10.99/mo); 30-day money-back guarantee · DreamHost</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">web-hosting</span> <span class="tag">shared-hosting</span> <span class="tag">wordpress-hosting</span> <span class="tag">dreamhost</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link and choose a shared Web Hosting plan. Intro prices apply to the first term, and plans auto-renew at the regular rate. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link and choose a shared Web Hosting plan. Intro prices apply to the first term, and plans auto-renew at the regular rate. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://click.dreamhost.com/aff_c?offer_id=8&amp;aff_id=23896&amp;url_id=145" data-deal="deal-dreamhost-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.dreamhost.com/hosting/web-hosting/">https://www.dreamhost.com/hosting/web-hosting/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-fly-trial-001" data-category="hosting" data-affiliate="false" data-offer="listed_discount" data-offer-label="Listed discount (unverified)" data-price="0" data-price-label="" data-unit="New orgs: free trial up to 2 hours Machine runtime or 7 days (whichever first) (unverified); no card to start; no ongoing free tier after trial" data-advertiser="Fly.io" data-free="1" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/fly-trial-001/">Fly.io — Free trial (up to 2 Machine hours or 7 days) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/fly-trial-001/">Fly.io — Free trial (up to 2 Machine hours or 7 days) (unverified)</a> <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / New orgs: free trial up to 2 hours Machine runtime or 7 days (whichever first) (unverified); no card to start; no ongoing free tier after trial · Fly.io</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">fly</span> <span class="tag">free-trial</span> <span class="tag">paas</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
@@ -308,171 +318,171 @@
 
 
     <article class="deal" id="deal-gumlet-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="Usage-based plans; see gumlet.com/pricing" data-advertiser="Gumlet" data-free="0" data-verified="1" data-verified-at="2026-10-26T08:25:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/gumlet-001/">Gumlet — video hosting/streaming and image optimization CDN</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/gumlet-001/">Gumlet — video hosting/streaming and image optimization CDN</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Pricing on vendor site</strong> · Gumlet</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">cdn</span> <span class="tag">video</span> <span class="tag">image-optimization</span> <span class="tag">streaming</span> <span class="tag">gumlet</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link and start on the free signup. Confirm current plan prices on gumlet.com/pricing before buying. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link and start on the free signup. Confirm current plan prices on gumlet.com/pricing before buying. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.gumlet.com/?fpr=lanternworks-2cc7d7" data-deal="deal-gumlet-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.gumlet.com/">https://www.gumlet.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-hostingcom-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="Web hosting plans; see hosting.com for current pricing" data-advertiser="Hosting.com" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/hostingcom-001/">Hosting.com — web, WordPress and VPS hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/hostingcom-001/">Hosting.com — web, WordPress and VPS hosting</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Pricing on vendor site</strong> · Hosting.com</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">web-hosting</span> <span class="tag">wordpress-hosting</span> <span class="tag">vps</span> <span class="tag">hostingcom</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link and pick a plan on hosting.com. No coupon or extra discount is attached to this link. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link and pick a plan on hosting.com. No coupon or extra discount is attached to this link. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://hosting.com?fpr=931oq2" data-deal="deal-hostingcom-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://hosting.com/">https://hosting.com/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-outseta-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="Start plan (up to 1,000 contacts) per month, billed monthly, plus 2% transaction fee" data-advertiser="Outseta" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/outseta-001/">Outseta — auth, billing, CRM and memberships for SaaS</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/outseta-001/">Outseta — auth, billing, CRM and memberships for SaaS</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · Outseta</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">auth</span> <span class="tag">billing</span> <span class="tag">subscriptions</span> <span class="tag">membership</span> <span class="tag">saas</span> <span class="tag">mcp</span> <span class="tag">outseta</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link (14-day free trial on every plan) (unverified). Confirm current plans and transaction fees on outseta.com/pricing. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link (14-day free trial on every plan) (not yet verified). Confirm current plans and transaction fees on outseta.com/pricing. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.outseta.com?via=lanternworks" data-deal="deal-outseta-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.outseta.com/pricing">https://www.outseta.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-pingping-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="per month (by number of websites monitored)" data-advertiser="PingPing" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/pingping-001/">PingPing — website uptime and SSL monitoring for solo founders</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span> <span class="badge unverified">unverified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/pingping-001/">PingPing — website uptime and SSL monitoring for solo founders</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · PingPing</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">monitoring</span> <span class="tag">uptime-monitoring</span> <span class="tag">ssl-monitoring</span> <span class="tag">status-page</span> <span class="tag">pingping</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link (14-day free trial, no credit card) (unverified). There is no free plan; paid plans are priced by number of monitored websites and billed in EUR. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link (14-day free trial, no credit card) (not yet verified). There is no free plan; paid plans are priced by number of monitored websites and billed in EUR. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://pingping.io/?ref=lanternworks" data-deal="deal-pingping-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://pingping.io/">https://pingping.io/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-plesk-001" data-category="hosting" data-affiliate="true" data-offer="trial" data-offer-label="Trial" data-price="" data-price-label="Plan prices listed (see details)" data-unit="Web Admin Edition VPS from €12.04/mo (monthly); free 2-week full trial" data-advertiser="Plesk" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:40:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/plesk-001/">Plesk — web hosting control panel for VPS and dedicated servers</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/plesk-001/">Plesk — web hosting control panel for VPS and dedicated servers</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · Plesk</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">control-panel</span> <span class="tag">server-management</span> <span class="tag">vps</span> <span class="tag">wordpress</span> <span class="tag">plesk</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link, start the free 2-week trial, then buy a license (Web Admin, Web Pro or Web Host edition) (unverified). redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link, start the free 2-week trial, then buy a license (Web Admin, Web Pro or Web Host edition) (not yet verified). The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://try.plesk.com/mn37wd6xipno" data-deal="deal-plesk-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.plesk.com/pricing/">https://www.plesk.com/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-postmark-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="15" data-price-label="" data-unit="Basic plan per month (10,000 emails/month)" data-advertiser="Postmark" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/postmark-001/">Postmark — transactional email API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/postmark-001/">Postmark — transactional email API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$15</strong> / Basic plan per month (10,000 emails/month) · Postmark</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">email</span> <span class="tag">postmark</span> <span class="tag">transactional</span> <span class="tag">api</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for Postmark transactional email. Prefer Free Developer (100 emails/mo) first when volume is low (unverified); paid plans via link when scaling.</p>
+      <p class="instructions">Sign up via the the sign-up link for Postmark transactional email. Prefer Free Developer (100 emails/mo) first when volume is low (not yet verified); paid plans via link when scaling.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.postmarkapp.com?via=lanternworks" data-deal="deal-postmark-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://postmarkapp.com/pricing">https://postmarkapp.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-pressmage-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="Journeyman (semi-managed WordPress) plan per month" data-advertiser="Press Mage" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/pressmage-001/">Press Mage — managed WordPress hosting for agencies</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/pressmage-001/">Press Mage — managed WordPress hosting for agencies</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · Press Mage</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">wordpress</span> <span class="tag">managed-wordpress</span> <span class="tag">agency</span> <span class="tag">pressmage</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. Confirm current plans and prices on pressmage.com/pricing before ordering. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. Confirm current plans and prices on pressmage.com/pricing before ordering. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.pressmage.com?via=lanternworks" data-deal="deal-pressmage-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.pressmage.com/pricing">https://www.pressmage.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-shortpixel-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="Monthly subscription or one-time credit packages; see shortpixel.com/pricing" data-advertiser="ShortPixel" data-free="0" data-verified="1" data-verified-at="2026-10-26T08:55:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/shortpixel-001/">ShortPixel — image optimization and compression (plugin, API and CDN)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/shortpixel-001/">ShortPixel — image optimization and compression (plugin, API and CDN)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Pricing on vendor site</strong> · ShortPixel</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">image-optimization</span> <span class="tag">cdn</span> <span class="tag">compression</span> <span class="tag">webp</span> <span class="tag">wordpress</span> <span class="tag">shortpixel</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link (opens ShortPixel&#x27;s pricing page). A free plan is offered; confirm current plan prices and credit quotas on shortpixel.com/pricing before buying. Only optimize images on sites you are authorized to manage. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link (opens ShortPixel&#x27;s pricing page). A free plan is offered; confirm current plan prices and credit quotas on shortpixel.com/pricing before buying. Only optimize images on sites you are authorized to manage. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://shortpixel.com/otp/af/HTRJHGN3913205" data-deal="deal-shortpixel-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://shortpixel.com/pricing">https://shortpixel.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-smtp2go-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="15" data-price-label="" data-unit="paid plans from, per month (free tier available)" data-advertiser="SMTP2GO" data-free="0" data-verified="1" data-verified-at="2026-10-28T11:14:56-04:00">
-      <h2><a href="https://thelanternworks.com/deals/smtp2go-001/">SMTP2GO — transactional email (affiliate)</a> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/smtp2go-001/">SMTP2GO — transactional email (affiliate)</a> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$15</strong> / paid plans from, per month (free tier available) · SMTP2GO</p>
       
       <p class="tags"><span class="tag">email</span> <span class="tag">smtp</span> <span class="tag">transactional</span> <span class="tag">smtp2go</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url for SMTP2GO.</p>
+      <p class="instructions">Sign up via the the sign-up link for SMTP2GO.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://get.smtp2go.com/lanternworks" data-deal="deal-smtp2go-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.smtp2go.com/pricing/">https://www.smtp2go.com/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-softshellweb-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="" data-advertiser="SoftShellWeb" data-free="0" data-verified="1" data-verified-at="2026-10-25T09:58:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/softshellweb-001/">SoftShellWeb — KVM VPS, NVMe shared and reseller hosting (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/softshellweb-001/">SoftShellWeb — KVM VPS, NVMe shared and reseller hosting (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · SoftShellWeb</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">vps</span> <span class="tag">kvm</span> <span class="tag">hosting</span> <span class="tag">shared-hosting</span> <span class="tag">reseller-hosting</span> <span class="tag">softshellweb</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Order a KVM VPS, NVMe shared or reseller hosting plan via SoftShellWeb&#x27;s redeem_url (expect a 301 redirect to softshellweb.com). Confirm current price, location and specs at checkout.</p>
+      <p class="instructions">Order a KVM VPS, NVMe shared or reseller hosting plan via SoftShellWeb&#x27;s the sign-up link (expect a 301 redirect to softshellweb.com). Confirm current price, location and specs at checkout.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://softshellweb.com/client/aff.php?aff=506" data-deal="deal-softshellweb-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://softshellweb.com">https://softshellweb.com</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-telemetry-tracker-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="" data-advertiser="Telemetry Tracker" data-free="0" data-verified="1" data-verified-at="2026-10-25T08:20:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/telemetry-tracker-001/">Telemetry Tracker — open-source error tracking, a lightweight Sentry alternative (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/telemetry-tracker-001/">Telemetry Tracker — open-source error tracking, a lightweight Sentry alternative (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Pricing on vendor site</strong> · Telemetry Tracker</p>
       <p class="freshness">Updated Oct 25, 2026</p>
       <p class="tags"><span class="tag">monitoring</span> <span class="tag">error-tracking</span> <span class="tag">observability</span> <span class="tag">sentry-alternative</span> <span class="tag">open-source</span> <span class="tag">telemetry-tracker</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Add error tracking, Web Vitals and event/session monitoring to a JS/Node app via Telemetry Tracker&#x27;s redeem_url (hosted cloud) as a lighter Sentry alternative. No coupon or promo code exists for this deal. Avoid sending secrets or personal data in error payloads.</p>
+      <p class="instructions">Add error tracking, Web Vitals and event/session monitoring to a JS/Node app via Telemetry Tracker&#x27;s the sign-up link (hosted cloud) as a lighter Sentry alternative. No coupon or promo code exists for this deal. Avoid sending secrets or personal data in error payloads.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://telemetry-tracker.com/?ref=lanternworks" data-deal="deal-telemetry-tracker-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://telemetry-tracker.com">https://telemetry-tracker.com</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-uptimewolf-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="" data-advertiser="Uptimewolf" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/uptimewolf-001/">Uptimewolf — uptime, cron, server and DNS monitoring with status pages and API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/uptimewolf-001/">Uptimewolf — uptime, cron, server and DNS monitoring with status pages and API (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · Uptimewolf</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">uptime</span> <span class="tag">monitoring</span> <span class="tag">status-pages</span> <span class="tag">cron</span> <span class="tag">observability</span> <span class="tag">uptimewolf</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Set up uptime, cron-heartbeat, server and DNS monitors plus status pages (UI or REST API) via Uptimewolf&#x27;s redeem_url.</p>
+      <p class="instructions">Set up uptime, cron-heartbeat, server and DNS monitors plus status pages (UI or REST API) via Uptimewolf&#x27;s the sign-up link.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://uptimewolf.com/?ref=3a6cc5f824cce08daca77cbf72871706" data-deal="deal-uptimewolf-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://uptimewolf.com">https://uptimewolf.com</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-uptimia-001" data-category="hosting" data-affiliate="true" data-offer="listed_discount" data-offer-label="Listed discount (unverified)" data-price="0" data-price-label="" data-unit="Free plan: 1 website + 1 API monitor, 5-minute checks (unverified)" data-advertiser="Uptimia" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/uptimia-001/">Uptimia — uptime, SSL, API and server monitoring (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/uptimia-001/">Uptimia — uptime, SSL, API and server monitoring (free plan)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$0</strong> / Free plan: 1 website + 1 API monitor, 5-minute checks (unverified) · Uptimia</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">monitoring</span> <span class="tag">uptime-monitoring</span> <span class="tag">status-page</span> <span class="tag">ssl-monitoring</span> <span class="tag">api-monitoring</span> <span class="tag">free-tier</span> <span class="tag">uptimia</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. You start with a 30-day free trial with no card required (unverified). After the trial, the account moves to the free plan (one website and one API monitor, each checked as often as every 5 minutes) unless you upgrade (unverified). redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. You start with a 30-day free trial with no card required (not yet verified). After the trial, the account moves to the free plan (one website and one API monitor, each checked as often as every 5 minutes) unless you upgrade (not yet verified). The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://www.uptimia.com/?via=lanternworks" data-deal="deal-uptimia-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://www.uptimia.com/pricing">https://www.uptimia.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-usermaven-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Pricing on vendor site" data-unit="" data-advertiser="Usermaven" data-free="0" data-verified="1" data-verified-at="2026-10-25T20:08:00-04:00">
-      <h2><a href="https://thelanternworks.com/deals/usermaven-001/">Usermaven — product analytics and marketing attribution with MCP for AI agents (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/usermaven-001/">Usermaven — product analytics and marketing attribution with MCP for AI agents (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Pricing on vendor site</strong> · Usermaven</p>
       <p class="freshness">Updated Oct 25, 2026</p>
       <p class="tags"><span class="tag">analytics</span> <span class="tag">product-analytics</span> <span class="tag">attribution</span> <span class="tag">web-analytics</span> <span class="tag">mcp</span> <span class="tag">usermaven</span> <span class="tag">affiliate</span> <span class="tag">rewardful</span></p>
-      <p class="instructions">Set up product analytics and attribution via Usermaven&#x27;s redeem_url. Privacy: obtain GDPR/ePrivacy and CCPA/CPRA-compliant consent before tracking where required, disclose tracking in the privacy policy, honor opt-outs and Do Not Sell/Share requests, and avoid collecting sensitive personal data.</p>
+      <p class="instructions">Set up product analytics and attribution via Usermaven&#x27;s the sign-up link. Privacy: obtain GDPR/ePrivacy and CCPA/CPRA-compliant consent before tracking where required, disclose tracking in the privacy policy, honor opt-outs and Do Not Sell/Share requests, and avoid collecting sensitive personal data.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://usermaven.com?via=fasri4" data-deal="deal-usermaven-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://usermaven.com/pricing">https://usermaven.com/pricing</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-webgee-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="4.95" data-price-label="" data-unit="GeeSpark cloud hosting plan per month (billed monthly)" data-advertiser="WebGee" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/webgee-001/">WebGee — NVMe cloud hosting, cloud VPS and dedicated servers</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/webgee-001/">WebGee — NVMe cloud hosting, cloud VPS and dedicated servers</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>$4.95</strong> / GeeSpark cloud hosting plan per month (billed monthly) · WebGee</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">cloud-hosting</span> <span class="tag">vps</span> <span class="tag">wordpress</span> <span class="tag">dedicated-server</span> <span class="tag">litespeed</span> <span class="tag">webgee</span> <span class="tag">affiliate</span></p>
-      <p class="instructions">Sign up via the redeem_url affiliate link. WebGee says every new customer&#x27;s first month costs $1.00, applied automatically at checkout with no coupon needed; confirm it at checkout. Hosting has a 30-day money-back guarantee, but domain fees are non-refundable. redeem_url is an affiliate (referral) link; see disclosure. plain_url (when set) is the direct vendor link.</p>
+      <p class="instructions">Sign up via the the sign-up link affiliate link. WebGee says every new customer&#x27;s first month costs $1.00, applied automatically at checkout with no coupon needed; confirm it at checkout. Hosting has a 30-day money-back guarantee, but domain fees are non-refundable. The sign-up link is a referral link (see the disclosure). A direct vendor link without referral tracking is listed under it.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://my.webgee.com/aff.php?aff=7847" data-deal="deal-webgee-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://webgee.com/cloud-hosting">https://webgee.com/cloud-hosting</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-windsor-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="" data-advertiser="Windsor.ai" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/windsor-001/">Windsor.ai — marketing, analytics and SEO data connectors to warehouses and BI (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/windsor-001/">Windsor.ai — marketing, analytics and SEO data connectors to warehouses and BI (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · Windsor.ai</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">analytics</span> <span class="tag">seo</span> <span class="tag">marketing-data</span> <span class="tag">etl</span> <span class="tag">data-connectors</span> <span class="tag">bi</span> <span class="tag">windsor</span> <span class="tag">affiliate</span> <span class="tag">firstpromoter</span></p>
-      <p class="instructions">Connect marketing, analytics and SEO data sources to a warehouse or BI tool via Windsor.ai&#x27;s redeem_url.</p>
+      <p class="instructions">Connect marketing, analytics and SEO data sources to a warehouse or BI tool via Windsor.ai&#x27;s the sign-up link.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://windsor.ai/?fpr=lanternworks" data-deal="deal-windsor-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://windsor.ai/pricing/">https://windsor.ai/pricing/</a>.</small></p>
     </article>
 
 
     <article class="deal" id="deal-xcloud-001" data-category="hosting" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="" data-advertiser="xCloud" data-free="0" data-verified="1" data-verified-at="2026-10-27T13:16:19-04:00">
-      <h2><a href="https://thelanternworks.com/deals/xcloud-001/">xCloud — managed hosting, server control panel and AI agent hosting (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">affiliate</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/xcloud-001/">xCloud — managed hosting, server control panel and AI agent hosting (affiliate)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span></h2>
       <p class="meta"><span class="cat">hosting</span> · <strong>Plan prices listed (see details)</strong> · xCloud</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">hosting</span> <span class="tag">managed-hosting</span> <span class="tag">server-panel</span> <span class="tag">vps</span> <span class="tag">wordpress</span> <span class="tag">reseller-hosting</span> <span class="tag">xcloud</span> <span class="tag">affiliate</span> <span class="tag">firstpromoter</span></p>
-      <p class="instructions">Provision managed servers or connect your own servers to the xCloud panel via the redeem_url.</p>
+      <p class="instructions">Provision managed servers or connect your own servers to the xCloud panel via the the sign-up link.</p>
       <p class="redeem"><a class="cta" rel="nofollow sponsored" href="https://xcloud.host?fpr=lanternworks" data-deal="deal-xcloud-001">Redeem / signup</a><br><small class="disclosure"><strong>Affiliate link:</strong> Lantern Works may earn a commission if you sign up through this link. This does not change the price or ranking you see. You can also go straight to the vendor: <a rel="noopener noreferrer" href="https://xcloud.host/pricing/">https://xcloud.host/pricing/</a>.</small></p>
     </article>
 

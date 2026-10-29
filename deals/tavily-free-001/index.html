@@ -50,6 +50,16 @@
     .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
     .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
     .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
     .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
     .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
@@ -111,13 +121,13 @@
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · <a href="https://thelanternworks.com/categories/serp-apis/">serp-apis</a> · <a href="https://thelanternworks.com/categories/search/">search</a></p>
   <article class="deal" id="deal-tavily-free-001">
-    <h1>Tavily — Free 1,000 API credits/mo <span class="badge fresh-new">New</span> <span class="badge public">public / non-affiliate</span></h1>
+    <h1>Tavily — Free 1,000 API credits/mo <span class="badge fresh-new">New</span> <span class="badge public">Direct link</span></h1>
     <p class="meta"><span class="cat">search</span> · <strong>$0</strong> / Researcher/Free: 1,000 API credits every month · Advertiser: Tavily</p>
     <p class="tags"><span class="tag">search</span> <span class="tag">tavily</span> <span class="tag">rag</span> <span class="tag">free-tier</span> <span class="tag">public</span> <span class="tag">non-affiliate</span></p>
     
     <p class="freshness">Updated Oct 27, 2026</p>
     <p class="verified">Verified-on: 2026-10-27</p>
-    <p class="instructions">Get a Tavily API key and use the monthly 1,000 free credits for agent search/extract. Basic search = 1 credit (unverified); advanced = 2.</p>
+    <p class="instructions">Get a Tavily API key and use the monthly 1,000 free credits for agent search/extract. Basic search = 1 credit (not yet verified); advanced = 2.</p>
     <p class="redeem"><a class="cta" rel="noopener noreferrer" href="https://docs.tavily.com/documentation/api-credits" data-deal="deal-tavily-free-001">Open offer / signup</a></p>
     
     <aside class="gotchas" aria-label="Before you redeem">
