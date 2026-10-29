@@ -59,7 +59,8 @@ def analytics_snippet() -> str:
     return f"""  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{beacon}'></script>\n""" + site_ui.TRACK_JS
 # Compliance gate (private, outside the repo; owned by Wick). When present, only deals whose
 # registry status is "approved" are published; others move to a private held file and are
-# restored automatically once approved. When absent (e.g. CI), the feed is used as-is.
+# restored automatically once approved. When absent (e.g. CI), fail closed: only entries marked
+# compliance_status "approved" in the feed are published (possibly none).
 PRIVATE_DIR = PRIVATE_PATH.parent
 COMPLIANCE_PATH = Path(os.environ.get("LANTERN_COMPLIANCE_REGISTRY", str(PRIVATE_DIR / "compliance_registry.json")))
 HELD_PATH = Path(os.environ.get("LANTERN_HELD_DEALS", str(PRIVATE_DIR / "held_deals.json")))
@@ -485,8 +486,12 @@ def apply_compliance_gate(feed: dict) -> dict:
         bad = [d["id"] for d in feed["deals"] if is_pulled(d["id"])]
         if bad:
             raise SystemExit(f"pulled listing(s) present in deals.json: {len(bad)}; remove them")
-        print("compliance_gate=absent (feed published as-is)")
-        return feed
+        # Fail closed (T4): with no registry we can't confirm approval, so publish only entries the feed itself
+        # marks compliance_status "approved" (possibly none). deals.json itself is not rewritten.
+        approved = [d for d in feed["deals"] if str(d.get("compliance_status") or "").lower() == "approved"]
+        HELD_IDS.update(d["id"] for d in feed["deals"] if d not in approved)
+        print(f"compliance_gate=absent (fail closed) approved={len(approved)} held={len(feed['deals']) - len(approved)}")
+        return {**feed, "deals": sort_deals_customer_value(approved)}
     reg = json.loads(COMPLIANCE_PATH.read_text(encoding="utf-8"))
     entries = reg.get("entries", {}) if isinstance(reg, dict) else {}
     held = json.loads(HELD_PATH.read_text(encoding="utf-8")) if HELD_PATH.exists() else []
