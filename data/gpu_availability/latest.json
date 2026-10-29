@@ -1,0 +1,102 @@
+{
+  "schema": "lantern-works-gpu-availability/1",
+  "source": "Lantern Scout availability collector v2 (public vendor APIs, no auth)",
+  "imported_rows": 5,
+  "rows": [
+    {
+      "vendor": "RunPod",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand (Secure Cloud)",
+      "region": "all",
+      "available_regions": null,
+      "in_stock": true,
+      "offer_count": null,
+      "stock_level": "Low",
+      "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+      "availability_checked_at": "2026-10-29T14:19:00Z",
+      "refresh_rate": "daily (list price)"
+    },
+    {
+      "vendor": "RunPod",
+      "gpu": "H100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand (Secure Cloud)",
+      "region": "all",
+      "available_regions": null,
+      "in_stock": true,
+      "offer_count": null,
+      "stock_level": "Low",
+      "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+      "availability_checked_at": "2026-10-29T14:19:00Z",
+      "refresh_rate": "daily (list price)"
+    },
+    {
+      "vendor": "RunPod",
+      "gpu": "RTX 4090",
+      "vram_gb": 24,
+      "tier": "On-demand (Secure Cloud)",
+      "region": "all",
+      "available_regions": null,
+      "in_stock": true,
+      "offer_count": null,
+      "stock_level": "Low",
+      "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+      "availability_checked_at": "2026-10-29T14:19:00Z",
+      "refresh_rate": "daily (list price)"
+    },
+    {
+      "vendor": "Vast.ai",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "region": "all",
+      "available_regions": [
+        "AE",
+        "CZ",
+        "FR",
+        "JP",
+        "SE",
+        "US"
+      ],
+      "in_stock": true,
+      "offer_count": 9,
+      "stock_level": null,
+      "availability_source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "availability_checked_at": "2026-10-29T14:18:53Z",
+      "refresh_rate": "4h (marketplace/spot)"
+    },
+    {
+      "vendor": "Vast.ai",
+      "gpu": "RTX 4090",
+      "vram_gb": 24,
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "region": "all",
+      "available_regions": [
+        "CA",
+        "CN",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FR",
+        "GB",
+        "IE",
+        "IL",
+        "KR",
+        "MY",
+        "NL",
+        "NO",
+        "PL",
+        "SE",
+        "US"
+      ],
+      "in_stock": true,
+      "offer_count": 46,
+      "stock_level": null,
+      "availability_source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "availability_checked_at": "2026-10-29T14:18:58Z",
+      "refresh_rate": "4h (marketplace/spot)"
+    }
+  ]
+}
