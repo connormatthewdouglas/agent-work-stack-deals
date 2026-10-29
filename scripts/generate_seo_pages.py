@@ -1827,6 +1827,8 @@ def main() -> None:
     tool_paths += gpu_index_page.write_all(sys.modules[__name__])
     import embed_page
     tool_paths.append(embed_page.write(sys.modules[__name__]))
+    import compare_redirects
+    compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)

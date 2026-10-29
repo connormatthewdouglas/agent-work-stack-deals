@@ -123,8 +123,10 @@ def test_install_page_tool_count_matches_server():
     n = len(re.findall(r"@mcp\.tool\(", src))
     assert len(install_page.TOOLS) == n and "get_price_changes" in install_page.TOOLS
     html = (ROOT / "install/index.html").read_text()
-    assert f"all {n} tools" in html
-    for w in ("6 tools", "six tools"):
+    assert f"returns {n} tools" in html and f"({n} tools in the package)" in html
+    extra = len(install_page.HOSTED_EXTRA)
+    assert extra == 4 and f"{n + extra} tools in all" in html
+    for w in ("6 tools", "six tools", "the same 7 read-only"):
         assert w not in html
 
 
@@ -181,3 +183,14 @@ def test_gauge_reaudit_quote_ellipsis_per_gpu_and_fetch_time():
            "evidence": {"quote": "GPU A $1.00", "source_url": "https://v.example/p", "checked_at": "2026-10-28T00:00:00+00:00"}}]}
     rg.refresh([doc], F(), datetime(2026, 10, 29, 13, 33, 43, tzinfo=timezone.utc))
     assert doc["records"][0]["verified_at"] == "2026-10-29T13:21:05+00:00"
+
+
+def test_reversed_compare_stubs_redirect_and_stay_out_of_sitemap():
+    sm = (ROOT / "sitemap.xml").read_text()
+    for a, b in (("runpod", "lambda"), ("verda", "runpod"), ("nebius", "coreweave")):
+        stub = ROOT / "compare" / f"{a}-vs-{b}-gpu-prices" / "index.html"
+        t = stub.read_text()
+        real = f"https://thelanternworks.com/compare/{b}-vs-{a}-gpu-prices/"
+        assert (ROOT / "compare" / f"{b}-vs-{a}-gpu-prices" / "index.html").exists()
+        assert f'url={real}"' in t and f'rel="canonical" href="{real}"' in t and "noindex" in t
+        assert f"/compare/{a}-vs-{b}-gpu-prices/" not in sm
