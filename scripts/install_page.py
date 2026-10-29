@@ -21,6 +21,26 @@ def _server_tools() -> tuple[str, ...]:
 
 TOOLS = _server_tools()
 CFG = {"command": "uvx", "args": ["lantern-works-deals-mcp"]}
+HOSTED = "https://lantern-works-mcp.lantern-works.workers.dev/mcp"
+LLAMA = """import asyncio
+from llama_index.tools.mcp import BasicMCPClient, McpToolSpec
+
+async def main():
+    client = BasicMCPClient("https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install")
+    tools = await McpToolSpec(client=client).to_tool_list_async()
+    print([t.metadata.name for t in tools])
+    print(await client.call_tool("compare_gpu_prices", {"gpu": "H100"}))
+
+asyncio.run(main())"""
+ROO_HTTP = json.dumps({"mcpServers": {"lantern-works-deals": {"type": "streamable-http", "url": HOSTED + "?ref=install"}}}, indent=2)
+CONTINUE = """name: Lantern Works deals
+version: 0.0.1
+schema: v1
+mcpServers:
+  - name: lantern-works-deals
+    command: uvx
+    args:
+      - lantern-works-deals-mcp"""
 CURSOR_LINK = "cursor://anysphere.cursor-deeplink/mcp/install?name=lantern-works-deals&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJsYW50ZXJuLXdvcmtzLWRlYWxzLW1jcCJdfQ=="
 VSCODE_LINK = ("https://vscode.dev/redirect/mcp/install?name=lantern-works-deals&config="
                "%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22lantern-works-deals-mcp%22%5D%7D")
@@ -59,43 +79,68 @@ def write(g) -> str:
     <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/gpu-price-monitor">GPU price monitor example</a>: a zero-dependency script that alerts when a tracked rate drops by a set percent. Run it on a daily cron.</li>
   </ul>
   {_pre("uvx lantern-works-deals-mcp")}
-  <h2>Add Lantern Works to your agent</h2>
+  <p class="meta">Jump to: <a href="#hosted">Hosted endpoint</a> · <a href="#claude-code">Claude Code</a> · <a href="#claude-desktop">Claude Desktop</a> · <a href="#cursor">Cursor</a> · <a href="#vscode">VS Code</a> · <a href="#cline">Cline</a> · <a href="#llamaindex">LlamaIndex</a> · <a href="#openwebui">Open WebUI</a> · <a href="#roo-code">Roo Code</a> · <a href="#continue">Continue</a> · <a href="#generic">Any MCP client</a> · <a href="#examples">Framework examples</a> · <a href="{base}/methodology/">How prices are checked</a></p>
+  <h2 id="add">Add Lantern Works to your agent</h2>
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: {tools}.</p>
   <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> ({TESTED_VERSION}) initializes over stdio and all {len(TOOLS)} tools return results.</p>
 
 
-  <h2>Hosted endpoint (no install)</h2>
+  <h2 id="hosted">Hosted endpoint (no install)</h2>
   <p>The same {len(TOOLS)} read-only tools over streamable HTTP, served from a free Cloudflare Worker: <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>. It counts calls only as anonymous totals per tool per day (no IPs, user agents or arguments), published at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats">/stats</a>. The <code>?ref=</code> tag below just records that the link came from this page (counts at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats.json">/stats.json</a>).</p>
   {_pre("claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install")}
   <p>Claude Desktop / Cursor / VS Code (<code>"type": "http"</code> or <code>"url"</code> server): <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code></p>
 
-  <h2>Claude Code</h2>
+  <h2 id="claude-code">Claude Code</h2>
   {_pre("claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp")}
 
   <p>Or as a Claude Code plugin (skill + MCP server) from our free, self-hosted marketplace:</p>
   {_pre("/plugin marketplace add connormatthewdouglas/agent-work-stack-deals" + chr(10) + "/plugin install lantern-works-deals@lantern-works")}
 
-  <h2>Claude Desktop</h2>
+  <h2 id="claude-desktop">Claude Desktop</h2>
   <p>Settings → Developer → Edit Config (<code>claude_desktop_config.json</code>):</p>
   {_pre(desktop)}
   <p>Restart Claude Desktop. If <code>uvx</code> isn't on Claude's PATH, use the absolute path from <code>which uvx</code>.</p>
 
-  <h2>Cursor</h2>
+  <h2 id="cursor">Cursor</h2>
   <p><a href="{html.escape(CURSOR_LINK)}">One-click install</a>, or add the same JSON to <code>~/.cursor/mcp.json</code> / <code>.cursor/mcp.json</code>.</p>
 
-  <h2>VS Code (Copilot agent mode)</h2>
+  <h2 id="vscode">VS Code (Copilot agent mode)</h2>
   <p><a href="{html.escape(VSCODE_LINK)}">Install in VS Code</a>, or <code>.vscode/mcp.json</code>:</p>
   {_pre(vscode)}
 
-  <h2>Cline</h2>
+  <h2 id="cline">Cline</h2>
   <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested {TESTED_ON}: this exact config started the server and <code>tools/list</code> returned all {len(TOOLS)} tools):</p>
   {_pre(desktop)}
+
+  <h2 id="llamaindex">LlamaIndex</h2>
+  <p>Uses <code>pip install llama-index-tools-mcp</code> (<a href="https://developers.llamaindex.ai/python/framework/module_guides/mcp/llamaindex_mcp/">LlamaIndex MCP docs</a>). This uses the hosted endpoint; for the local server use <code>BasicMCPClient("uvx", args=["lantern-works-deals-mcp"])</code>:</p>
+  {_pre(LLAMA)}
+  <p class="meta">Tested {TESTED_ON}: both clients listed all {len(TOOLS)} tools and <code>compare_gpu_prices</code> returned live rates.</p>
+
+  <h2 id="openwebui">Open WebUI</h2>
+  <p>Open WebUI 0.6.31+ connects to MCP servers over streamable HTTP (<a href="https://docs.openwebui.com/features/extensibility/mcp/">Open WebUI MCP docs</a>). As an admin: Settings → Admin → Integrations → External Tool Servers → + Add Connection, set <strong>Type</strong> to <strong>MCP (Streamable HTTP)</strong> (not OpenAPI), Server URL:</p>
+  {_pre("https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install")}
+  <p>No auth is needed. To run the local server instead, bridge it with <a href="https://github.com/open-webui/mcpo">mcpo</a> and add <code>http://localhost:8000</code> as an <strong>OpenAPI</strong> connection:</p>
+  {_pre("uvx mcpo --port 8000 -- uvx lantern-works-deals-mcp")}
+  <p class="meta">Tested {TESTED_ON}: the hosted URL answers MCP <code>tools/list</code> with all {len(TOOLS)} tools; through mcpo all {len(TOOLS)} tools appeared as OpenAPI routes and <code>compare_gpu_prices</code> returned rates. If mcpo fails to start with an import or <code>ssl_certfile</code> error, a dependency release broke it; <code>uvx --with "mcp&lt;2" --with "fastapi&lt;0.120" mcpo …</code> worked.</p>
+
+  <h2 id="roo-code">Roo Code</h2>
+  <p>MCP icon → Edit Global MCP (<code>mcp_settings.json</code>) or Edit Project MCP (<code>.roo/mcp.json</code>) (<a href="https://docs.roocode.com/features/mcp/using-mcp-in-roo">Roo Code MCP docs</a>):</p>
+  {_pre(desktop)}
+  <p>Hosted endpoint instead (Roo needs <code>"type"</code> for URL servers):</p>
+  {_pre(ROO_HTTP)}
+
+  <h2 id="continue">Continue</h2>
+  <p>Save as <code>.continue/mcpServers/lantern-works-deals.yaml</code> in your workspace; MCP tools work in Agent mode (<a href="https://docs.continue.dev/customize/deep-dives/mcp">Continue MCP docs</a>):</p>
+  {_pre(CONTINUE)}
+  <p>Hosted endpoint instead: replace the <code>command</code> and <code>args</code> lines with <code>type: streamable-http</code> and <code>url: https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code>.</p>
+  <p class="meta">Tested {TESTED_ON} (Roo Code, Continue): the configs above parse, and the exact command and URL in them start or reach the server and list all {len(TOOLS)} tools. Not yet tested inside the editors themselves.</p>
 
   <h2>Skills-based agents (Claude Code skills, OpenClaw)</h2>
   {_pre("npx skills add connormatthewdouglas/agent-work-stack-deals")}
   <p>Installs <a href="{base}/SKILL.md">SKILL.md</a> (checked {TESTED_ON} with <code>-a claude-code</code>). For OpenClaw MCP, use the generic stdio config below.</p>
 
-  <h2>Any MCP client (generic)</h2>
+  <h2 id="generic">Any MCP client (generic)</h2>
   <p>Command <code>uvx</code>, args <code>["lantern-works-deals-mcp"]</code>, transport stdio. pipx: <code>pipx run lantern-works-deals-mcp</code>. Docker: build the repo's <code>Dockerfile</code> and run <code>docker run -i --rm &lt;image&gt;</code>. Optional env: <code>LANTERN_DEALS_FILE</code>, <code>LANTERN_GPU_PRICES_FILE</code> (offline JSON).</p>
   <p>The server only fetches the two public JSON files below and sends <code>User-Agent: lantern-works-deals-mcp/&lt;version&gt;</code>, nothing that identifies you.</p>
 
@@ -104,7 +149,7 @@ def write(g) -> str:
   <p><img src="/docs/demo/cheapest-h100-100h.gif" alt="Terminal demo: compare_gpu_prices for H100, 100-hour totals for tracked providers" width="1094" height="605" loading="lazy" style="max-width:100%;height:auto"></p>
   <p>Recording: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/demo/cheapest-h100-100h.cast">asciinema .cast</a> (play with <code>asciinema play</code>) · script: <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/demo/demo.py">docs/demo/demo.py</a></p>
 
-  <h2>Framework examples</h2>
+  <h2 id="examples">Framework examples</h2>
   <ul>
     <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/langgraph-cheapest-h100">LangGraph / LangChain</a>: cheapest H100 via <code>langchain-mcp-adapters</code> (tool called directly, no LLM key needed)</li>
     <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/crewai-cheapest-gpu">CrewAI</a>: cheapest GPU for a described job via <code>MCPServerAdapter</code> (direct tool path tested; LLM agent path untested)</li>
@@ -126,7 +171,7 @@ def write(g) -> str:
 """ + COPY_JS
     out = Path(g.ROOT) / PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(g.page_shell("Install Lantern Works in your agent (MCP, Claude Code, Cursor, VS Code)",
-                                "Add the free, read-only Lantern Works MCP server to Claude Code, Claude Desktop, Cursor, VS Code or any MCP client: uvx lantern-works-deals-mcp.",
+    out.write_text(g.page_shell("Install Lantern Works in your agent (MCP: Claude, Cursor, VS Code, LlamaIndex, Open WebUI, Roo Code, Continue)",
+                                "Add the free, read-only Lantern Works MCP server to Claude Code, Claude Desktop, Cursor, VS Code, LlamaIndex, Open WebUI, Roo Code, Continue or any MCP client: uvx lantern-works-deals-mcp.",
                                 f"{base}/{PATH}/", body), encoding="utf-8")
     return PATH
