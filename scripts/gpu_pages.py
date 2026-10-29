@@ -173,7 +173,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
 def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) -> str:
     path = "gpu/price-comparison"
     url = f"{gen.BASE}/{path}/"
-    rows = sorted(estimate(rates, DEFAULT_HOURS), key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+    rows = sorted(estimate(rates, DEFAULT_HOURS), key=lambda r: ((r.get("tier_class") == "reserved"), r["hourly_equiv_usd"], r["advertiser"]))  # reserved after all pay-as-you-go
     full = _full_map(rates)
     fresh = _freshness(rows)
     vendors = sorted({r["advertiser"] for r in rates})
@@ -427,6 +427,8 @@ def links_html(base: str, deals: list[dict]) -> str:
 
 def write_all(gen, deals: list[dict]) -> list[str]:
     rates = build_rates(deals)["rates"]
+    import gpu_model_json
+    gpu_model_json.write(gen, rates)
     fams = families(rates)
     _LINKS[:] = page_links(deals)
     pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if f["page"]}

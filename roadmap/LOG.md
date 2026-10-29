@@ -121,3 +121,18 @@ Hosted endpoint: https://lantern-works-mcp.lantern-works.workers.dev/mcp (Stream
 | hashnode | https://lanternworks.hashnode.dev/describe-your-agent-get-the-cheapest-sourced-infra-stack | pending (Frosty edits) |
 
 Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.directory (no edit path).
+
+## Oct 29 (midday): 0.3.11 Gauge re-audit release
+- tier_class "reserved" documented (README, CHANGELOG) and excluded from every "cheapest" by default (compare_gpu_prices `include_reserved=false`, stack optimizer, calculator, estimate sort); Hyperstack H200 $2.79 reservation is no longer cheapest H200.
+- verified_at/checked_at/evidence now use each vendor page's own fetch time (fresh refresh 13:55–13:57Z), not the refresh start.
+- Modal stays interruptible with cited quote (modal.com/pricing): "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen."
+- Lambda 8x rows: gpu_count 8, server_hourly B200 $53.52, H100 SXM $31.92, A100 SXM $22.32, V100 $6.32 (= lambda.ai/pricing per-GPU × 8). Verda A100 40GB re-parsed. SaladCloud RTX 4090 $0.16 quote names the "Lowest" priority tier. README: snapshots since 2026-10-27.
+- Shipped: PyPI + MCP Registry 0.3.11 (Registry listing carries hosted `?ref=mcp-registry` remote), hosted Worker redeployed, install page tested 0.3.11. Commits a2a4046, a17bb16; CI 40887899672 green (docker incl.).
+- Pulse report regenerated from the corrected feed (TensorDock "stale" line removed); dev.to post needs 4 edits (feed timestamps, Vast RTX 4090 $0.486 / -6.1%, Vast A100 SXM $1.4383 / +26.4%, TensorDock line).
+
+## Oct 29 (late morning): Gauge leftovers + T17 per-model JSON views
+- Lane change: per-GPU pages, vendor-vs-vendor pages and /gpu/changes + RSS + docs moved to Atrium (handoff: /workspace/agent-deals-feed/HANDOFF-atrium.md; no WIP existed, so no wip branch).
+- /gpu/price-comparison/ sorts reserved rows after all pay-as-you-go rows.
+- All 4 Modal rows carry the preemption quote in evidence (interruption_quote/_source_url/_checked_at; validator accepts this optional triple; refresh preserves it).
+- Verda A100 40GB ($1.593 / $0.7965) and 80GB ($2.226 / $1.113) confirmed in a fresh fetch; raw parsed text at /workspace/gauge/verda-a100-snippet.txt. Rows kept.
+- T17: /api/v1/gpu/index.json + /api/v1/gpu/<family>.json (h100, h200, a100, l40s, l40, rtx-4090, rtx-5090, rtx-a6000, rtx-a5000, rtx-3090): cheapest split by bucket (on-demand, spot-community, serverless, monthly) and VRAM, reserved listed but never cheapest, per-row verified_at, source_url and quote, last_checked = max verified_at. ~14 KB for H100 vs ~133 KB full feed.

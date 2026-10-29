@@ -32,6 +32,8 @@ RECORD_FIELDS = ("vendor", "gpu", "vram_gb", "price_usd", "billing_unit", "hourl
 PRICING_DIR = Path(__file__).resolve().parents[1] / "data" / "gpu_pricing"
 STALE_DAYS = 7
 EVIDENCE_FIELDS = ("source_url", "quote", "checked_at")
+# optional second cited quote for the row's interruption/preemption terms (Modal); all three or none
+EVIDENCE_OPTIONAL = ("interruption_quote", "interruption_source_url", "interruption_checked_at")
 MIN_MARKET_OFFERS = 5
 MAX_QUOTE = 200
 
@@ -118,8 +120,13 @@ def record_problems(doc: dict) -> list[str]:
         if not isinstance(ev, dict) or any(not ev.get(k) for k in EVIDENCE_FIELDS):
             out.append(f"{tag}: evidence needs {EVIDENCE_FIELDS}")
         else:
-            if set(ev) - set(EVIDENCE_FIELDS):
-                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS))}")
+            if set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL):
+                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL))}")
+            opt = [k for k in EVIDENCE_OPTIONAL if ev.get(k)]
+            if opt and len(opt) != len(EVIDENCE_OPTIONAL):
+                out.append(f"{tag}: evidence interruption quote needs {EVIDENCE_OPTIONAL}")
+            if ev.get("interruption_source_url") and not str(ev["interruption_source_url"]).startswith("https://"):
+                out.append(f"{tag}: evidence.interruption_source_url must be https")
             if not str(ev["source_url"]).startswith("https://"):
                 out.append(f"{tag}: evidence.source_url must be https")
             if len(ev["quote"]) > MAX_QUOTE:

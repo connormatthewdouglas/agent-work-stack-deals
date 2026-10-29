@@ -138,7 +138,7 @@ def test_every_record_has_live_evidence():
     for doc in load_vendor_files():
         for r in doc["records"]:
             ev = r["evidence"]
-            assert set(ev) == {"source_url", "quote", "checked_at"}, r["gpu"]
+            assert set(ev) in ({"source_url", "quote", "checked_at"}, {"source_url", "quote", "checked_at", "interruption_quote", "interruption_source_url", "interruption_checked_at"}), r["gpu"]
             assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
             assert ev["checked_at"] == (r.get("verified_at") or r["checked_at"])  # evidence = last parsed price
             from datetime import datetime
