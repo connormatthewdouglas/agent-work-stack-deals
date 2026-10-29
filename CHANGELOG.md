@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.21 (2026-10-29)
+- `estimate_job_cost` (T20 Phase B, #44): inference jobs can now use cited published MLPerf throughput figures for H100, A100, L40S and RTX 4090 (data/gpu_throughput.json, #43: 71 cited figures, 8 documented gaps). Each figure carries its source; training jobs and uncited GPU/model pairs still return missing rather than a guess.
+- Hosted endpoint: price-alert webhooks are delivered again after each daily price refresh, HMAC-signed, deduped by event_id, https-only with the private-IP check after DNS resolution.
+
 ## 0.3.20 (2026-10-29)
 - New MCP tool `estimate_job_cost` (T20, #41): cost of a job from user-supplied hours or throughput, whole-instance billing, typed contract and quote_id.
 - `compare_gpu_prices` results carry `report_issue_url`, a prefilled GitHub "wrong price" issue link built from public row fields only (T40). New /report-price/ page, a "Wrong price?" link on every rate row, and a `report_issue` block in gpu-prices.json and gpu-price-changes.json.
