@@ -165,3 +165,9 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - d091505: Spheron RTX 5090 marked price_check "rotating snapshot" (row specs/"Last known" rotate between fetches; no stable span); Hyperstack Spot/Reservation and SaladCloud quotes are single continuous spans; Vast/Clore quotes labelled "API fields"; tests/release_gate/README documents `--source live`.
 - PyPI + Registry 0.3.16 (pypi-install needed 2 reruns for PyPI lag); hosted worker f7996149. T41 21/21 local and live. Gist deals.json identical. Live: 204 deals, 101 rates, 20 vendors.
 - Note: daily refresh reported Spheron L40S "quoted context not found" in a dry run; L40S quote may need the same treatment if it rotates.
+
+## 2026-10-29 — PR #27 merged (Mart)
+- Merged Atrium's PR #27 (Pax H1-H7, #31 fixes, Pulse spec pages: per-GPU `*-rental-price`, vendor-vs-vendor `compare/*-gpu-prices`, `/gpu/changes/` + `changes.xml`, `/docs/watch-gpu-prices/`, `/lanternworks/` about page). Merge commit c8e17a3f.
+- Conflict in scripts/gpu_pages.py resolved: one `_quote_html(esc, r)` (short excerpt; marketplace rows keep the "API fields:" label); rotating-snapshot verified label kept.
+- H7 kept as meta-refresh; target /gpu/cheapest-h100-rental/ has a self canonical. /gpu/h100-rental-price/ now has rel=canonical to /gpu/cheapest-h100-rental/ and is out of the sitemap. Spec-page canonicals now end in "/".
+- Checks: 188 pytest passed, validator 0/0, links 0 broken, T41 21/21 local and live. Gist deals.json identical. No package code changed, so no PyPI release or hosted redeploy.
