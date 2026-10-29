@@ -376,6 +376,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                        max_data_age_hours: float | None = None, now: datetime | None = None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
+    from .ids import rate_id
     vram_m = re.search(r"\b(\d{2,3})\s*gb\b", gpu or "", re.I)
     want_vram = int(vram_m.group(1)) if vram_m else None
     q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu or "", flags=re.I))
@@ -436,6 +437,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["tier_class"] = tier_class(r)
         out["tier_note"] = TIER_NOTES[out["tier_class"]]
         out["rank"] = i
+        out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
         out.update(data_age.age_fields(r, now))
         results.append(out)
     c = results[0]

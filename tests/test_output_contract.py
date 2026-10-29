@@ -60,6 +60,7 @@ def test_full_mode_is_default_and_unchanged_plus_envelope():
         default, full = getattr(s, tool)(**kw), getattr(s, tool)(**kw, mode="full")
         for o in (default, full):
             o.pop("next_refresh_utc", None)
+            o.pop("issued_at", None)  # T39: wall-clock time of the receipt (not part of quote_id)
         assert default == full, tool
         assert default["mode"] == "full"
 
