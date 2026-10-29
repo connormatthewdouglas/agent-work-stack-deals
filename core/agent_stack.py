@@ -13,6 +13,7 @@ import re
 
 from . import stack
 from .compliance import allowed_deal_ids
+from .quote import offer_rate_id
 
 NO_DATA = "no sourced price tracked"
 DISCLOSURE = "Referral link: Lantern Works may be paid if you sign up through it. This never affects ranking."
@@ -130,7 +131,7 @@ def _deal_fallback(deals: list[dict], tags: set, allowed: set, manual: set) -> l
                 else f"${d['price_usd']:g}/yr / 12 = ${monthly:,.2f}/mo ({d.get('unit') or 'plan'})" if per == "year" and d["price_usd"]
                 else "free tier ($0)" if d["price_usd"] == 0 else
                 f"${d['price_usd']:g} {d.get('unit') or ''}".strip() + " (usage price; monthly total depends on usage you didn't give)")
-        rows.append(_disclose({"vendor": d.get("advertiser"), "plan": d.get("unit") or d.get("title"), "deal_id": d["id"],
+        rows.append(_disclose({"rate_id": offer_rate_id(d.get("advertiser"), "deal", deal_id=d["id"]), "vendor": d.get("advertiser"), "plan": d.get("unit") or d.get("title"), "deal_id": d["id"],
                                "monthly_cost_usd": monthly, "unit_price_usd": d["price_usd"], "billing_period": per, "calc": calc,
                                "quote": d.get("pricing_note"), "source_url": d.get("source_url"), "verified_at": d.get("verified_at"),
                                "affiliate": bool(d.get("affiliate")), "signup": d.get("signup"), "signup_note": d.get("signup_note"),

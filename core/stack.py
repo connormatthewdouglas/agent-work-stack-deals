@@ -12,6 +12,9 @@ import re
 import math
 from pathlib import Path
 
+from .ids import rate_id
+from .quote import offer_rate_id
+
 
 def deal_page_url(deal_id: str | None, base: str = "https://thelanternworks.com") -> str | None:
     """Public deal page URL: /deals/<slug>/ where slug drops the 'deal-' prefix (matches the site generator)."""
@@ -129,7 +132,7 @@ def offer_cost(o: dict, qty: float) -> dict:
 
 
 def _line_from_offer(o: dict, c: dict) -> dict:
-    return {"vendor": o["vendor"], "plan": o["plan"], "deal_id": o["deal_id"], "monthly_cost_usd": c["cost"],
+    return {"rate_id": offer_rate_id(o["vendor"], o["need"], o["plan"]), "vendor": o["vendor"], "plan": o["plan"], "deal_id": o["deal_id"], "monthly_cost_usd": c["cost"],
             "calc": c["calc"], "quote": o["quote"], "source_url": o["source_url"], "checked_at": o["checked_at"],
             "assumptions": o["assumptions"], "signup": o.get("signup"), "manual_signup_only": o.get("signup") == "manual_only",
             "signup_note": o.get("signup_note"), "affiliate": o["affiliate"], "redeem_url": o.get("redeem_url"),
@@ -162,7 +165,7 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, g
             cost, calc = r["price_usd"] * n, (f"${r['price_usd']:g}/GPU-mo x {n} (per GPU; sold as {per}-GPU servers at "
                                               f"${r.get('server_price_usd') or 0:,.2f}/mo), flat regardless of hours"
                                               if per > 1 else f"${r['price_usd']:g}/mo x {n} server(s), flat regardless of hours")
-        out.append({"vendor": r.get("advertiser"), "plan": f"{r.get('gpu')} ({r.get('tier') or r.get('billing') or ''})".replace(" ()", ""),
+        out.append({"rate_id": rate_id(r), "vendor": r.get("advertiser"), "plan": f"{r.get('gpu')} ({r.get('tier') or r.get('billing') or ''})".replace(" ()", ""),
                     "deal_id": r.get("deal_id"), "monthly_cost_usd": round(cost, 2), "calc": calc, "quote": r.get("basis"),
                     "source_url": r.get("source_url"), "checked_at": r.get("verified_at"),
                     "assumptions": ["Excludes storage, egress, extra vCPU and taxes.", "1 GPU; hourly rates bill while running."]
@@ -213,7 +216,7 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
                 if o["need"] != need:
                     continue
                 c = offer_cost(o, qty)
-                ref = {"vendor": o["vendor"], "plan": o["plan"], "deal_id": o["deal_id"], "source_url": o["source_url"],
+                ref = {"rate_id": offer_rate_id(o["vendor"], need, o["plan"]), "vendor": o["vendor"], "plan": o["plan"], "deal_id": o["deal_id"], "source_url": o["source_url"],
                        "checked_at": o["checked_at"], "quote": o["quote"]}
                 if "unknown" in c:
                     unknown.append({**ref, "monthly_cost_usd": "unknown", "reason": c["unknown"], "assumptions": o["assumptions"]})

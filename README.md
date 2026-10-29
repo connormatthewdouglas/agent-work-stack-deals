@@ -10,7 +10,7 @@
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.16, read-only, stdio)
+## MCP server (v0.3.17, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -19,7 +19,7 @@ Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.or
 | Tool | What it does |
 |---|---|
 | `compare_gpu_prices` | Hourly rental prices for a GPU model (e.g. `H100`, `A100 SXM`, `RTX 4090`) across tracked providers, cheapest first, each with `source_url` and `checked_at`. "Cheapest" means cheapest among tracked providers, not the whole market. `include_history=true` adds each rate's price history and recent price changes (daily snapshots since 2026-10-27). Each rate has `tier_class` (on-demand, community, marketplace, interruptible, reserved, dedicated-monthly; also in the public JSON feed); `on_demand_only=true` keeps on-demand rates only. `reserved` = reservation/commitment "starting from" prices (e.g. Hyperstack reservations): they need a term contract, so they are left out of results and never called "cheapest" unless you pass `include_reserved=true` (even then they sort after pay-as-you-go rates). |
-| `get_price_changes` | GPU price moves among tracked providers, newest first: old and new hourly price, `change_pct`, direction and the vendor `source_url`. `since` (`YYYY-MM-DD`) returns every move on or after that date; without it, the latest day's moves. Optional `gpu` filter. |
+| `get_price_changes` | GPU price moves among tracked providers, newest first: old and new hourly price, `change_pct`, direction and the vendor `source_url`. `since` (`YYYY-MM-DD`) returns every move on or after that date; without it, the latest day's moves. Optional `gpu` and `kinds` filters. Each change has a stable `event_id` (dedupe key) and `rate_id`; pass `cursor=next_cursor` to page every change after it, oldest first, until `has_more` is false. |
 | `optimize_stack` | Given monthly usage (pages scraped, proxy GB, emails, search queries, GPU hours/model), pick the cheapest tracked plan per line and total the monthly cost, with the calculation, sources and alternatives; unpublished prices are reported as `unknown`. |
 | `optimize_agent_stack` | Describe the agent in plain text (e.g. "scrapes 20k JS pages via 5 GB proxies, 3k searches, summarizes with an LLM, budget $300/mo"); a deterministic keyword parse (no LLM) maps it to components and returns the cheapest cited option per component with the math, `source_url`, `verified_at` and a referral disclosure where applicable. Components with no cited price say "no sourced price tracked". |
 | `search_deals` | Search the deals feed by text, `category`, `offer_type`, `max_price` and `tags`; paginated summaries (`limit` 1-25, `cursor`). |

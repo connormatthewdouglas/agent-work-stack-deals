@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.16"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.17"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -129,46 +129,125 @@ def freshness(data_checked_at: str | None, now: datetime | None = None) -> dict:
                             ") to see what moved."}
 
 
+CHANGE_KINDS = ("down", "up", "new", "removed", "same")
+
+
+def _key_vram(key: str | None):
+    parts = (key or "").split("|")
+    return parts[3] if len(parts) >= 5 and parts[3] not in ("", "None") else None
+
+
+def _cursor_page(history: dict, cursor: str, gpu: str | None, kinds: set | None, limit: int) -> tuple[list, dict]:
+    """Rows after `cursor`, oldest first (lossless catch-up), plus paging fields."""
+    from .ids import decode_cursor, encode_cursor
+    c = decode_cursor(cursor)
+    if c is None:
+        raise DealError("invalid_cursor", "cursor is not a valid get_price_changes cursor; pass next_cursor exactly as returned")
+    events = sorted((e for e in history.get("changes") or [] if isinstance(e.get("seq"), int)), key=lambda e: e["seq"])
+    by_seq = {e["seq"]: e for e in events}
+    last_seq = events[-1]["seq"] if events else 0
+    anchor = by_seq.get(c["seq"])
+    if c["seq"] > last_seq or (c["seq"] > 0 and (anchor is None or anchor.get("event_id") != c["eid"])):
+        day = (c.get("eid") or "").split(":")[0] or history.get("first_snapshot")
+        raise DealError("cursor_expired",
+                        f"cursor no longer matches the published history (rebuilt or rolled back). Re-sync with "
+                        f"get_price_changes(since='{day}') and dedupe by event_id; then continue with its next_cursor.")
+    out, scanned_to, more = [], c["seq"], False
+    for e in events:
+        if e["seq"] <= c["seq"]:
+            continue
+        row = _history_row(e)
+        if gpu and gpu.lower() not in (row.get("gpu") or "").lower():
+            scanned_to = e["seq"]
+            continue
+        if kinds and row["direction"] not in kinds:
+            scanned_to = e["seq"]
+            continue
+        if len(out) >= limit:
+            more = True
+            break
+        out.append(row)
+        scanned_to = e["seq"]
+    nxt = encode_cursor(scanned_to, by_seq[scanned_to]["event_id"] if scanned_to else None)
+    return out, {"next_cursor": nxt, "has_more": more, "order": "oldest first (seq ascending)", "last_seq": last_seq}
+
+
+def _direction(a, b, kind=None):
+    if a is not None and b is not None:
+        return "down" if b < a else "up" if b > a else "same"
+    return kind if kind in ("new", "removed") else "new" if a is None else "removed"
+
+
+def _history_row(c: dict) -> dict:
+    r = {"date": c.get("date"), "event_id": c.get("event_id"), "seq": c.get("seq"), "key": c.get("key"),
+         "rate_id": c.get("rate_id"), "snapshot_id": c.get("snapshot_id"), "vendor": c.get("vendor"), "gpu": c.get("gpu"),
+         "tier": c.get("tier"), "vram_gb": c.get("vram_gb"), "from_hourly_usd": c.get("from_hourly_usd"),
+         "to_hourly_usd": c.get("to_hourly_usd"), "change_pct": c.get("change_pct"),
+         "status": c.get("status"), "source_url": c.get("source_url")}
+    r["direction"] = _direction(r["from_hourly_usd"], r["to_hourly_usd"])
+    return r
+
+
 def price_changes(latest: dict | None, history: dict | None, since: str | None = None, gpu: str | None = None,
-                  limit: int = 50) -> dict:
+                  limit: int = 50, cursor: str | None = None, kinds: list[str] | None = None) -> dict:
     """GPU price moves among tracked providers. since=None: the latest daily move (/api/v1/gpu-price-changes.json);
-    since='YYYY-MM-DD': every move on or after that date (/api/v1/gpu-prices/history.json). Newest first."""
+    since='YYYY-MM-DD': every move on or after that date (/api/v1/gpu-prices/history.json), newest first.
+    cursor: every history event after the cursor, oldest first, with next_cursor/has_more (lossless watchers).
+    kinds: optional subset of down/up/new/removed/same."""
+    from .ids import encode_cursor, event_id, rate_id
     if since is not None:
         try:
             since = date.fromisoformat(str(since)[:10]).isoformat()
         except ValueError:
             raise DealError("invalid_argument", "since must be a date like 2026-10-27") from None
+    if cursor is not None and since is not None:
+        raise DealError("invalid_argument", "pass either cursor or since, not both")
+    if isinstance(kinds, str):
+        kinds = [k.strip() for k in kinds.split(",") if k.strip()]
+    if kinds:
+        bad = [k for k in kinds if k not in CHANGE_KINDS]
+        if bad:
+            raise DealError("invalid_argument", f"kinds must be among {', '.join(CHANGE_KINDS)}; got {', '.join(map(str, bad))}")
+    kset = set(kinds) if kinds else None
     limit = max(1, min(int(limit or 50), 200))
-    if since is None:
+    paging = None
+    if cursor is not None:
+        doc = history or {}
+        rows, paging = _cursor_page(doc, cursor, gpu, kset, limit)
+        window = {"from": rows[0]["date"] if rows else None, "to": doc.get("last_snapshot")}
+        src, covered = GPU_HISTORY_URL, {"first_snapshot": doc.get("first_snapshot"), "last_snapshot": doc.get("last_snapshot"),
+                                         "snapshot_count": doc.get("snapshot_count")}
+    elif since is None:
         doc = latest or {}
-        rows = [{"date": doc.get("date"), "vendor": c.get("vendor"), "gpu": c.get("gpu"), "tier": c.get("tier"),
+        rows = []
+        for c in doc.get("changes") or []:
+            r = {"date": doc.get("date"), "key": c.get("key"), "vendor": c.get("vendor"), "gpu": c.get("gpu"), "tier": c.get("tier"),
                  "gpu_count": c.get("gpu_count", 1), "from_hourly_usd": c.get("old_hourly_usd"),
                  "to_hourly_usd": c.get("new_hourly_usd"), "change_pct": c.get("pct"), "source_url": c.get("source_url"),
-                 "verified_at": c.get("verified_at"), "change": c.get("change")} for c in doc.get("changes") or []]
+                 "verified_at": c.get("verified_at")}
+            r["direction"] = _direction(r["from_hourly_usd"], r["to_hourly_usd"], c.get("change"))
+            r["rate_id"] = rate_id({**r, "vram_gb": c.get("vram_gb") or _key_vram(c.get("key")),
+                                    "billing_unit": c.get("billing_unit") or "hourly"})
+            r["event_id"] = event_id(doc.get("date") or "", r["rate_id"], r["direction"])
+            rows.append(r)
         window = {"from": doc.get("previous_date"), "to": doc.get("date")}
         src, covered = GPU_CHANGES_URL, None
     else:
         doc = history or {}
-        rows = [{"date": c.get("date"), "vendor": c.get("vendor"), "gpu": c.get("gpu"), "tier": c.get("tier"),
-                 "vram_gb": c.get("vram_gb"), "from_hourly_usd": c.get("from_hourly_usd"),
-                 "to_hourly_usd": c.get("to_hourly_usd"), "change_pct": c.get("change_pct"),
-                 "status": c.get("status"), "source_url": c.get("source_url")}
-                for c in doc.get("changes") or [] if (c.get("date") or "") >= since]
+        rows = [_history_row(c) for c in doc.get("changes") or [] if (c.get("date") or "") >= since]
         window = {"from": since, "to": doc.get("last_snapshot")}
         src, covered = GPU_HISTORY_URL, {"first_snapshot": doc.get("first_snapshot"), "last_snapshot": doc.get("last_snapshot"),
                                          "snapshot_count": doc.get("snapshot_count")}
-    if gpu:
-        q = gpu.lower()
-        rows = [r for r in rows if q in (r.get("gpu") or "").lower()]
-    for r in rows:
-        a, b = r.get("from_hourly_usd"), r.get("to_hourly_usd")
-        kind = r.pop("change", None)
-        r["direction"] = ("down" if b < a else "up" if b > a else "same") if (a is not None and b is not None) else \
-            (kind if kind in ("new", "removed") else "new" if a is None else "removed")
-    rank = {"down": 0, "up": 1, "removed": 2, "new": 3, "same": 4}
-    rows.sort(key=lambda r: (r.get("vendor") or "", r.get("gpu") or ""))
-    rows.sort(key=lambda r: rank[r["direction"]])
-    rows.sort(key=lambda r: r.get("date") or "", reverse=True)
+    if paging is None:
+        if gpu:
+            q = gpu.lower()
+            rows = [r for r in rows if q in (r.get("gpu") or "").lower()]
+        if kset:
+            rows = [r for r in rows if r["direction"] in kset]
+        rank = {"down": 0, "up": 1, "removed": 2, "new": 3, "same": 4}
+        rows.sort(key=lambda r: (r.get("vendor") or "", r.get("gpu") or ""))
+        rows.sort(key=lambda r: rank[r["direction"]])
+        rows.sort(key=lambda r: r.get("date") or "", reverse=True)
     down = sum(r["direction"] == "down" for r in rows)
     up = sum(r["direction"] == "up" for r in rows)
     added = sum(r["direction"] == "new" for r in rows)
@@ -180,10 +259,28 @@ def price_changes(latest: dict | None, history: dict | None, since: str | None =
            "summary": (f"{len(rows)} tracked GPU price change(s)" + (f" for '{gpu}'" if gpu else "") +
                        f" between {window['from']} and {window['to']}: {down} down, {up} up, {added} newly tracked, {removed} no longer tracked."),
            "sorted_by": "date (newest first), then price drops, rises, removals, new rates",
-           "note": "'new' = a rate first tracked in this window (no earlier price to compare). Each change cites the vendor source_url it was read from. Confirm on the vendor page before spending."}
+           "note": "'new' = a rate first tracked in this window (no earlier price to compare). Each change cites the vendor source_url it was read from. Confirm on the vendor page before spending. Dedupe on event_id."}
+    if paging is not None:
+        out.update(paging)
+        out["sorted_by"] = "seq ascending (oldest first); save next_cursor only after you have processed these changes"
+        out["total"] = out["count"] = len(rows)
+        out["summary"] = (f"{len(rows)} tracked GPU price change(s) after the cursor" + (f" for '{gpu}'" if gpu else "") +
+                          f": {down} down, {up} up." + (" More available: call again with next_cursor." if paging["has_more"] else ""))
+    elif since is not None:
+        # Catch-up path for a windowed read: next_cursor sits just before the oldest event in the window, so paging
+        # forward with it returns every event (none lost to limit). has_more = rows were cut by limit.
+        evs = sorted((e for e in (history or {}).get("changes") or [] if isinstance(e.get("seq"), int)), key=lambda e: e["seq"])
+        first = next((e["seq"] for e in evs if (e.get("date") or "") >= since), None)
+        if evs:
+            start = (first - 1) if first is not None else evs[-1]["seq"]
+            prev = next((e for e in evs if e["seq"] == start), None)
+            out["next_cursor"] = encode_cursor(start, prev["event_id"] if prev else None)
+        else:
+            out["next_cursor"] = None
+        out["has_more"] = len(rows) > limit
     if covered:
         out["history_coverage"] = covered
-        if covered.get("first_snapshot") and since < covered["first_snapshot"]:
+        if since and covered.get("first_snapshot") and since < covered["first_snapshot"]:
             out["note"] += f" History starts {covered['first_snapshot']}; nothing earlier is tracked."
     checked = latest_checked_at([r.get("verified_at") for r in rows] +
                                 [c.get("verified_at") for c in doc.get("changes") or [] if isinstance(c, dict)])
@@ -279,6 +376,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                        max_data_age_hours: float | None = None, now: datetime | None = None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
+    from .ids import rate_id
     vram_m = re.search(r"\b(\d{2,3})\s*gb\b", gpu or "", re.I)
     want_vram = int(vram_m.group(1)) if vram_m else None
     q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu or "", flags=re.I))
@@ -339,6 +437,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["tier_class"] = tier_class(r)
         out["tier_note"] = TIER_NOTES[out["tier_class"]]
         out["rank"] = i
+        out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
         out.update(data_age.age_fields(r, now))
         results.append(out)
     c = results[0]

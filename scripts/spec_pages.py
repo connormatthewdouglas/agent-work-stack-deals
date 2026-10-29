@@ -3,7 +3,7 @@
 - /compare/{a}-vs-{b}-gpu-prices/  (vendor-vs-vendor-spec.md)
 - /gpu/changes/ + /gpu/changes.xml (same data as get_price_changes: history.json `changes`)
 - /docs/watch-gpu-prices/
-Fails closed: a missing feed or a schema other than /1 raises before anything is written.
+Fails closed: a missing feed or an unknown schema version (see SCHEMAS) raises before anything is written.
 Reserved tier is never in a "cheapest" headline or a win count.
 """
 from __future__ import annotations
@@ -17,9 +17,10 @@ import gpu_pages as gp
 
 ROOT = Path(__file__).resolve().parents[1]
 API = ROOT / "api" / "v1"
-SCHEMAS = {"prices": ("gpu-prices.json", "lantern-works-gpu-prices/1"),
-           "changes": ("gpu-price-changes.json", "lantern-works-gpu-price-changes/1"),
-           "history": ("gpu-prices/history.json", "lantern-works-gpu-price-history/1")}
+# Accepted schema versions per feed. history /2 (T38) only adds ids (rate_id, event_id, seq, snapshot_id).
+SCHEMAS = {"prices": ("gpu-prices.json", ("lantern-works-gpu-prices/1",)),
+           "changes": ("gpu-price-changes.json", ("lantern-works-gpu-price-changes/1",)),
+           "history": ("gpu-prices/history.json", ("lantern-works-gpu-price-history/1", "lantern-works-gpu-price-history/2"))}
 FAMILY_MAP = {"H100": "H100", "H100 SXM": "H100", "H100 PCIe": "H100",
               "H200": "H200", "H200 SXM": "H200",
               "A100": "A100", "A100 SXM": "A100", "A100 PCIe": "A100"}
@@ -35,11 +36,11 @@ CANONICAL_OVERRIDE: dict[str, str] = {}  # none: /gpu/<gpu>-rental-price/ pages 
 
 def load_feeds() -> dict:
     out = {}
-    for k, (f, schema) in SCHEMAS.items():
+    for k, (f, schemas) in SCHEMAS.items():
         p = API / f
         d = json.loads(p.read_text(encoding="utf-8"))  # raises if missing -> keep last good build
-        if d.get("schema") != schema:
-            raise SystemExit(f"spec_pages: {f} schema {d.get('schema')!r} != {schema!r}; keeping last good build")
+        if d.get("schema") not in schemas:
+            raise SystemExit(f"spec_pages: {f} schema {d.get('schema')!r} not in {list(schemas)!r}; keeping last good build")
         out[k] = d
     return out
 
