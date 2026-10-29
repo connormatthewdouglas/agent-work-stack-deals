@@ -60,7 +60,7 @@ curl -fsSL "https://thelanternworks.com/api/v1/deals.json" \
 ```
 
 ## GPU prices
-`GET https://thelanternworks.com/api/v1/gpu-prices.json` (public, no auth). `rates[]` rows have `advertiser`, `gpu`, `vram_gb`, `price_usd`, `unit`, `tier`, `hourly_equiv_usd`, `billing`, `basis` (exact vendor quote), `source_url` (vendor page checked) and `verified_at` (checked date). Only verified prices are listed; GPU deals without one are under `unpriced`. Sort by `hourly_equiv_usd` for the cheapest option, and say "cheapest among tracked providers", not cheapest overall. Excludes storage, egress and taxes; confirm on `source_url` before spending.
+`GET https://thelanternworks.com/api/v1/gpu-prices.json` (public, no auth). `rates[]` rows have `advertiser`, `gpu`, `vram_gb`, `price_usd`, `unit`, `tier`, `hourly_equiv_usd`, `billing`, `basis` (summary of the vendor price line; `evidence.quote` is the verbatim page text), `source_url` (vendor page checked) and `verified_at` (checked date). Only verified prices are listed; GPU deals without one are under `unpriced`. Sort by `hourly_equiv_usd` for the cheapest option, and say "cheapest among tracked providers", not cheapest overall. Excludes storage, egress and taxes; confirm on `source_url` before spending.
 
 ```bash
 curl -fsSL "https://thelanternworks.com/api/v1/gpu-prices.json" \

@@ -46,7 +46,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "hours_per_month": HOURS_PER_MONTH,
         "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
         "methodology": [
-            "Rates come from structured per-vendor pricing records (data/gpu_pricing/<vendor>.json in the repo); each rate has source_url and checked_at, and 'basis' is the exact vendor quote.",
+            "Rates come from structured per-vendor pricing records (data/gpu_pricing/<vendor>.json in the repo); each rate has source_url and checked_at, and 'basis' is a short summary of the vendor's price line (not always word for word); evidence.quote is the verbatim text found on the source page at checked_at.",
             "A daily job re-reads every source_url (robots.txt respected) and updates a price only where it parsed it from the vendor's own page or API; verified_at is when the price was last parsed, checked_at the last attempt. A rate not re-verified for 7 days is held (held_stale) and never ranked. Price history: /api/v1/gpu-prices/history.json.",
             "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",

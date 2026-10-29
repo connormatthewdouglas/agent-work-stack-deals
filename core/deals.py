@@ -215,13 +215,15 @@ TIER_NOTES = {"on-demand": "on-demand from the vendor's own cloud",
 def tier_class(r: dict) -> str:
     """One label per rate so 'cheapest' is never misread as cheapest on-demand (audit T9/M6)."""
     tier = (r.get("tier") or "").lower()
-    if r.get("interruptible") or "spot" in tier or "preempt" in tier or "interruptible" in tier:
+    plain = tier.replace("not interruptible", "").replace("non-interruptible", "")
+    if r.get("interruptible") or "spot" in plain or "preempt" in plain or "interruptible" in plain:
         return "interruptible"
     if r.get("price_status") == "marketplace" or "marketplace" in tier:
         return "marketplace"
     if "community" in tier:
         return "community"
-    if "reserv" in tier or "commit" in tier:
+    # "On-demand (page: ... reserved pricing when you commit)" is an on-demand row that merely mentions reservations
+    if ("reserv" in tier or "commit" in tier or "contract" in tier) and not tier.startswith("on-demand"):
         return "reserved"
     if r.get("unit") == "month" or r.get("billing_unit") == "monthly":
         return "dedicated-monthly"

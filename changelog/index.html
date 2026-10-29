@@ -97,6 +97,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.14 (2026-10-29)</h2>
+<ul>
+<li>Vast.ai <code>basis</code> now comes from the same API snapshot as offer_count / median / lowest_offer_usd (the refresh used to keep an older count and minimum in the quote); test checks they match.</li>
+<li>Methodology wording: <code>basis</code> is a summary of the vendor price line; <code>evidence.quote</code> is the verbatim page text.</li>
+<li>New L40S / RTX 5090 coverage (vetted page/API quotes, checked 2026-10-29): Crusoe, OVHcloud (US), Koyeb (serverless, per-second), CloudRift (on-demand plus 1- and 3-month reserved rows), Spheron (RTX 5090 row carries the page&#x27;s &quot;Last known Oct 28&quot;), Lightning AI, and Shadeform resale rows (seller Shadeform, provider named in the tier). Tier labels are the vendors&#x27; own. Vultr is not added yet: its pricing page returns 403 to the daily source check, so it can&#x27;t be re-verified automatically.</li>
+</ul>
 <h2>0.3.13 (2026-10-29)</h2>
 <ul>
 <li>T36 (#24): every MCP tool now publishes a typed outputSchema and returns <code>ok</code>; failures return <code>error {code, message}</code> with a stable code (invalid_argument, invalid_cursor, not_found, feed_unavailable, feed_invalid, upstream_unavailable, internal_error). New <code>mode</code> argument: <code>full</code> (default, unchanged output) or <code>brief</code> (essential fields only). Same contract on the hosted worker.</li>

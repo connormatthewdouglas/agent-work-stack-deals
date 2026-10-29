@@ -45,7 +45,7 @@ def load_vendor_files(directory: Path | None = None) -> list[dict]:
 
 
 # Integrated / laptop-class GPUs are not cloud GPU rentals; they never belong in the comparison (audit T7/M4).
-INTERRUPTIBLE_TIER_RE = re.compile(r"spot|preempt|interrupt", re.I)
+INTERRUPTIBLE_TIER_RE = re.compile(r"(?<!not )(?<!non-)(?:spot|preempt|interrupt)", re.I)
 NON_DEDICATED_RE = re.compile(r"\b(radeon\s+\d{3,4}m|iris|uhd graphics|vega\s*\d+|integrated|igpu)\b", re.I)
 
 
@@ -102,6 +102,8 @@ def record_problems(doc: dict) -> list[str]:
         if bool(r.get("interruptible")) != bool(INTERRUPTIBLE_TIER_RE.search(r.get("tier") or "")):
             out.append(f"{tag}: interruptible={r.get('interruptible')} must match the tier label '{r.get('tier')}' "
                        "(spot/preemptible/interruptible tiers say so in the label)")
+        if r.get("tier_class") is not None and r["tier_class"] not in ("on-demand", "interruptible", "community", "marketplace", "reserved", "dedicated-monthly"):
+            out.append(f"{tag}: tier_class override must be a known class")
         mg = r.get("min_gpus", 1)
         if not (isinstance(mg, int) and not isinstance(mg, bool) and mg >= 1):
             out.append(f"{tag}: min_gpus must be an integer >= 1")
@@ -256,8 +258,9 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "billing_unit": r["billing_unit"],
                 "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
+                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note") if r.get(k)}),
                 "tier_class": _tier_class({"tier": r["tier"], "interruptible": r["interruptible"], "billing_unit": r["billing_unit"],
-                                           "price_status": r.get("price_status", "listed")}),
+                                           "price_status": r.get("price_status", "listed")}) if not r.get("tier_class") else r["tier_class"],
                 "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
                 "verified_at": r.get("verified_at") or r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
