@@ -25,8 +25,9 @@ def _server_tools() -> tuple[str, ...]:
 TOOLS = _server_tools()
 # Tool count covered by the last recorded client tests (TESTED_ON). Bump only after re-testing with the new tool.
 TESTED_TOOLS = 8  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint
-# Per-client checks (Cline, LlamaIndex, Open WebUI/mcpo, Roo, Continue) ran on 0.3.19, before estimate_job_cost existed.
-CLIENT_TESTED_TOOLS = 7
+# Per-client checks (Cline, LlamaIndex, Open WebUI/mcpo, Roo, Continue) re-run 2026-10-29 on 0.3.23 (audit F3).
+CLIENT_TESTED_TOOLS = 8
+CLIENT_TESTED_VERSION = "0.3.23"
 
 
 def _hosted_extra_tools() -> tuple[str, ...]:
@@ -128,20 +129,20 @@ def write(g) -> str:
   {_pre(vscode)}
 
   <h2 id="cline">Cline</h2>
-  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested {TESTED_ON}: this exact config started the server and <code>tools/list</code> returned all {CLIENT_TESTED_TOOLS} tools then available (version 0.3.19, before estimate_job_cost)):</p>
+  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested {TESTED_ON}: this exact config started the server and <code>tools/list</code> returned all {CLIENT_TESTED_TOOLS} package tools (version {CLIENT_TESTED_VERSION})):</p>
   {_pre(desktop)}
 
   <h2 id="llamaindex">LlamaIndex</h2>
   <p>Uses <code>pip install llama-index-tools-mcp</code> (<a href="https://developers.llamaindex.ai/python/framework/module_guides/mcp/llamaindex_mcp/">LlamaIndex MCP docs</a>). This uses the hosted endpoint; for the local server use <code>BasicMCPClient("uvx", args=["lantern-works-deals-mcp"])</code>:</p>
   {_pre(LLAMA)}
-  <p class="meta">Tested {TESTED_ON}: both clients listed all {CLIENT_TESTED_TOOLS} tools then available (version 0.3.19, before estimate_job_cost) and <code>compare_gpu_prices</code> returned live rates.</p>
+  <p class="meta">Tested {TESTED_ON}: both clients listed all {CLIENT_TESTED_TOOLS} package tools (version {CLIENT_TESTED_VERSION}) and <code>compare_gpu_prices</code> returned live rates.</p>
 
   <h2 id="openwebui">Open WebUI</h2>
   <p>Open WebUI 0.6.31+ connects to MCP servers over streamable HTTP (<a href="https://docs.openwebui.com/features/extensibility/mcp/">Open WebUI MCP docs</a>). As an admin: Settings → Admin → Integrations → External Tool Servers → + Add Connection, set <strong>Type</strong> to <strong>MCP (Streamable HTTP)</strong> (not OpenAPI), Server URL:</p>
   {_pre("https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install")}
   <p>No auth is needed. To run the local server instead, bridge it with <a href="https://github.com/open-webui/mcpo">mcpo</a> and add <code>http://localhost:8000</code> as an <strong>OpenAPI</strong> connection:</p>
   {_pre("uvx mcpo --port 8000 -- uvx lantern-works-deals-mcp")}
-  <p class="meta">Tested {TESTED_ON}: the hosted URL answers MCP <code>tools/list</code> with all {CLIENT_TESTED_TOOLS} tools then available (version 0.3.19, before estimate_job_cost); through mcpo all {CLIENT_TESTED_TOOLS} tools then available (version 0.3.19, before estimate_job_cost) appeared as OpenAPI routes and <code>compare_gpu_prices</code> returned rates. If mcpo fails to start with an import or <code>ssl_certfile</code> error, a dependency release broke it; <code>uvx --with "mcp&lt;2" --with "fastapi&lt;0.120" mcpo …</code> worked.</p>
+  <p class="meta">Tested {TESTED_ON}: the hosted URL answers MCP <code>tools/list</code> with all {CLIENT_TESTED_TOOLS} package tools (version {CLIENT_TESTED_VERSION}) plus {len(HOSTED_EXTRA)} hosted-only watch tools; through mcpo all {CLIENT_TESTED_TOOLS} package tools (version {CLIENT_TESTED_VERSION}) appeared as OpenAPI routes and <code>compare_gpu_prices</code> returned rates. If mcpo fails to start with an import or <code>ssl_certfile</code> error, a dependency release broke it; <code>uvx --with "mcp&lt;2" --with "fastapi&lt;0.120" mcpo …</code> worked.</p>
 
   <h2 id="roo-code">Roo Code</h2>
   <p>MCP icon → Edit Global MCP (<code>mcp_settings.json</code>) or Edit Project MCP (<code>.roo/mcp.json</code>) (<a href="https://docs.roocode.com/features/mcp/using-mcp-in-roo">Roo Code MCP docs</a>):</p>
@@ -153,7 +154,7 @@ def write(g) -> str:
   <p>Save as <code>.continue/mcpServers/lantern-works-deals.yaml</code> in your workspace; MCP tools work in Agent mode (<a href="https://docs.continue.dev/customize/deep-dives/mcp">Continue MCP docs</a>):</p>
   {_pre(CONTINUE)}
   <p>Hosted endpoint instead: replace the <code>command</code> and <code>args</code> lines with <code>type: streamable-http</code> and <code>url: https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code>.</p>
-  <p class="meta">Tested {TESTED_ON} (Roo Code, Continue): the configs above parse, and the exact command and URL in them start or reach the server and list all {CLIENT_TESTED_TOOLS} tools then available (version 0.3.19, before estimate_job_cost). Not yet tested inside the editors themselves.</p>
+  <p class="meta">Tested {TESTED_ON} (Roo Code, Continue): the configs above parse, and the exact command and URL in them start or reach the server and list all {CLIENT_TESTED_TOOLS} package tools (version {CLIENT_TESTED_VERSION}). Not yet tested inside the editors themselves.</p>
 
   <h2>Skills-based agents (Claude Code skills, OpenClaw)</h2>
   {_pre("npx skills add connormatthewdouglas/agent-work-stack-deals")}

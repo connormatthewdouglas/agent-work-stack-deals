@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.24 (2026-10-29)
+- `optimize_stack`, `optimize_agent_stack` and `estimate_job_cost` rank rows marked "out of stock when checked" after in-stock and unknown rows and say when a cheaper out-of-stock row was skipped (F1, #46). Options carry `availability` and `in_stock`.
+- `get_deal("deal-cloreai-001")` returns the merged Clore.ai record (`deal-clore-ai`).
+- Home page: each GPU's rate count now matches the rates behind the median, and names how many out-of-stock rows were excluded.
+- /install/: the Cline, LlamaIndex, Open WebUI (hosted and mcpo), Roo Code and Continue checks were re-run on 0.3.23 (8 package tools).
+
 ## 0.3.23 (2026-10-29)
 - `compare_gpu_prices` results carry `availability` and `in_stock` (E5, #45). Rows the feed marks "out of stock when checked" are kept and flagged but rank after in-stock and unknown-availability rows, so they are never called cheapest; the summary names a cheaper out-of-stock row with its check time. The home page spread follows the same rule. Unknown availability is never treated as out of stock.
 

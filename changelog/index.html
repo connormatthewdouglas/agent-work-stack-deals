@@ -128,6 +128,13 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.24 (2026-10-29)</h2>
+<ul>
+<li><code>optimize_stack</code>, <code>optimize_agent_stack</code> and <code>estimate_job_cost</code> rank rows marked &quot;out of stock when checked&quot; after in-stock and unknown rows and say when a cheaper out-of-stock row was skipped (F1, #46). Options carry <code>availability</code> and <code>in_stock</code>.</li>
+<li><code>get_deal(&quot;deal-cloreai-001&quot;)</code> returns the merged Clore.ai record (<code>deal-clore-ai</code>).</li>
+<li>Home page: each GPU&#x27;s rate count now matches the rates behind the median, and names how many out-of-stock rows were excluded.</li>
+<li>/install/: the Cline, LlamaIndex, Open WebUI (hosted and mcpo), Roo Code and Continue checks were re-run on 0.3.23 (8 package tools).</li>
+</ul>
 <h2>0.3.23 (2026-10-29)</h2>
 <ul>
 <li><code>compare_gpu_prices</code> results carry <code>availability</code> and <code>in_stock</code> (E5, #45). Rows the feed marks &quot;out of stock when checked&quot; are kept and flagged but rank after in-stock and unknown-availability rows, so they are never called cheapest; the summary names a cheaper out-of-stock row with its check time. The home page spread follows the same rule. Unknown availability is never treated as out of stock.</li>
