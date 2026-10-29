@@ -55,6 +55,12 @@ def write(g) -> str:
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: {tools}.</p>
   <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> ({TESTED_VERSION}) initializes over stdio and all {len(TOOLS)} tools return results.</p>
 
+
+  <h2>Hosted endpoint (no install)</h2>
+  <p>The same {len(TOOLS)} read-only tools over streamable HTTP, served from a free Cloudflare Worker: <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>. It counts calls only as anonymous totals per tool per day (no IPs, user agents or arguments), published at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats">/stats</a>. The <code>?ref=</code> tag below just records which install snippet was used.</p>
+  {_pre("claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=claude-code")}
+  <p>Claude Desktop / Cursor / VS Code (<code>"type": "http"</code> or <code>"url"</code> server): <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install-page</code></p>
+
   <h2>Claude Code</h2>
   {_pre("claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp")}
 

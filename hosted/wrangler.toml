@@ -1,0 +1,11 @@
+# Free-plan Python Worker. No paid features. Deploy: ./build.sh && npx wrangler deploy
+name = "lantern-works-mcp"
+main = "src/entry.py"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["python_workers"]
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lantern-works-hosted-mcp-stats"
+database_id = "67b5b2c6-7b12-4008-a977-a2636d007a8a"

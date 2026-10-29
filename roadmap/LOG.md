@@ -91,3 +91,13 @@ Live since about 9:45 AM ET (CI run 40883999616 green: tests, validate, pypi-ins
 - Fixed a refresh bug: a quote line shared by on-demand and spot kept a stale sibling price, which failed the live source check. Fixed and tested.
 - Releases: 0.3.9 and 0.3.10 on PyPI; MCP Registry has 0.3.10.
 - Decisions relayed by Bjorn under Frosty's delegation: the package name lantern-works-deals-mcp stays; the display name goes GPU-first; GPU tools come first in the order; the Stack Optimizer gets no new non-GPU lines.
+
+## Oct 29 (late morning): hosted MCP endpoint
+
+Decisions relayed by Bjorn under Frosty's delegation:
+- The hosted MCP endpoint runs on a free Cloudflare Python Worker (`hosted/`, account lanternworks@agentmail.to, free plan, no paid features). URL: https://lantern-works-mcp.lantern-works.workers.dev/mcp. It runs the same `core/` + `mcp_server/server.py` tool functions as the PyPI package (stateless streamable HTTP, JSON responses).
+- It stores only anonymous aggregate call counts per tool per UTC day per `?ref=` channel tag in D1 (no IPs, user agents, arguments or personal data). These are public at /stats and /stats.json.
+- Channel-tagged install links (`?ref=claude-code`, `install-page`, `github-readme`, `pypi-readme`) appear on /install/ and in the READMEs.
+- There is no breaking rename: the name stays `lantern-works-deals-mcp`. Display text is GPU-first, and compare_gpu_prices and get_price_changes are listed before search_deals.
+- Stack Optimizer: no new non-GPU lines.
+- Pulse weekly report final and Hashnode variant were regenerated from the live feeds (2026-10-29T13:33:43Z) and are ready for Bjorn to publish.

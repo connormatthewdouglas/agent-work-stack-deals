@@ -31,6 +31,11 @@ Cursor (`.cursor/mcp.json`), Cline (`cline_mcp_settings.json`) and Claude Deskto
 
 Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Docker (from the repo root; installs the pinned PyPI release): `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp`. More clients: https://thelanternworks.com/install/
 
+### Hosted endpoint (no install)
+
+Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme`
+(`claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme`). Free Cloudflare Worker; it stores only anonymous call counts per tool per day (no IPs, user agents or arguments), public at https://lantern-works-mcp.lantern-works.workers.dev/stats. `?ref=` only tags which link was used.
+
 ## Tools
 
 | Tool | Args | Returns |
