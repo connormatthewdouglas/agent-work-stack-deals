@@ -97,6 +97,14 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.12 (2026-10-29)</h2>
+<ul>
+<li><code>compare_gpu_prices</code> and <code>optimize_agent_stack</code>: every result has <code>data_age_hours</code>, <code>degraded</code> (&gt; 48 h since verified) and <code>stale</code> (&gt; 7 days); optional <code>max_data_age_hours</code> drops older rates and reports <code>excluded_too_old</code> (T37, #23).</li>
+<li>Whole-server billing: offers sold only as N-GPU servers bill whole servers, e.g. 9 GPUs on 8-GPU servers bill 16; flat-monthly multi-GPU servers bill the whole server (T35, #22).</li>
+<li><code>optimize_agent_stack</code>: a quoted &quot;$N/mo&quot; price is no longer read as a budget, <code>exclude_manual_signup</code> also applies to the GPU line, and negated components (&quot;no GPUs&quot;) are left out (T3, #20).</li>
+<li>Feed schema 1.5.0: neutral referral disclosure (<code>disclosure</code>, <code>plain_url</code>) replaces the old affiliate-link wording (T5, #19).</li>
+<li>New per-model JSON views at /api/v1/gpu/&lt;model&gt;.json with the cheapest price per tier (reserved excluded) and sources (T17).</li>
+</ul>
 <h2>0.3.11 (2026-10-29)</h2>
 <ul>
 <li>New <code>tier_class</code> value <code>reserved</code>: reservation or commitment &quot;starting from&quot; prices, such as Hyperstack reservations. <code>compare_gpu_prices</code> leaves them out by default (<code>include_reserved=true</code> adds them back) and never calls them cheapest. Pages and the calculator sort them after pay-as-you-go rates, and the stack optimizers skip them.</li>
