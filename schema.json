@@ -3,7 +3,7 @@
   "$id": "https://thelanternworks.com/schema.json",
   "title": "Lantern Works deal feed",
   "description": "Schema for /deals.json and /api/v1/deals.json. Public fields only: commission, payout, and compliance data are private and must never appear here.",
-  "x-schema-version": "1.5.0",
+  "x-schema-version": "1.6.0",
   "type": "object",
   "required": [
     "schema_version",
@@ -19,7 +19,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "1.5.0",
+      "const": "1.6.0",
       "description": "Version of this schema the feed conforms to (semver)."
     },
     "feed_version": {
@@ -219,6 +219,10 @@
             "credit_only_referral"
           ],
           "description": "Offer label. verified_discount = vendor-published discount/code confirmed on the vendor page (requires verified_at); listed_discount = discount listed for this offer but not confirmed on the vendor page (no verified_at); free_tier = ongoing free plan; trial = time-limited or one-time free credit; standard_referral = normal price via signup/referral link; credit_only_referral = referrer earns platform credit only. Unclear cases use the most conservative label."
+        },
+        "publish_status": {
+          "enum": ["approved"],
+          "description": "Public publish gate. \"approved\" = cleared for publication by the Lantern Works review (set only from the private review record). Builds without that record publish only entries marked approved (fail closed)."
         },
         "verified_at": {
           "$ref": "#/$defs/nullableTimestamp",
