@@ -57,9 +57,9 @@ def write(g) -> str:
 
 
   <h2>Hosted endpoint (no install)</h2>
-  <p>The same {len(TOOLS)} read-only tools over streamable HTTP, served from a free Cloudflare Worker: <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>. It counts calls only as anonymous totals per tool per day (no IPs, user agents or arguments), published at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats">/stats</a>. The <code>?ref=</code> tag below just records which install snippet was used.</p>
-  {_pre("claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=claude-code")}
-  <p>Claude Desktop / Cursor / VS Code (<code>"type": "http"</code> or <code>"url"</code> server): <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install-page</code></p>
+  <p>The same {len(TOOLS)} read-only tools over streamable HTTP, served from a free Cloudflare Worker: <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>. It counts calls only as anonymous totals per tool per day (no IPs, user agents or arguments), published at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats">/stats</a>. The <code>?ref=</code> tag below just records that the link came from this page (counts at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats.json">/stats.json</a>).</p>
+  {_pre("claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install")}
+  <p>Claude Desktop / Cursor / VS Code (<code>"type": "http"</code> or <code>"url"</code> server): <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code></p>
 
   <h2>Claude Code</h2>
   {_pre("claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp")}
