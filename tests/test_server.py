@@ -37,7 +37,7 @@ def call(srv, name, args):
 
 def test_tools_listed(srv):
     tools = {t.name: t for t in asyncio.run(srv.mcp.list_tools())}
-    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack",
+    assert set(tools) == {"search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack", "estimate_job_cost",
                           "get_price_changes"}
     assert all(t.annotations.readOnlyHint for t in tools.values())
 
@@ -129,7 +129,7 @@ def test_cursor_plugin_manifest(srv):
     assert b == (ROOT / "logo.png").read_bytes()
     assert struct.unpack(">II", b[16:24]) == (400, 400)
     tools = sorted(t.name for t in asyncio.run(srv.mcp.list_tools()))
-    assert len(tools) == 7
+    assert len(tools) == 8
     for f in (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json"):
         m = json.loads((ROOT / f).read_text())
         e = m["plugins"][0]

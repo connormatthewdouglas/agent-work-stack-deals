@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.20 (2026-10-29)
+- New MCP tool `estimate_job_cost` (T20, #41): cost of a job from user-supplied hours or throughput, whole-instance billing, typed contract and quote_id.
+- `compare_gpu_prices` results carry `report_issue_url`, a prefilled GitHub "wrong price" issue link built from public row fields only (T40). New /report-price/ page, a "Wrong price?" link on every rate row, and a `report_issue` block in gpu-prices.json and gpu-price-changes.json.
+- Lantern Works GPU Price Index (T21): daily median on-demand price per GPU-hour for H100, A100 80GB, H200, L40S, RTX 4090 and RTX 5090 at /gpu/index/, with JSON and CSV under /api/v1/ (CC BY 4.0) and its methodology at /gpu/index/methodology/.
+- Site: /gpu/free-credits/ (T33), /embed/ price badge (T22), integration examples (T28). The hosted endpoint has the opt-in price-watch tools from #34; alert delivery is paused.
+
 ## 0.3.19 (2026-10-29)
 - Split license: code stays MIT (LICENSE); the price and deal data is CC BY 4.0, attributed to Lantern Works (new LICENSE-DATA). Every JSON feed (deals.json, gpu-prices.json, history, gpu-price-changes, api/v1/gpu/*, stack-pricing) carries a `license` field; /methodology/ and the README say the same.
 

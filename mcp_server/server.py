@@ -22,13 +22,13 @@ try:  # installed wheel: core is vendored as a subpackage
     from lantern_works_deals_mcp.core import deals as core
     from lantern_works_deals_mcp.core import stack
     from lantern_works_deals_mcp.core import agent_stack
-    from lantern_works_deals_mcp.core import contract, quote
+    from lantern_works_deals_mcp.core import contract, quote, cost_per_job
 except ImportError:  # repo checkout: shared top-level core/
     from core import VERSION, DealError, FeedLoader, GpuChangesLoader, GpuHistoryLoader, GpuPricesLoader, StackPricingLoader  # noqa: E402
     from core import deals as core  # noqa: E402
     from core import stack  # noqa: E402
     from core import agent_stack  # noqa: E402
-    from core import contract, quote  # noqa: E402
+    from core import contract, quote, cost_per_job  # noqa: E402
 
 INSTRUCTIONS = ("Read-only GPU rental price comparison (compare_gpu_prices, checked daily, with price history; get_price_changes lists what moved), a "
                 "stack cost optimizer (optimize_stack, or optimize_agent_stack from a plain-text agent description), and the Lantern Works agent work-stack deal feed. Results are ranked by "
@@ -101,7 +101,7 @@ def _run(fn, *a, **kw) -> dict:
 @_contract
 def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = False, include_reserved: bool = False,
                        max_data_age_hours: float | None = None) -> dict:
-    """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first.
+    """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
     has source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.
@@ -247,6 +247,41 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
         return DealError("invalid_argument", str(e)).to_dict()
     except DealError as e:
         return e.to_dict()
+
+
+@mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
+@_contract
+def estimate_job_cost(gpu_family: str, gpus_per_job: int, job_hours: float | None = None, work_units: float | None = None,
+                      throughput_units_per_gpu_hour: float | None = None, workload: str | None = None,
+                      allow_interruptible: bool = False, min_vram_gb: int | None = None, runs_per_month: float | None = None,
+                      top_n: int = 5, max_data_age_hours: float | None = None) -> dict:
+    """Cost of one GPU job (not cost per hour) among tracked providers, cheapest compute subtotal first.
+
+    You supply the duration: job_hours, OR work_units plus throughput_units_per_gpu_hour from your own benchmark
+    (job_hours = work_units / (throughput x gpus_per_job)). No throughput is ever guessed from a model name:
+    without one of these the tool returns not_found 'missing: throughput for {gpu}'. Whole-instance billing:
+    instances = ceil(gpus_per_job / gpus_per_instance), all allocated GPUs billed (9 GPUs on an 8-GPU-only
+    offer bill 16). Reserved and held-stale rates are never ranked; spot/interruptible only if allow_interruptible.
+    Each result has rate_id, source_url, verified_at, data_age_hours/degraded/stale. Response has assumptions,
+    citations, missing_costs, budget_verdict (unresolved: extras unknown) and a quote_id. Compute subtotal only.
+    """
+    try:
+        gpu = gpu_loader.load()
+        out = cost_per_job.estimate_job_cost(gpu, gpu_family, gpus_per_job, job_hours=job_hours, work_units=work_units,
+                                             throughput_units_per_gpu_hour=throughput_units_per_gpu_hour, workload=workload,
+                                             allow_interruptible=allow_interruptible, min_vram_gb=min_vram_gb,
+                                             runs_per_month=runs_per_month, top_n=top_n, max_data_age_hours=max_data_age_hours)
+    except cost_per_job.JobCostError as e:
+        return DealError(e.code, e.message).to_dict()
+    except DealError as e:
+        return e.to_dict()
+    lines = [{"component": f"rank{r['rank']}:{r['allocated_gpus']}gpu", "quantity": out["job_hours"],
+              "choice": {"rate_id": r["rate_id"], "checked_at": r["checked_at"]}} for r in out["results"]]
+    out["data_sources"] = [core.GPU_PRICES_URL]
+    out.update(quote.receipt("estimate_job_cost", lines, _data_timestamps(None, gpu)))
+    out.update(core.freshness(_gpu_checked_at(gpu)))
+    return out
 
 
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})

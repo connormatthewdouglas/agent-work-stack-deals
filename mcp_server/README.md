@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.3.19, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.3.20, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 

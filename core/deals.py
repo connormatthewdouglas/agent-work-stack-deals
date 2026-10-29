@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.19"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.20"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -439,6 +439,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["rank"] = i
         out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
         out.update(data_age.age_fields(r, now))
+        from .report_issue import report_issue_url
+        out["report_issue_url"] = report_issue_url(out)  # T40: give this to the user if the row looks wrong
         results.append(out)
     c = results[0]
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}

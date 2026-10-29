@@ -2,6 +2,17 @@
 
 Ships with commits, CI runs, URLs and versions (newest first).
 
+## 2026-10-29 — 0.3.20: estimate_job_cost, report_issue_url, GPU Price Index; Atrium batch; T33
+
+- aa40add2 (#38, T33): /gpu/free-credits/ now generated (scripts/free_credits_page.py), each amount quoted from the program's official page with its URL and a 2026-10-29 check date; in the sitemap; no referral links.
+- #31 confirmed merged earlier (fcf27fc3). Merged #41 (T20 estimate_job_cost, dfa31ea2), #42 (T28 examples, 44378d24), #39 (T22 /embed/ badge, merge fa4dff5e with sitemap/generator regenerated).
+- 00bb8422 T40: /report-price/ (from Atrium #36, not the stale branch), "Wrong price?" on every rate row, `report_issue` in gpu-prices.json and gpu-price-changes.json, `report_issue_url` on compare_gpu_prices results (public row fields only).
+- d123282d T21: scripts/gpu_index.py (Gauge's reference; past days frozen by snapshot SHA-256), api/v1/gpu-price-index.json + .csv (CC BY 4.0), /gpu/index/ and /gpu/index/methodology/, validate_feed check, tests. Rebuilt by generate_seo_pages in the daily refresh.
+- Release 0.3.20: https://pypi.org/project/lantern-works-deals-mcp/0.3.20/ and MCP Registry 0.3.20. Hosted worker version 0cb5d94d-d39a-4753-adbf-12152eece6fc.
+- Install tests 2026-10-29: clean `uvx lantern-works-deals-mcp@0.3.20` over stdio listed 8 tools and all 8 returned ok; hosted /mcp listed 12 (8 + create_watch_key, watch_price, list_watches, delete_watch), all 8 read-only tools returned ok. /install/ now separates package (8) and hosted (12) counts, derived from server.py and hosted/src/watch_store.py; per-client checks are labelled as 0.3.19 / 7 tools.
+- Reversed /compare/ URLs (runpod-vs-lambda, verda-vs-runpod, nebius-vs-coreweave) are noindex meta-refresh stubs with canonicals, kept out of the sitemap (scripts/compare_redirects.py).
+- Telemetry gap: estimate_job_cost and get_price_changes aren't counted in telemetry yet.
+
 ## 2026-10-28 — 0.3.6: optimize_agent_stack + /stack/
 
 - b07eb72: MCP tool `optimize_agent_stack` (deterministic keyword/regex parse, no LLM; cheapest cited option per component from gpu-prices, stack-pricing and priced deals; "no sourced price tracked" where there is no data; pulled / do_not_relist listings excluded; manual-only signups flagged; referral disclosure per option). New core/agent_stack.py, core/compliance.py (pulled-ID hashes shared with the generator), /stack/ page (nav + sitemap), tests/test_agent_stack.py, tests/test_stack_page.py (JS parse matches Python).

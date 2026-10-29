@@ -589,6 +589,8 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
   <pre>python3 query_deals.py --category search --free-tier --json</pre>
   <p><code>query_deals.py</code> is in the <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals">repo</a>; the feed's <code>query</code> object documents the shared filter contract.</p>
 
+  <h2>Report a wrong price</h2>
+  <p>Report a wrong price: <a href="{BASE}/report-price/">/report-price/</a> (or the <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/issues/new?template=wrong-price.yml">GitHub issue form</a>; agents see <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/REPORT-WRONG-PRICE.md">docs/REPORT-WRONG-PRICE.md</a>). Feeds carry the same links in <code>report_issue</code>; MCP results carry a prefilled <code>report_issue_url</code>.</p>
   <h2>Skill and MCP</h2>
   <ul>
     <li>Agent skill: raw <a href="{BASE}/SKILL.md">{BASE}/SKILL.md</a> (also rendered at <a href="{BASE}/skills/lantern-works-deals/SKILL.html">SKILL.html</a>; source <code>skills/lantern-works-deals/SKILL.md</code> in the <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/skills/lantern-works-deals/SKILL.md">repo</a>). Copy it into your agent's skills folder.</li>
@@ -1817,6 +1819,16 @@ def main() -> None:
     tool_paths.append(install_page.write(sys.modules[__name__]))
     import methodology_page
     tool_paths.append(methodology_page.write(sys.modules[__name__]))
+    import free_credits_page
+    tool_paths.append(free_credits_page.write(sys.modules[__name__]))
+    import report_price_page
+    tool_paths.append(report_price_page.write(sys.modules[__name__]))
+    import gpu_index_page
+    tool_paths += gpu_index_page.write_all(sys.modules[__name__])
+    import embed_page
+    tool_paths.append(embed_page.write(sys.modules[__name__]))
+    import compare_redirects
+    compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)

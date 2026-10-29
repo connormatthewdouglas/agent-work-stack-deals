@@ -10,7 +10,7 @@
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.19, read-only, stdio)
+## MCP server (v0.3.20, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -68,6 +68,10 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 `data/gpu_throughput.json` (schema `lantern-works-gpu-throughput/1`) holds **published** throughput and peak-spec figures for H100 (SXM, PCIe 80GB, NVL), A100 (40/80GB, SXM vs PCIe), L40S and RTX 4090, from NVIDIA spec sheets and MLPerf Inference results (closed division, Offline). Each figure carries `gpu`, `variant`, `workload`, `metric`, `unit`, `value`, `conditions` (precision, sparsity, scenario, batch, `gpu_count`, `per_gpu`), `source_url`, `source_title`, `publication_date`, `retrieved_at` (UTC) and a verbatim `quote`.
 
 Rules: values are copied from the quote, never estimated or derived. Multi-GPU MLPerf results are whole-system numbers (`per_gpu: false`) and are not divided per GPU. Vendor TFLOPS are theoretical peaks, not job throughput. Missing combinations are listed in `gaps` with `gap: true` and a reason. `tests/test_gpu_throughput.py` enforces this. Nothing reads this file yet; `estimate_job_cost` still needs a user-supplied throughput.
+
+## Report a wrong price
+
+See a price that doesn't match the vendor's page, or an offer you can't rent? [Open a wrong-price report](https://github.com/connormatthewdouglas/agent-work-stack-deals/issues/new?template=wrong-price.yml). Agents can prefill it from a feed row; see [docs/REPORT-WRONG-PRICE.md](docs/REPORT-WRONG-PRICE.md).
 
 ## Feed contract, validation and deploy gate
 

@@ -10,6 +10,9 @@ Copy-and-adapt examples for the Lantern Works deals feed, GPU price API and MCP 
 | `gpu-price-monitor/` | Zero-dependency script: alerts when a tracked rate drops by `--drop` % (history API `/api/v1/gpu-prices/history.json`, cron/Actions) |
 | `langgraph-cheapest-h100/` | LangChain/LangGraph via `langchain-mcp-adapters`: launch the MCP server with uvx and find the cheapest H100 (`compare_gpu_prices`, no LLM key needed) |
 | `crewai-cheapest-gpu/` | CrewAI `MCPServerAdapter`: cheapest GPU for a described job (direct tool path tested, LLM path untested; referral links labeled) |
+| `llamaindex-cheapest-gpu/` | LlamaIndex `McpToolSpec`: list tools and call `compare_gpu_prices` (direct tool path tested, agent path untested) |
+| `open-webui/` | Open WebUI: hosted MCP (Streamable HTTP) connection or local server via mcpo (`--with "mcp<2" --with "fastapi<0.120"`); mcpo bridge tested, in-UI use untested |
+| `editor-configs/` | Ready-to-copy Roo Code and Continue MCP configs (parse + server start tested; untested inside the editors) |
 | `openai-agents-cheapest-gpu/` | OpenAI Agents SDK `MCPServerStdio`: cheapest GPU for a described job (direct tool path tested, LLM path untested; referral links labeled) |
 | `stack-optimizer/` | OpenAI Agents SDK `MCPServerStdio`: describe an agent's job, get the cheapest cited stack from `optimize_agent_stack` (direct tool path tested, LLM path untested; referral links labeled) |
 | `gpu-price-watcher/` | `mcp` Python SDK over stdio: tracked GPU price moves since a date from `get_price_changes`, each with the vendor source_url; sample cron line (0.3.8+) |
