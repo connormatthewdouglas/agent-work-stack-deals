@@ -1,7 +1,7 @@
 # LangGraph / LangChain: cheapest H100 via MCP
 
 Launches the Lantern Works MCP server (`uvx lantern-works-deals-mcp`) over stdio with
-[`langchain-mcp-adapters`](https://github.com/langchain-ai/langchain-mcp-adapters), loads its 5 tools
+[`langchain-mcp-adapters`](https://github.com/langchain-ai/langchain-mcp-adapters), loads all of its tools
 as LangChain tools, and calls `compare_gpu_prices` with `{"gpu": "H100"}`.
 
 **By default no LLM is used:** the script calls the tool directly through the adapter, so it runs

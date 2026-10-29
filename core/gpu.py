@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -39,6 +40,14 @@ def load_vendor_files(directory: Path | None = None) -> list[dict]:
     """Per-vendor structured pricing records (data/gpu_pricing/<vendor>.json): the only source of GPU rates."""
     d = Path(directory or PRICING_DIR)
     return [json.loads(f.read_text(encoding="utf-8")) for f in sorted(d.glob("*.json"))]
+
+
+# Integrated / laptop-class GPUs are not cloud GPU rentals; they never belong in the comparison (audit T7/M4).
+NON_DEDICATED_RE = re.compile(r"\b(radeon\s+\d{3,4}m|iris|uhd graphics|vega\s*\d+|integrated|igpu)\b", re.I)
+
+
+def is_non_dedicated(gpu: str) -> bool:
+    return bool(NON_DEDICATED_RE.search(gpu or ""))
 
 
 def record_problems(doc: dict) -> list[str]:
@@ -67,6 +76,8 @@ def record_problems(doc: dict) -> list[str]:
             continue
         if r["vendor"] != doc.get("vendor"):
             out.append(f"{tag}: vendor mismatch")
+        if is_non_dedicated(r.get("gpu")):
+            out.append(f"{tag}: integrated/laptop-class GPU is not a cloud GPU rental; don't list it")
         if r["billing_unit"] not in BILLING_UNITS:
             out.append(f"{tag}: billing_unit must be one of {BILLING_UNITS}")
         if not isinstance(r["interruptible"], bool):
@@ -169,6 +180,11 @@ def is_gpu_deal(d: dict) -> bool:
     return any(t in (d.get("tags") or []) for t in GPU_TAGS)
 
 
+def _tier_class(r: dict) -> str:
+    from .deals import tier_class
+    return tier_class(r)
+
+
 def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dict:
     """Rates for /api/v1/gpu-prices.json and every GPU page, from the per-vendor records.
 
@@ -226,6 +242,8 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "billing_unit": r["billing_unit"],
                 "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
+                "tier_class": _tier_class({"tier": r["tier"], "interruptible": r["interruptible"], "billing_unit": r["billing_unit"],
+                                           "price_status": r.get("price_status", "listed")}),
                 "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
                 "verified_at": r.get("verified_at") or r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"]})

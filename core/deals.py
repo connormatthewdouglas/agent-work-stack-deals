@@ -15,7 +15,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.8"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.9"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -202,10 +202,32 @@ class StackPricingLoader(FeedLoader):
                                                        "LANTERN_STACK_PRICING_FILE", "offers", "stack pricing")
 
 
+TIER_CLASSES = ("on-demand", "community", "marketplace", "interruptible", "dedicated-monthly")
+TIER_NOTES = {"on-demand": "on-demand from the vendor's own cloud",
+              "community": "community-hosted capacity (e.g. RunPod Community Cloud): third-party hosts, not the vendor's own data centres",
+              "marketplace": "variable marketplace price set by individual hosts (median shown)",
+              "interruptible": "spot/preemptible: the vendor may stop the job",
+              "dedicated-monthly": "flat monthly dedicated server"}
+
+
+def tier_class(r: dict) -> str:
+    """One label per rate so 'cheapest' is never misread as cheapest on-demand (audit T9/M6)."""
+    tier = (r.get("tier") or "").lower()
+    if r.get("interruptible") or "spot" in tier or "preempt" in tier or "interruptible" in tier:
+        return "interruptible"
+    if r.get("price_status") == "marketplace" or "marketplace" in tier:
+        return "marketplace"
+    if "community" in tier:
+        return "community"
+    if r.get("unit") == "month" or r.get("billing_unit") == "monthly":
+        return "dedicated-monthly"
+    return "on-demand"
+
+
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
                "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id",
                "gpu_count", "server_price_usd", "server_hourly_usd", "evidence", "min_gpus", "price_status",
-               "price_basis", "lowest_offer_usd", "offer_count")
+               "price_basis", "lowest_offer_usd", "offer_count", "interruptible")
 
 
 def _tokens(s: str) -> list[str]:
@@ -246,7 +268,8 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
             "note": "Price changes among tracked providers only (daily snapshots; points are change points)."}
 
 
-def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None) -> dict:
+def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
+                       on_demand_only: bool = False) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     q = _tokens(gpu)
@@ -259,12 +282,22 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             and set(q) <= set(_tokens(r.get("gpu", "")))]
     if not rows:
         raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
+    excluded = 0
+    if on_demand_only:
+        keep = [r for r in rows if tier_class(r) == "on-demand"]
+        excluded = len(rows) - len(keep)
+        if not keep:
+            raise DealError("not_found", f"No on-demand tracked price for GPU '{gpu}' ({excluded} spot/community/marketplace/monthly rates exist; retry without on_demand_only)")
+        rows = keep
     rows.sort(key=lambda r: (r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    od = next((r for r in rows if tier_class(r) == "on-demand"), None)
     results = []
     for i, r in enumerate(rows[:limit], 1):
         out = {k: r.get(k) for k in RATE_FIELDS}
         out["hourly_usd"] = out.pop("hourly_equiv_usd")
         out["checked_at"] = out.pop("verified_at")
+        out["tier_class"] = tier_class(r)
+        out["tier_note"] = TIER_NOTES[out["tier_class"]]
         out["rank"] = i
         results.append(out)
     c = results[0]
@@ -276,8 +309,13 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     + (f"; variable marketplace median, lowest offer ${c['lowest_offer_usd']:g}/hr"
                        if c.get("price_status") == "marketplace" else "")
                     + (f"; sold only as {c['min_gpus']}-GPU instances" if (c.get("min_gpus") or 1) > 1 else "")
+                    + f". Tier: {results[0]['tier_class']}."
+                    + ("" if results[0]["tier_class"] == "on-demand" or od is None else
+                       f" Cheapest on-demand: {od['advertiser']} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
                     + ". This is the cheapest among tracked providers only, not the whole market. "
-                    "Vendors with stale published prices are held out."),
+                    "Vendors with stale published prices are held out.").replace("). .", ").").replace(".. ", ". "),
+        "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
+        "tier_classes": TIER_NOTES,
         "scope": "cheapest among tracked providers",
         "total": len(rows), "count": len(results), "results": results,
         "sorted_by": "hourly_usd ascending (monthly plans converted at hours_per_month)",

@@ -29,6 +29,9 @@ def write_history(gen) -> dict:
     return hist
 
 
+from core.deals import latest_checked_at  # noqa: E402
+
+
 def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     data = build_rates(deals)
     if data["problems"]:  # invalid pricing records fail the build instead of silently dropping rates
@@ -36,7 +39,10 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     payload = {
         "schema": "lantern-works-gpu-prices/1",
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
-        "feed_updated_at": feed_updated,
+        # Derived from the data, never build time (audit T8/M5): the newest of the deal feed's updated_at and every rate's verified_at.
+        "feed_updated_at": latest_checked_at([feed_updated] + [r.get("verified_at") for r in data["rates"]]),
+        "prices_verified_through": latest_checked_at(r.get("verified_at") for r in data["rates"]),
+        "deal_feed_updated_at": feed_updated,
         "hours_per_month": HOURS_PER_MONTH,
         "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
         "methodology": [

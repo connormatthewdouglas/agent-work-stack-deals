@@ -73,7 +73,9 @@ def test_budget_needs_complete_estimate():
 def test_pulled_and_blocked_vendors_excluded(monkeypatch):
     # cheapest GPU row's deal becomes pulled: it must disappear from every option
     r0 = a.plan("100 GPU hours", DEALS, STACK, GPU)
-    top = r0["lines"][0]["choice"]["deal_id"]
+    l0 = r0["lines"][0]
+    # cheapest row that is backed by a feed deal (rows from vendors without a deal id can't be pulled)
+    top = next(x["deal_id"] for x in [l0["choice"]] + l0["alternatives"] if x.get("deal_id"))
     monkeypatch.setattr(compliance, "PULLED_ID_SHA256", compliance.PULLED_ID_SHA256 | {hashlib.sha256(top.encode()).hexdigest()})
     r = a.plan("100 GPU hours", DEALS, STACK, GPU)
     ids = [r["lines"][0]["choice"]["deal_id"]] + [x["deal_id"] for x in r["lines"][0]["alternatives"]]

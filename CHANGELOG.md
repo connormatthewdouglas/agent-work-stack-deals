@@ -2,6 +2,17 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 2026-10-29: MCP server 0.3.9 (audit fixes)
+
+- GPU comparison table: the "Full month" column now equals each row's own rate × 730 h (flat monthly plans as listed). Rows from vendors without a deal id were showing another row's monthly total.
+- Every GPU rate now has a `tier_class`: on-demand, community, marketplace, interruptible (spot/preemptible) or dedicated-monthly. Pages label non-on-demand rows and have an "On-demand only" filter. `compare_gpu_prices` takes `on_demand_only=true`, and when the cheapest rate isn't on-demand the summary also names the cheapest on-demand rate.
+- Removed the Ucartz Radeon 780M row (an integrated GPU, not a dedicated GPU rental). Integrated GPUs now fail validation. The Ucartz deal now starts at the cheapest dedicated-GPU plan (RTX 4090, $798.72/mo).
+- `feed_updated_at` and the /stack/ "Data as of" date now come from the data: the newest price check or feed update. New `prices_verified_through` field.
+- The "By GPU model" table counts every rate, so it adds up to the headline total.
+- /install/ lists all 7 tools, read from the server code.
+- Added SaladCloud RTX 4090 (Lowest/Batch priority, $0.16/hr, interruptible) from salad.com/pricing.
+- Display name is now GPU-first ("Lantern Works GPU Prices"). The package name `lantern-works-deals-mcp` is unchanged.
+
 ## 2026-10-28 (evening): MCP server 0.3.8
 
 - Fix: `get_price_changes(since=...)` no longer returns a blank `data_checked_at`. When the history source has no per-row check time, it falls back to the newest daily snapshot date and says so in the new `data_checked_at_basis` field.

@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -50,15 +51,21 @@ def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     esc = gen.esc
     trs = []
     for i, r in enumerate(rows, 1):
+        tc = r.get("tier_class") or "on-demand"
+        badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
         trs.append(
-            f"<tr><td>{i}</td><td>{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
+            f"<tr data-tier=\"{esc(tc)}\"><td>{i}</td><td>{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
             f"<td>{_vendor_link(gen, r)}</td>"
-            f"<td>{esc(r['tier'])}</td><td>{esc(_rate_str(r))}</td>"
-            f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[(r['deal_id'], r['gpu'], r['tier'])])}</td>"
+            f"<td>{esc(r['tier'])}{badge}</td><td>{esc(_rate_str(r))}</td>"
+            f"<td><strong>{_money(r['monthly_cost_usd'])}</strong></td><td>{_money(full[_key(r)])}</td>"
             f"<td><a href=\"{esc(r['source_url'] or '')}\" rel=\"noopener\">“{esc(r['basis'])}”</a></td>"
             f"<td>{esc((r['verified_at'] or '')[:10])}</td><td>{'referral' if r['affiliate'] else 'public'}</td></tr>")
-    return ("<div style=\"overflow-x:auto\"><table class=\"howto\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
-            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th>Full month ({HOURS_PER_MONTH} h)</th><th>Vendor quote</th>"
+    tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
+    filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
+            f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
+            "(hides spot/interruptible, community-hosted, marketplace and flat monthly rates; those are labelled in the Type column)</p>")
+    return (filt + f"<div style=\"overflow-x:auto\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
+            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
             "<th>Verified</th><th>Label</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>")
 
 
@@ -77,8 +84,27 @@ def _faq_html(gen, faqs) -> str:
     return "\n".join(f"<h3>{gen.esc(q)}</h3>\n<p>{gen.esc(a)}</p>" for q, a in faqs)
 
 
+def _od_note(gen, rows, cheapest) -> str:
+    """When the overall cheapest isn't on-demand, say so and name the cheapest on-demand rate (audit T9/M6)."""
+    tc = cheapest.get("tier_class") or "on-demand"
+    if tc == "on-demand":
+        return " (on-demand)"
+    od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand"), None)
+    tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {gen.esc(od['advertiser'])} {gen.esc(od['gpu'])} ({gen.esc(od['tier'])}) at "
+            f"{_money(od['monthly_cost_usd'])}") if od else "; no on-demand rate is tracked for this model"
+    return f" — note: that rate is <strong>{gen.esc(tc)}</strong>{tail}"
+
+
 def _full_map(rates):
-    return {(r["deal_id"], r["gpu"], r["tier"]): r["monthly_cost_usd"] for r in estimate(rates, HOURS_PER_MONTH)}
+    """Full-month cost per row, keyed by the row's full identity. (deal_id, gpu, tier) was NOT unique: vendors without a
+    deal_id (Lambda, Verda, DigitalOcean...) collided, so a row could show another row's monthly total. Per row:
+    hourly rate x 730 h x GPUs billed (min_gpus when sold only as multi-GPU instances); flat monthly = monthly price."""
+    out = {}
+    for r in rates:
+        k = _key(r)
+        assert k not in out, f"duplicate GPU rate identity {k}"
+        out[k] = estimate([r], HOURS_PER_MONTH)[0]["monthly_cost_usd"]
+    return out
 
 
 def _freshness(rows) -> str:
@@ -90,7 +116,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     rows = estimate(fam["rates"], DEFAULT_HOURS)
     full = _full_map(fam["rates"])
     hourly = sorted((r for r in rows if r["unit"] == "hour"), key=lambda r: r["price_usd"])
-    by_full = sorted(rows, key=lambda r: full[(r["deal_id"], r["gpu"], r["tier"])])
+    by_full = sorted(rows, key=lambda r: full[_key(r)])
     fresh = _freshness(rows)
     path = f"gpu/cheapest-{slug}-rental"
     url = f"{gen.BASE}/{path}/"
@@ -108,7 +134,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     f0 = by_full[0]
     faqs.append((f"What does a full month of {name} cost?",
                  f"Running one GPU all month ({HOURS_PER_MONTH} h), the lowest verified option among tracked providers is {f0['advertiser']} {f0['gpu']} "
-                 f"({f0['tier']}) at about {_money(full[(f0['deal_id'], f0['gpu'], f0['tier'])])}."))
+                 f"({f0['tier']}) at about {_money(full[_key(f0)])}."))
     if any(r["tier"] == "Community Cloud" for r in rows):
         faqs.append(("What is the difference between RunPod Community Cloud and Secure Cloud?",
                      "Both are per-hour pods. Community Cloud runs on vetted third-party hosts and costs less; Secure Cloud runs in "
@@ -129,7 +155,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/price-comparison/">GPU prices</a> › {gen.esc(name)}</nav>
   <h1>{gen.esc(name)} rental: cheapest among tracked providers</h1>
   <p class="meta">Prices verified through {fresh} · {len(rows)} offers from {len(fam['vendors'])} vendors · sorted by cost for {DEFAULT_HOURS} GPU hours/month</p>
-  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{gen.esc(cheapest['advertiser'])} {gen.esc(cheapest['gpu'])} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
+  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{gen.esc(cheapest['advertiser'])} {gen.esc(cheapest['gpu'])} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
 {_table(gen, rows, full)}
   <p>Basis: hourly rate × hours; dedicated servers are a flat monthly price. One GPU. Excludes storage, egress and tax.</p>
 {accuracy_html(gen, fam['rates'])}{changes_html(gen, slug)}  <h2>FAQ</h2>
@@ -160,6 +186,19 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(f['rates'])}</td><td>{gen.esc(', '.join(f['vendors']))}</td>"
                        f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
+    # Every ranked rate is counted exactly once in the model table (audit T6/M3): families first, then each other model.
+    others = {}
+    for r in rates:
+        if family_of(r["gpu"]) is None:
+            others.setdefault(r["gpu"], []).append(r)
+    for name in sorted(others):
+        rs = others[name]
+        lo = min(rs, key=lambda r: r["hourly_equiv_usd"])
+        summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
+                       f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
+                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
+    counted = sum(len(f["rates"]) for f in fams.values()) + sum(len(v) for v in others.values())
+    assert counted == len(rates) == gen.live_rate_count(), (counted, len(rates), gen.live_rate_count())
     title = f"GPU rental price comparison: {gen.live_rate_count()} verified rates (H100, H200, A100, L40S, RTX 4090) — {fresh}"
     desc = f"Compare verified cloud GPU rental prices from {', '.join(vendors)}: per-hour and monthly, sorted by cost, with vendor quotes and dates."
     faqs = [
@@ -173,7 +212,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
   <h1>GPU rental price comparison</h1>
   <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
-  <h2>By GPU model</h2>
+  <h2>By GPU model (all {len(rates)} rates)</h2>
   <table class="howto"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest rate</th></tr></thead><tbody>
 {chr(10).join(summary)}
   </tbody></table>
@@ -194,19 +233,23 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
 # ---------- original comparisons, built only from rates verified on the latest check date ----------
 
 def _key(r):
-    return (r["deal_id"], r["gpu"], r["tier"])
+    """Unique identity of one published rate (vendor + GPU + VRAM + tier + GPUs per server + unit)."""
+    return (r["advertiser"], r["gpu"], r.get("vram_gb"), r["tier"], r.get("gpu_count") or 1, r["unit"])
 
 
 def _today_rates(rates):
-    day = max((r["verified_at"] or "")[:10] for r in rates)
-    return day, [r for r in rates if (r["verified_at"] or "")[:10] == day and r["unit"] == "hour"]
+    """All current hourly rates (stale vendors are already held out upstream); day = newest check among them.
+    Previously only rates checked on the single newest day were used, which emptied the pages whenever one vendor
+    was verified a day later than the rest."""
+    rs = [r for r in rates if r["unit"] == "hour"]
+    return max((r["verified_at"] or "")[:10] for r in rs), rs
 
 
 def _cmp_page(gen, path, title, desc, h1, crumb, intro, sections, rows_ld, faqs, day):
     url = f"{gen.BASE}/{path}/"
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/price-comparison/">GPU prices</a> › {gen.esc(crumb)}</nav>
   <h1>{gen.esc(h1)}</h1>
-  <p class="meta">Checked on {day} against each vendor's public pricing page · sorted by cost · referral status never affects order</p>
+  <p class="meta">Prices checked through {day} (each row is from its vendor's public pricing page) · sorted by cost · referral status never affects order</p>
   <p>{intro}</p>
 {sections}
 {accuracy_html(gen, rows_ld)}  <h2>FAQ</h2>
@@ -299,7 +342,7 @@ def write_h100_vs(gen, rates):
     c = rows[0]
     secure = [r for r in rows if r["tier"] != "Community Cloud"]
     faqs = [("Which of RunPod, Thunder Compute and Modal is cheapest among tracked providers for an H100?",
-             f"On {day}, the lowest listed H100 rate of the three was {c['advertiser']} {c['gpu']} ({c['tier']}) at {_rate_str(c)}, "
+             f"As of {day}, the lowest listed H100 rate of the three was {c['advertiser']} {c['gpu']} ({c['tier']}) at {_rate_str(c)}, "
              f"or {_money(c['monthly_cost_usd'])} for {DEFAULT_HOURS} GPU hours."),
             ("What is the cheapest tracked H100 outside a community marketplace?",
              f"{secure[0]['advertiser']} {secure[0]['gpu']} ({secure[0]['tier']}) at {_rate_str(secure[0])}." if secure else "None listed."),

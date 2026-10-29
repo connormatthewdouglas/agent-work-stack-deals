@@ -92,7 +92,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <p>Describe the agent you're building. A keyword parse (no AI model) maps it to components (GPU, scraping, proxies,
   search API, LLM API, email, hosting, database, monitoring) and shows the cheapest option with a cited price among
   tracked providers. Where no tracked vendor publishes a price, it says <strong>{esc(a.NO_DATA)}</strong>. Vendors we
-  don't track may cost less. Referral links are labelled and never affect ranking. Data as of {esc(feed_updated[:10])}.</p>
+  don't track may cost less. Referral links are labelled and never affect ranking. Data as of {esc((sp.get('feed_updated_at') or feed_updated)[:10])} (newest price check in the data).</p>
   <form id="sf" onsubmit="return false" hidden>
     <label class="wide">What does your agent do? <textarea id="d" rows="3" style="width:100%" placeholder="{esc(PRESETS[0][1])}"></textarea></label>
     <p><button type="button" id="go">Plan it</button></p>

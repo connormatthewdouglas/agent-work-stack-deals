@@ -21,6 +21,14 @@ EXAMPLE_GPU = "H100"
 DEFAULT_VIEW = ("gpu_hours",)  # shown by default; scraping, proxy, email and search sit behind the "more needs" toggle
 
 
+from core.deals import latest_checked_at  # noqa: E402
+
+
+def _gpu_verified() -> list:
+    p = ROOT / "api" / "v1" / "gpu-prices.json"
+    return [r.get("verified_at") for r in json.loads(p.read_text(encoding="utf-8")).get("rates", [])] if p.exists() else []
+
+
 def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     data = stack.build_payload(deals, base=gen.BASE)
     if data.pop("problems"):
@@ -29,7 +37,9 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "schema": "lantern-works-stack-pricing/1",
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
         "gpu_prices": f"{gen.BASE}/api/v1/gpu-prices.json",
-        "feed_updated_at": feed_updated,
+        # Derived from the data, never build time (audit T8/M5): newest of the deal feed, every offer's checked_at and GPU rates' verified_at.
+        "feed_updated_at": latest_checked_at([feed_updated] + [o.get("checked_at") for o in data.get("offers") or []] + _gpu_verified()),
+        "deal_feed_updated_at": feed_updated,
         "ranking": f"Per need, the {stack.TRACKED}, by estimated monthly cost. Affiliate status is not a ranking factor.",
         "methodology": [
             "Offers come from structured per-vendor records (data/stack_pricing/<vendor>.json in the repo); each has the vendor quote, source_url and checked_at, and the same daily job as GPU prices re-fetches every source_url.",

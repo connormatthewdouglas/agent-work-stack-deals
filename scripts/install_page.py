@@ -10,7 +10,16 @@ from pathlib import Path
 PATH = "install"
 TESTED_ON = "2026-10-28"
 TESTED_VERSION = "0.3.8"
-TOOLS = ("compare_gpu_prices", "optimize_stack", "optimize_agent_stack", "search_deals", "compare_deals", "get_deal")
+def _server_tools() -> tuple[str, ...]:
+    """Tool names straight from mcp_server/server.py (every @mcp.tool function), so the page can't drift (audit T2/M1)."""
+    import re
+    src = (Path(__file__).resolve().parents[1] / "mcp_server" / "server.py").read_text(encoding="utf-8")
+    names = re.findall(r"@mcp\.tool\([^)]*\)\n(?:@\w+\n)*def (\w+)\(", src)
+    order = ["compare_gpu_prices", "get_price_changes", "optimize_stack", "optimize_agent_stack", "search_deals", "compare_deals", "get_deal"]
+    return tuple(sorted(names, key=lambda n: (order.index(n) if n in order else len(order), n)))
+
+
+TOOLS = _server_tools()
 CFG = {"command": "uvx", "args": ["lantern-works-deals-mcp"]}
 CURSOR_LINK = "cursor://anysphere.cursor-deeplink/mcp/install?name=lantern-works-deals&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJsYW50ZXJuLXdvcmtzLWRlYWxzLW1jcCJdfQ=="
 VSCODE_LINK = ("https://vscode.dev/redirect/mcp/install?name=lantern-works-deals&config="

@@ -97,6 +97,17 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>2026-10-29: MCP server 0.3.9 (audit fixes)</h2>
+<ul>
+<li>GPU comparison table: the &quot;Full month&quot; column now equals each row&#x27;s own rate × 730 h (flat monthly plans as listed). Rows from vendors without a deal id were showing another row&#x27;s monthly total.</li>
+<li>Every GPU rate now has a <code>tier_class</code>: on-demand, community, marketplace, interruptible (spot/preemptible) or dedicated-monthly. Pages label non-on-demand rows and have an &quot;On-demand only&quot; filter. <code>compare_gpu_prices</code> takes <code>on_demand_only=true</code>, and when the cheapest rate isn&#x27;t on-demand the summary also names the cheapest on-demand rate.</li>
+<li>Removed the Ucartz Radeon 780M row (an integrated GPU, not a dedicated GPU rental). Integrated GPUs now fail validation. The Ucartz deal now starts at the cheapest dedicated-GPU plan (RTX 4090, $798.72/mo).</li>
+<li><code>feed_updated_at</code> and the /stack/ &quot;Data as of&quot; date now come from the data: the newest price check or feed update. New <code>prices_verified_through</code> field.</li>
+<li>The &quot;By GPU model&quot; table counts every rate, so it adds up to the headline total.</li>
+<li>/install/ lists all 7 tools, read from the server code.</li>
+<li>Added SaladCloud RTX 4090 (Lowest/Batch priority, $0.16/hr, interruptible) from salad.com/pricing.</li>
+<li>Display name is now GPU-first (&quot;Lantern Works GPU Prices&quot;). The package name <code>lantern-works-deals-mcp</code> is unchanged.</li>
+</ul>
 <h2>2026-10-28 (evening): MCP server 0.3.8</h2>
 <ul>
 <li>Fix: <code>get_price_changes(since=...)</code> no longer returns a blank <code>data_checked_at</code>. When the history source has no per-row check time, it falls back to the newest daily snapshot date and says so in the new <code>data_checked_at_basis</code> field.</li>
