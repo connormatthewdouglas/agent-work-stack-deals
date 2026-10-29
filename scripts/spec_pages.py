@@ -13,6 +13,8 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from xml.sax.saxutils import escape as xesc
 
+import gpu_pages as gp
+
 ROOT = Path(__file__).resolve().parents[1]
 API = ROOT / "api" / "v1"
 SCHEMAS = {"prices": ("gpu-prices.json", "lantern-works-gpu-prices/1"),
@@ -121,9 +123,21 @@ def price_cell(gen, r) -> str:
 def vendor_link(gen, r) -> str:
     q = gen.esc((r.get("evidence") or {}).get("quote") or "")
     out = f'<a href="{gen.esc(r["source_url"])}" title="{q}" rel="noopener">{gen.esc(r["advertiser"])}</a>'
-    if r.get("affiliate"):
-        out += " <small>referral" + (" (referral credit)" if r.get("offer_type") == "credit_only_referral" else "") + "</small>"
     return out
+
+
+def link_word(r) -> str:
+    return "Referral link" if r.get("affiliate") else "Direct link"
+
+
+def link_cell(gen, r) -> str:
+    """H4: link type in words, plus the redeem link when there is one."""
+    w = link_word(r)
+    return f'<a href="{gen.esc(r["redeem_url"])}" rel="sponsored nofollow noopener">{w}</a>' if r.get("redeem_url") else w
+
+
+LEGEND = ("<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; "
+          "\u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. ")
 
 
 def deal_link(gen, r) -> str:
@@ -206,15 +220,22 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         rs = by_b[b]
         if not rs:
             continue
-        hdr = "<tr><th>Vendor</th><th>Variant</th><th>VRAM</th><th>Tier</th><th>$/GPU-hr</th><th>Since " + esc(prev) + "</th><th>Egress / storage</th><th>Verified</th><th></th></tr>"
+        has_av = any(((r.get("availability") or {}).get("in_stock") is not None) for r in rs)
+        hdr = ("<tr><th>Vendor</th><th>Variant</th><th>VRAM</th><th>Tier</th><th>$/GPU-hr</th><th>Since " + esc(prev) + "</th><th>Egress / storage</th><th>Vendor quote</th><th>Verified</th>"
+               + ("<th>Availability (manual snapshot)</th>" if has_av else "") + "<th>Link</th></tr>")
         trs = []
         for r in rs:
             ex = (vend.get(r["advertiser"]) or {}).get("extras") or {}
             ext = "; ".join(f"{k}: {esc(ex[k]['text'])}" if ex.get(k, {}).get("status") == "published" else f"{k}: not published / not verified" for k in ("egress", "storage"))
-            trs.append(f"<tr><td>{vendor_link(gen, r)}</td><td>{esc(r['gpu'])}</td><td>{r['vram_gb'] or ''} GB</td><td>{esc(r['tier'])}</td><td>{esc(price_cell(gen, r))}</td>"
-                       f"<td>{change_text(gen, ch, key(r), prev)}</td><td><small>{ext}</small></td><td><small>{ts(r['verified_at'])}</small>{recheck_flag(r)}</td><td>{deal_link(gen, r)}</td></tr>")
+            trs.append(f"<tr><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
+                       f"<td data-label=\"Since {esc(prev)}\">{change_text(gen, ch, key(r), prev)}</td><td data-label=\"Egress / storage\"><small>{ext}</small></td><td data-label=\"Vendor quote\">{gp._quote_html(esc, r)}</td>"
+                       f"<td data-label=\"Verified\"><small>{ts(r['verified_at'])}</small>{recheck_flag(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
+                       + f"<td data-label=\"Link\">{link_cell(gen, r)}</td></tr>")
         label = b + (" (reservation / term contract; excluded from the cheapest among tracked providers ranking)" if b == "Reserved" else "")
-        body.append(f"<h2>{esc(label)}</h2><div style=\"overflow-x:auto\"><table class=\"howto\"><thead>{hdr}</thead><tbody>{''.join(trs)}</tbody></table></div>")
+        av_note = ("<strong>Availability:</strong> \u201c\u2014\u201d means no stock signal for that offer; where shown, it is a manual snapshot and stock changes within minutes, so it is not a guarantee."
+                   if has_av else "<strong>Availability</strong> is hidden because no vendor here publishes a stock signal yet.")
+        body.append(f"<h2>{esc(label)}</h2><div class=\"tscroll rates-cards\"><table class=\"howto\"><thead>{hdr}</thead><tbody>{''.join(trs)}</tbody></table></div>"
+                    + LEGEND + "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. " + av_note + "</p>")
     if not show7:
         body.append(f"<p><small>7-day change appears once price history spans 7 days (history starts {esc(history['first_snapshot'])}).</small></p>")
     held = [h for h in prices.get("held_stale", []) if any(family(x.get("gpu", "")) == fam for x in h.get("records", []))]
@@ -297,11 +318,12 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
             diff = abs(x - y); pct = diff / max(x, y) * 100 if max(x, y) else 0
             win = "tie" if x == y else (sa if x < y else sb)
             fam = family(k[1]); g = f'<a href="{gpu_url(gen, fam)}">{esc(k[1])}</a>' if fam in quals else esc(k[1])
-            trs.append(f"<tr><td>{g}</td><td>{k[2] or ''} GB</td><td>{esc(price_cell(gen, ra))} <small>({esc(ra['tier'])})</small> {deal_link(gen, ra)}</td>"
-                       f"<td>{esc(price_cell(gen, rb))} <small>({esc(rb['tier'])})</small> {deal_link(gen, rb)}</td><td>{m(diff)} ({pct:.0f}%)</td>"
-                       f"<td>{esc(sa)}: {change_text(gen, ch, key(ra), prev)}<br>{esc(sb)}: {change_text(gen, ch, key(rb), prev)}</td><td><strong>{esc(win)}</strong></td></tr>")
-        body.append(f"<h2>{esc(bk)}</h2><div style=\"overflow-x:auto\"><table class=\"howto\"><thead><tr><th>GPU</th><th>VRAM</th><th>{vendor_link(gen, ca[ks[0]]).split('</a>')[0]}</a> $/GPU-hr</th>"
-                    f"<th>{esc(sb)} $/GPU-hr</th><th>Diff (vs dearer)</th><th>Since {esc(prev)}</th><th>Cheaper</th></tr></thead><tbody>{''.join(trs)}</tbody></table></div>")
+            trs.append(f"<tr><td data-label=\"GPU\">{g}</td><td data-label=\"VRAM\">{k[2] or ''} GB</td><td data-label=\"{esc(sa)} $/GPU-hr\">{esc(price_cell(gen, ra))} <small>({esc(ra['tier'])})</small> · {link_cell(gen, ra)}<br>{gp._quote_html(esc, ra)}</td>"
+                       f"<td data-label=\"{esc(sb)} $/GPU-hr\">{esc(price_cell(gen, rb))} <small>({esc(rb['tier'])})</small> · {link_cell(gen, rb)}<br>{gp._quote_html(esc, rb)}</td><td data-label=\"Diff (vs dearer)\">{m(diff)} ({pct:.0f}%)</td>"
+                       f"<td data-label=\"Since {esc(prev)}\">{esc(sa)}: {change_text(gen, ch, key(ra), prev)}<br>{esc(sb)}: {change_text(gen, ch, key(rb), prev)}</td><td data-label=\"Cheaper\"><strong>{esc(win)}</strong></td></tr>")
+        body.append(f"<h2>{esc(bk)}</h2><div class=\"tscroll rates-cards\"><table class=\"howto\"><thead><tr><th>GPU</th><th>VRAM</th><th>{vendor_link(gen, ca[ks[0]]).split('</a>')[0]}</a> $/GPU-hr</th>"
+                    f"<th>{esc(sb)} $/GPU-hr</th><th>Diff (vs dearer)</th><th>Since {esc(prev)}</th><th>Cheaper</th></tr></thead><tbody>{''.join(trs)}</tbody></table></div>"
+                    + LEGEND + "Each price cell has a short excerpt of the vendor's pricing page; open it for the full text and source.</p>")
     only = {v: sorted({k[1] for k in c} - set(gpus)) for v, c in ((sa, ca), (sb, cb))}
     if any(only.values()):
         body.append("<details><summary>GPUs only one vendor prices</summary>" + "".join(f"<p>{esc(v)}: {esc(', '.join(g))}</p>" for v, g in only.items() if g) + "</details>")
@@ -343,7 +365,7 @@ def write_changes(gen, feeds) -> str:
     body = (f'<nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/">GPU prices</a> › Changes</nav>'
             f"<h1>GPU price changes</h1><p class=\"meta\">Per GPU-hour moves among tracked providers, {esc(h['first_snapshot'])} to {esc(h['last_snapshot'])} ({h['snapshot_count']} daily snapshots). Same data as the <code>get_price_changes</code> MCP tool.</p>"
             f"<p>Subscribe: <a href=\"{gen.BASE}/gpu/changes.xml\">/gpu/changes.xml</a> (RSS) · JSON: {feed_links(gen)}</p>"
-            + (f"<div style=\"overflow-x:auto\"><table class=\"howto\"><thead><tr><th>Date</th><th>Vendor</th><th>GPU</th><th>Tier</th><th>Old → new</th><th>Change</th></tr></thead><tbody>{trs}</tbody></table></div>" if chs else "<p>No price moves recorded yet.</p>")
+            + (f"<div class=\"tscroll\"><table class=\"howto sticky1\"><thead><tr><th>Date</th><th>Vendor</th><th>GPU</th><th>Tier</th><th>Old → new</th><th>Change</th></tr></thead><tbody>{trs}</tbody></table></div>" if chs else "<p>No price moves recorded yet.</p>")
             + __import__("gpu_pages").accuracy_html(gen, rankable(feeds["prices"]))
             + f"<p><a href=\"{gen.BASE}/docs/watch-gpu-prices/\">How to watch GPU prices from an agent</a></p>")
     write(gen, "gpu/changes", "GPU price changes (daily) | Lantern Works", "Daily GPU rental price moves among tracked providers, with old and new per-GPU-hour prices and vendor sources.", canon, body,
