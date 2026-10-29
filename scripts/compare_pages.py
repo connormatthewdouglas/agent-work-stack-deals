@@ -421,7 +421,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
   <p>{p['intro']}</p>
   <p><small>{price_coverage_note(known, len(rows))} Always confirm at checkout. Order: vendor discounts, then free tiers, then standard signups, A–Z. Affiliate status does not affect order.</small></p>
   <h2>Comparison table</h2>
-  <div style="overflow-x:auto"><table>
+  <div class="tscroll"><table>
   <thead><tr><th>Provider</th><th>Offer</th><th>Published pricing</th><th>Free option</th></tr></thead>
   <tbody>
   {''.join(tr)}

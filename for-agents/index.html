@@ -55,6 +55,8 @@
     table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     table:not(.howto) th { background: #f3f3f3; }
     /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
     .codebox { position: relative; margin: .5rem 0 1rem; }
     .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
     .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
@@ -123,14 +125,14 @@
   <p>The catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists 204 deals (schema <code>1.6.0</code>, feed updated <code>2026-10-29T09:30:00-04:00</code>).</p>
 
   <h2>Endpoints</h2>
-  <table class="howto"><tbody>
+  <div class="tscroll"><table class="howto"><tbody>
     <tr><td>Stable versioned feed</td><td><a href="https://thelanternworks.com/api/v1/deals.json">https://thelanternworks.com/api/v1/deals.json</a></td></tr>
     <tr><td>Feed (same bytes)</td><td><a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a></td></tr>
     <tr><td>JSON Schema</td><td><a href="https://thelanternworks.com/schema.json">https://thelanternworks.com/schema.json</a> (draft 2020-12, version <code>1.6.0</code>)</td></tr>
     <tr><td>Install (MCP / skill)</td><td><a href="https://thelanternworks.com/install/">https://thelanternworks.com/install/</a> (Claude Code, Claude Desktop, Cursor, VS Code, generic)</td></tr>
     <tr><td>Agent manifest</td><td><a href="https://thelanternworks.com/agent.json">https://thelanternworks.com/agent.json</a></td></tr>
     <tr><td>Mirror</td><td><a href="https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json">gist raw deals.json</a> (byte-identical)</td></tr>
-  </tbody></table>
+  </tbody></table></div>
   <p>Pin to <code>/api/v1/deals.json</code> for integrations. Check <code>schema_version</code>: minor bumps only add fields or enum values.</p>
 
   <h2>Record shape</h2>
@@ -143,14 +145,14 @@
   </ul>
 
   <h2>Offer types</h2>
-  <table class="howto"><thead><tr><th><code>offer_type</code></th><th>Meaning</th><th>Deals</th></tr></thead><tbody>
+  <div class="tscroll"><table class="howto"><thead><tr><th><code>offer_type</code></th><th>Meaning</th><th>Deals</th></tr></thead><tbody>
 <tr><td><code>verified_discount</code></td><td>Vendor-published discount or code, confirmed on the vendor page (verified_at set).</td><td>4</td></tr>
 <tr><td><code>free_tier</code></td><td>Ongoing free plan.</td><td>36</td></tr>
 <tr><td><code>listed_discount</code></td><td>Discount listed for the offer but not confirmed on the vendor page (verified_at null). Treat as unverified.</td><td>5</td></tr>
 <tr><td><code>trial</code></td><td>Time-limited or one-time free credit.</td><td>6</td></tr>
 <tr><td><code>standard_referral</code></td><td>Normal pricing through a signup/referral link (no discount).</td><td>150</td></tr>
 <tr><td><code>credit_only_referral</code></td><td>Referral where the referrer earns platform credit; no buyer discount.</td><td>3</td></tr>
-  </tbody></table>
+  </tbody></table></div>
 
   <h2>Examples</h2>
   <pre>curl -fsSL https://thelanternworks.com/api/v1/deals.json   | jq '[.deals[] | select(.category=="search" and .offer_type=="free_tier") | {id, advertiser, unit, redeem_url}]'</pre>

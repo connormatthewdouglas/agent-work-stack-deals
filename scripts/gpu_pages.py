@@ -312,9 +312,9 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
   <p class="meta"><small>{rate_count_note(gen, _DEALS)}</small></p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
   <h2>By GPU model (all {len(rates)} rates)</h2>
-  <table class="howto"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest pay-as-you-go rate (reserved excluded)</th></tr></thead><tbody>
+  <div class="tscroll"><table class="howto sticky1"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest pay-as-you-go rate (reserved excluded)</th></tr></thead><tbody>
 {chr(10).join(summary)}
-  </tbody></table>
+  </tbody></table></div>
   <p>Comparisons: {" · ".join(f'<a href="{gen.BASE}/{p}/">{n}</a>' for p, n in _LINKS)}</p>
   <p>Models get their own page once they have at least {MIN_OFFERS} verified offers from {MIN_VENDORS} vendors.</p>
   <h2>All verified rates</h2>
@@ -364,7 +364,7 @@ def _cmp_page(gen, path, title, desc, h1, crumb, intro, sections, rows_ld, faqs,
 
 
 def _simple_table(head, rows):
-    return ("<div style=\"overflow-x:auto\"><table class=\"howto\"><thead><tr>" + "".join(f"<th>{h}</th>" for h in head)
+    return ("<div class=\"tscroll\"><table class=\"howto sticky1\"><thead><tr>" + "".join(f"<th>{h}</th>" for h in head)
             + "</tr></thead><tbody>\n" + "\n".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in rows)
             + "\n</tbody></table></div>")
 

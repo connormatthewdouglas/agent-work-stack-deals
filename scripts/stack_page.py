@@ -60,8 +60,8 @@ def render_plan(gen, r: dict) -> str:
     rows = "".join(_row(gen, l) for l in r["lines"])
     total = (f'<p><strong>Estimate: {esc(r["estimate_math"])}</strong>' if r["estimate_math"] else "<p><strong>No cited prices for these components.</strong>") + \
             ("" if r["estimate_is_complete"] else f' Incomplete: no monthly figure for {esc(", ".join(r["missing_components"]))}.') + "</p>"
-    return (f'<table><thead><tr><th>Component</th><th>Monthly</th><th>Cheapest cited option</th><th>Source</th></tr></thead>'
-            f'<tbody>{rows}</tbody></table>{total}')
+    return (f'<div class="tscroll"><table class="sticky1"><thead><tr><th>Component</th><th>Monthly</th><th>Cheapest cited option</th><th>Source</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></div>{total}')
 
 
 def write(gen, deals: list[dict], feed_updated: str) -> str:
@@ -122,7 +122,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     if(opt.length)h+='<p><a href="'+S.opt+(p.toString()?"?"+p:"")+'"><strong>Price '+opt.map(c=>E(S.labels[c])).join(", ")+' in the Stack Optimizer</strong></a> ('+(Object.keys(r.q).length?"quantities prefilled; check them":"add monthly quantities there")+")</p>";
     const rows=r.comps.filter(c=>S.entry[c]).map(c=>{{const x=S.entry[c].row;if(!x)return "<tr><td>"+E(S.labels[c])+"</td><td colspan=3><strong>"+E(S.nodata)+"</strong></td></tr>";
       return "<tr><td>"+E(S.labels[c])+"</td><td>"+E(x.calc)+"</td><td>"+(x.deal_url?'<a href="'+E(x.deal_url)+'">'+E(x.vendor)+"</a>":E(x.vendor))+(x.manual_signup_only?" <strong>Manual signup only</strong>":"")+(x.referral_disclosure?"<br><small>"+E(x.referral_disclosure)+"</small>":"")+'</td><td><a href="'+E(x.source_url)+'" rel="noopener">source</a> <small>checked '+E(String(x.verified_at).slice(0,10))+"</small></td></tr>"}}).join("");
-    if(rows)h+="<p>Cheapest cited entry prices (your usage may need a bigger plan):</p><table><thead><tr><th>Component</th><th>Price</th><th>Vendor</th><th>Source</th></tr></thead><tbody>"+rows+"</tbody></table>";
+    if(rows)h+="<p>Cheapest cited entry prices (your usage may need a bigger plan):</p><div class='tscroll'><table class='sticky1'><thead><tr><th>Component</th><th>Price</th><th>Vendor</th><th>Source</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
     $("res").innerHTML=h;document.dispatchEvent(new CustomEvent("lw:event",{{detail:"stack"}}))}}
   $("go").addEventListener("click",show);$("sf").hidden=false;
   </script>

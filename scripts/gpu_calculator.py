@@ -90,7 +90,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     <label><input id="flat" type="checkbox" checked> Include flat monthly servers</label>
   </form>
   <p><span id="summary" aria-live="polite"></span> <a id="permalink" href="?">Link to this estimate</a></p>
-  <div style="overflow-x:auto"><table class="howto" id="results"><thead><tr><th>Est. / month</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Link</th></tr></thead><tbody></tbody></table></div>
+  <div class="tscroll"><table class="howto" id="results"><thead><tr><th>Est. / month</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Link</th></tr></thead><tbody></tbody></table></div>
   <noscript><p>The calculator needs JavaScript. The same data is at <a href="{api}">{api}</a>.</p></noscript>
 
   <h2>Calculation basis</h2>

@@ -114,12 +114,12 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <noscript><p>The interactive optimizer needs JavaScript. Below is a worked example and every tracked offer; agents can call the <code>optimize_stack</code> MCP tool or read <a href="{api}">{api}</a>.</p></noscript>
 
   <h2 id="example">Example: {EXAMPLE["gpu_hours"]} {EXAMPLE_GPU} hours a month</h2>
-  <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Cheapest tracked plan</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>{gpu_rows}</tbody></table></div>
+  <div class="tscroll"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Cheapest tracked plan</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>{gpu_rows}</tbody></table></div>
   <p>Compare every GPU rate on the <a href="{gen.BASE}/gpu/">GPU price comparison</a>.</p>
 
   <details id="more-needs"><summary>More needs: scraping, proxies, email and search (full-stack example and every tracked offer)</summary>
   <h3>Example: 50,000 pages + 10 GB residential proxies + 10,000 emails + 100 H100 hours</h3>
-  <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Cheapest tracked plan</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>{ex_rows}</tbody></table></div>
+  <div class="tscroll"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Cheapest tracked plan</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>{ex_rows}</tbody></table></div>
   <p>Total of priced lines: <strong>${example["total_monthly_usd"]:,.2f}/month</strong>{"" if example["total_is_complete"] else " (some needs have no published price)"}.{" Manual signup needed for: " + esc(", ".join(example["manual_signup_needs"])) + "." if example["manual_signup_needs"] else ""}</p>
 
   <h2>How it's calculated</h2>
@@ -131,7 +131,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     <li>Prices are re-fetched from each source page daily; confirm on the vendor page before you spend.</li>
   </ul>
   <h3>Every tracked offer</h3>
-  <div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Vendor plan</th><th>Price</th><th>Included</th><th>Overage</th><th>Vendor quote · checked</th></tr></thead><tbody>{offers_rows}</tbody></table></div>
+  <div class="tscroll"><table class="howto"><thead><tr><th>Need</th><th>Vendor plan</th><th>Price</th><th>Included</th><th>Overage</th><th>Vendor quote · checked</th></tr></thead><tbody>{offers_rows}</tbody></table></div>
   </details>
   <p>GPU hours use the <a href="{gen.BASE}/tools/gpu-cost-calculator/">GPU cost calculator</a> data.</p>
   <h2>For agents</h2>
@@ -188,7 +188,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
       if(!c){{unk.push(l.need.label);return `<tr>${{head}}<td><strong>No published price</strong></td><td colspan="3">No tracked provider publishes a price that covers this volume.${{more}}</td></tr>`}}
       tot+=c.monthly_cost_usd;
       return `<tr>${{head}}<td><strong>${{fmt(c.monthly_cost_usd)}}</strong></td><td><a href="${{esc(c.redeem_url||c.deal_url)}}" rel="nofollow sponsored noopener" data-deal="${{esc(c.deal_id)}}">${{esc(c.vendor)}}</a> ${{esc(c.plan)}}${{c.manual_signup_only?" <strong>Manual signup only</strong>":""}}<br><small>${{esc(c.calc)}}</small>${{more}}</td><td>${{src(c)}}</td><td><small>${{esc(c.assumptions.join(" "))}}</small></td></tr>`}}).join("");
-    $("out").innerHTML=`<p><strong>Estimated ${{fmt(tot)}}/month</strong> for the priced lines${{unk.length?`; no published price for: ${{esc(unk.join(", "))}}`:""}}. Cheapest among tracked providers per need.</p><div style="overflow-x:auto"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Plan (calculation)</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>${{rows}}</tbody></table></div>`;
+    $("out").innerHTML=`<p><strong>Estimated ${{fmt(tot)}}/month</strong> for the priced lines${{unk.length?`; no published price for: ${{esc(unk.join(", "))}}`:""}}. Cheapest among tracked providers per need.</p><div class="tscroll"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Plan (calculation)</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>${{rows}}</tbody></table></div>`;
   }}
   const DEF={json.dumps(list(DEFAULT_VIEW))};
   function read(){{const q={{}},more=$("showmore").checked;for(const k of N)q[k]=(DEF.includes(k)||more)?Math.max(0,+$("n-"+k).value||0):0;return q}}

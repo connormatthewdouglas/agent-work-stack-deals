@@ -1333,6 +1333,8 @@
     table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     table:not(.howto) th { background: #f3f3f3; }
     /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
     .codebox { position: relative; margin: .5rem 0 1rem; }
     .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
     .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
@@ -1416,7 +1418,7 @@
     <p class="wide" style="margin:0"><span id="f-count" aria-live="polite"></span> · <a id="f-link" href="./">Link to these results</a></p>
   </form>
   <noscript><p class="meta">Search, filters and side-by-side compare need JavaScript. All deals are listed below by category, and the <a href="/ai-agent-tool-deals/">comparison pages</a> work without it.</p></noscript>
-  <section id="cmp-view" hidden aria-labelledby="cmp-h" tabindex="-1"><h2 id="cmp-h">Side-by-side comparison</h2><div id="cmp-table" style="overflow-x:auto"></div></section>
+  <section id="cmp-view" hidden aria-labelledby="cmp-h" tabindex="-1"><h2 id="cmp-h">Side-by-side comparison</h2><div id="cmp-table" class="tscroll"></div></section>
   <div id="cmp-tray" hidden role="region" aria-label="Compare selection"><span id="cmp-n"></span><button type="button" id="cmp-go">Compare side by side</button><button type="button" id="cmp-clear">Clear</button></div>
 
   <main id="content"><section id="cat-ai-agents" class="catsec"><details open><summary><h2 class="section-title">Agent deals: ai-agents <small>(35)</small></h2></summary>
@@ -3483,7 +3485,7 @@
     <h2 class="section-title" style="margin-top:0;">How agents should query this</h2>
     <p>Public JSON feed (no auth). Default filter posture is <strong>real-only</strong> (skip <code>example: true</code>). Default order is <strong>customer value</strong>: real discounts, then verified free tiers, then standard signups, A–Z by vendor. Affiliate status is not a ranking factor. Production inventory is live Lantern Works listings.</p>
     <p class="feed" style="margin:.6rem 0;">GET <a href="https://thelanternworks.com/deals.json">https://thelanternworks.com/deals.json</a></p>
-    <table>
+    <div class="tscroll"><table>
       <thead><tr><th>Filter</th><th>Meaning</th></tr></thead>
       <tbody>
         <tr><td><code>category</code></td><td>Exact category (<code>compute</code>, <code>email</code>, <code>hosting</code>, <code>search</code>, <code>unblock</code>, …)</td></tr>
@@ -3496,7 +3498,7 @@
         <tr><td><code>real_only</code></td><td>Default; exclude <code>example == true</code></td></tr>
         <tr><td><code>id</code></td><td>Exact deal id</td></tr>
       </tbody>
-    </table>
+    </table></div>
     <p><strong>curl + local filter</strong></p>
     <pre>curl -fsSL "https://thelanternworks.com/deals.json"   | python3 -c 'import json,sys; d=json.load(sys.stdin)
 print([x["id"] for x in d["deals"] if x.get("category")=="search" and x.get("affiliate")])'</pre>

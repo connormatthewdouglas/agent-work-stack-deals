@@ -55,6 +55,8 @@
     table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
     table:not(.howto) th { background: #f3f3f3; }
     /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
     .codebox { position: relative; margin: .5rem 0 1rem; }
     .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
     .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
@@ -147,7 +149,7 @@
   <p>The same GPU name can mean different hardware. SXM modules link GPUs over NVLink and run at higher power limits than PCIe cards, so an H100 SXM is usually faster than an H100 PCIe, especially for multi-GPU training. Interconnect between GPUs and nodes (NVLink, InfiniBand, plain Ethernet) is rarely listed on pricing pages; treat it as unknown unless the vendor states it. VRAM decides which models fit at all. Hardware as listed: H200 141 GB (not stated); H200 SXM 141 GB (SXM); H200 SXM 141 GB (not stated).</p>
   <h3>Egress and storage extras</h3>
   <p>Totals on this page exclude these. Each cell cites the vendor page it came from; "Not published" means the vendor doesn't publish it there.</p>
-<div style="overflow-x:auto"><table class="howto"><thead><tr><th>Vendor</th><th>Egress</th><th>Storage</th><th>Interruption / billing terms</th></tr></thead><tbody>
+<div class="tscroll"><table class="howto sticky1"><thead><tr><th>Vendor</th><th>Egress</th><th>Storage</th><th>Interruption / billing terms</th></tr></thead><tbody>
 <tr><td>CoreWeave</td><td>Not published: Not verified in this pass. (<a href="https://www.coreweave.com/pricing" rel="noopener">checked 2026-10-28</a>)</td><td>Not published: Not verified in this pass. (<a href="https://www.coreweave.com/pricing" rel="noopener">checked 2026-10-28</a>)</td><td>On-Demand Price per hour is for the whole 8-GPU instance (GH200: 1 GPU). (<a href="https://www.coreweave.com/pricing" rel="noopener">source, 2026-10-28</a>)</td></tr>
 <tr><td>DigitalOcean GPU Droplets</td><td>Not published: Not verified in this pass. (<a href="https://www.digitalocean.com/pricing/gpu-droplets" rel="noopener">checked 2026-10-28</a>)</td><td>Not published: Not verified in this pass. (<a href="https://www.digitalocean.com/pricing/gpu-droplets" rel="noopener">checked 2026-10-28</a>)</td><td>On-Demand Price per GPU/hour; separate spot GPU Droplets are interruptible. (<a href="https://www.digitalocean.com/pricing/gpu-droplets" rel="noopener">source, 2026-10-28</a>)</td></tr>
 <tr><td>Hyperstack</td><td>Not published: Not published on the pricing page. (<a href="https://www.hyperstack.cloud/gpu-pricing" rel="noopener">checked 2026-10-29</a>)</td><td>Not published: Not published on the pricing page. (<a href="https://www.hyperstack.cloud/gpu-pricing" rel="noopener">checked 2026-10-29</a>)</td><td>On-demand, Spot VM (interruptible) and Reservation prices are listed separately; billed per minute. Reservation prices are &#x27;starting from&#x27; commitments and are never treated as on-demand. (<a href="https://www.hyperstack.cloud/gpu-pricing" rel="noopener">source, 2026-10-29</a>)</td></tr>
