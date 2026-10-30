@@ -307,15 +307,12 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown",
+        "in_stock": null,
         "checked_at": "2026-10-30T15:36:12Z",
-        "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "max_age_hours": 8,
-        "availability_expires_at": "2026-10-30T23:36:12Z",
-        "stock_level": "Low"
+        "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "origin": "scout"
       }
     },
     {
@@ -464,21 +461,15 @@
       "source_url": "https://oblivus.com/pricing/",
       "quote": "H100 80GB PCIE ... Available Stock 0 Configurations H100_PCIE_80GB_x1 1x GPU - 28 vCPU - 180GB RAM - 850GB NVMe ... On-Demand: $3.50/hr",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:17Z",
-        "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
         "max_age_hours": 8,
-        "availability_expires_at": "2026-10-30T23:21:17Z",
-        "available_regions": null,
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:21:17Z",
-        "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page",
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:21 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "origin": "scout",
+        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "availability_expires_at": "2026-10-30T23:21:17Z"
       }
     },
     {
@@ -580,21 +571,15 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $3.99/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-30 11:36 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-30T15:36:12Z",
-        "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
         "max_age_hours": 8,
-        "availability_expires_at": "2026-10-30T23:36:12Z",
-        "stock_level": "Low",
-        "available_regions": null,
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:36:18Z",
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:36 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "origin": "scout",
+        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "availability_expires_at": "2026-10-30T23:36:12Z"
       }
     },
     {
@@ -693,22 +678,16 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.793/h",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:13Z",
-        "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
         "max_age_hours": 8,
-        "availability_expires_at": "2026-10-30T23:21:13Z",
-        "available_regions": null,
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:21:13Z",
+        "origin": "scout",
+        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:21 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "availability_expires_at": "2026-10-30T23:21:13Z"
       }
     },
     {

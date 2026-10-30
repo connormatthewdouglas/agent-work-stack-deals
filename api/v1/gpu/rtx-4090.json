@@ -324,21 +324,12 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown",
+        "in_stock": null,
         "checked_at": "2026-10-30T15:36:12Z",
-        "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "max_age_hours": 8,
-        "availability_expires_at": "2026-10-30T23:36:12Z",
-        "stock_level": "Low",
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:38:31Z",
-        "available_regions": null,
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:38 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "origin": "scout"
       }
     },
     {
