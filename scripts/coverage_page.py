@@ -40,12 +40,20 @@ def _in_stock(r, now):
     return exp is None or exp > now
 
 
+def is_serverless(r: dict) -> bool:
+    return "serverless" in str(r.get("tier") or "").lower()
+
+
 def build(doc: dict, now: datetime | None = None, survey: dict | None = None) -> dict:
     # Reference time is the feed's own timestamp so rebuilds are deterministic; static feeds already drop
     # claims within 25 min of expiry, and consumers must still enforce availability_expires_at.
     now = now or _ts(doc.get("feed_updated_at")) or datetime.now(timezone.utc)
     models: dict[str, dict] = {}
+    excluded = 0
     for r in doc.get("rates") or []:
+        if is_serverless(r):  # Gauge re32: serverless/preemptible rows are not dedicated capacity
+            excluded += 1
+            continue
         slug = family_of(r["gpu"])
         key = slug or "other:" + r["gpu"]
         m = models.setdefault(key, {"model": FAMILIES[slug] if slug else r["gpu"], "family": slug,
@@ -89,6 +97,7 @@ def build(doc: dict, now: datetime | None = None, survey: dict | None = None) ->
                             "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
                             "not listed": "vendor absent from the model's vendors map",
                             "vendor_lists (separate)": "vendor's public catalogue names the model (survey); not a price, not a stock claim; 'listed, no sourced price' = catalogue shows it without a price we could source"},
+            "excluded_serverless_rows": excluded,
             "counts": {"models_tracked": len(tracked),
                        "targets_tracked": sum(1 for s in TARGETS if models[s]["status"] == "tracked"),
                        "targets_total": len(TARGETS),
@@ -126,7 +135,7 @@ def _page(cov: dict, base: str) -> str:
     return f"""  <nav class="crumbs"><a href="{base}/">Lantern Works</a> › GPU coverage</nav>
   <h1>GPU coverage: which models and vendors we track</h1>
   <p>Every GPU model below has at least one rate sourced from the vendor's own page. Built from the live <a href="{base}/api/v1/gpu-prices.json">GPU price feed</a> (feed updated {e(str(cov["feed_updated_at"] or ""))}; stock as of {e(cov["as_of"])}). Machine-readable: <a href="{base}/api/v1/coverage.json">/api/v1/coverage.json</a>.</p>
-  <p><strong>{c["models_tracked"]}</strong> GPU models across <strong>{c["vendors"]}</strong> vendors; {c["targets_tracked"]} of {c["targets_total"]} target models tracked. <strong>in stock</strong> = a current in-stock claim at build time; <strong>priced</strong> = sourced rate with no current stock claim (unknown, not sold out); <strong>·</strong> = not listed. Stock claims expire; check <code>availability_expires_at</code> in the feed.</p>
+  <p><strong>{c["models_tracked"]}</strong> GPU models across <strong>{c["vendors"]}</strong> vendors; {c["targets_tracked"]} of {c["targets_total"]} target models tracked. <strong>in stock</strong> = a current in-stock claim at build time; <strong>priced</strong> = sourced rate with no current stock claim (unknown, not sold out); <strong>·</strong> = not listed. Serverless, preemptible rows (e.g. Modal) are excluded from this matrix. Stock claims expire; check <code>availability_expires_at</code> in the feed.</p>
   <p>Not yet tracked (no sourced rows yet, so no price shown): {nyt}. See <a href="#vendor-lists">what vendors list</a> for models a vendor offers that are not priced here yet.</p>
   <div style="overflow-x:auto"><table class="cov"><thead><tr><th scope="col">GPU</th>{head}</tr></thead><tbody>
 {chr(10).join(rows)}

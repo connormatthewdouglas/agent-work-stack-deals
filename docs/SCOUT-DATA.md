@@ -29,7 +29,7 @@ GPU availability on the site comes from Lantern Scout snapshots. The pipeline ru
    - **Publishing:** it commits only if something changed, then dispatches the gated Pages deploy.
    - **deals.json:** it never changes deals.json. If deals.json would change, it stops without publishing, which keeps the public gist in lockstep.
    - **Timing:** it shares the `gpu-refresh` concurrency group with the daily price refresh. The refresh's 14:47 UTC fallback slot also rebuilds pages and feeds.
-3. **Expiry.** A stock claim past its `availability_expires_at` shows as "unknown (stale availability, last checked …)". This applies on the site, in `compare_gpu_prices`, and in the reader's browser (see CHANGELOG 0.3.30). The limit is 1 hour for Lambda, Verda, region and region-derived claims, and 8 hours for marketplace overall claims (Vast, Clore). If Scout stops publishing, claims expire instead of going stale silently.
+3. **Expiry.** A stock claim past its `availability_expires_at` shows as "unknown (stale availability, last checked …)". This applies on the site, in `compare_gpu_prices`, and in the reader's browser (see CHANGELOG 0.3.30). The limit is 1 hour for Lambda, Verda, region and region-derived claims, 1 hour for Vast marketplace overall claims, and 8 hours for Clore marketplace overall claims. If Scout stops publishing, claims expire instead of going stale silently.
 
 ## Triggers (decided 2026-10-30)
 

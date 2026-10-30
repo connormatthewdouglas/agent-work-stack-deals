@@ -4,6 +4,13 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.52 (2026-10-30)
+
+- /coverage/: serverless, preemptible rows (Modal A100, H100, H200, L40S) are excluded from the matrix and its counts; `excluded_serverless_rows` reports how many.
+- gpu-prices.json carries Scout's `generation_id` and `availability_collected_at`, and `feed_updated_at` now moves on every availability import.
+- Stock-claim expiry wording: Vast marketplace overall claims last at most 1 hour (Scout v35b); Clore stays at 8 hours.
+- CI live checks: a vendor pricing page is retried once, and a single vendor timing out is a warning, not a failure. The Pages deploy no longer waits on the docker job.
+
 ## 0.3.51 (2026-10-30)
 
 - Wider GPU model coverage: model families for B200, B300, GB300, GH200, H200 NVL, H100 NVL, MI300X, MI250, L4, A10, A10G, A40, RTX 6000 Ada, Quadro RTX 6000, RTX PRO 6000, RTX A4000, T4 and V100, alongside the existing ones. Names follow `<MODEL> [<FORM>] <VRAM>GB` (e.g. `B200 SXM 192GB`, `V100 16GB`); `H100 SXM 80GB` resolves to the existing `H100 SXM` rows. Families match the longest name at a word boundary, so `L4` never takes L40/L40S, `A10` never takes A100/A10G, and `Quadro RTX 6000`, `RTX 6000 Ada` and `RTX PRO 6000` stay apart. Compare, estimate, eligibility and watches accept these names; an unknown model is still `not_found`.

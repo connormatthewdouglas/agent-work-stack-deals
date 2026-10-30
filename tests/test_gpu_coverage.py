@@ -1,4 +1,4 @@
-"""0.3.51: wider GPU model coverage (Bjorn) and /coverage/."""
+"""0.3.52: wider GPU model coverage (Bjorn) and /coverage/."""
 from __future__ import annotations
 
 import copy
@@ -112,7 +112,8 @@ def test_coverage_layers_separate():
 
 def test_coverage_json_built_from_feed():
     cov = json.loads((ROOT / "api" / "v1" / "coverage.json").read_text())
-    feed = {(family_of(r["gpu"]) or r["gpu"], r["advertiser"]) for r in BASE["rates"]}
+    feed = {(family_of(r["gpu"]) or r["gpu"], r["advertiser"]) for r in BASE["rates"] if not coverage_page.is_serverless(r)}
+    assert cov["excluded_serverless_rows"] >= 1 and all(m["vendors"].get("Modal") is None for m in cov["models"])
     cells = {(m["family"] or m["model"], v) for m in cov["models"] for v in m["vendors"]}
     assert cells == feed
     assert all(m["vendors"] == {} for m in cov["models"] if m["status"] == "not yet tracked")

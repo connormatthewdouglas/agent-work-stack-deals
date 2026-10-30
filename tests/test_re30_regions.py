@@ -1,4 +1,4 @@
-"""re30 (0.3.51): real Scout region labels normalise to country + zone (original label kept); SXM4/PCIe5 fold to the
+"""re30 (0.3.52): real Scout region labels normalise to country + zone (original label kept); SXM4/PCIe5 fold to the
 feed's family names everywhere; a region query leads the summary with what it found."""
 from __future__ import annotations
 

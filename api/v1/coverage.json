@@ -2,14 +2,15 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-10-30T21:45:00Z",
-  "as_of": "2026-10-30T21:45:00Z",
+  "feed_updated_at": "2026-10-30T22:22:09Z",
+  "as_of": "2026-10-30T22:22:09Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
     "not listed": "vendor absent from the model's vendors map",
     "vendor_lists (separate)": "vendor's public catalogue names the model (survey); not a price, not a stock claim; 'listed, no sourced price' = catalogue shows it without a price we could source"
   },
+  "excluded_serverless_rows": 5,
   "counts": {
     "models_tracked": 16,
     "targets_tracked": 16,
@@ -28,8 +29,8 @@
       "H100 NVL",
       "GB300"
     ],
-    "vendors": 25,
-    "cells_priced_or_in_stock": 74,
+    "vendors": 23,
+    "cells_priced_or_in_stock": 69,
     "cells_in_stock": 11,
     "survey_cells_listed": 53,
     "survey_models_listed_not_priced": [
@@ -69,9 +70,7 @@
     "E2E Networks",
     "Hyperstack",
     "Jarvislabs",
-    "Koyeb",
     "Lambda",
-    "Modal",
     "Nebius",
     "Nova Cloud",
     "Novita AI",
@@ -137,11 +136,6 @@
           "checked_at": "2026-10-30T17:35:13+00:00",
           "stock_checked_at": "2026-10-30T22:22:09Z"
         },
-        "Modal": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-10-30T17:35:19+00:00"
-        },
         "Oblivus": {
           "status": "in stock",
           "rows": 1,
@@ -183,7 +177,7 @@
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
-      "vendor_count": 14,
+      "vendor_count": 13,
       "in_stock_vendor_count": 5
     },
     {
@@ -237,11 +231,6 @@
           "rows": 3,
           "checked_at": "2026-10-30T17:35:13+00:00"
         },
-        "Modal": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-10-30T17:35:19+00:00"
-        },
         "Nebius": {
           "status": "priced",
           "rows": 1,
@@ -276,7 +265,7 @@
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
-      "vendor_count": 14,
+      "vendor_count": 13,
       "in_stock_vendor_count": 3
     },
     {
@@ -301,16 +290,6 @@
           "status": "priced",
           "rows": 1,
           "checked_at": "2026-10-30T17:34:44+00:00"
-        },
-        "Koyeb": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-10-30T17:35:07+00:00"
-        },
-        "Modal": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-10-30T17:35:19+00:00"
         },
         "Nebius": {
           "status": "priced",
@@ -342,7 +321,7 @@
         "Clore.ai": "listed",
         "RunPod": "listed"
       },
-      "vendor_count": 10,
+      "vendor_count": 8,
       "in_stock_vendor_count": 0
     },
     {
@@ -430,11 +409,6 @@
           "rows": 2,
           "checked_at": "2026-10-30T17:34:57+00:00"
         },
-        "Modal": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-10-30T17:35:19+00:00"
-        },
         "Nebius": {
           "status": "priced",
           "rows": 1,
@@ -455,7 +429,7 @@
         "Oblivus": "listed, no sourced price",
         "RunPod": "listed"
       },
-      "vendor_count": 7,
+      "vendor_count": 6,
       "in_stock_vendor_count": 0
     },
     {

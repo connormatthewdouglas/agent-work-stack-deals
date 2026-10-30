@@ -45,6 +45,16 @@ UA = "Mozilla/5.0 (compatible; LanternWorksPriceCheck/1.0; +https://thelanternwo
 
 
 def fetch(url: str) -> tuple[int | None, str]:
+    """Gauge re32: one retry on a network error or 5xx before a page counts as unreachable."""
+    st, body = _fetch(url)
+    if st is None or st >= 500:
+        import time
+        time.sleep(5)
+        st, body = _fetch(url)
+    return st, body
+
+
+def _fetch(url: str) -> tuple[int | None, str]:
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,*/*"})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
@@ -158,6 +168,11 @@ def main() -> int:
                 warnings += [f"unverifiable from CI ({GEO_VARIANT[doc['vendor']]}): {m}" for m in miss]
             else:
                 flags += miss
+    # Gauge re32: a single vendor timing out (after the retry) is a warning, not a failure; two or more still fail.
+    tmo = [f for f in flags if f.startswith("unreachable:") and re.search(r"time(d)? ?out", f, re.I)]
+    if len({(re.search(r"https?://([^/ ]+)", f) or re.search(r"(.*)", f)).group(1) for f in tmo}) == 1:
+        flags = [f for f in flags if f not in tmo]
+        warnings += [f"single vendor timeout tolerated: {f}" for f in tmo]
     n = sum(len(d["records"]) for d in docs) + sum(len(d["offers"]) for d in sdocs)
     summary = f"{len(docs) + len(sdocs)} vendor files, {n} records, {checked} prices re-found on live pages, {len(flags)} flag(s), {len(warnings)} warning(s)"
     print(summary)

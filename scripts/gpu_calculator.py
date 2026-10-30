@@ -40,13 +40,19 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     data = build_rates(deals)
     if data["problems"]:  # invalid pricing records fail the build instead of silently dropping rates
         raise SystemExit("gpu pricing records invalid:\n  " + "\n  ".join(data["problems"]))
+    try:  # Gauge re32: carry Scout's generation and bump feed_updated_at on every availability import
+        _av = json.loads((Path(gen.ROOT) / "data" / "gpu_availability" / "latest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        _av = {}
     payload = {
         "schema": "lantern-works-gpu-prices/1",
         "license": DATA_LICENSE,
         "report_issue": REPORT_ISSUE,
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
         # Derived from the data, never build time (audit T8/M5): the newest of the deal feed's updated_at and every rate's verified_at.
-        "feed_updated_at": latest_checked_at([feed_updated] + [r.get("verified_at") for r in data["rates"]]),
+        "feed_updated_at": latest_checked_at([feed_updated, _av.get("collected_at")] + [r.get("verified_at") for r in data["rates"]]),
+        "generation_id": _av.get("generation_id"),
+        "availability_collected_at": _av.get("collected_at"),
         "prices_verified_through": latest_checked_at(r.get("verified_at") for r in data["rates"]),
         "deal_feed_updated_at": feed_updated,
         "hours_per_month": HOURS_PER_MONTH,
