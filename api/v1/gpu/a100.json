@@ -103,16 +103,12 @@
         "source_url": "https://verda.com/pricing",
         "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.609/h $0.8045/h",
         "availability": {
-          "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
+          "status": "unknown",
           "in_stock": null,
-          "availability_stale": true,
           "checked_at": "2026-10-30T17:42:24Z",
-          "max_age_hours": 8,
-          "origin": "scout",
-          "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-          "derived_from_regions": true,
-          "source_label": "authenticated vendor API (not publicly reproducible)",
-          "availability_expires_at": "2026-10-30T17:57:24Z"
+          "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+          "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+          "origin": "scout"
         }
       },
       {
@@ -214,16 +210,12 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.609/h $0.8045/h",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T17:42:24Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T17:57:24Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -367,16 +359,12 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.248/h $1.124/h",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T17:42:24Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T17:57:24Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -435,7 +423,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T17:35:48Z",
+        "checked_at": "2026-10-30T17:52:49Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -485,7 +473,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T17:35:48Z",
+        "checked_at": "2026-10-30T17:52:49Z",
         "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -668,8 +656,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T17:35:45Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+        "checked_at": "2026-10-30T17:52:47Z",
+        "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
       }
@@ -692,15 +680,15 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 13:35 ET)",
+        "status": "unknown (stale availability, last checked 2026-10-30 13:52 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-10-30T17:35:45Z",
+        "checked_at": "2026-10-30T17:52:47Z",
         "max_age_hours": 8,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
         "derived_from_regions": true,
-        "availability_expires_at": "2026-10-30T18:35:45Z"
+        "availability_expires_at": "2026-10-30T18:52:47Z"
       }
     },
     {
