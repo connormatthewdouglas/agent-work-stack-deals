@@ -156,21 +156,23 @@ jobs:
     needs: [changes]
     if: needs.changes.outputs.data_only != 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Wait for the pinned release on PyPI (up to 10 min)
+      - name: Wait for the pinned release on PyPI JSON API (up to 20 min), then build with no pip cache
         run: |
           ver=$(sed -n 's/.*lantern-works-deals-mcp==\([0-9.]*\).*/\1/p' Dockerfile)
+          ok=
           for i in $(seq 1 40); do
-            curl -fsS "https://pypi.org/pypi/lantern-works-deals-mcp/$ver/json" >/dev/null && pip download -q --no-deps -d /tmp/pw "lantern-works-deals-mcp==$ver" && { echo "PyPI has $ver"; exit 0; }
-            echo "waiting for $ver on PyPI ($i/40)"; sleep 15
+            curl -fsS -H 'Cache-Control: no-cache' "https://pypi.org/pypi/lantern-works-deals-mcp/json" | python3 -c "import json,sys;sys.exit(0 if '$ver' in json.load(sys.stdin)['releases'] else 1)" && { echo "PyPI lists $ver"; ok=1; break; }
+            echo "waiting for $ver on PyPI ($i/40)"; sleep 30
           done
-          echo "lantern-works-deals-mcp==$ver not on PyPI after 10 min" >&2; exit 1
-      - run: docker build -t lantern-works-deals-mcp .
+          [ -n "$ok" ] || { echo "lantern-works-deals-mcp==$ver not on PyPI after 20 min" >&2; exit 1; }
+          for i in 1 2 3 4; do docker build --no-cache -t lantern-works-deals-mcp . && exit 0; echo "docker build failed ($i/4), retrying"; sleep $((30 * i)); done
+          exit 1
       - name: Docker stdio tool calls
         run: |
           ver=$(sed -n 's/.*lantern-works-deals-mcp==\([0-9.]*\).*/\1/p' Dockerfile)
