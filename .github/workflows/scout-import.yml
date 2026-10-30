@@ -95,6 +95,9 @@ jobs:
           for i in 1 2 3 4; do
             git add -A
             git commit -qm "data: Scout availability import/rebuild $(python3 -c 'import json;print(json.load(open("data/gpu_availability/latest.json")).get("collected_at"))')"
+            # the index pins the commit that last changed gpu-prices.json, which only exists now: second pass, own commit
+            python3 scripts/gpu_index.py . api/v1 > /dev/null && python3 scripts/generate_seo_pages.py > /dev/null
+            if [ -n "$(git status --porcelain)" ]; then git add -A && git commit -qm "data: pin GPU index to the feed commit"; fi
             if git push origin HEAD:main; then pushed=1; break; fi
             echo "push rejected; resetting to origin/main and rebuilding (attempt $i)"
             git fetch -q origin main && git reset -q --hard origin/main
