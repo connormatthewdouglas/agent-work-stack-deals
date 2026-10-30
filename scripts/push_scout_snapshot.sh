@@ -11,6 +11,17 @@ for f in availability_v2_latest.json feed_enriched_v2_latest.json; do
   [ -s "$OUT/$f" ] || { echo "missing $f in the out dir" >&2; exit 2; }
 done
 W="$(mktemp -d)"; trap 'rm -rf "$W"' EXIT
+SCOUT_MSG_PY="$W/msg.py"
+cat > "$SCOUT_MSG_PY" <<'PY'
+import json, re, sys
+from pathlib import Path
+d = Path(sys.argv[1]); raw = json.loads((d / "availability_v2_latest.json").read_text())
+gid = raw.get("generation_id")
+m = re.match(r"^(\d{8}T\d{6}Z)-", gid or "")
+at = (m.group(1)[:4] + "-" + m.group(1)[4:6] + "-" + m.group(1)[6:8] + "T" + m.group(1)[9:11] + ":" + m.group(1)[11:13] + ":" + m.group(1)[13:15] + "Z") if m else None
+# unknown stays unknown: no generation_id -> say so, and keep collected_at only as a labeled fallback
+print(f"scout snapshot {at} gen {gid}" if m else f"scout snapshot gen unknown (collected_at {raw.get('collected_at')})")
+PY
 git -c credential.helper= -c credential.helper='!gh auth git-credential' clone -q --depth 1 --branch scout-data "$REPO_URL" "$W/r" 2>/dev/null \
   || { echo "could not clone scout-data (check gh auth status)" >&2; exit 3; }
 mkdir -p "$W/r/latest"
@@ -39,8 +50,9 @@ PY
 cd "$W/r"
 git add -A latest
 if git diff --cached --quiet; then echo "scout-data: no change"; exit 0; fi
+# v3.3 (Scout): commit message = this generation, not the 4h cycle's collected_at (which a 20-min refresh does not change)
 git \
-  commit -qm "scout snapshot $(python3 -c 'import json;print(json.load(open("latest/manifest.json"))["collected_at"])')"
+  commit -qm "$(python3 "$SCOUT_MSG_PY" latest)"
 git -c credential.helper= -c credential.helper='!gh auth git-credential' push -q origin scout-data 2>/dev/null \
   || { echo "push to scout-data failed (check gh auth status)" >&2; exit 4; }
 echo "scout-data: pushed $(git rev-parse --short HEAD)"
