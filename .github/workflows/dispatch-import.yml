@@ -1,0 +1,17 @@
+# Lives only on the scout-data branch. GitHub cron is best-effort (hourly slots get dropped or start hours late),
+# so every Scout snapshot push starts the import on main directly. The hourly cron on main stays as a backstop
+# for claim expiry. GITHUB_TOKEN may start workflow_dispatch runs; $0 on the free plan.
+name: Dispatch Scout import on snapshot push
+on:
+  push:
+    branches: [scout-data]
+    paths: ["latest/manifest.json"]
+permissions:
+  actions: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run scout-import.yml --ref main -R "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}
