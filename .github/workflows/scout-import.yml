@@ -12,6 +12,7 @@ name: Scout availability import
 on:
   schedule:
     - cron: "15 * * * *"
+    - cron: "5,25,35,45,55 * * * *"  # N3 backstop: gated, does work only on a new snapshot or an expired claim
   workflow_dispatch:
 
 permissions:
@@ -51,7 +52,7 @@ jobs:
           expired += [r["availability"]["regions_expires_at"] for r in rates  # v2.9: region lists expire after 1 h
                       if isinstance(r.get("availability"), dict) and r["availability"].get("available_regions")
                       and r["availability"].get("regions_expires_at") and p(r["availability"]["regions_expires_at"]) <= now]
-          why = ("manual" if os.environ["EVENT"] != "schedule" else "4-hourly slot" if now.hour % 4 == 0
+          why = ("manual" if os.environ["EVENT"] != "schedule" else "4-hourly slot" if now.hour % 4 == 0 and 10 <= now.minute < 25
                  else "new snapshot" if m.get("collected_at") and m.get("collected_at") != cur
                  else f"{len(expired)} expired claims" if expired else "")
           print(f"run={'1' if why else '0'}")
@@ -78,6 +79,7 @@ jobs:
           run_import() {
             git fetch -q origin scout-data || return 3
             git show origin/scout-data:latest/feed_enriched_v2_latest.json > "$RUNNER_TEMP/feed.json" || return 3
+            git show origin/scout-data:latest/availability_v2_latest.json > "$RUNNER_TEMP/availability_v2_latest.json" || return 3
             # sha256 check against the push script's manifest.json (and Scout's latest_manifest.json if ever shipped); mismatch = refusal
             for mf in manifest.json latest_manifest.json; do
               git show "origin/scout-data:latest/$mf" > "$RUNNER_TEMP/$mf" 2>/dev/null || : > "$RUNNER_TEMP/$mf"

@@ -43,3 +43,59 @@ def test_held_and_expired_rows_never_available():
     assert out["in_stock"] is None and out["availability_expires_at"] == "2026-10-30T14:55:00Z"
     ok = g.stale_guard(short, datetime(2026, 10, 30, 14, 50, tzinfo=timezone.utc))
     assert ok["in_stock"] is True
+
+
+def _run_import(feed, env_extra, tmp_path):
+    env = {k: v for k, v in os.environ.items() if k not in ("LW_SCOUT_MANIFESTS", "LW_SCOUT_AVAIL")}
+    env.update(env_extra)
+    return subprocess.run([sys.executable, "scripts/import_scout_availability.py", str(feed)], cwd=ROOT, env=env,
+                          capture_output=True, text=True)
+
+
+def test_n4_tampered_30_without_or_against_manifest_refused(tmp_path):
+    feed = tmp_path / "feed_enriched_v2_latest.json"
+    feed.write_text(json.dumps({"version": "3.0", "rows": [{"vendor": "X", "in_stock": True}]}))
+    r = _run_import(feed, {}, tmp_path)  # no manifest at all
+    assert r.returncode != 0 and "no manifest" in r.stderr
+    m = tmp_path / "manifest.json"
+    m.write_text(json.dumps({"files": {"feed_enriched_v2_latest.json": "f" * 64}}))
+    r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m)}, tmp_path)
+    assert r.returncode != 0 and "sha256 mismatch" in r.stderr
+
+
+def test_n1_derived_claim_unknown_once_regions_expire():
+    from datetime import datetime, timezone
+    from core import gpu_availability as g
+    r = {"in_stock": True, "availability_checked_at": "2026-10-30T15:21:00Z", "availability_expires_at": "2026-10-30T23:21:00Z",
+         "derived_from_regions": True, "available_regions": ["MON1"],
+         "available_regions_detail": [{"region": "MON1", "availability_expires_at": "2026-10-30T16:21:00Z"}]}
+    a = g._scout("Oblivus", r)
+    assert g.stale_guard(a, datetime(2026, 10, 30, 16, 0, tzinfo=timezone.utc))["in_stock"] is True
+    out = g.stale_guard(a, datetime(2026, 10, 30, 16, 22, tzinfo=timezone.utc))
+    assert out["in_stock"] is None and not out.get("available_regions")
+    os.environ["LW_BUILD_HORIZON_MIN"] = "60"  # N3: at build time a claim expiring within the horizon is left out
+    try:
+        assert g.stale_guard(a, g.build_now(datetime(2026, 10, 30, 15, 30, tzinfo=timezone.utc)))["in_stock"] is None
+    finally:
+        del os.environ["LW_BUILD_HORIZON_MIN"]
+
+
+def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path):
+    from datetime import datetime, timezone, timedelta
+    t = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat(timespec="seconds").replace("+00:00", "Z")
+    row = {"vendor": "RunPod", "gpu": "H100 PCIe", "vram_gb": 80, "tier": "On-demand (Secure Cloud)", "in_live_feed": True,
+           "in_stock": True, "stock_level": "Low", "availability_checked_at": t, "availability_expires_at": t,
+           "available_regions": None}
+    feed = tmp_path / "feed_enriched_v2_latest.json"
+    feed.write_text(json.dumps({"version": "3.2", "rows": [row]}))
+    m = tmp_path / "manifest.json"
+    m.write_text(json.dumps({"files": {"feed_enriched_v2_latest.json": hashlib.sha256(feed.read_bytes()).hexdigest()}}))
+    out = ROOT / "data/gpu_availability/latest.json"
+    keep = out.read_bytes()
+    try:
+        r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m)}, tmp_path)
+        assert r.returncode == 0, r.stderr
+        got = json.loads(out.read_text())["rows"][0]
+        assert got["in_stock"] is None and got["stock_level"] is None and "no region" in got["availability_note"]
+    finally:
+        out.write_bytes(keep)

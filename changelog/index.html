@@ -128,6 +128,13 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.36</h2>
+<ul>
+<li>Gauge re19 fixes. N1: derived_from_regions is carried through, and an overall claim derived from regions becomes unknown when its regions expire, both at build time and in the MCP at request time.</li>
+<li>N2: a RunPod overall in-stock claim needs a region confirmed in stock. RunPod&#x27;s GPU-type-wide lowestPrice hint alone is now unknown.</li>
+<li>N3: at build time, any claim or region list that expires within 60 minutes (before the next rebuild) is written as unknown, so static HTML and JSON never hold an expired claim. A gated scout-import now also runs every 10 minutes as a backstop.</li>
+<li>N4: every Scout import must match a manifest sha256, whatever version the file claims; Scout&#x27;s availability file is checked too. T41-26 added.</li>
+</ul>
 <h2>0.3.35</h2>
 <ul>
 <li>Scout v3.2: feed_status (held_below_min_offers) and derived_from_regions carried through; a held row is never shown as available (status &quot;unknown (held: below minimum offers)&quot;).</li>

@@ -599,6 +599,26 @@ def _(f, ev):
     ev.update(json_region_rows=n_json, html_region_lists=n_html)
 
 
+
+@case("T41-26")
+def _(f, ev):
+    # re19 N1/N2: no in-stock claim past its own expiry; a claim derived from regions ends with its regions;
+    # a RunPod overall claim needs a confirmed region (the GPU-type-wide lowestPrice hint alone is not stock).
+    n = 0
+    for r in RATES:
+        a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
+        if a.get("in_stock") is not True:
+            continue
+        n += 1
+        if a.get("availability_expires_at") and NOW > ts(a["availability_expires_at"]):
+            f.append(f"{rid(r)} in stock past availability_expires_at {a['availability_expires_at']}")
+        if a.get("derived_from_regions") and (not a.get("regions_expires_at") or NOW > ts(a["regions_expires_at"])):
+            f.append(f"{rid(r)} region-derived claim in stock without live regions")
+        if r.get("advertiser") == "RunPod" and a.get("origin") == "scout" and not a.get("available_regions"):
+            f.append(f"{rid(r)} RunPod in stock with no confirmed region")
+    ev.update(in_stock_claims=n)
+
+
 passed = sum(r["status"] == "PASS" for r in results)
 doc = {"suite": "T41", "run_at_utc": NOW.isoformat(timespec="seconds"),
        "repo_head": subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip(),

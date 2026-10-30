@@ -10,6 +10,7 @@ import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+os.environ.setdefault("LW_BUILD_HORIZON_MIN", "60")  # N3: static output leaves out claims expiring before the next rebuild
 
 ROOT = Path(__file__).resolve().parents[1]
 DEALS_PATH = ROOT / "deals.json"

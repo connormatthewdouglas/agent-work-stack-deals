@@ -394,41 +394,13 @@
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:14:33Z",
         "offer_count": 5,
-        "available_regions_detail": [
-          {
-            "region": "FR",
-            "stock_level": null,
-            "checked_at": "2026-10-30T15:14:33Z",
-            "availability_expires_at": "2026-10-30T16:14:33Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null,
-            "offer_count": 1
-          },
-          {
-            "region": "TW",
-            "stock_level": null,
-            "checked_at": "2026-10-30T15:14:33Z",
-            "availability_expires_at": "2026-10-30T16:14:33Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null,
-            "offer_count": 1
-          },
-          {
-            "region": "US",
-            "stock_level": null,
-            "checked_at": "2026-10-30T15:14:33Z",
-            "availability_expires_at": "2026-10-30T16:14:33Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null,
-            "offer_count": 3
-          }
-        ],
+        "available_regions_detail": null,
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "regions_expires_at": "2026-10-30T16:14:33Z",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
+        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
+        "available_regions": null,
+        "regions_expired": true,
+        "regions_note": "region list expires at 12:14 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
       }
     },
     {
@@ -557,25 +529,13 @@
         "origin": "scout",
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:21:17Z",
-        "available_regions": [
-          "MON1 (CANADA, MONTREAL)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "MON1 (CANADA, MONTREAL)",
-            "stock_level": null,
-            "checked_at": "2026-10-30T15:21:17Z",
-            "availability_expires_at": "2026-10-30T16:21:17Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "available_gpus": 1,
-            "second_read_available_gpus": 1
-          }
-        ],
+        "available_regions": null,
+        "available_regions_detail": null,
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "regions_expires_at": "2026-10-30T16:21:17Z",
-        "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page"
+        "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page",
+        "regions_expired": true,
+        "regions_note": "region list expires at 12:21 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
       }
     },
     {
@@ -815,21 +775,14 @@
         "origin": "scout",
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:21:14Z",
-        "available_regions_detail": [
-          {
-            "region": "us-east-1",
-            "stock_level": null,
-            "checked_at": "2026-10-30T15:21:14Z",
-            "availability_expires_at": "2026-10-30T16:21:14Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null
-          }
-        ],
+        "available_regions_detail": null,
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "regions_expires_at": "2026-10-30T16:21:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "available_regions": null,
+        "regions_expired": true,
+        "regions_note": "region list expires at 12:21 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
       }
     },
     {
@@ -989,21 +942,14 @@
         "origin": "scout",
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:21:14Z",
-        "available_regions_detail": [
-          {
-            "region": "us-midwest-1",
-            "stock_level": null,
-            "checked_at": "2026-10-30T15:21:14Z",
-            "availability_expires_at": "2026-10-30T16:21:14Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null
-          }
-        ],
+        "available_regions_detail": null,
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "regions_expires_at": "2026-10-30T16:21:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "available_regions": null,
+        "regions_expired": true,
+        "regions_note": "region list expires at 12:21 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
       }
     },
     {

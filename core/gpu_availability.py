@@ -150,7 +150,7 @@ def region_guard(a, now: datetime | None = None):
     out["available_regions"] = None
     out["available_regions_detail"] = None
     out["regions_expired"] = True
-    out["regions_note"] = f"region list expired at {et_hm(a['regions_expires_at'])}. " + REGIONS_NOTE
+    out["regions_note"] = f"region list expires at {et_hm(a['regions_expires_at'])} (left out once expired or expiring before the next rebuild). " + REGIONS_NOTE
     return out
 
 
@@ -161,6 +161,9 @@ def stale_guard(a, now: datetime | None = None):
         return a
     h = age_hours(a.get("checked_at"), now)
     x = _parse(a.get("availability_expires_at"))  # v3.2: Scout may set a shorter claim lifetime than 8 h
+    rx = _parse(a.get("regions_expires_at"))
+    if a.get("derived_from_regions") and a.get("in_stock") is not None and rx and (not x or rx < x):
+        x = rx  # N1: an overall claim derived from regions ends when its regions expire
     if h is not None and h <= AVAIL_MAX_AGE_H and not (x and (now or now_utc()) > x):
         return region_guard(a, now)
     if h is None and not x:
@@ -168,6 +171,8 @@ def stale_guard(a, now: datetime | None = None):
     out = {"status": f"unknown (stale availability, last checked {et_time(a.get('checked_at'))})", "in_stock": None,
            "availability_stale": True, "checked_at": a.get("checked_at"), "max_age_hours": AVAIL_MAX_AGE_H,
            "origin": a["origin"], "note": STALE_NOTE}
+    if a.get("derived_from_regions"):
+        out["derived_from_regions"] = True
     for k in ("source", "source_label", "availability_expires_at", "feed_status"):
         if a.get(k):
             out[k] = a[k]
@@ -180,7 +185,18 @@ def _min_expiry(r: dict) -> str | None:
     return min(ts, key=_parse) if ts else None
 
 
+BUILD_HORIZON_MIN = 60  # N3: the next rebuild is not guaranteed sooner (hourly gated import; GitHub cron can be late)
+
+
+def build_now(now: datetime | None = None) -> datetime:
+    """Build-time clock: now + LW_BUILD_HORIZON_MIN (set by the page/feed generator). A claim that would expire before the
+    next rebuild is written as unknown, so static HTML and JSON never hold a claim past its expiry."""
+    from datetime import timedelta
+    return (now or now_utc()) + timedelta(minutes=int(os.environ.get("LW_BUILD_HORIZON_MIN") or 0))
+
+
 def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None) -> dict:
+    now = build_now(now)
     r = _index().get((vendor, gpu, vram_gb, _tier_key(tier)))
     if not r and isinstance(record, dict):
         return stale_guard(_from_record(record), now)  # record-origin stock expires at build time too
@@ -207,7 +223,7 @@ def _scout(vendor: str, r: dict | None) -> dict:
            "refresh": "manual snapshot, time shown (prices checked daily)",
            "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H,
            "availability_expires_at": _min_expiry(r)}
-    for k in ("feed_status", "offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
+    for k in ("feed_status", "derived_from_regions", "offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
         if r.get(k) is not None:
             out[k] = r[k]
     rx = regions_expires_at(r)

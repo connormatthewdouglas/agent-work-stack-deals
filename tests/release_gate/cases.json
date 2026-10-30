@@ -269,6 +269,15 @@
    },
    "expected": "Every available_regions_detail entry has now <= its availability_expires_at; available_regions carries regions_expires_at and now <= it; no data-rg-expires region list in raw HTML is past its time.",
    "why": "Scout v2.9 (Gauge pass): region lists last 1 h; a stale region list must not be served."
+  },
+  {
+   "id": "T41-26",
+   "intent": "No in-stock claim past its expiry; region-derived claims end with their regions; RunPod needs a confirmed region",
+   "inputs": {
+    "json": "https://thelanternworks.com/api/v1/gpu-prices.json"
+   },
+   "expected": "Every in_stock=true row has now <= availability_expires_at; derived_from_regions rows have live regions_expires_at; RunPod scout rows in stock list available_regions.",
+   "why": "Gauge re19 N1/N2: site showed Oblivus MON1 and RunPod AP-IN-1 / H100 PCIe Secure in stock against live vendor APIs."
   }
  ]
 }

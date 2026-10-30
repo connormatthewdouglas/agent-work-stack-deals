@@ -23,7 +23,7 @@ KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_s
         "feed_status", "feed_min_offers", "derived_from_regions", "availability_expires_at")  # v3.2: carried through unchanged
 
 
-def verify_manifests(raw: bytes) -> int:
+def verify_manifests(raw: bytes, name: str = "feed_enriched_v2_latest.json") -> int:
     """Refuse a snapshot whose sha256 does not match a shipped manifest. LW_SCOUT_MANIFESTS: os.pathsep-separated paths
     (scout-data latest/manifest.json from push_scout_snapshot.sh; Scout's latest_manifest.json if ever shipped).
     "files" values are a hex string or {"sha256": ...}. Missing or empty manifest, or no entry for the feed: no check."""
@@ -33,10 +33,10 @@ def verify_manifests(raw: bytes) -> int:
         p = Path(mp)
         if not p.is_file() or not p.stat().st_size:
             continue
-        want = (json.loads(p.read_text(encoding="utf-8")).get("files") or {}).get("feed_enriched_v2_latest.json")
+        want = (json.loads(p.read_text(encoding="utf-8")).get("files") or {}).get(name)
         want = want.get("sha256") if isinstance(want, dict) else want
         if want and want != got:
-            raise SystemExit(f"sha256 mismatch for feed_enriched_v2_latest.json vs {p.name}: manifest {want[:12]}, file {got[:12]}")
+            raise SystemExit(f"sha256 mismatch for {name} vs {p.name}: manifest {want[:12]}, file {got[:12]}")
         if want:
             n += 1
     return n
@@ -46,11 +46,7 @@ def main() -> None:
     raw = SRC.read_bytes()
     checked = verify_manifests(raw)
     d = json.loads(raw.decode("utf-8"))
-    try:
-        v = tuple(int(x) for x in str(d.get("version")).split("."))
-    except ValueError:
-        v = (0,)
-    if v >= (3, 1) and not checked:  # M2: 3.1+ must match a manifest sha256
+    if not checked:  # N4: every import must match a manifest sha256, whatever version the file claims
         raise SystemExit(f"Scout v{d.get('version')} snapshot refused: no manifest sha256 to verify it (set LW_SCOUT_MANIFESTS)")
     if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9", "3.0", "3.1", "3.2"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9, v3.0 passed; v3.1 = v3.0 + generation_id; v3.2 = + feed_status/derived_from_regions
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
@@ -59,6 +55,14 @@ def main() -> None:
     if age is None or age > AVAIL_MAX_AGE_H:  # same refusal as Scout's enrich_feed_v2
         raise SystemExit(f"Scout snapshot {snap or '(no checked_at)'} is {'?' if age is None else f'{age:.1f}'}h old "
                          f"(> {AVAIL_MAX_AGE_H}h); refusing to import")
+    overall = {}
+    ap = Path(os.environ.get("LW_SCOUT_AVAIL") or SRC.with_name("availability_v2_latest.json"))
+    if ap.is_file():  # Scout's raw availability file: overall-row derived_from_regions (v3.2); sha256-checked when listed
+        araw = ap.read_bytes()
+        verify_manifests(araw, "availability_v2_latest.json")
+        for a in json.loads(araw.decode("utf-8")).get("rows") or []:
+            if a.get("region") == "all":
+                overall[(str(a.get("vendor")).lower(), a.get("gpu_model"), a.get("tier"))] = a
     rows = []
     for r in d["rows"]:
         if r.get("in_live_feed") is False:  # v2.5: only rows whose price is in the live feed
@@ -66,6 +70,18 @@ def main() -> None:
         row = {k: r.get(k) for k in KEEP}
         if row.get("feed_status") == "held_below_min_offers":  # v3.2: held rows are never shown as in stock
             row["in_stock"] = None
+        ov = overall.get((str(row["vendor"]).split(" ")[0].lower(), row["gpu"], row["tier"]))
+        if ov and ov.get("derived_from_regions") is not None:  # N1: carried through from Scout's availability file
+            row["derived_from_regions"] = ov["derived_from_regions"]
+        if row["in_stock"] is True and row["vendor"] == "RunPod":
+            if not row.get("available_regions"):  # N2: a GPU-type-wide lowestPrice hint with no confirmed region is not a stock claim
+                row["in_stock"] = None
+                row["stock_level"] = None
+                row["availability_expires_at"] = None
+                row["availability_note"] = ("unknown: RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type "
+                                            "was confirmed in stock at check time")
+            else:  # the overall claim stands only as long as its confirmed regions
+                row["derived_from_regions"] = True
         if row["in_stock"] not in (True, False, None):
             raise SystemExit(f"bad in_stock {row['in_stock']!r} for {row['vendor']} {row['gpu']}")
         if row["in_stock"] is not None and not row["availability_checked_at"]:
