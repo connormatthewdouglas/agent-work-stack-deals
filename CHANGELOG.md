@@ -3,6 +3,10 @@
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
 
+
+## 0.3.41 (2026-10-30)
+
+- T43: the benchmark data now ships inside the installed products. The wheel carries `core/assets/gpu_throughput.json` (71 cited figures, loaded package-relative), and the hosted bundle embeds the same bytes. With no throughput given, `estimate_job_cost` prices H100 SXM 80GB / resnet50 from the published MLPerf figure. A missing or corrupt asset now returns `internal_error` ("benchmark asset missing or corrupt"), not "unsupported workload". Training workloads still abstain with `not_found` "missing: throughput". CI checks the built wheel outside the checkout and the deployed MCP (`scripts/check_benchmark_asset.py`).
 ## 0.3.40 (2026-10-30)
 
 - T51 measurement: the installed client's own feed fetches now send a distinct User-Agent, `lantern-works-deals-mcp/<version> (pypi-client)`. The hosted worker keeps anonymous daily counters (no IP or user agent stored, kept 90+ days) in /stats.json. See docs/MEASUREMENT.md.

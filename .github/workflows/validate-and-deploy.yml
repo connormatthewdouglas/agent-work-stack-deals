@@ -104,6 +104,7 @@ jobs:
           python3 -m build
           pip install dist/*.whl
           python3 -c "import lantern_works_deals_mcp.server"
+          python3 scripts/check_benchmark_asset.py --installed   # T43: the built wheel prices H100 SXM resnet50 outside the checkout
 
   pypi-install:
     # Clean-environment install of the PUBLISHED package from PyPI (fresh venv + uvx), all 3 tools over stdio
@@ -177,6 +178,7 @@ jobs:
         if: needs.deploy.result == 'success'
       - run: python3 scripts/check_skill.py --live
       - run: python3 scripts/test_url_migration.py
+      - run: python3 scripts/check_benchmark_asset.py --hosted   # T43: the deployed MCP passes the same case
       - run: python3 scripts/check_public_raw_data.py   # re21: raw data 404 / no stock claims; latest.json 404
       - name: GPU refresh freshness (warn if no snapshot today / > 24 h; fail if last refresh > 26 h)
         run: python3 scripts/check_gpu_freshness.py

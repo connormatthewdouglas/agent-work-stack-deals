@@ -15,7 +15,15 @@ import json
 import re
 from pathlib import Path
 
-PATH = Path(__file__).resolve().parents[1] / "data" / "gpu_throughput.json"
+# T43: the benchmark asset ships INSIDE the package (wheel and hosted bundle), loaded package-relative, never from a
+# source checkout. core/assets/gpu_throughput.json is a byte copy of data/gpu_throughput.json (tests enforce it).
+PATH = Path(__file__).resolve().parent / "assets" / "gpu_throughput.json"
+SCHEMA = "lantern-works-gpu-throughput/1"
+ASSET_ERROR = "benchmark asset missing or corrupt"
+
+
+class AssetError(Exception):
+    """The packaged benchmark asset could not be read. Not the same as an unsupported workload."""
 TRAINING = re.compile(r"\b(train|training|fine[- ]?tun\w*|finetun\w*|lora|qlora|sft|rlhf|dpo|pre[- ]?train\w*)\b", re.I)
 ALIASES = {  # dataset workload key -> regex over the user's workload label
     "bert-large": r"\bbert(?:[- ]?large|[- ]?99)?\b",
@@ -27,11 +35,36 @@ ALIASES = {  # dataset workload key -> regex over the user's workload label
 FORMS = {"sxm", "pcie", "nvl"}
 
 
+def _read(path=None):
+    if path is not None:
+        return Path(path).read_text()
+    try:
+        from importlib import resources
+        return resources.files(__package__).joinpath("assets", "gpu_throughput.json").read_text()
+    except Exception:
+        pass
+    try:  # hosted worker bundle: build.sh embeds the same bytes as a module (Workers ship .py modules only)
+        from . import _asset_gpu_throughput
+        return _asset_gpu_throughput.TEXT
+    except ImportError:
+        return PATH.read_text()
+
+
 def _load(path=None):
     try:
-        return json.loads(Path(path or PATH).read_text()).get("figures") or []
-    except (OSError, ValueError):
-        return []
+        doc = json.loads(_read(path))
+    except (OSError, ValueError, TypeError) as e:
+        raise AssetError(f"{ASSET_ERROR}: {type(e).__name__}") from None
+    figs = doc.get("figures") if isinstance(doc, dict) else None
+    if not isinstance(doc, dict) or doc.get("schema") != SCHEMA or not isinstance(figs, list) or not figs:
+        raise AssetError(f"{ASSET_ERROR}: unexpected schema or no figures")
+    return figs
+
+
+def asset_info(path=None):
+    """Version and size of the packaged benchmark asset (for artifact checks)."""
+    doc = json.loads(_read(path))
+    return {"schema": doc.get("schema"), "generated_at": doc.get("generated_at"), "figures": len(doc.get("figures") or [])}
 
 
 def _toks(s):

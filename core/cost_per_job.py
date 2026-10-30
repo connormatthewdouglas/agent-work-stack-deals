@@ -66,7 +66,11 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
         if work_units is None or tput is None:
             fig, why = (None, None)
             if tput is None and workload:
-                fig, why = _tp.lookup(gpu_l, workload)
+                try:
+                    fig, why = _tp.lookup(gpu_l, workload)
+                except _tp.AssetError as e:  # T43: a broken install is an internal error, never "unsupported workload"
+                    raise JobCostError("internal_error", f"{e}. This is a packaging fault, not a missing benchmark: "
+                                                         "reinstall the package, or pass job_hours or your own throughput.")
             miss = f"throughput for {gpu_l}" + (f" running {workload}" if workload else "")
             if fig is None:
                 raise JobCostError("not_found", f"missing: {miss}. No directly applicable cited throughput"
