@@ -224,7 +224,7 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
     for k, v in needs.items():
         cap = MAX_GPU_HOURS_MONTH if k == "gpu_hours" else MAX_QTY
         if not _num(v) or v > cap:
-            raise StackError(f"{k} must be a number 0-{cap}")
+            raise StackError(f"{k} must be a number 0-{cap}" + (" (hours, not GPU-hours)" if k == "gpu_hours" else ""))
     manual = set(data.get("manual_only_deal_ids") or [])
     lines = []
     for need, qty in needs.items():

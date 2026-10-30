@@ -4,6 +4,12 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.44 (2026-10-30)
+
+- T45 retrieval status: every successful tool result now carries `retrieval` (feed, `ok`/`degraded`, last_successful_retrieval_at, last_refresh_attempt_at, last_refresh_outcome, stale_cache, cache_age_s). A failed or invalid refresh serves the last good cache marked `degraded`; current-price feeds older than 1 h return `feed_unavailable` instead of stale prices. Error envelopes stay exactly `{ok, error}`.
+- T46 benchmark configuration: a throughput figure is used only for jobs with the same GPU count it was measured on (`gpus_per_job`). A mismatch is reported as "configuration mismatch" with the fix; several matching configurations are listed instead of picked silently.
+- re27: the same 20,000 cap applies to `optimize_agent_stack(gpu_hours)` and `estimate_job_cost(job_hours)` (also when job_hours is computed from work_units), on stdio and hosted. It caps hours (wall-clock duration per GPU), not GPU-hours: 2,501 h x 8 GPUs is valid; GPU count keeps its own limit.
+
 ## 0.3.43 (2026-10-30)
 
 - re26: stdio and hosted check tool arguments the same way before running a tool. A missing required argument, a wrong JSON type (e.g. `limit: "abc"`) or an unknown extra argument returns the `invalid_argument` envelope with `isError: true` in both; input schemas now set `additionalProperties: false`. Unknown tool names stay protocol errors (hosted JSON-RPC -32602, stdio SDK text), documented in the README.

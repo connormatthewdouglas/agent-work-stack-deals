@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.3.43, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.3.44, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -53,6 +53,10 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 
 Errors: `{"error": {"code": "invalid_argument|invalid_cursor|not_found|feed_unavailable|feed_invalid", "message": ...}}`.
 
+## Hours cap
+
+`optimize_stack`/`optimize_agent_stack` `gpu_hours`, `estimate_job_cost` `job_hours` (given or computed) and the browser calculator all accept at most 20,000 **hours, not GPU-hours** (wall-clock duration per GPU). 2,501 h on 8 GPUs is valid; the GPU count has its own limit. Larger values return `invalid_argument`.
+
 ## Errors and isError
 
 stdio and hosted use one rule (`core/contract.is_error`): `isError` is true exactly when the result is the error
@@ -63,6 +67,16 @@ A valid query that matches nothing is **not** an error: `ok: true`, `count: 0`, 
 runs: a missing required argument, a wrong JSON type or an unknown extra argument (schemas set
 `additionalProperties: false`) returns `invalid_argument`. Unknown tool name is a protocol error, not a tool
 result: hosted answers JSON-RPC error -32602, stdio returns the MCP SDK's `isError` text "Unknown tool".
+
+## Retrieval status (cached data)
+
+Every successful tool result carries `retrieval`: `{"status": "ok"|"degraded", "feeds": [...]}`. Each feed entry
+has `last_successful_retrieval_at`, `last_refresh_attempt_at`, `last_refresh_outcome` (`ok`, `failed: <error>`,
+`invalid: <error>`), `stale_cache` and `cache_age_s`. When a refresh fails (outage) or returns an unusable feed
+(partial refresh), the last good copy is served and marked `degraded`. Policy: cached data answers current-price
+questions for at most 60 minutes after the last successful retrieval; after that the tool returns
+`feed_unavailable`. Price history and change logs stay readable from cache. A successful refresh clears the
+degraded state. Price verification times (`checked_at`, `verified_at`) are separate and unchanged.
 
 ## Data and privacy
 

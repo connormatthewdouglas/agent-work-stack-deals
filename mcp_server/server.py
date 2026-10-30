@@ -69,6 +69,9 @@ def _contract(fn):
     def wrapper(*a, mode: str = "full", **kw):
         if mode not in contract.MODES:
             return contract.error("invalid_argument", f"mode must be one of {list(contract.MODES)}")
+        return _with_retrieval(_inner(*a, mode=mode, **kw))
+
+    def _inner(*a, mode: str = "full", **kw):
         try:
             out = fn(*a, **kw)
         except DealError as e:
@@ -87,6 +90,19 @@ def _contract(fn):
     wrapper.__annotations__ = {**getattr(fn, "__annotations__", {}), "mode": "str"}
     wrapper.output_schema = contract.output_schema(fn.__name__)
     return wrapper
+
+
+def retrieval_status() -> dict:
+    """T45: refresh state of every feed this server has tried to load (outage / partial refresh -> degraded)."""
+    feeds = [ld.status() for ld in (loader, gpu_loader, history_loader, changes_loader, stack_loader)
+             if ld._attempt_at is not None]
+    return {"status": "degraded" if any(f["retrieval"] == "degraded" for f in feeds) else "ok", "feeds": feeds}
+
+
+def _with_retrieval(out):
+    if isinstance(out, dict) and out.get("ok") is True:  # the error envelope stays exactly {ok, error}
+        out["retrieval"] = retrieval_status()
+    return out
 
 
 def _run(fn, *a, **kw) -> dict:

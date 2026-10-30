@@ -38,6 +38,9 @@ def _tokens(s: str) -> set:
     return set(re.findall(r"[a-z0-9]+", (s or "").lower()))
 
 
+from .stack import MAX_GPU_HOURS_MONTH as MAX_JOB_HOURS  # Gauge re27: one hours cap everywhere
+
+
 def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours: float | None = None,
                       work_units: float | None = None, throughput_units_per_gpu_hour: float | None = None,
                       workload: str | None = None, allow_interruptible: bool = False, min_vram_gb: int | None = None,
@@ -53,6 +56,8 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
     work_units = _num("work_units", work_units)
     tput = _num("throughput_units_per_gpu_hour", throughput_units_per_gpu_hour)
     runs = _num("runs_per_month", runs_per_month)
+    if job_hours is not None and job_hours > MAX_JOB_HOURS:
+        raise JobCostError("invalid_argument", f"job_hours must be a number > 0 and <= {MAX_JOB_HOURS} (hours, not GPU-hours)")
     try:
         max_h = data_age.validate_max_age(max_data_age_hours)
     except ValueError as e:
@@ -67,7 +72,7 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
             fig, why = (None, None)
             if tput is None and workload:
                 try:
-                    fig, why = _tp.lookup(gpu_l, workload)
+                    fig, why = _tp.lookup(gpu_l, workload, gpus=gpus_per_job)
                 except _tp.AssetError as e:  # T43: a broken install is an internal error, never "unsupported workload"
                     raise JobCostError("internal_error", f"{e}. This is a packaging fault, not a missing benchmark: "
                                                          "reinstall the package, or pass job_hours or your own throughput.")
@@ -84,13 +89,14 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
             job_hours = work_units / (tput * gpus_per_job)
             assumptions.append(f"{work_units:g} {fig['unit']} at {tput:.6g} {fig['unit']}/GPU-hour (published benchmark: "
                                f"{source['benchmark']}"
-                               + ("; derived per-GPU from " + str(source['reported_gpu_count']) + "-GPU result, assumes linear scaling"
-                                  if source["derived"] else "") + f") on {gpus_per_job} GPUs = {job_hours:.4g} h "
-                               "(linear scaling across GPUs assumed)")
+                               + f"; measured on the same {source['reported_gpu_count']}-GPU configuration"
+                               + f") on {gpus_per_job} GPUs = {job_hours:.4g} h")
         else:
             job_hours = work_units / (tput * gpus_per_job)
             assumptions.append(f"{work_units:g} work units at {tput:g} units/GPU-hour (your benchmark) on {gpus_per_job} GPUs "
                                f"= {job_hours:.4g} h (your input; linear scaling across GPUs assumed)")
+    if job_hours > MAX_JOB_HOURS:
+        raise JobCostError("invalid_argument", f"the computed job duration {job_hours:.4g} h exceeds {MAX_JOB_HOURS} h (hours, not GPU-hours)")
     assumptions.insert(0, f"Assumes {job_hours:.4g} h on {gpus_per_job} GPUs"
                           + (" (from published benchmark)" if source else " (your input)"))
     if workload and not source:

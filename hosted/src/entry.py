@@ -68,20 +68,29 @@ CORS = {"access-control-allow-origin": "*", "access-control-allow-headers": "con
 
 
 async def _feeds():
+    """Prefetch every feed (async), then hand each to its core FeedLoader through _fetch, so the loader's T45
+    bookkeeping runs: a failed fetch is recorded, the loader serves its last good copy as degraded, and current
+    prices older than STALE_CURRENT_MAX_S are refused, exactly as in the installed package."""
     now = time.time()
     for attr, url in FEEDS.items():
         hit = _cache.get(url)
+        ld = getattr(server, attr)
+        ld.ttl = 0  # the worker's own cache decides freshness; the loader records every outcome
         if hit and now - hit[0] < FAST.get(url, TTL):
-            data = hit[1]
-        else:
+            ld._fetch = (lambda d: (lambda: d))(hit[1])
+            continue
+        try:
             src = f"{url}?m={int(now // 60)}" if url in FAST else url
             r = await fetch(src, headers={"user-agent": HOSTED_UA})
             if r.status != 200:
                 raise core_deals.DealError("upstream_unavailable", f"{url} returned HTTP {r.status}")
             data = json.loads(await r.text())
             _cache[url] = (now, data)
-        ld = getattr(server, attr)
-        ld.load = (lambda d: (lambda *a, **k: d))(data)
+            ld._fetch = (lambda d: (lambda: d))(data)
+        except Exception as e:  # noqa: BLE001
+            def _fail(e=e):
+                raise e
+            ld._fetch = _fail
 
 
 def _schema(fn):
@@ -110,7 +119,10 @@ def _tool_list():
 
 async def _watch_feeds():
     await _feeds()
-    return tuple(_cache[u][1] for u in (core_deals.GPU_PRICES_URL, core_deals.GPU_HISTORY_URL, core_deals.GPU_CHANGES_URL))
+    us = (core_deals.GPU_PRICES_URL, core_deals.GPU_HISTORY_URL, core_deals.GPU_CHANGES_URL)
+    if any(u not in _cache for u in us):
+        raise core_deals.DealError("upstream_unavailable", "GPU feeds could not be retrieved")
+    return tuple(_cache[u][1] for u in us)
 
 
 # ---- T51 measurement (Gauge): anonymous daily counters, no raw IP or user agent is ever stored ----

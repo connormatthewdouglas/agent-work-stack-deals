@@ -96,8 +96,12 @@ def _skip_reason(f):
     return None
 
 
-def lookup(gpu_family: str, workload: str | None, path=None):
-    """Return (figure_dict, None) or (None, reason)."""
+def lookup(gpu_family: str, workload: str | None, path=None, gpus: int | None = None):
+    """Return (figure_dict, None) or (None, reason).
+
+    T46: with gpus set, a figure is used only when it was measured on exactly that many GPUs. A multi-GPU system
+    result is never divided down to stand in for fewer GPUs (or multiplied up), because that does not establish
+    workload fit or equivalent throughput; the reason names the measured configuration as a follow-up."""
     key = workload_key(workload)
     if key is None:
         return None, "no inference workload in the dataset matches (training/fine-tune are never resolved)"
@@ -122,17 +126,26 @@ def lookup(gpu_family: str, workload: str | None, path=None):
     if not cands:
         return None, f"no published {key} figure for {gpu_family}"
     if len(ok) != 1:
-        return None, ("published figure skipped: " + "; ".join(sorted({_skip_reason(f) for f in cands if _skip_reason(f)}))
-                      if not ok else "more than one eligible figure; not choosing")
+        if not ok:
+            return None, "published figure skipped: " + "; ".join(sorted({_skip_reason(f) for f in cands if _skip_reason(f)}))
+        cfg = "; ".join(sorted(f"{f['conditions'].get('gpu_count')} GPU, {f['conditions'].get('precision')}, "
+                               f"{f['conditions'].get('scenario')}" for f in ok))
+        return None, f"more than one eligible figure (configurations differ: {cfg}); not choosing"
     f = ok[0]
     c = f["conditions"]
     n = c["gpu_count"]
-    derived = n > 1
+    if gpus is not None and n != gpus:
+        return None, (f"configuration mismatch: the published {key} figure was measured on {n}x {f['gpu']} {f['variant']} "
+                      f"({c.get('system')}, {c.get('precision')}, {c.get('scenario')} scenario); your job uses {gpus} GPU(s), "
+                      f"so it is not used as measured performance. Set gpus_per_job={n} to use that measured configuration")
+    derived = n > 1 and gpus is None  # with gpus matched, value/n is only a unit change, used back on n GPUs
     per_gpu_s = f["value"] / n
     caveats = [f"{c.get('scenario')} scenario, {c.get('precision')}, {c.get('software')}",
                f"batch: {c.get('batch')}", "benchmark-tuned submission; your stack/model config may differ"]
     if derived:
         caveats.insert(0, f"derived per-GPU from {n}-GPU result, assumes linear scaling")
+    elif n > 1:
+        caveats.insert(0, f"measured on {n} GPUs ({c.get('system')}); used only for {n}-GPU jobs")
     unit = f["unit"].replace("/s", "")
     return {"value_per_gpu_hour": per_gpu_s * 3600, "unit": unit, "workload_key": key,
             "throughput_source": {"url": f["source_url"], "quote": f["quote"], "date": f.get("publication_date"),

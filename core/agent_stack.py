@@ -182,6 +182,8 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                  ("search_queries", search_queries), ("emails_sent", emails_sent), ("monthly_budget_usd", monthly_budget_usd)):
         if v is not None and (not isinstance(v, (int, float)) or isinstance(v, bool) or v < 0 or v > stack.MAX_QTY):
             raise stack.StackError(f"{k} must be a number 0-{stack.MAX_QTY}")
+    if gpu_hours is not None and gpu_hours > stack.MAX_GPU_HOURS_MONTH:
+        raise stack.StackError(f"gpu_hours must be a number 0-{stack.MAX_GPU_HOURS_MONTH} (hours, not GPU-hours)")
     p = parse(" ".join(filter(None, [description, workload])))
     q = dict(p["quantities"])
     comps = list(p["components"])

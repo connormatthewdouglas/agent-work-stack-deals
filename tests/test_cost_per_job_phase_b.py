@@ -18,12 +18,44 @@ def test_uses_single_gpu_figure():
     assert out["job_hours"] == pytest.approx(1.0) and out["citations"] == [s["url"]]
 
 
-def test_derived_per_gpu_labelled():
+def test_multi_gpu_figure_used_only_on_its_measured_gpu_count():
+    """T46: an 8-GPU result prices an 8-GPU job (measured config), never a 1-GPU job."""
     out = estimate_job_cost(D, "L40S", 8, work_units=3481.53 * 3600, workload="llama2-70b inference")
     s = out["throughput_source"]
-    assert s["derived"] is True and s["reported_gpu_count"] == 8
-    assert "derived per-GPU from 8-GPU result, assumes linear scaling" in s["caveats"]
+    assert s["derived"] is False and s["reported_gpu_count"] == 8
+    assert "measured on 8 GPUs" in s["caveats"][0] and not any("linear scaling" in c for c in s["caveats"])
     assert out["job_hours"] == pytest.approx(1.0)
+
+
+@pytest.mark.parametrize("gpu,n,wl,measured", [("H100 SXM", 1, "llama2-70b", 8), ("H100 SXM", 4, "llama2-70b", 8),
+                                               ("H100 SXM", 8, "resnet50", 1), ("L40S", 1, "resnet50", 8)])
+def test_t46_configuration_mismatch_is_not_measured(gpu, n, wl, measured):
+    with pytest.raises(JobCostError) as e:
+        estimate_job_cost(D, gpu, n, work_units=1e6, workload=wl)
+    m = e.value.message
+    assert e.value.code == "not_found" and "missing: throughput" in m and "configuration mismatch" in m
+    assert f"measured on {measured}x" in m and f"gpus_per_job={measured}" in m  # actionable follow-up
+    assert "job_hours" in m and "throughput_units_per_gpu_hour" in m
+
+
+def test_t46_user_benchmark_still_prices_any_gpu_count():
+    out = estimate_job_cost(D, "H100 SXM", 1, work_units=1e6, throughput_units_per_gpu_hour=1e6, workload="llama2-70b")
+    assert out["throughput_basis"] == "user_supplied" and out["job_hours"] == pytest.approx(1.0)
+
+
+def test_t46_ambiguous_configurations_not_chosen(tmp_path):
+    import json
+    from pathlib import Path
+    d = json.loads((Path(__file__).resolve().parents[1] / "data" / "gpu_throughput.json").read_text())
+    f = next(x for x in d["figures"] if x["gpu"] == "H100" and x["variant"] == "SXM 80GB" and x["workload"] == "resnet50")
+    g = json.loads(json.dumps(f))
+    g["id"] += "-server"
+    g["conditions"]["scenario"] = "Server"
+    d["figures"].append(g)
+    p = tmp_path / "t.json"
+    p.write_text(json.dumps(d))
+    fig, why = throughput.lookup("H100 SXM 80GB", "resnet50", path=p, gpus=1)
+    assert fig is None and "more than one eligible figure" in why and "Offline" in why and "Server" in why
 
 
 def test_skips_flagged_reference_figure_4090_sdxl():

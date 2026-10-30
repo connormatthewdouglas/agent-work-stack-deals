@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.43"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.44"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -49,35 +49,74 @@ class DealError(Exception):
         return {"error": {"code": self.code, "message": self.message}}
 
 
+STALE_CURRENT_MAX_S = 3600  # T45 policy: after a failed refresh, cached data serves *current* answers for at most 1 h
+
+
+def _iso(ts: float | None) -> str | None:
+    return datetime.fromtimestamp(ts, timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z") if ts else None
+
+
 class FeedLoader:
-    """Fetch the public feed with a short in-memory cache. LANTERN_DEALS_FILE overrides (tests/offline)."""
+    """Fetch the public feed with a short in-memory cache. LANTERN_DEALS_FILE overrides (tests/offline).
+
+    T45: every refresh attempt is recorded. If a refresh fails (outage) or returns an unusable feed (partial
+    refresh), the last good copy is served and status() reports retrieval="degraded" with the last successful
+    retrieval time and the failure. Current-price loaders (CURRENT=True) refuse cached data whose last successful
+    retrieval is older than STALE_CURRENT_MAX_S (feed_unavailable); history loaders keep serving it. A later
+    successful refresh clears the degraded state. Price verification times stay in the feed's own fields."""
 
     DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = FEED_URL, "LANTERN_DEALS_URL", "LANTERN_DEALS_FILE", "deals", "deal feed"
+    CURRENT = True
 
-    def __init__(self, url: str | None = None, file: str | None = None, ttl: float = CACHE_TTL_S):
+    def __init__(self, url: str | None = None, file: str | None = None, ttl: float = CACHE_TTL_S, clock=None):
         self.url = url or os.environ.get(self.URL_ENV, self.DEFAULT_URL)
         self.file = file or os.environ.get(self.FILE_ENV) or None
         self.ttl = ttl
-        self._cache: tuple[float, dict] | None = None
+        self.clock = clock or time.time
+        self._cache: tuple[float, dict] | None = None   # (wall time of last successful retrieval, feed)
+        self._attempt_at: float | None = None
+        self._outcome: str | None = None
+
+    def _fetch(self) -> Any:
+        if self.file:
+            return json.loads(Path(self.file).read_text(encoding="utf-8"))
+        req = urllib.request.Request(self.url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode("utf-8"))
+
+    def status(self) -> dict:
+        ok_at = self._cache[0] if self._cache else None
+        degraded = self._outcome not in (None, "ok")
+        age = round(self.clock() - ok_at) if ok_at else None
+        return {"feed": self.LABEL, "retrieval": "degraded" if degraded else ("ok" if ok_at else "not_loaded"),
+                "last_successful_retrieval_at": _iso(ok_at), "last_refresh_attempt_at": _iso(self._attempt_at),
+                "last_refresh_outcome": self._outcome, "stale_cache": bool(degraded and ok_at), "cache_age_s": age}
 
     def load(self) -> dict:
-        now = time.monotonic()
-        if self._cache and now - self._cache[0] < self.ttl:
+        now = self.clock()
+        if self._cache and self._outcome == "ok" and now - self._cache[0] < self.ttl:
             return self._cache[1]
+        self._attempt_at = now
         try:
-            if self.file:
-                feed = json.loads(Path(self.file).read_text(encoding="utf-8"))
-            else:
-                req = urllib.request.Request(self.url, headers={"User-Agent": USER_AGENT})
-                with urllib.request.urlopen(req, timeout=15) as r:
-                    feed = json.loads(r.read().decode("utf-8"))
-        except Exception as e:  # network, file, or JSON errors
-            if self._cache:  # serve stale rather than fail
+            feed = self._fetch()
+            if not isinstance(feed, dict) or not isinstance(feed.get(self.LIST_KEY), list):
+                raise DealError("feed_invalid", f"Feed is missing a {self.LIST_KEY}[] array")
+        except Exception as e:  # network, file, JSON or shape errors
+            code = e.code if isinstance(e, DealError) else "feed_unavailable"
+            self._outcome = ("invalid" if code == "feed_invalid" else "failed") + f": {type(e).__name__}"
+            if self._cache:  # serve the last good copy, visibly degraded
+                age = now - self._cache[0]
+                if self.CURRENT and age > STALE_CURRENT_MAX_S:
+                    raise DealError("feed_unavailable",
+                                    f"Could not refresh {self.LABEL} ({self._outcome}); last successful retrieval "
+                                    f"{_iso(self._cache[0])} is {int(age // 60)} min old, past the "
+                                    f"{STALE_CURRENT_MAX_S // 60} min limit for current prices") from None
                 return self._cache[1]
+            if code == "feed_invalid":
+                raise DealError("feed_invalid", f"Feed is missing a {self.LIST_KEY}[] array") from None
             raise DealError("feed_unavailable", f"Could not load {self.LABEL}: {type(e).__name__}") from None
-        if not isinstance(feed, dict) or not isinstance(feed.get(self.LIST_KEY), list):
-            raise DealError("feed_invalid", f"Feed is missing a {self.LIST_KEY}[] array")
         self._cache = (now, feed)
+        self._outcome = "ok"
         return feed
 
     def deals(self) -> list[dict]:
@@ -95,12 +134,14 @@ class GpuHistoryLoader(FeedLoader):
     """The published /api/v1/gpu-prices/history.json (daily snapshots as change points). LANTERN_GPU_HISTORY_FILE overrides."""
     DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (GPU_HISTORY_URL, "LANTERN_GPU_HISTORY_URL",
                                                        "LANTERN_GPU_HISTORY_FILE", "series", "GPU price history")
+    CURRENT = False  # T45: historical evidence stays readable from cache
 
 
 class GpuChangesLoader(FeedLoader):
     """The published /api/v1/gpu-price-changes.json (moves between the two latest daily snapshots). LANTERN_GPU_CHANGES_FILE overrides."""
     DEFAULT_URL, URL_ENV, FILE_ENV, LIST_KEY, LABEL = (GPU_CHANGES_URL, "LANTERN_GPU_CHANGES_URL",
                                                        "LANTERN_GPU_CHANGES_FILE", "changes", "GPU price changes")
+    CURRENT = False  # T45: historical evidence stays readable from cache
 
 
 def next_refresh_utc(now: datetime | None = None) -> str:
