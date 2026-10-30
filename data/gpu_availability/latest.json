@@ -1,8 +1,8 @@
 {
   "schema": "lantern-works-gpu-availability/1",
   "source": "Lantern Scout availability collector v3.2 (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",
-  "generation_id": "20261030T201147Z-06826c44",
-  "collected_at": "2026-10-30T20:10:42Z",
+  "generation_id": "20261030T203355Z-19d9662e",
+  "collected_at": "2026-10-30T20:32:48Z",
   "imported_rows": 27,
   "rows": [
     {
@@ -40,14 +40,14 @@
       "stock_level": null,
       "availability_source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:42Z"
+      "availability_expires_at": "2026-10-30T21:32:48Z"
     },
     {
       "vendor": "Lambda",
@@ -56,8 +56,7 @@
       "tier": "On-demand instance (1x GPU)",
       "region": "all",
       "available_regions": [
-        "us-east-1",
-        "us-west-2"
+        "asia-south-1"
       ],
       "in_stock": true,
       "offer_count": null,
@@ -65,24 +64,33 @@
       "stock_level": null,
       "availability_source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
       "available_regions_detail": [
         {
+          "region": "asia-south-1",
+          "stock_level": null,
+          "checked_at": "2026-10-30T20:32:48Z",
+          "availability_expires_at": "2026-10-30T21:32:48Z",
+          "confirmed": true,
+          "confirmation": "two_reads",
+          "second_read_stock_level": null
+        },
+        {
           "region": "us-east-1",
           "stock_level": null,
-          "checked_at": "2026-10-30T20:10:42Z",
-          "availability_expires_at": "2026-10-30T21:10:42Z",
-          "confirmed": true,
+          "checked_at": "2026-10-30T20:32:48Z",
+          "availability_expires_at": "2026-10-30T21:32:48Z",
+          "confirmed": false,
           "confirmation": "two_reads",
           "second_read_stock_level": null
         },
         {
           "region": "us-west-2",
           "stock_level": null,
-          "checked_at": "2026-10-30T20:10:42Z",
-          "availability_expires_at": "2026-10-30T21:10:42Z",
-          "confirmed": true,
+          "checked_at": "2026-10-30T20:32:48Z",
+          "availability_expires_at": "2026-10-30T21:32:48Z",
+          "confirmed": false,
           "confirmation": "two_reads",
           "second_read_stock_level": null
         }
@@ -91,7 +99,7 @@
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:42Z"
+      "availability_expires_at": "2026-10-30T21:32:48Z"
     },
     {
       "vendor": "Lambda",
@@ -106,14 +114,14 @@
       "stock_level": null,
       "availability_source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:42Z"
+      "availability_expires_at": "2026-10-30T21:32:48Z"
     },
     {
       "vendor": "Lambda",
@@ -128,14 +136,14 @@
       "stock_level": null,
       "availability_source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:42Z"
+      "availability_expires_at": "2026-10-30T21:32:48Z"
     },
     {
       "vendor": "Lambda",
@@ -150,14 +158,14 @@
       "stock_level": null,
       "availability_source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:42Z"
+      "availability_expires_at": "2026-10-30T21:32:48Z"
     },
     {
       "vendor": "Lambda",
@@ -172,14 +180,14 @@
       "stock_level": null,
       "availability_source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:42Z"
+      "availability_expires_at": "2026-10-30T21:32:48Z"
     },
     {
       "vendor": "Oblivus",
@@ -187,35 +195,21 @@
       "vram_gb": 80,
       "tier": "On-demand",
       "region": "all",
-      "available_regions": [
-        "MON1 (CANADA, MONTREAL)"
-      ],
-      "in_stock": true,
+      "available_regions": null,
+      "in_stock": false,
       "offer_count": null,
       "unrented_servers": null,
       "stock_level": null,
       "availability_source": "https://oblivus.com/availability/ (GPU Availability table)",
       "availability_source_type": "public vendor web page",
-      "availability_checked_at": "2026-10-30T20:10:39Z",
+      "availability_checked_at": "2026-10-30T20:32:46Z",
       "availability_note": "available_gpus = GPUs available per location on Oblivus' public availability page",
-      "available_regions_detail": [
-        {
-          "region": "MON1 (CANADA, MONTREAL)",
-          "stock_level": null,
-          "checked_at": "2026-10-30T20:10:39Z",
-          "availability_expires_at": "2026-10-30T21:10:39Z",
-          "confirmed": true,
-          "confirmation": "two_reads",
-          "second_read_stock_level": null,
-          "available_gpus": 1,
-          "second_read_available_gpus": 1
-        }
-      ],
-      "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+      "available_regions_detail": null,
+      "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:39Z"
+      "availability_expires_at": "2026-10-30T21:32:46Z"
     },
     {
       "vendor": "Oblivus",
@@ -224,32 +218,20 @@
       "tier": "On-demand",
       "region": "all",
       "available_regions": null,
-      "in_stock": true,
+      "in_stock": false,
       "offer_count": null,
       "unrented_servers": null,
       "stock_level": null,
       "availability_source": "https://oblivus.com/availability/ (GPU Availability table)",
       "availability_source_type": "public vendor web page",
-      "availability_checked_at": "2026-10-30T20:10:39Z",
+      "availability_checked_at": "2026-10-30T20:32:46Z",
       "availability_note": "available_gpus = GPUs available per location on Oblivus' public availability page",
-      "available_regions_detail": [
-        {
-          "region": "MON1 (CANADA, MONTREAL)",
-          "stock_level": null,
-          "checked_at": "2026-10-30T20:10:39Z",
-          "availability_expires_at": "2026-10-30T21:10:39Z",
-          "confirmed": false,
-          "confirmation": "two_reads",
-          "second_read_stock_level": null,
-          "available_gpus": 1,
-          "second_read_available_gpus": 0
-        }
-      ],
-      "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+      "available_regions_detail": null,
+      "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:39Z"
+      "availability_expires_at": "2026-10-30T21:32:46Z"
     },
     {
       "vendor": "RunPod",
@@ -264,7 +246,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:34Z",
+      "availability_checked_at": "2026-10-30T20:26:35Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -286,7 +268,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:32Z",
+      "availability_checked_at": "2026-10-30T20:26:32Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -305,11 +287,11 @@
       "in_stock": null,
       "offer_count": null,
       "unrented_servers": null,
-      "stock_level": null,
+      "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:34Z",
-      "availability_note": "unknown: RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+      "availability_checked_at": "2026-10-30T20:26:35Z",
+      "availability_note": "recomputed from unexpired region claims at overall_recomputed_at: in_stock true only if a confirmed region is in stock, false only if every region is confirmed out of stock, otherwise null (unknown)",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
@@ -324,7 +306,6 @@
       "tier": "On-demand (Secure Cloud)",
       "region": "all",
       "available_regions": [
-        "EUR-IS-1 (Europe)",
         "US-MD-1 (United States)",
         "US-WA-1 (United States)"
       ],
@@ -334,32 +315,14 @@
       "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:32Z",
+      "availability_checked_at": "2026-10-30T20:26:32Z",
       "availability_note": null,
       "available_regions_detail": [
         {
-          "region": "EUR-IS-1 (Europe)",
-          "stock_level": "Low",
-          "checked_at": "2026-10-30T20:05:29Z",
-          "availability_expires_at": "2026-10-30T21:05:29Z",
-          "confirmed": true,
-          "confirmation": "two_reads",
-          "second_read_stock_level": "Low"
-        },
-        {
-          "region": "US-KS-2 (United States)",
-          "stock_level": "Low",
-          "checked_at": "2026-10-30T20:06:35Z",
-          "availability_expires_at": "2026-10-30T21:06:35Z",
-          "confirmed": false,
-          "confirmation": "two_reads",
-          "second_read_stock_level": null
-        },
-        {
           "region": "US-MD-1 (United States)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T20:06:37Z",
-          "availability_expires_at": "2026-10-30T21:06:37Z",
+          "checked_at": "2026-10-30T20:28:35Z",
+          "availability_expires_at": "2026-10-30T21:28:35Z",
           "confirmed": true,
           "confirmation": "two_reads",
           "second_read_stock_level": "Low"
@@ -367,8 +330,8 @@
         {
           "region": "US-WA-1 (United States)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T20:07:10Z",
-          "availability_expires_at": "2026-10-30T21:07:10Z",
+          "checked_at": "2026-10-30T20:29:07Z",
+          "availability_expires_at": "2026-10-30T21:29:07Z",
           "confirmed": true,
           "confirmation": "two_reads",
           "second_read_stock_level": "Low"
@@ -378,7 +341,7 @@
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:04:32Z"
+      "availability_expires_at": "2026-10-30T21:26:32Z"
     },
     {
       "vendor": "RunPod",
@@ -393,7 +356,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:34Z",
+      "availability_checked_at": "2026-10-30T20:26:35Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -415,7 +378,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:32Z",
+      "availability_checked_at": "2026-10-30T20:26:32Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -437,7 +400,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:34Z",
+      "availability_checked_at": "2026-10-30T20:26:35Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -454,8 +417,10 @@
       "region": "all",
       "available_regions": [
         "AP-IN-1 (India)",
-        "CA-MTL-1 (Canada)",
-        "EU-FR-1 (France)"
+        "EUR-IS-3 (Europe)",
+        "EUR-NO-2 (Europe)",
+        "US-MO-1 (United States)",
+        "US-NE-1 (United States)"
       ],
       "in_stock": true,
       "offer_count": null,
@@ -463,32 +428,41 @@
       "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:32Z",
+      "availability_checked_at": "2026-10-30T20:26:32Z",
       "availability_note": null,
       "available_regions_detail": [
         {
           "region": "AP-IN-1 (India)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T20:04:37Z",
-          "availability_expires_at": "2026-10-30T21:04:37Z",
+          "checked_at": "2026-10-30T20:26:37Z",
+          "availability_expires_at": "2026-10-30T21:26:37Z",
           "confirmed": true,
           "confirmation": "two_reads",
           "second_read_stock_level": "Low"
         },
         {
-          "region": "CA-MTL-1 (Canada)",
+          "region": "EUR-IS-3 (Europe)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T20:04:54Z",
-          "availability_expires_at": "2026-10-30T21:04:54Z",
+          "checked_at": "2026-10-30T20:27:44Z",
+          "availability_expires_at": "2026-10-30T21:27:44Z",
           "confirmed": true,
           "confirmation": "two_reads",
           "second_read_stock_level": "Low"
         },
         {
-          "region": "EU-FR-1 (France)",
+          "region": "EUR-NO-2 (Europe)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T20:05:12Z",
-          "availability_expires_at": "2026-10-30T21:05:12Z",
+          "checked_at": "2026-10-30T20:27:57Z",
+          "availability_expires_at": "2026-10-30T21:27:57Z",
+          "confirmed": true,
+          "confirmation": "two_reads",
+          "second_read_stock_level": "Low"
+        },
+        {
+          "region": "US-MO-1 (United States)",
+          "stock_level": "Low",
+          "checked_at": "2026-10-30T20:28:42Z",
+          "availability_expires_at": "2026-10-30T21:28:42Z",
           "confirmed": true,
           "confirmation": "two_reads",
           "second_read_stock_level": "Low"
@@ -496,18 +470,18 @@
         {
           "region": "US-NE-1 (United States)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T20:06:54Z",
-          "availability_expires_at": "2026-10-30T21:06:54Z",
-          "confirmed": false,
+          "checked_at": "2026-10-30T20:28:52Z",
+          "availability_expires_at": "2026-10-30T21:28:52Z",
+          "confirmed": true,
           "confirmation": "two_reads",
-          "second_read_stock_level": null
+          "second_read_stock_level": "Low"
         }
       ],
       "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:04:32Z"
+      "availability_expires_at": "2026-10-30T21:26:32Z"
     },
     {
       "vendor": "RunPod",
@@ -522,7 +496,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:34Z",
+      "availability_checked_at": "2026-10-30T20:26:35Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -546,24 +520,33 @@
       "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T20:04:32Z",
+      "availability_checked_at": "2026-10-30T20:26:32Z",
       "availability_note": null,
       "available_regions_detail": [
         {
           "region": "EU-RO-1 (Europe)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T20:05:20Z",
-          "availability_expires_at": "2026-10-30T21:05:20Z",
+          "checked_at": "2026-10-30T20:27:34Z",
+          "availability_expires_at": "2026-10-30T21:27:34Z",
           "confirmed": true,
           "confirmation": "two_reads",
           "second_read_stock_level": "Low"
+        },
+        {
+          "region": "EUR-IS-2 (Europe)",
+          "stock_level": "Low",
+          "checked_at": "2026-10-30T20:27:43Z",
+          "availability_expires_at": "2026-10-30T21:27:43Z",
+          "confirmed": false,
+          "confirmation": "two_reads",
+          "second_read_stock_level": null
         }
       ],
       "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:04:32Z"
+      "availability_expires_at": "2026-10-30T21:26:32Z"
     },
     {
       "vendor": "Vast.ai",
@@ -622,14 +605,14 @@
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:41Z",
+      "availability_checked_at": "2026-10-30T20:32:47Z",
       "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:41Z"
+      "availability_expires_at": "2026-10-30T21:32:47Z"
     },
     {
       "vendor": "Verda (formerly DataCrunch)",
@@ -637,21 +620,33 @@
       "vram_gb": 40,
       "tier": "On-demand instance (1x GPU)",
       "region": "all",
-      "available_regions": null,
-      "in_stock": false,
+      "available_regions": [
+        "FIN-02"
+      ],
+      "in_stock": true,
       "offer_count": null,
       "unrented_servers": null,
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:41Z",
+      "availability_checked_at": "2026-10-30T20:32:47Z",
       "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
-      "available_regions_detail": null,
-      "available_regions_label": null,
+      "available_regions_detail": [
+        {
+          "region": "FIN-02",
+          "stock_level": null,
+          "checked_at": "2026-10-30T20:32:47Z",
+          "availability_expires_at": "2026-10-30T21:32:47Z",
+          "confirmed": true,
+          "confirmation": "two_reads",
+          "second_read_stock_level": null
+        }
+      ],
+      "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:41Z"
+      "availability_expires_at": "2026-10-30T21:32:47Z"
     },
     {
       "vendor": "Verda (formerly DataCrunch)",
@@ -666,14 +661,14 @@
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T20:25:42Z"
+      "availability_expires_at": "2026-10-30T20:47:48Z"
     },
     {
       "vendor": "Verda (formerly DataCrunch)",
@@ -681,21 +676,33 @@
       "vram_gb": 40,
       "tier": "Spot instance (1x GPU)",
       "region": "all",
-      "available_regions": null,
-      "in_stock": false,
+      "available_regions": [
+        "FIN-02"
+      ],
+      "in_stock": true,
       "offer_count": null,
       "unrented_servers": null,
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
-      "available_regions_detail": null,
-      "available_regions_label": null,
+      "available_regions_detail": [
+        {
+          "region": "FIN-02",
+          "stock_level": null,
+          "checked_at": "2026-10-30T20:32:48Z",
+          "availability_expires_at": "2026-10-30T20:47:48Z",
+          "confirmed": true,
+          "confirmation": "two_reads",
+          "second_read_stock_level": null
+        }
+      ],
+      "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T20:25:42Z"
+      "availability_expires_at": "2026-10-30T20:47:48Z"
     },
     {
       "vendor": "Verda (formerly DataCrunch)",
@@ -710,14 +717,14 @@
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:41Z",
+      "availability_checked_at": "2026-10-30T20:32:47Z",
       "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T21:10:41Z"
+      "availability_expires_at": "2026-10-30T21:32:47Z"
     },
     {
       "vendor": "Verda (formerly DataCrunch)",
@@ -732,14 +739,14 @@
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
-      "availability_checked_at": "2026-10-30T20:10:42Z",
+      "availability_checked_at": "2026-10-30T20:32:48Z",
       "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-30T20:25:42Z"
+      "availability_expires_at": "2026-10-30T20:47:48Z"
     }
   ]
 }
