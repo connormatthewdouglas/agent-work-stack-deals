@@ -16,6 +16,8 @@ Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.or
 
 ### Tools
 
+Tool counts: **8** in the local package (stdio, below); **12** on the hosted endpoint (the same 8 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`).
+
 | Tool | What it does |
 |---|---|
 | `compare_gpu_prices` | Hourly rental prices for a GPU model (e.g. `H100`, `A100 SXM`, `RTX 4090`) across tracked providers, cheapest first, each with `source_url` and `checked_at`. "Cheapest" means cheapest among tracked providers, not the whole market. `include_history=true` adds each rate's price history and recent price changes (daily snapshots since 2026-10-27). Each rate has `tier_class` (on-demand, community, marketplace, interruptible, reserved, dedicated-monthly; also in the public JSON feed); `on_demand_only=true` keeps on-demand rates only. `reserved` = reservation/commitment "starting from" prices (e.g. Hyperstack reservations): they need a term contract, so they are left out of results and never called "cheapest" unless you pass `include_reserved=true` (even then they sort after pay-as-you-go rates). Each result carries `report_issue_url`, a prefilled "wrong price" issue link. |

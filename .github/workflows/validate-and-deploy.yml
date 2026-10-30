@@ -189,3 +189,39 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  expiry-alert:
+    # Gauge re18 R2: a failed run (any gate, deploy or live check) while the LIVE stock claims expire within 2 h
+    # opens (or comments on) one GitHub issue, so a broken deploy never silently leaves expiring claims up.
+    needs: [validate, tests, pypi-install, docker, release-gate, deploy, live-checks]
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check live claim expiry, alert if within 2 h
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          msg=$(python3 - <<'PY'
+          import json, urllib.request
+          from datetime import datetime, timezone, timedelta
+          d = json.load(urllib.request.urlopen("https://thelanternworks.com/api/v1/gpu-prices.json", timeout=30))
+          now = datetime.now(timezone.utc)
+          exp = sorted(datetime.fromisoformat(a["availability_expires_at"].replace("Z", "+00:00"))
+                       for a in ((r.get("availability") or {}) for r in d.get("rates", []))
+                       if a.get("in_stock") is not None and a.get("availability_expires_at"))
+          if exp and exp[0] - now <= timedelta(hours=2):
+              print(f"{len(exp)} live stock claims; earliest expiry {exp[0].isoformat().replace('+00:00', 'Z')} "
+                    f"({(exp[0] - now).total_seconds() / 3600:.1f} h from now)")
+          PY
+          )
+          [ -n "$msg" ] || { echo "No live claim expires within 2 h; no alert."; exit 0; }
+          title="Deploy failed while stock claims are about to expire"
+          n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --json number -q '.[0].number // empty')
+          body="Run $RUN_URL failed. $msg. Fix the run (or re-run it) so the pages rebuild before expiry."
+          if [ -n "$n" ]; then gh issue comment "$n" -R "$GITHUB_REPOSITORY" --body "$body"; else gh issue create -R "$GITHUB_REPOSITORY" --title "$title" --body "$body"; fi
