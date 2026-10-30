@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.44"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.45"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -473,6 +473,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     rows = [dict(r, availability=stale_guard(r["availability"], _now_av)) if isinstance(r.get("availability"), dict) else r
             for r in rows]
     excluded_too_old = 0
+    stale_rows = []
     if max_h is not None:
         keep = [r for r in rows if not data_age.too_old(r, max_h, now)]
         excluded_too_old = len(rows) - len(keep)
@@ -480,6 +481,19 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             raise DealError("not_found", f"No tracked price for GPU '{gpu}' verified within {max_h:g} hours "
                                          f"({excluded_too_old} older rates exist; raise or omit max_data_age_hours)")
         rows = keep
+    else:
+        # Gauge re28: by default a price older than 168 h never ranks or heads the summary; listed separately
+        rows, stale_rows = data_age.split_current(rows, None, now)
+        if not rows:
+            sv = sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or ""))
+            return {"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
+                    "summary": (f"No current price for '{gpu}': all {len(sv)} tracked rates are older than "
+                                f"{data_age.CURRENT_MAX_HOURS} h (stale), so no current cheapest is named. Stale rows are in "
+                                "stale_prices; pass max_data_age_hours to rank them anyway, and confirm on the vendor page."),
+                    "stale_prices": sv, "excluded_stale": len(sv), "max_data_age_hours": None,
+                    "current_max_age_hours": data_age.CURRENT_MAX_HOURS,
+                    "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at"),
+                    "scope": "cheapest among tracked providers"}
     excluded = 0
     if on_demand_only:
         keep = [r for r in rows if tier_class(r) == "on-demand"]
@@ -552,11 +566,15 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     + ("" if results[0]["tier_class"] == "on-demand" or od is None else
                        f" Cheapest on-demand: {od_who} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
                     + oos_msg
+                    + (f" {len(stale_rows)} rate(s) with a price older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale_rows else "")
                     + ". This is the cheapest among tracked providers only, not the whole market. "
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
         "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
         "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old,
+        "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,
+        "excluded_stale": len(stale_rows),
+        "stale_prices": sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or "")),
         "data_age": {"degraded_after_hours": data_age.DEGRADED_HOURS, "stale_after_hours": data_age.STALE_HOURS,
                      "stale_count": sum(1 for x in results if x["stale"]), "degraded_count": sum(1 for x in results if x["degraded"])},
         "tier_classes": TIER_NOTES,

@@ -171,10 +171,13 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
         if(c.unknown)unknown.push({{...o,reason:c.unknown}});else if(c.cost!=null)priced.push({{...o,monthly_cost_usd:c.cost,calc:c.calc,manual_signup_only:o.signup==="manual_only"}})}}
         untracked=D.s.untracked[k]||[]}}
       if(nomanual)priced=priced.filter(p=>!p.manual_signup_only);
+      // re28: a GPU price older than 168 h never ranks; listed separately as stale
+      const stale=k==="gpu_hours"?priced.filter(p=>!((Date.now()-Date.parse(p.checked_at||""))/36e5<=168)):[];
+      if(stale.length)priced=priced.filter(p=>!stale.includes(p));
       priced.sort((a,b)=>a.monthly_cost_usd-b.monthly_cost_usd||a.vendor.localeCompare(b.vendor)||a.plan.localeCompare(b.plan));
       const best=[],seen=new Set();for(const p of priced)if(!seen.has(p.vendor)){{seen.add(p.vendor);best.push(p)}}
       const uv=[],us=new Set();for(const u of unknown)if(!us.has(u.vendor)){{us.add(u.vendor);uv.push(u)}}
-      return {{k,need,q:q[k],choice:best[0]||null,alts:best.slice(1,4),unknown:uv,untracked}};
+      return {{k,need,q:q[k],choice:best[0]||null,alts:best.slice(1,4),unknown:uv,untracked,stale}};
     }});
   }}
   function src(c){{return `<a href="${{esc(c.source_url)}}" rel="noopener">“${{esc(c.quote)}}”</a><br><small>checked ${{esc((c.checked_at||"").slice(0,10))}}</small>`}}
@@ -187,6 +190,8 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
       if(l.alts.length)more+=`<br><small>Next: ${{l.alts.map(a=>`${{esc(a.vendor)}} ${{esc(a.plan)}} ${{fmt(a.monthly_cost_usd)}}`).join("; ")}}</small>`;
       if(l.unknown.length)more+=`<br><small>No published price: ${{l.unknown.map(u=>`<a href="${{esc(u.source_url)}}" rel="noopener">${{esc(u.vendor)}}</a> (${{esc(u.reason)}})`).join("; ")}}</small>`;
       if(l.untracked.length)more+=`<br><small>Not priced yet: ${{l.untracked.length}} other tracked deal(s), e.g. ${{l.untracked.slice(0,5).map(esc).join(", ")}}</small>`;
+      if(l.stale.length)more+=`<br><small>Not ranked: ${{l.stale.map(a=>`${{esc(a.vendor)}} ${{esc(a.plan)}} ${{fmt(a.monthly_cost_usd)}}, stale price (${{Math.round((Date.now()-Date.parse(a.checked_at||""))/864e5)}} days old)`).join("; ")}}</small>`;
+      if(!c&&l.stale.length){{unk.push(l.need.label);return `<tr>${{head}}<td><strong>No current price</strong></td><td colspan="3">All matching GPU prices are older than 168 h (stale), so no current cheapest among tracked providers is named.${{more}}</td></tr>`}}
       if(!c){{unk.push(l.need.label);return `<tr>${{head}}<td><strong>No published price</strong></td><td colspan="3">No tracked provider publishes a price that covers this volume.${{more}}</td></tr>`}}
       tot+=c.monthly_cost_usd;
       return `<tr>${{head}}<td><strong>${{fmt(c.monthly_cost_usd)}}</strong></td><td><a href="${{esc(c.redeem_url||c.deal_url)}}" rel="nofollow sponsored noopener" data-deal="${{esc(c.deal_id)}}">${{esc(c.vendor)}}</a> ${{esc(c.plan)}}${{c.manual_signup_only?" <strong>Manual signup only</strong>":""}}<br><small>${{esc(c.calc)}}</small>${{more}}</td><td>${{src(c)}}</td><td><small>${{esc(c.assumptions.join(" "))}}</small></td></tr>`}}).join("");

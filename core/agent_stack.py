@@ -242,6 +242,14 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
             opts.sort(key=lambda x: (x.get("in_stock") is False, x["monthly_cost_usd"], x["vendor"] or ""))
+            if max_data_age_hours is None and opts:  # Gauge re28: > 168 h prices never rank by default
+                from . import data_age as _da
+                opts, old = _da.split_current(opts, None, now)
+                if old:
+                    line["stale_prices"] = [_da.stale_option(o, now) for o in old]
+                    if not opts:
+                        lines.append({**line, "status": "no_data", "note": _da.all_stale_note(len(old)),
+                                      "choice": None, "monthly_cost_usd": None}); continue
             if not opts:
                 why = f" with >= {line.get('vram_needed_gb')} GB VRAM on one GPU" if size else ""
                 lines.append({**line, "status": "no_data", "note": NO_DATA + why + (f" for {gpu_model}" if gpu_model else ""),

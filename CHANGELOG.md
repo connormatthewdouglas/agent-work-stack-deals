@@ -4,6 +4,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.45 (2026-10-30)
+
+- re28 stale prices: by default a GPU price older than 168 h (7 days) is never ranked and never named cheapest, in compare_gpu_prices, estimate_job_cost, optimize_agent_stack, optimize_stack, the GPU cost calculator, the stack optimizer and every generated page. Such rows are listed separately as "stale price (N days old)" (`stale_prices`, `excluded_stale`). If every candidate is stale, no current cheapest is named and the summary says so. `max_data_age_hours` replaces the 168 h default. At build time, a record not re-verified for 7 days is moved to `held_stale`.
+
 ## 0.3.44 (2026-10-30)
 
 - T45 retrieval status: every successful tool result now carries `retrieval` (feed, `ok`/`degraded`, last_successful_retrieval_at, last_refresh_attempt_at, last_refresh_outcome, stale_cache, cache_age_s). A failed or invalid refresh serves the last good cache marked `degraded`; current-price feeds older than 1 h return `feed_unavailable` instead of stale prices. Error envelopes stay exactly `{ok, error}`.

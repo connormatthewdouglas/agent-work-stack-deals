@@ -10,7 +10,7 @@
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.44, read-only, stdio)
+## MCP server (v0.3.45, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -65,6 +65,10 @@ Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/REA
 
 Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=github-readme`
 (`claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=github-readme`). Free Cloudflare Worker; it stores only anonymous call counts per tool per day (no IPs, user agents or arguments), public at https://lantern-works-mcp.lantern-works.workers.dev/stats. `?ref=` only tags which link was used.
+
+## Stale prices
+
+By default no tool or page ranks a GPU price older than 168 hours (7 days) or names it cheapest. Such rows are listed separately as "stale price (N days old)" in `stale_prices`. If every matching price is stale, no current cheapest is named and the summary says so. Pass `max_data_age_hours` to set a different limit (for example 1000 to rank older quotes anyway; confirm them on the vendor page).
 
 ## Published GPU throughput data (T20 Phase B, data only)
 

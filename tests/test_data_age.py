@@ -27,7 +27,10 @@ DATA = {"rates": [_row("Fresh", 2, 2.0), _row("Old", 72, 1.5), _row("Ancient", 2
 
 
 def test_flags_on_each_row():
-    res = {r["advertiser"]: r for r in compare_gpu_prices(DATA, "H100", now=NOW)["results"]}
+    out = compare_gpu_prices(DATA, "H100", now=NOW)
+    res = {r["advertiser"]: r for r in out["results"]}
+    assert "Ancient" not in res  # re28: > 168 h never ranks by default
+    res["Ancient"] = compare_gpu_prices(DATA, "H100", max_data_age_hours=24 * 30, now=NOW)["results"][0]
     assert res["Fresh"]["data_age_hours"] == 2.0 and not res["Fresh"]["degraded"] and not res["Fresh"]["stale"]
     assert res["Old"]["data_age_hours"] == 72.0 and res["Old"]["degraded"] and not res["Old"]["stale"]
     assert res["Ancient"]["degraded"] and res["Ancient"]["stale"]

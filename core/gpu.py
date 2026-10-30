@@ -213,6 +213,14 @@ def _tier_class(r: dict) -> str:
 from .gpu_availability import availability_for  # noqa: E402
 
 
+def _price_too_old(r: dict, doc: dict) -> bool:
+    if doc.get("manual_snapshot"):
+        return False  # manual snapshots have their own hold_after rule
+    from .data_age import STALE_HOURS, age_fields
+    h = age_fields(r)["data_age_hours"]
+    return h is not None and h > STALE_HOURS
+
+
 def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dict:
     """Rates for /api/v1/gpu-prices.json and every GPU page, from the per-vendor records.
 
@@ -249,6 +257,13 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                          "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}]})
         for r in doc["records"]:
             if r.get("stale"):
+                continue
+            if _price_too_old(r, doc):
+                # Gauge re28: a price not re-verified for STALE_DAYS never ranks on any page; listed in held_stale.
+                from .data_age import stale_label
+                held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
+                             "checked_at": r["checked_at"], "reason": stale_label(r), "page_last_updated": None,
+                             "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}]})
                 continue
             monthly = r["billing_unit"] == "monthly"
             n = r.get("gpu_count", 1)

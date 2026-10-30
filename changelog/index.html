@@ -128,6 +128,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.45 (2026-10-30)</h2>
+<ul>
+<li>re28 stale prices: by default a GPU price older than 168 h (7 days) is never ranked and never named cheapest, in compare_gpu_prices, estimate_job_cost, optimize_agent_stack, optimize_stack, the GPU cost calculator, the stack optimizer and every generated page. Such rows are listed separately as &quot;stale price (N days old)&quot; (<code>stale_prices</code>, <code>excluded_stale</code>). If every candidate is stale, no current cheapest is named and the summary says so. <code>max_data_age_hours</code> replaces the 168 h default. At build time, a record not re-verified for 7 days is moved to <code>held_stale</code>.</li>
+</ul>
 <h2>0.3.44 (2026-10-30)</h2>
 <ul>
 <li>T45 retrieval status: every successful tool result now carries <code>retrieval</code> (feed, <code>ok</code>/<code>degraded</code>, last_successful_retrieval_at, last_refresh_attempt_at, last_refresh_outcome, stale_cache, cache_age_s). A failed or invalid refresh serves the last good cache marked <code>degraded</code>; current-price feeds older than 1 h return <code>feed_unavailable</code> instead of stale prices. Error envelopes stay exactly <code>{ok, error}</code>.</li>

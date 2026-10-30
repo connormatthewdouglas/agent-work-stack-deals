@@ -106,7 +106,7 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
     vm = re.search(r"\b(\d{2,3})\s*gb\b", gpu_l, re.I)
     want_vram = int(vm.group(1)) if vm else None
     q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu_l, flags=re.I))
-    rows, too_old = [], 0
+    rows, too_old, stale = [], 0, []
     for r in data.get("rates") or []:
         if not isinstance(r, dict) or r.get("unit") != "hour" or not isinstance(r.get("price_usd"), (int, float)):
             continue
@@ -117,7 +117,23 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
         if data_age.too_old(r, max_h, now):
             too_old += 1
             continue
+        if max_h is None and data_age.too_old(r, data_age.CURRENT_MAX_HOURS, now):
+            stale.append(r)  # Gauge re28: > 168 h never ranks by default; listed separately
+            continue
         rows.append(r)
+    stale_view = sorted((data_age.stale_view(r, now, "price_usd") for r in stale), key=lambda x: (x["price"], x["vendor"] or ""))
+    stale_extra = {"stale_prices": stale_view, "excluded_stale": len(stale_view),
+                   "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h}
+    if not rows and stale:
+        return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4), "count": 0,
+                "results": [], "label": LABEL, "ok_current": False,
+                "summary": (f"No current price for '{gpu_l}': all {len(stale)} matching tracked rates are older than "
+                            f"{data_age.CURRENT_MAX_HOURS} h (stale), so no current cheapest is named. See stale_prices, or pass "
+                            "max_data_age_hours to rank them anyway."),
+                "assumptions": assumptions, "citations": [source["url"]] if source else [],
+                "throughput_basis": basis, "throughput_source": source,
+                "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
+                "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra}
     if not rows:
         raise JobCostError("not_found", f"No rankable hourly rate tracked for '{gpu_l}'"
                                         + (f" ({too_old} older rates excluded by max_data_age_hours)" if too_old else ""))
@@ -150,8 +166,9 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
     return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4), "count": len(out_rows),
             "results": out_rows, "label": LABEL,
             "summary": (f"Cheapest among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
-                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}." + oos_msg),
+                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}." + oos_msg
+                        + (f" {len(stale)} rate(s) older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale else "")),
             "assumptions": assumptions, "citations": [source["url"]] if source else [],
             "throughput_basis": basis, "throughput_source": source,
             "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
-            "budget_verdict": "unresolved", "excluded_too_old": too_old}
+            "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra}

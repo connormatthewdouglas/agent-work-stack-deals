@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from core.gpu import HOURS_PER_MONTH, build_rates  # noqa: E402
+from core.data_age import CURRENT_MAX_HOURS as CURRENT_MAX_H  # noqa: E402
 from core.stack import MAX_GPU_HOURS_MONTH  # noqa: E402
 from core.data_license import DATA_LICENSE, REPORT_ISSUE, REPORT_ISSUE_NOTE  # noqa: E402
 
@@ -139,10 +140,13 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     const bad=!(hs!==""&&Number.isFinite(h)&&h>0&&h<={MAX_GPU_HOURS_MONTH})?"hours must be a number > 0 and <= {MAX_GPU_HOURS_MONTH}":!(gs!==""&&Number.isInteger(g)&&g>=1)?"gpus must be an integer >= 1":"";
     if(bad){{ $("results").tBodies[0].innerHTML='<tr><td colspan="7">Invalid input: '+bad+'. No estimate shown.</td></tr>'; $("summary").textContent="invalid_argument: "+bad; return; }}
     const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
-      return {{...r,...bill(r,h,g)}};
-    }}).sort((a,b)=>((a.tier_class==="reserved")-(b.tier_class==="reserved"))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
-    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
-    $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest among tracked providers: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";
+      const ageH=(Date.now()-Date.parse(r.verified_at||r.checked_at||""))/36e5;
+      return {{...r,...bill(r,h,g),old:!(ageH<={CURRENT_MAX_H}),ageD:Math.round(ageH/24)}};
+    }}).sort((a,b)=>(a.old-b.old)||((a.tier_class==="reserved")-(b.tier_class==="reserved"))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
+    // re28: a price older than {CURRENT_MAX_H} h never ranks or heads the summary; listed separately
+    const cur=rows.filter(r=>!r.old&&r.tier_class!=="reserved"), nOld=rows.filter(r=>r.old).length;
+    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("summary").textContent=!rows.length?"No priced option matches these filters.":cur.length?`${{rows.length}} options. Cheapest among tracked providers: ${{cur[0].advertiser}} ${{cur[0].gpu}} at ${{fmt(cur[0].cost)}}/month.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
     const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
     $("permalink").href="?"+p;
   }}

@@ -129,7 +129,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
-    max_data_age_hours (optional) drops older rates; excluded_too_old reports how many were dropped.
+    By default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices
+    ('stale price (N days old)'); if every rate is stale, results is empty and the summary says no current cheapest.
+    max_data_age_hours (optional) replaces the 168 h default and drops older rates; excluded_too_old counts them.
     """
     try:
         hist = None
@@ -239,7 +241,7 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
     monthly_budget_usd. Each component gets the cheapest option with a cited price among tracked providers, with
     calc, source_url, verified_at, referral_disclosure (set when the link is a referral link) and manual-signup
     notes. Components with no cited price say 'no sourced price tracked' (nothing is estimated). Totals show the
-    math and say whether they are complete. Pulled listings are excluded. Every option has data_age_hours, degraded (> 48 h) and stale (> 7 days); max_data_age_hours drops older options (excluded_too_old counts them). Same data as optimize_stack,
+    math and say whether they are complete. Pulled listings are excluded. Every option has data_age_hours, degraded (> 48 h) and stale (> 7 days); GPU prices older than 168 h never rank by default (listed in the line's stale_prices); max_data_age_hours replaces that default and drops older options (excluded_too_old counts them). Same data as optimize_stack,
     compare_gpu_prices and the deal feed.
     """
     try:

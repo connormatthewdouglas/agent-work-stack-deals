@@ -257,6 +257,14 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
         if exclude_manual_signup:
             excluded = [{"vendor": p["vendor"], "plan": p["plan"], "reason": "manual signup only"} for p in priced if p["manual_signup_only"]]
             priced = [p for p in priced if not p["manual_signup_only"]]
+        stale_note = None
+        if need == "gpu_hours" and priced:  # Gauge re28: a price older than 168 h never ranks by default
+            from . import data_age as _da
+            priced, old = _da.split_current(priced, None)
+            if old:
+                line["stale_prices"] = [_da.stale_option(o) for o in old]
+                if not priced:
+                    stale_note = _da.all_stale_note(len(old))
         # one row per vendor in alternatives (its cheapest suitable plan)
         best_per_vendor, seen = [], set()
         for p in priced:
@@ -269,6 +277,8 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
                 line["availability_note"] = n
         else:
             line.update(status="unknown", choice=None, monthly_cost_usd="unknown", alternatives=[])
+            if stale_note:
+                line["note"] = stale_note
         uv = {}
         for u in unknown:
             uv.setdefault(u["vendor"], u)
