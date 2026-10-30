@@ -14,7 +14,7 @@ python monitor.py --history history.json --drop 5 # local file
 Each line shows `verified_at`, the UTC time the rate was last checked against the vendor page. Prices cover tracked
 providers only and exclude storage, egress and taxes. Confirm on the vendor page before spending.
 
-From an MCP client, `compare_gpu_prices` with `include_history: true` (MCP server 0.3.4 and later; 0.3.32 current; `get_price_changes` from 0.3.7) returns the same
+From an MCP client, `compare_gpu_prices` with `include_history: true` (MCP server 0.3.4 and later; 0.3.33 current; `get_price_changes` from 0.3.7) returns the same
 change points (`price_history`, `history.recent_changes`). Note: some MCP results include referral links
 (`affiliate: true`, `redeem_url`). The history API used here contains no links.
 

@@ -2,6 +2,11 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.33
+
+- Fix: record-level stock claims (vendor-page stock counts captured with the price, e.g. Oblivus) now expire at build time after 8 h, like Scout claims. Before this fix they were only expired at MCP call time, so a static page or JSON feed could still show an old in-stock claim.
+- Tests: the staleness tests no longer depend on the wall clock or on a fixed snapshot time. They pass with fresh, expired or missing stock data.
+
 ## 0.3.32
 
 - Every stock claim (in_stock true or false) now carries availability_expires_at: checked_at + 8 h, in UTC. After that time, treat the claim as unknown. This applies to gpu-prices.json, /api/v1/gpu/<family>.json and compare_gpu_prices.

@@ -148,7 +148,7 @@ def stale_guard(a, now: datetime | None = None):
 def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None) -> dict:
     r = _index().get((vendor, gpu, vram_gb, _tier_key(tier)))
     if not r and isinstance(record, dict):
-        return _from_record(record)
+        return stale_guard(_from_record(record), now)  # record-origin stock expires at build time too
     return stale_guard(_scout(vendor, r), now)
 
 

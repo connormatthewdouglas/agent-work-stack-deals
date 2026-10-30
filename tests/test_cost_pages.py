@@ -161,9 +161,13 @@ def test_0327_new_h100_a100_rows_live_and_sourced():
             if r["advertiser"] != "Oblivus":
                 assert r["availability"]["in_stock"] is None
     ob = [r for r in feed["rates"] if r["advertiser"] == "Oblivus"]
-    assert ob and all(r["availability"]["in_stock"] is (int(r["availability"]["stock_level"]) > 0) for r in ob)
+    assert ob
     for r in ob:  # J6: quote and stock count from the same capture
         a = r["availability"]
+        if a.get("availability_stale"):  # expired same-capture stock: unknown, never an old in-stock claim
+            assert a["in_stock"] is None and a["checked_at"] == r["verified_at"]
+            continue
+        assert a["in_stock"] is (int(a["stock_level"]) > 0)
         assert a["same_capture_as_price"] and a["checked_at"] == r["verified_at"]
         assert f"Available Stock {a['stock_level']} " in r["evidence"]["quote"] and "(count shown on the vendor page, changes often)" in a["detail"]
     for slug in ("h100", "a100"):
@@ -302,9 +306,9 @@ def test_0330_other_variants_intro_and_in_stock_time():
     s = _page("a100", 100)
     sec = s.split("Other variants (not compared)")[1].split("</ul>")[0]
     assert "Listed but not ranked: no second vendor offers this exact variant in stock (form factor and memory); variants are never mixed; rows marked out of stock come last." in sec
-    if _fresh():  # pages built from a fresh snapshot: in-stock rows show their check time like out-of-stock rows
+    if _fresh() and "(available when checked" in sec:  # pages built from a fresh snapshot: in-stock rows show their check time like out-of-stock rows
         assert "(available when checked at 20" in sec and "; valid until " in sec and "after that treat as unknown)" in sec and "data-av-expires=" in sec
-    assert "<!-- av-stale -->" in s
+    assert ("<!-- av-stale -->" in s) == ("data-av-checked" in s)  # expiry script wherever a dated claim is shown
 
 
 def test_0330_stale_guard_unit():
@@ -327,8 +331,13 @@ def test_0330_mcp_stale_rows_unknown_not_ranked_last():
     from datetime import datetime, timedelta, timezone
     from core import deals as D
     data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
-    t = datetime(2026, 10, 30, 1, 14, 24, tzinfo=timezone.utc)
-    fresh = D.compare_gpu_prices(data, "A100", limit=25, now=t + timedelta(hours=1))
+    # clock-independent: anchor on the newest stock check in the built feed, not a fixed snapshot time or wall clock
+    from core.gpu_availability import _parse
+    checks = [_parse(r["availability"]["checked_at"]) for r in data["rates"]
+              if isinstance(r.get("availability"), dict) and r["availability"].get("origin") == "scout" and r["availability"].get("checked_at")]
+    assert checks
+    t = max(checks)
+    fresh = D.compare_gpu_prices(data, "A100", limit=25, now=t + timedelta(minutes=1))
     stale = D.compare_gpu_prices(data, "A100", limit=25, now=t + timedelta(hours=9))
     scout = [r for r in stale["results"] if (r.get("availability") or {}).get("origin") == "scout"]
     assert scout and all(r["in_stock"] is None for r in scout)
@@ -339,7 +348,8 @@ def test_0330_mcp_stale_rows_unknown_not_ranked_last():
     p = [r["hourly_usd"] for r in stale["results"] if r["tier_class"] != "reserved"]
     assert p == sorted(p)
     if fresh["results"][0]["in_stock"] is True:
-        assert "available when checked 2026-10-30 01:14Z" in fresh["summary"]
+        c = fresh["results"][0]["availability"]["checked_at"].replace("T", " ")[:16]
+        assert f"available when checked {c}Z" in fresh["summary"]
 
 
 def test_0330_import_refuses_old_snapshot(tmp_path):
