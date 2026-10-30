@@ -15,10 +15,11 @@ GPU availability on the site comes from Lantern Scout snapshots. The pipeline ru
    - **Auth:** it uses the machine's existing `gh` login and prints no credentials.
    - **Unchanged snapshot:** it exits 0 without a commit.
    - **History:** each snapshot is one commit on `scout-data`.
-2. **Import.** `.github/workflows/scout-import.yml` runs every 4 hours at 00:15, 04:15, 08:15, 12:15, 16:15 and 20:15 UTC, and can also be started by hand.
+2. **Import and rebuild.** `.github/workflows/scout-import.yml` runs at :15 past every hour, with a cheap gate first. A run does the work only on a 4-hourly slot (00, 04, 08, 12, 16 or 20 UTC; 08:15 comes before the 10:23 UTC daily refresh), when scout-data has a snapshot not yet imported, when a published stock claim has passed `availability_expires_at`, or when started by hand.
    - **What it imports:** it reads `scout-data:latest/feed_enriched_v2_latest.json` and runs `scripts/import_scout_availability.py`. Only `in_live_feed` rows are imported.
-   - **Stale snapshots:** a snapshot older than 8 hours is refused. The current data stays, the refusal is noted in the run summary, and the run ends green with nothing deployed.
-   - **On a new snapshot:** it regenerates the pages and the GPU index and runs the tests. It commits only if something changed, then dispatches the gated Pages deploy.
+   - **Stale snapshots:** a snapshot older than 8 hours is refused. The current data stays and the refusal is noted in the run summary.
+   - **Rebuild:** pages and feeds are rebuilt either way, so expired claims flip to unknown. The tests run before anything is published.
+   - **Publishing:** it commits only if something changed, then dispatches the gated Pages deploy.
    - **deals.json:** it never changes deals.json. If deals.json would change, it stops without publishing, which keeps the public gist in lockstep.
-   - **Timing:** it shares the `gpu-refresh` concurrency group, so it never runs at the same time as the daily price refresh at 10:23 UTC.
+   - **Timing:** it shares the `gpu-refresh` concurrency group with the daily price refresh. The refresh's 14:47 UTC fallback slot also rebuilds pages and feeds.
 3. **Expiry.** Any stock claim older than 8 hours shows as "unknown (stale availability, last checked …)". This applies on the site, in `compare_gpu_prices`, and in the reader's browser (see CHANGELOG 0.3.30). If Scout stops publishing, claims expire instead of going stale silently.
