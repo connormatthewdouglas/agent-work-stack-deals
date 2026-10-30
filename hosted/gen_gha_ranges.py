@@ -1,7 +1,10 @@
 """T51: bake GitHub Actions runner IP ranges (api.github.com/meta "actions") into the worker bundle as merged integer
 ranges, so classifying a request costs one bisect (free-plan CPU). The request IP is only tested, never stored."""
-import ipaddress, json, urllib.request
-meta = json.load(urllib.request.urlopen(urllib.request.Request("https://api.github.com/meta", headers={"User-Agent": "lantern-works-ci"}), timeout=30))
+import ipaddress, json, os, urllib.request
+_h = {"User-Agent": "lantern-works-ci"}
+if os.environ.get("GITHUB_TOKEN"):  # avoids the 60/h unauthenticated limit on shared runners and boxes
+    _h["Authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]
+meta = json.load(urllib.request.urlopen(urllib.request.Request("https://api.github.com/meta", headers=_h), timeout=30))
 out = {}
 for fam in (4, 6):
     nets = sorted((int(n.network_address), int(n.broadcast_address)) for n in map(ipaddress.ip_network, meta["actions"]) if n.version == fam)
