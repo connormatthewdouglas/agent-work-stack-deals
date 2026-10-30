@@ -117,3 +117,36 @@ def test_re20_p3_lambda_verda_claims_last_one_hour_and_p4_derived_oos_region_exp
 def test_re20_p1_raw_availability_not_published():
     wf = (ROOT / ".github/workflows/validate-and-deploy.yml").read_text()
     assert "rm -rf _site/data/gpu_availability" in wf
+
+
+import pytest  # noqa: E402
+
+
+@pytest.mark.parametrize("live", ["none", "missing", "false"])
+def test_only_in_live_feed_true_rows_import(tmp_path, live):
+    """Scout merge_enriched rows with in_live_feed None/missing must never import (would be in stock for 8h)."""
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    iso = lambda d: d.isoformat(timespec="seconds").replace("+00:00", "Z")  # noqa: E731
+    base = {"vendor": "Vast.ai", "gpu": "H100 SXM", "vram_gb": 80, "tier": "Marketplace on-demand", "in_stock": True,
+            "stock_level": "High", "availability_checked_at": iso(now - timedelta(minutes=5)),
+            "availability_expires_at": iso(now + timedelta(hours=8)), "available_regions": None}
+    bad = dict(base, gpu="RTX 4090")
+    if live == "none":
+        bad["in_live_feed"] = None
+    elif live == "false":
+        bad["in_live_feed"] = False
+    good = dict(base, in_live_feed=True)
+    feed = tmp_path / "feed_enriched_v2_latest.json"
+    feed.write_text(json.dumps({"version": "3.2", "rows": [good, bad]}))
+    m = tmp_path / "manifest.json"
+    m.write_text(json.dumps({"files": {"feed_enriched_v2_latest.json": hashlib.sha256(feed.read_bytes()).hexdigest()}}))
+    out = ROOT / "data/gpu_availability/latest.json"
+    keep = out.read_bytes()
+    try:
+        r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m)}, tmp_path)
+        assert r.returncode == 0, r.stderr
+        rows = json.loads(out.read_text())["rows"]
+        assert [x["gpu"] for x in rows] == ["H100 SXM"]
+    finally:
+        out.write_bytes(keep)

@@ -65,7 +65,7 @@ def main() -> None:
                 overall[(str(a.get("vendor")).lower(), a.get("gpu_model"), a.get("tier"))] = a
     rows = []
     for r in d["rows"]:
-        if r.get("in_live_feed") is False:  # v2.5: only rows whose price is in the live feed
+        if r.get("in_live_feed") is not True:  # v2.5: only rows confirmed in the live feed (None/missing are skipped)
             continue
         row = {k: r.get(k) for k in KEEP}
         if row.get("feed_status") == "held_below_min_offers":  # v3.2: held rows are never shown as in stock
