@@ -767,8 +767,8 @@
   {
    "date": "2026-10-30",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-10-30.json",
-   "snapshot_sha256": "5765b47ba35f9bca0bf5d42d165a7f91bcaeccfaeec3c266d554d8c033437ce0",
-   "feed_commit_for_listing_counts": "uncommitted",
+   "snapshot_sha256": "292d7b91ff50d3c4f0ef356b6d004ee8615fcd326cd6bcc5694195749f14f2a1",
+   "feed_commit_for_listing_counts": "3117cac8d127e0ba94106af2da40cfcabda2340d",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.49,
@@ -793,13 +793,12 @@
      "low_coverage": false
     },
     "A100": {
-     "median_usd_per_gpu_hour": 1.48,
-     "monthly_basis_usd": 1080.4,
-     "min_usd_per_gpu_hour": 1.05,
-     "vendors": 12,
+     "median_usd_per_gpu_hour": 1.49,
+     "monthly_basis_usd": 1087.7,
+     "min_usd_per_gpu_hour": 1.09,
+     "vendors": 11,
      "vendor_prices": {
       "Civo": 1.79,
-      "CloudRift": 1.05,
       "CoreWeave": 2.7,
       "E2E Networks": 2.1,
       "Hyperstack": 1.35,
@@ -878,7 +877,6 @@
     "Civo|H100 SXM|On-demand|80|1",
     "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
     "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
-    "CloudRift|A100 SXM|On-demand|80|1",
     "CloudRift|L40S|On-demand|48|1",
     "CloudRift|RTX 5090|On-demand|32|1",
     "CoreWeave|A100|On-demand, 8-GPU instance|80|8",
@@ -940,6 +938,10 @@
    "rows_excluded": [
     {
      "key": "Beam|RTX 4090|Machine (from)|24|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "CloudRift|A100 SXM|On-demand|80|1",
      "excluded_because": "held"
     },
     {
@@ -1084,7 +1086,6 @@
      "matched_change_pct": -20.79,
      "vendors_added": [
       "Civo",
-      "CloudRift",
       "E2E Networks",
       "Jarvislabs",
       "Oblivus"

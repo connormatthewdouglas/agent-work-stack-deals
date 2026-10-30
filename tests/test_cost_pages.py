@@ -90,7 +90,7 @@ def test_rtx4090_has_cheapest_line_with_3_plus_vendors():
 def test_h1_scoped_cheapest_and_page_lowest():
     a = _page("a100", 100)
     assert "Cheapest among tracked providers" not in a
-    assert "Cheapest A100 SXM 80GB among tracked providers: Hyperstack at $160.00" in a
+    assert "<h2>A100 SXM 80GB</h2>" in a and "CloudRift A100" not in a  # stock-independent: the lead depends on Scout
     assert ("Lowest on-demand A100 on this page (not marked out of stock): Jarvislabs A100 40GB (variant not stated) at "
             "$8.90 / $89.00 / $649.70") in a
     for slug in ("h100", "l40s"):
