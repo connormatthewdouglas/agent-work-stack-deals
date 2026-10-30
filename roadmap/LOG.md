@@ -298,3 +298,8 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - P1: /data/gpu_availability/latest.json now returns 404 live.
 - P3/P4: Lambda, Verda and derived claims expire at checked_at + 1 h; T41-26 enforces this. T41 live 26/26. The gist is identical.
 - P2: the Cloudflare cron Worker lantern-works-import-cron (every 10 min) is deployed but has no token. It needs a fine-grained PAT that only the user can create. Interim proof is GitHub scheduled run 41085444239 (15:57Z).
+
+## 2026-10-30 re21 [DONE]
+- Commit 67e1636c. Validate-and-deploy run 41094769591 passed, including the new deploy build guard (RAW_DATA_OK cleaned and checked) and the live check (sampled 45 raw paths, PUBLIC_RAW_OK).
+- Raw data/ is no longer published. The only exception is data/deal_gotchas.json, linked from /changelog/, with availability fields stripped (it has none). /api/v1 is unchanged.
+- Of Gauge's 63 previously served paths, 20 are still served. They are configs/manifests/llms.txt/deals.json, and none has an availability field. oblivus.json, vast.json, the snapshots and latest.json all return 404. T41 live is 26/26 and the gist is identical.
