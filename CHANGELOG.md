@@ -4,6 +4,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.49 (2026-10-30)
+
+- re30 follow-up: a "(tie)" for cheapest never mixes a region-confirmed row with an unresolved one (live 0.3.48 named "Lambda and RunPod (tie)" for region us-ne-1 though only RunPod was confirmed there).
+
 ## 0.3.48 (2026-10-30)
 
 - re30 (a): region labels are normalised to country + zone, keeping the original label (`available_regions_normalized`). `region="US"` now matches 'US-MD-1 (United States)' and 'us-east-1'; `region="us-ne-1"` matches 'US-NE-1 (United States)'. Groups: EU, NA, APAC.

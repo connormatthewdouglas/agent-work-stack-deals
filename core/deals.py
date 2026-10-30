@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.48"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.49"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -567,7 +567,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         results.append(out)
     c = results[0]
     # I5: name every row tied with the cheapest (same price, tier class and stock state)
-    c_who = tie_label(rows, rows[0])
+    c_who = tie_label([x for x in rows if unresolved(x) == unresolved(rows[0])], rows[0])  # re30: a tie never mixes region-confirmed and unresolved rows
     od_who = tie_label([x for x in rows if tier_class(x) == "on-demand"], od) if od is not None else None
     oos_msg = ""
     if oos_cheaper is not None and not out_of_stock(c) and oos_cheaper["hourly_equiv_usd"] < c["hourly_usd"]:

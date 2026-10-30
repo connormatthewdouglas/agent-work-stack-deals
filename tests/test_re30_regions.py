@@ -1,4 +1,4 @@
-"""re30 (0.3.48): real Scout region labels normalise to country + zone (original label kept); SXM4/PCIe5 fold to the
+"""re30 (0.3.49): real Scout region labels normalise to country + zone (original label kept); SXM4/PCIe5 fold to the
 feed's family names everywhere; a region query leads the summary with what it found."""
 from __future__ import annotations
 
@@ -92,3 +92,10 @@ def test_published_rows_carry_normalised_regions():
         a = r.get("availability") or {}
         if a.get("available_regions"):
             assert [n["label"] for n in a["available_regions_normalized"]] == a["available_regions"]
+
+
+def test_tie_never_mixes_confirmed_and_unresolved():
+    doc = {"rates": [_row("Conf", "H100 SXM", 80, 3.99, in_stock=True, regions=["US-NE-1 (United States)"]),
+                     _row("Unres", "H100 SXM", 80, 3.99, in_stock=True)]}
+    s = compare_gpu_prices(doc, "H100", region="us-ne-1", now=NOW)["summary"]
+    assert "Cheapest among tracked providers: Conf H100" in s and "(tie)" not in s
