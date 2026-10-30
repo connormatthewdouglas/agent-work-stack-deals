@@ -16,11 +16,13 @@ def test_twelve_pages_in_sitemap():
 
 
 def test_eligibility_fails_closed():
-    held = {h["vendor"] for h in FEED["held_stale"]}
+    held = {h["vendor"] for h in FEED["held_stale"] if h.get("scope") != "record"} | {"TensorDock", "Clore.ai"}
+    held_recs = {(h["vendor"], x["gpu"], x["tier"]) for h in FEED["held_stale"] for x in h["records"]}
     for fam in cost_pages.GPUS.values():
         for (gpu, vram), rows in cost_pages.eligible(FEED, fam).items():
             for r in rows:
                 assert r["tier_class"] == "on-demand" and not r["interruptible"] and (r.get("min_gpus") or 1) == 1
+                assert (r["advertiser"], r["gpu"], r["tier"]) not in held_recs
                 assert r["advertiser"] not in held and r["billing_unit"] in ("hourly", "per-second")
                 assert r["gpu"] == gpu and r["vram_gb"] == vram
 
@@ -84,10 +86,11 @@ def test_rtx4090_has_cheapest_line_with_3_plus_vendors():
 
 
 
+# 2026-10-30: CloudRift A100 SXM ($1.05) held: row removed from cloudrift.ai/pricing
 def test_h1_scoped_cheapest_and_page_lowest():
     a = _page("a100", 100)
     assert "Cheapest among tracked providers" not in a
-    assert "Cheapest A100 SXM 80GB among tracked providers: CloudRift at $105.00" in a
+    assert "Cheapest A100 SXM 80GB among tracked providers: Hyperstack at $160.00" in a
     assert ("Lowest on-demand A100 on this page (not marked out of stock): Jarvislabs A100 40GB (variant not stated) at "
             "$8.90 / $89.00 / $649.70") in a
     for slug in ("h100", "l40s"):
@@ -155,7 +158,7 @@ def test_0327_new_h100_a100_rows_live_and_sourced():
     import json
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     want = {("Jarvislabs", "H100"), ("Civo", "H100"), ("Oblivus", "H100"), ("E2E Networks", "H100"),
-            ("Jarvislabs", "A100"), ("Civo", "A100"), ("Oblivus", "A100"), ("E2E Networks", "A100"), ("CloudRift", "A100")}
+            ("Jarvislabs", "A100"), ("Civo", "A100"), ("Oblivus", "A100"), ("E2E Networks", "A100")}
     got = {(r["advertiser"], r["gpu"].split()[0]) for r in feed["rates"]}
     assert want <= got
     for r in feed["rates"]:
@@ -211,7 +214,7 @@ def test_j8_cheapest_a100_summary_names_memory_sizes():
     # stock-independent: whether the J8 clause leads or follows a cheaper in-stock spot row depends on Scout's snapshot
     import re
     assert re.search(r"Jarvislabs A100 40GB \(On-demand\)(</strong>)? at \$89\.00", s)
-    assert "\u2014 memory sizes differ; cheapest A100 80GB among tracked providers: CloudRift A100 SXM 80GB at $105.00" in s
+    assert "\u2014 memory sizes differ; cheapest A100 80GB among tracked providers: Thunder Compute A100 80GB at $109.00" in s
 
 
 def test_index_a100_is_80gb_only():
@@ -261,7 +264,7 @@ def test_k2_cost_a100_any_variant_80gb_line_from_feed():
     b = min(c, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
     want = (f"Cheapest A100 80GB (any variant) among tracked providers: {b['advertiser']} {b['gpu']} 80GB at "
             + " / ".join(f"${b['hourly_equiv_usd'] * h:,.2f}" for h in (10, 100, 730)))
-    assert want == "Cheapest A100 80GB (any variant) among tracked providers: CloudRift A100 SXM 80GB at $10.50 / $105.00 / $766.50"
+    assert want == "Cheapest A100 80GB (any variant) among tracked providers: Thunder Compute A100 80GB at $10.90 / $109.00 / $795.70"
     for h in (10, 100, 730):
         assert want in _page("a100", h)
 
@@ -297,7 +300,7 @@ def test_k2_mcp_a100_summary_names_cheapest_80gb():
     from core import deals as D
     data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     out = D.compare_gpu_prices(data, "A100", on_demand_only=True)
-    assert "Memory sizes differ (cheapest 80GB: CloudRift A100 SXM 80GB at $1.05/hr, On-demand)" in out["summary"]
+    assert "Memory sizes differ (cheapest 80GB: Thunder Compute A100 80GB at $1.09/hr, On-demand)" in out["summary"]
 
 
 def _fresh():

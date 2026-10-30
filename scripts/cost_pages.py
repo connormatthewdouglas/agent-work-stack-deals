@@ -21,8 +21,12 @@ LABEL = ("Compute subtotal only, excludes storage, egress, vCPU, tax. Among trac
          "Not an availability claim, except rows marked out of stock when checked. Assumes {h} h on 1 GPU.")
 
 
+NEVER_ON_COST = {"TensorDock", "Clore.ai"}
+
+
 def eligible(feed: dict, family: str) -> dict[tuple, list[dict]]:
-    held = {h.get("vendor") for h in feed.get("held_stale") or []}
+    # Record-level holds are already out of rates, so they don't exclude a vendor's other rows; TensorDock and Clore.ai never appear.
+    held = {h.get("vendor") for h in feed.get("held_stale") or [] if h.get("scope") != "record"} | NEVER_ON_COST
     out: dict[tuple, list[dict]] = {}
     for r in feed["rates"]:
         g = r.get("gpu") or ""

@@ -121,6 +121,10 @@ def main() -> int:
                             warnings.append(f"marketplace thin right now, auto-held at next refresh ({len(per)} < {MIN_MARKET_OFFERS} offers): "
                                          f"{doc['vendor']} {r['gpu']} {r['vram_gb']} GB at {r['source_url']}")
                     continue
+                if r.get("stale"):
+                    # Held records are not shown or ranked; a missing quote is expected (e.g. row removed by the vendor).
+                    warnings.append(f"held, not re-checked: {doc['vendor']} {r['gpu']} ({r['tier']}): {r['stale']['reason']}")
+                    continue
                 text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body
                 missing = [t for t in price_tokens(r["quote"]) if t not in text]
                 if missing:

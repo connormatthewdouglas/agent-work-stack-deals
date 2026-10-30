@@ -254,7 +254,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
                          "checked_at": r["checked_at"], "reason": r["stale"]["reason"],
                          "page_last_updated": r["stale"].get("page_last_updated"),
-                         "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}]})
+                         "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}], "scope": "record"})
         for r in doc["records"]:
             if r.get("stale"):
                 continue
@@ -262,7 +262,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 # Gauge re28: a price not re-verified for STALE_DAYS never ranks on any page; listed in held_stale.
                 from .data_age import stale_label
                 held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
-                             "checked_at": r["checked_at"], "reason": stale_label(r), "page_last_updated": None,
+                             "checked_at": r["checked_at"], "reason": stale_label(r), "page_last_updated": None, "scope": "record",
                              "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}]})
                 continue
             monthly = r["billing_unit"] == "monthly"

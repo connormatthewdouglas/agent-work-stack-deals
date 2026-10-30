@@ -18,7 +18,7 @@ var BASE="__BASE__", FAM=__FAM__;
 var BUCKETS={"on-demand":["on-demand"],"spot":["interruptible","community","marketplace"]};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function pickRow(d,gpu,match,bucket){
-  var held={};(d.held_stale||[]).forEach(function(h){held[h.vendor]=1});
+  var held={};(d.held_stale||[]).forEach(function(h){if(h.scope!=="record")held[h.vendor]=1});
   var ok=BUCKETS[bucket]||BUCKETS["on-demand"];
   var rs=(d.rates||[]).filter(function(r){
     if(r.hourly_equiv_usd==null||held[r.advertiser]||r.billing_unit!=="hourly")return false;
