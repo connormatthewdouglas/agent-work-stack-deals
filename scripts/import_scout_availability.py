@@ -12,24 +12,29 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SRC = Path(sys.argv[1] if len(sys.argv) > 1 else "/workspace/lantern-scout/out/feed_enriched_v2_latest.json")
 OUT = ROOT / "data" / "gpu_availability" / "latest.json"
-KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "stock_level",
-        "availability_source", "availability_checked_at", "availability_note")
+KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "unrented_servers",
+        "stock_level", "availability_source", "availability_source_type", "availability_checked_at", "availability_note")
 
 
 def main() -> None:
     d = json.loads(SRC.read_text(encoding="utf-8"))
-    if d.get("version") != 2:
+    if str(d.get("version")) not in ("2", "2.5"):
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
     rows = []
     for r in d["rows"]:
+        if r.get("in_live_feed") is False:  # v2.5: only rows whose price is in the live feed
+            continue
         row = {k: r.get(k) for k in KEEP}
         if row["in_stock"] not in (True, False, None):
             raise SystemExit(f"bad in_stock {row['in_stock']!r} for {row['vendor']} {row['gpu']}")
         if row["in_stock"] is not None and not row["availability_checked_at"]:
             raise SystemExit(f"availability without timestamp: {row['vendor']} {row['gpu']}")
-        if any(row[k] is not None for k in ("in_stock", "offer_count", "stock_level", "available_regions", "availability_note")):
+        if row["vendor"] == "Clore.ai" and row.get("offer_count") is not None:
+            raise SystemExit("Clore availability must be unrented_servers, never offer_count")
+        if any(row[k] is not None for k in ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note")):
             rows.append(row)
-    doc = {"schema": "lantern-works-gpu-availability/1", "source": "Lantern Scout availability collector v2.1 (public vendor APIs, no auth)",
+    doc = {"schema": "lantern-works-gpu-availability/1", "source": f"Lantern Scout availability collector v{d.get('version')} (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",
+           "collected_at": max((r["availability_checked_at"] or "" for r in rows), default=None),
            "imported_rows": len(rows), "rows": sorted(rows, key=lambda r: (r["vendor"], r["gpu"], r["tier"]))}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -66,12 +66,15 @@ def _avail_cell(gen, r: dict) -> str:
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         return gen.esc(a["status"] + (f", seen {t} UTC" if t else ""))
     if a.get("in_stock") is None:
-        return "—"
+        t = (a.get("checked_at") or "").replace("T", " ")[:16]
+        return gen.esc(f"unknown (no signal), checked {t} UTC") if t else "—"
     bits = [a["status"]]
     if a.get("stock_level"):
         bits.append(f"stock {a['stock_level']}")
     if a.get("offer_count") is not None:
         bits.append(f"{a['offer_count']} offers")
+    if a.get("unrented_servers") is not None:
+        bits.append(f"{a['unrented_servers']} unrented servers (one server may hold several GPUs)")
     if a.get("available_regions"):
         bits.append("regions " + "/".join(a["available_regions"][:6]) + ("…" if len(a["available_regions"]) > 6 else ""))
     if a.get("source_label"):

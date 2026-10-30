@@ -131,7 +131,8 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         items = "".join(
             f"<li>{esc(r['advertiser'])} {esc(gpu)} {vram}GB ({esc(r.get('tier') or '')}): ${r['hourly_equiv_usd']:g}/GPU-hr, "
             f"${r['hourly_equiv_usd'] * hours:,.2f} for {hours} h{esc(_tax_note(r))}{_oos_label(r)}</li>"
-            for (gpu, vram), rows in sorted(single.items()) for r in rows)
+            for (gpu, vram), r in sorted(((k, r) for k, rows in single.items() for r in rows),
+                                         key=lambda kr: (oos(kr[1]), kr[0][0], kr[0][1], kr[1]["hourly_equiv_usd"], kr[1]["advertiser"])))
         parts.append("<h2>Other variants (not compared)</h2><p>These eligible rows are the only vendor not marked out of stock for their exact "
                      "variant (form factor and memory), so they are listed but not ranked; variants are never mixed:</p>"
                      f"<ul>{items}</ul>")

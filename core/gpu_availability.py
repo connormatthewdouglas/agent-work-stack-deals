@@ -42,8 +42,9 @@ def _clean(note):
     return note[:1].upper() + note[1:]
 
 
-AUTH_SOURCES = ("api.datacrunch.io",)  # Verda: needs an API key, so others can't re-run the check
+AUTH_SOURCES = ("api.datacrunch.io", "cloud.lambda.ai")  # Verda, Lambda: need an API key, so others can't re-run the check
 AUTH_LABEL = "authenticated vendor API (not publicly reproducible)"
+UNRENTED_NOTE = "unrented servers (one server may hold several GPUs)"
 
 
 def _from_record(a: dict) -> dict:
@@ -73,17 +74,21 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | N
     if not r and isinstance(record, dict):
         return _from_record(record)
     if not r or r.get("in_stock") is None:
-        out = {"status": "unknown", "in_stock": None, "checked_at": None,
+        out = {"status": "unknown", "in_stock": None, "checked_at": (r or {}).get("availability_checked_at"),
                "note": _clean((r or {}).get("availability_note")) or UNKNOWN_NOTE}
+        if r and r.get("availability_checked_at"):  # Scout checked and found no signal: show when (unknown, not sold out)
+            out["source"] = r.get("availability_source")
         return out
     out = {"status": "available when checked" if r["in_stock"] else "out of stock when checked",
            "in_stock": r["in_stock"], "checked_at": r.get("availability_checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)",
            "note": NOTE}
-    for k in ("offer_count", "stock_level", "available_regions"):
+    for k in ("offer_count", "unrented_servers", "stock_level", "available_regions"):
         if r.get(k) is not None:
             out[k] = r[k]
-    if any(a in (r.get("availability_source") or "") for a in AUTH_SOURCES):
+    if r.get("unrented_servers") is not None:  # Clore: servers, not GPU offers
+        out["unrented_servers_note"] = UNRENTED_NOTE
+    if r.get("availability_source_type") == AUTH_LABEL or any(a in (r.get("availability_source") or "") for a in AUTH_SOURCES):
         out["source_label"] = AUTH_LABEL
     if r.get("availability_note"):
         out["detail"] = _clean(r["availability_note"])

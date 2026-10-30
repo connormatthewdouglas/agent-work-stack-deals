@@ -41,11 +41,13 @@ def _page(slug, h):
 def test_out_of_stock_ranked_last_and_excluded():
     s = _page("a100", 100)
     assert "stock is not checked here" not in s
-    # A100 SXM 40GB: Verda $1.593 is out of stock, so Lambda $199.00 is the only in-stock row and comes first
+    # Scout v2.5 (01:14Z): Lambda A100 SXM/PCIe 40GB out of stock, Verda A100 SXM 40GB available -> out-of-stock items listed last
     sec = s.split("Other variants (not compared)")[1].split("</ul>")[0]
-    assert "Lambda A100 SXM 40GB" in sec and "$199.00 for 100 h" in sec
-    assert sec.index("Lambda A100 SXM 40GB") < sec.index("Verda (formerly DataCrunch) A100 SXM 40GB")
-    assert "out of stock when checked at" in sec.split("Verda (formerly DataCrunch) A100 SXM 40GB")[1].split("</li>")[0]
+    items = sec.split("<li>")[1:]
+    flags = ["out of stock when checked" in i for i in items]
+    assert flags == sorted(flags) and any(flags)
+    assert sec.index("Verda (formerly DataCrunch) A100 SXM 40GB") < sec.index("Lambda A100 SXM 40GB")
+    assert "out of stock when checked at" in sec.split("Lambda A100 SXM 40GB")[1].split("</li>")[0]
     h = _page("h100", 100).split("<h2>H100 SXM 80GB</h2>")[1].split("</table>")[0]
     assert h.rindex("<tr>") < h.index("Verda") and "$474.60" not in h.split("</p>")[0]
 
@@ -193,7 +195,8 @@ def test_j7_regions_cite_supporting_urls():
 def test_j8_cheapest_a100_summary_names_memory_sizes():
     s = (ROOT / "gpu/cheapest-a100-rental/index.html").read_text()
     # K1: the out-of-stock Verda spot row now ranks last, so the overall cheapest is the on-demand Jarvislabs 40GB row
-    assert ("Cheapest among tracked providers for 100 hours a month: <strong>Jarvislabs A100 40GB (On-demand)</strong> at $89.00 (on-demand) \u2014 memory sizes differ; "
+    # Scout v2.5: the Verda spot row is back in stock, so it is the overall cheapest again; the on-demand clause carries J8
+    assert ("cheapest <strong>on-demand</strong> among tracked providers: Jarvislabs A100 40GB (On-demand) at $89.00 \u2014 memory sizes differ; "
             "cheapest A100 80GB among tracked providers: CloudRift A100 SXM 80GB at $105.00") in s
 
 
@@ -247,3 +250,31 @@ def test_k2_cost_a100_any_variant_80gb_line_from_feed():
     assert want == "Cheapest A100 80GB (any variant) among tracked providers: CloudRift A100 SXM 80GB at $10.50 / $105.00 / $766.50"
     for h in (10, 100, 730):
         assert want in _page("a100", h)
+
+
+def test_scout_v25_lambda_clore_render():
+    import json
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    lam = [r for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("in_stock") is not None]
+    assert lam and all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
+    cl = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai" and r["availability"].get("in_stock") is not None]
+    assert cl and all("offer_count" not in r["availability"] and r["availability"]["unrented_servers"] > 0 for r in cl)
+    s = (ROOT / "gpu/cheapest-rtx-4090-rental/index.html").read_text()
+    assert "unrented servers (one server may hold several GPUs)" in s
+    for slug in ("a100", "h100", "rtx-4090", "l40s"):
+        assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
+    av = json.loads((ROOT / "data/gpu_availability/latest.json").read_text())
+    assert av["imported_rows"] == len(av["rows"]) == 25
+    for r in feed["rates"]:  # every row Scout checked shows its checked_at, unknown included
+        a = r["availability"]
+        if a.get("source") and "runpod" in a["source"] and a["in_stock"] is None:
+            assert a["status"] == "unknown" and a["checked_at"]
+
+
+def test_k2_mcp_a100_summary_names_cheapest_80gb():
+    import json, sys
+    sys.path.insert(0, str(ROOT))
+    from core import deals as D
+    data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    out = D.compare_gpu_prices(data, "A100", on_demand_only=True)
+    assert "Memory sizes differ (cheapest 80GB: CloudRift A100 SXM 80GB at $1.05/hr, On-demand)" in out["summary"]

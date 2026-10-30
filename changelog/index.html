@@ -128,6 +128,15 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.29</h2>
+<ul>
+<li>GPU availability now comes from Scout feed v2.5 (snapshot 2026-10-30T01:14:24Z). Only rows marked in_live_feed are imported (25 rows).</li>
+<li>Lambda availability is labelled &quot;authenticated vendor API (not publicly reproducible)&quot;, the same as Verda.</li>
+<li>Clore availability shows &quot;N unrented servers (one server may hold several GPUs)&quot;, never offers. Clore stays off /cost/ pages.</li>
+<li>Every checked availability row shows its checked_at time, including unknown (RunPod null) rows.</li>
+<li>compare_gpu_prices: the A100 &quot;memory sizes differ&quot; note names the cheapest 80GB on-demand row.</li>
+<li>/cost/ &quot;Other variants&quot; list puts out-of-stock rows last.</li>
+</ul>
 <h2>0.3.28</h2>
 <ul>
 <li>Oblivus: price quote and &quot;Available Stock&quot; count now come from one page capture (same_capture_as_price); detail says the count changes often. H100 PCIe showed 0 at the capture, so it is out of stock when checked; A100 PCIe 80GB showed 10.</li>

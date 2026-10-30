@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.28"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.29"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -447,7 +447,10 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         by_vram.setdefault(r.get("vram_gb"), r)
     vram_note = ""
     if len(by_vram) > 1:
-        vram_note = (" Memory sizes differ, compare like with like: " + "; ".join(
+        big = max(v for v in by_vram if v)
+        b = next((r for r in rows if r.get("vram_gb") == big and tier_class(r) == "on-demand" and not out_of_stock(r)), by_vram.get(big))
+        vram_note = (f" Memory sizes differ (cheapest {big}GB: {b['advertiser']} {b['gpu']} {big}GB at ${b['hourly_equiv_usd']:g}/hr, {b['tier']})"
+                     ", compare like with like: " + "; ".join(
             f"{v} GB from ${r['hourly_equiv_usd']:g}/hr ({r['advertiser']})" for v, r in sorted(by_vram.items(), key=lambda x: (x[0] is None, x[0] or 0)))
             + f". Add the size (e.g. '{q[0].upper()} {max(v for v in by_vram if v)}GB') to filter.")
     results = []
