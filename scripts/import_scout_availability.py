@@ -19,7 +19,8 @@ from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours  # noqa: E402
 OUT = ROOT / "data" / "gpu_availability" / "latest.json"
 KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "unrented_servers",
         "stock_level", "availability_source", "availability_source_type", "availability_checked_at", "availability_note",
-        "available_regions_detail", "available_regions_label")  # v2.9: per-region checked_at/expiry (1 h), confirmation
+        "available_regions_detail", "available_regions_label",  # v2.9: per-region checked_at/expiry (1 h), confirmation
+        "feed_status", "feed_min_offers", "derived_from_regions")  # v3.2: carried through unchanged
 
 
 def verify_manifests(raw: bytes) -> None:
@@ -41,7 +42,7 @@ def main() -> None:
     raw = SRC.read_bytes()
     verify_manifests(raw)
     d = json.loads(raw.decode("utf-8"))
-    if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9", "3.0", "3.1"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9, v3.0 passed; v3.1 = v3.0 + generation_id
+    if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9", "3.0", "3.1", "3.2"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9, v3.0 passed; v3.1 = v3.0 + generation_id; v3.2 = + feed_status/derived_from_regions
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
     snap = max((r.get("availability_checked_at") or "" for r in d.get("rows") or []), default="")
     age = age_hours(snap)
@@ -53,6 +54,8 @@ def main() -> None:
         if r.get("in_live_feed") is False:  # v2.5: only rows whose price is in the live feed
             continue
         row = {k: r.get(k) for k in KEEP}
+        if row.get("feed_status") == "held_below_min_offers":  # v3.2: held rows are never shown as in stock
+            row["in_stock"] = None
         if row["in_stock"] not in (True, False, None):
             raise SystemExit(f"bad in_stock {row['in_stock']!r} for {row['vendor']} {row['gpu']}")
         if row["in_stock"] is not None and not row["availability_checked_at"]:
