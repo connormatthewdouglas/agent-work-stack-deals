@@ -10,7 +10,7 @@ The hosted worker (`https://lantern-works-mcp.lantern-works.workers.dev`) keeps 
 
 ## Feeds through the worker
 
-`GET /api/v1/<file>.json` and `/deals.json` on the worker return the same bytes as the site and are counted. They accept an optional `?ref=<tag>` (`[a-z0-9_-]`, max 32).
+`GET /api/v1/<file>.json` and `/deals.json` on the worker return the same bytes as the site and are counted. They accept an optional `?ref=<tag>` (`[a-z0-9_-]`, max 32). Only 200 responses are counted, so unknown paths can't grow the table. Tool rows use known tool names only. `initialize` rows use a fixed client vocabulary: `mcp:*`, `other` or `none`.
 
 Fetches straight from thelanternworks.com (GitHub Pages) cannot be counted, because Pages has no request logs.
 
@@ -23,8 +23,8 @@ When a pricing tool is called with an opt-in watch key (`Authorization: Bearer` 
 | Who | ref | User-Agent |
 |---|---|---|
 | CI (GitHub Actions) | `ref=ci` | `lantern-works-ci` |
-| Mart / QA scripts | `ref=qa` | `lantern-works-ci` |
-| T41 release gate | `ref=t41` | `lantern-works-ci/1 (T41 release gate; ref=t41)` |
+| Mart QA scripts, including MCP python-sdk (`streamablehttp_client(url + "?ref=qa", headers={"User-Agent": "lantern-works-qa"})`) | `ref=qa` | `lantern-works-qa` |
+| T41 release gate (live mode reads `/api/v1/*.json` through the worker) | `ref=t41` | `lantern-works-ci/1 (T41 release gate; ref=t41)` |
 | Gauge's scripts | `ref=qa` or `ref=t41` | `lantern-works-gauge` (please set this in your own scripts) |
 
 ## User agents of our own clients

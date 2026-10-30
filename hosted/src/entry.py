@@ -192,7 +192,8 @@ async def _handle(msg, env, ref, bearer=None, cls=("other", "other")):
         return None
     if m == "initialize":
         cn = str(((p.get("clientInfo") or {}).get("name")) or "").lower()
-        await _hit(env, "initialize", cn if re.fullmatch(r"[a-z0-9][a-z0-9._ -]{0,39}", cn) else ("none" if not cn else "other"), ref, *cls)
+        # re24: a fixed vocabulary (known client tokens), so arbitrary clientInfo names can't grow the table
+        await _hit(env, "initialize", "none" if not cn else next((c for t, c in MCP_CLIENTS if t in cn), "other"), ref, *cls)
         return _ok(i, {"protocolVersion": p.get("protocolVersion") or PROTOCOL if p.get("protocolVersion") in ("2025-03-26", "2025-06-18", "2025-11-25") else PROTOCOL,
                        "capabilities": {"tools": {"listChanged": False}},
                        "serverInfo": {"name": "lantern-works-deals", "title": "Lantern Works GPU Prices (hosted)", "version": core_deals.VERSION},
@@ -209,7 +210,7 @@ async def _handle(msg, env, ref, bearer=None, cls=("other", "other")):
             except core_deals.DealError as e:
                 out = {"ok": False, "error": {"code": e.code, "message": e.message}}
             await _count(env, name, ref)
-            await _hit(env, "tool", name, ref, *cls)
+            await _hit(env, "tool", name, ref, *cls)  # known watch tool names only
             return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": out.get("ok") is False})
         fn = next((f for f, _ in TOOLS if f.__name__ == name), None)
         if fn is None:
@@ -263,8 +264,9 @@ class Default(WorkerEntrypoint):
         cls = (uac, _src_class(request, uac))
         if request.method == "GET" and FEED_RE.match(path):
             # T51: the JSON feeds, served through the worker so each fetch is counted (optional ?ref=); same bytes as the site
-            await _hit(self.env, "feed", path, ref, *cls)
             r = await fetch(f"{SITE}{path}?m={int(time.time() // 60)}", headers={"user-agent": HOSTED_UA})
+            if r.status == 200:  # re24 (3a): only real feeds are counted, so 404 paths can't grow the table
+                await _hit(self.env, "feed", path, ref, *cls)
             return Response(await r.text(), status=r.status, headers={"content-type": "application/json; charset=utf-8",
                                                                        "cache-control": "public, max-age=60", **CORS})
         if path in ("/stats", "/stats/"):

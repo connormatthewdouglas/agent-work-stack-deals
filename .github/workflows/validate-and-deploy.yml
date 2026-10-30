@@ -19,30 +19,37 @@ concurrency:
 
 jobs:
   changes:
-    # Data-only fast path: if every commit since the last human commit is a bot data commit (Scout import or GPU
-    # refresh) that touches only data and generated pages, skip the published-package jobs (pypi-install, docker).
-    # They test the PyPI release, which a data commit cannot change. validate, tests and T41 still gate the deploy.
+    # Data-only fast path (re24 (5)): diff HEAD against the LAST SUCCESSFULLY DEPLOYED commit (github-pages deployment),
+    # so a bot data run that cancels a release run still runs the published-package jobs for the release's changes.
+    # Only if every changed file since that deploy is data or generated pages are pypi-install and docker skipped.
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    permissions:
+      contents: read
+      deployments: read
     outputs:
       data_only: ${{ steps.c.outputs.data_only }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 20
+          fetch-depth: 0
       - id: c
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          files=""; n=0
-          for c in $(git rev-list -n 10 HEAD); do
-            [ "$(git log -1 --format=%an "$c")" = "github-actions[bot]" ] || break
-            n=$((n+1)); files="$files $(git diff-tree --no-commit-id --name-only -r "$c" | tr '\n' ' ')"
-          done
-          ok=false
-          if [ "$n" -gt 0 ] && [ "${{ github.event_name }}" != pull_request ]; then
-            ok=true
-            for f in $files; do echo "$f" | grep -Eq '^(api/|gpu/|cost/|data/|snapshots/|sitemap\.xml$|.*\.html$)' || { echo "non-data: $f"; ok=false; }; done
+          ok=false; base=""
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            for d in $(gh api "repos/${{ github.repository }}/deployments?environment=github-pages&per_page=20" -q '.[].id' 2>/dev/null); do
+              st=$(gh api "repos/${{ github.repository }}/deployments/$d/statuses?per_page=1" -q '.[0].state' 2>/dev/null)
+              if [ "$st" = success ]; then base=$(gh api "repos/${{ github.repository }}/deployments/$d" -q .sha); break; fi
+            done
           fi
-          echo "bot commits: $n, data_only=$ok"; echo "data_only=$ok" >> "$GITHUB_OUTPUT"
+          if [ -n "$base" ] && git merge-base --is-ancestor "$base" HEAD 2>/dev/null; then
+            files=$(git diff --name-only "$base" HEAD)
+            ok=true
+            for f in $files; do echo "$f" | grep -Eq '^(api/|gpu/|cost/|data/|snapshots/|sitemap\.xml$|.*\.html$)' || { echo "non-data since last deploy: $f"; ok=false; }; done
+          fi
+          echo "last deployed: ${base:-none}; data_only=$ok"; echo "data_only=$ok" >> "$GITHUB_OUTPUT"
 
   validate:
     runs-on: ubuntu-latest

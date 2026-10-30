@@ -50,3 +50,18 @@ def test_monthly_bundle_bills_whole_servers():
          "server_price_usd": 8000.0, "min_gpus": 8}
     e = G.estimate([r], 10, 9)[0]
     assert (e["billed_gpus"], e["instances"], e["monthly_cost_usd"]) == (16, 2, 16000.0)
+
+
+@pytest.mark.skipif(not NODE, reason="node not installed")
+@pytest.mark.parametrize("q,msg", [("?hours=-5&gpus=1&gpu=H100&flat=0", "hours must be a number > 0"),
+                                   ("?hours=0&gpus=1&gpu=H100&flat=0", "hours must be a number > 0"),
+                                   ("?hours=10&gpus=0&gpu=H100&flat=0", "gpus must be an integer >= 1"),
+                                   ("?hours=10&gpus=1.5&gpu=H100&flat=0", "gpus must be an integer >= 1"),
+                                   ("?hours=abc&gpus=1&gpu=H100&flat=0", "hours must be a number > 0")])
+def test_invalid_input_rejected_like_engine(q, msg):
+    """re24 (2): no $0.00 rows for hours <= 0, no silent gpus=0 -> 1."""
+    src = PAGE.read_text()
+    js = re.search(r"<script>\s*(const R=.*?)</script>", src, re.S).group(1)
+    js = STUB + js + "\nconsole.log(JSON.stringify({rows:els.results.tBodies[0].innerHTML,summary:els.summary.textContent}));"
+    out = json.loads(subprocess.run([NODE, "-", q], input=js, capture_output=True, text=True, check=True).stdout)
+    assert out["summary"] == "invalid_argument: " + msg and "$" not in out["rows"]

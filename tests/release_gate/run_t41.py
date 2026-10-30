@@ -28,6 +28,7 @@ for k, rel in _LOCAL_FILES.items():
 sys.path.insert(0, str(REPO))
 UA = "lantern-works-ci/1 (T41 release gate; ref=t41)"  # T51: house traffic is tagged, never counted as outside use
 BASE = "https://thelanternworks.com"
+WORKER = "https://lantern-works-mcp.lantern-works.workers.dev"
 
 
 _LOCAL_PATHS = {"/api/v1/gpu-prices.json": "api/v1/gpu-prices.json", "/api/v1/gpu-price-changes.json": "api/v1/gpu-price-changes.json",
@@ -39,6 +40,8 @@ def fetch(url: str) -> tuple[str, str]:
         rel = url[len(BASE):] or "/"
         f = REPO / (_LOCAL_PATHS.get(rel) or (rel.strip("/") if rel.endswith(".json") else rel.strip("/") + "/index.html"))
         return f.read_text(), datetime.fromtimestamp(f.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
+    if url.startswith(BASE + "/api/v1/") and url.endswith(".json"):
+        url = WORKER + url[len(BASE):] + "?ref=t41"  # re24 (3c): live T41 reads the feeds through the worker (same bytes, counted as house)
     for wait in (0, 15, 30, 45):
         if wait:
             time.sleep(wait)
