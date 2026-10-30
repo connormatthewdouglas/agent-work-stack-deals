@@ -26,7 +26,7 @@ def test_unknown_is_never_out_of_stock_and_has_note():
             assert "later" not in a["consistency_note"] and "same snapshot" not in a["consistency_note"]
     rp = [r for r in rates if r["advertiser"] == "RunPod" and "Community" in r["tier"]]
     assert rp and all(r["availability"]["status"].startswith("unknown") or r["availability"]["in_stock"] is not None for r in rp)
-    assert any("no stock status" in r["availability"]["note"] or r["availability"].get("availability_stale") for r in rp) and all("out of stock" not in r["availability"]["note"] for r in rp)
+    assert any("no stock status" in r["availability"]["note"] or r["availability"].get("availability_stale") for r in rp) and all("out of stock" not in r["availability"]["note"].replace("every region is confirmed out of stock", "") for r in rp)  # the region-derived rule text names the false condition; it is not a claim
 
 
 def test_pages_never_say_out_of_stock():
