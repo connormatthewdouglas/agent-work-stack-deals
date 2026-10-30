@@ -292,3 +292,9 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - 0ab34bef and 9eb24a45 (0.3.36; PyPI, MCP registry; worker 6b1e9fa7 redeployed after the import). Import 41088224933 → 87c8ab47 and 2a0bce5a. Deploy 41088309931 green after a pypi-install rerun (PyPI lag). 41088215848 (on 9eb24a45, before the re-import) failed the release gate on T41-26, as intended, and was superseded.
 - N1: derived_from_regions is carried through, and a region-derived overall claim ends when its regions expire (build time and MCP). N2: a RunPod overall claim needs a confirmed region; the H100 PCIe Secure claim came from RunPod's GPU-type-wide lowestPrice stockStatus with no region behind it, copied straight from Scout's feed. N3: build horizon of 60 min, plus a gated scout-import every 10 min. N4: a manifest sha256 is required for every import (and for Scout's availability file).
 - Live 12:21 ET: Oblivus H100/A100 MON1 and RunPod H100 SXM AP-IN-1 show "unknown (stale)", RunPod H100 PCIe Secure shows unknown, and no MON1/AP-IN-1 appears on /gpu/cheapest-h100-rental/. T41 26/26 live, gist identical. H100 in-stock rows: 0. A100: Lambda x2 and Vast (no regions). (B) not met.
+
+## 2026-10-30 re20 [DONE] (0.3.37)
+- Commits 2dec0f4b, 95ca5243. Import 41092304331 produced 98f45bba and bfb13e6a. Deploy 41092394432 green. PyPI, MCP registry and hosted worker 98d61f73 are on 0.3.37.
+- P1: /data/gpu_availability/latest.json now returns 404 live.
+- P3/P4: Lambda, Verda and derived claims expire at checked_at + 1 h; T41-26 enforces this. T41 live 26/26. The gist is identical.
+- P2: the Cloudflare cron Worker lantern-works-import-cron (every 10 min) is deployed but has no token. It needs a fine-grained PAT that only the user can create. Interim proof is GitHub scheduled run 41085444239 (15:57Z).
