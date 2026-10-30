@@ -9,6 +9,6 @@
 - [For agents](https://thelanternworks.com/for-agents/): endpoints, record shape, MCP server
 
 ## Availability rule
-- A stock claim (availability.in_stock true or false) is valid until availability.availability_expires_at (UTC). Lambda, Verda, region-derived and per-region claims last at most 1 hour after checked_at; marketplace overall claims (Vast, Clore) last at most 8 hours. After availability_expires_at, treat the claim as unknown: neither in stock nor sold out. The feeds publish claims until their real expiry (they are not rebuilt at that moment), so consumers must enforce availability_expires_at themselves; the pages and compare_gpu_prices already do.
+- A stock claim (availability.in_stock true or false) is valid until availability.availability_expires_at (UTC). Lambda, Verda, region-derived and per-region claims last at most 1 hour after checked_at; marketplace overall claims (Vast, Clore) last at most 8 hours. After availability_expires_at, treat the claim as unknown: neither in stock nor sold out. Static feeds leave out claims within 25 minutes of expiry and are rebuilt on every availability snapshot. Consumers must still enforce availability_expires_at. compare_gpu_prices applies it at request time and is the source of truth.
 - availability.in_stock null means no signal, not sold out.
 - Pages show the same limit as "valid until HH:MM ET; after that treat as unknown".

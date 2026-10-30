@@ -73,10 +73,10 @@ def test_n1_derived_claim_unknown_once_regions_expire():
     assert g.stale_guard(a, datetime(2026, 10, 30, 16, 0, tzinfo=timezone.utc))["in_stock"] is True
     out = g.stale_guard(a, datetime(2026, 10, 30, 16, 22, tzinfo=timezone.utc))
     assert out["in_stock"] is None and not out.get("available_regions")
-    os.environ["LW_BUILD_HORIZON_MIN"] = "5"  # only a claim expiring within the deploy latency is left out at build time
+    os.environ["LW_BUILD_HORIZON_MIN"] = "25"  # re24: a claim expiring within the 25-min build cutoff is left out
     try:
-        assert g.stale_guard(a, g.build_now(datetime(2026, 10, 30, 16, 17, tzinfo=timezone.utc)))["in_stock"] is None
-        assert g.stale_guard(a, g.build_now(datetime(2026, 10, 30, 15, 30, tzinfo=timezone.utc)))["in_stock"] is True  # 51 min left: stays in stock
+        assert g.stale_guard(a, g.build_now(datetime(2026, 10, 30, 16, 0, tzinfo=timezone.utc)))["in_stock"] is None  # 21 min left
+        assert g.stale_guard(a, g.build_now(datetime(2026, 10, 30, 15, 30, tzinfo=timezone.utc)))["in_stock"] is True  # 51 min left
     finally:
         del os.environ["LW_BUILD_HORIZON_MIN"]
 

@@ -19,7 +19,12 @@ GPU availability on the site comes from Lantern Scout snapshots. The pipeline ru
    - **What it imports:** it reads `scout-data:latest/feed_enriched_v2_latest.json` and runs `scripts/import_scout_availability.py`. Only `in_live_feed` rows are imported.
    - **Stale snapshots:** a snapshot older than 8 hours is refused. The current data stays and the refusal is noted in the run summary.
    - **Rebuild:** pages and feeds are rebuilt either way, so expired claims flip to unknown. The tests run before anything is published.
-   - **Expiry is enforced by consumers:** a build leaves out only claims expiring within 5 minutes (the deploy latency). Every other claim is published with its real `availability_expires_at`. The pages' script and `compare_gpu_prices` flip it to unknown at that time, and feed consumers must do the same. An expired claim never shows as in stock.
+   - **Expiry (Gauge re24, design (a)):** a build leaves out any claim that expires within 25 minutes (Scout's cadence plus deploy time). Every other claim is published with its real `availability_expires_at`.
+     - Every Scout push rebuilds, even when no claim is renewed.
+     - The `*/10` backstop also rebuilds once any published claim is within 20 minutes of expiry. So a fresh build normally replaces static output before any claim it holds expires (worst-case static staleness 0).
+     - **Tradeoff:** a claim leaves the static pages and feeds up to 25 minutes before it truly expires.
+     - **Residual risk:** a rebuild needs a Scout push or a GitHub cron run. If both stall for more than about 20 minutes, a static claim could outlive its expiry.
+     - Two consumers stay correct even then: `compare_gpu_prices` / `estimate_job_cost` apply expiry at request time and are the source of truth, and the pages' script flips the claim to unknown in the browser. Feed consumers must enforce `availability_expires_at` themselves.
    - **Deploys never stack:** `validate-and-deploy` has one concurrency group per ref with cancel-in-progress, so the latest wins. Bot-only data commits skip the published-package jobs (pypi-install, docker); validate, tests and T41 still gate.
    - **Publishing:** it commits only if something changed, then dispatches the gated Pages deploy.
    - **deals.json:** it never changes deals.json. If deals.json would change, it stops without publishing, which keeps the public gist in lockstep.

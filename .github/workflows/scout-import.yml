@@ -46,19 +46,21 @@ jobs:
           import json, os, sys
           from datetime import datetime, timezone
           now = datetime.now(timezone.utc)
+          from datetime import timedelta
+          SOON = timedelta(minutes=20)  # re24: rebuild BEFORE a published claim expires (build cutoff 25 min drops it)
           p = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))
           m = json.load(open(sys.argv[1]))
           cur = json.load(open("data/gpu_availability/latest.json")).get("collected_at")
           rates = json.load(open("api/v1/gpu-prices.json"))["rates"]
           expired = [r["availability"]["availability_expires_at"] for r in rates
                      if isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is not None
-                     and r["availability"].get("availability_expires_at") and p(r["availability"]["availability_expires_at"]) <= now]
+                     and r["availability"].get("availability_expires_at") and p(r["availability"]["availability_expires_at"]) <= now + SOON]
           expired += [r["availability"]["regions_expires_at"] for r in rates  # v2.9: region lists expire after 1 h
                       if isinstance(r.get("availability"), dict) and r["availability"].get("available_regions")
-                      and r["availability"].get("regions_expires_at") and p(r["availability"]["regions_expires_at"]) <= now]
+                      and r["availability"].get("regions_expires_at") and p(r["availability"]["regions_expires_at"]) <= now + SOON]
           why = ("manual" if os.environ["EVENT"] != "schedule" else "4-hourly slot" if now.hour % 4 == 0 and 10 <= now.minute < 25
                  else "new snapshot" if m.get("collected_at") and m.get("collected_at") != cur
-                 else f"{len(expired)} expired claims" if expired else "")
+                 else f"{len(expired)} claims expired or expiring within 20 min" if expired else "")
           print(f"run={'1' if why else '0'}")
           print(f"why={why or 'nothing new, nothing expired'}")
           PY
