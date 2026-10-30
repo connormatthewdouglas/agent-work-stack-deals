@@ -2,6 +2,13 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.32
+
+- Every stock claim (in_stock true or false) now carries availability_expires_at: checked_at + 8 h, in UTC. After that time, treat the claim as unknown. This applies to gpu-prices.json, /api/v1/gpu/<family>.json and compare_gpu_prices.
+- Site: stock claims show "valid until HH:MM ET; after that treat as unknown" and carry data-av-expires. Documented in /for-agents/ and the new /llms.txt.
+- /cost/ "Other variants" intro: "Listed but not ranked: no second vendor offers this exact variant in stock (form factor and memory); variants are never mixed; rows marked out of stock come last."
+- Pipeline: the hourly-gated Scout import rebuilds pages and feeds even when a snapshot is refused, so expired claims flip to unknown. The daily refresh's 14:47 UTC fallback now rebuilds pages even when today's price snapshot exists.
+
 ## 0.3.31
 
 - Fix in the 0.3.30 code: stale-availability times fall back to UTC where no time zone database is installed (for example, Windows without tzdata), instead of failing on import. Ships together with the 0.3.30 changes.

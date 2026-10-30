@@ -1,7 +1,7 @@
-"""0.3.31: static GPU/cost pages are rebuilt only on the daily refresh or a deploy, but a Scout stock check expires after
+"""0.3.30: static GPU/cost pages are rebuilt only on the daily refresh or a deploy, but a Scout stock check expires after
 AVAIL_MAX_AGE_H. Every in/out-of-stock claim carries data-av-checked; this inline script rewrites any claim older than
 the limit to "unknown (stale availability, last checked <ET time>)" in the reader's browser, so a page never shows a
-stale stock claim between builds. Ranking order on the page is fixed at build time (see LOG 0.3.31)."""
+stale stock claim between builds. Ranking order on the page is fixed at build time (see LOG 0.3.30)."""
 from __future__ import annotations
 
 import re
@@ -14,8 +14,8 @@ from core.gpu_availability import AVAIL_MAX_AGE_H  # noqa: E402
 BEGIN, END = "<!-- av-stale -->", "<!-- /av-stale -->"
 JS = (BEGIN + "\n<script>(function(){var L=" + str(AVAIL_MAX_AGE_H) + "*36e5,f=new Intl.DateTimeFormat('en-CA',"
       "{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});"
-      "document.querySelectorAll('[data-av-checked]').forEach(function(e){var t=Date.parse(e.getAttribute('data-av-checked'));"
-      "if(!t||Date.now()-t<=L)return;var s='unknown (stale availability, last checked '+f.format(new Date(t)).replace(', ',' ')"
+      "document.querySelectorAll('[data-av-checked]').forEach(function(e){var t=Date.parse(e.getAttribute('data-av-checked')),"
+      "x=Date.parse(e.getAttribute('data-av-expires')||'')||t+L;if(!t||Date.now()<=x)return;var s='unknown (stale availability, last checked '+f.format(new Date(t)).replace(', ',' ')"
       ".replace(/^24:/,'00:')+' ET)';e.textContent=e.tagName==='SMALL'?'('+s+')':s;e.className='av-stale';});})();</script>\n" + END)
 
 

@@ -249,6 +249,16 @@
    },
    "expected": "compare_gpu_prices rows have in_stock null and availability_stale true; the summary makes no in-stock claim; the site cell reads 'unknown (stale availability, last checked <ET time>)'; every stock claim on the page carries data-av-checked and the page carries the expiry script.",
    "why": "Gauge re16: AVAIL_MAX_AGE_H = 8 (Scout cadence 4 h); static pages must not silently go stale between builds."
+  },
+  {
+   "id": "T41-24",
+   "intent": "Served data, read without JavaScript, never carries an in-stock claim past checked_at + 8 h",
+   "inputs": {
+    "json": "https://thelanternworks.com/api/v1/gpu-prices.json and /gpu/<family>.json",
+    "html": "every /gpu/cheapest-*-rental/ page (raw HTML)"
+   },
+   "expected": "Every in_stock:true claim has availability_expires_at and now <= availability_expires_at; no raw-HTML 'available when checked' claim is older than 8 h.",
+   "why": "Gauge re17 2e: static pages and feeds must not serve expired stock claims to clients that do not run JS."
   }
  ]
 }

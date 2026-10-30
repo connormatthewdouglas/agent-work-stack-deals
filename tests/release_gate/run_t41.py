@@ -37,7 +37,7 @@ _LOCAL_PATHS = {"/api/v1/gpu-prices.json": "api/v1/gpu-prices.json", "/api/v1/gp
 def fetch(url: str) -> tuple[str, str]:
     if LOCAL:
         rel = url[len(BASE):] or "/"
-        f = REPO / (_LOCAL_PATHS.get(rel) or (rel.strip("/") + "/index.html"))
+        f = REPO / (_LOCAL_PATHS.get(rel) or (rel.strip("/") if rel.endswith(".json") else rel.strip("/") + "/index.html"))
         return f.read_text(), datetime.fromtimestamp(f.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
     for wait in (0, 15, 30, 45):
         if wait:
@@ -520,6 +520,45 @@ def _(f, ev):
     if naked: f.append(f"stock claims without data-av-checked: {naked[:3]}")
     ev.update(fixture_checked_at=old, limit_hours=AVAIL_MAX_AGE_H, fixture_rows=n, summary=out["summary"][:220],
               site_cell=cell, page_claims=len(claims))
+
+
+@case("T41-24")
+def _(f, ev):
+    # re17: no-JS check of what is served. No in_stock:true claim in the JSON feeds, and no "available when checked"
+    # claim in the raw HTML, may be past checked_at + AVAIL_MAX_AGE_H (availability_expires_at).
+    from datetime import timedelta
+    from core.gpu_availability import AVAIL_MAX_AGE_H
+    lim = timedelta(hours=AVAIL_MAX_AGE_H)
+    checked = 0
+    def chk_json(name, rates):
+        nonlocal checked
+        for r in rates:
+            a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
+            if a.get("in_stock") is not True:
+                continue
+            checked += 1
+            if not a.get("checked_at"): f.append(f"{name}: {rid(r)} in stock with no checked_at"); continue
+            exp = ts(a["availability_expires_at"]) if a.get("availability_expires_at") else ts(a["checked_at"]) + lim
+            if not a.get("availability_expires_at"): f.append(f"{name}: {rid(r)} in stock without availability_expires_at")
+            if NOW > exp or NOW - ts(a["checked_at"]) > lim:
+                f.append(f"{name}: {rid(r)} in stock, checked {a['checked_at']}, expired {exp.isoformat()}")
+    chk_json("gpu-prices.json", RATES)
+    idx = json.loads(fetch(f"{BASE}/api/v1/gpu/index.json")[0])
+    fams = sorted(m["url"].rsplit("/", 1)[1] for m in idx["models"])
+    for fam in fams:
+        d = json.loads(fetch(f"{BASE}/api/v1/gpu/{fam}")[0])
+        chk_json(f"gpu/{fam}", (d.get("rows") or []) + ([d["cheapest"]] if isinstance(d.get("cheapest"), dict) else []))
+    pages = sorted(set(re.findall(r'/gpu/cheapest-([a-z0-9-]+)-rental/', cmp_txt)))
+    n_html = 0
+    for slug in pages:
+        txt, _at = fetch(f"{BASE}/gpu/cheapest-{slug}-rental/")
+        for m in re.finditer(r'data-av-checked="([^"]+)"[^>]*>([^<]*)', txt):
+            if "available when checked" not in m.group(2):
+                continue
+            n_html += 1
+            if NOW - ts(m.group(1)) > lim:
+                f.append(f"/gpu/cheapest-{slug}-rental/: in-stock claim checked {m.group(1)} is past {AVAIL_MAX_AGE_H} h (no JS)")
+    ev.update(json_in_stock_claims=checked, html_in_stock_claims=n_html, families=fams, pages=len(pages))
 
 
 passed = sum(r["status"] == "PASS" for r in results)

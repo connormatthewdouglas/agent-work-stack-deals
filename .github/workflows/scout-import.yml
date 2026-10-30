@@ -1,13 +1,17 @@
 name: Scout availability import
 
-# Every 4 h: import the latest Lantern Scout snapshot from the orphan branch scout-data (latest/), published by
-# scripts/push_scout_snapshot.sh (docs/SCOUT-DATA.md). The importer keeps in_live_feed rows only and refuses a snapshot
-# older than 8 h (AVAIL_MAX_AGE_H); a refusal keeps the current data, is logged in the run summary, and ends the run
-# green with no commit or deploy. Changes are committed by github-actions[bot] and the gated deploy is dispatched.
+# Imports the latest Lantern Scout snapshot from the orphan branch scout-data (latest/), published by
+# scripts/push_scout_snapshot.sh (docs/SCOUT-DATA.md), and rebuilds pages and feeds so expired stock claims flip to unknown.
+# Hourly cheap gate (public repo: Actions minutes are free): a run does work only when (a) it is a 4-hourly slot
+# (00/04/08/12/16/20 UTC, 08:15 lands before the 10:23 UTC daily refresh), (b) scout-data has a snapshot not yet
+# imported, (c) a published stock claim has passed availability_expires_at (checked_at + 8 h), or (d) it was started by hand.
+# The importer keeps in_live_feed rows only and refuses a snapshot older than 8 h; a refusal keeps the current data,
+# is logged in the run summary, and the pages and feeds are still rebuilt (expired claims become unknown).
+# Commits only if something changed, then dispatches the gated Pages deploy. deals.json never changes here (gist lockstep).
 # Shares the gpu-refresh concurrency group so it never runs at the same time as the daily price refresh.
 on:
   schedule:
-    - cron: "15 */4 * * *"   # 00:15 04:15 08:15 12:15 16:15 20:15 UTC; 08:15 lands before the 10:23 UTC daily refresh
+    - cron: "15 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -26,11 +30,39 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Gate (stdlib only)
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          git fetch -q origin scout-data
+          git show origin/scout-data:latest/manifest.json > "$RUNNER_TEMP/manifest.json" 2>/dev/null || echo '{}' > "$RUNNER_TEMP/manifest.json"
+          python3 - "$RUNNER_TEMP/manifest.json" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, sys
+          from datetime import datetime, timezone
+          now = datetime.now(timezone.utc)
+          p = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))
+          m = json.load(open(sys.argv[1]))
+          cur = json.load(open("data/gpu_availability/latest.json")).get("collected_at")
+          rates = json.load(open("api/v1/gpu-prices.json"))["rates"]
+          expired = [r["availability"]["availability_expires_at"] for r in rates
+                     if isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is not None
+                     and r["availability"].get("availability_expires_at") and p(r["availability"]["availability_expires_at"]) <= now]
+          why = ("manual" if os.environ["EVENT"] != "schedule" else "4-hourly slot" if now.hour % 4 == 0
+                 else "new snapshot" if m.get("collected_at") and m.get("collected_at") != cur
+                 else f"{len(expired)} expired claims" if expired else "")
+          print(f"run={'1' if why else '0'}")
+          print(f"why={why or 'nothing new, nothing expired'}")
+          PY
+          echo "gate: $(grep '^why=' "$GITHUB_OUTPUT" | tail -1)" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == '1'
         with:
           python-version: "3.12"
       - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
-      - name: Import, regenerate, gate, commit, push, dispatch deploy
+        if: steps.gate.outputs.run == '1'
+      - name: Import (refusal keeps current data), rebuild, gate, commit, push, dispatch deploy
+        if: steps.gate.outputs.run == '1'
         env:
           GH_TOKEN: ${{ github.token }}
           LANTERN_DEALS_FILE: api/v1/deals.json
@@ -39,33 +71,32 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           S="$GITHUB_STEP_SUMMARY"
+          # set -e does not apply inside a function called with ||, so every step returns explicitly (3 = hard failure)
           run_import() {
             git fetch -q origin scout-data || return 3
             git show origin/scout-data:latest/feed_enriched_v2_latest.json > "$RUNNER_TEMP/feed.json" || return 3
-            git show origin/scout-data:latest/manifest.json > "$RUNNER_TEMP/manifest.json" || true
-            echo "scout-data manifest: $(python3 -c 'import json,sys;m=json.load(open(sys.argv[1]));print(m.get("collected_at"), m.get("in_live_feed_rows"), "live rows")' "$RUNNER_TEMP/manifest.json" 2>/dev/null || echo n/a)" >> "$S"
-            if ! python3 scripts/import_scout_availability.py "$RUNNER_TEMP/feed.json" > "$RUNNER_TEMP/import.log" 2>&1; then
+            if python3 scripts/import_scout_availability.py "$RUNNER_TEMP/feed.json" > "$RUNNER_TEMP/import.log" 2>&1; then
+              echo "Imported: $(tail -1 "$RUNNER_TEMP/import.log")" >> "$S"
+            else
               echo "Import refused, current availability kept: $(tail -1 "$RUNNER_TEMP/import.log")" >> "$S"
               git checkout -q -- data/gpu_availability
-              return 1
             fi
-            if git diff --quiet -- data/gpu_availability; then echo "Snapshot already imported; nothing to do." >> "$S"; return 1; fi
-            # set -e does not apply inside a function called with ||, so every step returns explicitly (3 = hard failure)
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
             python3 scripts/gpu_index.py . api/v1 > /dev/null || return 3
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
             if ! git diff --quiet -- deals.json api/v1/deals.json; then
-              echo "::warning::deals.json changed during an availability import; not publishing (gist lockstep)"; return 2
+              echo "::warning::deals.json changed during an availability rebuild; not publishing (gist lockstep)"; return 3
             fi
+            if [ -z "$(git status --porcelain)" ]; then echo "No changes after rebuild." >> "$S"; return 1; fi
             python3 -m pytest -q tests || return 3
           }
           rc=0; run_import || rc=$?
           [ "$rc" = 0 ] || { [ "$rc" = 1 ] && exit 0; exit 1; }
           for i in 1 2 3 4; do
             git add -A
-            git commit -qm "data: Scout availability import $(python3 -c 'import json;print(json.load(open("data/gpu_availability/latest.json")).get("collected_at"))')"
+            git commit -qm "data: Scout availability import/rebuild $(python3 -c 'import json;print(json.load(open("data/gpu_availability/latest.json")).get("collected_at"))')"
             if git push origin HEAD:main; then pushed=1; break; fi
-            echo "push rejected; resetting to origin/main and re-importing (attempt $i)"
+            echo "push rejected; resetting to origin/main and rebuilding (attempt $i)"
             git fetch -q origin main && git reset -q --hard origin/main
             sleep $((i * 15))
             rc=0; run_import || rc=$?

@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.31"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.32"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -426,7 +426,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         max_h = data_age.validate_max_age(max_data_age_hours)
     except ValueError as e:
         raise DealError("invalid_argument", str(e))
-    # 0.3.31: availability older than AVAIL_MAX_AGE_H is re-checked at call time and shown unknown (never ranks or leads)
+    # 0.3.30: availability older than AVAIL_MAX_AGE_H is re-checked at call time and shown unknown (never ranks or leads)
     from .gpu_availability import stale_guard
     _now_av = now.astimezone(timezone.utc) if isinstance(now, datetime) and now.tzinfo else None
     rows = [dict(r, availability=stale_guard(r["availability"], _now_av)) if isinstance(r.get("availability"), dict) else r

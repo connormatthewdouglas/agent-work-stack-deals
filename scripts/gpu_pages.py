@@ -83,8 +83,14 @@ def _avail_cell(gen, r: dict) -> str:
         bits.append(a["source_label"])
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     sep = " (separate check, time shown)" if r.get("advertiser") == "Vast.ai" else ""
+    exp = a.get("availability_expires_at")
+    if exp:
+        from core.gpu_availability import et_hm
+        sep += f"; valid until {et_hm(exp)}; after that treat as unknown"
     body = gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
-    return f'<span data-av-checked="{gen.esc(a.get("checked_at") or "")}">{body}</span>' if a.get("origin") in ("scout", "record") and t else body
+    if a.get("origin") in ("scout", "record") and t:
+        return (f'<span data-av-checked="{gen.esc(a.get("checked_at") or "")}" data-av-expires="{gen.esc(exp or "")}">{body}</span>')
+    return body
 
 
 def _verified_cell(r: dict, esc) -> str:
@@ -203,12 +209,15 @@ def _mem_note(gen, rows, od) -> str:
 
 
 def _stock_tag(gen, r) -> str:
-    """0.3.31: name the stock check only for a fresh in-stock row (stale checks are unknown; the inline script flips it after 8 h)."""
+    """0.3.30: name the stock check only for a fresh in-stock row (stale checks are unknown; the inline script flips it after 8 h)."""
     a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
     if a.get("in_stock") is not True or a.get("availability_stale") or not a.get("checked_at"):
         return ""
-    from core.gpu_availability import et_time
-    return f' <small data-av-checked="{gen.esc(a["checked_at"])}">(available when checked at {gen.esc(et_time(a["checked_at"]))})</small>'
+    from core.gpu_availability import et_hm, et_time
+    exp = a.get("availability_expires_at") or ""
+    tail = f"; valid until {et_hm(exp)}; after that treat as unknown" if exp else ""
+    return (f' <small data-av-checked="{gen.esc(a["checked_at"])}" data-av-expires="{gen.esc(exp)}">(available when checked at '
+            f'{gen.esc(et_time(a["checked_at"]))}{gen.esc(tail)})</small>')
 
 
 def _od_note(gen, rows, cheapest) -> str:

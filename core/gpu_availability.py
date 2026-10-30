@@ -62,7 +62,7 @@ def _from_record(a: dict) -> dict:
     out = {"status": "available when checked" if a["in_stock"] else "out of stock when checked",
            "in_stock": bool(a["in_stock"]), "checked_at": a.get("checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)", "source": a.get("source"), "note": NOTE,
-           "origin": "record", "max_age_hours": AVAIL_MAX_AGE_H}
+           "origin": "record", "max_age_hours": AVAIL_MAX_AGE_H, "availability_expires_at": expires_at(a.get("checked_at"))}
     if a.get("stock_level"):
         out["stock_level"] = str(a["stock_level"])
     if a.get("same_capture_as_price"):
@@ -115,6 +115,19 @@ def age_hours(ts, now: datetime | None = None) -> float | None:
     return None if d is None else ((now or now_utc()) - d).total_seconds() / 3600
 
 
+def expires_at(checked_at) -> str | None:
+    """availability_expires_at: checked_at + AVAIL_MAX_AGE_H (UTC, Z). After it, treat the stock claim as unknown."""
+    from datetime import timedelta
+    d = _parse(checked_at)
+    return (d + timedelta(hours=AVAIL_MAX_AGE_H)).astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z") if d else None
+
+
+def et_hm(ts) -> str:
+    """HH:MM ET (or UTC without a tz database)."""
+    t = et_time(ts)
+    return t[11:] if t != "n/a" else t
+
+
 def stale_guard(a, now: datetime | None = None):
     """Scout (or record-level, J6) availability older than AVAIL_MAX_AGE_H renders unknown (in_stock null, availability_stale true).
     Applied when the feed is built and again when the MCP tool reads it, so a stale stock claim never ranks or leads."""
@@ -150,7 +163,8 @@ def _scout(vendor: str, r: dict | None) -> dict:
     out = {"status": "available when checked" if r["in_stock"] else "out of stock when checked",
            "in_stock": r["in_stock"], "checked_at": r.get("availability_checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)",
-           "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H}
+           "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H,
+           "availability_expires_at": expires_at(r.get("availability_checked_at"))}
     for k in ("offer_count", "unrented_servers", "stock_level", "available_regions"):
         if r.get(k) is not None:
             out[k] = r[k]

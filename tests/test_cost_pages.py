@@ -113,7 +113,7 @@ def test_j_site_wording():
         for h in (10, 100, 730):
             s = _page(g, h)
             assert "only in-stock vendor" not in s
-    assert "only vendor not marked out of stock for their exact" in _page("h100", 100) + _page("a100", 100)
+    assert "Listed but not ranked: no second vendor offers this exact variant in stock (form factor and memory); variants are never mixed; rows marked out of stock come last." in _page("h100", 100) + _page("a100", 100)
     inst = (ROOT / "install/index.html").read_text()
     from core.deals import VERSION
     assert inst.count("version 0.3.23") == inst.count("history: tested on version 0.3.23") and f"current version {VERSION}" in inst
@@ -301,9 +301,9 @@ def _fresh():
 def test_0330_other_variants_intro_and_in_stock_time():
     s = _page("a100", 100)
     sec = s.split("Other variants (not compared)")[1].split("</ul>")[0]
-    assert "listed but not ranked; variants are never mixed; out-of-stock rows last" in sec
+    assert "Listed but not ranked: no second vendor offers this exact variant in stock (form factor and memory); variants are never mixed; rows marked out of stock come last." in sec
     if _fresh():  # pages built from a fresh snapshot: in-stock rows show their check time like out-of-stock rows
-        assert "(available when checked at 20" in sec and " ET)" in sec and "data-av-checked=" in sec
+        assert "(available when checked at 20" in sec and "; valid until " in sec and "after that treat as unknown)" in sec and "data-av-expires=" in sec
     assert "<!-- av-stale -->" in s
 
 
@@ -352,3 +352,24 @@ def test_0330_import_refuses_old_snapshot(tmp_path):
     p = subprocess.run([sys.executable, str(ROOT / "scripts/import_scout_availability.py"), str(f)], capture_output=True, text=True)
     assert p.returncode != 0 and "refusing to import" in (p.stderr + p.stdout)
     assert (ROOT / "data/gpu_availability/latest.json").read_bytes() == before
+
+
+def test_re17_expires_at_on_every_stock_claim():
+    import json
+    from datetime import timedelta
+    from core.gpu_availability import AVAIL_MAX_AGE_H, _parse
+    feeds = [json.loads((ROOT / "api/v1/gpu-prices.json").read_text())["rates"]]
+    feeds += [json.loads(p.read_text()).get("rows") or [] for p in (ROOT / "api/v1/gpu").glob("*.json") if p.name != "index.json"]
+    n = 0
+    for rows in feeds:
+        for r in rows:
+            a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
+            if a.get("in_stock") is None:
+                assert "availability_expires_at" not in a or a.get("availability_stale") is None
+                continue
+            n += 1
+            assert _parse(a["availability_expires_at"]) == _parse(a["checked_at"]) + timedelta(hours=AVAIL_MAX_AGE_H)
+    assert n or not _fresh()
+    fa = (ROOT / "for-agents/index.html").read_text()
+    assert "availability_expires_at" in fa and "after that treat as unknown" in fa
+    assert "availability_expires_at" in (ROOT / "llms.txt").read_text()

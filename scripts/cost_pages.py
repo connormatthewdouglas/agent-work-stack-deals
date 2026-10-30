@@ -52,14 +52,15 @@ def _oos_label(r: dict) -> str:
     a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
     if a.get("availability_stale"):
         return f' <small class="av">({html.escape(a["status"])})</small>'
-    if a.get("in_stock") is True:  # 0.3.31: in-stock rows show their check time too (stale_js flips it after 8 h)
-        t = a.get("checked_at")
-        return (f' <small class="av" data-av-checked="{html.escape(t or "")}">(available when checked at '
-                f'{html.escape(_et(t))})</small>')
-    if not oos(r):
+    if a.get("in_stock") is None:
         return ""
-    t = r["availability"].get("checked_at")
-    return f' <small class="oos" data-av-checked="{html.escape(t or "")}">(out of stock when checked at {html.escape(_et(t))})</small>'
+    # 0.3.30/re17: every stock claim shows its check time and its expiry (checked_at + 8 h); stale_js flips it after that
+    from core.gpu_availability import et_hm
+    t, exp = a.get("checked_at"), a.get("availability_expires_at") or ""
+    word, cls = ("available", "av") if a["in_stock"] else ("out of stock", "oos")
+    tail = f"; valid until {et_hm(exp)}; after that treat as unknown" if exp else ""
+    return (f' <small class="{cls}" data-av-checked="{html.escape(t or "")}" data-av-expires="{html.escape(exp)}">({word} when checked at '
+            f'{html.escape(_et(t))}{html.escape(tail)})</small>')
 
 
 def _et(ts: str | None) -> str:
@@ -141,9 +142,8 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
             f"${r['hourly_equiv_usd'] * hours:,.2f} for {hours} h{esc(_tax_note(r))}{_oos_label(r)}</li>"
             for (gpu, vram), r in sorted(((k, r) for k, rows in single.items() for r in rows),
                                          key=lambda kr: (oos(kr[1]), kr[0][0], kr[0][1], kr[1]["hourly_equiv_usd"], kr[1]["advertiser"])))
-        parts.append("<h2>Other variants (not compared)</h2><p>These eligible rows are the only vendor not marked out of stock for their exact "
-                     "variant (form factor and memory), so they are listed but not ranked; variants are never mixed; "
-                     "out-of-stock rows last:</p>"
+        parts.append("<h2>Other variants (not compared)</h2><p>Listed but not ranked: no second vendor offers this exact variant in stock "
+                     "(form factor and memory); variants are never mixed; rows marked out of stock come last.</p>"
                      f"<ul>{items}</ul>")
     other = " · ".join(f'<a href="{base}/cost/{slug}-{h}-hours/">{h} h</a>' for h in HOURS if h != hours)
     parts.append(
