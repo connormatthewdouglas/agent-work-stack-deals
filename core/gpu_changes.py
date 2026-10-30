@@ -55,13 +55,19 @@ def build_changes(snapshots: list[dict] | None = None) -> dict:
 
 
 def _fmt(v):
-    return "—" if v is None else f"${v:.2f}/GPU-hr"
+    from .money import usd
+    return "—" if v is None else f"{usd(v)}/GPU-hr"
+
+
+def _pair(a, b):
+    from .money import usd_pair
+    return usd_pair(a, b)
 
 
 def change_title(c: dict) -> str:
     if c["change"] in ("down", "up"):
         return (f"{c['gpu']} at {c['vendor']} {'dropped' if c['change'] == 'down' else 'rose'} {abs(c['pct'])}%: "
-                f"{_fmt(c['old_hourly_usd'])} → {_fmt(c['new_hourly_usd'])}")
+                + "{} → {}".format(*(f"{x}/GPU-hr" for x in _pair(c['old_hourly_usd'], c['new_hourly_usd']))))
     if c["change"] == "new":
         return f"Newly tracked: {c['gpu']} at {c['vendor']} {_fmt(c['new_hourly_usd'])}"
     return f"No longer ranked: {c['gpu']} at {c['vendor']} (was {_fmt(c['old_hourly_usd'])})"

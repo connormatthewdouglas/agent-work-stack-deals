@@ -61,7 +61,7 @@ def _from_record(a: dict) -> dict:
                 "source": a.get("source"), "note": _clean(a.get("note")) or UNKNOWN_NOTE}
     out = {"status": "available when checked" if a["in_stock"] else "out of stock when checked",
            "in_stock": bool(a["in_stock"]), "checked_at": a.get("checked_at"),
-           "refresh": "manual snapshot, time shown (prices checked daily)", "source": a.get("source"), "note": NOTE,
+           "refresh": REFRESH_AUTOMATED, "source": a.get("source"), "note": NOTE,
            "origin": "record", "max_age_hours": AVAIL_MAX_AGE_H, "availability_expires_at": expires_at(a.get("checked_at"))}
     if a.get("stock_level"):
         out["stock_level"] = str(a["stock_level"])
@@ -133,6 +133,18 @@ def et_hm(ts) -> str:
 REGIONS_NOTE = "Region lists refresh with each Scout cycle and may be blank between cycles."
 
 
+def claim_hours(checked_at, expires) -> float:
+    """Gauge F4: a claim's real lifetime in hours (availability_expires_at - checked_at), e.g. 0.25 for a Verda spot claim."""
+    c, x = _parse(checked_at), _parse(expires)
+    if not c or not x:
+        return AVAIL_MAX_AGE_H
+    return round(max(0.0, (x - c).total_seconds() / 3600), 2)
+
+
+REFRESH_AUTOMATED = "automated check, time shown (prices checked daily)"
+REFRESH_MANUAL = "manual snapshot, time shown (prices checked daily)"
+
+
 def regions_expires_at(r: dict | None) -> str | None:
     """Scout v2.9: each region in available_regions_detail carries its own availability_expires_at (1 h). The region
     list as a whole is valid until the earliest of them (separate from the row's 8 h stock-claim expiry)."""
@@ -171,7 +183,8 @@ def stale_guard(a, now: datetime | None = None):
     if h is None and not x:
         return region_guard(a, now)
     out = {"status": f"unknown (stale availability, last checked {et_time(a.get('checked_at'))})", "in_stock": None,
-           "availability_stale": True, "checked_at": a.get("checked_at"), "max_age_hours": AVAIL_MAX_AGE_H,
+           "availability_stale": True, "checked_at": a.get("checked_at"),
+           "max_age_hours": claim_hours(a.get("checked_at"), a.get("availability_expires_at")),
            "origin": a["origin"], "note": STALE_NOTE}
     if a.get("derived_from_regions"):
         out["derived_from_regions"] = True
@@ -237,9 +250,9 @@ def _scout(vendor: str, r: dict | None) -> dict:
         return out
     out = {"status": "available when checked" if r["in_stock"] else "out of stock when checked",
            "in_stock": r["in_stock"], "checked_at": r.get("availability_checked_at"),
-           "refresh": "manual snapshot, time shown (prices checked daily)",
-           "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H,
-           "availability_expires_at": _min_expiry(r, vendor)}
+           "refresh": REFRESH_MANUAL if vendor.lower().startswith("clore") else REFRESH_AUTOMATED,
+           "note": NOTE, "origin": "scout", "availability_expires_at": _min_expiry(r, vendor)}
+    out["max_age_hours"] = claim_hours(out["checked_at"], out["availability_expires_at"])
     for k in ("feed_status", "derived_from_regions", "offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
         if r.get(k) is not None:
             out[k] = r[k]

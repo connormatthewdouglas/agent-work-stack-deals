@@ -147,7 +147,7 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
                      f"<ul>{items}</ul>")
     other = " · ".join(f'<a href="{base}/cost/{slug}-{h}-hours/">{h} h</a>' for h in HOURS if h != hours)
     parts.append(
-        "<h2>What's not included</h2><p>Storage, egress, vCPU/RAM add-ons, region and tax. Availability is a manual snapshot: "
+        "<h2>What's not included</h2><p>Storage, egress, vCPU/RAM add-ons, region and tax. Availability is an automated check at the time shown: "
         "rows marked out of stock when checked are listed last and left out of lowest, median and cheapest; other rows are "
         "not an availability claim. Multi-GPU and 8-GPU-only offers are left out: multi-GPU quotes need whole-instance pricing, coming later. "
         "Spot, community, marketplace, serverless, reserved and held or thin prices are never shown here.</p>"

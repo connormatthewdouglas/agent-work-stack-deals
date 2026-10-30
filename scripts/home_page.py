@@ -18,6 +18,7 @@ INSTALL_PIP = "pip install lantern-works-deals-mcp"
 
 def spread(rates: list[dict]) -> list[dict]:
     sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    from core.money import usd  # noqa: E402
     from core.gpu import family_of
     out = []
     for slug, name in SPREAD:
@@ -33,7 +34,7 @@ def spread(rates: list[dict]) -> list[dict]:
         caveat = ""
         if skipped is not None and skipped["hourly_equiv_usd"] < lo["hourly_equiv_usd"]:
             ca = skipped["availability"].get("checked_at")
-            caveat = (f'{skipped["advertiser"]} ${skipped["hourly_equiv_usd"]:.2f} out of stock when checked'
+            caveat = (f'{skipped["advertiser"]} {usd(skipped["hourly_equiv_usd"])} out of stock when checked'
                       + (f" at {ca}" if ca else ""))
         vals = [r["hourly_equiv_usd"] for r in rs if not oos(r)] or vals
         n_oos = len(rs) - len(vals) if len(vals) < len(rs) else 0
@@ -74,6 +75,7 @@ REDIRECT_JS = r"""  <script>
 
 def write(gen, deals: list[dict], feed_updated: str) -> Path:
     sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    from core.money import usd  # noqa: E402
     from core.gpu import build_rates
     from core.gpu_changes import build_changes, change_title
     esc, BASE = gen.esc, gen.BASE
@@ -83,7 +85,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     fresh = max(((r.get("verified_at") or "")[:10] for r in rates), default="")
     rows = "".join(
         f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/cheapest-{s["slug"]}-rental/">{esc(s["name"])}</a></th>'
-        f'<td class="lo"><strong>${s["min"]:.2f}</strong>{f' <small class="oos">(excl. {esc(s["oos_caveat"])})</small>' if s["oos_caveat"] else ""}</td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
+        f'<td class="lo"><strong>{usd(s["min"])}</strong>{f' <small class="oos">(excl. {esc(s["oos_caveat"])})</small>' if s["oos_caveat"] else ""}</td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
         f'<td class="n">{s["n"]}{f" ({s['n_oos']} out of stock excluded)" if s["n_oos"] else ""}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
         for s in spread(rates))
     ch = build_changes()

@@ -53,4 +53,4 @@ def test_all_oos_still_returned():
 def test_home_spread_excludes_oos(feed):
     a = [s for s in spread(feed["rates"]) if s["slug"] == "a100"][0]
     assert a["cheapest_vendor"] == "Hyperstack" and a["min"] == 1.08
-    assert "Verda" in a["oos_caveat"] and "$0.80 out of stock when checked" in a["oos_caveat"]
+    assert "Verda" in a["oos_caveat"] and "$0.7965 out of stock when checked" in a["oos_caveat"]  # F3: digits kept

@@ -84,7 +84,8 @@ def rankable(prices):
 
 
 def m(x) -> str:
-    return f"${x:,.2f}"
+    from core.money import usd
+    return usd(x)
 
 
 def ts(iso: str) -> str:
@@ -227,7 +228,7 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
             continue
         has_av = any(((r.get("availability") or {}).get("in_stock") is not None) for r in rs)
         hdr = ("<tr><th>Vendor</th><th>Variant</th><th>VRAM</th><th>Tier</th><th>$/GPU-hr</th><th>Since " + esc(prev) + "</th><th>Egress / storage</th><th>Vendor quote</th><th>Verified</th>"
-               + ("<th>Availability (manual snapshot)</th>" if has_av else "") + "<th>Link</th></tr>")
+               + ("<th>Availability (automated check, time shown)</th>" if has_av else "") + "<th>Link</th></tr>")
         trs = []
         for r in rs:
             ex = (vend.get(r["advertiser"]) or {}).get("extras") or {}

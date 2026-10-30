@@ -22,7 +22,8 @@ DEFAULT_HOURS = 100
 
 
 def _money(x: float) -> str:
-    return f"${x:,.2f}"
+    from core.money import usd
+    return usd(x)
 
 
 def _vendor_url(gen, r: dict) -> str:
@@ -43,8 +44,8 @@ def _rate_str(r: dict) -> str:
             s += f" (sold only as {r['min_gpus']}-GPU instances)"
         return s
     if (r.get("gpu_count") or 1) > 1:
-        return f"${r['price_usd']:,.2f}/GPU-mo ({r['gpu_count']}-GPU server ${r['server_price_usd']:,.2f}/mo)"
-    return f"${r['price_usd']:,.2f}/mo"
+        return f"{_money(r['price_usd'])}/GPU-mo ({r['gpu_count']}-GPU server {_money(r['server_price_usd'])}/mo)"
+    return f"{_money(r['price_usd'])}/mo"
 
 
 def _quote_html(esc, r: dict, n: int = 70) -> str:
@@ -150,6 +151,9 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
     esc = gen.esc
     trs = []
     has_av = any((r.get("availability") or {}).get("in_stock") is not None for r in rows)
+    kinds = {"manual snapshot" if str((r.get("availability") or {}).get("refresh", "")).startswith("manual") else "automated check"
+             for r in rows if (r.get("availability") or {}).get("in_stock") is not None}
+    av_head = "automated check or manual snapshot (Clore)" if len(kinds) > 1 else (kinds.pop() if kinds else "automated check")
     for i, r in enumerate(rows, 1):
         tc = r.get("tier_class") or "on-demand"
         badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
@@ -169,12 +173,12 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
         filt = ""
     return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
             f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
-            "<th>Price verified</th>" + ("<th>Availability (manual snapshot, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
+            "<th>Price verified</th>" + (f"<th>Availability ({av_head}, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             "<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
             + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. "
                + STOCK_EXPLAINER + " " + REGIONS_NOTE + " " if has_av else
-               "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as a manual snapshot "
+               "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as an automated check "
                "(" + STOCK_EXPLAINER + ") ")
             + "Vast.ai offer counts come from a separate check at the time shown, not the price-quote check, so counts and minimums can differ.</p>")
 

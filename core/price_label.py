@@ -10,6 +10,8 @@ Validator rule (scripts/check_no_unknown_prices.py): rendered pages and API outp
 """
 from __future__ import annotations
 
+from .money import usd
+
 import re
 
 PRICE_RE = re.compile(r"\$\s?\d|¢|₹|€\s?\d|\d\s?€|£\s?\d", re.I)
@@ -37,7 +39,7 @@ def price_label(deal: dict, gpu_rates: list[dict] | None = None) -> tuple[str, s
     """(label, kind) for a deal with price_usd None. kind: gpu | plans | offer."""
     g = gpu_from(deal, gpu_rates)
     if g:
-        return (f"From ${g['hourly_equiv_usd']:.2f}/GPU-hr ({g['gpu']}), checked {str(g.get('verified_at') or g['checked_at'])[:10]}", "gpu")
+        return (f"From {usd(g['hourly_equiv_usd'])}/GPU-hr ({g['gpu']}), checked {str(g.get('verified_at') or g['checked_at'])[:10]}", "gpu")
     if has_plan_prices(deal):
         return ("Plan prices listed (see details)", "plans")
     return (OFFER_LABELS.get(deal.get("offer_type") or "", DEFAULT_LABEL), "offer")

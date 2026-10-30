@@ -7,7 +7,7 @@ checks serverInfo.version equals the package version.
 Optional --uvx also runs the same calls via `uvx lantern-works-deals-mcp==VERSION`.
 Exit 0 only if every tool call returns a non-error result.
 """
-import argparse, asyncio, json, os, shutil, subprocess, sys, tempfile, venv
+import argparse, asyncio, json, os, shutil, subprocess, sys, tempfile, time, venv
 
 PKG = "lantern-works-deals-mcp"
 
@@ -102,7 +102,15 @@ def main():
         run([py, cl, a.version, os.path.join(vd, "bin", PKG)], env=env, cwd=tmp)
         if a.uvx and not a.wheel:
             uvx = shutil.which("uvx") or sys.exit("uvx not found")
-            run([py, cl, a.version, uvx, "--no-cache", spec], env=env, cwd=tmp)
+            # uv reads PyPI's simple index, which can lag the JSON API pip used by minutes after an upload: retry
+            for i in range(6):
+                try:
+                    run([py, cl, a.version, uvx, "--no-cache", spec], env=env, cwd=tmp); break
+                except subprocess.CalledProcessError:
+                    if i == 5:
+                        raise
+                    print(f"uvx could not resolve {spec} yet (index lag); retry {i + 1}/5 in 60 s", flush=True)
+                    time.sleep(60)
         print("RESULT: ok")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

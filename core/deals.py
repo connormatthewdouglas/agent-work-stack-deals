@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.45"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.46"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -386,7 +386,11 @@ def stock_phrase(a) -> str:
     a = a if isinstance(a, dict) else {}
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     if a.get("availability_stale"):
-        return f"availability unknown: last stock check {t}Z is over {a.get('max_age_hours', 8)} h old"
+        x = (a.get("availability_expires_at") or "").replace("T", " ")[11:16]
+        life = a.get("max_age_hours")
+        valid = (f"{life * 60:g} min" if isinstance(life, (int, float)) and life < 1 else f"{life:g} h") if isinstance(life, (int, float)) else None
+        return (f"availability unknown: last stock check {t[11:]}Z expired" + (f" at {x}Z" if x else "")
+                + (f" (this stock claim was valid {valid})" if valid else ""))
     if a.get("in_stock") is True:
         return f"available when checked {t}Z" if t else "available when checked"
     if a.get("in_stock") is False:

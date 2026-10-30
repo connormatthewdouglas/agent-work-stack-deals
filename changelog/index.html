@@ -128,6 +128,14 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.46 (2026-10-30)</h2>
+<ul>
+<li>F1: /install/ pairs the test date with the version actually tested (&quot;tested 2026-10-30 (v0.3.45); current v0.3.46&quot;), never with a later build version. Client config checks keep their own date.</li>
+<li>F2: Scout stock rows read &quot;automated check, time shown&quot; in <code>availability.refresh</code> and the page headers; &quot;manual snapshot&quot; stays only for Clore.ai.</li>
+<li>F3: one shared price formatter keeps significant digits ($3.125, not $3.12); &quot;What moved&quot; adds decimals until old and new differ ($0.7965 → $0.8045).</li>
+<li>F4: expired stock text comes from <code>availability_expires_at</code> (&quot;last stock check 20:52Z expired at 21:07Z (this stock claim was valid 15 min)&quot;); <code>max_age_hours</code> is each claim&#x27;s real lifetime (0.25 for Verda spot).</li>
+<li>CI: the pypi-install uvx step retries for PyPI index lag; the worker build uses GITHUB_TOKEN for api.github.com/meta.</li>
+</ul>
 <h2>0.3.45 (2026-10-30)</h2>
 <ul>
 <li>re28 stale prices: by default a GPU price older than 168 h (7 days) is never ranked and never named cheapest, in compare_gpu_prices, estimate_job_cost, optimize_agent_stack, optimize_stack, the GPU cost calculator, the stack optimizer and every generated page. Such rows are listed separately as &quot;stale price (N days old)&quot; (<code>stale_prices</code>, <code>excluded_stale</code>). If every candidate is stale, no current cheapest is named and the summary says so. <code>max_data_age_hours</code> replaces the 168 h default. At build time, a record not re-verified for 7 days is moved to <code>held_stale</code>.</li>
