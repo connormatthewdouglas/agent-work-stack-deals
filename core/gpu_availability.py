@@ -199,12 +199,13 @@ def _min_expiry(r: dict, vendor: str = "") -> str | None:
     return min(ts, key=_parse) if ts else None
 
 
-BUILD_HORIZON_MIN = 60  # N3: the next rebuild is not guaranteed sooner (hourly gated import; GitHub cron can be late)
+BUILD_HORIZON_MIN = 5  # Bjorn 10-30: deploy latency only. The real availability_expires_at is published; consumers (pages JS, MCP) enforce it
 
 
 def build_now(now: datetime | None = None) -> datetime:
-    """Build-time clock: now + LW_BUILD_HORIZON_MIN (set by the page/feed generator). A claim that would expire before the
-    next rebuild is written as unknown, so static HTML and JSON never hold a claim past its expiry."""
+    """Build-time clock: now + LW_BUILD_HORIZON_MIN (set by the page/feed generator). A claim that would expire within the
+    deploy latency is written as unknown. Other claims keep their real availability_expires_at: the page script and the
+    MCP (request-time stale_guard) flip them to unknown at expiry, and feed consumers must do the same."""
     from datetime import timedelta
     return (now or now_utc()) + timedelta(minutes=int(os.environ.get("LW_BUILD_HORIZON_MIN") or 0))
 

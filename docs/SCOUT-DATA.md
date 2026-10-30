@@ -19,6 +19,8 @@ GPU availability on the site comes from Lantern Scout snapshots. The pipeline ru
    - **What it imports:** it reads `scout-data:latest/feed_enriched_v2_latest.json` and runs `scripts/import_scout_availability.py`. Only `in_live_feed` rows are imported.
    - **Stale snapshots:** a snapshot older than 8 hours is refused. The current data stays and the refusal is noted in the run summary.
    - **Rebuild:** pages and feeds are rebuilt either way, so expired claims flip to unknown. The tests run before anything is published.
+   - **Expiry is enforced by consumers:** a build leaves out only claims expiring within 5 minutes (the deploy latency). Every other claim is published with its real `availability_expires_at`. The pages' script and `compare_gpu_prices` flip it to unknown at that time, and feed consumers must do the same. An expired claim never shows as in stock.
+   - **Deploys never stack:** `validate-and-deploy` has one concurrency group per ref with cancel-in-progress, so the latest wins. Bot-only data commits skip the published-package jobs (pypi-install, docker); validate, tests and T41 still gate.
    - **Publishing:** it commits only if something changed, then dispatches the gated Pages deploy.
    - **deals.json:** it never changes deals.json. If deals.json would change, it stops without publishing, which keeps the public gist in lockstep.
    - **Timing:** it shares the `gpu-refresh` concurrency group with the daily price refresh. The refresh's 14:47 UTC fallback slot also rebuilds pages and feeds.

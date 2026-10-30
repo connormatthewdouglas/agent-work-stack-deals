@@ -11,10 +11,39 @@ on:
 permissions:
   contents: read
 
-# Push-to-MCP latency (Bjorn 2026-10-30): only the deploy job is serialized, so a new data commit's checks start at
-# once instead of waiting for the previous run's live checks. GitHub keeps one pending deploy per group (the newest).
+# Bjorn 2026-10-30 (2:06 PM): deploys never stack. One run per ref; a newer run cancels the older one (latest wins).
+# The daily schedule has its own group so it never cancels a deploy.
+concurrency:
+  group: vd-${{ github.event_name == 'schedule' && 'schedule' || github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  changes:
+    # Data-only fast path: if every commit since the last human commit is a bot data commit (Scout import or GPU
+    # refresh) that touches only data and generated pages, skip the published-package jobs (pypi-install, docker).
+    # They test the PyPI release, which a data commit cannot change. validate, tests and T41 still gate the deploy.
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      data_only: ${{ steps.c.outputs.data_only }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+      - id: c
+        run: |
+          files=""; n=0
+          for c in $(git rev-list -n 10 HEAD); do
+            [ "$(git log -1 --format=%an "$c")" = "github-actions[bot]" ] || break
+            n=$((n+1)); files="$files $(git diff-tree --no-commit-id --name-only -r "$c" | tr '\n' ' ')"
+          done
+          ok=false
+          if [ "$n" -gt 0 ] && [ "${{ github.event_name }}" != pull_request ]; then
+            ok=true
+            for f in $files; do echo "$f" | grep -Eq '^(api/|gpu/|cost/|data/|snapshots/|sitemap\.xml$|.*\.html$)' || { echo "non-data: $f"; ok=false; }; done
+          fi
+          echo "bot commits: $n, data_only=$ok"; echo "data_only=$ok" >> "$GITHUB_OUTPUT"
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -78,6 +107,8 @@ jobs:
 
   pypi-install:
     # Clean-environment install of the PUBLISHED package from PyPI (fresh venv + uvx), all 3 tools over stdio
+    needs: [changes]
+    if: needs.changes.outputs.data_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -91,6 +122,8 @@ jobs:
 
   docker:
     # Glama-style container run: build the Dockerfile (installs the pinned PyPI release) and call every tool over stdio
+    needs: [changes]
+    if: needs.changes.outputs.data_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -170,11 +203,9 @@ jobs:
     # Pages source = "GitHub Actions" (build_type=workflow) with repo variable PAGES_DEPLOY_VIA_ACTIONS=true,
     # so nothing reaches the live site unless validate + tests + pypi-install pass. Rollback: set Pages
     # build_type back to legacy (branch main, /) and the variable to false.
-    if: vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    # always(): pypi-install/docker may be skipped on the data-only path; any failure or cancel still blocks.
+    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.validate.result == 'success' && needs.tests.result == 'success' && needs.release-gate.result == 'success' && vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    concurrency:
-      group: pages-deploy-${{ github.ref }}
-      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write
@@ -182,7 +213,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # Job-level concurrency can let an older run deploy after a newer one; never let it put older content live.
+      # Never put older content live (belt and braces next to cancel-in-progress).
       - id: head
         run: |
           H=$(git ls-remote "https://github.com/${{ github.repository }}" refs/heads/main | cut -f1)
