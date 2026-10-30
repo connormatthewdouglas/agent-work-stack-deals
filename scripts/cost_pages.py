@@ -91,6 +91,12 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         else:
             line = f"Lowest on-demand {fam} on this page (not marked out of stock): {names} at {amts} ({hrs} h) - variants differ, see tables."
         parts.append(f"<p class=\"pagelow\">{esc(line)}</p>")
+        big = [((gpu, vram), r) for (gpu, vram), r in live_all if vram == 80] if fam == "A100" else []
+        if big and any(v != 80 for (_, v), _ in live_all):  # K2: cheapest 80GB across every variant (SXM, PCIe, unlabelled)
+            b80 = min(r["hourly_equiv_usd"] for _, r in big)
+            n80 = " and ".join(sorted({f"{r['advertiser']} {gpu} 80GB" for (gpu, _), r in big if r["hourly_equiv_usd"] == b80}))
+            n80 += " (tie)" if len({r["advertiser"] for _, r in big if r["hourly_equiv_usd"] == b80}) > 1 else ""
+            parts.append(f"<p class=\"pagelow80\">{esc(f'Cheapest {fam} 80GB (any variant) among tracked providers: {n80} at ' + ' / '.join(f'${b80 * h:,.2f}' for h in HOURS))}</p>")
     if not groups:
         parts.append("<p>No variant of this GPU has two or more eligible vendors today, so no comparison is shown.</p>")
     for (gpu, vram), rows in sorted(groups.items(), key=lambda kv: -len({r['advertiser'] for r in kv[1]})):

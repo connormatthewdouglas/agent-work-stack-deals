@@ -36,7 +36,8 @@ _LOCAL_PATHS = {"/api/v1/gpu-prices.json": "api/v1/gpu-prices.json", "/api/v1/gp
 
 def fetch(url: str) -> tuple[str, str]:
     if LOCAL:
-        f = REPO / _LOCAL_PATHS[url[len(BASE):] or "/"]
+        rel = url[len(BASE):] or "/"
+        f = REPO / (_LOCAL_PATHS.get(rel) or (rel.strip("/") + "/index.html"))
         return f.read_text(), datetime.fromtimestamp(f.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
     for wait in (0, 15, 30, 45):
         if wait:
@@ -463,6 +464,28 @@ def _(f, ev):
         if got is None or abs(got - exp) > 0.005: f.append(f"{name}: page lowest {html.unescape(low)!r} != pay-as-you-go min ${exp}")
         seen.append(f"{name}: {html.unescape(low)[:60]}")
     ev.update(rows=seen, page_fetched_at=cmp_at)
+
+
+@case("T41-22")
+def _(f, ev):
+    # K1: on every /gpu/cheapest-*-rental/ page, no out-of-stock row may be ranked above a row not marked out of stock
+    # (checked per table: pay-as-you-go and reserved tables are ranked separately).
+    slugs = sorted(re.findall(r'/gpu/cheapest-([a-z0-9-]+)-rental/', cmp_txt) or [])
+    slugs = sorted(set(slugs))
+    if not slugs: f.append("no /gpu/cheapest-*-rental/ links found on /gpu/price-comparison/"); return
+    seen_pages = []
+    for slug in slugs:
+        txt, _at = fetch(f"{BASE}/gpu/cheapest-{slug}-rental/")
+        n_oos = 0
+        for tb in txt.split("<tbody>")[1:]:
+            oos_seen = False
+            for i, tr in enumerate(re.findall(r"<tr.*?</tr>", tb.split("</tbody>")[0], re.S), 1):
+                o = "out of stock when checked" in tr
+                n_oos += o
+                if oos_seen and not o: f.append(f"{slug}: row #{i} not marked out of stock is ranked below an out-of-stock row")
+                oos_seen |= o
+        seen_pages.append(f"{slug}: {n_oos} out-of-stock rows, ranked last")
+    ev.update(pages=seen_pages)
 
 
 passed = sum(r["status"] == "PASS" for r in results)

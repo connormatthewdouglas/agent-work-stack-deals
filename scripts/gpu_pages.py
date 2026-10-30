@@ -107,7 +107,7 @@ def _pick_cheapest(rs: list[dict]) -> dict:
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     """H5: reserved/term-commitment rows get their own section, sorted by effective hourly rate with the term shown."""
     payg = [r for r in rows if r.get("tier_class") != "reserved"]
-    res = sorted((r for r in rows if r.get("tier_class") == "reserved"), key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
+    res = sorted((r for r in rows if r.get("tier_class") == "reserved"), key=lambda r: (out_of_stock(r), r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
     out = _table_one(gen, payg, full) if payg else ""
     if res:
         out += ("\n<h3 id=\"reserved-rates\">Reserved and term-commitment prices</h3>\n<p class=\"meta\">These need a reservation or minimum term "
@@ -200,7 +200,7 @@ def _od_note(gen, rows, cheapest) -> str:
     """When the overall cheapest isn't on-demand, say so and name the cheapest on-demand rate (audit T9/M6)."""
     tc = cheapest.get("tier_class") or "on-demand"
     if tc == "on-demand":
-        return " (on-demand)"
+        return " (on-demand)" + _mem_note(gen, rows, cheapest)
     od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand"), None)
     tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {_tied_names(gen, rows, od)} {gen.esc(_mem_label(rows, od))} ({gen.esc(od['tier'])}) at "
             f"{_money(od['monthly_cost_usd'])}{_mem_note(gen, rows, od)}") if od else "; no on-demand rate is tracked for this model"
@@ -225,10 +225,11 @@ def _freshness(rows) -> str:
 
 def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     name = fam["name"]
-    rows = estimate(fam["rates"], DEFAULT_HOURS)
+    # K1: rows not marked out of stock first, out-of-stock after, each group by price (same rule as /cost/ and MCP)
+    rows = sorted(estimate(fam["rates"], DEFAULT_HOURS), key=out_of_stock)
     full = _full_map(fam["rates"])
-    hourly = sorted((r for r in rows if r["unit"] == "hour"), key=lambda r: r["price_usd"])
-    by_full = sorted(rows, key=lambda r: full[_key(r)])
+    hourly = sorted((r for r in rows if r["unit"] == "hour"), key=lambda r: (out_of_stock(r), r["price_usd"]))
+    by_full = sorted(rows, key=lambda r: (out_of_stock(r), full[_key(r)]))
     fresh = _freshness(rows)
     path = f"gpu/cheapest-{slug}-rental"
     url = f"{gen.BASE}/{path}/"
@@ -267,7 +268,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/price-comparison/">GPU prices</a> › {gen.esc(name)}</nav>
   <h1>{gen.esc(name)} rental: cheapest among tracked providers</h1>
   <p class="meta">Prices verified through {fresh} · {len(rows)} offers from {len(fam['vendors'])} vendors · sorted by cost for {DEFAULT_HOURS} GPU hours/month</p>
-  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, rows, cheapest)} {gen.esc(cheapest['gpu'])} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
+  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, rows, cheapest)} {gen.esc(_mem_label(rows, cheapest))} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
 {_table(gen, rows, full)}
   <p>Basis: hourly rate × hours; dedicated servers are a flat monthly price. One GPU. Excludes storage, egress and tax.</p>
 {accuracy_html(gen, fam['rates'])}{changes_html(gen, slug)}  <h2>FAQ</h2>

@@ -230,6 +230,15 @@
    },
    "expected": "For each model row, the lowest rate shown == min hourly_equiv_usd over that model's non-reserved rates in the live feed.",
    "why": "Regression 0.3.19: CloudRift reserved rows (L40S $0.54, RTX 5090 $0.55) were shown as cheapest."
+  },
+  {
+   "id": "T41-22",
+   "intent": "Every /gpu/cheapest-*-rental/ page ranks rows not marked out of stock before out-of-stock rows (same rule as /cost/ and compare_gpu_prices)",
+   "inputs": {
+    "pages": "https://thelanternworks.com/gpu/cheapest-<model>-rental/ for every model linked from /gpu/price-comparison/"
+   },
+   "expected": "Within each ranked table, no row lacking 'out of stock when checked' appears after a row that has it.",
+   "why": "Gauge re14 K1: Oblivus H100 PCIe and Verda H100 SXM (out of stock) were mixed into the price ranking."
   }
  ]
 }

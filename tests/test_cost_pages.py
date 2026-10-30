@@ -192,7 +192,8 @@ def test_j7_regions_cite_supporting_urls():
 
 def test_j8_cheapest_a100_summary_names_memory_sizes():
     s = (ROOT / "gpu/cheapest-a100-rental/index.html").read_text()
-    assert ("cheapest <strong>on-demand</strong> among tracked providers: Jarvislabs A100 40GB (On-demand) at $89.00 \u2014 memory sizes differ; "
+    # K1: the out-of-stock Verda spot row now ranks last, so the overall cheapest is the on-demand Jarvislabs 40GB row
+    assert ("Cheapest among tracked providers for 100 hours a month: <strong>Jarvislabs A100 40GB (On-demand)</strong> at $89.00 (on-demand) \u2014 memory sizes differ; "
             "cheapest A100 80GB among tracked providers: CloudRift A100 SXM 80GB at $105.00") in s
 
 
@@ -215,3 +216,34 @@ def test_j8_80gb_clause_covers_every_variant_from_feed():
     s = (ROOT / "gpu/cheapest-a100-rental/index.html").read_text()
     m = re.search(r"cheapest A100 80GB among tracked providers: (.*?) at \$([\d,]+\.\d\d)", s)
     assert m and m.group(1).startswith(b["advertiser"]) and float(m.group(2).replace(",", "")) == round(b["hourly_equiv_usd"] * 100, 2)
+
+
+def _ranked_rows(slug):
+    import re
+    s = (ROOT / f"gpu/cheapest-{slug}-rental/index.html").read_text()
+    return [re.findall(r"<tr.*?</tr>", t.split("</tbody>")[0], re.S) for t in s.split("<tbody>")[1:]]  # one list per table
+
+
+def test_k1_cheapest_pages_rank_out_of_stock_last():
+    import glob
+    for p in glob.glob(str(ROOT / "gpu/cheapest-*-rental/index.html")):
+        slug = p.split("cheapest-")[1].split("-rental")[0]
+        for table in _ranked_rows(slug):
+            seen = False
+            for r in table:
+                o = "out of stock when checked" in r
+                assert not (seen and not o), (slug, r[:200])
+                seen |= o
+
+
+def test_k2_cost_a100_any_variant_80gb_line_from_feed():
+    import json
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    c = [r for r in feed["rates"] if r["gpu"].split()[0] == "A100" and r.get("vram_gb") == 80 and r["tier_class"] == "on-demand"
+         and not r["interruptible"] and r["availability"].get("in_stock") is not False]
+    b = min(c, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+    want = (f"Cheapest A100 80GB (any variant) among tracked providers: {b['advertiser']} {b['gpu']} 80GB at "
+            + " / ".join(f"${b['hourly_equiv_usd'] * h:,.2f}" for h in (10, 100, 730)))
+    assert want == "Cheapest A100 80GB (any variant) among tracked providers: CloudRift A100 SXM 80GB at $10.50 / $105.00 / $766.50"
+    for h in (10, 100, 730):
+        assert want in _page("a100", h)
