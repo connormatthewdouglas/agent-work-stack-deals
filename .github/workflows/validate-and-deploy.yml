@@ -243,7 +243,7 @@ jobs:
 
   deploy:
     # Deploy is gated on validation. Only from main pushes / manual runs.
-    needs: [validate, tests, pypi-install, docker, release-gate, latest-scout-import]
+    needs: [validate, tests, pypi-install, release-gate, latest-scout-import]  # Gauge re31: docker (PyPI race) never blocks the Pages deploy
     # Pages source = "GitHub Actions" (build_type=workflow) with repo variable PAGES_DEPLOY_VIA_ACTIONS=true,
     # so nothing reaches the live site unless validate + tests + pypi-install pass. Rollback: set Pages
     # build_type back to legacy (branch main, /) and the variable to false.
