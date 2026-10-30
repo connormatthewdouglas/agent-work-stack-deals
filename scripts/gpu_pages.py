@@ -77,8 +77,18 @@ def _avail_cell(gen, r: dict) -> str:
         bits.append(f"{a['offer_count']} offers")
     if a.get("unrented_servers") is not None:
         bits.append(f"{a['unrented_servers']} unrented servers (one server may hold several GPUs)")
+    regions_html = ""
     if a.get("available_regions"):
-        bits.append("regions " + "/".join(a["available_regions"][:6]) + ("…" if len(a["available_regions"]) > 6 else ""))
+        from core.gpu_availability import et_hm
+        rtxt = "regions " + "/".join(a["available_regions"][:6]) + ("…" if len(a["available_regions"]) > 6 else "")
+        rx = a.get("regions_expires_at")
+        if rx:  # v2.9: the region list has its own (1 h) expiry; the in-page script blanks it after that time
+            rtxt += f" (regions valid until {et_hm(rx)})"
+            regions_html = f'<span data-rg-expires="{gen.esc(rx)}">{gen.esc(rtxt)}</span>'
+        else:
+            bits.append(rtxt)
+    elif a.get("regions_expired"):
+        bits.append(a.get("regions_note") or "region list expired")
     if a.get("source_label"):
         bits.append(a["source_label"])
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
@@ -87,7 +97,7 @@ def _avail_cell(gen, r: dict) -> str:
     if exp:
         from core.gpu_availability import et_hm
         sep += f"; valid until {et_hm(exp)}; after that treat as unknown"
-    body = gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
+    body = gen.esc(", ".join(bits)) + (", " + regions_html if regions_html else "") + gen.esc((f", snapshot {t} UTC" if t else "") + sep)
     if a.get("origin") in ("scout", "record") and t:
         return (f'<span data-av-checked="{gen.esc(a.get("checked_at") or "")}" data-av-expires="{gen.esc(exp or "")}">{body}</span>')
     return body
@@ -101,7 +111,7 @@ def _verified_cell(r: dict, esc) -> str:
     return esc(f"{(r['verified_at'] or '')[:10]} (daily)")
 
 
-from core.gpu_availability import STOCK_EXPLAINER  # noqa: E402  (one wording: core NOTE == page explainer)
+from core.gpu_availability import STOCK_EXPLAINER, REGIONS_NOTE  # noqa: E402  (one wording: core NOTE == page explainer)
 from core.deals import tie_label, out_of_stock  # noqa: E402  (J3 tie rule shared with the MCP summary)
 
 
@@ -163,7 +173,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             "<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
             + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. "
-               + STOCK_EXPLAINER + " " if has_av else
+               + STOCK_EXPLAINER + " " + REGIONS_NOTE + " " if has_av else
                "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as a manual snapshot "
                "(" + STOCK_EXPLAINER + ") ")
             + "Vast.ai offer counts come from a separate check at the time shown, not the price-quote check, so counts and minimums can differ.</p>")

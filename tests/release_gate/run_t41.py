@@ -71,6 +71,8 @@ from core import gpu as G, deals as D, stack as S  # noqa: E402
 import mcp_server.server as SRV  # noqa: E402  (tools load the same live URLs via the repo's loaders)
 
 NOW = datetime.now(timezone.utc)
+if os.environ.get("LW_AVAIL_NOW"):  # injected clock (same variable as core.gpu_availability.now_utc)
+    NOW = datetime.fromisoformat(os.environ["LW_AVAIL_NOW"].replace("Z", "+00:00"))
 cases = {c["id"]: c for c in json.loads((HERE / "cases.json").read_text())["cases"]}
 results = []
 
@@ -559,6 +561,42 @@ def _(f, ev):
             if NOW - ts(m.group(1)) > lim:
                 f.append(f"/gpu/cheapest-{slug}-rental/: in-stock claim checked {m.group(1)} is past {AVAIL_MAX_AGE_H} h (no JS)")
     ev.update(json_in_stock_claims=checked, html_in_stock_claims=n_html, families=fams, pages=len(pages))
+
+
+@case("T41-25")
+def _(f, ev):
+    # Scout v2.9: available_regions (and available_regions_detail) expire per region (1 h), separately from the 8 h
+    # stock claim. No JSON feed and no raw-HTML region list may show a region past its region expiry.
+    n_json = 0
+    def chk_json(name, rates):
+        nonlocal n_json
+        for r in rates:
+            a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
+            det = [d for d in (a.get("available_regions_detail") or []) if isinstance(d, dict)]
+            if not (a.get("available_regions") or det):
+                continue
+            n_json += 1
+            for d in det:
+                if d.get("availability_expires_at") and NOW > ts(d["availability_expires_at"]):
+                    f.append(f"{name}: {rid(r)} lists region {d.get('region')} past its expiry {d['availability_expires_at']}")
+            if a.get("available_regions") and det and not a.get("regions_expires_at"):
+                f.append(f"{name}: {rid(r)} lists regions without regions_expires_at")
+            if a.get("available_regions") and a.get("regions_expires_at") and NOW > ts(a["regions_expires_at"]):
+                f.append(f"{name}: {rid(r)} lists available_regions past regions_expires_at {a['regions_expires_at']}")
+    chk_json("gpu-prices.json", RATES)
+    idx = json.loads(fetch(f"{BASE}/api/v1/gpu/index.json")[0])
+    for fam in sorted(m["url"].rsplit("/", 1)[1] for m in idx["models"]):
+        d = json.loads(fetch(f"{BASE}/api/v1/gpu/{fam}")[0])
+        chk_json(f"gpu/{fam}", (d.get("rows") or []) + ([d["cheapest"]] if isinstance(d.get("cheapest"), dict) else []))
+    pages = ["/gpu/price-comparison/"] + [f"/gpu/cheapest-{s}-rental/" for s in sorted(set(re.findall(r'/gpu/cheapest-([a-z0-9-]+)-rental/', cmp_txt)))]
+    n_html = 0
+    for pg in pages:
+        txt, _at = fetch(f"{BASE}{pg}")
+        for m in re.finditer(r'data-rg-expires="([^"]+)"', txt):
+            n_html += 1
+            if NOW > ts(m.group(1)):
+                f.append(f"{pg}: region list valid until {m.group(1)} is still in the raw HTML (no JS)")
+    ev.update(json_region_rows=n_json, html_region_lists=n_html)
 
 
 passed = sum(r["status"] == "PASS" for r in results)

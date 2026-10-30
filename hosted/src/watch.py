@@ -191,7 +191,8 @@ def rate_regions(prices_doc: dict) -> dict:
     """rate_id -> set of published region codes (only rates that publish regions)."""
     out = {}
     for r in (prices_doc or {}).get("rates") or []:
-        regs = ((r.get("availability") or {}).get("available_regions")) or []
+        from core.gpu_availability import stale_guard  # request-time: expired claims and region lists never match
+        regs = ((stale_guard(r.get("availability")) or {}).get("available_regions")) or []
         if regs:
             out[rate_id({**r, "vendor": r.get("advertiser")})] = {str(x).upper() for x in regs}
     return out

@@ -16,7 +16,9 @@ JS = (BEGIN + "\n<script>(function(){var L=" + str(AVAIL_MAX_AGE_H) + "*36e5,f=n
       "{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});"
       "document.querySelectorAll('[data-av-checked]').forEach(function(e){var t=Date.parse(e.getAttribute('data-av-checked')),"
       "x=Date.parse(e.getAttribute('data-av-expires')||'')||t+L;if(!t||Date.now()<=x)return;var s='unknown (stale availability, last checked '+f.format(new Date(t)).replace(', ',' ')"
-      ".replace(/^24:/,'00:')+' ET)';e.textContent=e.tagName==='SMALL'?'('+s+')':s;e.className='av-stale';});})();</script>\n" + END)
+      ".replace(/^24:/,'00:')+' ET)';e.textContent=e.tagName==='SMALL'?'('+s+')':s;e.className='av-stale';});"
+      "document.querySelectorAll('[data-rg-expires]').forEach(function(e){var x=Date.parse(e.getAttribute('data-rg-expires'));"
+      "if(!x||Date.now()<=x)return;e.textContent='region list expired at '+f.format(new Date(x)).slice(-5).replace(/^24:/,'00:')+' ET (refreshes with each Scout cycle)';e.className='av-stale';});})();</script>\n" + END)
 
 
 def inject(root: Path) -> int:
@@ -26,7 +28,7 @@ def inject(root: Path) -> int:
             continue
         t = p.read_text(encoding="utf-8")
         t2 = re.sub(re.escape(BEGIN) + r".*?" + re.escape(END) + r"\n?", "", t, flags=re.S)
-        if "data-av-checked" in t2:
+        if "data-av-checked" in t2 or "data-rg-expires" in t2:
             t2 = t2.replace("</body>", JS + "\n</body>", 1)
             n += 1
         if t2 != t:

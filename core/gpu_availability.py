@@ -128,6 +128,32 @@ def et_hm(ts) -> str:
     return t[11:] if t != "n/a" else t
 
 
+REGIONS_NOTE = "Region lists refresh with each Scout cycle and may be blank between cycles."
+
+
+def regions_expires_at(r: dict | None) -> str | None:
+    """Scout v2.9: each region in available_regions_detail carries its own availability_expires_at (1 h). The region
+    list as a whole is valid until the earliest of them (separate from the row's 8 h stock-claim expiry)."""
+    ts = [d.get("availability_expires_at") for d in ((r or {}).get("available_regions_detail") or []) if isinstance(d, dict)]
+    ts = [t for t in ts if _parse(t)]
+    return min(ts, key=_parse) if ts else None
+
+
+def region_guard(a, now: datetime | None = None):
+    """Blank available_regions (and the per-region detail) once the earliest region expiry has passed."""
+    if not isinstance(a, dict) or not a.get("regions_expires_at") or a.get("regions_expired"):
+        return a
+    x = _parse(a["regions_expires_at"])
+    if x is None or (now or now_utc()) <= x:
+        return a
+    out = dict(a)
+    out["available_regions"] = None
+    out["available_regions_detail"] = None
+    out["regions_expired"] = True
+    out["regions_note"] = f"region list expired at {et_hm(a['regions_expires_at'])}. " + REGIONS_NOTE
+    return out
+
+
 def stale_guard(a, now: datetime | None = None):
     """Scout (or record-level, J6) availability older than AVAIL_MAX_AGE_H renders unknown (in_stock null, availability_stale true).
     Applied when the feed is built and again when the MCP tool reads it, so a stale stock claim never ranks or leads."""
@@ -135,7 +161,7 @@ def stale_guard(a, now: datetime | None = None):
         return a
     h = age_hours(a.get("checked_at"), now)
     if h is None or h <= AVAIL_MAX_AGE_H:
-        return a
+        return region_guard(a, now)
     out = {"status": f"unknown (stale availability, last checked {et_time(a.get('checked_at'))})", "in_stock": None,
            "availability_stale": True, "checked_at": a.get("checked_at"), "max_age_hours": AVAIL_MAX_AGE_H,
            "origin": a["origin"], "note": STALE_NOTE}
@@ -165,9 +191,12 @@ def _scout(vendor: str, r: dict | None) -> dict:
            "refresh": "manual snapshot, time shown (prices checked daily)",
            "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H,
            "availability_expires_at": expires_at(r.get("availability_checked_at"))}
-    for k in ("offer_count", "unrented_servers", "stock_level", "available_regions"):
+    for k in ("offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
         if r.get(k) is not None:
             out[k] = r[k]
+    rx = regions_expires_at(r)
+    if rx:
+        out["regions_expires_at"] = rx
     if r.get("unrented_servers") is not None:  # Clore: servers, not GPU offers
         out["unrented_servers_note"] = UNRENTED_NOTE
     if r.get("availability_source_type") == AUTH_LABEL or any(a in (r.get("availability_source") or "") for a in AUTH_SOURCES):

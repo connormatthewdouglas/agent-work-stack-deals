@@ -237,7 +237,7 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
                        f"<td data-label=\"Verified\"><small>{ts(r['verified_at'])}</small>{recheck_flag(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
                        + f"<td data-label=\"Link\">{link_cell(gen, r)}</td></tr>")
         label = b + (" (reservation / term contract; excluded from the cheapest among tracked providers ranking)" if b == "Reserved" else "")
-        av_note = ("<strong>Availability:</strong> " + gp.STOCK_EXPLAINER
+        av_note = ("<strong>Availability:</strong> " + gp.STOCK_EXPLAINER + " " + gp.REGIONS_NOTE
                    if has_av else "<strong>Availability</strong> is hidden because no vendor here publishes a stock signal yet.")
         body.append(f"<h2>{esc(label)}</h2><div class=\"tscroll rates-cards\"><table class=\"howto\"><thead>{hdr}</thead><tbody>{''.join(trs)}</tbody></table></div>"
                     + LEGEND + "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. " + av_note + "</p>")

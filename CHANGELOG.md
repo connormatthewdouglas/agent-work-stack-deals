@@ -2,6 +2,13 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.34
+
+- Scout v2.9 region lists: each availability claim can carry available_regions_detail (per region: checked_at, availability_expires_at, confirmed, confirmation), available_regions_label and regions_expires_at (the earliest region expiry, 1 h after the check).
+- available_regions and available_regions_detail are blanked once regions_expires_at has passed: in the feeds at build time, in compare_gpu_prices (and hosted watch region matching) at request time, and on pages by the in-page expiry script. This is separate from the 8 h stock-claim expiry.
+- Pages show "regions valid until HH:MM ET" and note that region lists refresh with each Scout cycle and may be blank between cycles.
+- Release gate T41-25: fails if any JSON feed or raw-HTML page lists a region past its expiry.
+
 ## 0.3.33
 
 - Fix: record-level stock claims (vendor-page stock counts captured with the price, e.g. Oblivus) now expire at build time after 8 h, like Scout claims. Before this fix they were only expired at MCP call time, so a static page or JSON feed could still show an old in-stock claim.

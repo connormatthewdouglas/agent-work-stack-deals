@@ -23,7 +23,7 @@ The GPU feed is re-read daily from each vendor's own pricing page; the current r
 |---|---|
 | Agents (deals JSON) | https://thelanternworks.com/api/v1/deals.json |
 | Agents (GPU prices JSON) | https://thelanternworks.com/api/v1/gpu-prices.json · changes: https://thelanternworks.com/api/v1/gpu-price-changes.json (RSS: .xml) |
-| Agents (MCP server) | `uvx lantern-works-deals-mcp` (0.3.33; tools: `compare_gpu_prices`, `get_price_changes`, `optimize_stack`, `optimize_agent_stack`, `search_deals`, `compare_deals`, `get_deal`); setup: https://thelanternworks.com/install/ |
+| Agents (MCP server) | `uvx lantern-works-deals-mcp` (0.3.34; tools: `compare_gpu_prices`, `get_price_changes`, `optimize_stack`, `optimize_agent_stack`, `search_deals`, `compare_deals`, `get_deal`); setup: https://thelanternworks.com/install/ |
 | Humans (platform) | https://thelanternworks.com/lanternworks/ |
 | Humans (GPU prices) | https://thelanternworks.com/gpu/ |
 | Humans (deals directory) | https://thelanternworks.com/deals/ |

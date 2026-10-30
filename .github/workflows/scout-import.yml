@@ -48,6 +48,9 @@ jobs:
           expired = [r["availability"]["availability_expires_at"] for r in rates
                      if isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is not None
                      and r["availability"].get("availability_expires_at") and p(r["availability"]["availability_expires_at"]) <= now]
+          expired += [r["availability"]["regions_expires_at"] for r in rates  # v2.9: region lists expire after 1 h
+                      if isinstance(r.get("availability"), dict) and r["availability"].get("available_regions")
+                      and r["availability"].get("regions_expires_at") and p(r["availability"]["regions_expires_at"]) <= now]
           why = ("manual" if os.environ["EVENT"] != "schedule" else "4-hourly slot" if now.hour % 4 == 0
                  else "new snapshot" if m.get("collected_at") and m.get("collected_at") != cur
                  else f"{len(expired)} expired claims" if expired else "")

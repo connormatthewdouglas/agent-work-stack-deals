@@ -16,12 +16,13 @@ from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours  # noqa: E402
 
 OUT = ROOT / "data" / "gpu_availability" / "latest.json"
 KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "unrented_servers",
-        "stock_level", "availability_source", "availability_source_type", "availability_checked_at", "availability_note")
+        "stock_level", "availability_source", "availability_source_type", "availability_checked_at", "availability_note",
+        "available_regions_detail", "available_regions_label")  # v2.9: per-region checked_at/expiry (1 h), confirmation
 
 
 def main() -> None:
     d = json.loads(SRC.read_text(encoding="utf-8"))
-    if str(d.get("version")) not in ("2", "2.5", "2.7"):  # v2.6 held: failed Gauge QA re18; v2.7 passed
+    if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9 passed
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
     snap = max((r.get("availability_checked_at") or "" for r in d.get("rows") or []), default="")
     age = age_hours(snap)
