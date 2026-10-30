@@ -7,7 +7,7 @@
  "hours_per_month": 730,
  "min_marketplace_listings": 5,
  "history_starts": "2026-10-27",
- "days": 3,
+ "days": 4,
  "method": "https://thelanternworks.com/gpu/index/methodology/",
  "series_vram_gb": {
   "H100": 80,
@@ -760,6 +760,370 @@
       "Clore.ai",
       "CloudRift"
      ],
+     "vendors_dropped": []
+    }
+   }
+  },
+  {
+   "date": "2026-10-30",
+   "snapshot_file": "data/gpu_pricing/snapshots/2026-10-30.json",
+   "snapshot_sha256": "968587011d47fc7083938cea3b7ec15eceaf3f8a494fd2b15650ef6647e7e2f5",
+   "feed_commit_for_listing_counts": "uncommitted",
+   "series": {
+    "H100": {
+     "median_usd_per_gpu_hour": 3.49,
+     "monthly_basis_usd": 2547.7,
+     "min_usd_per_gpu_hour": 1.99,
+     "vendors": 13,
+     "vendor_prices": {
+      "99Stack Cloud": 2.8767,
+      "Civo": 2.99,
+      "CoreWeave": 6.155,
+      "DigitalOcean GPU Droplets": 4.41,
+      "E2E Networks": 3.99,
+      "Hyperstack": 2.5,
+      "Jarvislabs": 3.49,
+      "Lambda": 3.29,
+      "Nebius": 4.5,
+      "Oblivus": 3.5,
+      "RunPod": 1.99,
+      "Thunder Compute": 3.2,
+      "Verda (formerly DataCrunch)": 4.793
+     },
+     "low_coverage": false
+    },
+    "A100": {
+     "median_usd_per_gpu_hour": 1.48,
+     "monthly_basis_usd": 1080.4,
+     "min_usd_per_gpu_hour": 1.05,
+     "vendors": 12,
+     "vendor_prices": {
+      "Civo": 1.79,
+      "CloudRift": 1.05,
+      "CoreWeave": 2.7,
+      "E2E Networks": 2.1,
+      "Hyperstack": 1.35,
+      "Jarvislabs": 1.49,
+      "Lambda": 2.79,
+      "Oblivus": 1.47,
+      "RunPod": 1.19,
+      "Thunder Compute": 1.09,
+      "Vast.ai": 1.1324,
+      "Verda (formerly DataCrunch)": 2.248
+     },
+     "low_coverage": false
+    },
+    "H200": {
+     "median_usd_per_gpu_hour": 4.935,
+     "monthly_basis_usd": 3602.55,
+     "min_usd_per_gpu_hour": 3.59,
+     "vendors": 6,
+     "vendor_prices": {
+      "CoreWeave": 6.305,
+      "DigitalOcean GPU Droplets": 4.47,
+      "Hyperstack": 3.99,
+      "Nebius": 5.4,
+      "RunPod": 3.59,
+      "Verda (formerly DataCrunch)": 6.25
+     },
+     "low_coverage": false
+    },
+    "L40S": {
+     "median_usd_per_gpu_hour": 1.57,
+     "monthly_basis_usd": 1146.1,
+     "min_usd_per_gpu_hour": 0.63,
+     "vendors": 7,
+     "vendor_prices": {
+      "CloudRift": 0.63,
+      "CoreWeave": 2.25,
+      "DigitalOcean GPU Droplets": 1.57,
+      "Nebius": 1.55,
+      "OVHcloud (US)": 1.8,
+      "RunPod": 0.79,
+      "Verda (formerly DataCrunch)": 1.901
+     },
+     "low_coverage": false
+    },
+    "RTX 4090": {
+     "median_usd_per_gpu_hour": 0.452,
+     "monthly_basis_usd": 329.96,
+     "min_usd_per_gpu_hour": 0.34,
+     "vendors": 6,
+     "vendor_prices": {
+      "Clore.ai": 0.555,
+      "Nova Cloud": 0.42,
+      "Novita AI": 0.67,
+      "RunC.AI": 0.42,
+      "RunPod": 0.34,
+      "Vast.ai": 0.4841
+     },
+     "low_coverage": false
+    },
+    "RTX 5090": {
+     "median_usd_per_gpu_hour": 0.69,
+     "monthly_basis_usd": 503.7,
+     "min_usd_per_gpu_hour": 0.65,
+     "vendors": 3,
+     "vendor_prices": {
+      "Clore.ai": 0.7933,
+      "CloudRift": 0.65,
+      "RunPod": 0.69
+     },
+     "low_coverage": false
+    }
+   },
+   "rows_included": [
+    "99Stack Cloud|H100|On-demand|80|1",
+    "Civo|A100|On-demand|80|1",
+    "Civo|H100 SXM|On-demand|80|1",
+    "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
+    "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
+    "CloudRift|A100 SXM|On-demand|80|1",
+    "CloudRift|L40S|On-demand|48|1",
+    "CloudRift|RTX 5090|On-demand|32|1",
+    "CoreWeave|A100|On-demand, 8-GPU instance|80|8",
+    "CoreWeave|H100|On-demand, 8-GPU instance|80|8",
+    "CoreWeave|H200|On-demand, 8-GPU instance|141|8",
+    "CoreWeave|L40S|On-demand, 8-GPU instance|48|8",
+    "DigitalOcean GPU Droplets|H100|On-demand|80|1",
+    "DigitalOcean GPU Droplets|H200|On-demand|141|1",
+    "DigitalOcean GPU Droplets|L40S|On-demand|48|1",
+    "E2E Networks|A100|On-demand|80|1",
+    "E2E Networks|H100|On-demand|80|1",
+    "Hyperstack|A100 NVLink|On-demand|80|1",
+    "Hyperstack|A100 PCIe|On-demand|80|1",
+    "Hyperstack|A100 SXM|On-demand|80|1",
+    "Hyperstack|H100 NVLink|On-demand|80|1",
+    "Hyperstack|H100 PCIe|On-demand|80|1",
+    "Hyperstack|H100 SXM|On-demand|80|1",
+    "Hyperstack|H200 SXM|On-demand|141|1",
+    "Jarvislabs|A100|On-demand|80|1",
+    "Jarvislabs|H100 SXM|On-demand|80|1",
+    "Lambda|A100 SXM|On-demand instance (8x GPU)|80|8",
+    "Lambda|H100 PCIe|On-demand instance (1x GPU)|80|1",
+    "Lambda|H100 SXM|On-demand instance (1x GPU)|80|1",
+    "Lambda|H100 SXM|On-demand instance (8x GPU)|80|8",
+    "Nebius|H100|On-demand|80|1",
+    "Nebius|H200|On-demand|141|1",
+    "Nebius|L40S|On-demand (from, Intel CPU)|48|1",
+    "Nova Cloud|RTX 4090|On-demand|24|1",
+    "Novita AI|RTX 4090|On-demand|24|1",
+    "OVHcloud (US)|L40S|Public Cloud GPU instance, hourly (\"Price ( excl. taxes / hour)\")|48|1",
+    "Oblivus|A100 PCIe|On-demand|80|1",
+    "Oblivus|H100 PCIe|On-demand|80|1",
+    "RunC.AI|RTX 4090|On-demand|24|1",
+    "RunPod|A100 PCIe|On-demand (Community Cloud)|80|1",
+    "RunPod|A100 PCIe|On-demand (Secure Cloud)|80|1",
+    "RunPod|A100 SXM|On-demand (Community Cloud)|80|1",
+    "RunPod|A100 SXM|On-demand (Secure Cloud)|80|1",
+    "RunPod|H100 PCIe|On-demand (Community Cloud)|80|1",
+    "RunPod|H100 PCIe|On-demand (Secure Cloud)|80|1",
+    "RunPod|H100 SXM|On-demand (Community Cloud)|80|1",
+    "RunPod|H100 SXM|On-demand (Secure Cloud)|80|1",
+    "RunPod|H200|On-demand (Community Cloud)|141|1",
+    "RunPod|H200|On-demand (Secure Cloud)|141|1",
+    "RunPod|L40S|On-demand (Community Cloud)|48|1",
+    "RunPod|L40S|On-demand (Secure Cloud)|48|1",
+    "RunPod|RTX 4090|On-demand (Community Cloud)|24|1",
+    "RunPod|RTX 4090|On-demand (Secure Cloud)|24|1",
+    "RunPod|RTX 5090|On-demand (Community Cloud)|32|1",
+    "RunPod|RTX 5090|On-demand (Secure Cloud)|32|1",
+    "Thunder Compute|A100|On-demand|80|1",
+    "Thunder Compute|H100 SXM|On-demand|80|1",
+    "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
+    "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
+    "Verda (formerly DataCrunch)|A100 SXM|On-demand instance (1x GPU)|80|1",
+    "Verda (formerly DataCrunch)|H100 SXM|On-demand instance (1x GPU)|80|1",
+    "Verda (formerly DataCrunch)|H200 SXM|On-demand instance (1x GPU)|141|1",
+    "Verda (formerly DataCrunch)|L40S|On-demand instance (1x GPU)|48|1"
+   ],
+   "rows_excluded": [
+    {
+     "key": "Beam|RTX 4090|Machine (from)|24|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "CloudRift|L40S|1 Month (reserved, \"1 mo\")|48|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "CloudRift|L40S|3 Month (reserved, \"3 mo\")|48|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "CloudRift|RTX 5090|1 Month (reserved, \"1 mo\")|32|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "CloudRift|RTX 5090|3 Month (reserved, \"3 mo\")|32|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Hyperstack|A100 PCIe|Spot VM|80|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Hyperstack|A100 SXM|Reservation (starting from)|80|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Hyperstack|H100 PCIe|Spot VM|80|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Hyperstack|H100 SXM|Reservation (starting from)|80|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Hyperstack|H200 SXM|Reservation (starting from)|141|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Koyeb|L40S|Serverless GPU instance (per-second billing)|48|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Modal|A100|Serverless, preemptible (per second)|80|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Modal|H100 SXM|Serverless, preemptible (per second)|80|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Modal|H200 SXM|Serverless, preemptible (per second)|141|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Modal|L40S|Serverless, preemptible (per second)|48|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Runcrate|RTX 4090|Aggregated lowest live rate (from)|24|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "SaladCloud|RTX 4090|Lowest (Batch) priority, interruptible|24|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "SimplePod|RTX 4090|Docker GPU (from)|24|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "Spheron|L40S|Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)|48|1",
+     "excluded_because": "marketplace, listing count unknown"
+    },
+    {
+     "key": "Spheron|RTX 5090|Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)|32|1",
+     "excluded_because": "marketplace, listing count unknown"
+    },
+    {
+     "key": "TensorDock|A100 PCIe|Marketplace (typical price, varies by host)|80|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "TensorDock|A100 SXM|Marketplace (typical price, varies by host)|80|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "TensorDock|H100 SXM|Marketplace (typical price, varies by host)|80|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "TensorDock|RTX 4090|Marketplace (typical price, varies by host)|24|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "Ucartz|A100|Dedicated server (monthly)|80|2",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Ucartz|RTX 4090|Dedicated server (monthly)|24|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Ucartz|RTX 5090|Dedicated server (monthly)|32|1",
+     "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Verda (formerly DataCrunch)|A100 SXM|Spot instance (1x GPU)|80|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Verda (formerly DataCrunch)|H100 SXM|Spot instance (1x GPU)|80|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Verda (formerly DataCrunch)|H200 SXM|Spot instance (1x GPU)|141|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Verda (formerly DataCrunch)|L40S|Spot instance (1x GPU)|48|1",
+     "excluded_because": "spot/interruptible"
+    }
+   ],
+   "vs_previous_day_matched": {
+    "H100": {
+     "matched_vendors": 9,
+     "matched_median_prev": 3.29,
+     "matched_median_cur": 3.29,
+     "matched_change_pct": 0.0,
+     "vendors_added": [
+      "Civo",
+      "E2E Networks",
+      "Jarvislabs",
+      "Oblivus"
+     ],
+     "vendors_dropped": []
+    },
+    "A100": {
+     "matched_vendors": 7,
+     "matched_median_prev": 1.7043,
+     "matched_median_cur": 1.35,
+     "matched_change_pct": -20.79,
+     "vendors_added": [
+      "Civo",
+      "CloudRift",
+      "E2E Networks",
+      "Jarvislabs",
+      "Oblivus"
+     ],
+     "vendors_dropped": []
+    },
+    "H200": {
+     "matched_vendors": 6,
+     "matched_median_prev": 4.935,
+     "matched_median_cur": 4.935,
+     "matched_change_pct": 0.0,
+     "vendors_added": [],
+     "vendors_dropped": []
+    },
+    "L40S": {
+     "matched_vendors": 7,
+     "matched_median_prev": 1.57,
+     "matched_median_cur": 1.57,
+     "matched_change_pct": 0.0,
+     "vendors_added": [],
+     "vendors_dropped": []
+    },
+    "RTX 4090": {
+     "matched_vendors": 4,
+     "matched_median_prev": 0.5186,
+     "matched_median_cur": 0.5195,
+     "matched_change_pct": 0.18,
+     "vendors_added": [
+      "Nova Cloud",
+      "RunC.AI"
+     ],
+     "vendors_dropped": []
+    },
+    "RTX 5090": {
+     "matched_vendors": 3,
+     "matched_median_prev": 0.69,
+     "matched_median_cur": 0.69,
+     "matched_change_pct": 0.0,
+     "vendors_added": [],
      "vendors_dropped": []
     }
    }
