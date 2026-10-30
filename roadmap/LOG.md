@@ -303,3 +303,11 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Commit 67e1636c. Validate-and-deploy run 41094769591 passed, including the new deploy build guard (RAW_DATA_OK cleaned and checked) and the live check (sampled 45 raw paths, PUBLIC_RAW_OK).
 - Raw data/ is no longer published. The only exception is data/deal_gotchas.json, linked from /changelog/, with availability fields stripped (it has none). /api/v1 is unchanged.
 - Of Gauge's 63 previously served paths, 20 are still served. They are configs/manifests/llms.txt/deals.json, and none has an availability field. oblivus.json, vast.json, the snapshots and latest.json all return 404. T41 live is 26/26 and the gist is identical.
+
+## 2026-10-30 Bjorn: Cloudflare cron parked; depth reading (B) not met
+- Commit 82fb5aec (CI run 41096305438 green). Worker lantern-works-import-cron 023b87a2 is deployed with `crons = []` and no token; the code stays in cron-dispatch/ with a README. The GitHub gated schedule is */10 as the backstop; Scout's push is the main path. Documented in docs/SCOUT-DATA.md.
+- MCP reading at 17:09:45Z: H100 0 of 23 rows in stock with a region; A100 0 of 25. The only in-stock row is Vast A100 SXM, with no region. Brain mart-163.
+
+## 2026-10-30 re22 Q1-Q3 [DONE] (0.3.38)
+- Commits 079995e8 and 73d7dedf. Run 41096980113 green after 2 docker reruns (PyPI lag). PyPI, the MCP registry and worker 89d24ab7 are on 0.3.38.
+- Live: llms.txt line 12, /for-agents and the stale-claim note in the MCP give 1 h / 8 h. lhm.plugin.json is 0.3.38. The live check covers 45 raw paths + 6 root JSON with PUBLIC_RAW_OK. T41 26/26; gist identical.
