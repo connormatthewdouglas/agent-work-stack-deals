@@ -2,6 +2,13 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.39
+
+- T42: the browser GPU calculator now bills whole instances using the same contract as core.gpu.estimate and the MCP. Bundled servers are rounded up to whole servers (hourly and monthly), and each row shows the requested and billed GPU counts and the number of instances. Example: CoreWeave 8x H100 for 9 GPUs x 10 h = $984.80 (16 GPUs, 2 instances). Lambda 8x H100 SXM = $638.40.
+- core.gpu.estimate rows carry requested_gpus, billed_gpus and instances.
+- The hosted MCP fetches the GPU feed with a 60 s cache and a per-minute CDN bypass, so new Scout data reaches it within minutes.
+- A test runs the real calculator page script in node and compares the rendered rows with the Python engine for 1, 8 and 9 GPUs.
+
 ## 0.3.38
 
 - Gauge re22 Q1: the expiry wording in llms.txt, /for-agents and docs/SCOUT-DATA.md, and the stale-claim note in the MCP and feeds, now give the actual limits: 1 h for Lambda, Verda, region and region-derived claims, and 8 h for marketplace overall claims (Vast, Clore). A claim is unknown after availability_expires_at.

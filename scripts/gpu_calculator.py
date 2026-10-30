@@ -118,11 +118,24 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   for (const k of ["hours","gpus","gpu","vram"]) if (q.get(k)!==null) $(k).value=q.get(k);
   if (q.get("flat")==="0") $("flat").checked=false;
   function esc(s){{return String(s??"").replace(/[&<>"]/g,c=>({{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}}[c]))}}
+  // BILL_START (T42): same billing contract as core.gpu.estimate: whole servers/instances only, never fractional GPUs
+  function bill(r,h,g){{
+    const per=r.gpu_count||1, servers=Math.ceil(Math.max(g,r.min_gpus||1)/per), gg=servers*per;
+    if(r.unit==="hour"){{
+      let calc=`$${{r.price_usd}}/hr × ${{h}} h × ${{gg}} GPU`;
+      if(gg>g) calc+=` (${{g}} requested, ${{gg}} billed: `+(per>1?`sold only as whole ${{per}}-GPU servers, ${{servers}} instance${{servers>1?"s":""}})`:`minimum ${{gg}} GPUs per instance)`);
+      if(r.price_status==="marketplace") calc+=`; variable marketplace median, lowest offer $${{r.lowest_offer_usd}}/hr`;
+      return {{cost:Math.round(r.price_usd*h*gg*100)/100,calc,requested_gpus:g,billed_gpus:gg,instances:servers}};
+    }}
+    const n=Math.max(1,Math.ceil(h/H))*gg;
+    const calc=per>1?`$${{r.price_usd}}/GPU-mo × ${{n}} GPU-month(s) (sold as ${{per}}-GPU servers at $${{Number(r.server_price_usd).toLocaleString("en-US",{{minimumFractionDigits:2,maximumFractionDigits:2}})}}/mo; ${{g}} requested, ${{gg}} billed), flat regardless of hours`:`$${{r.price_usd}}/mo × ${{n}} server(s), flat regardless of hours`;
+    return {{cost:Math.round(r.price_usd*n*100)/100,calc,requested_gpus:g,billed_gpus:gg,instances:servers}};
+  }}
+  // BILL_END
   function run(){{
     const h=Math.max(0,+$("hours").value||0), g=Math.max(1,Math.floor(+$("gpus").value||1)), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
     const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
-      if(r.unit==="hour"){{const gg=Math.max(g,r.min_gpus||1);return {{...r,cost:r.price_usd*h*gg,calc:`$${{r.price_usd}}/hr × ${{h}} h × ${{gg}}`+(gg>g?` (sold only as ${{gg}}-GPU instances)`:"")+(r.price_status==="marketplace"?`; variable marketplace median, lowest offer $${{r.lowest_offer_usd}}/hr`:"")}};}}
-      const n=Math.max(1,Math.ceil(h/H))*g; return {{...r,cost:r.price_usd*n,calc:(r.gpu_count>1?`$${{r.price_usd}}/GPU-mo × ${{n}} (sold as ${{r.gpu_count}}-GPU servers at $${{r.server_price_usd}}/mo)`:`$${{r.price_usd}}/mo × ${{n}} server(s)`)}};
+      return {{...r,...bill(r,h,g)}};
     }}).sort((a,b)=>((a.tier_class==="reserved")-(b.tier_class==="reserved"))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
     $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong></td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
     $("summary").textContent=rows.length?`${{rows.length}} options. Cheapest among tracked providers: ${{rows[0].advertiser}} ${{rows[0].gpu}} at ${{fmt(rows[0].cost)}}/month.`:"No priced option matches these filters.";

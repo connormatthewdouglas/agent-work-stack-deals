@@ -311,7 +311,7 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
             cost = r["price_usd"] * hours_per_month * g
             basis = f"${r['price_usd']}/hr x {hours_per_month} h x {g} GPU"
             if g > gpus:
-                basis += f" ({gpus} requested, {g} billed: " + (f"sold only as whole {per}-GPU servers)" if per > 1 else f"minimum {g} GPUs per instance)")
+                basis += f" ({gpus} requested, {g} billed: " + (f"sold only as whole {per}-GPU servers, {servers} instance{'s' if servers > 1 else ''})" if per > 1 else f"minimum {g} GPUs per instance)")
             if r.get("price_status") == "marketplace":
                 basis += f"; variable marketplace median, lowest offer ${r['lowest_offer_usd']}/hr"
         else:
@@ -320,10 +320,11 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
             per = r.get("gpu_count") or 1
             if per > 1:
                 basis = (f"${r['price_usd']}/GPU-mo x {n} GPU-month(s) (sold as {per}-GPU servers at "
-                         f"${r['server_price_usd']:,.2f}/mo), flat regardless of hours")
+                         f"${r['server_price_usd']:,.2f}/mo; {gpus} requested, {g} billed), flat regardless of hours")
             else:
                 basis = f"${r['price_usd']}/mo x {n} server(s), flat regardless of hours"
-        out.append({**r, "monthly_cost_usd": round(cost, 2), "calc": basis})
+        out.append({**r, "monthly_cost_usd": round(cost, 2), "calc": basis,
+                    "requested_gpus": gpus, "billed_gpus": g, "instances": servers})
     # Reservation / commitment prices are shown but never ranked as "cheapest": they sort after every pay-as-you-go row.
     return sorted(out, key=lambda x: (_tier_class(x) == "reserved", x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
 
