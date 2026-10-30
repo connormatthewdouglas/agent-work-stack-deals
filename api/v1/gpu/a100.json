@@ -394,41 +394,13 @@
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-31T01:35:39Z",
         "offer_count": 7,
-        "available_regions_detail": [
-          {
-            "region": "AT",
-            "stock_level": null,
-            "checked_at": "2026-10-30T17:35:39Z",
-            "availability_expires_at": "2026-10-30T18:35:39Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null,
-            "offer_count": 2
-          },
-          {
-            "region": "TW",
-            "stock_level": null,
-            "checked_at": "2026-10-30T17:35:39Z",
-            "availability_expires_at": "2026-10-30T18:35:39Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null,
-            "offer_count": 2
-          },
-          {
-            "region": "US",
-            "stock_level": null,
-            "checked_at": "2026-10-30T17:35:39Z",
-            "availability_expires_at": "2026-10-30T18:35:39Z",
-            "confirmed": null,
-            "confirmation": "single_read",
-            "second_read_stock_level": null,
-            "offer_count": 3
-          }
-        ],
+        "available_regions_detail": null,
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "regions_expires_at": "2026-10-30T18:35:39Z",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
+        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
+        "available_regions": null,
+        "regions_expired": true,
+        "regions_note": "region list expires at 14:35 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
       }
     },
     {
@@ -451,7 +423,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T18:06:06Z",
+        "checked_at": "2026-10-30T18:29:19Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -501,7 +473,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T18:06:06Z",
+        "checked_at": "2026-10-30T18:29:19Z",
         "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -720,8 +692,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T18:06:04Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+        "checked_at": "2026-10-30T18:29:17Z",
+        "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
       }
@@ -746,48 +718,40 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-10-30T18:06:04Z",
+        "checked_at": "2026-10-30T18:29:17Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
         "max_age_hours": 8,
-        "availability_expires_at": "2026-10-30T19:06:04Z",
+        "availability_expires_at": "2026-10-30T19:29:17Z",
         "derived_from_regions": true,
         "stock_level": "Low",
         "available_regions": [
+          "EUR-IS-1 (Europe)",
           "US-MD-1 (United States)"
         ],
         "available_regions_detail": [
           {
             "region": "EUR-IS-1 (Europe)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T18:07:21Z",
-            "availability_expires_at": "2026-10-30T19:07:21Z",
-            "confirmed": false,
+            "checked_at": "2026-10-30T18:30:21Z",
+            "availability_expires_at": "2026-10-30T19:30:21Z",
+            "confirmed": true,
             "confirmation": "two_reads",
-            "second_read_stock_level": null
-          },
-          {
-            "region": "US-KS-2 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-10-30T18:08:28Z",
-            "availability_expires_at": "2026-10-30T19:08:28Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null
+            "second_read_stock_level": "Low"
           },
           {
             "region": "US-MD-1 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T18:08:30Z",
-            "availability_expires_at": "2026-10-30T19:08:30Z",
+            "checked_at": "2026-10-30T18:31:16Z",
+            "availability_expires_at": "2026-10-30T19:31:16Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T19:07:21Z"
+        "regions_expires_at": "2026-10-30T19:30:21Z"
       }
     },
     {
