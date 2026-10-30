@@ -1,0 +1,886 @@
+{
+  "schema": "lantern-works-coverage/1",
+  "license": "CC BY 4.0",
+  "source": "/api/v1/gpu-prices.json",
+  "feed_updated_at": "2026-10-30T21:45:00Z",
+  "as_of": "2026-10-30T21:45:00Z",
+  "cell_values": {
+    "in stock": "sourced rate and a current in-stock claim at build time",
+    "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
+    "not listed": "vendor absent from the model's vendors map",
+    "vendor_lists (separate)": "vendor's public catalogue names the model (survey); not a price, not a stock claim; 'listed, no sourced price' = catalogue shows it without a price we could source"
+  },
+  "counts": {
+    "models_tracked": 16,
+    "targets_tracked": 16,
+    "targets_total": 28,
+    "targets_not_yet_tracked": [
+      "MI300X",
+      "MI250",
+      "L4",
+      "A10G",
+      "A40",
+      "T4",
+      "B300",
+      "RTX PRO 6000",
+      "RTX A4000",
+      "H200 NVL",
+      "H100 NVL",
+      "GB300"
+    ],
+    "vendors": 25,
+    "cells_priced_or_in_stock": 74,
+    "cells_in_stock": 12,
+    "survey_cells_listed": 53,
+    "survey_models_listed_not_priced": [
+      "A40",
+      "B300",
+      "H100 NVL",
+      "H200 NVL",
+      "L4",
+      "MI300X",
+      "RTX A4000",
+      "RTX PRO 6000",
+      "T4"
+    ]
+  },
+  "survey": {
+    "surveyed_at": "2026-10-30T22:11:00Z",
+    "method": "Scout public read of each vendor's own catalogue on 2026-10-30 ~6:11 PM ET: a model is 'listed' when the vendor's public catalogue names it. Listing is not a sourced price and not a stock claim.",
+    "sources": {
+      "RunPod": "https://www.runpod.io/pricing",
+      "Vast.ai": "https://vast.ai/pricing",
+      "Oblivus": "https://oblivus.com/pricing/",
+      "Clore.ai": "https://clore.ai/marketplace"
+    },
+    "not_surveyed": [
+      "Lambda",
+      "Verda (formerly DataCrunch)",
+      "TensorDock"
+    ]
+  },
+  "vendors": [
+    "99Stack Cloud",
+    "Civo",
+    "Clore.ai",
+    "CloudRift",
+    "CoreWeave",
+    "DigitalOcean GPU Droplets",
+    "E2E Networks",
+    "Hyperstack",
+    "Jarvislabs",
+    "Koyeb",
+    "Lambda",
+    "Modal",
+    "Nebius",
+    "Nova Cloud",
+    "Novita AI",
+    "Oblivus",
+    "OVHcloud (US)",
+    "RunC.AI",
+    "RunPod",
+    "SaladCloud",
+    "Spheron",
+    "Thunder Compute",
+    "Ucartz",
+    "Vast.ai",
+    "Verda (formerly DataCrunch)"
+  ],
+  "models": [
+    {
+      "model": "A100",
+      "family": "a100",
+      "status": "tracked",
+      "variants": [
+        "A100 40GB",
+        "A100 80GB",
+        "A100 NVLink 80GB",
+        "A100 PCIe 40GB",
+        "A100 PCIe 80GB",
+        "A100 SXM 40GB",
+        "A100 SXM 80GB"
+      ],
+      "vendors": {
+        "Civo": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:34:26+00:00"
+        },
+        "CloudRift": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T21:45:00+00:00"
+        },
+        "CoreWeave": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:37+00:00"
+        },
+        "E2E Networks": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:34:49+00:00"
+        },
+        "Hyperstack": {
+          "status": "priced",
+          "rows": 5,
+          "checked_at": "2026-10-30T17:34:57+00:00"
+        },
+        "Jarvislabs": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:35:02+00:00"
+        },
+        "Lambda": {
+          "status": "in stock",
+          "rows": 3,
+          "checked_at": "2026-10-30T17:35:13+00:00",
+          "stock_checked_at": "2026-10-30T22:11:36Z"
+        },
+        "Modal": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:19+00:00"
+        },
+        "Oblivus": {
+          "status": "in stock",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:22+00:00",
+          "stock_checked_at": "2026-10-30T22:11:33Z"
+        },
+        "RunPod": {
+          "status": "in stock",
+          "rows": 4,
+          "checked_at": "2026-10-30T17:36:02+00:00",
+          "stock_checked_at": "2026-10-30T22:05:15Z"
+        },
+        "Thunder Compute": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:19+00:00"
+        },
+        "Ucartz": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:25+00:00"
+        },
+        "Vast.ai": {
+          "status": "in stock",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:32+00:00",
+          "stock_checked_at": "2026-10-30T21:40:55Z"
+        },
+        "Verda (formerly DataCrunch)": {
+          "status": "in stock",
+          "rows": 4,
+          "checked_at": "2026-10-30T17:36:41+00:00",
+          "stock_checked_at": "2026-10-30T22:11:35Z"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "Oblivus": "listed",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 14,
+      "in_stock_vendor_count": 5
+    },
+    {
+      "model": "H100",
+      "family": "h100",
+      "status": "tracked",
+      "variants": [
+        "H100 80GB",
+        "H100 NVLink 80GB",
+        "H100 PCIe 80GB",
+        "H100 SXM 80GB"
+      ],
+      "vendors": {
+        "99Stack Cloud": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:22+00:00"
+        },
+        "Civo": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:26+00:00"
+        },
+        "CoreWeave": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:37+00:00"
+        },
+        "DigitalOcean GPU Droplets": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:44+00:00"
+        },
+        "E2E Networks": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:22+00:00"
+        },
+        "Hyperstack": {
+          "status": "priced",
+          "rows": 5,
+          "checked_at": "2026-10-30T17:34:57+00:00"
+        },
+        "Jarvislabs": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:02+00:00"
+        },
+        "Lambda": {
+          "status": "in stock",
+          "rows": 3,
+          "checked_at": "2026-10-30T17:35:13+00:00",
+          "stock_checked_at": "2026-10-30T22:11:36Z"
+        },
+        "Modal": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:19+00:00"
+        },
+        "Nebius": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:26+00:00"
+        },
+        "Oblivus": {
+          "status": "in stock",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:22+00:00",
+          "stock_checked_at": "2026-10-30T22:11:33Z"
+        },
+        "RunPod": {
+          "status": "in stock",
+          "rows": 4,
+          "checked_at": "2026-10-30T17:36:02+00:00",
+          "stock_checked_at": "2026-10-30T22:05:15Z"
+        },
+        "Thunder Compute": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:19+00:00"
+        },
+        "Verda (formerly DataCrunch)": {
+          "status": "in stock",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:41+00:00",
+          "stock_checked_at": "2026-10-30T22:11:35Z"
+        }
+      },
+      "vendor_lists": {
+        "Oblivus": "listed",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 14,
+      "in_stock_vendor_count": 4
+    },
+    {
+      "model": "L40S",
+      "family": "l40s",
+      "status": "tracked",
+      "variants": [
+        "L40S 48GB"
+      ],
+      "vendors": {
+        "CloudRift": {
+          "status": "priced",
+          "rows": 3,
+          "checked_at": "2026-10-30T17:34:32+00:00"
+        },
+        "CoreWeave": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:37+00:00"
+        },
+        "DigitalOcean GPU Droplets": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:44+00:00"
+        },
+        "Koyeb": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:07+00:00"
+        },
+        "Modal": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:19+00:00"
+        },
+        "Nebius": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:26+00:00"
+        },
+        "OVHcloud (US)": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:52+00:00"
+        },
+        "RunPod": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:02+00:00"
+        },
+        "Spheron": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:14+00:00"
+        },
+        "Verda (formerly DataCrunch)": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:41+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed"
+      },
+      "vendor_count": 10,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX 4090",
+      "family": "rtx-4090",
+      "status": "tracked",
+      "variants": [
+        "RTX 4090 24GB"
+      ],
+      "vendors": {
+        "Clore.ai": {
+          "status": "in stock",
+          "rows": 1,
+          "checked_at": "2026-10-29T15:27:48+00:00",
+          "stock_checked_at": "2026-10-30T21:47:47Z"
+        },
+        "Nova Cloud": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:33+00:00"
+        },
+        "Novita AI": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:37+00:00"
+        },
+        "RunC.AI": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:56+00:00"
+        },
+        "RunPod": {
+          "status": "in stock",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:02+00:00",
+          "stock_checked_at": "2026-10-30T22:05:15Z"
+        },
+        "SaladCloud": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:08+00:00"
+        },
+        "Ucartz": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:25+00:00"
+        },
+        "Vast.ai": {
+          "status": "in stock",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:38+00:00",
+          "stock_checked_at": "2026-10-30T21:41:00Z"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "Oblivus": "listed",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 8,
+      "in_stock_vendor_count": 3
+    },
+    {
+      "model": "H200",
+      "family": "h200",
+      "status": "tracked",
+      "variants": [
+        "H200 141GB",
+        "H200 SXM 141GB"
+      ],
+      "vendors": {
+        "CoreWeave": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:37+00:00"
+        },
+        "DigitalOcean GPU Droplets": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:44+00:00"
+        },
+        "Hyperstack": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:34:57+00:00"
+        },
+        "Modal": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:19+00:00"
+        },
+        "Nebius": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:26+00:00"
+        },
+        "RunPod": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:02+00:00"
+        },
+        "Verda (formerly DataCrunch)": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:41+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Oblivus": "listed, no sourced price",
+        "RunPod": "listed"
+      },
+      "vendor_count": 7,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX 5090",
+      "family": "rtx-5090",
+      "status": "tracked",
+      "variants": [
+        "RTX 5090 32GB"
+      ],
+      "vendors": {
+        "Clore.ai": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-29T15:27:48+00:00"
+        },
+        "CloudRift": {
+          "status": "priced",
+          "rows": 3,
+          "checked_at": "2026-10-30T17:34:32+00:00"
+        },
+        "RunPod": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:02+00:00"
+        },
+        "Spheron": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:14+00:00"
+        },
+        "Ucartz": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:25+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "Oblivus": "listed, no sourced price",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 5,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX A6000",
+      "family": "rtx-a6000",
+      "status": "tracked",
+      "variants": [
+        "RTX A6000 48GB"
+      ],
+      "vendors": {
+        "Lambda": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:13+00:00"
+        },
+        "RunPod": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:02+00:00"
+        },
+        "Thunder Compute": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:19+00:00"
+        },
+        "Verda (formerly DataCrunch)": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:41+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "Oblivus": "listed",
+        "RunPod": "listed"
+      },
+      "vendor_count": 4,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "GH200",
+      "family": "gh200",
+      "status": "tracked",
+      "variants": [
+        "GH200 96GB"
+      ],
+      "vendors": {
+        "CoreWeave": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:37+00:00"
+        },
+        "Lambda": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:13+00:00"
+        }
+      },
+      "vendor_lists": {},
+      "vendor_count": 2,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "L40",
+      "family": "l40",
+      "status": "tracked",
+      "variants": [
+        "L40 48GB"
+      ],
+      "vendors": {
+        "RunPod": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:02+00:00"
+        },
+        "Thunder Compute": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:19+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Oblivus": "listed",
+        "RunPod": "listed"
+      },
+      "vendor_count": 2,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX A5000",
+      "family": "rtx-a5000",
+      "status": "tracked",
+      "variants": [
+        "RTX A5000 24GB"
+      ],
+      "vendors": {
+        "RunPod": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:02+00:00"
+        },
+        "Ucartz": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:36:25+00:00"
+        }
+      },
+      "vendor_lists": {
+        "RunPod": "listed"
+      },
+      "vendor_count": 2,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "A10",
+      "family": "a10",
+      "status": "tracked",
+      "variants": [
+        "A10 24GB"
+      ],
+      "vendors": {
+        "Lambda": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:13+00:00"
+        }
+      },
+      "vendor_lists": {},
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "B200",
+      "family": "b200",
+      "status": "tracked",
+      "variants": [
+        "B200 180GB"
+      ],
+      "vendors": {
+        "Lambda": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:35:13+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Oblivus": "listed, no sourced price",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "Quadro RTX 6000",
+      "family": "quadro-rtx-6000",
+      "status": "tracked",
+      "variants": [
+        "Quadro RTX 6000 24GB"
+      ],
+      "vendors": {
+        "Lambda": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:13+00:00"
+        }
+      },
+      "vendor_lists": {},
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX 3090",
+      "family": "rtx-3090",
+      "status": "tracked",
+      "variants": [
+        "RTX 3090 24GB"
+      ],
+      "vendors": {
+        "RunPod": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-10-30T17:36:02+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX 6000 Ada",
+      "family": "rtx-6000-ada",
+      "status": "tracked",
+      "variants": [
+        "RTX 6000 Ada 48GB"
+      ],
+      "vendors": {
+        "DigitalOcean GPU Droplets": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:34:44+00:00"
+        }
+      },
+      "vendor_lists": {
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "V100",
+      "family": "v100",
+      "status": "tracked",
+      "variants": [
+        "V100 16GB"
+      ],
+      "vendors": {
+        "Lambda": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-10-30T17:35:13+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed"
+      },
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "A10G",
+      "family": "a10g",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {},
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "A40",
+      "family": "a40",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "RunPod": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "B300",
+      "family": "b300",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "GB300",
+      "family": "gb300",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {},
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "H100 NVL",
+      "family": "h100-nvl",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "H200 NVL",
+      "family": "h200-nvl",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "L4",
+      "family": "l4",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "MI250",
+      "family": "mi250",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {},
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "MI300X",
+      "family": "mi300x",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "RunPod": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX A4000",
+      "family": "rtx-a4000",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX PRO 6000",
+      "family": "rtx-pro-6000",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "Oblivus": "listed, no sourced price",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "T4",
+      "family": "t4",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "Clore.ai": "listed"
+      },
+      "vendor_count": 0,
+      "in_stock_vendor_count": 0
+    }
+  ]
+}

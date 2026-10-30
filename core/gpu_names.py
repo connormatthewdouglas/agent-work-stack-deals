@@ -1,4 +1,4 @@
-"""Shared GPU-name tokens (0.3.50, re30 b): form-factor generations collapse to the family the feed publishes, so
+"""Shared GPU-name tokens (0.3.51, re30 b): form-factor generations collapse to the family the feed publishes, so
 'A100 SXM4 80GB' == 'A100 SXM 80GB' and 'H100 PCIe5' == 'H100 PCIe' everywhere (compare, estimate, eligibility, watches)."""
 from __future__ import annotations
 

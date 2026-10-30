@@ -1,0 +1,77 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "license": {
+    "data": "CC-BY-4.0",
+    "data_license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Lantern Works (https://thelanternworks.com)",
+    "code": "MIT",
+    "details": "https://thelanternworks.com/methodology/#license"
+  },
+  "model": "Quadro RTX 6000",
+  "slug": "quadro-rtx-6000",
+  "url": "https://thelanternworks.com/api/v1/gpu/quadro-rtx-6000.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-10-30T17:35:13+00:00",
+  "row_count": 1,
+  "providers": [
+    "Lambda"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 24,
+        "provider": "Lambda",
+        "gpu": "Quadro RTX 6000",
+        "tier": "On-demand instance (1x GPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.69,
+        "unit": "hour",
+        "price_usd": 0.69,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-30T17:35:13+00:00",
+        "source_url": "https://lambda.ai/pricing",
+        "quote": "NVIDIA Quadro RTX 6000 24 GB 14 46 GiB 512 GiB SSD $0.69",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "Lambda",
+      "gpu": "Quadro RTX 6000",
+      "vram_gb": 24,
+      "tier": "On-demand instance (1x GPU)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.69,
+      "unit": "hour",
+      "price_usd": 0.69,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T17:35:13+00:00",
+      "source_url": "https://lambda.ai/pricing",
+      "quote": "NVIDIA Quadro RTX 6000 24 GB 14 46 GiB 512 GiB SSD $0.69",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}

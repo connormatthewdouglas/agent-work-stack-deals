@@ -4,6 +4,12 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.51 (2026-10-30)
+
+- Wider GPU model coverage: model families for B200, B300, GB300, GH200, H200 NVL, H100 NVL, MI300X, MI250, L4, A10, A10G, A40, RTX 6000 Ada, Quadro RTX 6000, RTX PRO 6000, RTX A4000, T4 and V100, alongside the existing ones. Names follow `<MODEL> [<FORM>] <VRAM>GB` (e.g. `B200 SXM 192GB`, `V100 16GB`); `H100 SXM 80GB` resolves to the existing `H100 SXM` rows. Families match the longest name at a word boundary, so `L4` never takes L40/L40S, `A10` never takes A100/A10G, and `Quadro RTX 6000`, `RTX 6000 Ada` and `RTX PRO 6000` stay apart. Compare, estimate, eligibility and watches accept these names; an unknown model is still `not_found`.
+- New [/coverage/](https://thelanternworks.com/coverage/) and `/api/v1/coverage.json`: a GPU model × vendor matrix built from the live price feed (in stock / priced / not listed, with checked_at). Target models with no sourced rows are "not yet tracked" and show no price. A separate table records which models each vendor's public catalogue lists (Scout survey, 2026-10-30); a listing is not a price or a stock claim ("listed, no sourced price" where the vendor shows the model without a price). Linked from the nav, llms.txt and the README.
+- Per-model JSON now also published for A10, B200, GH200, Quadro RTX 6000, RTX 6000 Ada and V100 under `/api/v1/gpu/`.
+
 ## 0.3.50 (2026-10-30)
 
 - T49: hosted alerts recover after failure and congestion. Bounded retries with backoff and a 72 h expiry for 408/425/429/5xx/network errors (Retry-After honoured); other 4xx rejected once; fair continuation (never-tried first, 10 POSTs per host per run, a failing host is skipped for the rest of the run) so failing early recipients cannot starve later ones. New D1 tables `watch_attempts` and `watch_ops`; `stats.delivery` exposes last push, last success, pending retries and outcomes; a persistence failure is reported.

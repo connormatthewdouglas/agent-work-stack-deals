@@ -1832,6 +1832,8 @@ def main() -> None:
     tool_paths += cost_pages.write_all(sys.modules[__name__])
     import embed_page
     tool_paths.append(embed_page.write(sys.modules[__name__]))
+    import coverage_page
+    tool_paths.append(coverage_page.write(sys.modules[__name__]))
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])

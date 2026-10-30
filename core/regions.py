@@ -1,4 +1,4 @@
-"""Region labels -> {label, zone, country, group} (0.3.50, re30 a). Scout publishes provider labels as-is
+"""Region labels -> {label, zone, country, group} (0.3.51, re30 a). Scout publishes provider labels as-is
 ('US-MD-1 (United States)', 'us-east-1', 'MON1 (CANADA, MONTREAL)', 'FIN-02'); the original label is always kept.
 
 Query rules: a country code ('US') or group ('EU', 'APAC', 'NA') matches every zone in it; anything else is a zone

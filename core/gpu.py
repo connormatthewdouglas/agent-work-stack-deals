@@ -166,15 +166,23 @@ def stale_records(docs: list[dict], now: datetime | None = None, days: int = STA
 
 # Model families for landing pages: rates whose gpu starts with the family name.
 FAMILIES = {"h100": "H100", "h200": "H200", "a100": "A100", "l40s": "L40S", "rtx-4090": "RTX 4090", "rtx-5090": "RTX 5090",
-            "l40": "L40", "rtx-a6000": "RTX A6000", "rtx-3090": "RTX 3090", "rtx-a5000": "RTX A5000"}
+            "l40": "L40", "rtx-a6000": "RTX A6000", "rtx-3090": "RTX 3090", "rtx-a5000": "RTX A5000",
+            "b200": "B200", "gh200": "GH200", "mi300x": "MI300X", "mi250": "MI250", "l4": "L4", "a10": "A10",
+            "a10g": "A10G", "a40": "A40", "rtx-6000-ada": "RTX 6000 Ada", "t4": "T4", "v100": "V100",
+            "b300": "B300", "rtx-pro-6000": "RTX PRO 6000", "rtx-a4000": "RTX A4000",
+            "h200-nvl": "H200 NVL", "h100-nvl": "H100 NVL",
+            "gb300": "GB300", "quadro-rtx-6000": "Quadro RTX 6000"}
 MIN_OFFERS, MIN_VENDORS = 3, 2  # below this a model gets no standalone page (avoid thin pages)
 
 
 def family_of(gpu: str) -> str | None:
+    """Longest family name that equals the model or prefixes it at a word boundary: 'L4' never takes
+    'L40'/'L40S', 'A10' never takes 'A100'/'A10G', and 'H100 NVL' wins over 'H100'."""
+    best = None
     for slug, name in FAMILIES.items():
-        if gpu == name or gpu.startswith(name + " "):
-            return slug
-    return None
+        if (gpu == name or gpu.startswith(name + " ")) and (best is None or len(name) > len(FAMILIES[best])):
+            best = slug
+    return best
 
 
 def families(rates: list[dict]) -> dict[str, dict]:

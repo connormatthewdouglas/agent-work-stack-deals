@@ -13,6 +13,7 @@ NAV_ITEMS = [
     ("ai-agent-tool-deals/", "Deal categories"),
     ("gpu/price-comparison/", "GPU price comparison"),
     ("tools/gpu-cost-calculator/", "GPU calculator"),
+    ("coverage/", "GPU coverage"),
     ("stack/", "Plan a stack"),
     ("tools/stack-optimizer/", "Stack optimizer"),
     ("install/", "Install (MCP)"),
