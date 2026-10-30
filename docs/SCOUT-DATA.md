@@ -23,3 +23,9 @@ GPU availability on the site comes from Lantern Scout snapshots. The pipeline ru
    - **deals.json:** it never changes deals.json. If deals.json would change, it stops without publishing, which keeps the public gist in lockstep.
    - **Timing:** it shares the `gpu-refresh` concurrency group with the daily price refresh. The refresh's 14:47 UTC fallback slot also rebuilds pages and feeds.
 3. **Expiry.** Any stock claim older than 8 hours shows as "unknown (stale availability, last checked …)". This applies on the site, in `compare_gpu_prices`, and in the reader's browser (see CHANGELOG 0.3.30). If Scout stops publishing, claims expire instead of going stale silently.
+
+## Triggers (decided 2026-10-30)
+
+- **Main path:** Scout's snapshot push dispatches `scout-import` ("Dispatch Scout import on snapshot push").
+- **Backstop:** the GitHub Actions schedule in `scout-import.yml`, `*/10 * * * *`, gated. A scheduled run does work only on a 4-hourly slot (minute 10–24), a new Scout snapshot, or an expired claim; otherwise it exits cheaply. GitHub cron can be delayed or skipped under load, which is why it is only the backstop.
+- **Parked:** the Cloudflare cron Worker `lantern-works-import-cron` (`cron-dispatch/`). Its cron trigger is removed and it has no token, so nothing depends on a user token. See `cron-dispatch/README.md` to revive it.

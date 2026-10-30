@@ -11,8 +11,7 @@ name: Scout availability import
 # Shares the gpu-refresh concurrency group so it never runs at the same time as the daily price refresh.
 on:
   schedule:
-    - cron: "15 * * * *"
-    - cron: "5,25,35,45,55 * * * *"  # N3 backstop: gated, does work only on a new snapshot or an expired claim
+    - cron: "*/10 * * * *"  # backstop (GitHub's shortest is 5 min; runs may be delayed): gated, does work only on a 4-hourly slot, a new snapshot or an expired claim
   workflow_dispatch:
     inputs:
       gated:
