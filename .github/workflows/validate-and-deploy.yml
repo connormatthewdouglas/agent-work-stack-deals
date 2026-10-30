@@ -130,7 +130,8 @@ jobs:
       - name: Benchmark asset + error contract in the published wheel (T43/T44)
         run: |
           ver=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
-          python3 -m venv /tmp/pv && /tmp/pv/bin/pip -q install "lantern-works-deals-mcp==$ver"
+          python3 -m venv /tmp/pv
+          for i in $(seq 1 40); do /tmp/pv/bin/pip -q install --no-cache-dir "lantern-works-deals-mcp==$ver" && break; echo "waiting for $ver on PyPI ($i/40)"; sleep 15; done
           /tmp/pv/bin/python scripts/check_benchmark_asset.py --installed
           PATH=/tmp/pv/bin:$PATH /tmp/pv/bin/python scripts/check_error_contract.py --installed
 
@@ -145,6 +146,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Wait for the pinned release on PyPI (up to 10 min)
+        run: |
+          ver=$(sed -n 's/.*lantern-works-deals-mcp==\([0-9.]*\).*/\1/p' Dockerfile)
+          for i in $(seq 1 40); do
+            curl -fsS "https://pypi.org/pypi/lantern-works-deals-mcp/$ver/json" >/dev/null && pip download -q --no-deps -d /tmp/pw "lantern-works-deals-mcp==$ver" && { echo "PyPI has $ver"; exit 0; }
+            echo "waiting for $ver on PyPI ($i/40)"; sleep 15
+          done
+          echo "lantern-works-deals-mcp==$ver not on PyPI after 10 min" >&2; exit 1
       - run: docker build -t lantern-works-deals-mcp .
       - name: Docker stdio tool calls
         run: |

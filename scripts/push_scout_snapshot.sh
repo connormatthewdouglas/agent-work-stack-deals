@@ -36,7 +36,12 @@ d = Path(sys.argv[1])
 feed = json.loads((d / "feed_enriched_v2_latest.json").read_text())
 raw = json.loads((d / "availability_v2_latest.json").read_text())
 times = [r.get("availability_checked_at") for r in feed.get("rows") or [] if r.get("availability_checked_at")]
+import re
+gid = raw.get("generation_id") or feed.get("generation_id")
+gm = re.match(r"^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z-", gid or "")
 m = {"schema": "lantern-scout-snapshot-manifest/1", "feed_version": str(feed.get("version")),
+     "generation_id": gid,  # this push's generation (20-min refresh); collected_at below is the 4 h cycle's time
+     "generated_at": "{}-{}-{}T{}:{}:{}Z".format(*gm.groups()) if gm else None,
      "collected_at": raw.get("collected_at") or (max(times) if times else None),
      "max_availability_checked_at": max(times) if times else None,
      "rows": len(feed.get("rows") or []), "in_live_feed_rows": sum(1 for r in feed.get("rows") or [] if r.get("in_live_feed")),

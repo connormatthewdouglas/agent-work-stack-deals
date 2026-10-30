@@ -91,6 +91,7 @@ def main() -> None:
         if any(row[k] is not None for k in ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note")):
             rows.append(row)
     doc = {"schema": "lantern-works-gpu-availability/1", "source": f"Lantern Scout availability collector v{d.get('version')} (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",
+           "generation_id": d.get("generation_id") or (json.loads(araw.decode("utf-8")).get("generation_id") if ap.is_file() else None),
            "collected_at": max((r["availability_checked_at"] or "" for r in rows), default=None),
            "imported_rows": len(rows), "rows": sorted(rows, key=lambda r: (r["vendor"], r["gpu"], r["tier"]))}
     OUT.parent.mkdir(parents=True, exist_ok=True)
