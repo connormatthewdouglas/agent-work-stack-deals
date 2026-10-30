@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.38
+
+- Gauge re22 Q1: the expiry wording in llms.txt, /for-agents and docs/SCOUT-DATA.md, and the stale-claim note in the MCP and feeds, now give the actual limits: 1 h for Lambda, Verda, region and region-derived claims, and 8 h for marketplace overall claims (Vast, Clore). A claim is unknown after availability_expires_at.
+- Q2: the live CI check also scans every served root JSON (deals.json, agent.json, glama.json, schema.json, site_config.json, lhm.plugin.json) for in_stock or availability fields.
+- Q3: lhm.plugin.json now carries the current version and is bumped with each release. A test keeps it in sync.
+
 ## 0.3.37
 
 - Gauge re20 fixes. P1: Scout's raw availability import (data/gpu_availability/latest.json) is no longer published on the site; the guarded data is in /api/v1.

@@ -73,7 +73,8 @@ def _from_record(a: dict) -> dict:
 
 
 AVAIL_MAX_AGE_H = 8  # same limit as Scout's enrich_feed_v2 (2x its 4h cadence)
-STALE_NOTE = (f"This availability check is more than {AVAIL_MAX_AGE_H} h old, so it is shown as unknown "
+STALE_NOTE = ("This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and "
+              f"region-derived claims; {AVAIL_MAX_AGE_H} h for marketplace overall claims), so it is shown as unknown "
               "(not in stock, not sold out) until a newer check is imported.")
 
 
