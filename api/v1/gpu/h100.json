@@ -79,7 +79,7 @@
         "availability": {
           "status": "unknown",
           "in_stock": null,
-          "checked_at": "2026-10-30T16:35:56Z",
+          "checked_at": "2026-10-30T17:35:48Z",
           "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
           "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
           "origin": "scout"
@@ -135,7 +135,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T16:35:56Z",
+        "checked_at": "2026-10-30T17:35:48Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -183,12 +183,16 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.793/h $2.397/h",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:21:13Z",
-        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
-        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-        "origin": "scout"
+        "availability_stale": true,
+        "checked_at": "2026-10-30T17:42:24Z",
+        "max_age_hours": 8,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "availability_expires_at": "2026-10-30T17:57:24Z"
       }
     },
     {
@@ -259,7 +263,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T16:35:56Z",
+        "checked_at": "2026-10-30T17:35:48Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -309,7 +313,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T16:35:54Z",
+        "checked_at": "2026-10-30T17:35:45Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -406,15 +410,15 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA H100 PCIe 80 GB 26 225 GiB 1 TiB SSD $3.29",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-10-30T15:21:14Z",
+        "checked_at": "2026-10-30T17:42:24Z",
         "max_age_hours": 8,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:14Z"
+        "availability_expires_at": "2026-10-30T18:42:24Z"
       }
     },
     {
@@ -460,12 +464,15 @@
       "source_url": "https://oblivus.com/pricing/",
       "quote": "H100 80GB PCIE ... Available Stock 0 Configurations H100_PCIE_80GB_x1 1x GPU - 28 vCPU - 180GB RAM - 850GB NVMe ... On-Demand: $3.50/hr",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:21:17Z",
-        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
-        "source": "https://oblivus.com/availability/ (GPU Availability table)",
-        "origin": "scout"
+        "availability_stale": true,
+        "checked_at": "2026-10-30T17:42:27Z",
+        "max_age_hours": 8,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "availability_expires_at": "2026-10-30T18:42:27Z"
       }
     },
     {
@@ -537,15 +544,15 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA H100 SXM 80 GB 208 1800 GiB 22 TiB SSD $3.99",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-10-30T15:21:14Z",
+        "checked_at": "2026-10-30T17:42:24Z",
         "max_age_hours": 8,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:14Z"
+        "availability_expires_at": "2026-10-30T18:42:24Z"
       }
     },
     {
@@ -568,7 +575,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T16:35:54Z",
+        "checked_at": "2026-10-30T17:35:45Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -592,15 +599,15 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA H100 SXM 80 GB 26 225 GiB 2.75 TiB SSD $4.29",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-10-30T15:21:14Z",
+        "checked_at": "2026-10-30T17:42:24Z",
         "max_age_hours": 8,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:14Z"
+        "availability_expires_at": "2026-10-30T18:42:24Z"
       }
     },
     {
@@ -669,12 +676,16 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.793/h",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-10-30 13:42 ET)",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:21:13Z",
-        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
-        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-        "origin": "scout"
+        "availability_stale": true,
+        "checked_at": "2026-10-30T17:42:23Z",
+        "max_age_hours": 8,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at (1 h for Lambda, Verda, region and region-derived claims; 8 h for marketplace overall claims), so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "availability_expires_at": "2026-10-30T18:42:23Z"
       }
     },
     {
