@@ -79,7 +79,7 @@
         "availability": {
           "status": "unknown",
           "in_stock": null,
-          "checked_at": "2026-10-30T15:36:15Z",
+          "checked_at": "2026-10-30T16:35:56Z",
           "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
           "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
           "origin": "scout"
@@ -135,7 +135,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -259,7 +259,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -309,8 +309,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+        "checked_at": "2026-10-30T16:35:54Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
       }
@@ -460,15 +460,12 @@
       "source_url": "https://oblivus.com/pricing/",
       "quote": "H100 80GB PCIE ... Available Stock 0 Configurations H100_PCIE_80GB_x1 1x GPU - 28 vCPU - 180GB RAM - 850GB NVMe ... On-Demand: $3.50/hr",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:17Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "availability_expires_at": "2026-10-30T16:21:17Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://oblivus.com/availability/ (GPU Availability table)",
+        "origin": "scout"
       }
     },
     {
@@ -569,15 +566,12 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $3.99/hr.",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:36 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "availability_expires_at": "2026-10-30T16:36:12Z"
+        "checked_at": "2026-10-30T16:35:54Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "origin": "scout"
       }
     },
     {
@@ -675,16 +669,12 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.793/h",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:13Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:13Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+        "origin": "scout"
       }
     },
     {

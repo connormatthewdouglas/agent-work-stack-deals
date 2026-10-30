@@ -394,13 +394,7 @@
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:14:33Z",
         "offer_count": 5,
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:14:33Z",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
-        "available_regions": null,
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:14 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
       }
     },
     {
@@ -423,7 +417,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -473,7 +467,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -521,15 +515,12 @@
       "source_url": "https://oblivus.com/pricing/",
       "quote": "A100 80GB PCIE ... Available Stock 10 Configurations A100_PCIE_80GB_x1 1x GPU - 28 vCPU - 120GB RAM - 850GB NVMe ... On-Demand: $1.47/hr",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:17Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "availability_expires_at": "2026-10-30T16:21:17Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://oblivus.com/availability/ (GPU Availability table)",
+        "origin": "scout"
       }
     },
     {
@@ -599,16 +590,12 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.609/h",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:13Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:13Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -654,12 +641,15 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-10-30 12:35 ET)",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-        "origin": "scout"
+        "availability_stale": true,
+        "checked_at": "2026-10-30T16:35:54Z",
+        "max_age_hours": 8,
+        "origin": "scout",
+        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "availability_expires_at": "2026-10-30T17:35:54Z"
       }
     },
     {
@@ -680,12 +670,15 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-10-30 12:35 ET)",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-        "origin": "scout"
+        "availability_stale": true,
+        "checked_at": "2026-10-30T16:35:54Z",
+        "max_age_hours": 8,
+        "origin": "scout",
+        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "availability_expires_at": "2026-10-30T17:35:54Z"
       }
     },
     {
@@ -839,16 +832,12 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.248/h",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:13Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:13Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+        "origin": "scout"
       }
     },
     {

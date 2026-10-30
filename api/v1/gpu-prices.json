@@ -256,14 +256,8 @@
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:21:14Z",
         "unrented_servers": 121,
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:21:14Z",
         "unrented_servers_note": "unrented servers (one server may hold several GPUs)",
-        "detail": "Unrented servers (one server may hold several GPUs), any currency",
-        "available_regions": null,
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:21 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "detail": "Unrented servers (one server may hold several GPUs), any currency"
       }
     },
     {
@@ -2860,15 +2854,12 @@
         "checked_at": "2026-10-30T00:20:12+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:17Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "availability_expires_at": "2026-10-30T16:21:17Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://oblivus.com/availability/ (GPU Availability table)",
+        "origin": "scout"
       }
     },
     {
@@ -2909,15 +2900,12 @@
         "checked_at": "2026-10-30T00:20:12+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:17Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "availability_expires_at": "2026-10-30T16:21:17Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://oblivus.com/availability/ (GPU Availability table)",
+        "origin": "scout"
       }
     },
     {
@@ -3088,15 +3076,12 @@
         "checked_at": "2026-10-30T13:11:53+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:36 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "availability_expires_at": "2026-10-30T16:36:12Z"
+        "checked_at": "2026-10-30T16:35:54Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "origin": "scout"
       }
     },
     {
@@ -3138,8 +3123,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+        "checked_at": "2026-10-30T16:35:54Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
       }
@@ -3181,12 +3166,15 @@
         "checked_at": "2026-10-30T13:11:53+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-10-30 12:35 ET)",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-        "origin": "scout"
+        "availability_stale": true,
+        "checked_at": "2026-10-30T16:35:54Z",
+        "max_age_hours": 8,
+        "origin": "scout",
+        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "availability_expires_at": "2026-10-30T17:35:54Z"
       }
     },
     {
@@ -3226,12 +3214,15 @@
         "checked_at": "2026-10-30T13:11:53+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-10-30 12:35 ET)",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-        "origin": "scout"
+        "availability_stale": true,
+        "checked_at": "2026-10-30T16:35:54Z",
+        "max_age_hours": 8,
+        "origin": "scout",
+        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
+        "derived_from_regions": true,
+        "availability_expires_at": "2026-10-30T17:35:54Z"
       }
     },
     {
@@ -3445,8 +3436,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:12Z",
-        "note": "RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+        "checked_at": "2026-10-30T16:35:54Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
       }
@@ -3576,7 +3567,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -3621,7 +3612,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -3666,7 +3657,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -3711,7 +3702,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -3756,7 +3747,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T15:36:15Z",
+        "checked_at": "2026-10-30T16:35:56Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -4499,13 +4490,7 @@
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:14:33Z",
         "offer_count": 5,
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:14:33Z",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
-        "available_regions": null,
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:14 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
       }
     },
     {
@@ -4554,13 +4539,7 @@
         "max_age_hours": 8,
         "availability_expires_at": "2026-10-30T23:14:38Z",
         "offer_count": 46,
-        "available_regions_detail": null,
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T16:14:38Z",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
-        "available_regions": null,
-        "regions_expired": true,
-        "regions_note": "region list expires at 12:14 ET (left out once expired or expiring before the next rebuild). Region lists refresh with each Scout cycle and may be blank between cycles."
+        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
       }
     },
     {
@@ -4686,16 +4665,12 @@
         "checked_at": "2026-10-30T13:12:30+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:13Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:13Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -4780,16 +4755,12 @@
         "checked_at": "2026-10-30T13:12:30+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:13Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:13Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -4874,16 +4845,12 @@
         "checked_at": "2026-10-30T13:12:30+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 11:21 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
         "checked_at": "2026-10-30T15:21:13Z",
-        "max_age_hours": 8,
-        "origin": "scout",
-        "note": "This availability check is more than 8 h old, so it is shown as unknown (not in stock, not sold out) until a newer check is imported.",
-        "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T16:21:13Z"
+        "note": "Recomputed from remaining unexpired region claims at overall_recomputed_at: in_stock true only if one is in stock, otherwise null (unknown)",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+        "origin": "scout"
       }
     },
     {
