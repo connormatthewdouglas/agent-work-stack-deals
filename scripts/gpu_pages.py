@@ -90,7 +90,7 @@ def _verified_cell(r: dict, esc) -> str:
 
 
 from core.gpu_availability import STOCK_EXPLAINER  # noqa: E402  (one wording: core NOTE == page explainer)
-from core.deals import tie_label  # noqa: E402  (J3 tie rule shared with the MCP summary)
+from core.deals import tie_label, out_of_stock  # noqa: E402  (J3 tie rule shared with the MCP summary)
 
 
 def _tied_names(gen, rows, best) -> str:
@@ -172,14 +172,37 @@ def _faq_html(gen, faqs) -> str:
     return "\n".join(f"<h3>{gen.esc(q)}</h3>\n<p>{gen.esc(a)}</p>" for q, a in faqs)
 
 
+def _mem_label(rows, r) -> str:
+    """J8: name the memory size when the model's rows mix sizes (e.g. A100 40GB vs 80GB)."""
+    sizes = {x.get("vram_gb") for x in rows if x.get("vram_gb")}
+    if len(sizes) > 1 and r.get("vram_gb") and f"{r['vram_gb']}GB" not in r["gpu"]:
+        return f"{r['gpu']} {r['vram_gb']}GB"
+    return r["gpu"]
+
+
+def _mem_note(gen, rows, od) -> str:
+    """J8: if the cheapest on-demand row is not the largest memory size, also name the cheapest on-demand row of the
+    same GPU name at the largest size (from the feed, not marked out of stock)."""
+    sizes = {x.get("vram_gb") for x in rows if x.get("vram_gb")}
+    if len(sizes) < 2 or not od.get("vram_gb") or od["vram_gb"] == max(sizes):
+        return ""
+    big = [x for x in rows if x["gpu"] == od["gpu"] and x.get("vram_gb") == max(sizes)
+           and (x.get("tier_class") or "on-demand") == "on-demand" and not out_of_stock(x)]
+    if not big:
+        return ""
+    b = min(big, key=lambda x: (x["monthly_cost_usd"], x["advertiser"]))
+    return (f" \u2014 memory sizes differ; cheapest {gen.esc(od['gpu'])} {max(sizes)}GB among tracked providers: "
+            f"{_tied_names(gen, big, b)} at {_money(b['monthly_cost_usd'])}")
+
+
 def _od_note(gen, rows, cheapest) -> str:
     """When the overall cheapest isn't on-demand, say so and name the cheapest on-demand rate (audit T9/M6)."""
     tc = cheapest.get("tier_class") or "on-demand"
     if tc == "on-demand":
         return " (on-demand)"
     od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand"), None)
-    tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {_tied_names(gen, rows, od)} {gen.esc(od['gpu'])} ({gen.esc(od['tier'])}) at "
-            f"{_money(od['monthly_cost_usd'])}") if od else "; no on-demand rate is tracked for this model"
+    tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {_tied_names(gen, rows, od)} {gen.esc(_mem_label(rows, od))} ({gen.esc(od['tier'])}) at "
+            f"{_money(od['monthly_cost_usd'])}{_mem_note(gen, rows, od)}") if od else "; no on-demand rate is tracked for this model"
     return f" — note: that rate is <strong>{gen.esc(tc)}</strong>{tail}"
 
 

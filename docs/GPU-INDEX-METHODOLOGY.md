@@ -13,6 +13,8 @@ Lantern Works' own sourced price rows (each row has a vendor source URL, verbati
 | RTX 4090 | RTX 4090 | 24 GB |
 | RTX 5090 | RTX 5090 | 32 GB |
 
+Each series is keyed to one memory size. The A100 series is 80 GB only: 40 GB A100 rows (for example Jarvislabs, Civo and E2E Networks, added 2026-10-29) are left out of the A100 median and minimum, and rows with no stated memory size are left out too, so the A100 history stays comparable from its first day. The same size is published per series as `series_vram_gb` in gpu-price-index.json.
+
 Form factors (SXM/PCIe/NVLink) are pooled in v1.0 for coverage; per-form-factor series are a v1.1 candidate once each has ≥3 vendors.
 
 ## Which rows count

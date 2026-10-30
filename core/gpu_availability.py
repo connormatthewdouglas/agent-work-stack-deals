@@ -61,6 +61,8 @@ def _from_record(a: dict) -> dict:
            "refresh": "manual snapshot, time shown (prices checked daily)", "source": a.get("source"), "note": NOTE}
     if a.get("stock_level"):
         out["stock_level"] = str(a["stock_level"])
+    if a.get("same_capture_as_price"):
+        out["same_capture_as_price"] = True  # J6: price quote and stock count read from one page capture
     if a.get("note"):
         out["detail"] = _clean(a["note"])
     return out

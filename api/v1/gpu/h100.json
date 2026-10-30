@@ -13,7 +13,7 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-10-30T00:08:13+00:00",
+  "last_checked": "2026-10-30T00:20:12+00:00",
   "row_count": 24,
   "providers": [
     "99Stack Cloud",
@@ -447,18 +447,19 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-10-30T00:07:02+00:00",
+      "verified_at": "2026-10-30T00:20:12+00:00",
       "source_url": "https://oblivus.com/pricing/",
-      "quote": "H100 80GB PCIE ... Available Stock 6 Configurations H100_PCIE_80GB_x1 1x GPU - 28 vCPU - 180GB RAM - 850GB NVMe ... On-Demand: $3.50/hr",
+      "quote": "H100 80GB PCIE ... Available Stock 0 Configurations H100_PCIE_80GB_x1 1x GPU - 28 vCPU - 180GB RAM - 850GB NVMe ... On-Demand: $3.50/hr",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-10-30T00:09:08+00:00",
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-10-30T00:20:12+00:00",
         "refresh": "manual snapshot, time shown (prices checked daily)",
         "source": "https://oblivus.com/pricing/ ('Available Stock' count on the pricing page)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "stock_level": "3",
-        "detail": "Pricing page showed 'Available Stock 3' for this GPU type when checked"
+        "stock_level": "0",
+        "same_capture_as_price": true,
+        "detail": "Pricing page showed 'Available Stock 0' for this GPU type in the same capture as the price (count shown on the vendor page, changes often)"
       }
     },
     {

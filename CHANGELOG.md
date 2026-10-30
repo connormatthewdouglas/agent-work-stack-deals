@@ -2,6 +2,13 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.28
+
+- Oblivus: price quote and "Available Stock" count now come from one page capture (same_capture_as_price); detail says the count changes often. H100 PCIe showed 0 at the capture, so it is out of stock when checked; A100 PCIe 80GB showed 10.
+- E2E Networks region now cites the vendor's rate card (https://www.e2enetworks.com/pricing.md); the INR billing claim was dropped.
+- /gpu/cheapest-<model>-rental/ names the memory size when sizes differ and adds the cheapest largest-size on-demand rate.
+- GPU Price Index: series_vram_gb published; A100 series stays 80 GB only (40 GB never mixed).
+
 ## 0.3.27
 
 - GPU coverage depth: new sourced on-demand 1x rates. H100: Jarvislabs (H100 SXM $3.49), Civo (H100 SXM $2.99), Oblivus (H100 PCIe $3.50), E2E Networks (H100 $3.99). A100: Jarvislabs (80GB $1.49, 40GB $0.89), Civo (80GB $1.79, 40GB $1.09), Oblivus (A100 PCIe 80GB $1.47), E2E Networks (80GB $2.10, 40GB $1.98), CloudRift (A100 SXM 80GB $1.05). Each row carries a region; availability is unknown unless the vendor publishes a real signal (Oblivus: "Available Stock" count, passed through as stock_level).

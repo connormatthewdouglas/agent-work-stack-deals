@@ -158,6 +158,7 @@ def main_args(repo, outdir):
             "hours_per_month": HOURS_PER_MONTH, "min_marketplace_listings": MIN_MARKETPLACE_LISTINGS,
             "history_starts": days[0]["date"] if days else None, "days": len(days),
             "method": "https://thelanternworks.com/gpu/index/methodology/",
+            "series_vram_gb": {s: v for s, (_, v) in INDEX_GPUS.items()},  # one memory size per series (A100 = 80 GB only; 40 GB never mixed)
             "license_terms": DATA_LICENSE}
     json.dump({**meta, "history": days}, open(os.path.join(outdir, "gpu-price-index.json"), "w"), indent=1)
     with open(os.path.join(outdir, "gpu-price-index.csv"), "w", newline="") as f:

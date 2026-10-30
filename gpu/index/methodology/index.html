@@ -124,6 +124,7 @@
 <p><strong>What it is:</strong> a daily, per-GPU reference rental price for six NVIDIA GPUs, computed only from Lantern Works&#x27; own sourced price rows (each row has a vendor source URL, verbatim quote and check time in the feed).</p>
 <h3>Scope</h3>
 <div class="tscroll"><table class="howto"><thead><tr><th>Series</th><th>Feed <code>gpu</code> values accepted</th><th>VRAM</th></tr></thead><tbody><tr><td>H100</td><td>H100, H100 SXM, H100 PCIe, H100 NVLink</td><td>80 GB</td></tr><tr><td>A100</td><td>A100, A100 SXM, A100 PCIe, A100 NVLink</td><td>80 GB (40 GB rows are excluded, never mixed)</td></tr><tr><td>H200</td><td>H200, H200 SXM</td><td>141 GB</td></tr><tr><td>L40S</td><td>L40S</td><td>48 GB</td></tr><tr><td>RTX 4090</td><td>RTX 4090</td><td>24 GB</td></tr><tr><td>RTX 5090</td><td>RTX 5090</td><td>32 GB</td></tr></tbody></table></div>
+<p>Each series is keyed to one memory size. The A100 series is 80 GB only: 40 GB A100 rows (for example Jarvislabs, Civo and E2E Networks, added 2026-10-29) are left out of the A100 median and minimum, and rows with no stated memory size are left out too, so the A100 history stays comparable from its first day. The same size is published per series as <code>series_vram_gb</code> in gpu-price-index.json.</p>
 <p>Form factors (SXM/PCIe/NVLink) are pooled in v1.0 for coverage; per-form-factor series are a v1.1 candidate once each has ≥3 vendors.</p>
 <h3>Which rows count</h3>
 <p>A snapshot row is <strong>included</strong> only if all are true:</p>

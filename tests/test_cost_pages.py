@@ -156,7 +156,11 @@ def test_0327_new_h100_a100_rows_live_and_sourced():
             if r["advertiser"] != "Oblivus":
                 assert r["availability"]["in_stock"] is None
     ob = [r for r in feed["rates"] if r["advertiser"] == "Oblivus"]
-    assert ob and all(r["availability"]["in_stock"] is True and r["availability"].get("stock_level") for r in ob)
+    assert ob and all(r["availability"]["in_stock"] is (int(r["availability"]["stock_level"]) > 0) for r in ob)
+    for r in ob:  # J6: quote and stock count from the same capture
+        a = r["availability"]
+        assert a["same_capture_as_price"] and a["checked_at"] == r["verified_at"]
+        assert f"Available Stock {a['stock_level']} " in r["evidence"]["quote"] and "(count shown on the vendor page, changes often)" in a["detail"]
     for slug in ("h100", "a100"):
         s = _page(slug, 100)
         for v in ("Jarvislabs", "Civo", "Oblivus", "E2E Networks"):
@@ -176,3 +180,27 @@ def test_0327_old_note_cleared_and_tie_rule_shared():
     rows = [{"advertiser": "A", "gpu": "H100", "tier": "On-demand", "hourly_equiv_usd": 2.0, "availability": {}},
             {"advertiser": "B", "gpu": "H100", "tier": "On-demand", "hourly_equiv_usd": 2.0, "availability": {}}]
     assert d.tie_label(rows, rows[0]) == "A and B (tie)"
+
+
+def test_j7_regions_cite_supporting_urls():
+    import json
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    reg = {r["advertiser"]: r["region"] for r in feed["rates"] if r["advertiser"] in {"E2E Networks", "Civo", "Jarvislabs", "Oblivus"}}
+    assert "https://www.e2enetworks.com/pricing.md" in reg["E2E Networks"] and "INR" not in reg["E2E Networks"]
+    assert "https://www.civo.com/docs/overview/regions" in reg["Civo"] and "MON1" in reg["Oblivus"] and "India" in reg["Jarvislabs"]
+
+
+def test_j8_cheapest_a100_summary_names_memory_sizes():
+    s = (ROOT / "gpu/cheapest-a100-rental/index.html").read_text()
+    assert ("cheapest <strong>on-demand</strong> among tracked providers: Jarvislabs A100 40GB (On-demand) at $89.00 \u2014 memory sizes differ; "
+            "cheapest A100 80GB among tracked providers: Thunder Compute at $109.00") in s
+
+
+def test_index_a100_is_80gb_only():
+    import json
+    idx = json.loads((ROOT / "api/v1/gpu-price-index.json").read_text())
+    assert idx["series_vram_gb"]["A100"] == 80
+    import sys; sys.path.insert(0, str(ROOT / "scripts")); import gpu_index
+    assert gpu_index.series_of({"gpu": "A100", "vram_gb": 40}) is None and gpu_index.series_of({"gpu": "A100", "vram_gb": 80}) == "A100"
+    assert gpu_index.series_of({"gpu": "A100", "vram_gb": None}) is None
+    assert "A100 series is 80 GB only" in (ROOT / "docs/GPU-INDEX-METHODOLOGY.md").read_text()
