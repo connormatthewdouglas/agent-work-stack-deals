@@ -22,7 +22,7 @@ KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_s
 
 def main() -> None:
     d = json.loads(SRC.read_text(encoding="utf-8"))
-    if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9 passed
+    if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9", "3.0"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9, v3.0 passed
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
     snap = max((r.get("availability_checked_at") or "" for r in d.get("rows") or []), default="")
     age = age_hours(snap)
