@@ -211,7 +211,7 @@ async def _handle(msg, env, ref, bearer=None, cls=("other", "other")):
                 out = {"ok": False, "error": {"code": e.code, "message": e.message}}
             await _count(env, name, ref)
             await _hit(env, "tool", name, ref, *cls)  # known watch tool names only
-            return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": out.get("ok") is False})
+            return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": server.contract.is_error(out)})
         fn = next((f for f, _ in TOOLS if f.__name__ == name), None)
         if fn is None:
             return _err(i, -32602, f"Unknown tool: {name}")
@@ -226,8 +226,8 @@ async def _handle(msg, env, ref, bearer=None, cls=("other", "other")):
         await _hit(env, "tool", name, ref, *cls)
         if bearer or (isinstance(args, dict) and args.get("api_key")):
             await watch_store.bump_pricing(env, args if isinstance(args, dict) else {}, bearer)  # T51: per-key weekly, pricing tools
-        is_err = isinstance(out, dict) and (out.get("ok") is False or ("error" in out and len(out) <= 2))
-        return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": bool(is_err)})
+        return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out,
+                       "isError": server.contract.is_error(out)})
     return _err(i, -32601, f"Method not found: {m}")
 
 

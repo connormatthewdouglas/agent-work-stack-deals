@@ -4,6 +4,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.42 (2026-10-30)
+
+- T44: the stdio server now sets `isError` exactly like the hosted MCP: true for the `ok:false` error envelope (invalid input, unsupported workload, upstream failure), false for success and for no-match (`ok:true`, empty list). `structuredContent` is unchanged. Requires `mcp>=1.19`. Wire-level checks: `tests/test_error_contract_wire.py` and `scripts/check_error_contract.py --installed|--hosted`.
+
 ## 0.3.41 (2026-10-30)
 
 - T43: the benchmark data now ships inside the installed products. The wheel carries `core/assets/gpu_throughput.json` (71 cited figures, loaded package-relative), and the hosted bundle embeds the same bytes. With no throughput given, `estimate_job_cost` prices H100 SXM 80GB / resnet50 from the published MLPerf figure. A missing or corrupt asset now returns `internal_error` ("benchmark asset missing or corrupt"), not "unsupported workload". Training workloads still abstain with `not_found` "missing: throughput". CI checks the built wheel outside the checkout and the deployed MCP (`scripts/check_benchmark_asset.py`).

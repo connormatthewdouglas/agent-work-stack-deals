@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.3.41, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.3.42, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -52,6 +52,14 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 `compare_gpu_prices` uses exactly the data published at https://thelanternworks.com/api/v1/gpu-prices.json (history: https://thelanternworks.com/api/v1/gpu-prices/history.json). Prices are re-read daily from each vendor's own page or API and change only where a price was parsed; a rate not re-verified for 7 days is held out of rankings. Model matching is by whole tokens (`H100` matches `H100 SXM`; `L40` does not match `L40S`). "Cheapest" means cheapest among tracked providers, not the whole market.
 
 Errors: `{"error": {"code": "invalid_argument|invalid_cursor|not_found|feed_unavailable|feed_invalid", "message": ...}}`.
+
+## Errors and isError
+
+stdio and hosted use one rule (`core/contract.is_error`): `isError` is true exactly when the result is the error
+envelope `{"ok": false, "error": {"code", "message"}}`. Invalid input (`invalid_argument`), an unknown or unsupported
+GPU, vendor or workload (`not_found`) and upstream failures (`feed_unavailable`, `upstream_unavailable`, ...) are errors.
+A valid query that matches nothing is **not** an error: `ok: true`, `count: 0`, an empty list, `isError: false`.
+`structuredContent` is the same object in both cases.
 
 ## Data and privacy
 

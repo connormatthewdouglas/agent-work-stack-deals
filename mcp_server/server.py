@@ -341,6 +341,37 @@ def _install_output_schemas() -> None:
 _install_output_schemas()
 
 
+def _install_is_error() -> None:
+    """T44: stdio sets isError exactly like the hosted worker (contract.is_error), keeping structuredContent."""
+    low = getattr(mcp, "_mcp_server", None)
+    if low is None or _PassThrough is None:
+        return
+    try:
+        import json as _json
+        import jsonschema as _js
+        from mcp import types as _t
+    except ImportError:  # hosted worker stand-in: the worker sets isError itself via contract.is_error
+        return
+
+    async def _call(name, arguments):
+        res = await mcp.call_tool(name, arguments)
+        out = res[1] if isinstance(res, tuple) and len(res) == 2 else res
+        if not isinstance(out, dict):
+            return res
+        if name in contract.SPEC:
+            try:
+                _js.validate(instance=out, schema=contract.output_schema(name))
+            except _js.ValidationError as e:  # same guard the SDK applies on the non-passthrough path
+                out = contract.error("internal_error", f"output validation error: {e.message}")
+        return _t.CallToolResult(content=[_t.TextContent(type="text", text=_json.dumps(out, indent=2))],
+                                 structuredContent=out, isError=contract.is_error(out))
+
+    low.call_tool(validate_input=False)(_call)
+
+
+_install_is_error()
+
+
 def main() -> None:
     mcp.run("stdio")
 

@@ -108,6 +108,15 @@ def output_schema(tool: str) -> dict:
     }
 
 
+def is_error(out) -> bool:
+    """T44: the one isError rule for stdio and hosted. True iff the result is the error envelope (ok=false).
+
+    No match is NOT an error: a valid query that matches nothing returns ok=true with an empty list (count 0),
+    isError=false. not_found (ok=false) is reserved for a named thing that does not exist or is unsupported
+    (unknown GPU/vendor/workload)."""
+    return isinstance(out, dict) and out.get("ok") is False
+
+
 def error(code: str, message: str) -> dict:
     code = code if code in ERROR_CODES else "internal_error"
     return {"ok": False, "error": {"code": code, "message": str(message)}}

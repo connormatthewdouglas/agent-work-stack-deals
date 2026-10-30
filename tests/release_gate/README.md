@@ -14,7 +14,7 @@ There are 21 cases in `cases.json`. Each case is a question an agent would ask, 
 ## Run (release gate)
 From the repo root, after `python3 scripts/generate_seo_pages.py` has built the feed:
 ```
-pip install "mcp>=1.10,<2"   # mcp 2.x removed FastMCP
+pip install "mcp>=1.19,<2"   # mcp 2.x removed FastMCP
 python3 tests/release_gate/run_t41.py                 # --source local (default): checks the built api/v1/*.json + index.html
 python3 tests/release_gate/run_t41.py --source live   # optional: the public site (fetches are 3 s apart and back off)
 ```

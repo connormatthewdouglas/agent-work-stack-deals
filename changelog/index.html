@@ -128,6 +128,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.42 (2026-10-30)</h2>
+<ul>
+<li>T44: the stdio server now sets <code>isError</code> exactly like the hosted MCP: true for the <code>ok:false</code> error envelope (invalid input, unsupported workload, upstream failure), false for success and for no-match (<code>ok:true</code>, empty list). <code>structuredContent</code> is unchanged. Requires <code>mcp&gt;=1.19</code>. Wire-level checks: <code>tests/test_error_contract_wire.py</code> and <code>scripts/check_error_contract.py --installed|--hosted</code>.</li>
+</ul>
 <h2>0.3.41 (2026-10-30)</h2>
 <ul>
 <li>T43: the benchmark data now ships inside the installed products. The wheel carries <code>core/assets/gpu_throughput.json</code> (71 cited figures, loaded package-relative), and the hosted bundle embeds the same bytes. With no throughput given, <code>estimate_job_cost</code> prices H100 SXM 80GB / resnet50 from the published MLPerf figure. A missing or corrupt asset now returns <code>internal_error</code> (&quot;benchmark asset missing or corrupt&quot;), not &quot;unsupported workload&quot;. Training workloads still abstain with <code>not_found</code> &quot;missing: throughput&quot;. CI checks the built wheel outside the checkout and the deployed MCP (<code>scripts/check_benchmark_asset.py</code>).</li>
