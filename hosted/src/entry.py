@@ -51,6 +51,9 @@ FEEDS = {"loader": core_deals.FEED_URL, "gpu_loader": core_deals.GPU_PRICES_URL,
          "history_loader": core_deals.GPU_HISTORY_URL, "changes_loader": core_deals.GPU_CHANGES_URL,
          "stack_loader": core_deals.STACK_PRICING_URL}
 TTL = 600
+# Bjorn 2026-10-30: Scout refreshes RunPod/Lambda every 15-20 min and claims last 1 h, so the GPU feed must reach the MCP fast.
+# GPU feed: 60 s isolate cache, and a per-minute query parameter so the GitHub Pages CDN (max-age 600) is not the bottleneck.
+FAST = {core_deals.GPU_PRICES_URL: 60}
 _cache = {}
 REF_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 CORS = {"access-control-allow-origin": "*", "access-control-allow-headers": "content-type, authorization, mcp-protocol-version, mcp-session-id",
@@ -61,10 +64,11 @@ async def _feeds():
     now = time.time()
     for attr, url in FEEDS.items():
         hit = _cache.get(url)
-        if hit and now - hit[0] < TTL:
+        if hit and now - hit[0] < FAST.get(url, TTL):
             data = hit[1]
         else:
-            r = await fetch(url, headers={"user-agent": core_deals.USER_AGENT + " hosted"})
+            src = f"{url}?m={int(now // 60)}" if url in FAST else url
+            r = await fetch(src, headers={"user-agent": core_deals.USER_AGENT + " hosted"})
             if r.status != 200:
                 raise core_deals.DealError("upstream_unavailable", f"{url} returned HTTP {r.status}")
             data = json.loads(await r.text())
