@@ -336,6 +336,8 @@ def _install_output_schemas() -> None:
             t.fn_metadata.output_schema = contract.output_schema(name)
             t.fn_metadata.output_model = _PassThrough  # the dict itself is structuredContent ...
             t.fn_metadata.wrap_output = False          # ... not {"result": ...}; the SDK validates it against outputSchema
+        if isinstance(getattr(t, "parameters", None), dict):
+            t.parameters["additionalProperties"] = False  # re26: unknown arguments are invalid_argument (hosted matches)
 
 
 _install_output_schemas()
@@ -354,7 +356,18 @@ def _install_is_error() -> None:
         return
 
     async def _call(name, arguments):
-        res = await mcp.call_tool(name, arguments)
+        tool = (getattr(mcp._tool_manager, "_tools", None) or {}).get(name)
+        if tool is None:  # unknown tool: SDK isError text (hosted answers JSON-RPC -32602); documented in README
+            return await mcp.call_tool(name, arguments)
+        bad = contract.check_args(tool.fn, arguments)
+        if bad is None:
+            try:
+                res = await mcp.call_tool(name, arguments)
+            except Exception as e:  # noqa: BLE001  SDK argument validation (pydantic) -> the same envelope as hosted
+                bad = contract.error("invalid_argument", str(e).split("\n")[0][:300])
+        if bad is not None:
+            return _t.CallToolResult(content=[_t.TextContent(type="text", text=_json.dumps(bad, indent=2))],
+                                     structuredContent=bad, isError=True)
         out = res[1] if isinstance(res, tuple) and len(res) == 2 else res
         if not isinstance(out, dict):
             return res

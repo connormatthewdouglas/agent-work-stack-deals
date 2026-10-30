@@ -40,6 +40,7 @@ NEEDS = {
 OFFER_FIELDS = ("need", "plan", "monthly_usd", "included", "overage_usd", "overage_per", "units_per_item", "quote", "assumptions")
 EXCLUDE_TAGS = {"antidetect-browser"}
 MAX_QTY = 10**9
+MAX_GPU_HOURS_MONTH = 20000  # Gauge re26 (B): same cap as the browser calculator's hours field
 
 
 def load_vendor_files(directory: Path | None = None) -> list[dict]:
@@ -221,8 +222,9 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
     if bad:
         raise StackError(f"unknown need(s) {bad}; valid: {', '.join(NEEDS)}")
     for k, v in needs.items():
-        if not _num(v) or v > MAX_QTY:
-            raise StackError(f"{k} must be a number 0-{MAX_QTY}")
+        cap = MAX_GPU_HOURS_MONTH if k == "gpu_hours" else MAX_QTY
+        if not _num(v) or v > cap:
+            raise StackError(f"{k} must be a number 0-{cap}")
     manual = set(data.get("manual_only_deal_ids") or [])
     lines = []
     for need, qty in needs.items():

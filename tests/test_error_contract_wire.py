@@ -21,6 +21,9 @@ DATA = ROOT / "api" / "v1"
 CASES = [
     # (name, tool, args, env overrides, expect isError, expect error code)
     ("invalid_input", "compare_gpu_prices", {"gpu": "H100", "limit": 0}, {}, True, "invalid_argument"),
+    ("wrong_type", "compare_gpu_prices", {"gpu": "H100", "limit": "abc"}, {}, True, "invalid_argument"),
+    ("missing_required", "compare_gpu_prices", {"limit": 3}, {}, True, "invalid_argument"),
+    ("extra_argument", "compare_gpu_prices", {"gpu": "H100", "bogus": 1}, {}, True, "invalid_argument"),
     ("upstream_failure", "compare_gpu_prices", {"gpu": "H100"},
      {"LANTERN_GPU_PRICES_URL": "http://127.0.0.1:9/none.json", "LANTERN_GPU_PRICES_FILE": ""}, True, None),
     ("unsupported_workload", "estimate_job_cost",

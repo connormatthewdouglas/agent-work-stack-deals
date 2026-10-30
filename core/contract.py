@@ -117,6 +117,66 @@ def is_error(out) -> bool:
     return isinstance(out, dict) and out.get("ok") is False
 
 
+def check_args(fn, args) -> dict | None:
+    """T44/re26: one argument check for stdio and hosted, run before the tool. Returns the invalid_argument
+    envelope for a non-object, a missing required argument, an unknown (extra) argument, or a wrong JSON type;
+    None when the arguments are acceptable. Range checks stay in the tools."""
+    import inspect
+    import typing
+    if args is None:
+        args = {}
+    if not isinstance(args, dict):
+        return error("invalid_argument", "arguments must be an object")
+    params = inspect.signature(fn).parameters
+    extra = sorted(k for k in args if k not in params)
+    if extra:
+        return error("invalid_argument", f"unknown argument(s): {', '.join(extra)}; valid: {', '.join(params)}")
+    missing = [n for n, p in params.items() if p.default is inspect.Parameter.empty and n not in args]
+    if missing:
+        return error("invalid_argument", f"missing required argument(s): {', '.join(missing)}")
+    try:
+        hints = typing.get_type_hints(fn)
+    except Exception:  # noqa: BLE001
+        hints = {}
+    for k, v in args.items():
+        t = hints.get(k)
+        if t is None:
+            continue
+        opts = typing.get_args(t) if typing.get_origin(t) in (typing.Union, getattr(__import__("types"), "UnionType", None)) else (t,)
+        if v is None and type(None) in opts:
+            continue
+        if not any(_type_ok(v, o) for o in opts if o is not type(None)):
+            want = " or ".join(_type_name(o) for o in opts)
+            return error("invalid_argument", f"{k} must be {want}")
+    return None
+
+
+def _type_ok(v, t) -> bool:
+    import typing
+    if t is bool:
+        return isinstance(v, bool)
+    if t is int:
+        return not isinstance(v, bool) and (isinstance(v, int) or (isinstance(v, float) and v.is_integer()))
+    if t is float:
+        return not isinstance(v, bool) and isinstance(v, (int, float))
+    if t is str:
+        return isinstance(v, str)
+    if typing.get_origin(t) is list or t is list:
+        inner = typing.get_args(t)
+        return isinstance(v, list) and (not inner or all(_type_ok(x, inner[0]) for x in v))
+    if t is dict or typing.get_origin(t) is dict:
+        return isinstance(v, dict)
+    return True
+
+
+def _type_name(t) -> str:
+    import typing
+    names = {bool: "a boolean", int: "an integer", float: "a number", str: "a string", type(None): "null", dict: "an object"}
+    if typing.get_origin(t) is list:
+        return "an array"
+    return names.get(t, getattr(t, "__name__", str(t)))
+
+
 def error(code: str, message: str) -> dict:
     code = code if code in ERROR_CODES else "internal_error"
     return {"ok": False, "error": {"code": code, "message": str(message)}}

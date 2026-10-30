@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.3.42, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.3.43, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -59,7 +59,10 @@ stdio and hosted use one rule (`core/contract.is_error`): `isError` is true exac
 envelope `{"ok": false, "error": {"code", "message"}}`. Invalid input (`invalid_argument`), an unknown or unsupported
 GPU, vendor or workload (`not_found`) and upstream failures (`feed_unavailable`, `upstream_unavailable`, ...) are errors.
 A valid query that matches nothing is **not** an error: `ok: true`, `count: 0`, an empty list, `isError: false`.
-`structuredContent` is the same object in both cases.
+`structuredContent` is the same object in both cases. Arguments are checked the same way in both before the tool
+runs: a missing required argument, a wrong JSON type or an unknown extra argument (schemas set
+`additionalProperties: false`) returns `invalid_argument`. Unknown tool name is a protocol error, not a tool
+result: hosted answers JSON-RPC error -32602, stdio returns the MCP SDK's `isError` text "Unknown tool".
 
 ## Data and privacy
 

@@ -15,6 +15,9 @@ HOSTED = "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=qa"
 UA = "lantern-works-qa/1 (T44 error contract; ref=qa)"
 CASES = [
     ("invalid_input", "compare_gpu_prices", {"gpu": "H100", "limit": 0}, True, "invalid_argument"),
+    ("wrong_type", "compare_gpu_prices", {"gpu": "H100", "limit": "abc"}, True, "invalid_argument"),
+    ("missing_required", "compare_gpu_prices", {"limit": 3}, True, "invalid_argument"),
+    ("extra_argument", "compare_gpu_prices", {"gpu": "H100", "bogus": 1}, True, "invalid_argument"),
     ("unsupported_workload", "estimate_job_cost",
      {"gpu_family": "H100", "gpus_per_job": 1, "work_units": 1e6, "workload": "llama2-70b-training"}, True, "not_found"),
     ("success", "compare_gpu_prices", {"gpu": "H100"}, False, None),

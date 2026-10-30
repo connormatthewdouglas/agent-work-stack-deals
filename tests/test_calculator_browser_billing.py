@@ -53,11 +53,13 @@ def test_monthly_bundle_bills_whole_servers():
 
 
 @pytest.mark.skipif(not NODE, reason="node not installed")
-@pytest.mark.parametrize("q,msg", [("?hours=-5&gpus=1&gpu=H100&flat=0", "hours must be a number > 0"),
-                                   ("?hours=0&gpus=1&gpu=H100&flat=0", "hours must be a number > 0"),
+@pytest.mark.parametrize("q,msg", [("?hours=-5&gpus=1&gpu=H100&flat=0", "hours must be a number > 0 and <= 20000"),
+                                   ("?hours=0&gpus=1&gpu=H100&flat=0", "hours must be a number > 0 and <= 20000"),
                                    ("?hours=10&gpus=0&gpu=H100&flat=0", "gpus must be an integer >= 1"),
                                    ("?hours=10&gpus=1.5&gpu=H100&flat=0", "gpus must be an integer >= 1"),
-                                   ("?hours=abc&gpus=1&gpu=H100&flat=0", "hours must be a number > 0")])
+                                   ("?hours=abc&gpus=1&gpu=H100&flat=0", "hours must be a number > 0 and <= 20000"),
+                                   ("?hours=1e9&gpus=1&gpu=H100&flat=0", "hours must be a number > 0 and <= 20000"),
+                                   ("?hours=20000.5&gpus=1&gpu=H100&flat=0", "hours must be a number > 0 and <= 20000")])
 def test_invalid_input_rejected_like_engine(q, msg):
     """re24 (2): no $0.00 rows for hours <= 0, no silent gpus=0 -> 1."""
     src = PAGE.read_text()
@@ -65,3 +67,13 @@ def test_invalid_input_rejected_like_engine(q, msg):
     js = STUB + js + "\nconsole.log(JSON.stringify({rows:els.results.tBodies[0].innerHTML,summary:els.summary.textContent}));"
     out = json.loads(subprocess.run([NODE, "-", q], input=js, capture_output=True, text=True, check=True).stdout)
     assert out["summary"] == "invalid_argument: " + msg and "$" not in out["rows"]
+
+
+def test_engine_gpu_hours_cap_matches_calculator():
+    """Gauge re26 (B): the MCP/engine rejects the same hours the calculator rejects."""
+    import sys as _s
+    _s.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
+    from core import stack
+    assert stack.MAX_GPU_HOURS_MONTH == 20000 and 'max="20000"' in PAGE.read_text()
+    with pytest.raises(stack.StackError, match="gpu_hours must be a number 0-20000"):
+        stack.optimize({"deals": []}, {"gpu_hours": 1e9}, gpu_data={"rates": []})

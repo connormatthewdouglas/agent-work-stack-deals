@@ -128,6 +128,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.43 (2026-10-30)</h2>
+<ul>
+<li>re26: stdio and hosted check tool arguments the same way before running a tool. A missing required argument, a wrong JSON type (e.g. <code>limit: &quot;abc&quot;</code>) or an unknown extra argument returns the <code>invalid_argument</code> envelope with <code>isError: true</code> in both; input schemas now set <code>additionalProperties: false</code>. Unknown tool names stay protocol errors (hosted JSON-RPC -32602, stdio SDK text), documented in the README.</li>
+<li>re26: monthly GPU hours are capped at 20,000 in both the browser calculator and the MCP/engine (<code>gpu_hours must be a number 0-20000</code>); 1e9 is rejected.</li>
+<li>Benchmark data: each figure now has <code>quote_kind</code>: <code>table_cell</code> for the 45 NVIDIA spec-table rows (rebuilt from the table, not verbatim text), <code>literal</code> for the rest.</li>
+</ul>
 <h2>0.3.42 (2026-10-30)</h2>
 <ul>
 <li>T44: the stdio server now sets <code>isError</code> exactly like the hosted MCP: true for the <code>ok:false</code> error envelope (invalid input, unsupported workload, upstream failure), false for success and for no-match (<code>ok:true</code>, empty list). <code>structuredContent</code> is unchanged. Requires <code>mcp&gt;=1.19</code>. Wire-level checks: <code>tests/test_error_contract_wire.py</code> and <code>scripts/check_error_contract.py --installed|--hosted</code>.</li>

@@ -4,6 +4,12 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.43 (2026-10-30)
+
+- re26: stdio and hosted check tool arguments the same way before running a tool. A missing required argument, a wrong JSON type (e.g. `limit: "abc"`) or an unknown extra argument returns the `invalid_argument` envelope with `isError: true` in both; input schemas now set `additionalProperties: false`. Unknown tool names stay protocol errors (hosted JSON-RPC -32602, stdio SDK text), documented in the README.
+- re26: monthly GPU hours are capped at 20,000 in both the browser calculator and the MCP/engine (`gpu_hours must be a number 0-20000`); 1e9 is rejected.
+- Benchmark data: each figure now has `quote_kind`: `table_cell` for the 45 NVIDIA spec-table rows (rebuilt from the table, not verbatim text), `literal` for the rest.
+
 ## 0.3.42 (2026-10-30)
 
 - T44: the stdio server now sets `isError` exactly like the hosted MCP: true for the `ok:false` error envelope (invalid input, unsupported workload, upstream failure), false for success and for no-match (`ok:true`, empty list). `structuredContent` is unchanged. Requires `mcp>=1.19`. Wire-level checks: `tests/test_error_contract_wire.py` and `scripts/check_error_contract.py --installed|--hosted`.

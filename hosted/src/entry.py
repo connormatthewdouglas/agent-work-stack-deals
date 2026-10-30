@@ -99,7 +99,7 @@ def _schema(fn):
         else:
             js = {**js, "default": p.default}
         props[p.name] = js
-    return {"type": "object", "properties": props, **({"required": req} if req else {})}
+    return {"type": "object", "properties": props, **({"required": req} if req else {}), "additionalProperties": False}
 
 
 def _tool_list():
@@ -215,11 +215,13 @@ async def _handle(msg, env, ref, bearer=None, cls=("other", "other")):
         fn = next((f for f, _ in TOOLS if f.__name__ == name), None)
         if fn is None:
             return _err(i, -32602, f"Unknown tool: {name}")
+        out = server.contract.check_args(fn, args)  # re26: same envelope as stdio for bad/missing/extra arguments
         try:
-            await _feeds()
-            out = fn(**args)
+            if out is None:
+                await _feeds()
+                out = fn(**args)
         except TypeError as e:
-            return _err(i, -32602, f"Invalid arguments: {e}")
+            out = server.contract.error("invalid_argument", str(e))
         except core_deals.DealError as e:
             out = {"ok": False, "error": {"code": e.code, "message": e.message}}
         await _count(env, name, ref)

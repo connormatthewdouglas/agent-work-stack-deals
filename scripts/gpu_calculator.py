@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from core.gpu import HOURS_PER_MONTH, build_rates  # noqa: E402
+from core.stack import MAX_GPU_HOURS_MONTH  # noqa: E402
 from core.data_license import DATA_LICENSE, REPORT_ISSUE, REPORT_ISSUE_NOTE  # noqa: E402
 
 PAGE_PATH = "tools/gpu-cost-calculator"
@@ -87,7 +88,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <h1>GPU cost calculator</h1>
   <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost, cheapest among tracked providers first (vendors we don't track may cost less); referral links don't change the order.</p>
   <form id="calc" onsubmit="return false" aria-label="GPU cost inputs">
-    <label>GPU hours per month <input id="hours" type="number" min="0.01" max="20000" step="1" value="100" inputmode="numeric"></label>
+    <label>GPU hours per month <input id="hours" type="number" min="0.01" max="{MAX_GPU_HOURS_MONTH}" step="1" value="100" inputmode="numeric"></label>
     <label>GPUs <input id="gpus" type="number" min="1" max="64" step="1" value="1" inputmode="numeric"></label>
     <label>GPU model <select id="gpu"><option value="">Any</option>{opts}</select></label>
     <label>Min VRAM (GB) <select id="vram"><option value="">Any</option><option>24</option><option>48</option><option>80</option></select></label>
@@ -135,7 +136,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   function run(){{
     // re24 (2): same input contract as the MCP/engine (invalid_argument), no silent clamping
     const hs=String($("hours").value).trim(), gs=String($("gpus").value).trim(), h=Number(hs), g=Number(gs), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
-    const bad=!(hs!==""&&Number.isFinite(h)&&h>0)?"hours must be a number > 0":!(gs!==""&&Number.isInteger(g)&&g>=1)?"gpus must be an integer >= 1":"";
+    const bad=!(hs!==""&&Number.isFinite(h)&&h>0&&h<={MAX_GPU_HOURS_MONTH})?"hours must be a number > 0 and <= {MAX_GPU_HOURS_MONTH}":!(gs!==""&&Number.isInteger(g)&&g>=1)?"gpus must be an integer >= 1":"";
     if(bad){{ $("results").tBodies[0].innerHTML='<tr><td colspan="7">Invalid input: '+bad+'. No estimate shown.</td></tr>'; $("summary").textContent="invalid_argument: "+bad; return; }}
     const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
       return {{...r,...bill(r,h,g)}};

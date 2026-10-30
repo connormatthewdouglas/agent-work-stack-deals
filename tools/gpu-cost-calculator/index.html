@@ -209,7 +209,7 @@
   function run(){
     // re24 (2): same input contract as the MCP/engine (invalid_argument), no silent clamping
     const hs=String($("hours").value).trim(), gs=String($("gpus").value).trim(), h=Number(hs), g=Number(gs), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
-    const bad=!(hs!==""&&Number.isFinite(h)&&h>0)?"hours must be a number > 0":!(gs!==""&&Number.isInteger(g)&&g>=1)?"gpus must be an integer >= 1":"";
+    const bad=!(hs!==""&&Number.isFinite(h)&&h>0&&h<=20000)?"hours must be a number > 0 and <= 20000":!(gs!==""&&Number.isInteger(g)&&g>=1)?"gpus must be an integer >= 1":"";
     if(bad){ $("results").tBodies[0].innerHTML='<tr><td colspan="7">Invalid input: '+bad+'. No estimate shown.</td></tr>'; $("summary").textContent="invalid_argument: "+bad; return; }
     const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{
       return {...r,...bill(r,h,g)};
