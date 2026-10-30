@@ -28,9 +28,13 @@ function pickRow(d,gpu,match,bucket){
   rs.sort(function(a,b){return a.hourly_equiv_usd-b.hourly_equiv_usd});
   return {row:rs[0],n:rs.length,vendors:rs.map(function(r){return r.advertiser}).filter(function(v,i,a){return a.indexOf(v)===i}).length};
 }
+/* T54: optional data-ref="your-tag" (or ?ref= on badge.html) is appended to the outbound link; [a-z0-9-_], max 64 chars */
+function refOf(el){var r=String(el.getAttribute("data-ref")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,64);return r;}
+function withRef(el,url){var r=refOf(el);return r?url+(url.indexOf("?")<0?"?":"&")+"ref="+encodeURIComponent(r):url;}
 function render(el,d){
   var gpu=el.getAttribute("data-gpu")||"H100",match=el.getAttribute("data-match")||"family",bucket=el.getAttribute("data-bucket")||"on-demand";
   var p=pickRow(d,gpu,match,bucket),fam=FAM[gpu],link=BASE+(fam?"/gpu/"+fam+"-rental-price/":"/gpu/price-comparison/");
+  link=withRef(el,link);
   var label=bucket==="spot"?"spot/community":"on-demand";
   var css="display:inline-block;max-width:100%;box-sizing:border-box;font:13px/1.35 system-ui,sans-serif;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;background:#fff;color:#0f172a;text-decoration:none;overflow-wrap:anywhere";
   if(!p.row){el.innerHTML='<a style="'+css+'" href="'+link+'" target="_blank" rel="noopener">'+esc(gpu)+' GPU prices · Lantern Works</a>';return;}
@@ -45,7 +49,7 @@ if(!els.length)return;
 fetch(BASE+"/api/v1/gpu-prices.json").then(function(r){return r.json()}).then(function(d){
   if(!/^lantern-works-gpu-prices\/1$/.test(d.schema||""))throw 0;
   for(var i=0;i<els.length;i++){els[i].setAttribute("data-lw-done","1");render(els[i],d);}
-}).catch(function(){for(var i=0;i<els.length;i++){els[i].innerHTML='<a href="'+BASE+'/gpu/price-comparison/" target="_blank" rel="noopener">GPU prices · Lantern Works</a>';}});
+}).catch(function(){for(var i=0;i<els.length;i++){els[i].innerHTML='<a href="'+withRef(els[i],BASE+'/gpu/price-comparison/')+'" target="_blank" rel="noopener">GPU prices · Lantern Works</a>';}});
 })();
 """
 
@@ -53,7 +57,7 @@ FRAME = """<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Lantern Works GPU price badge</title>
 <style>html,body{margin:0;padding:2px;background:transparent}</style></head><body>
 <div class="lantern-gpu-badge" id="b"></div>
-<script>var q=new URLSearchParams(location.search),b=document.getElementById("b");["gpu","match","bucket"].forEach(function(k){if(q.get(k))b.setAttribute("data-"+k,q.get(k))});</script>
+<script>var q=new URLSearchParams(location.search),b=document.getElementById("b");["gpu","match","bucket","ref"].forEach(function(k){if(q.get(k))b.setAttribute("data-"+k,q.get(k))});</script>
 <script src="badge.js"></script></body></html>
 """
 
@@ -79,6 +83,7 @@ def write(g) -> str:
   <div class="codebox"><pre>{html.escape(if_snip)}</pre></div>
   <h2 id="options">Options</h2>
   <ul>
+    <li><code>data-ref</code> (iframe: <code>?ref=</code>): optional tag such as <code>t54-gpuhunt</code>, added as <code>?ref=</code> to the link to Lantern Works so referrals can be counted. Lowercase letters, digits, <code>-</code> and <code>_</code> only, max 64 characters.</li>
     <li><code>data-gpu</code> (iframe: <code>?gpu=</code>): GPU name as in the feed, e.g. {gpus}. Default <code>H100</code>.</li>
     <li><code>data-match</code>: <code>family</code> (default; <code>H100</code> also covers H100 SXM, PCIe and NVLink rows) or <code>exact</code> (only rows whose GPU name is exactly the value).</li>
     <li><code>data-bucket</code>: <code>on-demand</code> (default) or <code>spot</code> (interruptible, community and marketplace rates).</li>
