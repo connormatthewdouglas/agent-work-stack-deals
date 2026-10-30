@@ -2,6 +2,18 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.31
+
+- Fix in the 0.3.30 code: stale-availability times fall back to UTC where no time zone database is installed (for example, Windows without tzdata), instead of failing on import. Ships together with the 0.3.30 changes.
+
+## 0.3.30
+
+- Availability staleness guard (AVAIL_MAX_AGE_H = 8, the same limit as Scout). A stock check older than 8 h shows as "unknown (stale availability, last checked <ET time>)", with in_stock null and availability_stale true. compare_gpu_prices re-applies the check when called. Stale rows are neither ranked last nor excluded as out of stock.
+- compare_gpu_prices summary lead names the exact variant (memory size), whether the rate is interruptible, and the stock check time (not the price date).
+- Site: in-stock rows on /cost/ pages show "available when checked at <ET time>". The /gpu/cheapest headline shows the in-stock check time. Every stock claim expires in the reader's browser after 8 h.
+- /cost/ "Other variants" intro adds "out-of-stock rows last".
+- The Scout import script refuses snapshots older than 8 h.
+
 ## 0.3.29
 
 - GPU availability now comes from Scout feed v2.5 (snapshot 2026-10-30T01:14:24Z). Only rows marked in_live_feed are imported (25 rows).

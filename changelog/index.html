@@ -128,6 +128,18 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.31</h2>
+<ul>
+<li>Fix in the 0.3.30 code: stale-availability times fall back to UTC where no time zone database is installed (for example, Windows without tzdata), instead of failing on import. Ships together with the 0.3.30 changes.</li>
+</ul>
+<h2>0.3.30</h2>
+<ul>
+<li>Availability staleness guard (AVAIL_MAX_AGE_H = 8, the same limit as Scout). A stock check older than 8 h shows as &quot;unknown (stale availability, last checked &lt;ET time&gt;)&quot;, with in_stock null and availability_stale true. compare_gpu_prices re-applies the check when called. Stale rows are neither ranked last nor excluded as out of stock.</li>
+<li>compare_gpu_prices summary lead names the exact variant (memory size), whether the rate is interruptible, and the stock check time (not the price date).</li>
+<li>Site: in-stock rows on /cost/ pages show &quot;available when checked at &lt;ET time&gt;&quot;. The /gpu/cheapest headline shows the in-stock check time. Every stock claim expires in the reader&#x27;s browser after 8 h.</li>
+<li>/cost/ &quot;Other variants&quot; intro adds &quot;out-of-stock rows last&quot;.</li>
+<li>The Scout import script refuses snapshots older than 8 h.</li>
+</ul>
 <h2>0.3.29</h2>
 <ul>
 <li>GPU availability now comes from Scout feed v2.5 (snapshot 2026-10-30T01:14:24Z). Only rows marked in_live_feed are imported (25 rows).</li>

@@ -154,7 +154,8 @@
         "in_stock": null,
         "checked_at": "2026-10-30T01:14:19Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "origin": "scout"
       }
     },
     {
@@ -231,6 +232,8 @@
         "checked_at": "2026-10-30T01:14:14Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "origin": "scout",
+        "max_age_hours": 8,
         "offer_count": 47,
         "available_regions": [
           "CA",
@@ -281,6 +284,8 @@
         "checked_at": "2026-10-30T01:14:24Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "origin": "scout",
+        "max_age_hours": 8,
         "unrented_servers": 127,
         "available_regions": [
           "AR",
@@ -357,6 +362,8 @@
         "checked_at": "2026-10-30T01:14:17Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "origin": "scout",
+        "max_age_hours": 8,
         "stock_level": "High"
       }
     },

@@ -65,6 +65,8 @@ def _avail_cell(gen, r: dict) -> str:
     if a.get("basis") == "vendor_static_label":
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         return gen.esc(a["status"] + (f", seen {t} UTC" if t else ""))
+    if a.get("availability_stale"):
+        return gen.esc(a["status"])
     if a.get("in_stock") is None:
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         return gen.esc(f"unknown (no signal), checked {t} UTC") if t else "—"
@@ -81,7 +83,8 @@ def _avail_cell(gen, r: dict) -> str:
         bits.append(a["source_label"])
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     sep = " (separate check, time shown)" if r.get("advertiser") == "Vast.ai" else ""
-    return gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
+    body = gen.esc(", ".join(bits) + (f", snapshot {t} UTC" if t else "") + sep)
+    return f'<span data-av-checked="{gen.esc(a.get("checked_at") or "")}">{body}</span>' if a.get("origin") in ("scout", "record") and t else body
 
 
 def _verified_cell(r: dict, esc) -> str:
@@ -199,6 +202,15 @@ def _mem_note(gen, rows, od) -> str:
             f"{_tied_names(gen, big, b)} {gen.esc(b['gpu'])} {max(sizes)}GB at {_money(b['monthly_cost_usd'])}")
 
 
+def _stock_tag(gen, r) -> str:
+    """0.3.31: name the stock check only for a fresh in-stock row (stale checks are unknown; the inline script flips it after 8 h)."""
+    a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
+    if a.get("in_stock") is not True or a.get("availability_stale") or not a.get("checked_at"):
+        return ""
+    from core.gpu_availability import et_time
+    return f' <small data-av-checked="{gen.esc(a["checked_at"])}">(available when checked at {gen.esc(et_time(a["checked_at"]))})</small>'
+
+
 def _od_note(gen, rows, cheapest) -> str:
     """When the overall cheapest isn't on-demand, say so and name the cheapest on-demand rate (audit T9/M6)."""
     tc = cheapest.get("tier_class") or "on-demand"
@@ -271,7 +283,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/price-comparison/">GPU prices</a> › {gen.esc(name)}</nav>
   <h1>{gen.esc(name)} rental: cheapest among tracked providers</h1>
   <p class="meta">Prices verified through {fresh} · {len(rows)} offers from {len(fam['vendors'])} vendors · sorted by cost for {DEFAULT_HOURS} GPU hours/month</p>
-  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, rows, cheapest)} {gen.esc(_mem_label(rows, cheapest))} ({gen.esc(cheapest['tier'])})</strong> at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
+  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, rows, cheapest)} {gen.esc(_mem_label(rows, cheapest))} ({gen.esc(cheapest['tier'])})</strong>{_stock_tag(gen, cheapest)} at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
 {_table(gen, rows, full)}
   <p>Basis: hourly rate × hours; dedicated servers are a flat monthly price. One GPU. Excludes storage, egress and tax.</p>
 {accuracy_html(gen, fam['rates'])}{changes_html(gen, slug)}  <h2>FAQ</h2>

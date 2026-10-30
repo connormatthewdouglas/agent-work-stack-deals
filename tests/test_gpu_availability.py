@@ -11,6 +11,9 @@ def test_unknown_is_never_out_of_stock_and_has_note():
         if a["in_stock"] is None:
             # unknown: no time, unless a record-level check (with its source) found no stock signal
             assert a["note"] and "Stock changes within minutes" not in a["note"]
+            if a.get("availability_stale"):  # 0.3.30: a Scout check older than 8 h renders unknown, with its last check time
+                assert a["status"].startswith("unknown (stale availability, last checked ") and a["checked_at"]
+                continue
             if a.get("basis") == "vendor_static_label":
                 assert a["status"].startswith("vendor-labelled in stock (static page label") and a["checked_at"]
                 continue
@@ -22,8 +25,8 @@ def test_unknown_is_never_out_of_stock_and_has_note():
         if r["advertiser"] == "Vast.ai" and a["in_stock"] is not None:
             assert "later" not in a["consistency_note"] and "same snapshot" not in a["consistency_note"]
     rp = [r for r in rates if r["advertiser"] == "RunPod" and "Community" in r["tier"]]
-    assert rp and all(r["availability"]["status"] == "unknown" or r["availability"]["in_stock"] is not None for r in rp)
-    assert any("no stock status" in r["availability"]["note"] for r in rp) and all("out of stock" not in r["availability"]["note"] for r in rp)
+    assert rp and all(r["availability"]["status"].startswith("unknown") or r["availability"]["in_stock"] is not None for r in rp)
+    assert any("no stock status" in r["availability"]["note"] or r["availability"].get("availability_stale") for r in rp) and all("out of stock" not in r["availability"]["note"] for r in rp)
 
 
 def test_pages_never_say_out_of_stock():

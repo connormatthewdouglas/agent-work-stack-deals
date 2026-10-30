@@ -239,6 +239,16 @@
    },
    "expected": "Within each ranked table, no row lacking 'out of stock when checked' appears after a row that has it.",
    "why": "Gauge re14 K1: Oblivus H100 PCIe and Verda H100 SXM (out of stock) were mixed into the price ranking."
+  },
+  {
+   "id": "T41-23",
+   "intent": "A Scout stock check older than 8 h renders unknown (stale availability) on the site and in compare_gpu_prices, and live pages expire stock claims client-side",
+   "inputs": {
+    "fixture": "A100 rows of gpu-prices.json with availability checked_at = now - 9 h",
+    "page": "https://thelanternworks.com/gpu/cheapest-a100-rental/"
+   },
+   "expected": "compare_gpu_prices rows have in_stock null and availability_stale true; the summary makes no in-stock claim; the site cell reads 'unknown (stale availability, last checked <ET time>)'; every stock claim on the page carries data-av-checked and the page carries the expiry script.",
+   "why": "Gauge re16: AVAIL_MAX_AGE_H = 8 (Scout cadence 4 h); static pages must not silently go stale between builds."
   }
  ]
 }

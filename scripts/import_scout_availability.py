@@ -11,6 +11,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = Path(sys.argv[1] if len(sys.argv) > 1 else "/workspace/lantern-scout/out/feed_enriched_v2_latest.json")
+sys.path.insert(0, str(ROOT))
+from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours  # noqa: E402
+
 OUT = ROOT / "data" / "gpu_availability" / "latest.json"
 KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "unrented_servers",
         "stock_level", "availability_source", "availability_source_type", "availability_checked_at", "availability_note")
@@ -20,6 +23,11 @@ def main() -> None:
     d = json.loads(SRC.read_text(encoding="utf-8"))
     if str(d.get("version")) not in ("2", "2.5"):
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
+    snap = max((r.get("availability_checked_at") or "" for r in d.get("rows") or []), default="")
+    age = age_hours(snap)
+    if age is None or age > AVAIL_MAX_AGE_H:  # same refusal as Scout's enrich_feed_v2
+        raise SystemExit(f"Scout snapshot {snap or '(no checked_at)'} is {'?' if age is None else f'{age:.1f}'}h old "
+                         f"(> {AVAIL_MAX_AGE_H}h); refusing to import")
     rows = []
     for r in d["rows"]:
         if r.get("in_live_feed") is False:  # v2.5: only rows whose price is in the live feed

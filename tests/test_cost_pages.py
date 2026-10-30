@@ -39,6 +39,9 @@ def _page(slug, h):
 
 
 def test_out_of_stock_ranked_last_and_excluded():
+    if not _fresh():
+        import pytest
+        pytest.skip("Scout snapshot older than 8 h: every Scout stock claim renders unknown (covered by test_0330_*)")
     s = _page("a100", 100)
     assert "stock is not checked here" not in s
     # Scout v2.5 (01:14Z): Lambda A100 SXM/PCIe 40GB out of stock, Verda A100 SXM 40GB available -> out-of-stock items listed last
@@ -255,6 +258,12 @@ def test_k2_cost_a100_any_variant_80gb_line_from_feed():
 def test_scout_v25_lambda_clore_render():
     import json
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    if not _fresh():  # stale snapshot: Lambda/Clore claims are unknown, the Lambda auth label stays
+        lam = [r["availability"] for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("origin") == "scout"]
+        assert lam and all(a["in_stock"] is None and a.get("availability_stale") for a in lam if a.get("checked_at"))
+        for slug in ("a100", "h100", "rtx-4090", "l40s"):
+            assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
+        return
     lam = [r for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("in_stock") is not None]
     assert lam and all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
     cl = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai" and r["availability"].get("in_stock") is not None]
@@ -278,3 +287,68 @@ def test_k2_mcp_a100_summary_names_cheapest_80gb():
     data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     out = D.compare_gpu_prices(data, "A100", on_demand_only=True)
     assert "Memory sizes differ (cheapest 80GB: CloudRift A100 SXM 80GB at $1.05/hr, On-demand)" in out["summary"]
+
+
+def _fresh():
+    import json
+    from datetime import datetime, timezone
+    from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours
+    c = json.loads((ROOT / "data/gpu_availability/latest.json").read_text())["collected_at"]
+    h = age_hours(c)
+    return h is not None and h <= AVAIL_MAX_AGE_H
+
+
+def test_0330_other_variants_intro_and_in_stock_time():
+    s = _page("a100", 100)
+    sec = s.split("Other variants (not compared)")[1].split("</ul>")[0]
+    assert "listed but not ranked; variants are never mixed; out-of-stock rows last" in sec
+    if _fresh():  # pages built from a fresh snapshot: in-stock rows show their check time like out-of-stock rows
+        assert "(available when checked at 20" in sec and " ET)" in sec and "data-av-checked=" in sec
+    assert "<!-- av-stale -->" in s
+
+
+def test_0330_stale_guard_unit():
+    from datetime import datetime, timedelta, timezone
+    from core.gpu_availability import stale_guard
+    t = datetime(2026, 10, 30, 1, 14, 24, tzinfo=timezone.utc)
+    a = {"status": "available when checked", "in_stock": True, "checked_at": "2026-10-30T01:14:24Z", "origin": "scout",
+         "source_label": "authenticated vendor API (not publicly reproducible)"}
+    assert stale_guard(a, t + timedelta(hours=7.9)) is a
+    s = stale_guard(a, t + timedelta(hours=9))
+    assert s["in_stock"] is None and s["availability_stale"] is True
+    assert s["status"] == "unknown (stale availability, last checked 2026-10-29 21:14 ET)"
+    rec = {"status": "out of stock when checked", "in_stock": False, "checked_at": "2026-10-01T00:00:00Z", "origin": "record"}
+    assert stale_guard(rec, t)["in_stock"] is None  # record-level (J6 same-capture) stock expires the same way
+    assert stale_guard({"in_stock": False, "checked_at": "2026-10-01T00:00:00Z"}, t)["in_stock"] is False  # no origin: untouched
+
+
+def test_0330_mcp_stale_rows_unknown_not_ranked_last():
+    import json
+    from datetime import datetime, timedelta, timezone
+    from core import deals as D
+    data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    t = datetime(2026, 10, 30, 1, 14, 24, tzinfo=timezone.utc)
+    fresh = D.compare_gpu_prices(data, "A100", limit=25, now=t + timedelta(hours=1))
+    stale = D.compare_gpu_prices(data, "A100", limit=25, now=t + timedelta(hours=9))
+    scout = [r for r in stale["results"] if (r.get("availability") or {}).get("origin") == "scout"]
+    assert scout and all(r["in_stock"] is None for r in scout)
+    assert all(r["availability"].get("availability_stale") for r in scout if r["availability"].get("checked_at"))
+    assert "stale availability" not in fresh["summary"]
+    assert "available when checked" not in stale["summary"] and "out of stock when checked" not in stale["summary"]
+    # stale rows are not ranked out-of-stock-last: pure price order among non-reserved rows
+    p = [r["hourly_usd"] for r in stale["results"] if r["tier_class"] != "reserved"]
+    assert p == sorted(p)
+    if fresh["results"][0]["in_stock"] is True:
+        assert "available when checked 2026-10-30 01:14Z" in fresh["summary"]
+
+
+def test_0330_import_refuses_old_snapshot(tmp_path):
+    import json, subprocess, sys
+    src = json.loads((ROOT / "data/gpu_availability/latest.json").read_text())
+    rows = [dict(r, availability_checked_at="2020-01-01T00:00:00Z", in_live_feed=True) for r in src["rows"]]
+    f = tmp_path / "old.json"
+    f.write_text(json.dumps({"version": "2.5", "rows": rows}))
+    before = (ROOT / "data/gpu_availability/latest.json").read_bytes()
+    p = subprocess.run([sys.executable, str(ROOT / "scripts/import_scout_availability.py"), str(f)], capture_output=True, text=True)
+    assert p.returncode != 0 and "refusing to import" in (p.stderr + p.stdout)
+    assert (ROOT / "data/gpu_availability/latest.json").read_bytes() == before

@@ -5,6 +5,8 @@ Display rules: unknown -> "unknown" (never "out of stock"); availability carries
 from __future__ import annotations
 
 import json
+import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 PATH = Path(__file__).resolve().parents[1] / "data" / "gpu_availability" / "latest.json"
@@ -59,7 +61,8 @@ def _from_record(a: dict) -> dict:
                 "source": a.get("source"), "note": _clean(a.get("note")) or UNKNOWN_NOTE}
     out = {"status": "available when checked" if a["in_stock"] else "out of stock when checked",
            "in_stock": bool(a["in_stock"]), "checked_at": a.get("checked_at"),
-           "refresh": "manual snapshot, time shown (prices checked daily)", "source": a.get("source"), "note": NOTE}
+           "refresh": "manual snapshot, time shown (prices checked daily)", "source": a.get("source"), "note": NOTE,
+           "origin": "record", "max_age_hours": AVAIL_MAX_AGE_H}
     if a.get("stock_level"):
         out["stock_level"] = str(a["stock_level"])
     if a.get("same_capture_as_price"):
@@ -69,20 +72,85 @@ def _from_record(a: dict) -> dict:
     return out
 
 
-def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None) -> dict:
+AVAIL_MAX_AGE_H = 8  # same limit as Scout's enrich_feed_v2 (2x its 4h cadence)
+STALE_NOTE = (f"This availability check is more than {AVAIL_MAX_AGE_H} h old, so it is shown as unknown "
+              "(not in stock, not sold out) until a newer check is imported.")
+
+
+def _et_zone():
+    """America/New_York; falls back to UTC where no tz database is installed (e.g. Windows without tzdata)."""
+    try:
+        from zoneinfo import ZoneInfo
+        return ZoneInfo("America/New_York"), "ET"
+    except Exception:
+        return timezone.utc, "UTC"
+
+
+def now_utc() -> datetime:
+    """Current time; LW_AVAIL_NOW (ISO) pins it for tests and the T41 stale fixture."""
+    v = os.environ.get("LW_AVAIL_NOW")
+    return _parse(v) if v else datetime.now(timezone.utc)
+
+
+def _parse(ts) -> datetime | None:
+    if not isinstance(ts, str) or not ts:
+        return None
+    try:
+        d = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+
+
+def et_time(ts) -> str:
+    d = _parse(ts)
+    if not d:
+        return "n/a"
+    z, label = _et_zone()
+    return d.astimezone(z).strftime("%Y-%m-%d %H:%M ") + label
+
+
+def age_hours(ts, now: datetime | None = None) -> float | None:
+    d = _parse(ts)
+    return None if d is None else ((now or now_utc()) - d).total_seconds() / 3600
+
+
+def stale_guard(a, now: datetime | None = None):
+    """Scout (or record-level, J6) availability older than AVAIL_MAX_AGE_H renders unknown (in_stock null, availability_stale true).
+    Applied when the feed is built and again when the MCP tool reads it, so a stale stock claim never ranks or leads."""
+    if not isinstance(a, dict) or a.get("origin") not in ("scout", "record") or a.get("availability_stale"):
+        return a
+    h = age_hours(a.get("checked_at"), now)
+    if h is None or h <= AVAIL_MAX_AGE_H:
+        return a
+    out = {"status": f"unknown (stale availability, last checked {et_time(a.get('checked_at'))})", "in_stock": None,
+           "availability_stale": True, "checked_at": a.get("checked_at"), "max_age_hours": AVAIL_MAX_AGE_H,
+           "origin": a["origin"], "note": STALE_NOTE}
+    for k in ("source", "source_label"):
+        if a.get(k):
+            out[k] = a[k]
+    return out
+
+
+def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None) -> dict:
     r = _index().get((vendor, gpu, vram_gb, _tier_key(tier)))
     if not r and isinstance(record, dict):
         return _from_record(record)
+    return stale_guard(_scout(vendor, r), now)
+
+
+def _scout(vendor: str, r: dict | None) -> dict:
     if not r or r.get("in_stock") is None:
         out = {"status": "unknown", "in_stock": None, "checked_at": (r or {}).get("availability_checked_at"),
                "note": _clean((r or {}).get("availability_note")) or UNKNOWN_NOTE}
         if r and r.get("availability_checked_at"):  # Scout checked and found no signal: show when (unknown, not sold out)
             out["source"] = r.get("availability_source")
+            out["origin"] = "scout"
         return out
     out = {"status": "available when checked" if r["in_stock"] else "out of stock when checked",
            "in_stock": r["in_stock"], "checked_at": r.get("availability_checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)",
-           "note": NOTE}
+           "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H}
     for k in ("offer_count", "unrented_servers", "stock_level", "available_regions"):
         if r.get(k) is not None:
             out[k] = r[k]

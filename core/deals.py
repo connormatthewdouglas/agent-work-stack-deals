@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.29"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.31"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -340,6 +340,19 @@ def out_of_stock(r: dict) -> bool:
     return isinstance(a, dict) and a.get("in_stock") is False
 
 
+def stock_phrase(a) -> str:
+    """Stock state for a summary lead, with the availability check time (never the price date)."""
+    a = a if isinstance(a, dict) else {}
+    t = (a.get("checked_at") or "").replace("T", " ")[:16]
+    if a.get("availability_stale"):
+        return f"availability unknown: last stock check {t}Z is over {a.get('max_age_hours', 8)} h old"
+    if a.get("in_stock") is True:
+        return f"available when checked {t}Z" if t else "available when checked"
+    if a.get("in_stock") is False:
+        return f"out of stock when checked {t}Z" if t else "out of stock when checked"
+    return "availability unknown (no stock signal)"
+
+
 def oos_note(r: dict) -> str:
     a = r.get("availability") or {}
     return "out of stock when checked" + (f" at {a['checked_at']}" if a.get("checked_at") else "")
@@ -413,6 +426,11 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         max_h = data_age.validate_max_age(max_data_age_hours)
     except ValueError as e:
         raise DealError("invalid_argument", str(e))
+    # 0.3.31: availability older than AVAIL_MAX_AGE_H is re-checked at call time and shown unknown (never ranks or leads)
+    from .gpu_availability import stale_guard
+    _now_av = now.astimezone(timezone.utc) if isinstance(now, datetime) and now.tzinfo else None
+    rows = [dict(r, availability=stale_guard(r["availability"], _now_av)) if isinstance(r.get("availability"), dict) else r
+            for r in rows]
     excluded_too_old = 0
     if max_h is not None:
         keep = [r for r in rows if not data_age.too_old(r, max_h, now)]
@@ -482,8 +500,10 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
     return {
         "gpu": gpu,
-        "summary": (f"Cheapest{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']} at ${c['hourly_usd']:g}/hr "
-                    f"({c['tier']}, checked {(c['checked_at'] or '')[:10]})"
+        "summary": (f"Cheapest{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
+                    + (f" {c['vram_gb']}GB" if c.get("vram_gb") and f"{c['vram_gb']}GB" not in (c.get("gpu") or "") else "")
+                    + f" at ${c['hourly_usd']:g}/hr ({c['tier']}" + (", interruptible" if c.get("interruptible") else "")
+                    + f", {stock_phrase(c.get('availability'))}; price checked {(c['checked_at'] or '')[:10]})"
                     + (f"; variable marketplace median, lowest offer ${c['lowest_offer_usd']:g}/hr"
                        if c.get("price_status") == "marketplace" else "")
                     + (f"; sold only as {c['min_gpus']}-GPU instances" if (c.get("min_gpus") or 1) > 1 else "")

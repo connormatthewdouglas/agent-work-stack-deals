@@ -488,6 +488,40 @@ def _(f, ev):
     ev.update(pages=seen_pages)
 
 
+@case("T41-23")
+def _(f, ev):
+    # 0.3.30 staleness guard: a Scout stock check 9 h old must render unknown on the site and in compare_gpu_prices
+    # (in_stock null, availability_stale true), never lead a summary, and every live stock claim on a page must carry
+    # data-av-checked plus the inline expiry script so a static page cannot keep showing it after 8 h.
+    import copy, html as H, types
+    from datetime import timedelta
+    from core.gpu_availability import AVAIL_MAX_AGE_H, stale_guard
+    sys.path.insert(0, str(REPO / "scripts"))
+    import gpu_pages as GP
+    old = (NOW - timedelta(hours=9)).isoformat(timespec="seconds").replace("+00:00", "Z")
+    fx = copy.deepcopy(FEED)
+    n = 0
+    for r in fx["rates"]:
+        if r.get("gpu", "").startswith("A100") and r.get("tier_class") != "reserved":
+            r["availability"] = {"status": "available when checked", "in_stock": True, "checked_at": old, "origin": "scout",
+                                 "note": "fixture", "refresh": "manual snapshot, time shown (prices checked daily)"}
+            n += 1
+    if not n: f.append("no A100 rows to build the 9h fixture"); return
+    out = D.compare_gpu_prices(fx, "A100", limit=25, now=NOW)
+    bad = [r["advertiser"] for r in out["results"] if r["in_stock"] is not None or not (r["availability"] or {}).get("availability_stale")]
+    if bad: f.append(f"9h-old rows not unknown/stale in compare_gpu_prices: {bad[:5]}")
+    if "available when checked" in out["summary"]: f.append("summary leads with a 9h-old in-stock claim")
+    cell = GP._avail_cell(types.SimpleNamespace(esc=H.escape), {"availability": stale_guard(fx["rates"][0]["availability"] | {"checked_at": old, "origin": "scout", "in_stock": True}, NOW)})
+    if not cell.startswith("unknown (stale availability, last checked "): f.append(f"site cell for 9h-old check renders {cell!r}")
+    txt, _at = fetch(f"{BASE}/gpu/cheapest-a100-rental/")
+    claims = re.findall(r"<td[^>]*>((?:(?!</td>).)*?(?:available|out of stock) when checked(?:(?!</td>).)*)</td>", txt, re.S)
+    naked = [c[:80] for c in claims if "data-av-checked" not in c and "stale availability" not in c]
+    if claims and "<!-- av-stale -->" not in txt: f.append("page has stock claims but no expiry script")
+    if naked: f.append(f"stock claims without data-av-checked: {naked[:3]}")
+    ev.update(fixture_checked_at=old, limit_hours=AVAIL_MAX_AGE_H, fixture_rows=n, summary=out["summary"][:220],
+              site_cell=cell, page_claims=len(claims))
+
+
 passed = sum(r["status"] == "PASS" for r in results)
 doc = {"suite": "T41", "run_at_utc": NOW.isoformat(timespec="seconds"),
        "repo_head": subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip(),
