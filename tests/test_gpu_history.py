@@ -196,7 +196,7 @@ def test_freshness_check_warns_then_fails():
     spec = importlib.util.spec_from_file_location("fresh", Path(__file__).resolve().parents[1] / "scripts" / "check_gpu_freshness.py")
     F = importlib.util.module_from_spec(spec); spec.loader.exec_module(F)
     from core.gpu import load_vendor_files
-    last = min(datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() if not d.get("stale") for r in d["records"])
+    last = min(datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"])
     assert F.status(last + timedelta(hours=1))[0] == 0
     code, msgs = F.status(last + timedelta(hours=25))
     assert code == 0 and any("::warning::" in m for m in msgs)
