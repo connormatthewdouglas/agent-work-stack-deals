@@ -11,9 +11,8 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: false
+# Push-to-MCP latency (Bjorn 2026-10-30): only the deploy job is serialized, so a new data commit's checks start at
+# once instead of waiting for the previous run's live checks. GitHub keeps one pending deploy per group (the newest).
 
 jobs:
   validate:
@@ -173,6 +172,9 @@ jobs:
     # build_type back to legacy (branch main, /) and the variable to false.
     if: vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages-deploy-${{ github.ref }}
+      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write
@@ -180,19 +182,31 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Job-level concurrency can let an older run deploy after a newer one; never let it put older content live.
+      - id: head
+        run: |
+          H=$(git ls-remote "https://github.com/${{ github.repository }}" refs/heads/main | cut -f1)
+          if [ "${{ github.event_name }}" = push ] && [ -n "$H" ] && [ "$H" != "${{ github.sha }}" ]; then echo "superseded by $H; skipping deploy"; echo go=false >> "$GITHUB_OUTPUT"; else echo go=true >> "$GITHUB_OUTPUT"; fi
       - uses: actions/checkout@v4
+        if: steps.head.outputs.go == 'true'
       - uses: actions/configure-pages@v5
+        if: steps.head.outputs.go == 'true'
       # Same Jekyll build GitHub's branch deploy used, so URLs are unchanged. CNAME is copied into _site.
       - uses: actions/jekyll-build-pages@v1
+        if: steps.head.outputs.go == 'true'
         with:
           source: ./
           destination: ./_site
       # re20 P1: Scout's raw availability import is an unguarded input, not a public feed (served guarded via api/v1)
       - run: sudo rm -rf _site/data/gpu_availability && test ! -e _site/data/gpu_availability && sudo chown -R $USER _site
+        if: steps.head.outputs.go == 'true'
       # re21 P1: no raw repo data on the site (allowlisted files only, availability fields stripped); then the build fails if any reappears
       - run: python3 scripts/guard_site_raw_data.py _site && python3 scripts/guard_site_raw_data.py --check _site
+        if: steps.head.outputs.go == 'true'
       - uses: actions/upload-pages-artifact@v3
+        if: steps.head.outputs.go == 'true'
       - id: deployment
+        if: steps.head.outputs.go == 'true'
         uses: actions/deploy-pages@v4
 
   expiry-alert:
