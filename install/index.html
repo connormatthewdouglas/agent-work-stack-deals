@@ -122,7 +122,7 @@
 <div id="content">
   <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/for-agents/">For agents</a> › Install</nav>
   <h1>GPU price monitor for your agent</h1>
-  <p><strong>GPU price comparison for agents, checked daily.</strong> Free, read-only MCP server (<code>uvx lantern-works-deals-mcp</code>, version 0.3.49); <code>compare_gpu_prices</code> is the main tool. Rate and provider counts change daily: see the live <a href="https://thelanternworks.com/api/v1/gpu-prices.json">feed</a>. Some result links are referral links.</p>
+  <p><strong>GPU price comparison for agents, checked daily.</strong> Free, read-only MCP server (<code>uvx lantern-works-deals-mcp</code>, version 0.3.50); <code>compare_gpu_prices</code> is the main tool. Rate and provider counts change daily: see the live <a href="https://thelanternworks.com/api/v1/gpu-prices.json">feed</a>. Some result links are referral links.</p>
   <p><strong>Know when GPU prices move.</strong> Lantern Works re-reads every tracked GPU rental rate daily from the vendor's own pricing page. Your agent can check what moved since yesterday and act on it, every day, with no API key:</p>
   <ul>
     <li><a href="https://thelanternworks.com/api/v1/gpu-price-changes.json">/api/v1/gpu-price-changes.json</a>: rates that went down, up, newly tracked or dropped out between the last two daily snapshots, each with the vendor's source page (<a href="https://thelanternworks.com/api/v1/gpu-price-changes.xml">RSS</a>).</li>
@@ -133,7 +133,7 @@
   <p class="meta">Jump to: <a href="#hosted">Hosted endpoint</a> · <a href="#claude-code">Claude Code</a> · <a href="#claude-desktop">Claude Desktop</a> · <a href="#cursor">Cursor</a> · <a href="#vscode">VS Code</a> · <a href="#cline">Cline</a> · <a href="#llamaindex">LlamaIndex</a> · <a href="#openwebui">Open WebUI</a> · <a href="#roo-code">Roo Code</a> · <a href="#continue">Continue</a> · <a href="#generic">Any MCP client</a> · <a href="#examples">Framework examples</a> · <a href="https://thelanternworks.com/methodology/">How prices are checked</a></p>
   <h2 id="add">Add Lantern Works to your agent</h2>
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: <code>compare_gpu_prices</code>, <code>get_price_changes</code>, <code>optimize_stack</code>, <code>optimize_agent_stack</code>, <code>estimate_job_cost</code>, <code>search_deals</code>, <code>compare_deals</code>, <code>get_deal</code> (8 tools in the package).</p>
-  <p class="meta">Tested 2026-10-30: a clean <code>uvx lantern-works-deals-mcp</code> (v0.3.45; current v0.3.49) initializes over stdio, <code>tools/list</code> returns 8 tools and each returns results; the hosted endpoint lists the same 8 plus 4 hosted-only price-watch tools (12 in total).</p>
+  <p class="meta">Tested 2026-10-30: a clean <code>uvx lantern-works-deals-mcp</code> (v0.3.45; current v0.3.50) initializes over stdio, <code>tools/list</code> returns 8 tools and each returns results; the hosted endpoint lists the same 8 plus 4 hosted-only price-watch tools (12 in total).</p>
 
 
   <h2 id="hosted">Hosted endpoint (no install)</h2>
@@ -183,7 +183,7 @@
 }</pre></div>
 
   <h2 id="cline">Cline</h2>
-  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested 2026-10-29: this exact config started the server and <code>tools/list</code> returned all 8 package tools (history: tested on version 0.3.23; current version 0.3.49)):</p>
+  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested 2026-10-29: this exact config started the server and <code>tools/list</code> returned all 8 package tools (history: tested on version 0.3.23; current version 0.3.50)):</p>
   <div class="codebox"><pre>{
   &quot;mcpServers&quot;: {
     &quot;lantern-works-deals&quot;: {
@@ -207,14 +207,14 @@ async def main():
     print(await client.call_tool(&quot;compare_gpu_prices&quot;, {&quot;gpu&quot;: &quot;H100&quot;}))
 
 asyncio.run(main())</pre></div>
-  <p class="meta">Tested 2026-10-29: both clients listed all 8 package tools (history: tested on version 0.3.23; current version 0.3.49) and <code>compare_gpu_prices</code> returned live rates.</p>
+  <p class="meta">Tested 2026-10-29: both clients listed all 8 package tools (history: tested on version 0.3.23; current version 0.3.50) and <code>compare_gpu_prices</code> returned live rates.</p>
 
   <h2 id="openwebui">Open WebUI</h2>
   <p>Open WebUI 0.6.31+ connects to MCP servers over streamable HTTP (<a href="https://docs.openwebui.com/features/extensibility/mcp/">Open WebUI MCP docs</a>). As an admin: Settings → Admin → Integrations → External Tool Servers → + Add Connection, set <strong>Type</strong> to <strong>MCP (Streamable HTTP)</strong> (not OpenAPI), Server URL:</p>
   <div class="codebox"><pre>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</pre></div>
   <p>No auth is needed. To run the local server instead, bridge it with <a href="https://github.com/open-webui/mcpo">mcpo</a> and add <code>http://localhost:8000</code> as an <strong>OpenAPI</strong> connection:</p>
   <div class="codebox"><pre>uvx mcpo --port 8000 -- uvx lantern-works-deals-mcp</pre></div>
-  <p class="meta">Tested 2026-10-29: the hosted URL answers MCP <code>tools/list</code> with all 8 package tools (history: tested on version 0.3.23; current version 0.3.49) plus 4 hosted-only watch tools; through mcpo all 8 package tools (history: tested on version 0.3.23; current version 0.3.49) appeared as OpenAPI routes and <code>compare_gpu_prices</code> returned rates. If mcpo fails to start with an import or <code>ssl_certfile</code> error, a dependency release broke it; <code>uvx --with "mcp&lt;2" --with "fastapi&lt;0.120" mcpo …</code> worked.</p>
+  <p class="meta">Tested 2026-10-29: the hosted URL answers MCP <code>tools/list</code> with all 8 package tools (history: tested on version 0.3.23; current version 0.3.50) plus 4 hosted-only watch tools; through mcpo all 8 package tools (history: tested on version 0.3.23; current version 0.3.50) appeared as OpenAPI routes and <code>compare_gpu_prices</code> returned rates. If mcpo fails to start with an import or <code>ssl_certfile</code> error, a dependency release broke it; <code>uvx --with "mcp&lt;2" --with "fastapi&lt;0.120" mcpo …</code> worked.</p>
 
   <h2 id="roo-code">Roo Code</h2>
   <p>MCP icon → Edit Global MCP (<code>mcp_settings.json</code>) or Edit Project MCP (<code>.roo/mcp.json</code>) (<a href="https://docs.roocode.com/features/mcp/using-mcp-in-roo">Roo Code MCP docs</a>):</p>
@@ -249,7 +249,7 @@ mcpServers:
     args:
       - lantern-works-deals-mcp</pre></div>
   <p>Hosted endpoint instead: replace the <code>command</code> and <code>args</code> lines with <code>type: streamable-http</code> and <code>url: https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code>.</p>
-  <p class="meta">Tested 2026-10-29 (Roo Code, Continue): the configs above parse, and the exact command and URL in them start or reach the server and list all 8 package tools (history: tested on version 0.3.23; current version 0.3.49). Not yet tested inside the editors themselves.</p>
+  <p class="meta">Tested 2026-10-29 (Roo Code, Continue): the configs above parse, and the exact command and URL in them start or reach the server and list all 8 package tools (history: tested on version 0.3.23; current version 0.3.50). Not yet tested inside the editors themselves.</p>
 
   <h2>Skills-based agents (Claude Code skills, OpenClaw)</h2>
   <div class="codebox"><pre>npx skills add connormatthewdouglas/agent-work-stack-deals</pre></div>

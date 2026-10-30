@@ -199,8 +199,10 @@ def test_failed_post_is_retried_then_once():
     f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
     assert run(S.run_cron(e, f2, Poster(500)))["sent"] == 0
     ok = Poster()
-    assert run(S.run_cron(e, f2, ok))["sent"] == 1
-    assert run(S.run_cron(e, f2, Poster()))["sent"] == 0
+    assert run(S.run_cron(e, f2, ok))["sent"] == 0  # T49: retry not due yet (backoff 15 min)
+    later = int(__import__("time").time()) + 3600
+    assert run(S.run_cron(e, f2, ok, now=later))["sent"] == 1
+    assert run(S.run_cron(e, f2, Poster(), now=later + 3600))["sent"] == 0
 
 
 def test_events_before_watch_creation_not_alerted():
@@ -247,7 +249,9 @@ def test_caps():
     assert run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2, "api_key": api}, e, None, f1))["error"]["code"] == "rate_limited"
     f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
     p = Poster()
-    assert run(S.run_cron(e, f2, p))["sent"] == 20  # 20 watches x 1 event, under the 40 POST/run budget
+    r = run(S.run_cron(e, f2, p))  # 20 watches x 1 event, one receiver host: T49 caps a host at 10 per run
+    assert r["sent"] == W.MAX_POSTS_PER_HOST_PER_RUN and r["backlog"] == 20 - W.MAX_POSTS_PER_HOST_PER_RUN
+    assert run(S.run_cron(e, f2, p))["sent"] == 20 - W.MAX_POSTS_PER_HOST_PER_RUN  # fair continuation next run
     plan = W.plan_deliveries([{"watch_id": f"w{i}", "key_id": "k", "gpu": "H100", "region": None, "max_hourly_usd": 2, "kinds": ["down"],
                                "baseline_seq": 0, "baseline_day": ""} for i in range(10)],
                              [{"event_id": "e1", "seq": 1, "gpu": "H100", "to_hourly_usd": 1, "from_hourly_usd": 3, "direction": "down"}],

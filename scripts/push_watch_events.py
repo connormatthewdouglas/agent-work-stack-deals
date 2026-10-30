@@ -52,7 +52,7 @@ def main() -> int:
     if not secret:
         print("WATCH_PUSH_SECRET not set; skipping push")
         return 0
-    tot, bad = {"sent": 0, "failed": 0, "blocked_private": 0}, 0
+    tot, bad, problems = {"sent": 0, "failed": 0, "blocked_private": 0, "backlog": 0}, 0, []
     for b in bs:
         body = json.dumps(b, separators=(",", ":"), sort_keys=True)
         ts = int(time.time())
@@ -64,11 +64,20 @@ def main() -> int:
                 res = json.loads(r.read())
             for k in tot:
                 tot[k] += int(res.get(k) or 0)
+            # T49: a 200 with ok:false, a persistence error or failed deliveries is a failed push, not a success
+            if res.get("ok") is not True:
+                problems.append(f"ok={res.get('ok')!r} error={res.get('error')!r}")
+            if res.get("persist_error"):
+                problems.append(f"persist_error={res['persist_error']}")
         except Exception as e:  # report status only
             bad += 1
             print(f"batch failed: {getattr(e, 'code', type(e).__name__)}")
     print(f"pushed {len(bs) - bad}/{len(bs)} batches: " + ", ".join(f"{k}={v}" for k, v in tot.items()))
-    return 1 if bad else 0
+    if tot["failed"]:
+        problems.append(f"{tot['failed']} delivery attempt(s) failed (retried with backoff by later pushes; see stats.delivery)")
+    for p in problems:
+        print(f"::error::{p}" if os.environ.get("GITHUB_ACTIONS") else f"error: {p}")
+    return 1 if bad or problems else 0
 
 
 if __name__ == "__main__":

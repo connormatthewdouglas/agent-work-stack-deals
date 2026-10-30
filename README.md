@@ -10,7 +10,7 @@
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.49, read-only, stdio)
+## MCP server (v0.3.50, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -65,6 +65,15 @@ Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/REA
 
 Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=github-readme`
 (`claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=github-readme`). Free Cloudflare Worker; it stores only anonymous call counts per tool per day (no IPs, user agents or arguments), public at https://lantern-works-mcp.lantern-works.workers.dev/stats. `?ref=` only tags which link was used.
+
+## Alert delivery (hosted watches)
+
+- At-least-once. An alert counts as delivered on any 2xx. Dedupe on `x-lantern-event-id` + `x-lantern-watch-id`.
+- 408, 425, 429, 5xx and network errors retry with backoff: 15 min, then x4 each time, capped at 24 h. `Retry-After` is honoured up to 24 h. At most 6 attempts, and none after 72 h from the first; then the alert is `expired`.
+- Any other status (3xx are not followed, 4xx) is `rejected` and not retried.
+- Fair continuation: never-tried alerts go first, then the least recently tried; at most 10 POSTs per receiver host per run, and a host that fails is skipped for the rest of that run. Work left over is `backlog`, sent on the next push.
+- `stats.delivery` shows `last_push_at`, `last_success_at`, `pending_retries` and the last outcome counts. The push job fails when any delivery fails or D1 cannot record results.
+- Local alternative: `examples/gpu-price-watcher/watch_prices.py --state FILE` pages every event after a saved cursor and saves it atomically after each page, so a crash or missed day re-reads and never skips.
 
 ## Eligibility (region, memory, tier, stock)
 

@@ -15,7 +15,7 @@ import ipaddress
 import json
 import re
 import secrets
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from urllib.parse import urlsplit
 
 from core import deals as core_deals
@@ -388,3 +388,90 @@ def new_watch_id() -> str:
 
 def dumps(o) -> str:
     return json.dumps(o, separators=(",", ":"), sort_keys=True)
+
+
+# ---- T49: bounded retries, fair continuation, defined outcomes --------------------------------------------------
+MAX_ATTEMPTS = 6                # per (watch, event); then 'expired'
+RETRY_EXPIRY_HOURS = 72         # no attempt after 72 h from the first one; then 'expired'
+RETRY_BASE_MIN = 15             # backoff 15 m, 1 h, 4 h, 16 h, 24 h ... (x4, capped 24 h); Retry-After honoured up to 24 h
+MAX_POSTS_PER_HOST_PER_RUN = 10  # one receiver can never take the whole run
+MAX_PLAN = 400                  # candidates considered per run; POSTs stay capped at MAX_POSTS_PER_RUN
+OUTCOMES = ("acked", "retry", "rejected", "expired", "blocked")
+
+
+def classify(status: int | None, error: bool = False) -> str:
+    """HTTP result -> outcome. 2xx acked; 408/425/429/5xx/network/timeouts retry; any other status (3xx are not followed,
+    4xx) is a permanent rejection: never retried."""
+    if error or status is None:
+        return "retry"
+    s = int(status)
+    if 200 <= s < 300:
+        return "acked"
+    if s in (408, 425, 429) or s >= 500:
+        return "retry"
+    return "rejected"
+
+
+def _ts(iso: str | None) -> datetime | None:
+    try:
+        return datetime.fromisoformat(str(iso).replace("Z", "+00:00")) if iso else None
+    except ValueError:
+        return None
+
+
+def next_attempt(attempts: int, first_at: str, now: datetime, retry_after_s: float | None = None) -> str | None:
+    """ISO time of the next allowed attempt after `attempts` failed tries, or None when retries are exhausted/expired."""
+    if attempts >= MAX_ATTEMPTS:
+        return None
+    first = _ts(first_at) or now
+    delay = min(RETRY_BASE_MIN * 60 * (4 ** max(attempts - 1, 0)), 86400)
+    if retry_after_s is not None and retry_after_s > 0:
+        delay = max(delay, min(float(retry_after_s), 86400))
+    nxt = now + timedelta(seconds=delay)
+    if nxt > first + timedelta(hours=RETRY_EXPIRY_HOURS):
+        return None
+    return nxt.isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def retry_after_seconds(v) -> float | None:
+    try:
+        return float(str(v).strip()) if v not in (None, "") else None
+    except ValueError:
+        return None
+
+
+def plan_fair(watches: list[dict], events: list[dict], delivered: set, facts: dict, alerts_today: dict,
+              attempts: dict, now: datetime, max_posts: int = MAX_POSTS_PER_RUN) -> tuple[list[tuple[dict, dict, str]], int]:
+    """(plan, backlog). Every due (watch, event) match is a candidate; never-tried pairs go first, then the least
+    recently tried, so failing early recipients cannot starve later ones; at most MAX_POSTS_PER_HOST_PER_RUN per
+    receiver host. attempts: {(watch_id, event_id): {attempts, first_at, last_at, next_at, done}}. backlog = due
+    matches left for a later run."""
+    cands = []
+    for w in watches:
+        for ev in events:
+            k = (w["watch_id"], ev["event_id"])
+            if k in delivered:
+                continue
+            a = attempts.get(k) or {}
+            if a.get("done"):
+                continue
+            nxt = _ts(a.get("next_at"))
+            if nxt and nxt > now:
+                continue
+            reason = match(w, ev, facts)
+            if reason:
+                cands.append((int(a.get("attempts") or 0), a.get("last_at") or "", ev.get("date") or "", w["watch_id"], ev["event_id"], w, ev, reason))
+    cands.sort(key=lambda c: c[:5])
+    out, per_key, per_host = [], dict(alerts_today), {}
+    for *_, w, ev, reason in cands:
+        if len(out) >= max_posts:
+            break
+        if per_key.get(w["key_id"], 0) >= MAX_ALERTS_PER_KEY_PER_DAY:
+            continue
+        host = (urlsplit(w.get("webhook_url") or "").hostname or "").lower()
+        if per_host.get(host, 0) >= MAX_POSTS_PER_HOST_PER_RUN:
+            continue
+        per_key[w["key_id"]] = per_key.get(w["key_id"], 0) + 1
+        per_host[host] = per_host.get(host, 0) + 1
+        out.append((w, ev, reason))
+    return out, len(cands) - len(out)

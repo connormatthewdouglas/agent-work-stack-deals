@@ -81,6 +81,12 @@ def _stmt(db, sql, a):
 CONSTRAINTS_DDL = ("CREATE TABLE IF NOT EXISTS watch_constraints (watch_id TEXT PRIMARY KEY, vram_gb INTEGER, tiers TEXT, "
                    "in_stock TEXT)")
 
+ATTEMPTS_DDL = ("CREATE TABLE IF NOT EXISTS watch_attempts (watch_id TEXT NOT NULL, event_id TEXT NOT NULL, attempts INTEGER NOT NULL, "
+                "first_at TEXT NOT NULL, last_at TEXT NOT NULL, last_outcome TEXT NOT NULL, next_at TEXT, done INTEGER NOT NULL DEFAULT 0, "
+                "PRIMARY KEY (watch_id, event_id))")
+OPS_DDL = "CREATE TABLE IF NOT EXISTS watch_ops (k TEXT PRIMARY KEY, v TEXT)"
+
+
 async def _all(db, sql, *a):
     return _rows(await _stmt(db, sql, a).all())
 
@@ -235,70 +241,156 @@ async def deliver(env, events, regions, fetch_fn, now=None) -> dict:
     if not master:
         return {"sent": 0, "skipped": "WATCH_SIGNING_MASTER not set"}
     today = _today()
+    now_dt = datetime.fromtimestamp(now, timezone.utc) if now is not None else datetime.now(timezone.utc)
+    now_iso = now_dt.isoformat(timespec="seconds").replace("+00:00", "Z")
     await _run(db, CONSTRAINTS_DDL)
+    await _run(db, ATTEMPTS_DDL)
+    await _run(db, OPS_DDL)
     watches = await _all(db, "SELECT w.watch_id, w.key_id, w.gpu, w.region, w.max_hourly_usd, w.kinds, w.baseline_seq, "
                              "w.baseline_day, k.webhook_url, c.vram_gb, c.tiers, c.in_stock FROM watches w JOIN watch_keys k ON k.key_id = w.key_id "
                              "LEFT JOIN watch_constraints c ON c.watch_id = w.watch_id WHERE k.disabled = 0")
     for w in watches:
         w["kinds"] = (w.get("kinds") or "down").split(",")
     if not watches or not events:
-        return {"sent": 0, "events": len(events), "watches": len(watches)}
+        r = {"sent": 0, "failed": 0, "events": len(events), "watches": len(watches), "backlog": 0, "outcomes": {}}
+        await _ops(db, now_iso, r)
+        return r
     ids = list({e["event_id"] for e in events})
-    delivered = set()
+    delivered, attempts = set(), {}
     for i in range(0, len(ids), MAX_BIND):
         chunk = ids[i:i + MAX_BIND]
-        for r in await _all(db, f"SELECT watch_id, event_id FROM watch_deliveries WHERE event_id IN ({','.join('?' * len(chunk))})", *chunk):
+        q = ",".join("?" * len(chunk))
+        for r in await _all(db, f"SELECT watch_id, event_id FROM watch_deliveries WHERE event_id IN ({q})", *chunk):
             delivered.add((r["watch_id"], r["event_id"]))
+        for r in await _all(db, f"SELECT watch_id, event_id, attempts, first_at, last_at, next_at, done FROM watch_attempts WHERE event_id IN ({q})", *chunk):
+            attempts[(r["watch_id"], r["event_id"])] = r
     today_alerts = {r["key_id"]: r["n"] for r in await _all(db, "SELECT key_id, n FROM watch_key_counters WHERE day = ? AND metric = 'alerts'", today)}
-    plan = W.plan_deliveries(watches, events, delivered, regions, today_alerts)
-    ok_rows, per_key, failed, blocked = [], {}, 0, 0
-    host_ok, budget = {}, W.SUBREQUEST_BUDGET
+    plan, backlog = W.plan_fair(watches, events, delivered, regions, today_alerts, attempts, now_dt, max_posts=W.MAX_PLAN)
+    posts = 0
+    ok_rows, per_key, att_rows = [], {}, []
+    outcomes = {k: 0 for k in W.OUTCOMES}
+    host_ok, host_down, budget = {}, set(), W.SUBREQUEST_BUDGET
+
+    def record(w, ev, outcome, retry_after=None):
+        k = (w["watch_id"], ev["event_id"])
+        prev = attempts.get(k) or {}
+        n = int(prev.get("attempts") or 0) + 1
+        first = prev.get("first_at") or now_iso
+        nxt = W.next_attempt(n, first, now_dt, retry_after) if outcome == "retry" else None
+        final = outcome
+        if outcome == "retry" and nxt is None:
+            final = "expired"
+        outcomes[final] += 1
+        att_rows.append((w["watch_id"], ev["event_id"], n, first, now_iso, final, nxt, 0 if final == "retry" else 1))
+
     for w, ev, reason in plan:
         host = (W.urlsplit(w["webhook_url"]).hostname or "").lower()
         try:
             W.validate_webhook_url(w["webhook_url"])  # https-only + literal/suffix checks again at send time
         except W.WatchError:
-            blocked += 1
+            record(w, ev, "blocked")
+            continue
+        if host in host_down:  # this receiver already failed in this run: defer, do not burn budget or an attempt
+            backlog += 1
             continue
         if host not in host_ok:  # re-resolve at send time (DNS can change after signup); 2 subrequests per host
             if budget < 3:
-                break
+                backlog += 1
+                continue
             budget -= 2
             host_ok[host] = await _host_is_public(w["webhook_url"], fetch_fn)
         if not host_ok[host]:
-            blocked += 1
+            record(w, ev, "blocked")
             continue
-        if budget < 1:
-            break
+        if budget < 1 or posts >= W.MAX_POSTS_PER_RUN:
+            backlog += 1
+            continue
         budget -= 1
+        posts += 1
         body = W.dumps(W.payload(w, ev, reason, _now_iso()))
         ts = int(now if now is not None else time.time())
         headers = {"content-type": "application/json", "user-agent": "LanternWorks-PriceWatch/1",
                    "x-lantern-event-id": ev["event_id"], "x-lantern-watch-id": w["watch_id"],
                    "x-lantern-signature": W.sign(W.signing_secret(master, w["key_id"]), ts, body)}
+        status, err, ra = None, False, None
         try:
             r = await fetch_fn(w["webhook_url"], method="POST", headers=headers, body=body, redirect="manual")
-            good = 200 <= int(r.status) < 300
+            status = int(r.status)
+            try:
+                ra = W.retry_after_seconds(r.headers.get("retry-after"))
+            except Exception:
+                ra = None
         except Exception:
-            good = False
-        if good:
+            err = True
+        outcome = W.classify(status, err)
+        if outcome == "acked":
             ok_rows.append((w["watch_id"], ev["event_id"], today))
             per_key[w["key_id"]] = per_key.get(w["key_id"], 0) + 1
+            outcomes["acked"] += 1
         else:
-            failed += 1
-    for i in range(0, len(ok_rows), MAX_BIND // 3):
-        chunk = ok_rows[i:i + MAX_BIND // 3]
-        await _run(db, "INSERT OR IGNORE INTO watch_deliveries(watch_id, event_id, day) VALUES " + ",".join(["(?, ?, ?)"] * len(chunk)),
-                   *[x for row in chunk for x in row])
-    items = list(per_key.items())
-    for i in range(0, len(items), MAX_BIND // 4):
-        chunk = items[i:i + MAX_BIND // 4]
-        await _run(db, "INSERT INTO watch_key_counters(key_id, day, metric, n) VALUES " + ",".join(["(?, ?, 'alerts', ?)"] * len(chunk)) +
-                   " ON CONFLICT(key_id, day, metric) DO UPDATE SET n = n + excluded.n", *[x for k, n in chunk for x in (k, today, n)])
-    if ok_rows or failed:
-        await _run(db, "INSERT INTO watch_metrics(day, metric, n) VALUES (?, 'alerts_delivered', ?), (?, 'alerts_failed', ?) "
-                       "ON CONFLICT(day, metric) DO UPDATE SET n = n + excluded.n", today, len(ok_rows), today, failed)
-    return {"sent": len(ok_rows), "failed": failed, "blocked_private": blocked, "planned": len(plan), "events": len(events), "watches": len(watches)}
+            if outcome == "retry":
+                host_down.add(host)
+            record(w, ev, outcome, ra)
+    persist_error = None
+    try:
+        for i in range(0, len(ok_rows), MAX_BIND // 3):
+            chunk = ok_rows[i:i + MAX_BIND // 3]
+            await _run(db, "INSERT OR IGNORE INTO watch_deliveries(watch_id, event_id, day) VALUES " + ",".join(["(?, ?, ?)"] * len(chunk)),
+                       *[x for row in chunk for x in row])
+        for i in range(0, len(att_rows), MAX_BIND // 8):
+            chunk = att_rows[i:i + MAX_BIND // 8]
+            await _run(db, "INSERT INTO watch_attempts(watch_id, event_id, attempts, first_at, last_at, last_outcome, next_at, done) VALUES "
+                           + ",".join(["(?, ?, ?, ?, ?, ?, ?, ?)"] * len(chunk)) +
+                           " ON CONFLICT(watch_id, event_id) DO UPDATE SET attempts = excluded.attempts, last_at = excluded.last_at, "
+                           "last_outcome = excluded.last_outcome, next_at = excluded.next_at, done = excluded.done",
+                       *[x for row in chunk for x in row])
+        items = list(per_key.items())
+        for i in range(0, len(items), MAX_BIND // 4):
+            chunk = items[i:i + MAX_BIND // 4]
+            await _run(db, "INSERT INTO watch_key_counters(key_id, day, metric, n) VALUES " + ",".join(["(?, ?, 'alerts', ?)"] * len(chunk)) +
+                       " ON CONFLICT(key_id, day, metric) DO UPDATE SET n = n + excluded.n", *[x for k, n in chunk for x in (k, today, n)])
+        failed = sum(outcomes[k] for k in ("retry", "rejected", "expired"))
+        if ok_rows or failed:
+            await _run(db, "INSERT INTO watch_metrics(day, metric, n) VALUES (?, 'alerts_delivered', ?), (?, 'alerts_failed', ?) "
+                           "ON CONFLICT(day, metric) DO UPDATE SET n = n + excluded.n", today, len(ok_rows), today, failed)
+    except Exception as e:  # acked webhooks may be re-sent next run: receivers dedupe on x-lantern-event-id + x-lantern-watch-id
+        persist_error = type(e).__name__
+    failed = sum(outcomes[k] for k in ("retry", "rejected", "expired"))
+    res = {"sent": len(ok_rows), "failed": failed, "blocked_private": outcomes["blocked"], "planned": len(plan),
+           "backlog": backlog, "outcomes": outcomes, "events": len(events), "watches": len(watches)}
+    if persist_error:
+        res["persist_error"] = persist_error
+    await _ops(db, now_iso, res)
+    return res
+
+
+async def _ops(db, now_iso, res):
+    """Operator state (T49): last push time, last fully successful push, last outcome. Never raises."""
+    try:
+        rows = [("last_push_at", now_iso), ("last_result", W.dumps({k: res.get(k) for k in ("sent", "failed", "backlog", "outcomes", "persist_error")}))]
+        if not res.get("failed") and not res.get("persist_error"):
+            rows.append(("last_success_at", now_iso))
+        await _run(db, "INSERT INTO watch_ops(k, v) VALUES " + ",".join(["(?, ?)"] * len(rows)) +
+                   " ON CONFLICT(k) DO UPDATE SET v = excluded.v", *[x for r in rows for x in r])
+    except Exception:
+        pass
+
+
+async def delivery_status(db) -> dict:
+    try:
+        await _run(db, OPS_DDL)
+        await _run(db, ATTEMPTS_DDL)
+        ops = {r["k"]: r["v"] for r in await _all(db, "SELECT k, v FROM watch_ops")}
+        pend = await _first(db, "SELECT COUNT(*) AS n FROM watch_attempts WHERE done = 0")
+    except Exception:
+        return {"last_push_at": None, "last_success_at": None, "pending_retries": None, "last_result": None}
+    lr = ops.get("last_result")
+    return {"last_push_at": ops.get("last_push_at"), "last_success_at": ops.get("last_success_at"),
+            "pending_retries": (pend or {}).get("n", 0), "last_result": json.loads(lr) if lr else None,
+            "semantics": ("at-least-once: an alert is acked by any 2xx; 408/425/429/5xx/network errors retry with backoff "
+                          f"(x4 from {W.RETRY_BASE_MIN} min, Retry-After honoured, max {W.MAX_ATTEMPTS} attempts, none after "
+                          f"{W.RETRY_EXPIRY_HOURS} h); other statuses are rejected and not retried. Dedupe on "
+                          "x-lantern-event-id + x-lantern-watch-id.")}
 
 
 async def stats(env) -> dict:
@@ -311,6 +403,7 @@ async def stats(env) -> dict:
     out = {"active_watches": (active or {}).get("n", 0), "alerts_delivered_total": sum(r["n"] for r in rows),
            "alerts_delivered_by_day": [{"day": r["day"], "n": r["n"]} for r in rows]}
     out["weekly_per_key"] = await weekly_per_key(env)
+    out["delivery"] = await delivery_status(db)
     return out
 
 

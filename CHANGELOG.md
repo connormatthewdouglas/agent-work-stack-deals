@@ -4,6 +4,12 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.50 (2026-10-30)
+
+- T49: hosted alerts recover after failure and congestion. Bounded retries with backoff and a 72 h expiry for 408/425/429/5xx/network errors (Retry-After honoured); other 4xx rejected once; fair continuation (never-tried first, 10 POSTs per host per run, a failing host is skipped for the rest of the run) so failing early recipients cannot starve later ones. New D1 tables `watch_attempts` and `watch_ops`; `stats.delivery` exposes last push, last success, pending retries and outcomes; a persistence failure is reported.
+- The push job now fails when a 200 response reports failed deliveries, `ok:false` or a persistence error.
+- Local watcher example: `--state FILE` durable checkpoint and lossless catch-up by cursor (tested on a 201-event history with a mid-run crash).
+
 ## 0.3.49 (2026-10-30)
 
 - re30 follow-up: a "(tie)" for cheapest never mixes a region-confirmed row with an unresolved one (live 0.3.48 named "Lambda and RunPod (tie)" for region us-ne-1 though only RunPod was confirmed there).

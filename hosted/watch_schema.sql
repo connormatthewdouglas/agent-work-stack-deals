@@ -8,3 +8,5 @@ CREATE INDEX IF NOT EXISTS watch_deliveries_event ON watch_deliveries(event_id);
 CREATE TABLE IF NOT EXISTS watch_key_counters (key_id TEXT NOT NULL, day TEXT NOT NULL, metric TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (key_id, day, metric));
 CREATE TABLE IF NOT EXISTS watch_metrics (day TEXT NOT NULL, metric TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, metric));
 CREATE TABLE IF NOT EXISTS watch_constraints (watch_id TEXT PRIMARY KEY, vram_gb INTEGER, tiers TEXT, in_stock TEXT);
+CREATE TABLE IF NOT EXISTS watch_attempts (watch_id TEXT NOT NULL, event_id TEXT NOT NULL, attempts INTEGER NOT NULL, first_at TEXT NOT NULL, last_at TEXT NOT NULL, last_outcome TEXT NOT NULL, next_at TEXT, done INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (watch_id, event_id));
+CREATE TABLE IF NOT EXISTS watch_ops (k TEXT PRIMARY KEY, v TEXT);

@@ -48,3 +48,7 @@ date; without one it is the newest `verified_at` time. Results cover tracked pro
 Prices are per GPU-hour in USD and exclude storage, egress and taxes. Confirm on the vendor page before spending.
 Other tools on the same server can return referral links (`affiliate: true`, labeled in results); affiliate status is
 not a ranking factor.
+
+## Durable catch-up
+
+`python watch_prices.py --state watcher-state.json` pages every price event after the saved cursor (oldest first) and writes the cursor atomically after each page. A crash or a missed run re-reads from the last saved page and never skips; handle events idempotently by `event_id`.
