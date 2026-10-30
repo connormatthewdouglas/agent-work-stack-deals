@@ -78,7 +78,11 @@ jobs:
           run_import() {
             git fetch -q origin scout-data || return 3
             git show origin/scout-data:latest/feed_enriched_v2_latest.json > "$RUNNER_TEMP/feed.json" || return 3
-            if python3 scripts/import_scout_availability.py "$RUNNER_TEMP/feed.json" > "$RUNNER_TEMP/import.log" 2>&1; then
+            # sha256 check against the push script's manifest.json (and Scout's latest_manifest.json if ever shipped); mismatch = refusal
+            for mf in manifest.json latest_manifest.json; do
+              git show "origin/scout-data:latest/$mf" > "$RUNNER_TEMP/$mf" 2>/dev/null || : > "$RUNNER_TEMP/$mf"
+            done
+            if LW_SCOUT_MANIFESTS="$RUNNER_TEMP/manifest.json:$RUNNER_TEMP/latest_manifest.json" python3 scripts/import_scout_availability.py "$RUNNER_TEMP/feed.json" > "$RUNNER_TEMP/import.log" 2>&1; then
               echo "Imported: $(tail -1 "$RUNNER_TEMP/import.log")" >> "$S"
             else
               echo "Import refused, current availability kept: $(tail -1 "$RUNNER_TEMP/import.log")" >> "$S"
