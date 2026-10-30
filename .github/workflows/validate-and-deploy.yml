@@ -127,6 +127,12 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: PyPI clean install + stdio tool calls (latest release; 0.2.0+ must expose and pass compare_gpu_prices)
         run: python3 scripts/test_pypi_install.py --uvx
+      - name: Benchmark asset + error contract in the published wheel (T43/T44)
+        run: |
+          ver=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
+          python3 -m venv /tmp/pv && /tmp/pv/bin/pip -q install "lantern-works-deals-mcp==$ver"
+          /tmp/pv/bin/python scripts/check_benchmark_asset.py --installed
+          PATH=/tmp/pv/bin:$PATH /tmp/pv/bin/python scripts/check_error_contract.py --installed
 
   docker:
     # Glama-style container run: build the Dockerfile (installs the pinned PyPI release) and call every tool over stdio
@@ -144,6 +150,8 @@ jobs:
         run: |
           ver=$(sed -n 's/.*lantern-works-deals-mcp==\([0-9.]*\).*/\1/p' Dockerfile)
           python3 scripts/test_pypi_install.py --version "$ver" --docker lantern-works-deals-mcp
+      - name: Benchmark asset inside the container (T43)
+        run: docker run --rm -v "$PWD/scripts:/s:ro" --entrypoint python lantern-works-deals-mcp /s/check_benchmark_asset.py --installed
 
   release-gate:
     # T41 pricing-decision release gate (Gauge): 20 agent questions checked against the BUILT feed/site in this

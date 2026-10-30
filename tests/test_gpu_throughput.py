@@ -51,3 +51,12 @@ def test_gaps_are_explicit():
     for g in DATA["gaps"]:
         assert g["gap"] is True and g["gpu"] and g["workload"] and len(g["reason"]) > 20
         assert "value" not in g
+
+
+def test_quote_kind_marks_rebuilt_spec_cells():
+    import json as _j
+    from pathlib import Path as _P
+    d = _j.loads((_P(__file__).resolve().parents[1] / "data" / "gpu_throughput.json").read_text())
+    for f in d["figures"]:
+        assert f["quote_kind"] == ("table_cell" if f["source_type"] == "vendor_spec" else "literal"), f["id"]
+    assert sum(f["quote_kind"] == "table_cell" for f in d["figures"]) == 45
