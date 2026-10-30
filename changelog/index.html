@@ -128,6 +128,14 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.37</h2>
+<ul>
+<li>Gauge re20 fixes. P1: Scout&#x27;s raw availability import (data/gpu_availability/latest.json) is no longer published on the site; the guarded data is in /api/v1.</li>
+<li>P3: Lambda and Verda vendor-API overall stock claims last at most 1 h, the same as a region list.</li>
+<li>P4: region-derived rows, out-of-stock ones included, carry regions_expires_at and turn unknown when it passes.</li>
+<li>P2: added a Cloudflare cron Worker (lantern-works-import-cron, every 10 min) that dispatches the gated scout-import. It is inactive until a repo-scoped Actions token is set as a Worker secret.</li>
+<li>T41-26 also checks the 1 h limit.</li>
+</ul>
 <h2>0.3.36</h2>
 <ul>
 <li>Gauge re19 fixes. N1: derived_from_regions is carried through, and an overall claim derived from regions becomes unknown when its regions expire, both at build time and in the MCP at request time.</li>

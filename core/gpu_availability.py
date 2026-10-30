@@ -179,9 +179,22 @@ def stale_guard(a, now: datetime | None = None):
     return out
 
 
-def _min_expiry(r: dict) -> str | None:
-    """The earlier of checked_at + 8 h and Scout's own availability_expires_at (v3.2 shortens some claims)."""
-    ts = [t for t in (expires_at(r.get("availability_checked_at")), r.get("availability_expires_at")) if _parse(t)]
+REGION_TTL_H = 1  # Scout region lists last 1 h
+SHORT_CLAIM_VENDORS = ("Lambda", "Verda")  # re20 P3: vendor-API overall claims last no longer than a region list
+
+
+def _plus_h(ts, h) -> str | None:
+    from datetime import timedelta
+    d = _parse(ts)
+    return (d + timedelta(hours=h)).astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z") if d else None
+
+
+def _min_expiry(r: dict, vendor: str = "") -> str | None:
+    """The earliest of checked_at + 8 h, Scout's own availability_expires_at (v3.2 shortens some claims) and, for
+    Lambda/Verda vendor-API claims and region-derived claims, checked_at + 1 h (re20 P3)."""
+    c = r.get("availability_checked_at")
+    short = _plus_h(c, REGION_TTL_H) if (vendor.startswith(SHORT_CLAIM_VENDORS) or r.get("derived_from_regions")) else None
+    ts = [t for t in (expires_at(c), r.get("availability_expires_at"), short) if _parse(t)]
     return min(ts, key=_parse) if ts else None
 
 
@@ -210,7 +223,7 @@ def _scout(vendor: str, r: dict | None) -> dict:
     if r and r.get("feed_status") == "held_below_min_offers":  # v3.2: never shown as available
         return {"status": "unknown (held: below minimum offers)", "in_stock": None, "checked_at": r.get("availability_checked_at"),
                 "note": HELD_NOTE, "feed_status": r["feed_status"], "origin": "scout",
-                "availability_expires_at": _min_expiry(r)}
+                "availability_expires_at": _min_expiry(r, vendor)}
     if not r or r.get("in_stock") is None:
         out = {"status": "unknown", "in_stock": None, "checked_at": (r or {}).get("availability_checked_at"),
                "note": _clean((r or {}).get("availability_note")) or UNKNOWN_NOTE}
@@ -222,11 +235,13 @@ def _scout(vendor: str, r: dict | None) -> dict:
            "in_stock": r["in_stock"], "checked_at": r.get("availability_checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)",
            "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H,
-           "availability_expires_at": _min_expiry(r)}
+           "availability_expires_at": _min_expiry(r, vendor)}
     for k in ("feed_status", "derived_from_regions", "offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
         if r.get(k) is not None:
             out[k] = r[k]
     rx = regions_expires_at(r)
+    if not rx and r.get("derived_from_regions"):  # re20 P4: a derived row (out of stock too) gets a region expiry
+        rx = _plus_h(r.get("availability_checked_at"), REGION_TTL_H)
     if rx:
         out["regions_expires_at"] = rx
     if r.get("unrented_servers") is not None:  # Clore: servers, not GPU offers

@@ -14,6 +14,11 @@ on:
     - cron: "15 * * * *"
     - cron: "5,25,35,45,55 * * * *"  # N3 backstop: gated, does work only on a new snapshot or an expired claim
   workflow_dispatch:
+    inputs:
+      gated:
+        description: "true = apply the same gate as a scheduled run (used by the Cloudflare cron Worker, re20 P2)"
+        required: false
+        default: "false"
 
 permissions:
   contents: write
@@ -34,7 +39,7 @@ jobs:
       - name: Gate (stdlib only)
         id: gate
         env:
-          EVENT: ${{ github.event_name }}
+          EVENT: ${{ (github.event_name == 'workflow_dispatch' && inputs.gated == 'true') && 'schedule' || github.event_name }}
         run: |
           git fetch -q origin scout-data
           git show origin/scout-data:latest/manifest.json > "$RUNNER_TEMP/manifest.json" 2>/dev/null || echo '{}' > "$RUNNER_TEMP/manifest.json"

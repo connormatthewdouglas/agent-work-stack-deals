@@ -614,6 +614,9 @@ def _(f, ev):
             f.append(f"{rid(r)} in stock past availability_expires_at {a['availability_expires_at']}")
         if a.get("derived_from_regions") and (not a.get("regions_expires_at") or NOW > ts(a["regions_expires_at"])):
             f.append(f"{rid(r)} region-derived claim in stock without live regions")
+        if (str(r.get("advertiser")).startswith(("Lambda", "Verda")) or a.get("derived_from_regions")) and a.get("checked_at") \
+                and a.get("availability_expires_at") and (ts(a["availability_expires_at"]) - ts(a["checked_at"])).total_seconds() > 3600:
+            f.append(f"{rid(r)} vendor-API/derived claim lasts longer than 1 h (re20 P3)")
         if r.get("advertiser") == "RunPod" and a.get("origin") == "scout" and not a.get("available_regions"):
             f.append(f"{rid(r)} RunPod in stock with no confirmed region")
     ev.update(in_stock_claims=n)

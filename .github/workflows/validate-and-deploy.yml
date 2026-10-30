@@ -186,6 +186,8 @@ jobs:
         with:
           source: ./
           destination: ./_site
+      # re20 P1: Scout's raw availability import is an unguarded input, not a public feed (served guarded via api/v1)
+      - run: sudo rm -rf _site/data/gpu_availability && test ! -e _site/data/gpu_availability
       - uses: actions/upload-pages-artifact@v3
       - id: deployment
         uses: actions/deploy-pages@v4

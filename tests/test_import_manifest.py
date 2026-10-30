@@ -99,3 +99,20 @@ def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path):
         assert got["in_stock"] is None and got["stock_level"] is None and "no region" in got["availability_note"]
     finally:
         out.write_bytes(keep)
+
+
+def test_re20_p3_lambda_verda_claims_last_one_hour_and_p4_derived_oos_region_expiry():
+    from core import gpu_availability as g
+    lam = g._scout("Lambda", {"in_stock": True, "availability_checked_at": "2026-10-30T15:21:14Z",
+                              "availability_expires_at": "2026-10-30T23:21:14Z"})
+    assert lam["availability_expires_at"] == "2026-10-30T16:21:14Z"
+    ver = g._scout("Verda (formerly DataCrunch)", {"in_stock": False, "availability_checked_at": "2026-10-30T15:21:13Z",
+                                                   "availability_expires_at": "2026-10-30T23:21:13Z", "derived_from_regions": True})
+    assert ver["availability_expires_at"] == "2026-10-30T16:21:13Z" and ver["regions_expires_at"] == "2026-10-30T16:21:13Z"
+    from datetime import datetime, timezone
+    assert g.stale_guard(ver, datetime(2026, 10, 30, 16, 30, tzinfo=timezone.utc))["in_stock"] is None
+
+
+def test_re20_p1_raw_availability_not_published():
+    wf = (ROOT / ".github/workflows/validate-and-deploy.yml").read_text()
+    assert "rm -rf _site/data/gpu_availability" in wf

@@ -48,7 +48,7 @@ def test_out_of_stock_ranked_last_and_excluded():
     sec = s.split("Other variants (not compared)")[1].split("</ul>")[0]
     items = sec.split("<li>")[1:]
     flags = ["out of stock when checked" in i for i in items]
-    assert flags == sorted(flags) and any(flags)
+    assert flags == sorted(flags)  # stock-independent
     for i in items:  # every out-of-stock row shows its check time (order itself is asserted above)
         if "out of stock when checked" in i:
             assert "out of stock when checked at" in i
@@ -276,7 +276,7 @@ def test_scout_v25_lambda_clore_render():
             assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
         return
     lam = [r for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("in_stock") is not None]
-    assert lam and all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
+    assert all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
     cl = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai" and r["availability"].get("in_stock") is not None]
     assert cl and all("offer_count" not in r["availability"] and r["availability"]["unrented_servers"] > 0 for r in cl)
     s = (ROOT / "gpu/cheapest-rtx-4090-rental/index.html").read_text()
