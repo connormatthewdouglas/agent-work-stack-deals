@@ -79,7 +79,7 @@
         "availability": {
           "status": "unknown",
           "in_stock": null,
-          "checked_at": "2026-10-30T21:33:14Z",
+          "checked_at": "2026-10-30T21:41:05Z",
           "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
           "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
           "origin": "scout"
@@ -135,7 +135,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T21:33:14Z",
+        "checked_at": "2026-10-30T21:41:05Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -183,16 +183,16 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.793/h $2.397/h",
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-10-30 17:39 ET)",
+        "status": "unknown (stale availability, last checked 2026-10-30 17:47 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-10-30T21:39:44Z",
+        "checked_at": "2026-10-30T21:47:46Z",
         "max_age_hours": 0.25,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-10-30T21:54:44Z"
+        "availability_expires_at": "2026-10-30T22:02:46Z"
       }
     },
     {
@@ -263,7 +263,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T21:33:14Z",
+        "checked_at": "2026-10-30T21:41:05Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -313,8 +313,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T21:33:12Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+        "checked_at": "2026-10-30T21:41:02Z",
+        "note": "Recomputed from unexpired region claims at overall_recomputed_at: in_stock true only if a confirmed region is in stock, false only if every region is confirmed out of stock, otherwise null (unknown)",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
       }
@@ -410,18 +410,12 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA H100 PCIe 80 GB 26 225 GiB 1 TiB SSD $3.29",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
-        "checked_at": "2026-10-30T21:39:45Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-30T22:39:45Z",
-        "max_age_hours": 1.0,
-        "derived_from_regions": true,
-        "regions_expires_at": "2026-10-30T22:39:45Z",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T21:47:47Z",
+        "note": "Recomputed from unexpired region claims at overall_recomputed_at: in_stock true only if a confirmed region is in stock, false only if every region is confirmed out of stock, otherwise null (unknown)",
+        "source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
+        "origin": "scout"
       }
     },
     {
@@ -469,11 +463,11 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-10-30T21:39:40Z",
+        "checked_at": "2026-10-30T21:47:50Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-10-30T22:39:40Z",
+        "availability_expires_at": "2026-10-30T22:47:50Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "available_regions": [
@@ -483,17 +477,17 @@
           {
             "region": "MON1 (CANADA, MONTREAL)",
             "stock_level": null,
-            "checked_at": "2026-10-30T21:39:40Z",
-            "availability_expires_at": "2026-10-30T22:39:40Z",
+            "checked_at": "2026-10-30T21:47:50Z",
+            "availability_expires_at": "2026-10-30T22:47:50Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "available_gpus": 3,
-            "second_read_available_gpus": 3
+            "available_gpus": 4,
+            "second_read_available_gpus": 2
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T22:39:40Z",
+        "regions_expires_at": "2026-10-30T22:47:50Z",
         "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page"
       }
     },
@@ -566,18 +560,12 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA H100 SXM 80 GB 208 1800 GiB 22 TiB SSD $3.99",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
-        "checked_at": "2026-10-30T21:39:45Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-30T22:39:45Z",
-        "max_age_hours": 1.0,
-        "derived_from_regions": true,
-        "regions_expires_at": "2026-10-30T22:39:45Z",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T21:47:47Z",
+        "note": "Recomputed from unexpired region claims at overall_recomputed_at: in_stock true only if a confirmed region is in stock, false only if every region is confirmed out of stock, otherwise null (unknown)",
+        "source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
+        "origin": "scout"
       }
     },
     {
@@ -600,11 +588,11 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-10-30T21:33:12Z",
+        "checked_at": "2026-10-30T21:41:02Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-10-30T22:33:12Z",
+        "availability_expires_at": "2026-10-30T22:41:02Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "stock_level": "Low",
@@ -612,16 +600,16 @@
           "AP-IN-1 (India)",
           "AP-JP-1 (Japan)",
           "CA-MTL-1 (Canada)",
-          "US-CA-2 (United States)",
           "US-GA-2 (United States)",
+          "US-MO-1 (United States)",
           "US-NE-1 (United States)"
         ],
         "available_regions_detail": [
           {
             "region": "AP-IN-1 (India)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T21:33:17Z",
-            "availability_expires_at": "2026-10-30T22:33:17Z",
+            "checked_at": "2026-10-30T21:41:08Z",
+            "availability_expires_at": "2026-10-30T22:41:08Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -629,8 +617,8 @@
           {
             "region": "AP-JP-1 (Japan)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T21:33:28Z",
-            "availability_expires_at": "2026-10-30T22:33:28Z",
+            "checked_at": "2026-10-30T21:41:18Z",
+            "availability_expires_at": "2026-10-30T22:41:18Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -638,26 +626,35 @@
           {
             "region": "CA-MTL-1 (Canada)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T21:33:29Z",
-            "availability_expires_at": "2026-10-30T22:33:29Z",
+            "checked_at": "2026-10-30T21:41:19Z",
+            "availability_expires_at": "2026-10-30T22:41:19Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
           },
           {
-            "region": "US-CA-2 (United States)",
+            "region": "EU-FR-1 (France)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T21:34:33Z",
-            "availability_expires_at": "2026-10-30T22:34:33Z",
-            "confirmed": true,
+            "checked_at": "2026-10-30T21:41:33Z",
+            "availability_expires_at": "2026-10-30T22:41:33Z",
+            "confirmed": false,
             "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
+            "second_read_stock_level": null
           },
           {
             "region": "US-GA-2 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T21:34:37Z",
-            "availability_expires_at": "2026-10-30T22:34:37Z",
+            "checked_at": "2026-10-30T21:42:43Z",
+            "availability_expires_at": "2026-10-30T22:42:43Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low"
+          },
+          {
+            "region": "US-MO-1 (United States)",
+            "stock_level": "Low",
+            "checked_at": "2026-10-30T21:43:10Z",
+            "availability_expires_at": "2026-10-30T22:43:10Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -665,15 +662,15 @@
           {
             "region": "US-NE-1 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-10-30T21:35:16Z",
-            "availability_expires_at": "2026-10-30T22:35:16Z",
+            "checked_at": "2026-10-30T21:43:21Z",
+            "availability_expires_at": "2026-10-30T22:43:21Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "regions_expires_at": "2026-10-30T22:33:17Z"
+        "regions_expires_at": "2026-10-30T22:41:08Z"
       }
     },
     {
@@ -694,18 +691,12 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA H100 SXM 80 GB 26 225 GiB 2.75 TiB SSD $4.29",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
-        "checked_at": "2026-10-30T21:39:45Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-30T22:39:45Z",
-        "max_age_hours": 1.0,
-        "derived_from_regions": true,
-        "regions_expires_at": "2026-10-30T22:39:45Z",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T21:47:47Z",
+        "note": "Recomputed from unexpired region claims at overall_recomputed_at: in_stock true only if a confirmed region is in stock, false only if every region is confirmed out of stock, otherwise null (unknown)",
+        "source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
+        "origin": "scout"
       }
     },
     {
@@ -774,16 +765,31 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $4.793/h",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
-        "checked_at": "2026-10-30T21:39:43Z",
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-10-30T21:47:45Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-10-30T22:39:43Z",
+        "availability_expires_at": "2026-10-30T22:47:45Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-10-30T22:39:43Z",
+        "available_regions": [
+          "FIN-02"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "FIN-02",
+            "stock_level": null,
+            "checked_at": "2026-10-30T21:47:45Z",
+            "availability_expires_at": "2026-10-30T22:47:45Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "regions_expires_at": "2026-10-30T22:47:45Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }
