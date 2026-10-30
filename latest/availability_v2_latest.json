@@ -1,6 +1,6 @@
 {
- "version": "2.6",
- "collected_at": "2026-10-30T13:29:04Z",
+ "version": "2.7",
+ "collected_at": "2026-10-30T13:43:20Z",
  "errors": {},
  "meta": {
   "runpod_stock_level_observed": [
@@ -11,25 +11,454 @@
   "queried": {
    "Vast.ai|H100 SXM": {
     "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20SXM%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-    "queried_at": "2026-10-30T13:27:16Z"
+    "queried_at": "2026-10-30T13:37:22Z"
    },
    "Vast.ai|H100 PCIe": {
     "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-    "queried_at": "2026-10-30T13:27:18Z"
+    "queried_at": "2026-10-30T13:37:24Z"
    },
    "Vast.ai|A100 SXM": {
     "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-    "queried_at": "2026-10-30T13:27:20Z"
+    "queried_at": "2026-10-30T13:37:26Z"
    },
    "Vast.ai|A100 PCIe": {
     "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-    "queried_at": "2026-10-30T13:27:23Z"
+    "queried_at": "2026-10-30T13:37:28Z"
    },
    "Vast.ai|RTX 4090": {
     "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-    "queried_at": "2026-10-30T13:27:25Z"
+    "queried_at": "2026-10-30T13:37:30Z"
    }
-  }
+  },
+  "runpod_dc_query_log": [
+   {
+    "data_center": "CA-MTL-3",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:37:49Z"
+   },
+   {
+    "data_center": "EU-CZ-1",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:37:57Z"
+   },
+   {
+    "data_center": "EU-RO-1",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:38:07Z"
+   },
+   {
+    "data_center": "EUR-IS-1",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:38:16Z"
+   },
+   {
+    "data_center": "EUR-IS-2",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:38:24Z"
+   },
+   {
+    "data_center": "EUR-IS-3",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:38:31Z"
+   },
+   {
+    "data_center": "EUR-NO-1",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:38:40Z"
+   },
+   {
+    "data_center": "EUR-NO-2",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:38:48Z"
+   },
+   {
+    "data_center": "US-CA-2",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:38:57Z"
+   },
+   {
+    "data_center": "US-IL-1",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:39:08Z"
+   },
+   {
+    "data_center": "US-KS-2",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA H100 80GB HBM3",
+     "NVIDIA H100 PCIe"
+    ],
+    "final_at": "2026-10-30T13:39:16Z"
+   },
+   {
+    "data_center": "US-MO-1",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA A100-SXM4-80GB"
+    ],
+    "final_at": "2026-10-30T13:39:25Z"
+   },
+   {
+    "data_center": "US-NC-1",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:39:34Z"
+   },
+   {
+    "data_center": "US-TX-3",
+    "cloud": "Secure",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:39:46Z"
+   },
+   {
+    "data_center": "AP-IN-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:40:01Z"
+   },
+   {
+    "data_center": "AP-IN-2",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:40:08Z"
+   },
+   {
+    "data_center": "AP-JP-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:40:16Z"
+   },
+   {
+    "data_center": "CA-MTL-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:40:24Z"
+   },
+   {
+    "data_center": "CA-MTL-3",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:40:32Z"
+   },
+   {
+    "data_center": "EU-CZ-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:40:40Z"
+   },
+   {
+    "data_center": "EU-FR-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:40:49Z"
+   },
+   {
+    "data_center": "EU-RO-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:40:57Z"
+   },
+   {
+    "data_center": "EUR-IS-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:41:06Z"
+   },
+   {
+    "data_center": "EUR-IS-2",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:41:14Z"
+   },
+   {
+    "data_center": "EUR-IS-3",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:41:21Z"
+   },
+   {
+    "data_center": "EUR-NO-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:41:31Z"
+   },
+   {
+    "data_center": "EUR-NO-2",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:41:38Z"
+   },
+   {
+    "data_center": "US-CA-2",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA GeForce RTX 4090",
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:41:48Z"
+   },
+   {
+    "data_center": "US-GA-2",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:41:58Z"
+   },
+   {
+    "data_center": "US-IL-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:42:05Z"
+   },
+   {
+    "data_center": "US-KS-2",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA H100 80GB HBM3",
+     "NVIDIA H100 PCIe"
+    ],
+    "final_at": "2026-10-30T13:42:14Z"
+   },
+   {
+    "data_center": "US-MD-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100-SXM4-80GB"
+    ],
+    "final_at": "2026-10-30T13:42:22Z"
+   },
+   {
+    "data_center": "US-MO-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100 80GB PCIe",
+     "NVIDIA A100-SXM4-80GB",
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:42:29Z"
+   },
+   {
+    "data_center": "US-NC-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:42:37Z"
+   },
+   {
+    "data_center": "US-NE-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA H100 80GB HBM3"
+    ],
+    "final_at": "2026-10-30T13:42:46Z"
+   },
+   {
+    "data_center": "US-TX-3",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA GeForce RTX 4090"
+    ],
+    "final_at": "2026-10-30T13:43:03Z"
+   },
+   {
+    "data_center": "US-WA-1",
+    "cloud": "Community",
+    "attempts": 3,
+    "errors": null,
+    "result": "null_for_listed_gpu",
+    "null_gpus": [
+     "NVIDIA A100-SXM4-80GB"
+    ],
+    "final_at": "2026-10-30T13:43:13Z"
+   }
+  ]
  },
  "rows": [
   {
@@ -39,18 +468,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "all",
    "in_stock": true,
-   "offer_count": 5,
+   "offer_count": 4,
    "stock_level": null,
-   "price_usd_hr": 4.9539,
+   "price_usd_hr": 4.8542,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20SXM%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:16Z",
+   "collected_at": "2026-10-30T13:37:22Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:22Z",
+   "availability_expires_at": "2026-10-30T21:37:22Z"
   },
   {
    "vendor": "Vast.ai",
@@ -61,36 +492,18 @@
    "in_stock": true,
    "offer_count": 1,
    "stock_level": null,
-   "price_usd_hr": 3.5074,
+   "price_usd_hr": 3.3874,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20SXM%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:16Z",
+   "collected_at": "2026-10-30T13:37:22Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "Vast.ai",
-   "gpu_model": "H100 SXM",
-   "vram_gb": 80,
-   "tier": "Marketplace on-demand (verified)",
-   "region": "DE",
-   "in_stock": true,
-   "offer_count": 1,
-   "stock_level": null,
-   "price_usd_hr": 2.1356,
-   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
-   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20SXM%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:16Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": null,
-   "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:22Z",
+   "availability_expires_at": "2026-10-30T21:37:22Z"
   },
   {
    "vendor": "Vast.ai",
@@ -101,16 +514,18 @@
    "in_stock": true,
    "offer_count": 3,
    "stock_level": null,
-   "price_usd_hr": 4.9544,
+   "price_usd_hr": 4.8544,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20SXM%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:16Z",
+   "collected_at": "2026-10-30T13:37:22Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:22Z",
+   "availability_expires_at": "2026-10-30T21:37:22Z"
   },
   {
    "vendor": "Vast.ai",
@@ -124,13 +539,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:18Z",
+   "collected_at": "2026-10-30T13:37:24Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": "0 verified rentable offers in this snapshot; VRAM not readable from API and no feed row to verify it, so left null",
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:24Z",
+   "availability_expires_at": "2026-10-30T21:37:24Z"
   },
   {
    "vendor": "Vast.ai",
@@ -144,13 +561,15 @@
    "price_usd_hr": 0.7882,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -164,13 +583,15 @@
    "price_usd_hr": 0.7756,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -184,13 +605,15 @@
    "price_usd_hr": 0.7348,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -204,13 +627,15 @@
    "price_usd_hr": 0.8217,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -224,13 +649,15 @@
    "price_usd_hr": 1.1078,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -244,13 +671,37 @@
    "price_usd_hr": 1.2689,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
+  },
+  {
+   "vendor": "Vast.ai",
+   "gpu_model": "A100 SXM",
+   "vram_gb": 80,
+   "tier": "Marketplace on-demand (verified)",
+   "region": "CZ",
+   "in_stock": true,
+   "offer_count": 1,
+   "stock_level": null,
+   "price_usd_hr": 1.056,
+   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
+   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+   "collected_at": "2026-10-30T13:37:26Z",
+   "price_refresh": "4h",
+   "availability_refresh": "4h",
+   "vram_note": null,
+   "availability_note": null,
+   "source": "public no-auth API",
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -264,13 +715,15 @@
    "price_usd_hr": 1.0672,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -284,13 +737,15 @@
    "price_usd_hr": 0.9883,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -304,13 +759,15 @@
    "price_usd_hr": 1.1361,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -324,13 +781,15 @@
    "price_usd_hr": 1.1074,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -339,18 +798,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "US",
    "in_stock": true,
-   "offer_count": 4,
+   "offer_count": 3,
    "stock_level": null,
-   "price_usd_hr": 1.2403,
+   "price_usd_hr": 1.3361,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:20Z",
+   "collected_at": "2026-10-30T13:37:26Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:26Z",
+   "availability_expires_at": "2026-10-30T21:37:26Z"
   },
   {
    "vendor": "Vast.ai",
@@ -359,18 +820,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "all",
    "in_stock": true,
-   "offer_count": 6,
+   "offer_count": 7,
    "stock_level": null,
-   "price_usd_hr": 0.7063,
+   "price_usd_hr": 0.6037,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:23Z",
+   "collected_at": "2026-10-30T13:37:28Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:28Z",
+   "availability_expires_at": "2026-10-30T21:37:28Z"
   },
   {
    "vendor": "Vast.ai",
@@ -384,13 +847,15 @@
    "price_usd_hr": 0.8078,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:23Z",
+   "collected_at": "2026-10-30T13:37:28Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:28Z",
+   "availability_expires_at": "2026-10-30T21:37:28Z"
   },
   {
    "vendor": "Vast.ai",
@@ -404,13 +869,15 @@
    "price_usd_hr": 0.6028,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:23Z",
+   "collected_at": "2026-10-30T13:37:28Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:28Z",
+   "availability_expires_at": "2026-10-30T21:37:28Z"
   },
   {
    "vendor": "Vast.ai",
@@ -419,18 +886,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "US",
    "in_stock": true,
-   "offer_count": 2,
+   "offer_count": 3,
    "stock_level": null,
-   "price_usd_hr": 0.7063,
+   "price_usd_hr": 0.4009,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:23Z",
+   "collected_at": "2026-10-30T13:37:28Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:28Z",
+   "availability_expires_at": "2026-10-30T21:37:28Z"
   },
   {
    "vendor": "Vast.ai",
@@ -444,13 +913,15 @@
    "price_usd_hr": 0.8678,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:23Z",
+   "collected_at": "2026-10-30T13:37:28Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:28Z",
+   "availability_expires_at": "2026-10-30T21:37:28Z"
   },
   {
    "vendor": "Vast.ai",
@@ -464,13 +935,15 @@
    "price_usd_hr": 0.8678,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:23Z",
+   "collected_at": "2026-10-30T13:37:28Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:28Z",
+   "availability_expires_at": "2026-10-30T21:37:28Z"
   },
   {
    "vendor": "Vast.ai",
@@ -484,13 +957,15 @@
    "price_usd_hr": 0.8733,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20PCIE%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:23Z",
+   "collected_at": "2026-10-30T13:37:28Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:28Z",
+   "availability_expires_at": "2026-10-30T21:37:28Z"
   },
   {
    "vendor": "Vast.ai",
@@ -501,56 +976,18 @@
    "in_stock": true,
    "offer_count": 46,
    "stock_level": null,
-   "price_usd_hr": 0.4869,
+   "price_usd_hr": 0.4859,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "Vast.ai",
-   "gpu_model": "RTX 4090",
-   "vram_gb": 24,
-   "tier": "Marketplace on-demand (verified)",
-   "region": "AU",
-   "in_stock": true,
-   "offer_count": 2,
-   "stock_level": null,
-   "price_usd_hr": 0.4883,
-   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
-   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": null,
-   "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "Vast.ai",
-   "gpu_model": "RTX 4090",
-   "vram_gb": 24,
-   "tier": "Marketplace on-demand (verified)",
-   "region": "BG",
-   "in_stock": true,
-   "offer_count": 1,
-   "stock_level": null,
-   "price_usd_hr": 0.483,
-   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
-   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": null,
-   "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -561,16 +998,18 @@
    "in_stock": true,
    "offer_count": 2,
    "stock_level": null,
-   "price_usd_hr": 0.4151,
+   "price_usd_hr": 0.4361,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -579,38 +1018,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "CN",
    "in_stock": true,
-   "offer_count": 2,
-   "stock_level": null,
-   "price_usd_hr": 0.3806,
-   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
-   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": null,
-   "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "Vast.ai",
-   "gpu_model": "RTX 4090",
-   "vram_gb": 24,
-   "tier": "Marketplace on-demand (verified)",
-   "region": "DE",
-   "in_stock": true,
    "offer_count": 1,
    "stock_level": null,
-   "price_usd_hr": 0.4696,
+   "price_usd_hr": 0.383,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -619,18 +1040,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "DK",
    "in_stock": true,
-   "offer_count": 1,
+   "offer_count": 2,
    "stock_level": null,
-   "price_usd_hr": 0.4552,
+   "price_usd_hr": 0.4561,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -639,18 +1062,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "EE",
    "in_stock": true,
-   "offer_count": 2,
+   "offer_count": 5,
    "stock_level": null,
-   "price_usd_hr": 0.605,
+   "price_usd_hr": 0.6017,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -659,18 +1084,42 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "ES",
    "in_stock": true,
-   "offer_count": 4,
+   "offer_count": 3,
    "stock_level": null,
-   "price_usd_hr": 0.4948,
+   "price_usd_hr": 0.4552,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
+  },
+  {
+   "vendor": "Vast.ai",
+   "gpu_model": "RTX 4090",
+   "vram_gb": 24,
+   "tier": "Marketplace on-demand (verified)",
+   "region": "FI",
+   "in_stock": true,
+   "offer_count": 2,
+   "stock_level": null,
+   "price_usd_hr": 0.5157,
+   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
+   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+   "collected_at": "2026-10-30T13:37:30Z",
+   "price_refresh": "4h",
+   "availability_refresh": "4h",
+   "vram_note": null,
+   "availability_note": null,
+   "source": "public no-auth API",
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -679,38 +1128,42 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "IE",
    "in_stock": true,
-   "offer_count": 3,
+   "offer_count": 2,
    "stock_level": null,
-   "price_usd_hr": 0.5337,
+   "price_usd_hr": 0.534,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
    "gpu_model": "RTX 4090",
    "vram_gb": 24,
    "tier": "Marketplace on-demand (verified)",
-   "region": "IN",
+   "region": "JP",
    "in_stock": true,
    "offer_count": 1,
    "stock_level": null,
-   "price_usd_hr": 0.5911,
+   "price_usd_hr": 0.4511,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -721,16 +1174,40 @@
    "in_stock": true,
    "offer_count": 1,
    "stock_level": null,
-   "price_usd_hr": 0.4056,
+   "price_usd_hr": 0.4156,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
+  },
+  {
+   "vendor": "Vast.ai",
+   "gpu_model": "RTX 4090",
+   "vram_gb": 24,
+   "tier": "Marketplace on-demand (verified)",
+   "region": "MK",
+   "in_stock": true,
+   "offer_count": 1,
+   "stock_level": null,
+   "price_usd_hr": 0.6678,
+   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
+   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+   "collected_at": "2026-10-30T13:37:30Z",
+   "price_refresh": "4h",
+   "availability_refresh": "4h",
+   "vram_note": null,
+   "availability_note": null,
+   "source": "public no-auth API",
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -744,13 +1221,15 @@
    "price_usd_hr": 0.4289,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -761,16 +1240,18 @@
    "in_stock": true,
    "offer_count": 8,
    "stock_level": null,
-   "price_usd_hr": 0.4929,
+   "price_usd_hr": 0.4919,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -784,13 +1265,15 @@
    "price_usd_hr": 0.6685,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -801,36 +1284,18 @@
    "in_stock": true,
    "offer_count": 3,
    "stock_level": null,
-   "price_usd_hr": 0.4837,
+   "price_usd_hr": 0.4689,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "Vast.ai",
-   "gpu_model": "RTX 4090",
-   "vram_gb": 24,
-   "tier": "Marketplace on-demand (verified)",
-   "region": "TH",
-   "in_stock": true,
-   "offer_count": 1,
-   "stock_level": null,
-   "price_usd_hr": 0.4009,
-   "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
-   "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": null,
-   "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -839,18 +1304,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "TW",
    "in_stock": true,
-   "offer_count": 3,
+   "offer_count": 4,
    "stock_level": null,
-   "price_usd_hr": 0.5144,
+   "price_usd_hr": 0.525,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -861,16 +1328,18 @@
    "in_stock": true,
    "offer_count": 9,
    "stock_level": null,
-   "price_usd_hr": 0.4567,
+   "price_usd_hr": 0.4822,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -881,16 +1350,18 @@
    "in_stock": true,
    "offer_count": 18,
    "stock_level": null,
-   "price_usd_hr": 0.6722,
+   "price_usd_hr": 0.6741,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -899,18 +1370,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "CN",
    "in_stock": true,
-   "offer_count": 9,
+   "offer_count": 10,
    "stock_level": null,
    "price_usd_hr": 0.6704,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "Vast.ai",
@@ -919,18 +1392,20 @@
    "tier": "Marketplace on-demand (verified)",
    "region": "US",
    "in_stock": true,
-   "offer_count": 9,
+   "offer_count": 8,
    "stock_level": null,
-   "price_usd_hr": 0.8019,
+   "price_usd_hr": 0.8023,
    "price_basis": "median per-GPU dph_total, same snapshot as offer_count",
    "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-   "collected_at": "2026-10-30T13:27:25Z",
+   "collected_at": "2026-10-30T13:37:30Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:30Z",
+   "availability_expires_at": "2026-10-30T21:37:30Z"
   },
   {
    "vendor": "RunPod",
@@ -944,13 +1419,15 @@
    "price_usd_hr": 1.79,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-   "collected_at": "2026-10-30T13:27:27Z",
+   "collected_at": "2026-10-30T13:37:32Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:32Z",
+   "availability_expires_at": "2026-10-30T21:37:32Z"
   },
   {
    "vendor": "RunPod",
@@ -964,13 +1441,15 @@
    "price_usd_hr": 1.79,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-   "collected_at": "2026-10-30T13:27:27Z",
+   "collected_at": "2026-10-30T13:37:32Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:32Z",
+   "availability_expires_at": "2026-10-30T21:37:32Z"
   },
   {
    "vendor": "RunPod",
@@ -978,19 +1457,21 @@
    "vram_gb": 24,
    "tier": "On-demand (Secure Cloud)",
    "region": "all",
-   "in_stock": null,
+   "in_stock": true,
    "offer_count": null,
-   "stock_level": null,
-   "price_usd_hr": null,
-   "price_basis": null,
+   "stock_level": "Low",
+   "price_usd_hr": 0.89,
+   "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-   "collected_at": "2026-10-30T13:27:27Z",
+   "collected_at": "2026-10-30T13:37:32Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
-   "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
+   "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:32Z",
+   "availability_expires_at": "2026-10-30T21:37:32Z"
   },
   {
    "vendor": "RunPod",
@@ -1004,13 +1485,15 @@
    "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-   "collected_at": "2026-10-30T13:27:27Z",
+   "collected_at": "2026-10-30T13:37:32Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:32Z",
+   "availability_expires_at": "2026-10-30T21:37:32Z"
   },
   {
    "vendor": "RunPod",
@@ -1024,13 +1507,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-   "collected_at": "2026-10-30T13:27:27Z",
+   "collected_at": "2026-10-30T13:37:32Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1044,13 +1529,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-   "collected_at": "2026-10-30T13:27:29Z",
+   "collected_at": "2026-10-30T13:37:35Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1064,13 +1551,15 @@
    "price_usd_hr": 1.39,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-   "collected_at": "2026-10-30T13:27:29Z",
+   "collected_at": "2026-10-30T13:37:35Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:35Z",
+   "availability_expires_at": "2026-10-30T21:37:35Z"
   },
   {
    "vendor": "RunPod",
@@ -1084,13 +1573,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-   "collected_at": "2026-10-30T13:27:29Z",
+   "collected_at": "2026-10-30T13:37:35Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1104,13 +1595,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-   "collected_at": "2026-10-30T13:27:29Z",
+   "collected_at": "2026-10-30T13:37:35Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1124,13 +1617,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
-   "collected_at": "2026-10-30T13:27:29Z",
+   "collected_at": "2026-10-30T13:37:35Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1144,13 +1639,37 @@
    "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:AP-IN-1)",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:37Z",
+   "availability_expires_at": "2026-10-30T21:37:37Z"
+  },
+  {
+   "vendor": "RunPod",
+   "gpu_model": "H100 SXM",
+   "vram_gb": 80,
+   "tier": "On-demand (Secure Cloud)",
+   "region": "AP-IN-2 (India)",
+   "in_stock": true,
+   "offer_count": null,
+   "stock_level": "Low",
+   "price_usd_hr": 3.99,
+   "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
+   "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:AP-IN-2)",
+   "collected_at": "2026-10-30T13:37:38Z",
+   "price_refresh": "4h",
+   "availability_refresh": "4h",
+   "vram_note": null,
+   "availability_note": null,
+   "source": "public no-auth API",
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:38Z",
+   "availability_expires_at": "2026-10-30T21:37:38Z"
   },
   {
    "vendor": "RunPod",
@@ -1164,13 +1683,15 @@
    "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:AP-JP-1)",
-   "collected_at": "2026-10-30T13:27:34Z",
+   "collected_at": "2026-10-30T13:37:40Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:40Z",
+   "availability_expires_at": "2026-10-30T21:37:40Z"
   },
   {
    "vendor": "RunPod",
@@ -1184,13 +1705,15 @@
    "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:CA-MTL-1)",
-   "collected_at": "2026-10-30T13:27:35Z",
+   "collected_at": "2026-10-30T13:37:40Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:40Z",
+   "availability_expires_at": "2026-10-30T21:37:40Z"
   },
   {
    "vendor": "RunPod",
@@ -1204,33 +1727,37 @@
    "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:EU-FR-1)",
-   "collected_at": "2026-10-30T13:27:40Z",
+   "collected_at": "2026-10-30T13:37:59Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:59Z",
+   "availability_expires_at": "2026-10-30T21:37:59Z"
   },
   {
    "vendor": "RunPod",
-   "gpu_model": "RTX 4090",
-   "vram_gb": 24,
+   "gpu_model": "H100 SXM",
+   "vram_gb": 80,
    "tier": "On-demand (Secure Cloud)",
-   "region": "EUR-IS-2 (Europe)",
+   "region": "US-CA-2 (United States)",
    "in_stock": true,
    "offer_count": null,
    "stock_level": "Low",
-   "price_usd_hr": 0.89,
+   "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
-   "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:EUR-IS-2)",
-   "collected_at": "2026-10-30T13:27:45Z",
+   "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:US-CA-2)",
+   "collected_at": "2026-10-30T13:38:57Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:38:57Z",
+   "availability_expires_at": "2026-10-30T21:38:57Z"
   },
   {
    "vendor": "RunPod",
@@ -1244,33 +1771,15 @@
    "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:US-GA-2)",
-   "collected_at": "2026-10-30T13:27:56Z",
+   "collected_at": "2026-10-30T13:39:01Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "RunPod",
-   "gpu_model": "A100 SXM",
-   "vram_gb": 80,
-   "tier": "On-demand (Secure Cloud)",
-   "region": "US-KS-2 (United States)",
-   "in_stock": true,
-   "offer_count": null,
-   "stock_level": "Low",
-   "price_usd_hr": 1.79,
-   "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
-   "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:US-KS-2)",
-   "collected_at": "2026-10-30T13:27:58Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": null,
-   "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:39:01Z",
+   "availability_expires_at": "2026-10-30T21:39:01Z"
   },
   {
    "vendor": "RunPod",
@@ -1284,33 +1793,37 @@
    "price_usd_hr": 1.79,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:US-MD-1)",
-   "collected_at": "2026-10-30T13:28:00Z",
+   "collected_at": "2026-10-30T13:39:18Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:39:18Z",
+   "availability_expires_at": "2026-10-30T21:39:18Z"
   },
   {
    "vendor": "RunPod",
-   "gpu_model": "A100 PCIe",
+   "gpu_model": "H100 SXM",
    "vram_gb": 80,
    "tier": "On-demand (Secure Cloud)",
    "region": "US-MO-1 (United States)",
    "in_stock": true,
    "offer_count": null,
    "stock_level": "Low",
-   "price_usd_hr": 1.79,
+   "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:US-MO-1)",
-   "collected_at": "2026-10-30T13:28:00Z",
+   "collected_at": "2026-10-30T13:39:25Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:39:25Z",
+   "availability_expires_at": "2026-10-30T21:39:25Z"
   },
   {
    "vendor": "RunPod",
@@ -1324,13 +1837,15 @@
    "price_usd_hr": 3.99,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:US-NE-1)",
-   "collected_at": "2026-10-30T13:28:04Z",
+   "collected_at": "2026-10-30T13:39:35Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:39:35Z",
+   "availability_expires_at": "2026-10-30T21:39:35Z"
   },
   {
    "vendor": "RunPod",
@@ -1344,33 +1859,15 @@
    "price_usd_hr": 1.79,
    "price_basis": "lowestPrice.uninterruptablePrice, 1 GPU, this data center",
    "source_url": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true, dataCenterId:US-WA-1)",
-   "collected_at": "2026-10-30T13:28:12Z",
+   "collected_at": "2026-10-30T13:39:50Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "RunPod",
-   "gpu_model": "H100 SXM",
-   "vram_gb": 80,
-   "tier": "Data center (cloud type not stated by API)",
-   "region": "AP-IN-2 (India)",
-   "in_stock": true,
-   "offer_count": null,
-   "stock_level": "Low",
-   "price_usd_hr": null,
-   "price_basis": null,
-   "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": null,
-   "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:39:50Z",
+   "availability_expires_at": "2026-10-30T21:39:50Z"
   },
   {
    "vendor": "RunPod",
@@ -1384,13 +1881,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1404,13 +1903,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1424,13 +1925,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1438,19 +1941,21 @@
    "vram_gb": 24,
    "tier": "Data center (cloud type not stated by API)",
    "region": "EU-RO-1 (Europe)",
-   "in_stock": null,
+   "in_stock": true,
    "offer_count": null,
-   "stock_level": null,
+   "stock_level": "Low",
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
-   "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
+   "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:37Z",
+   "availability_expires_at": "2026-10-30T21:37:37Z"
   },
   {
    "vendor": "RunPod",
@@ -1464,13 +1969,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1484,13 +1991,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1504,13 +2013,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1524,13 +2035,37 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
+  },
+  {
+   "vendor": "RunPod",
+   "gpu_model": "RTX 4090",
+   "vram_gb": 24,
+   "tier": "Data center (cloud type not stated by API)",
+   "region": "EUR-IS-2 (Europe)",
+   "in_stock": null,
+   "offer_count": null,
+   "stock_level": null,
+   "price_usd_hr": null,
+   "price_basis": null,
+   "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
+   "collected_at": "2026-10-30T13:37:37Z",
+   "price_refresh": "4h",
+   "availability_refresh": "4h",
+   "vram_note": null,
+   "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
+   "source": "public no-auth API",
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1538,19 +2073,21 @@
    "vram_gb": 80,
    "tier": "Data center (cloud type not stated by API)",
    "region": "EUR-IS-3 (Europe)",
-   "in_stock": null,
+   "in_stock": true,
    "offer_count": null,
-   "stock_level": null,
+   "stock_level": "Low",
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
-   "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
+   "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:37Z",
+   "availability_expires_at": "2026-10-30T21:37:37Z"
   },
   {
    "vendor": "RunPod",
@@ -1564,13 +2101,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1584,33 +2123,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "RunPod",
-   "gpu_model": "H100 SXM",
-   "vram_gb": 80,
-   "tier": "Data center (cloud type not stated by API)",
-   "region": "US-CA-2 (United States)",
-   "in_stock": null,
-   "offer_count": null,
-   "stock_level": null,
-   "price_usd_hr": null,
-   "price_basis": null,
-   "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
-   "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1624,13 +2145,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1644,13 +2167,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1658,19 +2183,21 @@
    "vram_gb": 24,
    "tier": "Data center (cloud type not stated by API)",
    "region": "US-IL-1 (United States)",
-   "in_stock": null,
+   "in_stock": true,
    "offer_count": null,
-   "stock_level": null,
+   "stock_level": "Low",
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
-   "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
+   "availability_note": null,
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:37Z",
+   "availability_expires_at": "2026-10-30T21:37:37Z"
   },
   {
    "vendor": "RunPod",
@@ -1684,17 +2211,19 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
-   "gpu_model": "A100 PCIe",
+   "gpu_model": "A100 SXM",
    "vram_gb": 80,
    "tier": "Data center (cloud type not stated by API)",
    "region": "US-KS-2 (United States)",
@@ -1704,13 +2233,37 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
+  },
+  {
+   "vendor": "RunPod",
+   "gpu_model": "A100 PCIe",
+   "vram_gb": 80,
+   "tier": "Data center (cloud type not stated by API)",
+   "region": "US-KS-2 (United States)",
+   "in_stock": true,
+   "offer_count": null,
+   "stock_level": "Low",
+   "price_usd_hr": null,
+   "price_basis": null,
+   "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
+   "collected_at": "2026-10-30T13:37:37Z",
+   "price_refresh": "4h",
+   "availability_refresh": "4h",
+   "vram_note": null,
+   "availability_note": null,
+   "source": "public no-auth API",
+   "observation": null,
+   "checked_at": "2026-10-30T13:37:37Z",
+   "availability_expires_at": "2026-10-30T21:37:37Z"
   },
   {
    "vendor": "RunPod",
@@ -1724,33 +2277,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
-  },
-  {
-   "vendor": "RunPod",
-   "gpu_model": "H100 SXM",
-   "vram_gb": 80,
-   "tier": "Data center (cloud type not stated by API)",
-   "region": "US-MO-1 (United States)",
-   "in_stock": null,
-   "offer_count": null,
-   "stock_level": null,
-   "price_usd_hr": null,
-   "price_basis": null,
-   "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
-   "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1764,13 +2299,37 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
+  },
+  {
+   "vendor": "RunPod",
+   "gpu_model": "A100 PCIe",
+   "vram_gb": 80,
+   "tier": "Data center (cloud type not stated by API)",
+   "region": "US-MO-1 (United States)",
+   "in_stock": null,
+   "offer_count": null,
+   "stock_level": null,
+   "price_usd_hr": null,
+   "price_basis": null,
+   "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
+   "collected_at": "2026-10-30T13:37:37Z",
+   "price_refresh": "4h",
+   "availability_refresh": "4h",
+   "vram_note": null,
+   "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
+   "source": "public no-auth API",
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1784,13 +2343,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "RunPod",
@@ -1804,13 +2365,15 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.runpod.io/graphql dataCenters.gpuAvailability",
-   "collected_at": "2026-10-30T13:27:32Z",
+   "collected_at": "2026-10-30T13:37:37Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "unknown: RunPod's public API returned no stock status for this GPU in this data center at check time",
    "source": "public no-auth API",
-   "observation": null
+   "observation": null,
+   "checked_at": null,
+   "availability_expires_at": null
   },
   {
    "vendor": "Verda",
@@ -1823,14 +2386,16 @@
    "price_usd_hr": 1.609,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "all",
    "in_stock": false,
-   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time"
+   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1843,14 +2408,16 @@
    "price_usd_hr": 1.609,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-01",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1863,14 +2430,16 @@
    "price_usd_hr": 1.609,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-02",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1883,14 +2452,16 @@
    "price_usd_hr": 1.609,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-03",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1903,14 +2474,16 @@
    "price_usd_hr": 2.248,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "all",
    "in_stock": false,
-   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time"
+   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1923,14 +2496,16 @@
    "price_usd_hr": 2.248,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-01",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1943,14 +2518,16 @@
    "price_usd_hr": 2.248,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-02",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1963,14 +2540,16 @@
    "price_usd_hr": 2.248,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-03",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -1983,14 +2562,16 @@
    "price_usd_hr": 4.793,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "all",
    "in_stock": false,
-   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time"
+   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -2003,14 +2584,16 @@
    "price_usd_hr": 4.793,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-01",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -2023,14 +2606,16 @@
    "price_usd_hr": 4.793,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-02",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -2043,14 +2628,16 @@
    "price_usd_hr": 4.793,
    "price_basis": "instance-types price_per_hour (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
-   "collected_at": "2026-10-30T13:29:02Z",
+   "collected_at": "2026-10-30T13:43:19Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-03",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:19Z",
+   "availability_expires_at": "2026-10-30T21:43:19Z"
   },
   {
    "vendor": "Verda",
@@ -2063,14 +2650,16 @@
    "price_usd_hr": 0.8045,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "all",
-   "in_stock": false,
-   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time"
+   "in_stock": true,
+   "observation": null,
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2083,14 +2672,16 @@
    "price_usd_hr": 0.8045,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-01",
-   "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "in_stock": true,
+   "observation": null,
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2103,14 +2694,16 @@
    "price_usd_hr": 0.8045,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-02",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2123,14 +2716,16 @@
    "price_usd_hr": 0.8045,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-03",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2143,14 +2738,16 @@
    "price_usd_hr": 1.124,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "all",
-   "in_stock": false,
-   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time"
+   "in_stock": true,
+   "observation": null,
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2163,14 +2760,16 @@
    "price_usd_hr": 1.124,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-01",
-   "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "in_stock": true,
+   "observation": null,
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2183,14 +2782,16 @@
    "price_usd_hr": 1.124,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-02",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2203,14 +2804,16 @@
    "price_usd_hr": 1.124,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-03",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2223,14 +2826,16 @@
    "price_usd_hr": 2.397,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "all",
    "in_stock": false,
-   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time"
+   "observation": "authenticated observation: sold out - no Verda location listed this type as available at check time",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2243,14 +2848,16 @@
    "price_usd_hr": 2.397,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-01",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2263,14 +2870,16 @@
    "price_usd_hr": 2.397,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-02",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Verda",
@@ -2283,14 +2892,16 @@
    "price_usd_hr": 2.397,
    "price_basis": "instance-types spot_price (1 GPU)",
    "source_url": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
    "region": "FIN-03",
    "in_stock": false,
-   "observation": "authenticated observation: not listed as available in this location"
+   "observation": "authenticated observation: not listed as available in this location",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2301,7 +2912,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2309,8 +2920,10 @@
    "observation": null,
    "region": "all",
    "in_stock": true,
-   "unrented_servers": 3,
-   "source": "public no-auth API"
+   "unrented_servers": 4,
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2321,7 +2934,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2330,7 +2943,9 @@
    "region": "RU",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2341,7 +2956,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2349,8 +2964,10 @@
    "observation": null,
    "region": "US",
    "in_stock": true,
-   "unrented_servers": 2,
-   "source": "public no-auth API"
+   "unrented_servers": 3,
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2361,7 +2978,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2370,7 +2987,9 @@
    "region": "all",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2381,7 +3000,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2390,7 +3009,9 @@
    "region": "US",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2401,7 +3022,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2409,8 +3030,10 @@
    "observation": null,
    "region": "all",
    "in_stock": true,
-   "unrented_servers": 123,
-   "source": "public no-auth API"
+   "unrented_servers": 120,
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2421,7 +3044,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2430,7 +3053,9 @@
    "region": "AR",
    "in_stock": true,
    "unrented_servers": 4,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2441,7 +3066,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2450,7 +3075,9 @@
    "region": "BA",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2461,27 +3088,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
-   "price_refresh": "4h",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": "unrented servers (one server may hold several GPUs), any currency",
-   "observation": null,
-   "region": "BR",
-   "in_stock": true,
-   "unrented_servers": 1,
-   "source": "public no-auth API"
-  },
-  {
-   "vendor": "Clore.ai",
-   "gpu_model": "RTX 4090",
-   "vram_gb": 24,
-   "tier": "Marketplace on-demand",
-   "stock_level": null,
-   "price_usd_hr": null,
-   "price_basis": null,
-   "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2490,7 +3097,9 @@
    "region": "BY",
    "in_stock": true,
    "unrented_servers": 3,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2501,7 +3110,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2510,7 +3119,9 @@
    "region": "CA",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2521,7 +3132,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2530,7 +3141,9 @@
    "region": "CN",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2541,7 +3154,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2550,7 +3163,9 @@
    "region": "DE",
    "in_stock": true,
    "unrented_servers": 4,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2561,7 +3176,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2570,7 +3185,9 @@
    "region": "EE",
    "in_stock": true,
    "unrented_servers": 2,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2581,7 +3198,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2590,7 +3207,9 @@
    "region": "FI",
    "in_stock": true,
    "unrented_servers": 5,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2601,7 +3220,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2610,7 +3229,9 @@
    "region": "FR",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2621,7 +3242,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2630,7 +3251,9 @@
    "region": "HK",
    "in_stock": true,
    "unrented_servers": 2,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2641,7 +3264,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2650,7 +3273,9 @@
    "region": "HR",
    "in_stock": true,
    "unrented_servers": 3,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2661,7 +3286,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2670,7 +3295,9 @@
    "region": "LT",
    "in_stock": true,
    "unrented_servers": 5,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2681,7 +3308,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2690,7 +3317,9 @@
    "region": "LV",
    "in_stock": true,
    "unrented_servers": 5,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2701,7 +3330,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2710,7 +3339,9 @@
    "region": "MD",
    "in_stock": true,
    "unrented_servers": 14,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2721,7 +3352,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2730,7 +3361,9 @@
    "region": "MT",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2741,7 +3374,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2750,7 +3383,9 @@
    "region": "NL",
    "in_stock": true,
    "unrented_servers": 3,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2761,7 +3396,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2770,7 +3405,9 @@
    "region": "PT",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2781,7 +3418,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2790,7 +3427,9 @@
    "region": "RU",
    "in_stock": true,
    "unrented_servers": 28,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2801,7 +3440,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2809,8 +3448,10 @@
    "observation": null,
    "region": "SE",
    "in_stock": true,
-   "unrented_servers": 2,
-   "source": "public no-auth API"
+   "unrented_servers": 1,
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2821,7 +3462,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2830,7 +3471,9 @@
    "region": "SI",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2841,7 +3484,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2850,7 +3493,9 @@
    "region": "TR",
    "in_stock": true,
    "unrented_servers": 1,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2861,7 +3506,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2869,8 +3514,10 @@
    "observation": null,
    "region": "UA",
    "in_stock": true,
-   "unrented_servers": 28,
-   "source": "public no-auth API"
+   "unrented_servers": 27,
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Clore.ai",
@@ -2881,7 +3528,7 @@
    "price_usd_hr": null,
    "price_basis": null,
    "source_url": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
-   "collected_at": "2026-10-30T13:29:03Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "4h",
    "availability_refresh": "4h",
    "vram_note": null,
@@ -2890,7 +3537,9 @@
    "region": "US",
    "in_stock": true,
    "unrented_servers": 6,
-   "source": "public no-auth API"
+   "source": "public no-auth API",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -2903,34 +3552,16 @@
    "price_usd_hr": 4.29,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "all",
-   "in_stock": true,
-   "observation": null
-  },
-  {
-   "vendor": "Lambda",
-   "source": "authenticated vendor API (not publicly reproducible)",
-   "gpu_model": "H100 SXM",
-   "vram_gb": 80,
-   "tier": "On-demand instance (1x GPU)",
-   "offer_count": null,
-   "stock_level": null,
-   "price_usd_hr": 4.29,
-   "price_basis": "price_cents_per_hour / GPUs",
-   "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
-   "price_refresh": "daily",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
-   "region": "us-southeast-1",
-   "in_stock": true,
-   "observation": null
+   "in_stock": false,
+   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -2943,34 +3574,16 @@
    "price_usd_hr": 3.29,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "all",
-   "in_stock": true,
-   "observation": null
-  },
-  {
-   "vendor": "Lambda",
-   "source": "authenticated vendor API (not publicly reproducible)",
-   "gpu_model": "H100 PCIe",
-   "vram_gb": 80,
-   "tier": "On-demand instance (1x GPU)",
-   "offer_count": null,
-   "stock_level": null,
-   "price_usd_hr": 3.29,
-   "price_basis": "price_cents_per_hour / GPUs",
-   "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
-   "price_refresh": "daily",
-   "availability_refresh": "4h",
-   "vram_note": null,
-   "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
-   "region": "us-west-3",
-   "in_stock": true,
-   "observation": null
+   "in_stock": false,
+   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -2983,14 +3596,16 @@
    "price_usd_hr": 1.99,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "all",
    "in_stock": true,
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -3003,14 +3618,16 @@
    "price_usd_hr": 1.99,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "asia-south-1",
    "in_stock": true,
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -3023,14 +3640,16 @@
    "price_usd_hr": 1.99,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "us-east-1",
    "in_stock": true,
-   "observation": null
+   "observation": null,
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -3043,14 +3662,16 @@
    "price_usd_hr": 1.99,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "all",
    "in_stock": false,
-   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time"
+   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -3063,14 +3684,16 @@
    "price_usd_hr": 3.99,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "all",
    "in_stock": false,
-   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time"
+   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   },
   {
    "vendor": "Lambda",
@@ -3083,14 +3706,16 @@
    "price_usd_hr": 2.79,
    "price_basis": "price_cents_per_hour / GPUs",
    "source_url": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-   "collected_at": "2026-10-30T13:29:04Z",
+   "collected_at": "2026-10-30T13:43:20Z",
    "price_refresh": "daily",
    "availability_refresh": "4h",
    "vram_note": null,
    "availability_note": "offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
    "region": "all",
    "in_stock": false,
-   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time"
+   "observation": "authenticated observation: sold out - regions_with_capacity_available empty at check time",
+   "checked_at": "2026-10-30T13:43:20Z",
+   "availability_expires_at": "2026-10-30T21:43:20Z"
   }
  ]
 }
