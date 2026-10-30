@@ -323,20 +323,36 @@ def _(f, ev):
 @case("T41-13")
 def _(f, ev):
     held = FEED.get("held_stale") or []
-    # record-scoped holds (one tier of a vendor/gpu, e.g. a dropped term rate) key on tier; vendor holds on vendor/gpu
-    def k(h, rec):
-        return (h["vendor"], rec["gpu"], rec.get("tier")) if h.get("scope") == "record" else (h["vendor"], rec["gpu"])
-    keys = {k(h, rec) for h in held for rec in h["records"]}
+    # record-scoped holds key on normalised tier text ('3-month' == '3-month commitment'); vendor holds on vendor/gpu.
+    # re30 d: a ranked row with the same vendor, GPU and price as any held row also fails (a hold leaking via a relabel).
+    import re as _re
+    STOP = {"commitment", "instance", "instances", "term", "plan", "price", "rate", "1x", "gpu"}
+    def nt(t):
+        return frozenset(x for x in _re.findall(r"[a-z0-9]+", str(t or "").lower().replace("months", "month").replace("mo ", "month ")) if x not in STOP)
+    def same_tier(a, b):
+        x, y = nt(a), nt(b)
+        return bool(x) and bool(y) and (x <= y or y <= x)
+    def held_hit(r):
+        for h in held:
+            for rec in h["records"]:
+                if h["vendor"] != r["advertiser"] or rec["gpu"] != r["gpu"]:
+                    continue
+                if h.get("scope") != "record" or same_tier(rec.get("tier"), r.get("tier")):
+                    return "held_stale vendor/gpu is ranked"
+                hp = rec.get("hourly_usd", rec.get("price_usd"))
+                if isinstance(hp, (int, float)) and abs(hp - (r.get("hourly_equiv_usd") or -1)) < 1e-9:
+                    return f"same vendor/gpu/price ${hp:g} as held row ({rec.get('tier')})"
+        return None
     for r in RATES:
-        if (r["advertiser"], r["gpu"]) in keys or (r["advertiser"], r["gpu"], r.get("tier")) in keys:
-            f.append(f"{rid(r)}: held_stale vendor/gpu is ranked")
+        why = held_hit(r)
+        if why: f.append(f"{rid(r)}: {why}")
     for h in held:
         if not h.get("reason"): f.append(f"{h['vendor']}: held without reason")
         for rec in h["records"]:
             try:
                 out = tool(SRV.compare_gpu_prices, rec["gpu"], limit=25)
-                hits = [x for x in out.get("results") or [] if x["advertiser"] == h["vendor"]
-                        and (h.get("scope") != "record" or x.get("tier") == rec.get("tier"))]
+                hits = [x for x in out.get("results") or [] if x["advertiser"] == h["vendor"] and x.get("gpu") == rec["gpu"]
+                        and (h.get("scope") != "record" or same_tier(x.get("tier"), rec.get("tier")))]
                 if hits: f.append(f"compare {rec['gpu']} returns held {h['vendor']}")
             except Exception:
                 pass

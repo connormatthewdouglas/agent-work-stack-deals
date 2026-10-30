@@ -34,8 +34,8 @@ def _num(name, v, positive=True):
 
 
 def _tokens(s: str) -> set:
-    import re
-    return set(re.findall(r"[a-z0-9]+", (s or "").lower()))
+    from .gpu_names import tokens
+    return set(tokens(s))
 
 
 from .stack import MAX_GPU_HOURS_MONTH as MAX_JOB_HOURS  # Gauge re27: one hours cap everywhere
@@ -178,9 +178,18 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
         if cheaper:
             c = min(cheaper, key=lambda r: r["monthly_cost_usd"])
             oos_msg = (f" Cheaper but {oos_note(c)}: {c.get('advertiser')} {c.get('gpu')} at ${c['monthly_cost_usd']:,.2f}; not picked.")
+    region_note, best_ok = "", True
+    if cons.get("region"):  # re30 c
+        n_un = sum(1 for r in priced if _unres(r))
+        n_ok = len(priced) - n_un
+        best_ok = not _unres(priced[0])
+        region_note = (f"Region {cons['region']}: {n_ok} rate(s) confirmed in {cons['region']}; {n_un} publish no region "
+                       f"(unresolved, not eligible); {other_region} only other regions."
+                       + (" Zero confirmed is not zero supply: most providers do not publish regions; check unresolved rows on the vendor page."
+                          if n_ok == 0 and n_un else "") + " ")
     return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4), "count": len(out_rows),
             "results": out_rows, "label": LABEL,
-            "summary": (f"Cheapest among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
+            "summary": region_note + (f"Cheapest{'' if best_ok else ' regardless of region'} among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
                         f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}." + oos_msg
                         + (f" {len(stale)} rate(s) older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale else "")),
             "assumptions": assumptions, "citations": [source["url"]] if source else [],

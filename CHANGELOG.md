@@ -4,6 +4,13 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.48 (2026-10-30)
+
+- re30 (a): region labels are normalised to country + zone, keeping the original label (`available_regions_normalized`). `region="US"` now matches 'US-MD-1 (United States)' and 'us-east-1'; `region="us-ne-1"` matches 'US-NE-1 (United States)'. Groups: EU, NA, APAC.
+- re30 (b): 'SXM4'/'SXM5' fold to 'SXM' and 'PCIe4'/'PCIe5' to 'PCIe' in compare, estimate, eligibility and watches; an unknown GPU form is not_found when creating a watch, as in compare.
+- re30 (c): with a region, the summary starts with "Region US: N confirmed; M publish no region (unresolved, not eligible); K only other regions", and says "cheapest regardless of region" unless the leading row is confirmed. Zero confirmed is never presented as no supply.
+- re30 (d): release gate T41-13 matches record holds on normalised tier text and fails on a ranked row with the same vendor, GPU and price as a held row.
+
 ## 0.3.47 (2026-10-30)
 
 - T47: one eligibility contract (`core.eligibility`) for compare_gpu_prices, estimate_job_cost, price-watch alerts and the calculator. GPU words, memory size (`A100 80GB` never matches a 40GB row), tier (`spot` alias), region, price age and stock are checked the same way everywhere; `constraints.eligible_rate_ids` is the shared set.

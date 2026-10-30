@@ -195,6 +195,20 @@ def normalize_watch(gpu, max_hourly_usd, region=None, kinds=None, vram_gb=None, 
             "vram_gb": c.get("vram_gb"), "tiers": c.get("tiers"), "in_stock": c["in_stock"]}
 
 
+def check_known_gpu(prices_doc: dict, spec: dict) -> None:
+    """re30 b: a GPU form no tracked rate has (after SXM4->SXM, PCIe5->PCIe folding) is not_found, as in compare."""
+    c = EL.normalize(gpu=spec["gpu"], vram_gb=spec.get("vram_gb"))
+    rates = (prices_doc or {}).get("rates") or []
+    if not rates:
+        return
+    for r in rates:
+        if set(c["gpu"]) <= set(EL._tokens(r.get("gpu"))) and ("vram_gb" not in c or r.get("vram_gb") == c["vram_gb"]):
+            return
+    models = sorted({f"{r.get('gpu')} {r.get('vram_gb')}GB" if r.get("vram_gb") else str(r.get("gpu")) for r in rates})
+    raise WatchError("not_found", f"No tracked price for GPU '{spec['gpu']}'" + (f" with {c['vram_gb']}GB" if "vram_gb" in c else "")
+                     + f". Tracked models: {', '.join(models)}")
+
+
 def constraints(spec: dict) -> dict:
     """The eligibility constraints of a stored watch (older watches: gpu/region only; reserved never matches)."""
     tiers = spec.get("tiers")

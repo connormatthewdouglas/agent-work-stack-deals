@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.47"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.48"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -410,7 +410,8 @@ RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", 
 
 
 def _tokens(s: str) -> list[str]:
-    return [t for t in "".join(c if c.isalnum() else " " for c in (s or "").lower()).split() if t]
+    from .gpu_names import tokens
+    return tokens(s)
 
 
 def gpu_models(data: dict) -> list[str]:
@@ -575,9 +576,17 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     elif out_of_stock(c):
         oos_msg = f" Note: this row was {oos_note(c)}; no in-stock or unknown-availability row matched."
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
+    region_note = ""
+    if cons.get("region"):  # re30 c: say what the region filter found before naming any cheapest
+        n_un = sum(1 for r in rows if unresolved(r))
+        n_ok = len(rows) - n_un
+        region_note = (f"Region {cons['region']}: {n_ok} rate(s) confirmed in {cons['region']}; {n_un} publish no region "
+                       f"(unresolved, not eligible); {excluded_region} only other regions."
+                       + (" Zero confirmed is not zero supply: most providers do not publish regions; check unresolved rows on the vendor page."
+                          if n_ok == 0 and n_un else "") + " ")
     return {
         "gpu": gpu,
-        "summary": (f"Cheapest{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
+        "summary": region_note + (f"Cheapest{' regardless of region' if region_note and not elig[id(rows[0])]['eligible'] else ''}{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
                     + (f" {c['vram_gb']}GB" if c.get("vram_gb") and f"{c['vram_gb']}GB" not in (c.get("gpu") or "") else "")
                     + f" at ${c['hourly_usd']:g}/hr ({c['tier']}" + (", interruptible" if c.get("interruptible") else "")
                     + f", {stock_phrase(c.get('availability'))}; price checked {(c['checked_at'] or '')[:10]})"

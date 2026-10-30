@@ -132,7 +132,7 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     By default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices
     ('stale price (N days old)'); if every rate is stale, results is empty and the summary says no current cheapest.
     max_data_age_hours (optional) replaces the 168 h default and drops older rates; excluded_too_old counts them.
-    region (optional, e.g. 'US'): rates whose unexpired published regions exclude it are dropped; rates with no region
+    region (optional): a country/area code ('US', 'EU') matches every published zone in it; a zone code ('US-NE-1', 'us-east-1') matches exactly, any case. Rates whose unexpired published regions exclude it are dropped; rates with no region
     evidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,
     unknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price
     watches use. Unknown stock is not confirmed availability.

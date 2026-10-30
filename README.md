@@ -10,7 +10,7 @@
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.47, read-only, stdio)
+## MCP server (v0.3.48, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -71,6 +71,8 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 `compare_gpu_prices`, `estimate_job_cost`, hosted price watches and the calculator share one contract (`core/eligibility.py`). Each result carries `eligibility {eligible, applied, unmet, unknown}`.
 
 - `gpu="A100 80GB"` (or `vram_gb=80`) never matches a 40GB row; `tiers=["on-demand"]` never matches spot.
+- `region="US"` (country/area: US, CA, EU, APAC, ...) matches every zone in it: 'US-MD-1 (United States)', 'us-east-1'. A zone (`region="us-ne-1"`) matches exactly, any case, ignoring the '(...)' suffix. Published rows carry `available_regions_normalized` ({label, zone, country, group}) beside the original labels. The summary starts with what the region filter found, and names a cheapest "regardless of region" when no confirmed row leads.
+- GPU names fold form-factor generations: 'A100 SXM4' = 'A100 SXM', 'H100 PCIe5' = 'H100 PCIe'. A form no tracked rate has is not_found in compare, estimate and watches.
 - `region="US"` drops rows whose unexpired published regions exclude it. Rows with no region evidence are kept, marked unresolved and ranked last; a watch never alerts on them.
 - Unknown stock is not confirmed availability. A row confirmed sold out never alerts.
 

@@ -177,6 +177,7 @@ async def call(name, args, env, bearer, feeds, fetch_fn=None):
             if have and have["n"] >= W.MAX_WATCHES_PER_KEY:
                 raise W.WatchError("rate_limited", f"at most {W.MAX_WATCHES_PER_KEY} watches per key")
             prices, history, latest = await feeds()
+            W.check_known_gpu(prices, spec)
             wid = W.new_watch_id()
             base_seq = max([int(c.get("seq") or 0) for c in (history or {}).get("changes") or []] or [0])
             base_day = (latest or {}).get("date") or _today()

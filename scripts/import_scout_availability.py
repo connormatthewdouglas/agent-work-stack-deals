@@ -82,6 +82,9 @@ def main() -> None:
                                             "was confirmed in stock at check time")
             else:  # the overall claim stands only as long as its confirmed regions
                 row["derived_from_regions"] = True
+        if row.get("available_regions"):  # re30 a: normalised alongside Scout's original labels (Scout files untouched)
+            from core.regions import normalize as _rn
+            row["available_regions_normalized"] = [_rn(x) for x in row["available_regions"]]
         if row["in_stock"] not in (True, False, None):
             raise SystemExit(f"bad in_stock {row['in_stock']!r} for {row['vendor']} {row['gpu']}")
         if row["in_stock"] is not None and not row["availability_checked_at"]:

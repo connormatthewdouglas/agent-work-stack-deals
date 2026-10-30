@@ -163,6 +163,8 @@ def region_guard(a, now: datetime | None = None):
     out = dict(a)
     out["available_regions"] = None
     out["available_regions_detail"] = None
+    if "available_regions_normalized" in out:
+        out["available_regions_normalized"] = None
     out["regions_expired"] = True
     out["regions_note"] = f"region list expires at {et_hm(a['regions_expires_at'])} (left out once expired or expiring before the next rebuild). " + REGIONS_NOTE
     return out
@@ -256,6 +258,9 @@ def _scout(vendor: str, r: dict | None) -> dict:
     for k in ("feed_status", "derived_from_regions", "offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
         if r.get(k) is not None:
             out[k] = r[k]
+    if out.get("available_regions"):  # re30 a: {label (original), zone, country, group} per published region
+        from .regions import normalize as _rn
+        out["available_regions_normalized"] = [_rn(x) for x in out["available_regions"]]
     rx = regions_expires_at(r)
     if not rx and r.get("derived_from_regions"):  # re20 P4: a derived row (out of stock too) gets a region expiry
         rx = _plus_h(r.get("availability_checked_at"), REGION_TTL_H)

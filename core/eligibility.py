@@ -27,12 +27,16 @@ STOCK_MODES = ("exclude_sold_out", "require", "ignore")
 HARD = ("gpu", "vram_gb", "tiers", "region", "max_price_age_hours")
 
 
+from . import regions as R  # noqa: E402
+
+
 class EligibilityError(ValueError):
     pass
 
 
 def _tokens(s):
-    return [t for t in "".join(c if c.isalnum() else " " for c in (s or "").lower()).split() if t]
+    from .gpu_names import tokens
+    return tokens(s)
 
 
 def normalize(gpu=None, vram_gb=None, tiers=None, region=None, in_stock="exclude_sold_out",
@@ -64,9 +68,10 @@ def normalize(gpu=None, vram_gb=None, tiers=None, region=None, in_stock="exclude
             out.append(t2)
         c["tiers"] = sorted(set(out))
     if region:
-        r = str(region).strip().upper()
-        if not re.fullmatch(r"[A-Z0-9-]{2,12}", r):
-            raise EligibilityError("region is a code as published in availability.available_regions, e.g. 'US'")
+        from .regions import query
+        r = query(region)
+        if not re.fullmatch(r"[A-Z0-9-]{2,24}", r):
+            raise EligibilityError("region is a country/area code ('US', 'EU') or a zone code as published ('US-NE-1', 'us-east-1')")
         c["region"] = r
     if in_stock not in STOCK_MODES:
         raise EligibilityError(f"in_stock must be one of {', '.join(STOCK_MODES)}")
@@ -87,7 +92,7 @@ def facts(rate: dict, now: datetime | None = None) -> dict:
     a = rate.get("availability")
     a = stale_guard(a, now) if isinstance(a, dict) else {}
     a = a or {}
-    regs = sorted({str(x).upper() for x in (a.get("available_regions") or [])})
+    regs = sorted({str(x).strip() for x in (a.get("available_regions") or []) if str(x).strip()})
     return {"gpu": rate.get("gpu"), "vram_gb": rate.get("vram_gb"), "tier_class": tier_class(rate),
             "in_stock": a.get("in_stock") if a.get("in_stock") in (True, False) else None,
             "availability_age_hours": age_hours(a.get("checked_at"), now) if a.get("checked_at") else None,
@@ -121,7 +126,7 @@ def check(f: dict, c: dict) -> dict:
         applied.append("region")
         if not f.get("regions"):
             unk("region", f"no unexpired region evidence; {c['region']} unresolved")
-        elif c["region"] not in f["regions"]:
+        elif not R.any_match(c["region"], f["regions"]):
             bad("region", f"{c['region']} not among published regions {', '.join(f['regions'])}")
     if "max_price_age_hours" in c:
         applied.append("max_price_age_hours")

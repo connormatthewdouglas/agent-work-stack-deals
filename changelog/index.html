@@ -128,6 +128,13 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.48 (2026-10-30)</h2>
+<ul>
+<li>re30 (a): region labels are normalised to country + zone, keeping the original label (<code>available_regions_normalized</code>). <code>region=&quot;US&quot;</code> now matches &#x27;US-MD-1 (United States)&#x27; and &#x27;us-east-1&#x27;; <code>region=&quot;us-ne-1&quot;</code> matches &#x27;US-NE-1 (United States)&#x27;. Groups: EU, NA, APAC.</li>
+<li>re30 (b): &#x27;SXM4&#x27;/&#x27;SXM5&#x27; fold to &#x27;SXM&#x27; and &#x27;PCIe4&#x27;/&#x27;PCIe5&#x27; to &#x27;PCIe&#x27; in compare, estimate, eligibility and watches; an unknown GPU form is not_found when creating a watch, as in compare.</li>
+<li>re30 (c): with a region, the summary starts with &quot;Region US: N confirmed; M publish no region (unresolved, not eligible); K only other regions&quot;, and says &quot;cheapest regardless of region&quot; unless the leading row is confirmed. Zero confirmed is never presented as no supply.</li>
+<li>re30 (d): release gate T41-13 matches record holds on normalised tier text and fails on a ranked row with the same vendor, GPU and price as a held row.</li>
+</ul>
 <h2>0.3.47 (2026-10-30)</h2>
 <ul>
 <li>T47: one eligibility contract (<code>core.eligibility</code>) for compare_gpu_prices, estimate_job_cost, price-watch alerts and the calculator. GPU words, memory size (<code>A100 80GB</code> never matches a 40GB row), tier (<code>spot</code> alias), region, price age and stock are checked the same way everywhere; <code>constraints.eligible_rate_ids</code> is the shared set.</li>
