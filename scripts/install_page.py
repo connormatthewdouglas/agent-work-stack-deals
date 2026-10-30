@@ -162,7 +162,7 @@ def write(g) -> str:
 
   <h2 id="generic">Any MCP client (generic)</h2>
   <p>Command <code>uvx</code>, args <code>["lantern-works-deals-mcp"]</code>, transport stdio. pipx: <code>pipx run lantern-works-deals-mcp</code>. Docker: build the repo's <code>Dockerfile</code> and run <code>docker run -i --rm &lt;image&gt;</code>. Optional env: <code>LANTERN_DEALS_FILE</code>, <code>LANTERN_GPU_PRICES_FILE</code> (offline JSON).</p>
-  <p>The server only fetches the two public JSON files below and sends <code>User-Agent: lantern-works-deals-mcp/&lt;version&gt;</code>, nothing that identifies you.</p>
+  <p>The server only fetches the two public JSON files below and sends <code>User-Agent: lantern-works-deals-mcp/&lt;version&gt; (pypi-client)</code>, nothing that identifies you.</p>
 
   <h2>Demo: cheapest H100 for 100 hours</h2>
   <p>A ~30-second terminal recording with live data from 2026-10-28. It starts <code>uvx lantern-works-deals-mcp</code>, calls <code>compare_gpu_prices</code> for H100, then compares the 100-hour total of the cheapest tracked rate with the next one and with the most expensive one. Each rate shows its source and check time, and referral links are labeled. Prices change; tracked providers only.</p>

@@ -26,7 +26,7 @@ for k, rel in _LOCAL_FILES.items():
     if LOCAL:  # MCP tools read the built files instead of the public URLs
         os.environ[k] = str(REPO / rel)
 sys.path.insert(0, str(REPO))
-UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36 LanternWorks-Gauge-T41"
+UA = "lantern-works-ci/1 (T41 release gate; ref=t41)"  # T51: house traffic is tagged, never counted as outside use
 BASE = "https://thelanternworks.com"
 
 

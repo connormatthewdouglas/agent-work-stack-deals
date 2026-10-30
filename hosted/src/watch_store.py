@@ -123,6 +123,18 @@ async def _auth(db, args, bearer):
     return key_id
 
 
+async def bump_pricing(env, args, bearer):
+    """T51: weekly per-key activity for pricing tools too. A bad or missing key never fails the pricing call."""
+    try:
+        key = args.get("api_key") or bearer
+        key_id = W.parse_key(key)
+        row = await _first(env.WATCH_DB, "SELECT key_hash, disabled FROM watch_keys WHERE key_id = ?", key_id)
+        if row and not row["disabled"] and W.check_key(key, row["key_hash"]):
+            await _bump(env.WATCH_DB, key_id, "pricing_calls")
+    except Exception:
+        pass
+
+
 async def call(name, args, env, bearer, feeds, fetch_fn=None):
     """Run one hosted watch tool. feeds: async () -> (prices_doc, history_doc, latest_doc)."""
     db = env.WATCH_DB
@@ -283,7 +295,7 @@ STATS_RETENTION_DAYS = 90  # per-key daily counters are never pruned before this
 
 
 async def weekly_per_key(env, today=None) -> dict:
-    """T12: weekly (ISO week, UTC) per-key totals of tool calls and alerts, last 90 days. Keys appear only as an
+    """T12: weekly (ISO week, UTC) per-key totals of watch tool calls, pricing tool calls (pricing_calls) and alerts, last 90 days. Keys appear only as an
     HMAC label (W.stats_key_hash); no key_id, key hash, webhook URL or email is published."""
     master = getattr(env, "WATCH_SIGNING_MASTER", None)
     note = ("per opt-in watch key, ISO week (UTC), last %d days; key label = HMAC of the key id with a server secret, "
@@ -291,11 +303,11 @@ async def weekly_per_key(env, today=None) -> dict:
     if not master:
         return {"note": note, "weeks": []}
     since = (datetime.fromisoformat(today or _today()).date() - timedelta(days=STATS_RETENTION_DAYS)).isoformat()
-    rows = await _all(env.WATCH_DB, "SELECT key_id, day, metric, n FROM watch_key_counters WHERE day >= ? AND metric IN ('calls', 'alerts')", since)
+    rows = await _all(env.WATCH_DB, "SELECT key_id, day, metric, n FROM watch_key_counters WHERE day >= ? AND metric IN ('calls', 'alerts', 'pricing_calls')", since)
     agg: dict = {}
     for r in rows:
         k = (W.iso_week(r["day"]), W.stats_key_hash(master, r["key_id"]))
-        a = agg.setdefault(k, {"calls": 0, "alerts": 0})
+        a = agg.setdefault(k, {"calls": 0, "alerts": 0, "pricing_calls": 0})
         a[r["metric"]] += r["n"]
     weeks = [{"week": wk, "key": kh, **v} for (wk, kh), v in sorted(agg.items(), key=lambda kv: (kv[0][0], kv[0][1]), reverse=True)]
     return {"note": note, "since": since, "weeks": weeks}

@@ -2,6 +2,10 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+
+## 0.3.40 (2026-10-30)
+
+- T51 measurement: the installed client's own feed fetches now send a distinct User-Agent, `lantern-works-deals-mcp/<version> (pypi-client)`. The hosted worker keeps anonymous daily counters (no IP or user agent stored, kept 90+ days) in /stats.json. See docs/MEASUREMENT.md.
 ## 0.3.39
 
 - T42: the browser GPU calculator now bills whole instances using the same contract as core.gpu.estimate and the MCP. Bundled servers are rounded up to whole servers (hourly and monthly), and each row shows the requested and billed GPU counts and the number of instances. Example: CoreWeave 8x H100 for 9 GPUs x 10 h = $984.80 (16 GPUs, 2 instances). Lambda 8x H100 SXM = $638.40.

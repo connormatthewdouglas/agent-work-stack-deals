@@ -16,9 +16,9 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.39"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.40"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
-USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
+USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
 GPU_PRICES_URL = "https://thelanternworks.com/api/v1/gpu-prices.json"
 STACK_PRICING_URL = "https://thelanternworks.com/api/v1/stack-pricing.json"

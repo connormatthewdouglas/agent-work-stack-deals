@@ -128,6 +128,10 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.40 (2026-10-30)</h2>
+<ul>
+<li>T51 measurement: the installed client&#x27;s own feed fetches now send a distinct User-Agent, <code>lantern-works-deals-mcp/&lt;version&gt; (pypi-client)</code>. The hosted worker keeps anonymous daily counters (no IP or user agent stored, kept 90+ days) in /stats.json. See docs/MEASUREMENT.md.</li>
+</ul>
 <h2>0.3.39</h2>
 <ul>
 <li>T42: the browser GPU calculator now bills whole instances using the same contract as core.gpu.estimate and the MCP. Bundled servers are rounded up to whole servers (hourly and monthly), and each row shows the requested and billed GPU counts and the number of instances. Example: CoreWeave 8x H100 for 9 GPUs x 10 h = $984.80 (16 GPUs, 2 instances). Lambda 8x H100 SXM = $638.40.</li>
@@ -992,6 +996,8 @@
   let bypass=false;
   document.addEventListener("click",ev=>{
     const a=ev.target.closest&&ev.target.closest("a[href]"); if(!a||bypass) return;
+    try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
+      if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
     let id;
     if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,""); }
     else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query

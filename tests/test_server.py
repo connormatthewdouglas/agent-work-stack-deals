@@ -110,7 +110,7 @@ def test_versions_consistent_and_reported(srv):
     sj = json.loads((ROOT / "mcp_server" / "server.json").read_text())
     assert VERSION == pyver == sj["version"] == sj["packages"][0]["version"] == srv.__version__
     assert srv.mcp._mcp_server.create_initialization_options().server_version == VERSION
-    assert USER_AGENT == f"lantern-works-deals-mcp/{VERSION}"
+    assert USER_AGENT == f"lantern-works-deals-mcp/{VERSION} (pypi-client)"
     plugin = json.loads((ROOT / "plugins" / "lantern-works-deals" / ".claude-plugin" / "plugin.json").read_text())
     assert plugin["version"] == VERSION
     market = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())

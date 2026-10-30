@@ -271,6 +271,8 @@
   let bypass=false;
   document.addEventListener("click",ev=>{
     const a=ev.target.closest&&ev.target.closest("a[href]"); if(!a||bypass) return;
+    try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
+      if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
     let id;
     if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,""); }
     else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
