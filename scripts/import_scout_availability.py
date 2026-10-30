@@ -20,14 +20,15 @@ OUT = ROOT / "data" / "gpu_availability" / "latest.json"
 KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "unrented_servers",
         "stock_level", "availability_source", "availability_source_type", "availability_checked_at", "availability_note",
         "available_regions_detail", "available_regions_label",  # v2.9: per-region checked_at/expiry (1 h), confirmation
-        "feed_status", "feed_min_offers", "derived_from_regions")  # v3.2: carried through unchanged
+        "feed_status", "feed_min_offers", "derived_from_regions", "availability_expires_at")  # v3.2: carried through unchanged
 
 
-def verify_manifests(raw: bytes) -> None:
+def verify_manifests(raw: bytes) -> int:
     """Refuse a snapshot whose sha256 does not match a shipped manifest. LW_SCOUT_MANIFESTS: os.pathsep-separated paths
     (scout-data latest/manifest.json from push_scout_snapshot.sh; Scout's latest_manifest.json if ever shipped).
     "files" values are a hex string or {"sha256": ...}. Missing or empty manifest, or no entry for the feed: no check."""
     got = hashlib.sha256(raw).hexdigest()
+    n = 0
     for mp in filter(None, os.environ.get("LW_SCOUT_MANIFESTS", "").split(os.pathsep)):
         p = Path(mp)
         if not p.is_file() or not p.stat().st_size:
@@ -36,12 +37,21 @@ def verify_manifests(raw: bytes) -> None:
         want = want.get("sha256") if isinstance(want, dict) else want
         if want and want != got:
             raise SystemExit(f"sha256 mismatch for feed_enriched_v2_latest.json vs {p.name}: manifest {want[:12]}, file {got[:12]}")
+        if want:
+            n += 1
+    return n
 
 
 def main() -> None:
     raw = SRC.read_bytes()
-    verify_manifests(raw)
+    checked = verify_manifests(raw)
     d = json.loads(raw.decode("utf-8"))
+    try:
+        v = tuple(int(x) for x in str(d.get("version")).split("."))
+    except ValueError:
+        v = (0,)
+    if v >= (3, 1) and not checked:  # M2: 3.1+ must match a manifest sha256
+        raise SystemExit(f"Scout v{d.get('version')} snapshot refused: no manifest sha256 to verify it (set LW_SCOUT_MANIFESTS)")
     if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9", "3.0", "3.1", "3.2"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9, v3.0 passed; v3.1 = v3.0 + generation_id; v3.2 = + feed_status/derived_from_regions
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
     snap = max((r.get("availability_checked_at") or "" for r in d.get("rows") or []), default="")

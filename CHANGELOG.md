@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.35
+
+- Scout v3.2: feed_status (held_below_min_offers) and derived_from_regions carried through; a held row is never shown as available (status "unknown (held: below minimum offers)").
+- A stock claim expires at the earlier of checked_at + 8 h and Scout's own availability_expires_at (Scout shortens some claims, e.g. Verda); expired claims render unknown at build time and at MCP request time, keeping availability_expires_at and feed_status for reference.
+- Importer accepts Scout 3.0-3.2 and requires a matching manifest sha256 for 3.1+ (refuses otherwise).
+
 ## 0.3.34
 
 - Scout v2.9 region lists: each availability claim can carry available_regions_detail (per region: checked_at, availability_expires_at, confirmed, confirmation), available_regions_label and regions_expires_at (the earliest region expiry, 1 h after the check).

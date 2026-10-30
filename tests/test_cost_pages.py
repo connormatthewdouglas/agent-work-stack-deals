@@ -382,10 +382,10 @@ def test_re17_expires_at_on_every_stock_claim():
         for r in rows:
             a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
             if a.get("in_stock") is None:
-                assert "availability_expires_at" not in a or a.get("availability_stale") is None
-                continue
+                continue  # unknown (stale, expired or held): never available; expiry may be kept for reference
             n += 1
-            assert _parse(a["availability_expires_at"]) == _parse(a["checked_at"]) + timedelta(hours=AVAIL_MAX_AGE_H)
+            # v3.2: Scout may shorten a claim's lifetime; never longer than 8 h
+            assert _parse(a["availability_expires_at"]) <= _parse(a["checked_at"]) + timedelta(hours=AVAIL_MAX_AGE_H)
     assert n or not _fresh()
     fa = (ROOT / "for-agents/index.html").read_text()
     assert "availability_expires_at" in fa and "after that treat as unknown" in fa

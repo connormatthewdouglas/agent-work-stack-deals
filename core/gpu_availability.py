@@ -160,15 +160,24 @@ def stale_guard(a, now: datetime | None = None):
     if not isinstance(a, dict) or a.get("origin") not in ("scout", "record") or a.get("availability_stale"):
         return a
     h = age_hours(a.get("checked_at"), now)
-    if h is None or h <= AVAIL_MAX_AGE_H:
+    x = _parse(a.get("availability_expires_at"))  # v3.2: Scout may set a shorter claim lifetime than 8 h
+    if h is not None and h <= AVAIL_MAX_AGE_H and not (x and (now or now_utc()) > x):
+        return region_guard(a, now)
+    if h is None and not x:
         return region_guard(a, now)
     out = {"status": f"unknown (stale availability, last checked {et_time(a.get('checked_at'))})", "in_stock": None,
            "availability_stale": True, "checked_at": a.get("checked_at"), "max_age_hours": AVAIL_MAX_AGE_H,
            "origin": a["origin"], "note": STALE_NOTE}
-    for k in ("source", "source_label"):
+    for k in ("source", "source_label", "availability_expires_at", "feed_status"):
         if a.get(k):
             out[k] = a[k]
     return out
+
+
+def _min_expiry(r: dict) -> str | None:
+    """The earlier of checked_at + 8 h and Scout's own availability_expires_at (v3.2 shortens some claims)."""
+    ts = [t for t in (expires_at(r.get("availability_checked_at")), r.get("availability_expires_at")) if _parse(t)]
+    return min(ts, key=_parse) if ts else None
 
 
 def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None) -> dict:
@@ -178,7 +187,14 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | N
     return stale_guard(_scout(vendor, r), now)
 
 
+HELD_NOTE = "Held by Scout: fewer offers than its publish minimum, so no stock claim is shown."
+
+
 def _scout(vendor: str, r: dict | None) -> dict:
+    if r and r.get("feed_status") == "held_below_min_offers":  # v3.2: never shown as available
+        return {"status": "unknown (held: below minimum offers)", "in_stock": None, "checked_at": r.get("availability_checked_at"),
+                "note": HELD_NOTE, "feed_status": r["feed_status"], "origin": "scout",
+                "availability_expires_at": _min_expiry(r)}
     if not r or r.get("in_stock") is None:
         out = {"status": "unknown", "in_stock": None, "checked_at": (r or {}).get("availability_checked_at"),
                "note": _clean((r or {}).get("availability_note")) or UNKNOWN_NOTE}
@@ -190,8 +206,8 @@ def _scout(vendor: str, r: dict | None) -> dict:
            "in_stock": r["in_stock"], "checked_at": r.get("availability_checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)",
            "note": NOTE, "origin": "scout", "max_age_hours": AVAIL_MAX_AGE_H,
-           "availability_expires_at": expires_at(r.get("availability_checked_at"))}
-    for k in ("offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
+           "availability_expires_at": _min_expiry(r)}
+    for k in ("feed_status", "offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
         if r.get(k) is not None:
             out[k] = r[k]
     rx = regions_expires_at(r)
