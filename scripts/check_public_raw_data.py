@@ -7,13 +7,11 @@ from guard_site_raw_data import has_avail, ALLOW, RAW_DIRS
 BASE = os.environ.get("LW_SITE", "https://thelanternworks.com")
 def get(path):
     try:
-        r = urllib.request.urlopen(urllib.request.Request(f"{BASE}/{path}?cb={os.getpid()}", headers={"User-Agent": "lw-ci"}), timeout=20)
+        r = urllib.request.urlopen(urllib.request.Request(f"{BASE}/{path}?ref=ci&cb={os.getpid()}", headers={"User-Agent": "lantern-works-ci"}), timeout=20)
         return r.status, r.read()
     except urllib.error.HTTPError as e: return e.code, b""
 paths = sorted({os.path.join(r, f) for d in RAW_DIRS for r, _, fs in os.walk(d) for f in fs if f.endswith(".json")})
 paths.append("data/gpu_availability/latest.json")
-# re22 Q2: every root-level JSON in the repo that the site may serve is scanned too (deals.json, agent.json, ...)
-ROOT_JSON = sorted(f for f in os.listdir(".") if f.endswith(".json"))
 bad = []
 for p in sorted(set(paths)):
     code, body = get(p)
@@ -23,12 +21,23 @@ for p in sorted(set(paths)):
         except Exception: o = None
         if p not in ALLOW: bad.append(f"{p}: served (200)")
         elif o is not None and has_avail(o): bad.append(f"{p}: availability fields")
+# re23 Q2: every repo .json the site may serve outside api/v1 (any folder), plus every .json URL in the sitemap
+from guard_site_raw_data import served_json
+SERVED = {p for p in served_json(".") if not p.startswith(RAW_DIRS)} - set(paths)
+try:
+    sm = urllib.request.urlopen(f"{BASE}/sitemap.xml", timeout=20).read().decode()
+    import re as _re
+    SERVED |= {u.split(BASE + "/", 1)[1] for u in _re.findall(r"<loc>([^<]+\.json)</loc>", sm)
+               if u.startswith(BASE + "/") and not u.split(BASE + "/", 1)[1].startswith("api/v1/")}
+except Exception as e:
+    bad.append(f"sitemap.xml unreadable: {type(e).__name__}")
+ROOT_JSON = sorted(SERVED)
 for p in ROOT_JSON:
     code, body = get(p)
     if code != 200: continue
     try: o = json.loads(body)
     except Exception: continue
-    if has_avail(o): bad.append(f"{p}: served root JSON with in_stock/availability fields")
-print(f"sampled {len(set(paths))} raw paths + {len(ROOT_JSON)} root JSON")
+    if has_avail(o): bad.append(f"{p}: served JSON with in_stock/availability fields")
+print(f"sampled {len(set(paths))} raw paths + {len(ROOT_JSON)} other served JSON")
 if bad: print("PUBLIC_RAW_FAIL"); [print(" ", b) for b in bad]; sys.exit(1)
 print("PUBLIC_RAW_OK")

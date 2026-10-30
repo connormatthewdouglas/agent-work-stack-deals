@@ -23,6 +23,17 @@ def files(site):
         for root, _, fs in os.walk(os.path.join(site, d)):
             for f in fs: yield os.path.relpath(os.path.join(root, f), site)
 
+SKIP_TOP = ("api/v1/",)  # guarded feeds: availability fields are allowed there (they are expiry-checked)
+
+def served_json(site):
+    """re23 Q2: every .json the site serves outside api/v1 (any folder)."""
+    for root, dirs, fs in os.walk(site):
+        dirs[:] = [d for d in dirs if not d.startswith((".", "_")) and d != "node_modules"]
+        for f in fs:
+            rel = os.path.relpath(os.path.join(root, f), site).replace(os.sep, "/")
+            if f.endswith(".json") and not rel.startswith(SKIP_TOP):
+                yield rel
+
 def main():
     check = "--check" in sys.argv
     site = [a for a in sys.argv[1:] if not a.startswith("-")][0] if len(sys.argv) > 1 else "_site"
@@ -41,6 +52,10 @@ def main():
         for d in RAW_DIRS:
             for root, dirs, fs in sorted(os.walk(os.path.join(site, d)), reverse=True):
                 if not os.listdir(root): os.rmdir(root)
+    for rel in sorted(served_json(site)):  # any other served JSON must carry no stock claim / availability fields
+        try: o = json.load(open(os.path.join(site, rel)))
+        except Exception: continue
+        if has_avail(o): bad.append(rel + " (served JSON with availability fields)")
     if bad:
         print("RAW_DATA_FAIL"); [print(" ", b) for b in bad]; sys.exit(1)
     print("RAW_DATA_OK", "checked" if check else "cleaned", site)
