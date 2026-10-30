@@ -13,16 +13,20 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-10-29T17:01:10+00:00",
-  "row_count": 20,
+  "last_checked": "2026-10-30T00:08:13+00:00",
+  "row_count": 24,
   "providers": [
     "99Stack Cloud",
+    "Civo",
     "CoreWeave",
     "DigitalOcean GPU Droplets",
+    "E2E Networks",
     "Hyperstack",
+    "Jarvislabs",
     "Lambda",
     "Modal",
     "Nebius",
+    "Oblivus",
     "RunPod",
     "Thunder Compute",
     "Verda (formerly DataCrunch)"
@@ -179,7 +183,7 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:43Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "available_regions": [
           "FIN-01"
         ],
@@ -308,6 +312,31 @@
       }
     },
     {
+      "provider": "Civo",
+      "gpu": "H100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.99,
+      "unit": "hour",
+      "price_usd": 2.99,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:08:13+00:00",
+      "source_url": "https://www.civo.com/pricing",
+      "quote": "Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE $2.99 per hour",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:08:13+00:00",
+        "source": "https://www.civo.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
+      }
+    },
+    {
       "provider": "Hyperstack",
       "gpu": "H100 SXM",
       "vram_gb": 80,
@@ -380,6 +409,59 @@
       }
     },
     {
+      "provider": "Jarvislabs",
+      "gpu": "H100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 3.49,
+      "unit": "hour",
+      "price_usd": 3.49,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:05:46+00:00",
+      "source_url": "https://jarvislabs.ai/pricing",
+      "quote": "NVIDIA H100 SXM 80 GB VRAM · 16 vCPU · 200 GB RAM On-demand / hr $3.49",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:05:46+00:00",
+        "source": "https://jarvislabs.ai/pricing",
+        "note": "The public pricing page publishes no stock signal"
+      }
+    },
+    {
+      "provider": "Oblivus",
+      "gpu": "H100 PCIe",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 3.5,
+      "unit": "hour",
+      "price_usd": 3.5,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:07:02+00:00",
+      "source_url": "https://oblivus.com/pricing/",
+      "quote": "H100 80GB PCIE ... Available Stock 6 Configurations H100_PCIE_80GB_x1 1x GPU - 28 vCPU - 180GB RAM - 850GB NVMe ... On-Demand: $3.50/hr",
+      "availability": {
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-10-30T00:09:08+00:00",
+        "refresh": "manual snapshot, time shown (prices checked daily)",
+        "source": "https://oblivus.com/pricing/ ('Available Stock' count on the pricing page)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "stock_level": "3",
+        "detail": "Pricing page showed 'Available Stock 3' for this GPU type when checked"
+      }
+    },
+    {
       "provider": "Modal",
       "gpu": "H100 SXM",
       "vram_gb": 80,
@@ -402,6 +484,31 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "E2E Networks",
+      "gpu": "H100",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 3.99,
+      "unit": "hour",
+      "price_usd": 3.99,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:07:06+00:00",
+      "source_url": "https://www.e2enetworks.com/pricing",
+      "quote": "1 x GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA H100 80 26 250 $3.99",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:07:06+00:00",
+        "source": "https://www.e2enetworks.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
       }
     },
     {
@@ -451,7 +558,7 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:37Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "stock_level": "Low"
       }
     },
@@ -549,7 +656,7 @@
         "in_stock": false,
         "checked_at": "2026-10-29T15:19:43Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }

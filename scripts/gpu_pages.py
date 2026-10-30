@@ -89,16 +89,13 @@ def _verified_cell(r: dict, esc) -> str:
     return esc(f"{(r['verified_at'] or '')[:10]} (daily)")
 
 
-STOCK_EXPLAINER = ("Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; \u201cvendor-labelled\u201d means a fixed label on the vendor's page, not a capacity check; \u201c\u2014\u201d or \u201cunknown\u201d means no signal, not sold out.")
+from core.gpu_availability import STOCK_EXPLAINER  # noqa: E402  (one wording: core NOTE == page explainer)
+from core.deals import tie_label  # noqa: E402  (J3 tie rule shared with the MCP summary)
 
 
 def _tied_names(gen, rows, best) -> str:
-    """J3: same tie rule as compare_gpu_prices (core/deals.py): same GPU, tier class, stock state and hourly rate."""
-    from core.deals import out_of_stock
-    tc = lambda r: r.get("tier_class") or "on-demand"
-    names = sorted({r["advertiser"] for r in rows if r.get("gpu") == best.get("gpu") and tc(r) == tc(best)
-                    and out_of_stock(r) == out_of_stock(best) and r["hourly_equiv_usd"] == best["hourly_equiv_usd"]})
-    return gen.esc(best["advertiser"] if len(names) < 2 else " and ".join(names) + " (tie)")
+    """J3: the shared tie rule from core/deals.py (same as compare_gpu_prices)."""
+    return gen.esc(tie_label(rows, best))
 
 
 def _pick_cheapest(rs: list[dict]) -> dict:

@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.26"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.27"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION}"
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -327,6 +327,13 @@ def tier_class(r: dict) -> str:
     return "on-demand"
 
 
+def tie_label(rows, best, price_key: str = "hourly_equiv_usd") -> str:
+    """Shared tie rule (MCP summary and site pages): every advertiser with the same GPU, tier class, stock state and price."""
+    names = sorted({r["advertiser"] for r in rows if r.get("gpu") == best.get("gpu") and tier_class(r) == tier_class(best)
+                    and out_of_stock(r) == out_of_stock(best) and r[price_key] == best[price_key]})
+    return best["advertiser"] if len(names) < 2 else " and ".join(names) + " (tie)"
+
+
 def out_of_stock(r: dict) -> bool:
     """E5: True only when the feed explicitly marks the row out of stock (in_stock is False). Unknown is not out of stock."""
     a = r.get("availability")
@@ -461,15 +468,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         results.append(out)
     c = results[0]
     # I5: name every row tied with the cheapest (same price, tier class and stock state)
-    r0 = rows[0]
-    _tie = sorted({x["advertiser"] for x in rows if x["hourly_equiv_usd"] == r0["hourly_equiv_usd"] and x.get("gpu") == r0.get("gpu")
-                   and tier_class(x) == tier_class(r0) and out_of_stock(x) == out_of_stock(r0)})
-    c_who = c["advertiser"] if len(_tie) < 2 else " and ".join(_tie) + " (tie)"
-    od_who = None
-    if od is not None:
-        _ot = sorted({x["advertiser"] for x in rows if tier_class(x) == "on-demand" and not out_of_stock(x)
-                      and x["hourly_equiv_usd"] == od["hourly_equiv_usd"] and x.get("gpu") == od.get("gpu")})
-        od_who = od["advertiser"] if len(_ot) < 2 else " and ".join(_ot) + " (tie)"
+    c_who = tie_label(rows, rows[0])
+    od_who = tie_label([x for x in rows if tier_class(x) == "on-demand"], od) if od is not None else None
     oos_msg = ""
     if oos_cheaper is not None and not out_of_stock(c) and oos_cheaper["hourly_equiv_usd"] < c["hourly_usd"]:
         oos_msg = (f" Cheaper but {oos_note(oos_cheaper)}: {oos_cheaper['advertiser']} {oos_cheaper['gpu']} at "

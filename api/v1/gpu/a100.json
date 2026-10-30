@@ -13,13 +13,18 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-10-29T19:08:18+00:00",
-  "row_count": 21,
+  "last_checked": "2026-10-30T00:08:13+00:00",
+  "row_count": 29,
   "providers": [
+    "Civo",
+    "CloudRift",
     "CoreWeave",
+    "E2E Networks",
     "Hyperstack",
+    "Jarvislabs",
     "Lambda",
     "Modal",
+    "Oblivus",
     "RunPod",
     "Thunder Compute",
     "Ucartz",
@@ -30,53 +35,52 @@
     "on-demand": [
       {
         "vram_gb": 40,
-        "provider": "Verda (formerly DataCrunch)",
-        "gpu": "A100 SXM",
-        "tier": "On-demand instance (1x GPU)",
-        "tier_class": "on-demand",
-        "bucket": "on-demand",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 1.593,
-        "unit": "hour",
-        "price_usd": 1.593,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-10-29T17:01:10+00:00",
-        "source_url": "https://verda.com/pricing",
-        "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.593/h",
-        "availability": {
-          "status": "out of stock when checked",
-          "in_stock": false,
-          "checked_at": "2026-10-29T15:19:43Z",
-          "refresh": "manual snapshot, time shown (prices checked daily)",
-          "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
-          "source_label": "authenticated vendor API (not publicly reproducible)",
-          "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
-        }
-      },
-      {
-        "vram_gb": 80,
-        "provider": "Thunder Compute",
+        "provider": "Jarvislabs",
         "gpu": "A100",
         "tier": "On-demand",
         "tier_class": "on-demand",
         "bucket": "on-demand",
         "interruptible": false,
-        "hourly_usd_per_gpu": 1.09,
+        "hourly_usd_per_gpu": 0.89,
         "unit": "hour",
-        "price_usd": 1.09,
+        "price_usd": 0.89,
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-10-29T17:00:49+00:00",
-        "source_url": "https://www.thundercompute.com/pricing",
-        "quote": "A100 80GB 80 GB 8 included · 16 max 64–128 GB 100–500 GB $1.09 /hr",
+        "verified_at": "2026-10-30T00:05:46+00:00",
+        "source_url": "https://jarvislabs.ai/pricing",
+        "quote": "NVIDIA A100 40GB 40 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $0.89",
         "availability": {
           "status": "unknown",
           "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "checked_at": "2026-10-30T00:05:46+00:00",
+          "source": "https://jarvislabs.ai/pricing",
+          "note": "The public pricing page publishes no stock signal"
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "CloudRift",
+        "gpu": "A100 SXM",
+        "tier": "On-demand",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.05,
+        "unit": "hour",
+        "price_usd": 1.05,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-30T00:05:46+00:00",
+        "source_url": "https://www.cloudrift.ai/pricing",
+        "quote": "A100 SXM4 NVIDIA On‑Demand $1.05 1 mo $0.95 3 mo $0.89 80 GB VRAM 800 GB Storage Max 8 GPUs",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-10-30T00:05:46+00:00",
+          "source": "https://www.cloudrift.ai/pricing",
+          "note": "The public pricing page publishes no stock signal ('Availability varies by demand and region')"
         }
       }
     ],
@@ -103,7 +107,7 @@
           "in_stock": false,
           "checked_at": "2026-10-29T15:19:43Z",
           "refresh": "manual snapshot, time shown (prices checked daily)",
-          "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
           "source_label": "authenticated vendor API (not publicly reproducible)",
           "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
         }
@@ -211,9 +215,59 @@
         "in_stock": false,
         "checked_at": "2026-10-29T15:19:43Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+      }
+    },
+    {
+      "provider": "Jarvislabs",
+      "gpu": "A100",
+      "vram_gb": 40,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.89,
+      "unit": "hour",
+      "price_usd": 0.89,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:05:46+00:00",
+      "source_url": "https://jarvislabs.ai/pricing",
+      "quote": "NVIDIA A100 40GB 40 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $0.89",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:05:46+00:00",
+        "source": "https://jarvislabs.ai/pricing",
+        "note": "The public pricing page publishes no stock signal"
+      }
+    },
+    {
+      "provider": "CloudRift",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.05,
+      "unit": "hour",
+      "price_usd": 1.05,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:05:46+00:00",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "quote": "A100 SXM4 NVIDIA On‑Demand $1.05 1 mo $0.95 3 mo $0.89 80 GB VRAM 800 GB Storage Max 8 GPUs",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:05:46+00:00",
+        "source": "https://www.cloudrift.ai/pricing",
+        "note": "The public pricing page publishes no stock signal ('Availability varies by demand and region')"
       }
     },
     {
@@ -238,6 +292,31 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Civo",
+      "gpu": "A100",
+      "vram_gb": 40,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.09,
+      "unit": "hour",
+      "price_usd": 1.09,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:08:13+00:00",
+      "source_url": "https://www.civo.com/pricing",
+      "quote": "Small 1 x NVIDIA A100 - 40GB 56 GB 8 200GB NVMe FREE $1.09 per hour",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:08:13+00:00",
+        "source": "https://www.civo.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
       }
     },
     {
@@ -286,7 +365,7 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:43Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "available_regions": [
           "FIN-01"
         ],
@@ -316,7 +395,7 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:39Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "stock_level": "Low"
       }
     },
@@ -393,6 +472,59 @@
       }
     },
     {
+      "provider": "Oblivus",
+      "gpu": "A100 PCIe",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.47,
+      "unit": "hour",
+      "price_usd": 1.47,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:07:02+00:00",
+      "source_url": "https://oblivus.com/pricing/",
+      "quote": "A100 80GB PCIE ... Available Stock 8 Configurations A100_PCIE_80GB_x1 1x GPU - 28 vCPU - 120GB RAM - 850GB NVMe ... On-Demand: $1.47/hr",
+      "availability": {
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-10-30T00:09:08+00:00",
+        "refresh": "manual snapshot, time shown (prices checked daily)",
+        "source": "https://oblivus.com/pricing/ ('Available Stock' count on the pricing page)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "stock_level": "8",
+        "detail": "Pricing page showed 'Available Stock 8' for this GPU type when checked"
+      }
+    },
+    {
+      "provider": "Jarvislabs",
+      "gpu": "A100",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.49,
+      "unit": "hour",
+      "price_usd": 1.49,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:05:46+00:00",
+      "source_url": "https://jarvislabs.ai/pricing",
+      "quote": "NVIDIA A100 80GB 80 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $1.49",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:05:46+00:00",
+        "source": "https://jarvislabs.ai/pricing",
+        "note": "The public pricing page publishes no stock signal"
+      }
+    },
+    {
       "provider": "Verda (formerly DataCrunch)",
       "gpu": "A100 SXM",
       "vram_gb": 40,
@@ -414,7 +546,7 @@
         "in_stock": false,
         "checked_at": "2026-10-29T15:19:43Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }
@@ -465,7 +597,7 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:30Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "offer_count": 9,
         "available_regions": [
           "SE",
@@ -473,6 +605,31 @@
           "US"
         ],
         "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
+      }
+    },
+    {
+      "provider": "Civo",
+      "gpu": "A100",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.79,
+      "unit": "hour",
+      "price_usd": 1.79,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:08:13+00:00",
+      "source_url": "https://www.civo.com/pricing",
+      "quote": "Small 1 x NVIDIA A100 - 80GB 96 GB 12 200GB NVMe FREE $1.79 per hour",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:08:13+00:00",
+        "source": "https://www.civo.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
       }
     },
     {
@@ -497,7 +654,7 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:37Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "stock_level": "Low"
       }
     },
@@ -523,8 +680,33 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:37Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "stock_level": "Low"
+      }
+    },
+    {
+      "provider": "E2E Networks",
+      "gpu": "A100",
+      "vram_gb": 40,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.98,
+      "unit": "hour",
+      "price_usd": 1.98,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:07:06+00:00",
+      "source_url": "https://www.e2enetworks.com/pricing",
+      "quote": "NVIDIA A100 40 16 115 $1.98",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:07:06+00:00",
+        "source": "https://www.e2enetworks.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
       }
     },
     {
@@ -576,6 +758,31 @@
       }
     },
     {
+      "provider": "E2E Networks",
+      "gpu": "A100",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.1,
+      "unit": "hour",
+      "price_usd": 2.1,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T00:07:06+00:00",
+      "source_url": "https://www.e2enetworks.com/pricing",
+      "quote": "NVIDIA A100 80 16 115 $2.10",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:07:06+00:00",
+        "source": "https://www.e2enetworks.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
+      }
+    },
+    {
       "provider": "Ucartz",
       "gpu": "A100",
       "vram_gb": 80,
@@ -622,7 +829,7 @@
         "in_stock": true,
         "checked_at": "2026-10-29T15:19:43Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "available_regions": [
           "FIN-01"
         ],

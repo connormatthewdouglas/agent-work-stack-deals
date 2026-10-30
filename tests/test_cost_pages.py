@@ -52,7 +52,9 @@ def test_out_of_stock_ranked_last_and_excluded():
 
 def test_unlabelled_and_nvlink_variants_named_not_mixed():
     s = _page("a100", 100)
-    assert "Other variants (not compared)" in s and "Thunder Compute A100 80GB" in s and "Hyperstack A100 NVLink 80GB" in s
+    # 0.3.27: unlabelled A100 80GB now has 4+ vendors (Thunder, Jarvislabs, Civo, E2E) so it is its own compared table, never mixed with SXM/PCIe
+    sec = s.split("<h2>A100 80GB</h2>")[1].split("</table>")[0]
+    assert "Thunder Compute" in sec and "Civo" in sec and "SXM" not in sec and "Hyperstack A100 NVLink 80GB" in s
     assert "Hyperstack H100 NVLink 80GB" in _page("h100", 100)
 
 
@@ -77,9 +79,9 @@ def test_rtx4090_has_cheapest_line_with_3_plus_vendors():
 def test_h1_scoped_cheapest_and_page_lowest():
     a = _page("a100", 100)
     assert "Cheapest among tracked providers" not in a
-    assert "Cheapest A100 SXM 80GB among tracked providers: Hyperstack at $160.00" in a
-    assert ("Lowest on-demand A100 on this page (not marked out of stock): Thunder Compute A100 80GB (variant not stated) at "
-            "$10.90 / $109.00 / $795.70") in a
+    assert "Cheapest A100 SXM 80GB among tracked providers: CloudRift at $105.00" in a
+    assert ("Lowest on-demand A100 on this page (not marked out of stock): Jarvislabs A100 40GB (variant not stated) at "
+            "$8.90 / $89.00 / $649.70") in a
     for slug in ("h100", "l40s"):
         assert "on this page (not marked out of stock)" in _page(slug, 10)
     assert "CloudRift L40S 48GB at $6.30" in _page("l40s", 10)
@@ -139,3 +141,38 @@ def test_j5_explainer_not_doubled():
     import glob
     for f in glob.glob(str(ROOT / "gpu/*/index.html")):
         assert "Where a status is shown, Where" not in open(f).read()
+
+
+def test_0327_new_h100_a100_rows_live_and_sourced():
+    import json
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    want = {("Jarvislabs", "H100"), ("Civo", "H100"), ("Oblivus", "H100"), ("E2E Networks", "H100"),
+            ("Jarvislabs", "A100"), ("Civo", "A100"), ("Oblivus", "A100"), ("E2E Networks", "A100"), ("CloudRift", "A100")}
+    got = {(r["advertiser"], r["gpu"].split()[0]) for r in feed["rates"]}
+    assert want <= got
+    for r in feed["rates"]:
+        if r["advertiser"] in {"Jarvislabs", "Civo", "Oblivus", "E2E Networks"}:
+            assert r["region"] and not r["interruptible"] and r["tier_class"] == "on-demand"
+            if r["advertiser"] != "Oblivus":
+                assert r["availability"]["in_stock"] is None
+    ob = [r for r in feed["rates"] if r["advertiser"] == "Oblivus"]
+    assert ob and all(r["availability"]["in_stock"] is True and r["availability"].get("stock_level") for r in ob)
+    for slug in ("h100", "a100"):
+        s = _page(slug, 100)
+        for v in ("Jarvislabs", "Civo", "Oblivus", "E2E Networks"):
+            assert v in s
+    assert "Massed Compute" not in _page("h100", 100)
+
+
+def test_0327_old_note_cleared_and_tie_rule_shared():
+    old = "Stock changes within minutes"
+    for f in ("api/v1/gpu-prices.json", "api/v1/gpu/a100.json", "api/v1/gpu/h100.json", "api/v1/gpu/rtx-4090.json",
+              "tools/gpu-cost-calculator/index.html"):
+        assert old not in (ROOT / f).read_text(), f
+    from core import gpu_availability as ga
+    assert ga.NOTE == ga.STOCK_EXPLAINER and ga.NOTE.startswith("Where a status is shown")
+    import core.deals as d, scripts.gpu_pages as gp
+    assert gp.tie_label is d.tie_label
+    rows = [{"advertiser": "A", "gpu": "H100", "tier": "On-demand", "hourly_equiv_usd": 2.0, "availability": {}},
+            {"advertiser": "B", "gpu": "H100", "tier": "On-demand", "hourly_equiv_usd": 2.0, "availability": {}}]
+    assert d.tie_label(rows, rows[0]) == "A and B (tie)"

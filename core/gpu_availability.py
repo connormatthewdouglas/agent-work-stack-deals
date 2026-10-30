@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 PATH = Path(__file__).resolve().parents[1] / "data" / "gpu_availability" / "latest.json"
-NOTE = "Stock changes within minutes; this is a manual snapshot from the time shown, not a guarantee."
+NOTE = STOCK_EXPLAINER = ("Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; \u201cvendor-labelled\u201d means a fixed label on the vendor's page, not a capacity check; \u201c\u2014\u201d or \u201cunknown\u201d means no signal, not sold out.")
 UNKNOWN_NOTE = "No availability signal from this vendor for this offer; unknown, not sold out."
 VAST_NOTE = ("Vast.ai: the offer count is from a separate availability check (its own checked_at), not the "
              "price snapshot; offer counts and prices on the marketplace move between checks, so they can differ "
@@ -59,6 +59,8 @@ def _from_record(a: dict) -> dict:
     out = {"status": "available when checked" if a["in_stock"] else "out of stock when checked",
            "in_stock": bool(a["in_stock"]), "checked_at": a.get("checked_at"),
            "refresh": "manual snapshot, time shown (prices checked daily)", "source": a.get("source"), "note": NOTE}
+    if a.get("stock_level"):
+        out["stock_level"] = str(a["stock_level"])
     if a.get("note"):
         out["detail"] = _clean(a["note"])
     return out

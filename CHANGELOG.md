@@ -2,6 +2,12 @@
 
 Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks.com/) (Lantern Works). Append new entries at the top. The generator renders this file to [`changelog/`](https://thelanternworks.com/changelog/).
 
+## 0.3.27
+
+- GPU coverage depth: new sourced on-demand 1x rates. H100: Jarvislabs (H100 SXM $3.49), Civo (H100 SXM $2.99), Oblivus (H100 PCIe $3.50), E2E Networks (H100 $3.99). A100: Jarvislabs (80GB $1.49, 40GB $0.89), Civo (80GB $1.79, 40GB $1.09), Oblivus (A100 PCIe 80GB $1.47), E2E Networks (80GB $2.10, 40GB $1.98), CloudRift (A100 SXM 80GB $1.05). Each row carries a region; availability is unknown unless the vendor publishes a real signal (Oblivus: "Available Stock" count, passed through as stock_level).
+- Availability note: the core NOTE is now the single stock explainer used on the site.
+- Ties: the "A and B (tie)" rule lives in core.deals.tie_label, shared by compare_gpu_prices and the /cost/ pages.
+
 ## 0.3.26
 
 - RTX 4090 /cost/ pages: page-level lowest line computed from the feed, ties named ("Nova Cloud and RunC.AI (tie) RTX 4090 24GB"); stale "only 2 in stock" reason removed.

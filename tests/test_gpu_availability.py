@@ -10,7 +10,7 @@ def test_unknown_is_never_out_of_stock_and_has_note():
         a = r["availability"]
         if a["in_stock"] is None:
             # unknown: no time, unless a record-level check (with its source) found no stock signal
-            assert a["note"] and "within minutes" not in a["note"]
+            assert a["note"] and "Stock changes within minutes" not in a["note"]
             if a.get("basis") == "vendor_static_label":
                 assert a["status"].startswith("vendor-labelled in stock (static page label") and a["checked_at"]
                 continue
