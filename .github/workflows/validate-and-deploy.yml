@@ -75,6 +75,22 @@ jobs:
         continue-on-error: true
         run: python3 scripts/validate_feed.py --links
 
+  latest-scout-import:
+    # v34 lesson (2026-10-30): run the import + full tests against the LATEST scout-data snapshot before merge,
+    # so a Scout data/note-text change is caught here, not by a failed live import.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
+      - name: Import latest scout-data snapshot into a throwaway tree, rebuild, run all tests
+        run: sh scripts/check_latest_scout_import.sh
+
   tests:
     # ALL tests (tests/ = core, MCP server, GPU) + SKILL.md + packaging (offline: LANTERN_DEALS_FILE points at the committed feed)
     runs-on: ubuntu-latest
@@ -227,12 +243,12 @@ jobs:
 
   deploy:
     # Deploy is gated on validation. Only from main pushes / manual runs.
-    needs: [validate, tests, pypi-install, docker, release-gate]
+    needs: [validate, tests, pypi-install, docker, release-gate, latest-scout-import]
     # Pages source = "GitHub Actions" (build_type=workflow) with repo variable PAGES_DEPLOY_VIA_ACTIONS=true,
     # so nothing reaches the live site unless validate + tests + pypi-install pass. Rollback: set Pages
     # build_type back to legacy (branch main, /) and the variable to false.
     # always(): pypi-install/docker may be skipped on the data-only path; any failure or cancel still blocks.
-    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.validate.result == 'success' && needs.tests.result == 'success' && needs.release-gate.result == 'success' && vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.validate.result == 'success' && needs.tests.result == 'success' && needs.release-gate.result == 'success' && needs.latest-scout-import.result == 'success' && vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -262,11 +278,35 @@ jobs:
       # re21 P1: no raw repo data on the site (allowlisted files only, availability fields stripped); then the build fails if any reappears
       - run: python3 scripts/guard_site_raw_data.py _site && python3 scripts/guard_site_raw_data.py --check _site
         if: steps.head.outputs.go == 'true'
+      # unique per attempt, so "Re-run failed jobs" never finds two github-pages artifacts (2026-10-30 failure)
       - uses: actions/upload-pages-artifact@v3
         if: steps.head.outputs.go == 'true'
+        with:
+          name: github-pages-${{ github.run_attempt }}
+      - id: deploy1
+        if: steps.head.outputs.go == 'true'
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+      - if: steps.head.outputs.go == 'true' && steps.deploy1.outcome == 'failure'
+        run: echo "::warning::Pages deploy attempt 1 failed; retrying in 60 s" && sleep 60
+      - id: deploy2
+        if: steps.head.outputs.go == 'true' && steps.deploy1.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+      - if: steps.head.outputs.go == 'true' && steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        run: echo "::warning::Pages deploy attempt 2 failed; last retry in 180 s" && sleep 180
+      - id: deploy3
+        if: steps.head.outputs.go == 'true' && steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
       - id: deployment
         if: steps.head.outputs.go == 'true'
-        uses: actions/deploy-pages@v4
+        run: echo "page_url=${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}" >> "$GITHUB_OUTPUT"
 
   expiry-alert:
     # Gauge re18 R2: a failed run (any gate, deploy or live check) while the LIVE stock claims expire within 2 h
@@ -303,3 +343,20 @@ jobs:
           n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --json number -q '.[0].number // empty')
           body="Run $RUN_URL failed. $msg. Fix the run (or re-run it) so the pages rebuild before expiry."
           if [ -n "$n" ]; then gh issue comment "$n" -R "$GITHUB_REPOSITORY" --body "$body"; else gh issue create -R "$GITHUB_REPOSITORY" --title "$title" --body "$body"; fi
+
+  pipeline-failure-issue:
+    # Any failed gate, deploy or live check on main opens (or comments on) one issue, whatever the claim expiry.
+    needs: [validate, tests, latest-scout-import, pypi-install, docker, release-gate, deploy, live-checks]
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          NEEDS: ${{ toJSON(needs) }}
+        run: sh scripts/pipeline_issue.sh "Validate/deploy"
