@@ -145,6 +145,7 @@ jobs:
         if: needs.deploy.result == 'success'
       - run: python3 scripts/check_skill.py --live
       - run: python3 scripts/test_url_migration.py
+      - run: python3 scripts/check_public_raw_data.py   # re21: raw data 404 / no stock claims; latest.json 404
       - name: GPU refresh freshness (warn if no snapshot today / > 24 h; fail if last refresh > 26 h)
         run: python3 scripts/check_gpu_freshness.py
       - name: GPU pricing sources (daily via schedule; stale > 7 days, unreachable, or quoted price missing => fail). Never edits prices.
@@ -187,7 +188,9 @@ jobs:
           source: ./
           destination: ./_site
       # re20 P1: Scout's raw availability import is an unguarded input, not a public feed (served guarded via api/v1)
-      - run: sudo rm -rf _site/data/gpu_availability && test ! -e _site/data/gpu_availability
+      - run: sudo rm -rf _site/data/gpu_availability && test ! -e _site/data/gpu_availability && sudo chown -R $USER _site
+      # re21 P1: no raw repo data on the site (allowlisted files only, availability fields stripped); then the build fails if any reappears
+      - run: python3 scripts/guard_site_raw_data.py _site && python3 scripts/guard_site_raw_data.py --check _site
       - uses: actions/upload-pages-artifact@v3
       - id: deployment
         uses: actions/deploy-pages@v4
