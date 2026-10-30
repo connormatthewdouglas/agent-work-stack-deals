@@ -281,3 +281,9 @@ Pending, no tag yet: Glama (needs sign-in), Smithery (needs sign-in), mcp.direct
 - Live data is still v2.7; v2.9 imports on the 17:30Z push. Live T41 25/25, gist identical.
 - Vast H100 SXM record NOT added: the public offers API at 14:18:50Z shows 4 verified on-demand 80GB offers, below the published 5-offer minimum in vast.json.
 - Scout v3.0 allowlist is staged on local branch scout-v30-hold (02cd7799), not pushed. It waits for Gauge's pass.
+
+## 2026-10-30 11:50 ET — Scout v3.0–v3.2 accepted, 0.3.35 (M1–M3), v3.2 imported live
+- On main: the importer accepts 2, 2.5, 2.7, 2.9, 3.0, 3.1, 3.2. KEEP holds available_regions_detail (with per-region confirmation, confirmed and availability_expires_at), available_regions_label, feed_status, feed_min_offers, derived_from_regions and availability_expires_at. 3.1+ must match a manifest sha256 or it is refused.
+- Commits: 0401fcec (v3.0), df1075b0 (v3.1 plus the sha256 check), 4eb85a24 (stock-independent tests), a0816251 (v3.2), fa57b16c and 55d52781 (0.3.35). PyPI, MCP registry 0.3.35; worker 08491742.
+- Imports: 41082313664 brought in the Scout push fc0c8b9 (collected 15:22:30Z), giving commits a1247008 and bc87f3af. 41083178153 brought in 140abb9d (15:36:15Z), giving ffa12bc7 and 49268e98. Deploy 41083258957 was all green. Deploy 41082399207 failed only on pypi-install (PyPI lag) and was superseded.
+- Live 11:46 ET: 3 H100 rows in stock with regions (Oblivus H100 PCIe MON1, RunPod SXM Secure AP-IN-1, Verda SXM on-demand FIN-03). 0 expired claims, 0 expired regions. T41 25/25 live, gist identical.
