@@ -1,7 +1,7 @@
 {
   "schema": "lantern-works-gpu-availability/1",
   "source": "Lantern Scout availability collector v3.2 (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",
-  "collected_at": "2026-10-30T18:53:47Z",
+  "collected_at": "2026-10-30T19:11:16Z",
   "imported_rows": 27,
   "rows": [
     {
@@ -215,8 +215,8 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:47Z",
-      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
+      "availability_checked_at": "2026-10-30T19:11:16Z",
+      "availability_note": "unknown: RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
@@ -230,21 +230,33 @@
       "vram_gb": 80,
       "tier": "On-demand (Secure Cloud)",
       "region": "all",
-      "available_regions": null,
-      "in_stock": null,
+      "available_regions": [
+        "CA-MTL-3 (Canada)"
+      ],
+      "in_stock": true,
       "offer_count": null,
       "unrented_servers": null,
-      "stock_level": null,
+      "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:44Z",
-      "availability_note": "unknown: RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
-      "available_regions_detail": null,
-      "available_regions_label": null,
+      "availability_checked_at": "2026-10-30T19:11:14Z",
+      "availability_note": null,
+      "available_regions_detail": [
+        {
+          "region": "CA-MTL-3 (Canada)",
+          "stock_level": "Low",
+          "checked_at": "2026-10-30T19:11:44Z",
+          "availability_expires_at": "2026-10-30T20:11:44Z",
+          "confirmed": true,
+          "confirmation": "two_reads",
+          "second_read_stock_level": "Low"
+        }
+      ],
+      "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
       "feed_status": null,
       "feed_min_offers": null,
-      "derived_from_regions": null,
-      "availability_expires_at": null
+      "derived_from_regions": true,
+      "availability_expires_at": "2026-10-31T03:11:14Z"
     },
     {
       "vendor": "RunPod",
@@ -259,8 +271,8 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:47Z",
-      "availability_note": "unknown: RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+      "availability_checked_at": "2026-10-30T19:11:16Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
@@ -274,40 +286,43 @@
       "vram_gb": 80,
       "tier": "On-demand (Secure Cloud)",
       "region": "all",
-      "available_regions": null,
-      "in_stock": null,
+      "available_regions": [
+        "EUR-IS-1 (Europe)",
+        "US-MD-1 (United States)"
+      ],
+      "in_stock": true,
       "offer_count": null,
       "unrented_servers": null,
-      "stock_level": null,
+      "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:44Z",
-      "availability_note": "unknown: RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+      "availability_checked_at": "2026-10-30T19:11:14Z",
+      "availability_note": null,
       "available_regions_detail": [
         {
           "region": "EUR-IS-1 (Europe)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T18:55:02Z",
-          "availability_expires_at": "2026-10-30T19:55:02Z",
-          "confirmed": false,
+          "checked_at": "2026-10-30T19:12:05Z",
+          "availability_expires_at": "2026-10-30T20:12:05Z",
+          "confirmed": true,
           "confirmation": "two_reads",
-          "second_read_stock_level": null
+          "second_read_stock_level": "Low"
         },
         {
           "region": "US-MD-1 (United States)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T18:55:57Z",
-          "availability_expires_at": "2026-10-30T19:55:57Z",
-          "confirmed": false,
+          "checked_at": "2026-10-30T19:13:13Z",
+          "availability_expires_at": "2026-10-30T20:13:13Z",
+          "confirmed": true,
           "confirmation": "two_reads",
-          "second_read_stock_level": null
+          "second_read_stock_level": "Low"
         }
       ],
       "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
       "feed_status": null,
       "feed_min_offers": null,
-      "derived_from_regions": null,
-      "availability_expires_at": null
+      "derived_from_regions": true,
+      "availability_expires_at": "2026-10-31T03:11:14Z"
     },
     {
       "vendor": "RunPod",
@@ -322,7 +337,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:47Z",
+      "availability_checked_at": "2026-10-30T19:11:16Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -344,7 +359,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:44Z",
+      "availability_checked_at": "2026-10-30T19:11:14Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -366,7 +381,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:47Z",
+      "availability_checked_at": "2026-10-30T19:11:16Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -382,7 +397,10 @@
       "tier": "On-demand (Secure Cloud)",
       "region": "all",
       "available_regions": [
-        "US-GA-2 (United States)"
+        "AP-JP-1 (Japan)",
+        "CA-MTL-1 (Canada)",
+        "EU-FR-1 (France)",
+        "US-MO-1 (United States)"
       ],
       "in_stock": true,
       "offer_count": null,
@@ -390,32 +408,32 @@
       "stock_level": "Low",
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:44Z",
+      "availability_checked_at": "2026-10-30T19:11:14Z",
       "availability_note": null,
       "available_regions_detail": [
         {
-          "region": "EUR-NO-2 (Europe)",
+          "region": "AP-JP-1 (Japan)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T18:55:26Z",
-          "availability_expires_at": "2026-10-30T19:55:26Z",
-          "confirmed": false,
+          "checked_at": "2026-10-30T19:11:35Z",
+          "availability_expires_at": "2026-10-30T20:11:35Z",
+          "confirmed": true,
           "confirmation": "two_reads",
-          "second_read_stock_level": null
+          "second_read_stock_level": "Low"
         },
         {
-          "region": "US-CA-2 (United States)",
+          "region": "CA-MTL-1 (Canada)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T18:55:36Z",
-          "availability_expires_at": "2026-10-30T19:55:36Z",
-          "confirmed": false,
+          "checked_at": "2026-10-30T19:11:36Z",
+          "availability_expires_at": "2026-10-30T20:11:36Z",
+          "confirmed": true,
           "confirmation": "two_reads",
-          "second_read_stock_level": null
+          "second_read_stock_level": "Low"
         },
         {
-          "region": "US-GA-2 (United States)",
+          "region": "EU-FR-1 (France)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T18:55:40Z",
-          "availability_expires_at": "2026-10-30T19:55:40Z",
+          "checked_at": "2026-10-30T19:11:47Z",
+          "availability_expires_at": "2026-10-30T20:11:47Z",
           "confirmed": true,
           "confirmation": "two_reads",
           "second_read_stock_level": "Low"
@@ -423,27 +441,18 @@
         {
           "region": "US-MO-1 (United States)",
           "stock_level": "Low",
-          "checked_at": "2026-10-30T18:56:04Z",
-          "availability_expires_at": "2026-10-30T19:56:04Z",
-          "confirmed": false,
+          "checked_at": "2026-10-30T19:13:21Z",
+          "availability_expires_at": "2026-10-30T20:13:21Z",
+          "confirmed": true,
           "confirmation": "two_reads",
-          "second_read_stock_level": null
-        },
-        {
-          "region": "US-NE-1 (United States)",
-          "stock_level": "Low",
-          "checked_at": "2026-10-30T18:56:14Z",
-          "availability_expires_at": "2026-10-30T19:56:14Z",
-          "confirmed": false,
-          "confirmation": "two_reads",
-          "second_read_stock_level": null
+          "second_read_stock_level": "Low"
         }
       ],
       "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-31T02:53:44Z"
+      "availability_expires_at": "2026-10-31T03:11:14Z"
     },
     {
       "vendor": "RunPod",
@@ -458,7 +467,7 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:47Z",
+      "availability_checked_at": "2026-10-30T19:11:16Z",
       "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
@@ -480,8 +489,8 @@
       "stock_level": null,
       "availability_source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
       "availability_source_type": "public no-auth API",
-      "availability_checked_at": "2026-10-30T18:53:44Z",
-      "availability_note": "unknown: RunPod's API gave a GPU-type-wide stock hint but no region of this cloud type was confirmed in stock at check time",
+      "availability_checked_at": "2026-10-30T19:11:14Z",
+      "availability_note": "unknown: RunPod's public API returned no stock status or price for this cloud type at check time",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
