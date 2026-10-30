@@ -10,7 +10,7 @@
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
-## MCP server (v0.3.46, read-only, stdio)
+## MCP server (v0.3.47, read-only, stdio)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
@@ -65,6 +65,14 @@ Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/REA
 
 Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=github-readme`
 (`claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=github-readme`). Free Cloudflare Worker; it stores only anonymous call counts per tool per day (no IPs, user agents or arguments), public at https://lantern-works-mcp.lantern-works.workers.dev/stats. `?ref=` only tags which link was used.
+
+## Eligibility (region, memory, tier, stock)
+
+`compare_gpu_prices`, `estimate_job_cost`, hosted price watches and the calculator share one contract (`core/eligibility.py`). Each result carries `eligibility {eligible, applied, unmet, unknown}`.
+
+- `gpu="A100 80GB"` (or `vram_gb=80`) never matches a 40GB row; `tiers=["on-demand"]` never matches spot.
+- `region="US"` drops rows whose unexpired published regions exclude it. Rows with no region evidence are kept, marked unresolved and ranked last; a watch never alerts on them.
+- Unknown stock is not confirmed availability. A row confirmed sold out never alerts.
 
 ## Stale prices
 

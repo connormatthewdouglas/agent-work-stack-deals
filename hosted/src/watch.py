@@ -19,6 +19,7 @@ from datetime import date, timedelta
 from urllib.parse import urlsplit
 
 from core import deals as core_deals
+from core import eligibility as EL
 from core.ids import rate_id
 
 KEY_RE = re.compile(r"^lwk_([0-9a-f]{12})_[A-Za-z0-9_-]{20,64}$")
@@ -165,10 +166,13 @@ def validate_email(email):
 
 
 # ---- watch specs ---------------------------------------------------------------------------------------------------
-def normalize_watch(gpu, max_hourly_usd, region=None, kinds=None) -> dict:
+def normalize_watch(gpu, max_hourly_usd, region=None, kinds=None, vram_gb=None, tiers=None, in_stock=None) -> dict:
+    """T47: a watch is a shared eligibility constraint set (core.eligibility) plus a price cap and change kinds.
+    'A100 80GB' (or vram_gb=80) never matches a 40GB row; tiers=['on-demand'] never matches spot; a row confirmed
+    sold out never matches; a region without unexpired evidence stays unresolved (no match)."""
     gpu = str(gpu or "").strip()
     if not gpu or len(gpu) > 40:
-        raise WatchError("invalid_argument", "gpu is required, e.g. 'H100' (substring match, like get_price_changes)")
+        raise WatchError("invalid_argument", "gpu is required, e.g. 'H100' or 'A100 80GB' (all words must match the model)")
     try:
         mx = float(max_hourly_usd)
     except (TypeError, ValueError):
@@ -181,37 +185,62 @@ def normalize_watch(gpu, max_hourly_usd, region=None, kinds=None) -> dict:
     bad = [k for k in kinds if k not in KINDS]
     if bad:
         raise WatchError("invalid_argument", f"kinds must be among {', '.join(KINDS)}")
-    region = (str(region).strip().upper() or None) if region else None
-    if region and not re.fullmatch(r"[A-Z0-9-]{2,12}", region):
-        raise WatchError("invalid_argument", "region is a code as published in availability.available_regions, e.g. 'US'")
-    return {"gpu": gpu, "max_hourly_usd": round(mx, 6), "region": region, "kinds": kinds}
+    try:
+        c = EL.normalize(gpu=gpu, vram_gb=vram_gb, tiers=tiers, region=region, in_stock=in_stock or "exclude_sold_out")
+    except EL.EligibilityError as e:
+        raise WatchError("invalid_argument", str(e)) from None
+    if c["in_stock"] == "ignore":
+        raise WatchError("invalid_argument", "in_stock must be exclude_sold_out (default) or require for a watch")
+    return {"gpu": gpu, "max_hourly_usd": round(mx, 6), "region": c.get("region"), "kinds": kinds,
+            "vram_gb": c.get("vram_gb"), "tiers": c.get("tiers"), "in_stock": c["in_stock"]}
 
 
-def rate_regions(prices_doc: dict) -> dict:
-    """rate_id -> set of published region codes (only rates that publish regions)."""
+def constraints(spec: dict) -> dict:
+    """The eligibility constraints of a stored watch (older watches: gpu/region only; reserved never matches)."""
+    tiers = spec.get("tiers")
+    if isinstance(tiers, str):
+        tiers = [t for t in tiers.split(",") if t]
+    return EL.normalize(gpu=spec["gpu"], vram_gb=spec.get("vram_gb"),
+                        tiers=tiers or [t for t in EL.TIER_CLASSES if t != "reserved"],
+                        region=spec.get("region"), in_stock=spec.get("in_stock") or "exclude_sold_out")
+
+
+def rate_facts(prices_doc: dict, now=None) -> dict:
+    """rate_id -> eligibility facts (vram, tier class, guarded stock and regions) for alert matching."""
     out = {}
     for r in (prices_doc or {}).get("rates") or []:
-        from core.gpu_availability import stale_guard  # request-time: expired claims and region lists never match
-        regs = ((stale_guard(r.get("availability")) or {}).get("available_regions")) or []
-        if regs:
-            out[rate_id({**r, "vendor": r.get("advertiser")})] = {str(x).upper() for x in regs}
+        out[rate_id({**r, "vendor": r.get("advertiser")})] = EL.facts(r, now)
     return out
 
 
+def rate_regions(prices_doc: dict) -> dict:
+    """Legacy: rate_id -> set of published region codes (only rates that publish regions)."""
+    return {k: set(v["regions"]) for k, v in rate_facts(prices_doc).items() if v.get("regions")}
+
+
+def _ev_facts(ev: dict, facts: dict) -> dict:
+    f = (facts or {}).get(ev.get("rate_id"))
+    if isinstance(f, dict):
+        return {**f, "gpu": ev.get("gpu") or f.get("gpu"), "price_age_hours": 0.0}
+    # no facts pushed for this rate: only the event's own fields are known (unknown vram/stock never pass as known)
+    return {"gpu": ev.get("gpu"), "vram_gb": None, "tier_class": core_deals.tier_class({"tier": ev.get("tier")}),
+            "in_stock": None, "regions": sorted(f) if isinstance(f, (list, tuple, set)) and f else None, "price_age_hours": 0.0}
+
+
 def current_matches(prices_doc: dict, spec: dict, limit: int = 5) -> list[dict]:
-    """Rates already at or under the threshold when the watch is created (reported, never alerted)."""
-    regions = rate_regions(prices_doc)
-    q = spec["gpu"].lower()
+    """Rates already at or under the threshold AND eligible when the watch is created (reported, never alerted)."""
+    c = constraints(spec)
     rows = []
     for r in (prices_doc or {}).get("rates") or []:
-        if q not in (r.get("gpu") or "").lower() or r.get("tier_class") == "reserved":
-            continue
         h = r.get("hourly_equiv_usd")
-        rid = rate_id({**r, "vendor": r.get("advertiser")})
-        if h is None or h > spec["max_hourly_usd"] or (spec["region"] and spec["region"] not in regions.get(rid, ())):
+        if not isinstance(h, (int, float)) or h > spec["max_hourly_usd"]:
             continue
-        rows.append({"rate_id": rid, "vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"),
-                     "hourly_usd": h, "source_url": r.get("source_url")})
+        res = EL.evaluate(r, c)
+        if not res["eligible"]:
+            continue
+        rows.append({"rate_id": rate_id({**r, "vendor": r.get("advertiser")}), "vendor": r.get("advertiser"), "gpu": r.get("gpu"),
+                     "vram_gb": r.get("vram_gb"), "tier": r.get("tier"), "hourly_usd": h, "source_url": r.get("source_url"),
+                     "unknown": [u["constraint"] for u in res["unknown"]]})
     return sorted(rows, key=lambda x: x["hourly_usd"])[:limit]
 
 
@@ -245,14 +274,13 @@ def after_baseline(watch: dict, ev: dict) -> bool:
     return (ev.get("date") or "") > (watch.get("baseline_day") or "")
 
 
-def match(spec: dict, ev: dict, regions: dict) -> str | None:
-    """Alert reason or None. Fires when a rate crosses at/under max_hourly_usd, or a change of a watched kind lands
-    at/under it. Region-constrained watches only match rates that publish that region (unknown != match)."""
+def match(spec: dict, ev: dict, facts: dict) -> str | None:
+    """Alert reason or None. Fires when an ELIGIBLE rate (core.eligibility, same contract as compare/estimate) crosses
+    at/under max_hourly_usd, or a change of a watched kind lands at/under it. facts: rate_id -> eligibility facts
+    (legacy pushes: rate_id -> region list)."""
     if not after_baseline(spec, ev):
         return None
-    if spec["gpu"].lower() not in (ev.get("gpu") or "").lower():
-        return None
-    if spec.get("region") and spec["region"] not in regions.get(ev.get("rate_id"), ()):
+    if not EL.check(_ev_facts(ev, facts), constraints(spec))["eligible"]:
         return None
     to, frm, mx, d = ev.get("to_hourly_usd"), ev.get("from_hourly_usd"), spec["max_hourly_usd"], ev.get("direction")
     if to is None or to > mx:
@@ -303,6 +331,9 @@ PUSH_EVENT_KEYS = ("event_id", "seq", "date", "rate_id", "vendor", "gpu", "tier"
                    "to_hourly_usd", "change_pct", "source_url")
 
 
+FACT_KEYS = ("gpu", "vram_gb", "tier_class", "in_stock", "regions", "availability_age_hours", "price_age_hours")
+
+
 def parse_push(body: str, header: str, secret: str, now: int) -> tuple[list[dict], dict]:
     """Authenticate (HMAC-SHA256 over 't.body', 5-minute window, same format as alert signatures) and validate a
     pushed event batch. Returns (events, regions {rate_id: [codes]}). Raises WatchError on anything off."""
@@ -327,8 +358,14 @@ def parse_push(body: str, header: str, secret: str, now: int) -> tuple[list[dict
     regions = doc.get("regions") or {}
     if not isinstance(regions, dict):
         raise WatchError("invalid_argument", "regions must be an object")
-    regions = {str(k): tuple(str(x) for x in v) for k, v in regions.items() if isinstance(v, list)}
-    return out, regions
+    facts = {str(k): tuple(str(x) for x in v) for k, v in regions.items() if isinstance(v, list)}
+    rf = doc.get("facts") or {}
+    if not isinstance(rf, dict):
+        raise WatchError("invalid_argument", "facts must be an object")
+    for k, v in rf.items():
+        if isinstance(v, dict):
+            facts[str(k)] = {f: v.get(f) for f in FACT_KEYS}
+    return out, facts
 
 
 def new_watch_id() -> str:

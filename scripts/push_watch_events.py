@@ -29,12 +29,13 @@ def batches(today: str | None = None) -> list[dict]:
     changes = json.loads((ROOT / "api/v1/gpu-price-changes.json").read_text(encoding="utf-8"))
     today = today or datetime.now(timezone.utc).date().isoformat()
     events = [{k: e.get(k) for k in W.PUSH_EVENT_KEYS} for e in W.candidate_events(changes, history, today)]
-    regions = W.rate_regions(prices)
+    facts = W.rate_facts(prices)  # T47: eligibility facts (vram, tier class, guarded stock, regions) per rate
     out = []
     for i in range(0, len(events), BATCH):
         chunk = events[i:i + BATCH]
-        reg = {e["rate_id"]: sorted(regions[e["rate_id"]]) for e in chunk if e.get("rate_id") in regions}
-        out.append({"events": chunk, "regions": reg})
+        reg = {e["rate_id"]: facts[e["rate_id"]]["regions"] for e in chunk if (facts.get(e.get("rate_id")) or {}).get("regions")}
+        fx = {e["rate_id"]: {k: facts[e["rate_id"]].get(k) for k in W.FACT_KEYS} for e in chunk if e.get("rate_id") in facts}
+        out.append({"events": chunk, "regions": reg, "facts": fx})
     return out
 
 

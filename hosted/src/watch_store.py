@@ -19,9 +19,15 @@ TOOL_SPECS = [
     ("watch_price",
      "Hosted only. Alert your webhook (signed POST) after the daily refresh when a tracked rate for `gpu` crosses at "
      "or below max_hourly_usd, or a change of a watched kind (down/up/new; default down) lands at or below it. "
-     "region: optional code from availability.available_regions (rates that publish no region never match). "
+     "Only ELIGIBLE rates match (same contract as compare/estimate): every word of gpu must match the model; "
+     "'A100 80GB' or vram_gb=80 never matches a 40GB row; tiers (on-demand, community, marketplace, interruptible/spot, "
+     "dedicated-monthly, reserved; default all but reserved) never matches another class; a row confirmed sold out never "
+     "matches (in_stock='require' also skips unknown stock). region: code from availability.available_regions; a rate "
+     "with no unexpired region evidence stays unresolved and never matches. "
      "Each event is delivered at most once per watch (dedupe on event_id). Pass api_key or an Authorization: Bearer header.",
      {"gpu": {"type": "string"}, "max_hourly_usd": {"type": "number"}, "region": {"type": "string"},
+      "vram_gb": {"type": "integer"}, "tiers": {"type": "array", "items": {"type": "string"}},
+      "in_stock": {"type": "string", "enum": ["exclude_sold_out", "require"]},
       "kinds": {"type": "array", "items": {"type": "string", "enum": list(W.KINDS)}}, "api_key": {"type": "string"}},
      ["gpu", "max_hourly_usd"]),
     ("list_watches", "Hosted only. Your watches and per-key alert counts.", {"api_key": {"type": "string"}}, []),
@@ -70,6 +76,10 @@ def _stmt(db, sql, a):
     st = db.prepare(sql)
     return st.bind(*a) if a else st
 
+
+# T47: watch eligibility constraints live in their own table (additive; no ALTER on the live watches table)
+CONSTRAINTS_DDL = ("CREATE TABLE IF NOT EXISTS watch_constraints (watch_id TEXT PRIMARY KEY, vram_gb INTEGER, tiers TEXT, "
+                   "in_stock TEXT)")
 
 async def _all(db, sql, *a):
     return _rows(await _stmt(db, sql, a).all())
@@ -161,7 +171,8 @@ async def call(name, args, env, bearer, feeds, fetch_fn=None):
                     "next": "call watch_price(gpu, max_hourly_usd, api_key=...)"}
         key_id = await _auth(db, args, bearer)
         if name == "watch_price":
-            spec = W.normalize_watch(args.get("gpu"), args.get("max_hourly_usd"), args.get("region"), args.get("kinds"))
+            spec = W.normalize_watch(args.get("gpu"), args.get("max_hourly_usd"), args.get("region"), args.get("kinds"),
+                                     args.get("vram_gb"), args.get("tiers"), args.get("in_stock"))
             have = await _first(db, "SELECT COUNT(*) AS n FROM watches WHERE key_id = ?", key_id)
             if have and have["n"] >= W.MAX_WATCHES_PER_KEY:
                 raise W.WatchError("rate_limited", f"at most {W.MAX_WATCHES_PER_KEY} watches per key")
@@ -172,14 +183,21 @@ async def call(name, args, env, bearer, feeds, fetch_fn=None):
             await _run(db, "INSERT INTO watches(watch_id, key_id, gpu, region, max_hourly_usd, kinds, baseline_seq, baseline_day, created_at) "
                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", wid, key_id, spec["gpu"], spec["region"],
                        spec["max_hourly_usd"], ",".join(spec["kinds"]), base_seq, base_day, _now_iso())
+            await _run(db, CONSTRAINTS_DDL)
+            await _run(db, "INSERT OR REPLACE INTO watch_constraints(watch_id, vram_gb, tiers, in_stock) VALUES (?, ?, ?, ?)",
+                       wid, spec["vram_gb"], ",".join(spec["tiers"] or []) or None, spec["in_stock"])
             return {"ok": True, "watch": {"watch_id": wid, **spec},
                     "current_matches": W.current_matches(prices, spec),
                     "note": "current_matches are already at or below your max and are NOT alerted; alerts cover changes "
                             "published after now (checked after the daily refresh, ~10:23 UTC)."}
         if name == "list_watches":
-            ws = await _all(db, "SELECT watch_id, gpu, region, max_hourly_usd, kinds, created_at FROM watches WHERE key_id = ? ORDER BY created_at", key_id)
+            await _run(db, CONSTRAINTS_DDL)
+            ws = await _all(db, "SELECT w.watch_id, w.gpu, w.region, w.max_hourly_usd, w.kinds, w.created_at, c.vram_gb, c.tiers, c.in_stock "
+                                "FROM watches w LEFT JOIN watch_constraints c ON c.watch_id = w.watch_id WHERE w.key_id = ? ORDER BY w.created_at", key_id)
             for w in ws:
                 w["kinds"] = (w.get("kinds") or "").split(",")
+                w["tiers"] = [t for t in (w.get("tiers") or "").split(",") if t] or None
+                w["in_stock"] = w.get("in_stock") or "exclude_sold_out"
             sent = await _first(db, "SELECT COALESCE(SUM(n), 0) AS n FROM watch_key_counters WHERE key_id = ? AND metric = 'alerts'", key_id)
             return {"ok": True, "count": len(ws), "watches": ws, "alerts_delivered": (sent or {}).get("n", 0),
                     "limits": {"watches_per_key": W.MAX_WATCHES_PER_KEY, "alerts_per_key_per_day": W.MAX_ALERTS_PER_KEY_PER_DAY}}
@@ -190,6 +208,8 @@ async def call(name, args, env, bearer, feeds, fetch_fn=None):
                 raise W.WatchError("not_found", "no such watch for this key")
             await _run(db, "DELETE FROM watches WHERE watch_id = ? AND key_id = ?", wid, key_id)
             await _run(db, "DELETE FROM watch_deliveries WHERE watch_id = ?", wid)
+            await _run(db, CONSTRAINTS_DDL)
+            await _run(db, "DELETE FROM watch_constraints WHERE watch_id = ?", wid)
             return {"ok": True, "deleted": wid}
         raise W.WatchError("invalid_argument", f"unknown tool {name}")
     except W.WatchError as e:
@@ -203,7 +223,7 @@ async def run_cron(env, feeds, fetch_fn, now=None) -> dict:
     if not master:
         return {"sent": 0, "skipped": "WATCH_SIGNING_MASTER not set"}
     prices, history, latest = await feeds()
-    return await deliver(env, W.candidate_events(latest, history, _today()), W.rate_regions(prices), fetch_fn, now)
+    return await deliver(env, W.candidate_events(latest, history, _today()), W.rate_facts(prices), fetch_fn, now)
 
 
 async def deliver(env, events, regions, fetch_fn, now=None) -> dict:
@@ -214,8 +234,10 @@ async def deliver(env, events, regions, fetch_fn, now=None) -> dict:
     if not master:
         return {"sent": 0, "skipped": "WATCH_SIGNING_MASTER not set"}
     today = _today()
+    await _run(db, CONSTRAINTS_DDL)
     watches = await _all(db, "SELECT w.watch_id, w.key_id, w.gpu, w.region, w.max_hourly_usd, w.kinds, w.baseline_seq, "
-                             "w.baseline_day, k.webhook_url FROM watches w JOIN watch_keys k ON k.key_id = w.key_id WHERE k.disabled = 0")
+                             "w.baseline_day, k.webhook_url, c.vram_gb, c.tiers, c.in_stock FROM watches w JOIN watch_keys k ON k.key_id = w.key_id "
+                             "LEFT JOIN watch_constraints c ON c.watch_id = w.watch_id WHERE k.disabled = 0")
     for w in watches:
         w["kinds"] = (w.get("kinds") or "down").split(",")
     if not watches or not events:

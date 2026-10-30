@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.3.46"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.3.47"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -449,7 +449,7 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
 
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
                        on_demand_only: bool = False, include_reserved: bool = False,
-                       max_data_age_hours: float | None = None, now: datetime | None = None) -> dict:
+                       max_data_age_hours: float | None = None, now: datetime | None = None, region: str | None = None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     from .ids import rate_id
@@ -512,11 +512,28 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         if not keep:
             raise DealError("not_found", f"Only reservation/commitment prices are tracked for GPU '{gpu}' ({excluded_reserved}); retry with include_reserved=true")
         rows = keep
+    # T47: shared eligibility contract (core.eligibility). region: rows whose unexpired regions exclude it are dropped;
+    # rows with no region evidence stay, labelled unresolved, ranked after eligible rows (never "cheapest").
+    from . import eligibility as EL
+    try:
+        cons = EL.normalize(gpu=gpu, region=region, max_price_age_hours=max_h,
+                            tiers=["on-demand"] if on_demand_only else (None if include_reserved else [t for t in EL.TIER_CLASSES if t != "reserved"]))
+    except EL.EligibilityError as e:
+        raise DealError("invalid_argument", str(e))
+    elig = {id(r): EL.evaluate(r, cons, now) for r in rows}
+    excluded_region = 0
+    if cons.get("region"):
+        keep = [r for r in rows if not any(u["constraint"] == "region" for u in elig[id(r)]["unmet"])]
+        excluded_region = len(rows) - len(keep)
+        if not keep:
+            raise DealError("not_found", f"No tracked '{gpu}' rate publishes region {cons['region']} ({excluded_region} rates publish other regions)")
+        rows = keep
+    unresolved = lambda r: any(u["constraint"] == "region" for u in elig[id(r)]["unknown"])
     # Reserved rows (only with include_reserved) sort after pay-as-you-go rows: never reported as "cheapest".
     # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
     oos_cheaper = min((r for r in rows if out_of_stock(r) and tier_class(r) != "reserved"),
                       key=lambda r: r["hourly_equiv_usd"], default=None)
-    rows.sort(key=lambda r: (tier_class(r) == "reserved", out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    rows.sort(key=lambda r: (tier_class(r) == "reserved", unresolved(r), out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
     od = next((r for r in rows if tier_class(r) == "on-demand"), None)
     # Different memory sizes are different products (an A100 40GB is not an A100 80GB): name the cheapest per size.
     by_vram = {}
@@ -541,6 +558,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["in_stock"] = (out.get("availability") or {}).get("in_stock") if isinstance(out.get("availability"), dict) else None
         if out_of_stock(r):
             out["availability_note"] = oos_note(r) + "; ranked after in-stock/unknown rows"
+        out["eligibility"] = elig[id(r)]  # T47: applied / unmet / unknown constraints for this row
         out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
         out.update(data_age.age_fields(r, now))
         from .report_issue import report_issue_url
@@ -579,6 +597,11 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,
         "excluded_stale": len(stale_rows),
         "stale_prices": sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or "")),
+        "region": cons.get("region"), "excluded_other_region": excluded_region,
+        "region_unresolved": sum(1 for r in rows if cons.get("region") and unresolved(r)),
+        "constraints": {"applied": cons, "eligible_rate_ids": sorted(rate_id(r) for r in rows if elig[id(r)]["eligible"]),
+                        "contract": "core.eligibility (T47): same constraints and result in compare, estimate, watch alerts and the calculator; "
+                                    "unknown stock is not confirmed availability; a region without evidence is unresolved"},
         "data_age": {"degraded_after_hours": data_age.DEGRADED_HOURS, "stale_after_hours": data_age.STALE_HOURS,
                      "stale_count": sum(1 for x in results if x["stale"]), "degraded_count": sum(1 for x in results if x["degraded"])},
         "tier_classes": TIER_NOTES,

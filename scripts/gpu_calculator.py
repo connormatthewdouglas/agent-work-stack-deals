@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from core.gpu import HOURS_PER_MONTH, build_rates  # noqa: E402
 from core.data_age import CURRENT_MAX_HOURS as CURRENT_MAX_H  # noqa: E402
 from core.stack import MAX_GPU_HOURS_MONTH  # noqa: E402
+from core.gpu_availability import AVAIL_MAX_AGE_H  # noqa: E402
 from core.data_license import DATA_LICENSE, REPORT_ISSUE, REPORT_ISSUE_NOTE  # noqa: E402
 
 PAGE_PATH = "tools/gpu-cost-calculator"
@@ -134,6 +135,17 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     return {{cost:Math.round(r.price_usd*n*100)/100,calc,requested_gpus:g,billed_gpus:gg,instances:servers}};
   }}
   // BILL_END
+  // T47: same stock rule as core.eligibility / stale_guard: a claim counts only until availability_expires_at
+  // (region-derived claims until regions_expires_at); expired or missing = unknown, which is not sold out.
+  function stockOf(r){{
+    const a=r.availability||{{}}; if(a.in_stock!==true&&a.in_stock!==false) return null;
+    let x=a.availability_expires_at?Date.parse(a.availability_expires_at):NaN;
+    const rx=a.regions_expires_at?Date.parse(a.regions_expires_at):NaN;
+    if(a.derived_from_regions&&!isNaN(rx)&&(isNaN(x)||rx<x)) x=rx;
+    if(!isNaN(x)&&Date.now()>x) return null;
+    if(a.checked_at&&Date.now()-Date.parse(a.checked_at)>{AVAIL_MAX_AGE_H}*3600e3) return null;
+    return a.in_stock;
+  }}
   function run(){{
     // re24 (2): same input contract as the MCP/engine (invalid_argument), no silent clamping
     const hs=String($("hours").value).trim(), gs=String($("gpus").value).trim(), h=Number(hs), g=Number(gs), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
@@ -141,12 +153,12 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     if(bad){{ $("results").tBodies[0].innerHTML='<tr><td colspan="7">Invalid input: '+bad+'. No estimate shown.</td></tr>'; $("summary").textContent="invalid_argument: "+bad; return; }}
     const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
       const ageH=(Date.now()-Date.parse(r.verified_at||r.checked_at||""))/36e5;
-      return {{...r,...bill(r,h,g),old:!(ageH<={CURRENT_MAX_H}),ageD:Math.round(ageH/24)}};
-    }}).sort((a,b)=>(a.old-b.old)||((a.tier_class==="reserved")-(b.tier_class==="reserved"))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
+      return {{...r,...bill(r,h,g),old:!(ageH<={CURRENT_MAX_H}),ageD:Math.round(ageH/24),stock:stockOf(r)}};
+    }}).sort((a,b)=>(a.old-b.old)||((a.tier_class==="reserved")-(b.tier_class==="reserved"))||((a.stock===false)-(b.stock===false))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
     // re28: a price older than {CURRENT_MAX_H} h never ranks or heads the summary; listed separately
-    const cur=rows.filter(r=>!r.old&&r.tier_class!=="reserved"), nOld=rows.filter(r=>r.old).length;
-    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
-    $("summary").textContent=!rows.length?"No priced option matches these filters.":cur.length?`${{rows.length}} options. Cheapest among tracked providers: ${{cur[0].advertiser}} ${{cur[0].gpu}} at ${{fmt(cur[0].cost)}}/month.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
+    const cur=rows.filter(r=>!r.old&&r.tier_class!=="reserved"), curIn=cur.filter(r=>r.stock!==false), nOld=rows.filter(r=>r.old).length;
+    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}${{r.stock===false?' <small class="oos">(out of stock when checked; ranked after available/unknown rows)</small>':r.stock===true?' <small>(in stock when checked)</small>':' <small>(stock unknown)</small>'}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("summary").textContent=!rows.length?"No priced option matches these filters.":cur.length?`${{rows.length}} options. Cheapest among tracked providers${{curIn.length?"":" (all matching rows out of stock when checked)"}}: ${{cur[0].advertiser}} ${{cur[0].gpu}} at ${{fmt(cur[0].cost)}}/month.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
     const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
     $("permalink").href="?"+p;
   }}

@@ -116,7 +116,7 @@ def _run(fn, *a, **kw) -> dict:
 @_counted
 @_contract
 def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = False, include_reserved: bool = False,
-                       max_data_age_hours: float | None = None) -> dict:
+                       max_data_age_hours: float | None = None, region: str | None = None) -> dict:
     """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
@@ -132,6 +132,10 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     By default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices
     ('stale price (N days old)'); if every rate is stale, results is empty and the summary says no current cheapest.
     max_data_age_hours (optional) replaces the 168 h default and drops older rates; excluded_too_old counts them.
+    region (optional, e.g. 'US'): rates whose unexpired published regions exclude it are dropped; rates with no region
+    evidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,
+    unknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price
+    watches use. Unknown stock is not confirmed availability.
     """
     try:
         hist = None
@@ -141,7 +145,7 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
             except DealError as e:
                 hist = {"series": [], "changes": [], "error": e.message}
         out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, history=hist, on_demand_only=on_demand_only, include_reserved=include_reserved,
-                                     max_data_age_hours=max_data_age_hours)
+                                     max_data_age_hours=max_data_age_hours, region=region or None)
         if hist and hist.get("error"):
             out["history"]["error"] = hist["error"]
         out.update(core.freshness(_gpu_checked_at()))
@@ -273,7 +277,7 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
 def estimate_job_cost(gpu_family: str, gpus_per_job: int, job_hours: float | None = None, work_units: float | None = None,
                       throughput_units_per_gpu_hour: float | None = None, workload: str | None = None,
                       allow_interruptible: bool = False, min_vram_gb: int | None = None, runs_per_month: float | None = None,
-                      top_n: int = 5, max_data_age_hours: float | None = None) -> dict:
+                      top_n: int = 5, max_data_age_hours: float | None = None, region: str | None = None) -> dict:
     """Cost of one GPU job (not cost per hour) among tracked providers, cheapest compute subtotal first.
 
     You supply the duration: job_hours, OR work_units plus throughput_units_per_gpu_hour from your own benchmark
@@ -291,7 +295,8 @@ def estimate_job_cost(gpu_family: str, gpus_per_job: int, job_hours: float | Non
         out = cost_per_job.estimate_job_cost(gpu, gpu_family, gpus_per_job, job_hours=job_hours, work_units=work_units,
                                              throughput_units_per_gpu_hour=throughput_units_per_gpu_hour, workload=workload,
                                              allow_interruptible=allow_interruptible, min_vram_gb=min_vram_gb,
-                                             runs_per_month=runs_per_month, top_n=top_n, max_data_age_hours=max_data_age_hours)
+                                             runs_per_month=runs_per_month, top_n=top_n, max_data_age_hours=max_data_age_hours,
+                                             region=region or None)
     except cost_per_job.JobCostError as e:
         return DealError(e.code, e.message).to_dict()
     except DealError as e:

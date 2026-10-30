@@ -4,6 +4,13 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.3.47 (2026-10-30)
+
+- T47: one eligibility contract (`core.eligibility`) for compare_gpu_prices, estimate_job_cost, price-watch alerts and the calculator. GPU words, memory size (`A100 80GB` never matches a 40GB row), tier (`spot` alias), region, price age and stock are checked the same way everywhere; `constraints.eligible_rate_ids` is the shared set.
+- New optional `region` on compare_gpu_prices and estimate_job_cost: rows publishing only other regions are dropped (`excluded_other_region`); rows with no unexpired region evidence stay, labelled unresolved, ranked after resolved rows. Watches never alert on an unresolved region.
+- Watches take `vram_gb`, `tiers` and `in_stock` (exclude_sold_out by default, or require); a row confirmed sold out never alerts.
+- Calculator: rows out of stock when checked rank after available and unknown rows; unknown stock is labelled, not shown as available.
+
 ## 0.3.46 (2026-10-30)
 
 - F1: /install/ pairs the test date with the version actually tested ("tested 2026-10-30 (v0.3.45); current v0.3.46"), never with a later build version. Client config checks keep their own date.

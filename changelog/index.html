@@ -128,6 +128,13 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.3.47 (2026-10-30)</h2>
+<ul>
+<li>T47: one eligibility contract (<code>core.eligibility</code>) for compare_gpu_prices, estimate_job_cost, price-watch alerts and the calculator. GPU words, memory size (<code>A100 80GB</code> never matches a 40GB row), tier (<code>spot</code> alias), region, price age and stock are checked the same way everywhere; <code>constraints.eligible_rate_ids</code> is the shared set.</li>
+<li>New optional <code>region</code> on compare_gpu_prices and estimate_job_cost: rows publishing only other regions are dropped (<code>excluded_other_region</code>); rows with no unexpired region evidence stay, labelled unresolved, ranked after resolved rows. Watches never alert on an unresolved region.</li>
+<li>Watches take <code>vram_gb</code>, <code>tiers</code> and <code>in_stock</code> (exclude_sold_out by default, or require); a row confirmed sold out never alerts.</li>
+<li>Calculator: rows out of stock when checked rank after available and unknown rows; unknown stock is labelled, not shown as available.</li>
+</ul>
 <h2>0.3.46 (2026-10-30)</h2>
 <ul>
 <li>F1: /install/ pairs the test date with the version actually tested (&quot;tested 2026-10-30 (v0.3.45); current v0.3.46&quot;), never with a later build version. Client config checks keep their own date.</li>

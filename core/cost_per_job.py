@@ -45,7 +45,7 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
                       work_units: float | None = None, throughput_units_per_gpu_hour: float | None = None,
                       workload: str | None = None, allow_interruptible: bool = False, min_vram_gb: int | None = None,
                       runs_per_month: float | None = None, top_n: int = 5, max_data_age_hours: float | None = None,
-                      now=None) -> dict:
+                      now=None, region: str | None = None) -> dict:
     if not gpu_family or not _tokens(gpu_family):
         raise JobCostError("invalid_argument", "gpu_family is required, e.g. 'H100', 'A100 80GB', 'L40S'")
     if isinstance(gpus_per_job, bool) or not isinstance(gpus_per_job, int) or gpus_per_job < 1:
@@ -121,6 +121,19 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
             stale.append(r)  # Gauge re28: > 168 h never ranks by default; listed separately
             continue
         rows.append(r)
+    # T47: shared eligibility contract; a region drops rows publishing other regions, keeps unresolved ones labelled
+    from . import eligibility as EL
+    try:
+        cons = EL.normalize(gpu=gpu_l, region=region, max_price_age_hours=max_h,
+                            tiers=[t for t in EL.TIER_CLASSES if t != "reserved" and (allow_interruptible or t != "interruptible")])
+    except EL.EligibilityError as e:
+        raise JobCostError("invalid_argument", str(e))
+    elig = {id(r): EL.evaluate(r, cons, now) for r in rows}
+    other_region = 0
+    if cons.get("region"):
+        keep = [r for r in rows if not any(u["constraint"] == "region" for u in elig[id(r)]["unmet"])]
+        other_region = len(rows) - len(keep)
+        rows = keep
     stale_view = sorted((data_age.stale_view(r, now, "price_usd") for r in stale), key=lambda x: (x["price"], x["vendor"] or ""))
     stale_extra = {"stale_prices": stale_view, "excluded_stale": len(stale_view),
                    "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h}
@@ -140,7 +153,8 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
     priced = estimate(rows, job_hours, gpus_per_job, min_vram_gb=min_vram_gb)
     from .deals import oos_note, out_of_stock
     from .stack import avail_fields
-    priced.sort(key=out_of_stock)  # F1: stable; explicit out-of-stock rows rank after in-stock/unknown rows
+    _unres = lambda r: any(u["constraint"] == "region" for u in EL.evaluate(r, cons, now)["unknown"])
+    priced.sort(key=lambda r: (_unres(r), out_of_stock(r)))  # T47 region-unresolved, then F1: stable; explicit out-of-stock rows rank after in-stock/unknown rows
     out_rows = []
     for i, r in enumerate(priced[:top_n], 1):
         per = r.get("gpu_count") or 1
@@ -150,7 +164,8 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
                "gpus_per_instance": per, "requested_gpus": gpus_per_job, "allocated_gpus": inst * per, "instances": inst,
                "job_hours": round(job_hours, 4), "compute_subtotal_usd": r["monthly_cost_usd"], "calc": r["calc"],
                "deal_id": r.get("deal_id"), "source_url": r.get("source_url"), "verified_at": r.get("verified_at"),
-               "checked_at": r.get("checked_at"), **data_age.age_fields(r, now), **avail_fields(r)}
+               "checked_at": r.get("checked_at"), **data_age.age_fields(r, now), **avail_fields(r),
+               "eligibility": EL.evaluate(r, cons, now)}
         if runs:
             row["monthly_subtotal_usd"] = round(r["monthly_cost_usd"] * runs, 2)
         out_rows.append(row)
@@ -171,4 +186,6 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
             "assumptions": assumptions, "citations": [source["url"]] if source else [],
             "throughput_basis": basis, "throughput_source": source,
             "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
-            "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra}
+            "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra,
+            "region": cons.get("region"), "excluded_other_region": other_region,
+            "constraints": {"applied": cons, "eligible_rate_ids": sorted({rate_id(r) for r in priced if EL.evaluate(r, cons, now)["eligible"]})}}
