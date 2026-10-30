@@ -186,13 +186,14 @@ def _mem_note(gen, rows, od) -> str:
     sizes = {x.get("vram_gb") for x in rows if x.get("vram_gb")}
     if len(sizes) < 2 or not od.get("vram_gb") or od["vram_gb"] == max(sizes):
         return ""
-    big = [x for x in rows if x["gpu"] == od["gpu"] and x.get("vram_gb") == max(sizes)
+    base = od["gpu"].split()[0]  # every variant (SXM, PCIe, unlabelled) of the same model at the largest size
+    big = [x for x in rows if x["gpu"].split()[0] == base and x.get("vram_gb") == max(sizes)
            and (x.get("tier_class") or "on-demand") == "on-demand" and not out_of_stock(x)]
     if not big:
         return ""
     b = min(big, key=lambda x: (x["monthly_cost_usd"], x["advertiser"]))
-    return (f" \u2014 memory sizes differ; cheapest {gen.esc(od['gpu'])} {max(sizes)}GB among tracked providers: "
-            f"{_tied_names(gen, big, b)} at {_money(b['monthly_cost_usd'])}")
+    return (f" \u2014 memory sizes differ; cheapest {gen.esc(base)} {max(sizes)}GB among tracked providers: "
+            f"{_tied_names(gen, big, b)} {gen.esc(b['gpu'])} {max(sizes)}GB at {_money(b['monthly_cost_usd'])}")
 
 
 def _od_note(gen, rows, cheapest) -> str:

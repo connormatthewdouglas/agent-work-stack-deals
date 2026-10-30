@@ -193,7 +193,7 @@ def test_j7_regions_cite_supporting_urls():
 def test_j8_cheapest_a100_summary_names_memory_sizes():
     s = (ROOT / "gpu/cheapest-a100-rental/index.html").read_text()
     assert ("cheapest <strong>on-demand</strong> among tracked providers: Jarvislabs A100 40GB (On-demand) at $89.00 \u2014 memory sizes differ; "
-            "cheapest A100 80GB among tracked providers: Thunder Compute at $109.00") in s
+            "cheapest A100 80GB among tracked providers: CloudRift A100 SXM 80GB at $105.00") in s
 
 
 def test_index_a100_is_80gb_only():
@@ -204,3 +204,14 @@ def test_index_a100_is_80gb_only():
     assert gpu_index.series_of({"gpu": "A100", "vram_gb": 40}) is None and gpu_index.series_of({"gpu": "A100", "vram_gb": 80}) == "A100"
     assert gpu_index.series_of({"gpu": "A100", "vram_gb": None}) is None
     assert "A100 series is 80 GB only" in (ROOT / "docs/GPU-INDEX-METHODOLOGY.md").read_text()
+
+
+def test_j8_80gb_clause_covers_every_variant_from_feed():
+    import json, re
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    c = [r for r in feed["rates"] if r["gpu"].split()[0] == "A100" and r.get("vram_gb") == 80 and r["tier_class"] == "on-demand"
+         and r["availability"].get("in_stock") is not False]
+    b = min(c, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+    s = (ROOT / "gpu/cheapest-a100-rental/index.html").read_text()
+    m = re.search(r"cheapest A100 80GB among tracked providers: (.*?) at \$([\d,]+\.\d\d)", s)
+    assert m and m.group(1).startswith(b["advertiser"]) and float(m.group(2).replace(",", "")) == round(b["hourly_equiv_usd"] * 100, 2)
