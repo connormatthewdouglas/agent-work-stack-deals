@@ -323,15 +323,21 @@ def _(f, ev):
 @case("T41-13")
 def _(f, ev):
     held = FEED.get("held_stale") or []
-    keys = {(h["vendor"], rec["gpu"]) for h in held for rec in h["records"]}
+    # record-scoped holds (one tier of a vendor/gpu, e.g. a dropped term rate) key on tier; vendor holds on vendor/gpu
+    def k(h, rec):
+        return (h["vendor"], rec["gpu"], rec.get("tier")) if h.get("scope") == "record" else (h["vendor"], rec["gpu"])
+    keys = {k(h, rec) for h in held for rec in h["records"]}
     for r in RATES:
-        if (r["advertiser"], r["gpu"]) in keys: f.append(f"{rid(r)}: held_stale vendor/gpu is ranked")
+        if (r["advertiser"], r["gpu"]) in keys or (r["advertiser"], r["gpu"], r.get("tier")) in keys:
+            f.append(f"{rid(r)}: held_stale vendor/gpu is ranked")
     for h in held:
         if not h.get("reason"): f.append(f"{h['vendor']}: held without reason")
         for rec in h["records"]:
             try:
                 out = tool(SRV.compare_gpu_prices, rec["gpu"], limit=25)
-                if any(x["advertiser"] == h["vendor"] for x in out.get("results") or []): f.append(f"compare {rec['gpu']} returns held {h['vendor']}")
+                hits = [x for x in out.get("results") or [] if x["advertiser"] == h["vendor"]
+                        and (h.get("scope") != "record" or x.get("tier") == rec.get("tier"))]
+                if hits: f.append(f"compare {rec['gpu']} returns held {h['vendor']}")
             except Exception:
                 pass
     ev["held"] = [f"{h['vendor']}: {h.get('reason')}"[:160] for h in held]

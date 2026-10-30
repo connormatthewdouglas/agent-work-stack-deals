@@ -13,10 +13,11 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-10-30T17:36:41+00:00",
-  "row_count": 28,
+  "last_checked": "2026-10-30T21:45:00+00:00",
+  "row_count": 29,
   "providers": [
     "Civo",
+    "CloudRift",
     "CoreWeave",
     "E2E Networks",
     "Hyperstack",
@@ -59,26 +60,27 @@
       },
       {
         "vram_gb": 80,
-        "provider": "Thunder Compute",
-        "gpu": "A100",
+        "provider": "CloudRift",
+        "gpu": "A100 SXM",
         "tier": "On-demand",
         "tier_class": "on-demand",
         "bucket": "on-demand",
         "interruptible": false,
-        "hourly_usd_per_gpu": 1.09,
+        "hourly_usd_per_gpu": 1.05,
         "unit": "hour",
-        "price_usd": 1.09,
+        "price_usd": 1.05,
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-10-30T17:36:19+00:00",
-        "source_url": "https://www.thundercompute.com/pricing",
-        "quote": "A100 80GB 80 GB 8 included · 16 max 64–128 GB 100–500 GB $1.09 /hr",
+        "verified_at": "2026-10-30T21:45:00+00:00",
+        "source_url": "https://www.cloudrift.ai/a100",
+        "quote": "Rent NVIDIA A100 80GB SXM4 GPUs from $1.05/hour. Each GPU ships with 15 CPU cores, 210 GB of RAM, and 800 GB of NVMe, and nodes scale to 8 GPUs over NVLink 3.0.",
         "availability": {
           "status": "unknown",
           "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "checked_at": "2026-10-30T21:45:00+00:00",
+          "source": "https://www.cloudrift.ai/a100",
+          "note": "The A100 page publishes no stock signal"
         }
       }
     ],
@@ -247,6 +249,31 @@
         "checked_at": "2026-10-30T00:05:46+00:00",
         "source": "https://jarvislabs.ai/pricing",
         "note": "The public pricing page publishes no stock signal"
+      }
+    },
+    {
+      "provider": "CloudRift",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.05,
+      "unit": "hour",
+      "price_usd": 1.05,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-30T21:45:00+00:00",
+      "source_url": "https://www.cloudrift.ai/a100",
+      "quote": "Rent NVIDIA A100 80GB SXM4 GPUs from $1.05/hour. Each GPU ships with 15 CPU cores, 210 GB of RAM, and 800 GB of NVMe, and nodes scale to 8 GPUs over NVLink 3.0.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T21:45:00+00:00",
+        "source": "https://www.cloudrift.ai/a100",
+        "note": "The A100 page publishes no stock signal"
       }
     },
     {
