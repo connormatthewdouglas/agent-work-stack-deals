@@ -21,7 +21,7 @@ def test_extra_keys_and_vram_rules():
     assert r["gpu"] == "B300 SXM" and r["form_factor"] == "SXM" and r["vram_gb"] == 288 and "268" in r["vram_note"]
     assert normalize(row(vendor="Vast.ai", gpu_model="A40", vram_gb=48, price_usd_hr=0.5, offer_count=4)) is None
     v = normalize(row(vendor="Vast.ai", gpu_model="A40", vram_gb=48, price_usd_hr=0.5344, offer_count=7, source_detail="https://console.vast.ai/api/v0/bundles/?q=x"))
-    assert v["price_status"] == "listed" and v["offer_count"] == 7 and "7 verified" in v["quote"] and "$0.5344" in v["quote"]
+    assert v["price_status"] == "listed" and "offer_count" not in v and "7 verified" in v["quote"] and "$0.5344" in v["quote"]
     assert v["source_url"].startswith("https://console.vast.ai")
     assert normalize(row(vendor="RunPod", gpu_model="B200 SXM 180GB", vram_gb=180, price_usd_hr=5.98))["vram_gb"] == 180
     assert normalize(row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.59))["vram_gb"] == 24

@@ -62,7 +62,7 @@ def normalize(r: dict) -> dict | None:
     if note:
         rec["vram_note"] = note
     if v == "Vast.ai":
-        rec.update(price_status="listed", offer_count=r["offer_count"], price_basis=r.get("price_basis"))
+        rec.update(price_status="listed", price_basis=f"{r.get('price_basis')} ({r['offer_count']} verified offers)")  # offer_count field is marketplace-only (T41-19)
     return rec
 
 
