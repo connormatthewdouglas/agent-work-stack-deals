@@ -30,6 +30,7 @@ concurrency:
 
 jobs:
   import:
+    continue-on-error: true  # failures go to the "Pipeline failing: Scout import" issue, not a red run (no per-run email)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -134,3 +135,10 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: DETAIL="Live data stays on the previous generation until an import succeeds." sh scripts/pipeline_issue.sh "Scout import"
+      - name: Close the Scout import issue after a green run
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: sh scripts/pipeline_issue.sh "Scout import" --green || true

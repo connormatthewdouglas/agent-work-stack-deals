@@ -52,6 +52,9 @@ jobs:
           echo "last deployed: ${base:-none}; data_only=$ok"; echo "data_only=$ok" >> "$GITHUB_OUTPUT"
 
   validate:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -74,8 +77,14 @@ jobs:
       - name: Redeem URL link check (advisory; flaky vendors such as softshellweb 5xx never fail the job)
         continue-on-error: true
         run: python3 scripts/validate_feed.py --links
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   latest-scout-import:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     # v34 lesson (2026-10-30): run the import + full tests against the LATEST scout-data snapshot before merge,
     # so a Scout data/note-text change is caught here, not by a failed live import.
     runs-on: ubuntu-latest
@@ -90,8 +99,14 @@ jobs:
       - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
       - name: Import latest scout-data snapshot into a throwaway tree, rebuild, run all tests
         run: sh scripts/check_latest_scout_import.sh
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   tests:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     # ALL tests (tests/ = core, MCP server, GPU) + SKILL.md + packaging (offline: LANTERN_DEALS_FILE points at the committed feed)
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -128,8 +143,14 @@ jobs:
           pip install dist/*.whl
           python3 -c "import lantern_works_deals_mcp.server"
           python3 scripts/check_benchmark_asset.py --installed   # T43: the built wheel prices H100 SXM resnet50 outside the checkout
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   pypi-install:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     # Clean-environment install of the PUBLISHED package from PyPI (fresh venv + uvx), all 3 tools over stdio
     needs: [changes]
     if: needs.changes.outputs.data_only != 'true'
@@ -150,8 +171,14 @@ jobs:
           for i in $(seq 1 40); do /tmp/pv/bin/pip -q install --no-cache-dir "lantern-works-deals-mcp==$ver" && break; echo "waiting for $ver on PyPI ($i/40)"; sleep 15; done
           /tmp/pv/bin/python scripts/check_benchmark_asset.py --installed
           PATH=/tmp/pv/bin:$PATH /tmp/pv/bin/python scripts/check_error_contract.py --installed
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   docker:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     # Glama-style container run: build the Dockerfile (installs the pinned PyPI release) and call every tool over stdio
     needs: [changes]
     if: needs.changes.outputs.data_only != 'true'
@@ -181,8 +208,14 @@ jobs:
         run: |
           docker run --rm -v "$PWD/scripts:/s:ro" --entrypoint python lantern-works-deals-mcp /s/check_benchmark_asset.py --installed
           docker run --rm -v "$PWD/scripts:/s:ro" --entrypoint python lantern-works-deals-mcp /s/check_error_contract.py --installed
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   release-gate:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     # T41 pricing-decision release gate (Gauge): 20 agent questions checked against the BUILT feed/site in this
     # checkout (api/v1/*.json, index.html), i.e. what is about to ship, not the live site. Any failing case fails
     # the job, and deploy needs it. Own install pins mcp<2 (mcp 2.x removed FastMCP).
@@ -204,12 +237,18 @@ jobs:
           name: t41-results
           path: t41-results.json
           if-no-files-found: ignore
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   live-checks:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     # LIVE-site checks (URL migration/key paths/gist==live feed, /SKILL.md frontmatter). These test the deployed
     # site, so they run after deploy (or on schedule), never as a pre-deploy gate (live always lags a new commit).
     needs: [deploy]
-    if: always() && (needs.deploy.result == 'success' || github.event_name == 'schedule')
+    if: always() && (needs.deploy.outputs.ok == 'true' || github.event_name == 'schedule')
     permissions:
       contents: read
       issues: write
@@ -219,7 +258,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: pip install pyyaml
       - run: sleep 60   # let the Pages CDN pick up the new deployment
-        if: needs.deploy.result == 'success'
+        if: needs.deploy.outputs.ok == 'true'
       - run: python3 scripts/check_skill.py --live
       - run: python3 scripts/test_url_migration.py
       - run: python3 scripts/check_benchmark_asset.py --hosted   # T43: the deployed MCP passes the same case
@@ -242,15 +281,21 @@ jobs:
           else
             gh issue create --title "$title" --label gpu-pricing-check --body-file gpu-sources-report.md
           fi
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   deploy:
+    continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
+    outputs:
+      ok: ${{ steps.lw_ok.outputs.ok }}
     # Deploy is gated on validation. Only from main pushes / manual runs.
     needs: [validate, tests, pypi-install, release-gate, latest-scout-import]  # Gauge re31: docker (PyPI race) never blocks the Pages deploy
     # Pages source = "GitHub Actions" (build_type=workflow) with repo variable PAGES_DEPLOY_VIA_ACTIONS=true,
     # so nothing reaches the live site unless validate + tests + pypi-install pass. Rollback: set Pages
     # build_type back to legacy (branch main, /) and the variable to false.
     # always(): pypi-install/docker may be skipped on the data-only path; any failure or cancel still blocks.
-    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.validate.result == 'success' && needs.tests.result == 'success' && needs.release-gate.result == 'success' && needs.latest-scout-import.result == 'success' && vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: always() && !contains(needs.*.result, 'cancelled') && needs.pypi-install.outputs.ok != 'false' && needs.validate.outputs.ok == 'true' && needs.tests.outputs.ok == 'true' && needs.release-gate.outputs.ok == 'true' && needs.latest-scout-import.outputs.ok == 'true' && vars.PAGES_DEPLOY_VIA_ACTIONS == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -309,12 +354,15 @@ jobs:
       - id: deployment
         if: steps.head.outputs.go == 'true'
         run: echo "page_url=${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}" >> "$GITHUB_OUTPUT"
+      - id: lw_ok
+        if: always()
+        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
 
   expiry-alert:
     # Gauge re18 R2: a failed run (any gate, deploy or live check) while the LIVE stock claims expire within 2 h
     # opens (or comments on) one GitHub issue, so a broken deploy never silently leaves expiring claims up.
     needs: [validate, tests, pypi-install, docker, release-gate, deploy, live-checks]
-    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && contains(needs.*.result, 'failure')
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && (contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false')
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
@@ -349,7 +397,7 @@ jobs:
   pipeline-failure-issue:
     # Any failed gate, deploy or live check on main opens (or comments on) one issue, whatever the claim expiry.
     needs: [validate, tests, latest-scout-import, pypi-install, docker, release-gate, deploy, live-checks]
-    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && contains(needs.*.result, 'failure')
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && (contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false')
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
@@ -362,3 +410,19 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           NEEDS: ${{ toJSON(needs) }}
         run: sh scripts/pipeline_issue.sh "Validate/deploy"
+
+  pipeline-green:
+    # The first fully green main run closes the open "Pipeline failing: Validate/deploy" issue.
+    needs: [validate, tests, latest-scout-import, pypi-install, docker, release-gate, deploy, live-checks]
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !(contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: sh scripts/pipeline_issue.sh "Validate/deploy" --green
