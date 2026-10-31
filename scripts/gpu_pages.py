@@ -147,6 +147,16 @@ def _report_q(r: dict) -> str:
     return urlencode({k: v for k, v in q.items() if v})
 
 
+def display_gpu(r: dict) -> str:
+    """Display label only (row names stay as-is for joins): an H100 row with no form gets 'SXM (HGX)' when the vendor
+    quote says HGX (HGX boards are SXM), else 'form not stated', so SXM and PCIe rows never read alike."""
+    g = r.get("gpu") or ""
+    if g == "H100":
+        q = f"{r.get('basis') or ''} {(r.get('evidence') or {}).get('quote') or ''}"
+        return "H100 SXM (HGX)" if "HGX" in q.upper() else "H100 (form not stated)"
+    return g
+
+
 def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
     esc = gen.esc
     trs = []
@@ -159,7 +169,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
         tc = r.get("tier_class") or "on-demand"
         badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
         trs.append(
-            f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(r['gpu'])}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
+            f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(display_gpu(r))}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
             f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
             f"<td data-label=\"Type\">{esc(r['tier'])}{badge}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
             f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_money(r['monthly_cost_usd'])}</strong></td><td data-label=\"Full month\">{_money(full[_key(r)])}</td>"
