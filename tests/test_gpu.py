@@ -202,7 +202,7 @@ def test_new_vendor_flags():
             body = f.read_text().split("</head>")[1]
             assert "TensorDock" not in body.split("Held out")[0], page
     # Vast: 3 marketplace medians (no H100), tied to the existing affiliate deal, labeled with lowest offer
-    vast = [r for r in rates if r["advertiser"] == "Vast.ai"]
+    vast = [r for r in rates if r["advertiser"] == "Vast.ai" and r.get("price_status") == "marketplace"]  # wider-GPU Vast rows are listed medians
     assert {r["gpu"] for r in vast} <= {"RTX 4090", "A100 SXM"}  # a market below 5 qualifying offers is auto-held
     for r in vast:
         x = _rec("Vast.ai", r["gpu"])
@@ -235,6 +235,8 @@ def test_marketplace_hold_is_automatic_and_tracks_offer_count():
     api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
     vast = next(d for d in load_vendor_files() if d["vendor"] == "Vast.ai")
     for r in vast["records"]:
+        if r.get("batch") == "wider-gpu":
+            continue  # Scout wider-GPU rows: listed medians (offer_count >= 5 enforced by the importer), not marketplace records
         ranked = any(x["advertiser"] == "Vast.ai" and x["gpu"] == r["gpu"] for x in api["rates"])
         held = any(h["vendor"] == "Vast.ai" and h["records"][0]["gpu"] == r["gpu"] for h in api["held_stale"])
         if r.get("stale"):

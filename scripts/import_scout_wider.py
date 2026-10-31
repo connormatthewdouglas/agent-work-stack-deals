@@ -5,6 +5,7 @@ held_below_min_offers rows skipped; Clore and TensorDock never imported; pulled 
 B300 = 288 GB; Vast A40/L4/RTX A4000 = 48/24/16 GB with the vendor's own figure kept in vram_note.
 Usage: import_scout_wider.py <wider_gpu_prices_latest.json> [--dry-run]"""
 import json
+import os
 import re
 import sys
 from datetime import datetime, timedelta, timezone
@@ -17,7 +18,8 @@ from core.gpu import family_of  # noqa: E402
 
 PRICING = ROOT / "data" / "gpu_pricing"
 FILES = {"RunPod": "runpod.json", "Lambda": "lambda.json", "Vast.ai": "vast.json", "Verda": "verda.json", "Oblivus": "oblivus.json"}
-NEVER = ("clore", "tensordock", "vast")  # Vast marketplace records need median/min/offer_count fields this batch lacks
+NEVER = ("clore", "tensordock")
+MIN_VAST_OFFERS = 5  # same floor as core.gpu MIN_MARKET_OFFERS
 MAX_AGE = timedelta(hours=36)  # prices refresh daily
 VRAM_FIX = {("B300", None): 288, ("A40", "Vast.ai"): 48, ("L4", "Vast.ai"): 24, ("RTX A4000", "Vast.ai"): 16}
 
@@ -44,16 +46,23 @@ def normalize(r: dict) -> dict | None:
     if fix and vram != fix:
         note = f"vendor reports {vram}GB" if vram else note
         vram = fix
+    if v == "Vast.ai" and (r.get("offer_count") or 0) < MIN_VAST_OFFERS:
+        return None
     price = float(r["price_usd_hr"])
     when = r.get("verified_at") or r.get("checked_at") or r.get("collected_at")
     quote = f"{m} {r.get('price_basis') or ''} ${price}/hr".strip()
-    ev = {"source_url": r["source_url"], "quote": quote, "checked_at": when}
+    src = r.get("source_detail") or r["source_url"]
+    if v == "Vast.ai":  # adapter: a cited median with offer_count but no min, so plain "listed" (never the marketplace schema)
+        quote = f"Vast public offers API: {r['offer_count']} verified rentable on-demand {m} offers; per-GPU dph_total median ${price:.4f}/hr"
+    ev = {"source_url": src, "quote": quote[:200], "checked_at": when}
     rec = {"vendor": v, "gpu": gpu, "vram_gb": vram, "price_usd": price, "billing_unit": "hourly", "hourly_usd": price,
            "interruptible": "spot" in (r.get("tier") or "").lower(), "tier": r.get("tier"), "form_factor": form,
-           "quote": quote, "source_url": r["source_url"], "checked_at": when, "evidence": ev, "verified_at": when,
+           "quote": quote, "source_url": src, "checked_at": when, "evidence": ev, "verified_at": when,
            "batch": "wider-gpu"}
     if note:
         rec["vram_note"] = note
+    if v == "Vast.ai":
+        rec.update(price_status="listed", offer_count=r["offer_count"], price_basis=r.get("price_basis"))
     return rec
 
 
@@ -90,6 +99,10 @@ def main() -> None:
         print(f"{v}: +{len(new)} wider-gpu records")
         if not dry:
             p.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    gen = os.environ.get("LW_WIDER_GEN") or d.get("generation_id") or d["collected_at"]
+    if not dry:  # carried into gpu-prices.json as wider_generation_id
+        (ROOT / "data" / "gpu_availability" / "wider_meta.json").write_text(json.dumps({"wider_generation_id": gen, "wider_collected_at": d["collected_at"],
+                                                             "wider_records": sum(len(x) for x in by_vendor.values())}, indent=2) + "\n")
     print(f"wider-gpu records={total}{' (dry run)' if dry else ''}")
 
 

@@ -86,7 +86,7 @@ def main() -> int:
     if not a.offline:
         pages: dict[str, tuple[int | None, str]] = {}
         for doc in docs:
-            urls = {doc["source_url"]} | {r["source_url"] for r in doc["records"]}
+            urls = {doc["source_url"]} | {r["source_url"] for r in doc["records"] if r.get("batch") != "wider-gpu"}  # API calls, not pages
             for u in sorted(urls):
                 if u not in pages:
                     pages[u] = fetch(u)
@@ -96,6 +96,9 @@ def main() -> int:
                         (warnings if doc.get("manual_snapshot") else flags).append(
                             f"unreachable: {doc['vendor']} {u} -> {st if st else body}")
             for r in doc["records"]:
+                if r.get("batch") == "wider-gpu":
+                    warnings.append(f"Scout API batch, not re-checked on page: {doc['vendor']} {r['gpu']} (verified {r['checked_at']})")
+                    continue
                 st, body = pages[r["source_url"]]
                 if st != 200:
                     continue

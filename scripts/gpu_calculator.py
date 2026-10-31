@@ -22,6 +22,9 @@ API_PATH = ROOT / "api" / "v1" / "gpu-prices.json"
 HISTORY_PATH = ROOT / "api" / "v1" / "gpu-prices" / "history.json"
 
 
+_WM = Path(__file__).resolve().parents[1] / "data" / "gpu_availability" / "wider_meta.json"
+
+
 def write_history(gen) -> dict:
     """/api/v1/gpu-prices/history.json from the committed daily snapshots (data/gpu_pricing/snapshots/)."""
     from core import gpu_history
@@ -52,6 +55,8 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         # Derived from the data, never build time (audit T8/M5): the newest of the deal feed's updated_at and every rate's verified_at.
         "feed_updated_at": latest_checked_at([feed_updated, _av.get("collected_at")] + [r.get("verified_at") for r in data["rates"]]),
         "generation_id": _av.get("generation_id"),
+        # Scout wider-GPU batch (scripts/import_scout_wider.py): its own generation, carried alongside the availability one
+        "wider_generation_id": (json.loads(_WM.read_text()) if _WM.is_file() else {}).get("wider_generation_id"),
         "availability_collected_at": _av.get("collected_at"),
         "prices_verified_through": latest_checked_at(r.get("verified_at") for r in data["rates"]),
         "deal_feed_updated_at": feed_updated,
