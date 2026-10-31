@@ -1,7 +1,7 @@
 {
   "schema": "lantern-works-gpu-availability/1",
   "source": "Lantern Scout availability collector v3.2 (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",
-  "generation_id": "20261031T131049Z-f7b0bf6f",
+  "generation_id": "20261031T135634Z-0e93f074",
   "collected_at": "2026-10-31T13:09:44Z",
   "imported_rows": 27,
   "rows": [
@@ -1349,20 +1349,20 @@
       "tier": "Spot instance (1x GPU)",
       "region": "all",
       "available_regions": null,
-      "in_stock": false,
+      "in_stock": null,
       "offer_count": null,
       "unrented_servers": null,
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
       "availability_checked_at": "2026-10-31T13:09:44Z",
-      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
+      "availability_note": "unknown: no confirmed region claim at overall_recomputed_at",
       "available_regions_detail": null,
       "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-31T13:24:44Z"
+      "availability_expires_at": null
     },
     {
       "vendor": "Verda (formerly DataCrunch)",
@@ -1370,41 +1370,21 @@
       "vram_gb": 40,
       "tier": "Spot instance (1x GPU)",
       "region": "all",
-      "available_regions": [
-        "FIN-01"
-      ],
-      "in_stock": true,
+      "available_regions": null,
+      "in_stock": null,
       "offer_count": null,
       "unrented_servers": null,
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
       "availability_checked_at": "2026-10-31T13:09:44Z",
-      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
-      "available_regions_detail": [
-        {
-          "region": "FIN-01",
-          "stock_level": null,
-          "checked_at": "2026-10-31T13:09:44Z",
-          "availability_expires_at": "2026-10-31T13:24:44Z",
-          "confirmed": true,
-          "confirmation": "two_reads",
-          "second_read_stock_level": null
-        }
-      ],
-      "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+      "availability_note": "unknown: no confirmed region claim at overall_recomputed_at",
+      "available_regions_detail": null,
+      "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-31T13:24:44Z",
-      "available_regions_normalized": [
-        {
-          "label": "FIN-01",
-          "zone": "FIN-01",
-          "country": "FI",
-          "group": "EU"
-        }
-      ]
+      "availability_expires_at": null
     },
     {
       "vendor": "Verda (formerly DataCrunch)",
@@ -1454,57 +1434,21 @@
       "vram_gb": 80,
       "tier": "Spot instance (1x GPU)",
       "region": "all",
-      "available_regions": [
-        "FIN-01",
-        "FIN-02"
-      ],
-      "in_stock": true,
+      "available_regions": null,
+      "in_stock": null,
       "offer_count": null,
       "unrented_servers": null,
       "stock_level": null,
       "availability_source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
       "availability_source_type": "authenticated vendor API (not publicly reproducible)",
       "availability_checked_at": "2026-10-31T13:09:44Z",
-      "availability_note": "offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
-      "available_regions_detail": [
-        {
-          "region": "FIN-01",
-          "stock_level": null,
-          "checked_at": "2026-10-31T13:09:44Z",
-          "availability_expires_at": "2026-10-31T13:24:44Z",
-          "confirmed": true,
-          "confirmation": "two_reads",
-          "second_read_stock_level": null
-        },
-        {
-          "region": "FIN-02",
-          "stock_level": null,
-          "checked_at": "2026-10-31T13:09:44Z",
-          "availability_expires_at": "2026-10-31T13:24:44Z",
-          "confirmed": true,
-          "confirmation": "two_reads",
-          "second_read_stock_level": null
-        }
-      ],
-      "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+      "availability_note": "unknown: no confirmed region claim at overall_recomputed_at",
+      "available_regions_detail": null,
+      "available_regions_label": null,
       "feed_status": null,
       "feed_min_offers": null,
       "derived_from_regions": true,
-      "availability_expires_at": "2026-10-31T13:24:44Z",
-      "available_regions_normalized": [
-        {
-          "label": "FIN-01",
-          "zone": "FIN-01",
-          "country": "FI",
-          "group": "EU"
-        },
-        {
-          "label": "FIN-02",
-          "zone": "FIN-02",
-          "country": "FI",
-          "group": "EU"
-        }
-      ]
+      "availability_expires_at": null
     }
   ]
 }
