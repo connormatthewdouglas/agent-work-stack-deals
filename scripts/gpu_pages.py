@@ -152,7 +152,8 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
     trs = []
     has_av = any((r.get("availability") or {}).get("in_stock") is not None for r in rows)
     kinds = {"manual snapshot" if str((r.get("availability") or {}).get("refresh", "")).startswith("manual") else "automated check"
-             for r in rows if (r.get("availability") or {}).get("in_stock") is not None}
+             for r in rows if (r.get("availability") or {}).get("in_stock") is not None
+             or (r.get("availability") or {}).get("checked_at")}  # unknown-but-checked rows are shown in the column too
     av_head = "automated check or manual snapshot (Clore)" if len(kinds) > 1 else (kinds.pop() if kinds else "automated check")
     for i, r in enumerate(rows, 1):
         tc = r.get("tier_class") or "on-demand"
