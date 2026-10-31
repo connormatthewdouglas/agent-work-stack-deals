@@ -19,9 +19,8 @@ def row(**k):
 def test_extra_keys_and_vram_rules():
     r = normalize(row(vendor="Verda", gpu_model="B300 SXM 268GB", vram_gb=268, price_usd_hr=11.35))
     assert r["gpu"] == "B300 SXM" and r["form_factor"] == "SXM" and r["vram_gb"] == 288 and "268" in r["vram_note"]
-    for m, v, want in (("A40 45GB", 45, 48), ("L4 22GB", 22, 24), ("RTX A4000 15GB", 15, 16)):
-        r = normalize(row(vendor="Vast.ai", gpu_model=m, vram_gb=v, price_usd_hr=0.5))
-        assert r["vram_gb"] == want and r["vram_note"] == f"vendor reports {v}GB"
+    assert normalize(row(vendor="Vast.ai", gpu_model="A40 45GB", vram_gb=45, price_usd_hr=0.5)) is None  # no median/min fields
+    assert normalize(row(vendor="RunPod", gpu_model="B200 SXM 180GB", vram_gb=180, price_usd_hr=5.98))["vram_gb"] == 180
     assert normalize(row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.59))["vram_gb"] == 24
 
 

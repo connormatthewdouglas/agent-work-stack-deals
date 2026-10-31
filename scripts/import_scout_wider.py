@@ -17,7 +17,7 @@ from core.gpu import family_of  # noqa: E402
 
 PRICING = ROOT / "data" / "gpu_pricing"
 FILES = {"RunPod": "runpod.json", "Lambda": "lambda.json", "Vast.ai": "vast.json", "Verda": "verda.json", "Oblivus": "oblivus.json"}
-NEVER = ("clore", "tensordock")
+NEVER = ("clore", "tensordock", "vast")  # Vast marketplace records need median/min/offer_count fields this batch lacks
 MAX_AGE = timedelta(hours=36)  # prices refresh daily
 VRAM_FIX = {("B300", None): 288, ("A40", "Vast.ai"): 48, ("L4", "Vast.ai"): 24, ("RTX A4000", "Vast.ai"): 16}
 
@@ -80,6 +80,8 @@ def main() -> None:
         doc = json.loads(p.read_text())
         if is_pulled(doc.get("deal_id")):
             continue
+        for x in recs:  # records carry the vendor file's own name (e.g. "Verda (formerly DataCrunch)")
+            x["vendor"] = doc.get("vendor") or x["vendor"]
         keep = [x for x in doc.get("records") or [] if x.get("batch") != "wider-gpu"]
         have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb")) for x in keep}
         new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"]) not in have]  # existing curated rows win

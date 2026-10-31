@@ -1,0 +1,248 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "license": {
+    "data": "CC-BY-4.0",
+    "data_license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Lantern Works (https://thelanternworks.com)",
+    "code": "MIT",
+    "details": "https://thelanternworks.com/methodology/#license"
+  },
+  "model": "RTX PRO 6000",
+  "slug": "rtx-pro-6000",
+  "url": "https://thelanternworks.com/api/v1/gpu/rtx-pro-6000.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-10-31T13:56:26Z",
+  "row_count": 7,
+  "providers": [
+    "RunPod",
+    "Verda (formerly DataCrunch)"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 96,
+        "provider": "RunPod",
+        "gpu": "RTX PRO 6000 Server",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.49,
+        "unit": "hour",
+        "price_usd": 2.49,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-31T13:56:21Z",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "RTX PRO 6000 Server gpuTypes.securePrice (list price, 1 GPU) $2.49/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ],
+    "spot-community": [
+      {
+        "vram_gb": 96,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "RTX PRO 6000",
+        "tier": "Spot instance (1x GPU)",
+        "tier_class": "interruptible",
+        "bucket": "spot-community",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 1.323,
+        "unit": "hour",
+        "price_usd": 1.323,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-31T13:56:26Z",
+        "source_url": "https://verda.com/pricing",
+        "quote": "RTX PRO 6000 instance-types spot_price (1 GPU) $1.323/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "RTX PRO 6000",
+      "vram_gb": 96,
+      "tier": "Spot instance (1x GPU)",
+      "tier_class": "interruptible",
+      "bucket": "spot-community",
+      "interruptible": true,
+      "hourly_usd_per_gpu": 1.323,
+      "unit": "hour",
+      "price_usd": 1.323,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:26Z",
+      "source_url": "https://verda.com/pricing",
+      "quote": "RTX PRO 6000 instance-types spot_price (1 GPU) $1.323/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Max-Q",
+      "vram_gb": 96,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.64,
+      "unit": "hour",
+      "price_usd": 1.64,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "RTX PRO 6000 Max-Q gpuTypes.communityPrice (list price, 1 GPU) $1.64/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Server",
+      "vram_gb": 96,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.69,
+      "unit": "hour",
+      "price_usd": 1.69,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "RTX PRO 6000 Server gpuTypes.communityPrice (list price, 1 GPU) $1.69/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Workstation",
+      "vram_gb": 96,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.69,
+      "unit": "hour",
+      "price_usd": 1.69,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "RTX PRO 6000 Workstation gpuTypes.communityPrice (list price, 1 GPU) $1.69/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Server",
+      "vram_gb": 96,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.49,
+      "unit": "hour",
+      "price_usd": 2.49,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "RTX PRO 6000 Server gpuTypes.securePrice (list price, 1 GPU) $2.49/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Workstation",
+      "vram_gb": 96,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.59,
+      "unit": "hour",
+      "price_usd": 2.59,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "RTX PRO 6000 Workstation gpuTypes.securePrice (list price, 1 GPU) $2.59/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "RTX PRO 6000",
+      "vram_gb": 96,
+      "tier": "On-demand instance (1x GPU)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.645,
+      "unit": "hour",
+      "price_usd": 2.645,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:26Z",
+      "source_url": "https://verda.com/pricing",
+      "quote": "RTX PRO 6000 instance-types price_per_hour (1 GPU) $2.645/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}

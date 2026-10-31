@@ -606,10 +606,17 @@ def _more_links(gen, exclude=None):
     return "".join(f'<li><a href="{u}">{n}</a></li>' for u, n in items)
 
 
+def _has_page(slug: str, f: dict, rates: list[dict]) -> bool:
+    """A cheapest-* page only where its canonical /gpu/<slug>-rental-price/ (spec_pages) is also built."""
+    import spec_pages
+    return bool(f["page"]) and slug in {spec_pages.slug(x) for x in spec_pages.qualifying_families(rates)}
+
+
 def page_links(deals: list[dict]) -> list[tuple[str, str]]:
     """(path, label) for every GPU landing page and comparison, for hubs and nav."""
-    fams = families(build_rates(deals)["rates"])
-    out = [(f"gpu/cheapest-{slug}-rental", f"{f['name']}: cheapest among tracked providers") for slug, f in fams.items() if f["page"]]
+    rates = build_rates(deals)["rates"]
+    fams = families(rates)
+    out = [(f"gpu/cheapest-{slug}-rental", f"{f['name']}: cheapest among tracked providers") for slug, f in fams.items() if _has_page(slug, f, rates)]
     return out + [(H100_VS, "RunPod vs Thunder Compute vs Modal (H100)"), (PER_VRAM, "GPU price per GB of VRAM"),
                   (RUNPOD_TIERS, "RunPod Community vs Secure Cloud")]
 
@@ -628,7 +635,7 @@ def write_all(gen, deals: list[dict]) -> list[str]:
     gpu_model_json.write(gen, rates)
     fams = families(rates)
     _LINKS[:] = page_links(deals)
-    pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if f["page"]}
+    pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if _has_page(slug, f, rates)}
     cmps = [write_h100_vs(gen, rates), write_per_vram(gen, rates), write_runpod_tiers(gen, rates)]
     return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + cmps  # cheapest-* pages: canonical is the -rental-price page, so not in the sitemap
 

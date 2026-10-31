@@ -1,0 +1,77 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "license": {
+    "data": "CC-BY-4.0",
+    "data_license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Lantern Works (https://thelanternworks.com)",
+    "code": "MIT",
+    "details": "https://thelanternworks.com/methodology/#license"
+  },
+  "model": "A40",
+  "slug": "a40",
+  "url": "https://thelanternworks.com/api/v1/gpu/a40.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-10-31T13:56:21Z",
+  "row_count": 1,
+  "providers": [
+    "RunPod"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 48,
+        "provider": "RunPod",
+        "gpu": "A40",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.59,
+        "unit": "hour",
+        "price_usd": 0.59,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-31T13:56:21Z",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "A40 gpuTypes.securePrice (list price, 1 GPU) $0.59/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "RunPod",
+      "gpu": "A40",
+      "vram_gb": 48,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.59,
+      "unit": "hour",
+      "price_usd": 0.59,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "A40 gpuTypes.securePrice (list price, 1 GPU) $0.59/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}

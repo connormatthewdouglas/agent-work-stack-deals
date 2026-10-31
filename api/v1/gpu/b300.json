@@ -1,0 +1,176 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "license": {
+    "data": "CC-BY-4.0",
+    "data_license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Lantern Works (https://thelanternworks.com)",
+    "code": "MIT",
+    "details": "https://thelanternworks.com/methodology/#license"
+  },
+  "model": "B300",
+  "slug": "b300",
+  "url": "https://thelanternworks.com/api/v1/gpu/b300.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-10-31T13:56:26Z",
+  "row_count": 4,
+  "providers": [
+    "RunPod",
+    "Verda (formerly DataCrunch)"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 288,
+        "provider": "RunPod",
+        "gpu": "B300",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 8.99,
+        "unit": "hour",
+        "price_usd": 8.99,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-31T13:56:21Z",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "B300 gpuTypes.securePrice (list price, 1 GPU) $8.99/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ],
+    "spot-community": [
+      {
+        "vram_gb": 288,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "B300",
+        "tier": "Spot instance (1x GPU)",
+        "tier_class": "interruptible",
+        "bucket": "spot-community",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 5.675,
+        "unit": "hour",
+        "price_usd": 5.675,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-31T13:56:26Z",
+        "source_url": "https://verda.com/pricing",
+        "quote": "B300 instance-types spot_price (1 GPU) $5.675/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "B300",
+      "vram_gb": 288,
+      "tier": "Spot instance (1x GPU)",
+      "tier_class": "interruptible",
+      "bucket": "spot-community",
+      "interruptible": true,
+      "hourly_usd_per_gpu": 5.675,
+      "unit": "hour",
+      "price_usd": 5.675,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:26Z",
+      "source_url": "https://verda.com/pricing",
+      "quote": "B300 instance-types spot_price (1 GPU) $5.675/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "B300",
+      "vram_gb": 288,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 6.94,
+      "unit": "hour",
+      "price_usd": 6.94,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "B300 gpuTypes.communityPrice (list price, 1 GPU) $6.94/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "B300",
+      "vram_gb": 288,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 8.99,
+      "unit": "hour",
+      "price_usd": 8.99,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "B300 gpuTypes.securePrice (list price, 1 GPU) $8.99/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "B300",
+      "vram_gb": 288,
+      "tier": "On-demand instance (1x GPU)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 11.35,
+      "unit": "hour",
+      "price_usd": 11.35,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:26Z",
+      "source_url": "https://verda.com/pricing",
+      "quote": "B300 instance-types price_per_hour (1 GPU) $11.35/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}

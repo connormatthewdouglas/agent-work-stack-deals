@@ -13,10 +13,12 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-10-30T17:35:13+00:00",
-  "row_count": 2,
+  "last_checked": "2026-10-31T13:56:26Z",
+  "row_count": 6,
   "providers": [
-    "Lambda"
+    "Lambda",
+    "RunPod",
+    "Verda (formerly DataCrunch)"
   ],
   "cheapest": {
     "on-demand": [
@@ -45,9 +47,83 @@
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
         }
       }
+    ],
+    "spot-community": [
+      {
+        "vram_gb": 180,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "B200",
+        "tier": "Spot instance (1x GPU)",
+        "tier_class": "interruptible",
+        "bucket": "spot-community",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 4.435,
+        "unit": "hour",
+        "price_usd": 4.435,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-10-31T13:56:26Z",
+        "source_url": "https://verda.com/pricing",
+        "quote": "B200 instance-types spot_price (1 GPU) $4.435/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
     ]
   },
   "rows": [
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "B200",
+      "vram_gb": 180,
+      "tier": "Spot instance (1x GPU)",
+      "tier_class": "interruptible",
+      "bucket": "spot-community",
+      "interruptible": true,
+      "hourly_usd_per_gpu": 4.435,
+      "unit": "hour",
+      "price_usd": 4.435,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:26Z",
+      "source_url": "https://verda.com/pricing",
+      "quote": "B200 instance-types spot_price (1 GPU) $4.435/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "B200",
+      "vram_gb": 180,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 5.98,
+      "unit": "hour",
+      "price_usd": 5.98,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "B200 gpuTypes.communityPrice (list price, 1 GPU) $5.98/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
     {
       "provider": "Lambda",
       "gpu": "B200",
@@ -90,6 +166,54 @@
       "verified_at": "2026-10-30T17:35:13+00:00",
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA B200 SXM6 180 GB 26 360 GiB 2.75 TiB SSD $6.99",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "B200",
+      "vram_gb": 180,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 7.99,
+      "unit": "hour",
+      "price_usd": 7.99,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:21Z",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "B200 gpuTypes.securePrice (list price, 1 GPU) $7.99/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Verda (formerly DataCrunch)",
+      "gpu": "B200",
+      "vram_gb": 180,
+      "tier": "On-demand instance (1x GPU)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 8.869,
+      "unit": "hour",
+      "price_usd": 8.869,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-10-31T13:56:26Z",
+      "source_url": "https://verda.com/pricing",
+      "quote": "B200 instance-types price_per_hour (1 GPU) $8.869/hr",
       "availability": {
         "status": "unknown",
         "in_stock": null,

@@ -315,7 +315,9 @@ def _fresh():
     # v3.2: Scout may shorten per-row lifetimes; once every row's claim has expired the snapshot is effectively stale
     from core.gpu_availability import _parse
     rows = json.loads((ROOT / "data/gpu_availability/latest.json").read_text()).get("rows") or []
-    now = datetime.now(timezone.utc)
+    import os
+    from datetime import timedelta
+    now = datetime.now(timezone.utc) + timedelta(minutes=int(os.environ.get("LW_BUILD_HORIZON_MIN") or 25))  # same build horizon as the generator
     return any(r.get("availability_expires_at") and _parse(r["availability_expires_at"]) > now for r in rows)
 
 
