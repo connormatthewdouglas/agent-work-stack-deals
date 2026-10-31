@@ -9,15 +9,16 @@
   },
   "scope": "tracked providers only (not the whole market); prices per GPU",
   "first_snapshot": "2026-10-27",
-  "last_snapshot": "2026-10-30",
-  "snapshot_count": 4,
+  "last_snapshot": "2026-10-31",
+  "snapshot_count": 5,
   "snapshot_ids": [
     "2026-10-27.af2d83b4",
     "2026-10-28.8b0da4e4",
     "2026-10-29.c2554dc3",
-    "2026-10-30.e460c380"
+    "2026-10-30.e460c380",
+    "2026-10-31.99caba77"
   ],
-  "last_seq": 28,
+  "last_seq": 30,
   "note": "points are change points: each point is the first snapshot date at that price/status; status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors).",
   "series": [
     {
@@ -39,7 +40,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Beam|RTX 4090|Machine (from)|24|1",
@@ -60,7 +61,7 @@
           "verified_at": "2026-10-29T23:14:39+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Civo|A100|On-demand|40|1",
@@ -81,7 +82,7 @@
           "verified_at": "2026-10-30T17:34:26+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Civo|A100|On-demand|80|1",
@@ -102,7 +103,7 @@
           "verified_at": "2026-10-30T17:34:26+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Civo|H100 SXM|On-demand|80|1",
@@ -123,7 +124,7 @@
           "verified_at": "2026-10-30T17:34:26+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Clore.ai|A100 SXM|Marketplace on-demand (host USD listings; median per GPU)|40|1",
@@ -144,7 +145,7 @@
           "verified_at": "2026-10-29T15:27:48+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Clore.ai|H100 NVL|Marketplace on-demand (host USD listings; median per GPU)|94|1",
@@ -165,7 +166,7 @@
           "verified_at": "2026-10-29T15:27:48+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Clore.ai|L40S|Marketplace on-demand (host USD listings; median per GPU)|45|1",
@@ -186,7 +187,7 @@
           "verified_at": "2026-10-29T15:27:48+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
@@ -207,7 +208,7 @@
           "verified_at": "2026-10-29T15:27:48+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
@@ -228,7 +229,49 @@
           "verified_at": "2026-10-29T15:27:48+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "CloudRift|A100 SXM|1-month commitment|80|1",
+      "rate_id": "r_9c154433ac2f",
+      "vendor": "CloudRift",
+      "gpu": "A100 SXM",
+      "tier": "1-month commitment",
+      "vram_gb": 80,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.95,
+          "hourly_usd": 0.95,
+          "status": "held",
+          "verified_at": "2026-10-30T17:34:32+00:00"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "CloudRift|A100 SXM|3-month commitment|80|1",
+      "rate_id": "r_704f1f562e75",
+      "vendor": "CloudRift",
+      "gpu": "A100 SXM",
+      "tier": "3-month commitment",
+      "vram_gb": 80,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.89,
+          "hourly_usd": 0.89,
+          "status": "held",
+          "verified_at": "2026-10-30T17:34:32+00:00"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CloudRift|A100 SXM|On-demand|80|1",
@@ -247,9 +290,16 @@
           "hourly_usd": 1.05,
           "status": "held",
           "verified_at": "2026-10-30T17:34:32+00:00"
+        },
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.05,
+          "hourly_usd": 1.05,
+          "status": "ranked",
+          "verified_at": "2026-10-31T18:49:48+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CloudRift|L40S|1 Month (reserved, \"1 mo\")|48|1",
@@ -270,7 +320,7 @@
           "verified_at": "2026-10-29T19:06:42+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CloudRift|L40S|3 Month (reserved, \"3 mo\")|48|1",
@@ -291,7 +341,7 @@
           "verified_at": "2026-10-29T19:06:42+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CloudRift|L40S|On-demand|48|1",
@@ -312,7 +362,7 @@
           "verified_at": "2026-10-29T19:06:42+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CloudRift|RTX 5090|1 Month (reserved, \"1 mo\")|32|1",
@@ -333,7 +383,7 @@
           "verified_at": "2026-10-29T19:06:42+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CloudRift|RTX 5090|3 Month (reserved, \"3 mo\")|32|1",
@@ -354,7 +404,7 @@
           "verified_at": "2026-10-29T19:06:42+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CloudRift|RTX 5090|On-demand|32|1",
@@ -375,7 +425,7 @@
           "verified_at": "2026-10-29T19:06:42+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CoreWeave|A100|On-demand, 8-GPU instance|80|8",
@@ -396,7 +446,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CoreWeave|GH200|On-demand|96|1",
@@ -417,7 +467,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CoreWeave|H100|On-demand, 8-GPU instance|80|8",
@@ -438,7 +488,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CoreWeave|H200|On-demand, 8-GPU instance|141|8",
@@ -459,7 +509,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "CoreWeave|L40S|On-demand, 8-GPU instance|48|8",
@@ -480,7 +530,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "DigitalOcean GPU Droplets|H100|On-demand|80|1",
@@ -501,7 +551,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "DigitalOcean GPU Droplets|H200|On-demand|141|1",
@@ -522,7 +572,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "DigitalOcean GPU Droplets|L40S|On-demand|48|1",
@@ -543,7 +593,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "DigitalOcean GPU Droplets|RTX 6000 Ada|On-demand|48|1",
@@ -564,7 +614,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "E2E Networks|A100|On-demand|40|1",
@@ -585,7 +635,7 @@
           "verified_at": "2026-10-30T17:34:49+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "E2E Networks|A100|On-demand|80|1",
@@ -606,7 +656,7 @@
           "verified_at": "2026-10-30T17:34:49+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "E2E Networks|H100|On-demand|80|1",
@@ -627,7 +677,7 @@
           "verified_at": "2026-10-30T00:07:06+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|A100 NVLink|On-demand|80|1",
@@ -648,7 +698,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|A100 PCIe|On-demand|80|1",
@@ -669,7 +719,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|A100 PCIe|Spot VM|80|1",
@@ -690,7 +740,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|A100 SXM|On-demand|80|1",
@@ -711,7 +761,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|A100 SXM|Reservation (starting from)|80|1",
@@ -732,7 +782,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|H100 NVLink|On-demand|80|1",
@@ -753,7 +803,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|H100 PCIe|On-demand|80|1",
@@ -774,7 +824,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|H100 PCIe|Spot VM|80|1",
@@ -795,7 +845,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|H100 SXM|On-demand|80|1",
@@ -816,7 +866,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|H100 SXM|Reservation (starting from)|80|1",
@@ -837,7 +887,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|H200 SXM|On-demand|141|1",
@@ -858,7 +908,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Hyperstack|H200 SXM|Reservation (starting from)|141|1",
@@ -879,7 +929,7 @@
           "verified_at": "2026-10-29T19:06:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Jarvislabs|A100|On-demand|40|1",
@@ -900,7 +950,7 @@
           "verified_at": "2026-10-30T17:35:02+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Jarvislabs|A100|On-demand|80|1",
@@ -921,7 +971,7 @@
           "verified_at": "2026-10-30T17:35:02+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Jarvislabs|H100 SXM|On-demand|80|1",
@@ -942,7 +992,7 @@
           "verified_at": "2026-10-30T17:35:02+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Koyeb|L40S|Serverless GPU instance (per-second billing)|48|1",
@@ -963,7 +1013,7 @@
           "verified_at": "2026-10-29T19:07:06+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|A100 PCIe|On-demand instance (1x GPU)|40|1",
@@ -984,7 +1034,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|A100 SXM|On-demand instance (1x GPU)|40|1",
@@ -1005,7 +1055,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|A100 SXM|On-demand instance (8x GPU)|80|8",
@@ -1033,7 +1083,7 @@
           "verified_at": "2026-10-29T19:07:11+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|A10|On-demand instance (1x GPU)|24|1",
@@ -1054,7 +1104,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|B200|On-demand instance (1x GPU)|180|1",
@@ -1075,7 +1125,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|B200|On-demand instance (8x GPU)|180|8",
@@ -1103,7 +1153,7 @@
           "verified_at": "2026-10-29T19:07:11+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|GH200|On-demand instance (1x GPU)|96|1",
@@ -1124,7 +1174,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|H100 PCIe|On-demand instance (1x GPU)|80|1",
@@ -1145,7 +1195,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|H100 SXM|On-demand instance (1x GPU)|80|1",
@@ -1166,7 +1216,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|H100 SXM|On-demand instance (8x GPU)|80|8",
@@ -1194,7 +1244,7 @@
           "verified_at": "2026-10-29T19:07:11+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|Quadro RTX 6000|On-demand instance (1x GPU)|24|1",
@@ -1215,7 +1265,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|RTX A6000|On-demand instance (1x GPU)|48|1",
@@ -1236,7 +1286,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Lambda|V100|On-demand instance (8x GPU)|16|8",
@@ -1264,7 +1314,7 @@
           "verified_at": "2026-10-29T19:07:11+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Modal|A100|Serverless, preemptible (per second)|80|1",
@@ -1285,7 +1335,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Modal|H100 SXM|Serverless, preemptible (per second)|80|1",
@@ -1306,7 +1356,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Modal|H200 SXM|Serverless, preemptible (per second)|141|1",
@@ -1327,7 +1377,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Modal|L40S|Serverless, preemptible (per second)|48|1",
@@ -1348,7 +1398,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Nebius|H100|On-demand|80|1",
@@ -1369,7 +1419,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Nebius|H200|On-demand|141|1",
@@ -1390,7 +1440,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Nebius|L40S|On-demand (from, Intel CPU)|48|1",
@@ -1411,7 +1461,7 @@
           "verified_at": "2026-10-28T16:43:09+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Nova Cloud|RTX 4090|On-demand|24|1",
@@ -1432,7 +1482,7 @@
           "verified_at": "2026-10-30T17:35:33+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Novita AI|RTX 4090|On-demand|24|1",
@@ -1453,7 +1503,7 @@
           "verified_at": "2026-10-29T19:07:35+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "OVHcloud (US)|L40S|Public Cloud GPU instance, hourly (\"Price ( excl. taxes / hour)\")|48|1",
@@ -1474,7 +1524,7 @@
           "verified_at": "2026-10-29T19:07:42+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Oblivus|A100 PCIe|On-demand|80|1",
@@ -1495,7 +1545,7 @@
           "verified_at": "2026-10-30T00:20:12+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Oblivus|H100 PCIe|On-demand|80|1",
@@ -1516,7 +1566,7 @@
           "verified_at": "2026-10-30T00:20:12+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunC.AI|RTX 4090|On-demand|24|1",
@@ -1537,7 +1587,7 @@
           "verified_at": "2026-10-30T17:35:56+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|A100 PCIe|On-demand (Community Cloud)|80|1",
@@ -1558,7 +1608,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|A100 PCIe|On-demand (Secure Cloud)|80|1",
@@ -1579,7 +1629,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|A100 SXM|On-demand (Community Cloud)|80|1",
@@ -1600,7 +1650,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|A100 SXM|On-demand (Secure Cloud)|80|1",
@@ -1621,7 +1671,112 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|A40|On-demand (Secure Cloud)|48|1",
+      "rate_id": "r_b59e302ffab8",
+      "vendor": "RunPod",
+      "gpu": "A40",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 48,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.59,
+          "hourly_usd": 0.59,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|B200|On-demand (Community Cloud)|180|1",
+      "rate_id": "r_1ec7c7d3aff4",
+      "vendor": "RunPod",
+      "gpu": "B200",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 180,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 5.98,
+          "hourly_usd": 5.98,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|B200|On-demand (Secure Cloud)|180|1",
+      "rate_id": "r_c2e834803705",
+      "vendor": "RunPod",
+      "gpu": "B200",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 180,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 7.99,
+          "hourly_usd": 7.99,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|B300|On-demand (Community Cloud)|288|1",
+      "rate_id": "r_9aefb7153639",
+      "vendor": "RunPod",
+      "gpu": "B300",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 288,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 6.94,
+          "hourly_usd": 6.94,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|B300|On-demand (Secure Cloud)|288|1",
+      "rate_id": "r_fc42089ad05c",
+      "vendor": "RunPod",
+      "gpu": "B300",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 288,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 8.99,
+          "hourly_usd": 8.99,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|H100 PCIe|On-demand (Community Cloud)|80|1",
@@ -1642,7 +1797,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|H100 PCIe|On-demand (Secure Cloud)|80|1",
@@ -1663,7 +1818,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|H100 SXM|On-demand (Community Cloud)|80|1",
@@ -1684,7 +1839,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|H100 SXM|On-demand (Secure Cloud)|80|1",
@@ -1705,7 +1860,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|H200|On-demand (Community Cloud)|141|1",
@@ -1726,7 +1881,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|H200|On-demand (Secure Cloud)|141|1",
@@ -1747,7 +1902,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|L40S|On-demand (Community Cloud)|48|1",
@@ -1768,7 +1923,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|L40S|On-demand (Secure Cloud)|48|1",
@@ -1789,7 +1944,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|L40|On-demand (Secure Cloud)|48|1",
@@ -1810,7 +1965,49 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|L4|On-demand (Secure Cloud)|24|1",
+      "rate_id": "r_a588805efc8c",
+      "vendor": "RunPod",
+      "gpu": "L4",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 24,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.59,
+          "hourly_usd": 0.59,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|MI300X|On-demand (Secure Cloud)|192|1",
+      "rate_id": "r_63549b135818",
+      "vendor": "RunPod",
+      "gpu": "MI300X",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 192,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 2.39,
+          "hourly_usd": 2.39,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX 3090|On-demand (Community Cloud)|24|1",
@@ -1831,7 +2028,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX 3090|On-demand (Secure Cloud)|24|1",
@@ -1852,7 +2049,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX 4090|On-demand (Community Cloud)|24|1",
@@ -1873,7 +2070,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX 4090|On-demand (Secure Cloud)|24|1",
@@ -1894,7 +2091,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX 5090|On-demand (Community Cloud)|32|1",
@@ -1915,7 +2112,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX 5090|On-demand (Secure Cloud)|32|1",
@@ -1936,7 +2133,91 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX 6000 Ada|On-demand (Community Cloud)|48|1",
+      "rate_id": "r_9a5314132eb0",
+      "vendor": "RunPod",
+      "gpu": "RTX 6000 Ada",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 48,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.74,
+          "hourly_usd": 0.74,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX 6000 Ada|On-demand (Secure Cloud)|48|1",
+      "rate_id": "r_fd4fd2ad3ea9",
+      "vendor": "RunPod",
+      "gpu": "RTX 6000 Ada",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 48,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.99,
+          "hourly_usd": 0.99,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX A4000|On-demand (Community Cloud)|16|1",
+      "rate_id": "r_35796bd85791",
+      "vendor": "RunPod",
+      "gpu": "RTX A4000",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 16,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.17,
+          "hourly_usd": 0.17,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX A4000|On-demand (Secure Cloud)|16|1",
+      "rate_id": "r_d2d9ffa23652",
+      "vendor": "RunPod",
+      "gpu": "RTX A4000",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 16,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.25,
+          "hourly_usd": 0.25,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX A5000|On-demand (Secure Cloud)|24|1",
@@ -1957,7 +2238,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX A6000|On-demand (Community Cloud)|48|1",
@@ -1978,7 +2259,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "RunPod|RTX A6000|On-demand (Secure Cloud)|48|1",
@@ -1999,7 +2280,154 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX PRO 6000 Max-Q|On-demand (Community Cloud)|96|1",
+      "rate_id": "r_fa5b4e6ddf32",
+      "vendor": "RunPod",
+      "gpu": "RTX PRO 6000 Max-Q",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.64,
+          "hourly_usd": 1.64,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX PRO 6000 Server|On-demand (Community Cloud)|96|1",
+      "rate_id": "r_9a6a35fe7dd2",
+      "vendor": "RunPod",
+      "gpu": "RTX PRO 6000 Server",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.69,
+          "hourly_usd": 1.69,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX PRO 6000 Server|On-demand (Secure Cloud)|96|1",
+      "rate_id": "r_d2a146dd6c36",
+      "vendor": "RunPod",
+      "gpu": "RTX PRO 6000 Server",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 2.49,
+          "hourly_usd": 2.49,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX PRO 6000 Workstation|On-demand (Community Cloud)|96|1",
+      "rate_id": "r_794743027461",
+      "vendor": "RunPod",
+      "gpu": "RTX PRO 6000 Workstation",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.69,
+          "hourly_usd": 1.69,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|RTX PRO 6000 Workstation|On-demand (Secure Cloud)|96|1",
+      "rate_id": "r_26bdc7d881e1",
+      "vendor": "RunPod",
+      "gpu": "RTX PRO 6000 Workstation",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 2.59,
+          "hourly_usd": 2.59,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|V100 PCIe|On-demand (Community Cloud)|16|1",
+      "rate_id": "r_453bc774056c",
+      "vendor": "RunPod",
+      "gpu": "V100 PCIe",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 16,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.19,
+          "hourly_usd": 0.19,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "RunPod|V100 SXM2|On-demand (Community Cloud)|16|1",
+      "rate_id": "r_715b84d1d8c6",
+      "vendor": "RunPod",
+      "gpu": "V100 SXM2",
+      "tier": "On-demand (Community Cloud)",
+      "vram_gb": 16,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.23,
+          "hourly_usd": 0.23,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:21Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Runcrate|RTX 4090|Aggregated lowest live rate (from)|24|1",
@@ -2020,7 +2448,7 @@
           "verified_at": "2026-10-29T23:14:39+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "SaladCloud|RTX 4090|Lowest (Batch) priority, interruptible|24|1",
@@ -2041,7 +2469,7 @@
           "verified_at": "2026-10-29T19:07:54+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "SimplePod|RTX 4090|Docker GPU (from)|24|1",
@@ -2062,7 +2490,7 @@
           "verified_at": "2026-10-29T23:14:39+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Spheron|L40S|Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)|48|1",
@@ -2083,7 +2511,7 @@
           "verified_at": "2026-10-29T19:07:59+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Spheron|RTX 5090|Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)|32|1",
@@ -2104,7 +2532,7 @@
           "verified_at": "2026-10-29T17:00:43+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|A100 PCIe|Marketplace (typical price, varies by host)|80|1",
@@ -2125,7 +2553,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|A100 SXM|Marketplace (typical price, varies by host)|80|1",
@@ -2146,7 +2574,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|H100 SXM|Marketplace (typical price, varies by host)|80|1",
@@ -2167,7 +2595,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|L40|Marketplace (typical price, varies by host)|48|1",
@@ -2188,7 +2616,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|RTX 3090|Marketplace (typical price, varies by host)|24|1",
@@ -2209,7 +2637,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|RTX 4090|Marketplace (typical price, varies by host)|24|1",
@@ -2230,7 +2658,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|RTX 6000 Ada|Marketplace (typical price, varies by host)|48|1",
@@ -2251,7 +2679,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|RTX A4000|Marketplace (typical price, varies by host)|16|1",
@@ -2272,7 +2700,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|RTX A6000|Marketplace (typical price, varies by host)|48|1",
@@ -2293,7 +2721,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "TensorDock|V100|Marketplace (typical price, varies by host)|16|1",
@@ -2314,7 +2742,7 @@
           "verified_at": "2026-10-27T09:05:01-04:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Thunder Compute|A100|On-demand|80|1",
@@ -2335,7 +2763,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Thunder Compute|H100 SXM|On-demand|80|1",
@@ -2356,7 +2784,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Thunder Compute|L40|On-demand|48|1",
@@ -2377,7 +2805,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Thunder Compute|RTX A6000|On-demand|48|1",
@@ -2398,7 +2826,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Ucartz|A100|Dedicated server (monthly)|80|2",
@@ -2419,7 +2847,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Ucartz|RTX 4090|Dedicated server (monthly)|24|1",
@@ -2440,7 +2868,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Ucartz|RTX 5090|Dedicated server (monthly)|32|1",
@@ -2461,7 +2889,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Ucartz|RTX A5000|Dedicated server (monthly)|24|1",
@@ -2482,7 +2910,7 @@
           "verified_at": "2026-10-27T23:35:20+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Ucartz|Radeon 780M|Dedicated server (monthly)|None|1",
@@ -2550,9 +2978,37 @@
           "hourly_usd": 1.1604,
           "status": "ranked",
           "verified_at": "2026-10-30T17:36:32+00:00"
+        },
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.2924,
+          "hourly_usd": 1.2924,
+          "status": "ranked",
+          "verified_at": "2026-10-31T18:52:43+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Vast.ai|A40|Marketplace on-demand (verified)|48|1",
+      "rate_id": "r_76255cfd51e4",
+      "vendor": "Vast.ai",
+      "gpu": "A40",
+      "tier": "Marketplace on-demand (verified)",
+      "vram_gb": 48,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.5344,
+          "hourly_usd": 0.5344,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:22Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
@@ -2592,9 +3048,58 @@
           "hourly_usd": 0.4921,
           "status": "ranked",
           "verified_at": "2026-10-30T17:36:38+00:00"
+        },
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.4561,
+          "hourly_usd": 0.4561,
+          "status": "ranked",
+          "verified_at": "2026-10-31T18:52:48+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Vast.ai|RTX PRO 6000 Server|Marketplace on-demand (verified)|96|1",
+      "rate_id": "r_383c896111f0",
+      "vendor": "Vast.ai",
+      "gpu": "RTX PRO 6000 Server",
+      "tier": "Marketplace on-demand (verified)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.7344,
+          "hourly_usd": 1.7344,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:22Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Vast.ai|RTX PRO 6000 Workstation|Marketplace on-demand (verified)|96|1",
+      "rate_id": "r_32601dc2eb30",
+      "vendor": "Vast.ai",
+      "gpu": "RTX PRO 6000 Workstation",
+      "tier": "Marketplace on-demand (verified)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 2.0385,
+          "hourly_usd": 2.0385,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:22Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|A100 SXM|On-demand instance (1x GPU)|40|1",
@@ -2622,7 +3127,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|A100 SXM|On-demand instance (1x GPU)|80|1",
@@ -2657,7 +3162,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|A100 SXM|Spot instance (1x GPU)|40|1",
@@ -2685,7 +3190,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|A100 SXM|Spot instance (1x GPU)|80|1",
@@ -2720,7 +3225,133 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|B200|On-demand instance (1x GPU)|180|1",
+      "rate_id": "r_924f370474fa",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "B200",
+      "tier": "On-demand instance (1x GPU)",
+      "vram_gb": 180,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 8.869,
+          "hourly_usd": 8.869,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|B200|Spot instance (1x GPU)|180|1",
+      "rate_id": "r_873e293f53cc",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "B200",
+      "tier": "Spot instance (1x GPU)",
+      "vram_gb": 180,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 4.435,
+          "hourly_usd": 4.435,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|B300|On-demand instance (1x GPU)|288|1",
+      "rate_id": "r_1d2d0741d217",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "B300",
+      "tier": "On-demand instance (1x GPU)",
+      "vram_gb": 288,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 11.35,
+          "hourly_usd": 11.35,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|B300|Spot instance (1x GPU)|288|1",
+      "rate_id": "r_16c4708ad24b",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "B300",
+      "tier": "Spot instance (1x GPU)",
+      "vram_gb": 288,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 5.675,
+          "hourly_usd": 5.675,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|GB300|On-demand instance (1x GPU)|288|1",
+      "rate_id": "r_710b7f91575b",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "GB300",
+      "tier": "On-demand instance (1x GPU)",
+      "vram_gb": 288,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 13.05,
+          "hourly_usd": 13.05,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|GB300|Spot instance (1x GPU)|288|1",
+      "rate_id": "r_b8bcdaf30a26",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "GB300",
+      "tier": "Spot instance (1x GPU)",
+      "vram_gb": 288,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 6.526,
+          "hourly_usd": 6.526,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|H100 SXM|On-demand instance (1x GPU)|80|1",
@@ -2755,7 +3386,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|H100 SXM|Spot instance (1x GPU)|80|1",
@@ -2790,7 +3421,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|H200 SXM|On-demand instance (1x GPU)|141|1",
@@ -2825,7 +3456,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|H200 SXM|Spot instance (1x GPU)|141|1",
@@ -2860,7 +3491,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|L40S|On-demand instance (1x GPU)|48|1",
@@ -2895,7 +3526,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|L40S|Spot instance (1x GPU)|48|1",
@@ -2930,7 +3561,49 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|RTX 6000 Ada|On-demand instance (1x GPU)|48|1",
+      "rate_id": "r_c78b64104520",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "RTX 6000 Ada",
+      "tier": "On-demand instance (1x GPU)",
+      "vram_gb": 48,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.498,
+          "hourly_usd": 1.498,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|RTX 6000 Ada|Spot instance (1x GPU)|48|1",
+      "rate_id": "r_561293e5c86d",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "RTX 6000 Ada",
+      "tier": "Spot instance (1x GPU)",
+      "vram_gb": 48,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.749,
+          "hourly_usd": 0.749,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|RTX A6000|On-demand instance (1x GPU)|48|1",
@@ -2965,7 +3638,7 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
     },
     {
       "key": "Verda (formerly DataCrunch)|RTX A6000|Spot instance (1x GPU)|48|1",
@@ -3000,10 +3673,128 @@
           "verified_at": "2026-10-30T17:36:41+00:00"
         }
       ],
-      "last_seen": "2026-10-30"
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|RTX PRO 6000|On-demand instance (1x GPU)|96|1",
+      "rate_id": "r_49dd4c9990c6",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "RTX PRO 6000",
+      "tier": "On-demand instance (1x GPU)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 2.645,
+          "hourly_usd": 2.645,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|RTX PRO 6000|Spot instance (1x GPU)|96|1",
+      "rate_id": "r_99e45644aef5",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "RTX PRO 6000",
+      "tier": "Spot instance (1x GPU)",
+      "vram_gb": 96,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 1.323,
+          "hourly_usd": 1.323,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|V100|On-demand instance (1x GPU)|16|1",
+      "rate_id": "r_4617b5f9d727",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "V100",
+      "tier": "On-demand instance (1x GPU)",
+      "vram_gb": 16,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.236,
+          "hourly_usd": 0.236,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
+    },
+    {
+      "key": "Verda (formerly DataCrunch)|V100|Spot instance (1x GPU)|16|1",
+      "rate_id": "r_973d98795e2e",
+      "vendor": "Verda (formerly DataCrunch)",
+      "gpu": "V100",
+      "tier": "Spot instance (1x GPU)",
+      "vram_gb": 16,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-10-31",
+      "points": [
+        {
+          "date": "2026-10-31",
+          "price_usd": 0.118,
+          "hourly_usd": 0.118,
+          "status": "ranked",
+          "verified_at": "2026-10-31T13:56:26Z"
+        }
+      ],
+      "last_seen": "2026-10-31"
     }
   ],
   "changes": [
+    {
+      "date": "2026-10-31",
+      "key": "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
+      "rate_id": "r_d92acb858f8f",
+      "event_id": "2026-10-31:r_d92acb858f8f:up",
+      "snapshot_id": "2026-10-31.99caba77",
+      "vendor": "Vast.ai",
+      "gpu": "A100 SXM",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "vram_gb": 80,
+      "from_hourly_usd": 1.1604,
+      "to_hourly_usd": 1.2924,
+      "change_pct": 11.4,
+      "status": "ranked",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "seq": 30
+    },
+    {
+      "date": "2026-10-31",
+      "key": "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
+      "rate_id": "r_67f379013921",
+      "event_id": "2026-10-31:r_67f379013921:down",
+      "snapshot_id": "2026-10-31.99caba77",
+      "vendor": "Vast.ai",
+      "gpu": "RTX 4090",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "vram_gb": 24,
+      "from_hourly_usd": 0.4921,
+      "to_hourly_usd": 0.4561,
+      "change_pct": -7.3,
+      "status": "ranked",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "seq": 29
+    },
     {
       "date": "2026-10-30",
       "key": "Verda (formerly DataCrunch)|A100 SXM|On-demand instance (1x GPU)|40|1",
