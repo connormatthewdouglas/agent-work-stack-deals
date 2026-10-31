@@ -281,9 +281,10 @@ def test_scout_v25_lambda_clore_render():
     lam = [r for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("in_stock") is not None]
     assert all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
     cl = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai" and r["availability"].get("in_stock") is not None]
-    assert cl and all("offer_count" not in r["availability"] and r["availability"]["unrented_servers"] > 0 for r in cl)
+    # Scout v35e publishes Clore rows with in_stock null (no claim, no expiry): zero Clore claims is valid
+    assert all("offer_count" not in r["availability"] and r["availability"]["unrented_servers"] > 0 for r in cl)
     s = (ROOT / "gpu/cheapest-rtx-4090-rental/index.html").read_text()
-    assert "unrented servers (one server may hold several GPUs)" in s
+    assert not cl or "unrented servers (one server may hold several GPUs)" in s
     for slug in ("a100", "h100", "rtx-4090", "l40s"):
         assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
     av = json.loads((ROOT / "data/gpu_availability/latest.json").read_text())
