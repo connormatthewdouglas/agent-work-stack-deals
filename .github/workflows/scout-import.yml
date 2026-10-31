@@ -101,6 +101,10 @@ jobs:
               git checkout -q -- data/gpu_availability
               DETAIL="Import refused, current availability kept: $(tail -1 "$RUNNER_TEMP/import.log")" sh scripts/pipeline_issue.sh "Scout import refused" || true
             fi
+            # optional wider-GPU price batch (schema 3.2, batch wider-gpu): merged into data/gpu_pricing; refusal keeps current records
+            if git show origin/scout-data:latest/wider_gpu_prices_latest.json > "$RUNNER_TEMP/wider.json" 2>/dev/null; then
+              python3 scripts/import_scout_wider.py "$RUNNER_TEMP/wider.json" >> "$S" 2>&1 || { git checkout -q -- data/gpu_pricing; echo "wider-gpu import refused, current records kept" >> "$S"; }
+            fi
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
             python3 scripts/gpu_index.py . api/v1 > /dev/null || return 3
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
