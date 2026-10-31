@@ -7,6 +7,7 @@
 set -euo pipefail
 OUT="${1:?usage: push_scout_snapshot.sh <scout out dir>}"
 REPO_URL="https://github.com/connormatthewdouglas/agent-work-stack-deals.git"
+[ "${SCOUT_TEST:-0}" = "1" ] && [ -n "${SCOUT_PUSH_REPO_URL:-}" ] && REPO_URL="$SCOUT_PUSH_REPO_URL"  # test-only override
 for f in availability_v2_latest.json feed_enriched_v2_latest.json; do
   [ -s "$OUT/$f" ] || { echo "missing $f in the out dir" >&2; exit 2; }
 done
@@ -28,6 +29,15 @@ mkdir -p "$W/r/latest"
 for f in availability_v2_latest.json feed_enriched_v2_latest.json availability_v2_latest.csv feed_enriched_v2_latest.csv RUN_LOG.txt; do
   [ -f "$OUT/$f" ] && cp "$OUT/$f" "$W/r/latest/$f"
 done
+# wider-gpu (optional): pushed when present; when absent, any earlier copy is removed so latest/ never carries a stale one
+# rev 4: -s (non-empty) and verified_at/collected_at no older than 6h, else skipped and any earlier copy removed
+WG="$OUT/wider_gpu_prices_latest.json"
+if [ -s "$WG" ] && python3 -c 'import json,sys
+from datetime import datetime,timezone
+d=json.load(open(sys.argv[1])); ts=d.get("collected_at") or min(r["verified_at"] for r in d["rows"])
+age=(datetime.now(timezone.utc)-datetime.fromisoformat(ts.replace("Z","+00:00")).astimezone(timezone.utc)).total_seconds()
+sys.exit(0 if 0<=age<=6*3600 else 1)' "$WG" 2>/dev/null; then cp "$WG" "$W/r/latest/"
+else rm -f "$W/r/latest/wider_gpu_prices_latest.json"; [ -e "$WG" ] && echo "skip wider_gpu_prices_latest.json: empty, unreadable or older than 6h"; fi
 python3 - "$W/r/latest" <<'PY'
 import hashlib, json, sys
 from datetime import datetime, timezone
