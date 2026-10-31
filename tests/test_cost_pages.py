@@ -310,7 +310,13 @@ def _fresh():
     from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours
     c = json.loads((ROOT / "data/gpu_availability/latest.json").read_text())["collected_at"]
     h = age_hours(c)
-    return h is not None and h <= AVAIL_MAX_AGE_H
+    if h is None or h > AVAIL_MAX_AGE_H:
+        return False
+    # v3.2: Scout may shorten per-row lifetimes; once every row's claim has expired the snapshot is effectively stale
+    from core.gpu_availability import _parse
+    rows = json.loads((ROOT / "data/gpu_availability/latest.json").read_text()).get("rows") or []
+    now = datetime.now(timezone.utc)
+    return any(r.get("availability_expires_at") and _parse(r["availability_expires_at"]) > now for r in rows)
 
 
 def test_0330_other_variants_intro_and_in_stock_time():

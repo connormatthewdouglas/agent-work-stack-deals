@@ -397,125 +397,14 @@
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
       "quote": "Vast public offers API: 7 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1604/hr, min $1.1074/hr",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:08 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:08:25Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:08:25Z",
         "max_age_hours": 1.0,
-        "offer_count": 20,
-        "available_regions": [
-          "CZ",
-          "FR",
-          "JP",
-          "TW",
-          "US"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "CZ",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:25Z",
-            "availability_expires_at": "2026-10-31T13:08:25Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1
-          },
-          {
-            "region": "DE",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:25Z",
-            "availability_expires_at": "2026-10-31T13:08:25Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 0
-          },
-          {
-            "region": "FR",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:25Z",
-            "availability_expires_at": "2026-10-31T13:08:25Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2
-          },
-          {
-            "region": "JP",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:25Z",
-            "availability_expires_at": "2026-10-31T13:08:25Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2
-          },
-          {
-            "region": "TW",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:25Z",
-            "availability_expires_at": "2026-10-31T13:08:25Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2
-          },
-          {
-            "region": "US",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:25Z",
-            "availability_expires_at": "2026-10-31T13:08:25Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 12,
-            "second_read_offer_count": 13
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "available_regions_normalized": [
-          {
-            "label": "CZ",
-            "zone": "CZ",
-            "country": "CZ",
-            "group": "EU"
-          },
-          {
-            "label": "FR",
-            "zone": "FR",
-            "country": "FR",
-            "group": "EU"
-          },
-          {
-            "label": "JP",
-            "zone": "JP",
-            "country": "JP",
-            "group": "APAC"
-          },
-          {
-            "label": "TW",
-            "zone": "TW",
-            "country": "TW",
-            "group": "APAC"
-          },
-          {
-            "label": "US",
-            "zone": "US",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-10-31T13:08:25Z",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-10-31T13:08:25Z"
       }
     },
     {
@@ -636,42 +525,15 @@
       "source_url": "https://oblivus.com/pricing/",
       "quote": "A100 80GB PCIE ... Available Stock 10 Configurations A100_PCIE_80GB_x1 1x GPU - 28 vCPU - 120GB RAM - 850GB NVMe ... On-Demand: $1.47/hr",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:08 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:08:35Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:08:35Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "available_regions": [
-          "MON1 (CANADA, MONTREAL)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "MON1 (CANADA, MONTREAL)",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:35Z",
-            "availability_expires_at": "2026-10-31T13:08:35Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "available_gpus": 1,
-            "second_read_available_gpus": 1
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "available_regions_normalized": [
-          {
-            "label": "MON1 (CANADA, MONTREAL)",
-            "zone": "MON1",
-            "country": "CA",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-10-31T13:08:35Z",
-        "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page"
+        "availability_expires_at": "2026-10-31T13:08:35Z"
       }
     },
     {
@@ -741,18 +603,16 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.609/h",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:08 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:08:37Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:08:37Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "regions_expires_at": "2026-10-31T13:08:37Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+        "availability_expires_at": "2026-10-31T13:08:37Z"
       }
     },
     {
@@ -798,56 +658,15 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:02 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:02:22Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:02:22Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "stock_level": "Low",
-        "available_regions": [
-          "CA-MTL-3 (Canada)",
-          "US-KS-2 (United States)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "CA-MTL-3 (Canada)",
-            "stock_level": "Low",
-            "checked_at": "2026-10-31T12:02:41Z",
-            "availability_expires_at": "2026-10-31T13:02:41Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          },
-          {
-            "region": "US-KS-2 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-10-31T12:03:37Z",
-            "availability_expires_at": "2026-10-31T13:03:37Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "available_regions_normalized": [
-          {
-            "label": "CA-MTL-3 (Canada)",
-            "zone": "CA-MTL-3",
-            "country": "CA",
-            "group": "NA"
-          },
-          {
-            "label": "US-KS-2 (United States)",
-            "zone": "US-KS-2",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-10-31T13:02:41Z"
+        "availability_expires_at": "2026-10-31T13:02:22Z"
       }
     },
     {
@@ -868,104 +687,15 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:02 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:02:22Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:02:22Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "stock_level": "High",
-        "available_regions": [
-          "EUR-IS-1 (Europe)",
-          "US-KS-2 (United States)",
-          "US-MD-1 (United States)",
-          "US-MO-1 (United States)",
-          "US-WA-1 (United States)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "EUR-IS-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-10-31T12:02:58Z",
-            "availability_expires_at": "2026-10-31T13:02:58Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          },
-          {
-            "region": "US-KS-2 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-10-31T12:03:37Z",
-            "availability_expires_at": "2026-10-31T13:03:37Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          },
-          {
-            "region": "US-MD-1 (United States)",
-            "stock_level": "Medium",
-            "checked_at": "2026-10-31T12:03:39Z",
-            "availability_expires_at": "2026-10-31T13:03:39Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Medium"
-          },
-          {
-            "region": "US-MO-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-10-31T12:03:47Z",
-            "availability_expires_at": "2026-10-31T13:03:47Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          },
-          {
-            "region": "US-WA-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-10-31T12:04:16Z",
-            "availability_expires_at": "2026-10-31T13:04:16Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "available_regions_normalized": [
-          {
-            "label": "EUR-IS-1 (Europe)",
-            "zone": "EUR-IS-1",
-            "country": "IS",
-            "group": "EU"
-          },
-          {
-            "label": "US-KS-2 (United States)",
-            "zone": "US-KS-2",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-MD-1 (United States)",
-            "zone": "US-MD-1",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-MO-1 (United States)",
-            "zone": "US-MO-1",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-WA-1 (United States)",
-            "zone": "US-WA-1",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-10-31T13:02:58Z"
+        "availability_expires_at": "2026-10-31T13:02:22Z"
       }
     },
     {
@@ -1011,18 +741,16 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 PCIe 40 GB 30 225 GiB 512 GiB SSD $1.99",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:08 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:08:39Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:08:39Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "regions_expires_at": "2026-10-31T13:08:39Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "availability_expires_at": "2026-10-31T13:08:39Z"
       }
     },
     {
@@ -1043,73 +771,16 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 SXM 40 GB 30 220 GiB 512 GiB SSD $1.99",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:08 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:08:39Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:08:39Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "available_regions": [
-          "asia-south-1",
-          "us-east-1",
-          "us-west-2"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "asia-south-1",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:39Z",
-            "availability_expires_at": "2026-10-31T13:08:39Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null
-          },
-          {
-            "region": "us-east-1",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:39Z",
-            "availability_expires_at": "2026-10-31T13:08:39Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null
-          },
-          {
-            "region": "us-west-2",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:39Z",
-            "availability_expires_at": "2026-10-31T13:08:39Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "available_regions_normalized": [
-          {
-            "label": "asia-south-1",
-            "zone": "ASIA-SOUTH-1",
-            "country": "IN",
-            "group": "APAC"
-          },
-          {
-            "label": "us-east-1",
-            "zone": "US-EAST-1",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "us-west-2",
-            "zone": "US-WEST-2",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-10-31T13:08:39Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "availability_expires_at": "2026-10-31T13:08:39Z"
       }
     },
     {
@@ -1180,18 +851,16 @@
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.248/h",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:08 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:08:37Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:08:37Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "regions_expires_at": "2026-10-31T13:08:37Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
+        "availability_expires_at": "2026-10-31T13:08:37Z"
       }
     },
     {
@@ -1263,57 +932,16 @@
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 SXM 80 GB 240 1800 GiB 19.5 TiB SSD $2.79",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-10-31 08:08 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-10-31T12:08:39Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-10-31T13:08:39Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "available_regions": [
-          "us-east-1",
-          "us-midwest-1"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "us-east-1",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:39Z",
-            "availability_expires_at": "2026-10-31T13:08:39Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null
-          },
-          {
-            "region": "us-midwest-1",
-            "stock_level": null,
-            "checked_at": "2026-10-31T12:08:39Z",
-            "availability_expires_at": "2026-10-31T13:08:39Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "available_regions_normalized": [
-          {
-            "label": "us-east-1",
-            "zone": "US-EAST-1",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "us-midwest-1",
-            "zone": "US-MIDWEST-1",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-10-31T13:08:39Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
+        "availability_expires_at": "2026-10-31T13:08:39Z"
       }
     },
     {
