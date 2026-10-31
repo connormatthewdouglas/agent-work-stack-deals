@@ -100,6 +100,11 @@ def main() -> int:
                 if st != 200:
                     continue
                 checked += 1
+                if r.get("batch") == "wider-gpu":
+                    # Scout wider-GPU batch: priced from vendor APIs (source_url names the API call), re-verified by Scout's
+                    # own cycle; not re-found on the HTML pricing page. Auto-holds after STALE_DAYS like any record.
+                    warnings.append(f"Scout API batch, not re-checked on page: {doc['vendor']} {r['gpu']} (verified {r['checked_at']})")
+                    continue
                 if doc.get("manual_snapshot"):
                     # Manual snapshot (e.g. Clore.ai, whose API 401s CI runners): not re-checked here; the record
                     # auto-holds after STALE_DAYS unless a person re-snapshots it.
