@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write
   actions: write
+  issues: write
 
 concurrency:
   group: gpu-refresh
@@ -24,6 +25,7 @@ concurrency:
 
 jobs:
   refresh:
+    continue-on-error: true  # failures go to the "Pipeline failing: GPU price refresh" issue, not a red run (no per-run email)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -86,3 +88,17 @@ jobs:
           [ "${pushed:-0}" = 1 ] || { echo "push failed after retries"; exit 1; }
           gh workflow run validate-and-deploy.yml --ref main
           echo "Committed $(git rev-parse --short HEAD); dispatched validate-and-deploy." >> "$GITHUB_STEP_SUMMARY"
+      - name: Open or update the GPU price refresh issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: DETAIL="Prices and the daily snapshot stay on the previous day until a refresh succeeds." sh scripts/pipeline_issue.sh "GPU price refresh"
+      - name: Close the GPU price refresh issue after a green run
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: sh scripts/pipeline_issue.sh "GPU price refresh" --green || true

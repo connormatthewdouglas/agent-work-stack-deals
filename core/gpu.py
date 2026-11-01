@@ -285,7 +285,9 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "min_gpus": r.get("min_gpus", 1),
                 "price_status": r.get("price_status", "listed"),
                 "price_basis": r.get("price_basis"),
-                "lowest_offer_usd": r.get("lowest_offer_usd"), "offer_count": r.get("offer_count"),
+                # T41-19: lowest_offer_usd/offer_count exist only on marketplace rows (absent, not null, elsewhere)
+                **({"lowest_offer_usd": r.get("lowest_offer_usd"), "offer_count": r.get("offer_count")}
+                   if r.get("price_status") == "marketplace" else {}),
                 "unit": "month" if monthly else "hour", "tier": normalize_tier(r["tier"]),
                 "hourly_equiv_usd": r["hourly_usd"],
                 "billing": {"per-second": "per second while running", "hourly": "per hour while running",

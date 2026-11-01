@@ -274,7 +274,8 @@ def test_scout_v25_lambda_clore_render():
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     if not _fresh():  # stale snapshot: Lambda/Clore claims are unknown, the Lambda auth label stays
         lam = [r["availability"] for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("origin") == "scout"]
-        assert lam and all(a["in_stock"] is None and a.get("availability_stale") for a in lam if a.get("checked_at"))
+        # stale (collected > 8 h) or expired within the build horizon: either way no claim is shown
+        assert lam and all(a["in_stock"] is None and str(a.get("status", "")).startswith("unknown") for a in lam if a.get("checked_at"))
         for slug in ("a100", "h100", "rtx-4090", "l40s"):
             assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
         return
