@@ -153,7 +153,8 @@ jobs:
       ok: ${{ steps.lw_ok.outputs.ok }}
     # Clean-environment install of the PUBLISHED package from PyPI (fresh venv + uvx), all 3 tools over stdio
     needs: [changes]
-    if: needs.changes.outputs.data_only != 'true'
+    # PRs (e.g. a HOLD release PR) have no published PyPI release to install yet; the tests job covers the source
+    if: needs.changes.outputs.data_only != 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -181,7 +182,8 @@ jobs:
       ok: ${{ steps.lw_ok.outputs.ok }}
     # Glama-style container run: build the Dockerfile (installs the pinned PyPI release) and call every tool over stdio
     needs: [changes]
-    if: needs.changes.outputs.data_only != 'true'
+    # PRs (e.g. a HOLD release PR) have no published PyPI release to install yet; the tests job covers the source
+    if: needs.changes.outputs.data_only != 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:

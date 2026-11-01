@@ -188,6 +188,24 @@ def get_price_changes(since: str | None = None, gpu: str | None = None, limit: i
         return e.to_dict()
 
 
+def _stack_receipt(tool: str, out: dict, gpu: dict | None, sdata: dict | None, inputs: dict, total) -> dict:
+    """T48: reopenable receipt for a stack answer: each priced line's quoted price, evidence and feed revision."""
+    idx = quote.gpu_rate_index(gpu)
+    lines = []
+    for l in out.get("lines") or []:
+        ch = l.get("choice") or {}
+        if l.get("status") != "priced" or not ch:
+            continue
+        name = l.get("need") or l.get("component")
+        r = idx.get(ch.get("rate_id"))
+        if r is not None:
+            lines.append(quote.gpu_line(name, r, l.get("quantity"), 1, None, ch.get("monthly_cost_usd")))
+        else:
+            lines.append(quote.plan_line(name, ch))
+    return quote.full_receipt(tool, out.get("quote_id"), lines, "components", quote.feed_revision(gpu, sdata),
+                              inputs, total, out.get("missing_components") or out.get("missing_costs"))
+
+
 def _data_timestamps(stack_data: dict | None, gpu: dict | None) -> dict:
     """Data versions a quote was computed from (hashed into quote_id)."""
     return {"stack_pricing_feed_updated_at": (stack_data or {}).get("feed_updated_at"),
@@ -220,6 +238,9 @@ def optimize_stack(scrape_pages: int = 0, scrape_pages_js: int = 0, proxy_gb: fl
                              exclude_manual_signup=exclude_manual_signup)
         out["data_source"] = core.STACK_PRICING_URL
         out.update(quote.receipt("optimize_stack", out["lines"], _data_timestamps(sdata, gpu)))
+        out["receipt"] = _stack_receipt("optimize_stack", out, gpu, sdata,
+                                        {**needs, "gpu_model": gpu_model, "exclude_manual_signup": exclude_manual_signup},
+                                        out.get("total_monthly_usd"))
         return out
     except stack.StackError as e:
         return DealError("invalid_argument", str(e)).to_dict()
@@ -263,6 +284,10 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
                                max_data_age_hours=max_data_age_hours)
         out["data_sources"] = [core.GPU_PRICES_URL, core.STACK_PRICING_URL, core.FEED_URL]
         out.update(quote.receipt("optimize_agent_stack", out["lines"], _data_timestamps(sdata, gpu)))
+        out["receipt"] = _stack_receipt("optimize_agent_stack", out, gpu, sdata,
+                                        {"parsed": out.get("parsed"), "gpu_model": gpu_model,
+                                         "exclude_manual_signup": exclude_manual_signup, "max_data_age_hours": max_data_age_hours},
+                                        out.get("monthly_estimate_usd"))
         out.update(core.freshness(_gpu_checked_at(gpu) if gpu else None))
         return out
     except stack.StackError as e:
@@ -305,7 +330,59 @@ def estimate_job_cost(gpu_family: str, gpus_per_job: int, job_hours: float | Non
               "choice": {"rate_id": r["rate_id"], "checked_at": r["checked_at"]}} for r in out["results"]]
     out["data_sources"] = [core.GPU_PRICES_URL]
     out.update(quote.receipt("estimate_job_cost", lines, _data_timestamps(None, gpu)))
+    idx = quote.gpu_rate_index(gpu)
+    rl = [quote.gpu_line(f"rank{r['rank']}", idx[r["rate_id"]], out["job_hours"], r["allocated_gpus"], r["instances"],
+                         r["compute_subtotal_usd"]) for r in out["results"] if r["rate_id"] in idx]
+    out["receipt"] = quote.full_receipt("estimate_job_cost", out["quote_id"], rl, "alternatives", quote.feed_revision(gpu),
+                                        {"gpu_family": gpu_family, "gpus_per_job": gpus_per_job, "job_hours": out["job_hours"],
+                                         "allow_interruptible": allow_interruptible, "min_vram_gb": min_vram_gb,
+                                         "region": region, "top_n": top_n}, None, out.get("missing_costs"))
     out.update(core.freshness(_gpu_checked_at(gpu)))
+    return out
+
+
+def _load_snapshot(day: str):
+    """The published daily snapshot for a date, from our own URL (never a URL taken from the receipt)."""
+    import json
+    import os
+    import re
+    import urllib.request
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day or ""):
+        return None, None
+    d = os.environ.get("LANTERN_GPU_SNAPSHOT_DIR")
+    try:
+        if d:
+            return json.loads((Path(d) / f"{day}.json").read_text(encoding="utf-8")), f"{d}/{day}.json"
+        url = quote.SNAPSHOT_URL.format(date=day)
+        req = urllib.request.Request(url, headers={"User-Agent": core.USER_AGENT})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode("utf-8")), url
+    except Exception:  # noqa: BLE001  (unavailable -> lines stay unverified -> arithmetic_only)
+        return None, None
+
+
+@mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
+@_contract
+def rebuild_quote(receipt: dict) -> dict:
+    """Reopen a past quote. Pass the `receipt` object returned by optimize_stack, optimize_agent_stack or
+    estimate_job_cost. Returns receipt_intact (unkeyed sha256 matches), reproduced (true only if each line's subtotal
+    recomputes AND its rate_id and price match the pinned feed revision or that date's published daily snapshot;
+    "arithmetic_only" with provenance_verified=false when that can't be confirmed), per-line provenance, and
+    revalidation against today's feed: per GPU line unchanged | price_changed | evidence_changed | held_today |
+    not_in_feed_today (flat plans: not_revalidated), with revision 'same' or 'new'. Nothing is re-ranked."""
+    if not isinstance(receipt, dict) or "lines" not in receipt or "receipt_sha256" not in receipt:
+        return DealError("invalid_argument", "receipt must be the 'receipt' object from a quoting tool").to_dict()
+    try:
+        gpu = gpu_loader.load()
+    except DealError:
+        gpu = None
+    snap, snap_url = None, None
+    fr = receipt.get("feed_revision") if isinstance(receipt.get("feed_revision"), dict) else {}
+    if not (gpu and fr.get("gpu_rates_sha256") == quote._sha(gpu.get("rates") or [])):
+        snap, snap_url = _load_snapshot(str(fr.get("gpu_prices_feed_updated_at") or "")[:10])
+    out = quote.rebuild(receipt, gpu, snap)
+    out["data_sources"] = [core.GPU_PRICES_URL] + ([snap_url] if snap_url else [])
     return out
 
 
