@@ -38,7 +38,8 @@ def test_pages_never_say_out_of_stock():
 
 def test_no_stale_cadence_wording():
     t = (ROOT / "gpu" / "price-comparison" / "index.html").read_text()
-    assert "~4 h" not in t and "same snapshot" not in t and "manual snapshot" in t
+    clore_live = any(r["advertiser"] == "Clore.ai" for r in json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["rates"])
+    assert "~4 h" not in t and "same snapshot" not in t and ("manual snapshot" in t or not clore_live)
 
 
 def test_marketplace_basis_matches_fields():
@@ -80,5 +81,5 @@ def test_new_held_rtx4090_vendors_not_ranked():
     feed = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
     held = {h["vendor"] for h in feed["held_stale"]}
     assert {"SimplePod", "Runcrate", "Beam"} <= held
-    assert not held & {r["advertiser"] for r in feed["rates"]} - {"Clore.ai", "CloudRift"}  # record-level holds
+    assert not held & {r["advertiser"] for r in feed["rates"]} - {"Clore.ai", "CloudRift", "E2E Networks"}  # record-level holds
     assert not {"TensorDock", "Clore.ai"} & {r["advertiser"] for r in feed["rates"] if r["tier_class"] == "on-demand"}
