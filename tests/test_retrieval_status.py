@@ -86,7 +86,10 @@ def test_recovery_clears_degraded(tmp_path):
 
 def test_tool_result_reports_retrieval(tmp_path, monkeypatch):
     from mcp_server import server as s
-    ld, f, c = _loader(tmp_path)
+    # With `pip install -e .` the server imports lantern_works_deals_mcp.core, a second copy of core whose
+    # DealError is a different class from the repo's. Build the loader from the server's own core so the
+    # error it raises is the one the server catches (Gauge rel041 fix 4).
+    ld, f, c = _loader(tmp_path, cls=s.GpuPricesLoader)
     data = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text())
     f.write_text(json.dumps(data))
     monkeypatch.setattr(s, "gpu_loader", ld)
@@ -98,6 +101,6 @@ def test_tool_result_reports_retrieval(tmp_path, monkeypatch):
     assert out["ok"] and out["retrieval"]["status"] == "degraded"
     g = [x for x in out["retrieval"]["feeds"] if x["feed"] == "GPU prices"][0]
     assert g["stale_cache"] and g["cache_age_s"] == 120
-    c.t += D.STALE_CURRENT_MAX_S
+    c.t += s.core.STALE_CURRENT_MAX_S
     out = s.compare_gpu_prices(gpu="H100")
     assert out["ok"] is False and out["error"]["code"] == "feed_unavailable"

@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.4.0, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.4.1, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -45,6 +45,7 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 | `optimize_stack` | `scrape_pages`, `scrape_pages_js`, `proxy_gb`, `emails_sent`, `search_queries`, `gpu_hours`, `gpu_model`, `exclude_manual_signup` | per-line chosen plan, `monthly_cost_usd`, calc, vendor quote, `source_url`, `checked_at`, assumptions, alternatives; unpublished prices are `unknown` |
 | `optimize_agent_stack` | `description` (free text) plus optional `workload`, `gpu_hours`, `gpu_model`, `model_size_b`, `scrape_pages`, `js_rendering`, `proxy_gb`, `search_queries`, `emails_sent`, `llm_api`, `monthly_budget_usd`, `exclude_manual_signup` | `parsed` (what the deterministic parse found), per-component cheapest cited option with calc, `source_url`, `verified_at`, `referral_disclosure`, manual-signup notes; `monthly_estimate_usd` with `estimate_math` and `estimate_is_complete`; "no sourced price tracked" where there is no data |
 | `estimate_job_cost` | `gpu_family`, `gpus_per_job`, `job_hours` or (`work_units` + `throughput_units_per_gpu_hour`), optional `workload`, `allow_interruptible` (default false), `min_vram_gb`, `runs_per_month`, `top_n` (default 5), `max_data_age_hours` | cost of one job (compute subtotal), cheapest first: `results[]` with `rate_id`, `allocated_gpus`, `source_url`, `verified_at`, data age; `assumptions`, `citations`, `missing_costs`, `budget_verdict`, `quote_id`. Inference workloads without your throughput use a cited MLPerf figure (`throughput_basis`, `throughput_source`); otherwise `not_found` "missing: throughput" |
+| `rebuild_quote` | `receipt` (the `receipt` object returned by `optimize_stack`, `optimize_agent_stack` or `estimate_job_cost`) | `receipt_intact` (unkeyed sha256 matches), `reproduced` (`true` only if each line recomputes and its `rate_id` and price match the pinned feed revision or that date's published daily snapshot; otherwise `"arithmetic_only"` with `provenance_verified: false`), per-line provenance, and revalidation against today's feed (`unchanged`, `price_changed`, `evidence_changed`, `held_today`, `not_in_feed_today`; flat plans `not_revalidated`). Nothing is re-ranked |
 | `search_deals` | `query`, `category`, `offer_type`, `max_price`, `tags[]`, `limit` (1-25, default 10), `cursor` | `{total, count, results[], next_cursor}` (summary fields only) |
 | `compare_deals` | `ids` (2-5) | `{order, deals[], note}` best value first |
 | `get_deal` | `id` | the deal's public record |

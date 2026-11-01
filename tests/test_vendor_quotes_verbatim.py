@@ -56,3 +56,22 @@ def test_clore_l40s_vram_note_published():
     api = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     rec = [r for h in api["held_stale"] if h["vendor"] == "Clore.ai" for r in h["records"] if r["gpu"] == "L40S"]
     assert rec and rec[0]["vram_gb"] == 48 and "reports 45" in rec[0]["vram_note"]
+
+
+def test_model_level_vram_note_on_every_vendor_row():
+    """Gauge rel041 fix 3: the GB-mismatch check above only sees quotes that state a different size, so
+    Lambda's B200 rows (quote says 180 GB = vram_gb) slipped through while RunPod/Verda B200 carried the
+    spec-exception note. A note shared verbatim by 2+ vendors is model-level (not one vendor's figure),
+    so every vendor row for that (gpu, vram_gb) must carry it."""
+    by = {}
+    for f in (ROOT / "data/gpu_pricing").glob("*.json"):
+        d = json.loads(f.read_text()); rows = d.get("records") if isinstance(d, dict) else None
+        for r in rows or []:
+            by.setdefault((r.get("gpu"), r.get("vram_gb")), []).append((f.name, r.get("tier"), r.get("vram_note")))
+    bad = {}
+    for k, v in by.items():
+        for note in {n for _, _, n in v if n}:
+            if len({f for f, _, n in v if n == note}) >= 2:
+                miss = [(f, t) for f, t, n in v if n != note]
+                if miss: bad[k] = miss
+    assert ("B200", 180) in by and not bad, bad
