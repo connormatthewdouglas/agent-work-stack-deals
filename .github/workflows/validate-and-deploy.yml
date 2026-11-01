@@ -397,7 +397,7 @@ jobs:
   pipeline-failure-issue:
     # Any failed gate, deploy or live check on main opens (or comments on) one issue, whatever the claim expiry.
     needs: [validate, tests, latest-scout-import, pypi-install, docker, release-gate, deploy, live-checks]
-    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && (contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false')
+    if: always() && !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && (contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false')
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
