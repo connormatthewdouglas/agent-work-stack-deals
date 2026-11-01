@@ -128,7 +128,12 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
-<h2>0.4.0 (2026-11-01, HOLD: not published until Gauge passes)</h2>
+<h2>0.4.1 (2026-11-01)</h2>
+<ul>
+<li>GPU counts (PR #61, Core; Gauge passed at de184627): <code>2x A100</code>, <code>8xH100</code> and <code>two H100s</code> are parsed and priced for N GPUs; GPU-hours vs GPU count are kept apart (no double multiply); requested vs billed GPUs are stated as assumptions; bad counts are rejected; <code>gpu_count</code> is part of <code>quote_id</code> and the receipt.</li>
+<li>Published feed: <code>vram_note</code> is emitted on ranked rates and held records when a vendor&#x27;s quote states a different memory size than <code>vram_gb</code>.</li>
+</ul>
+<h2>0.4.0 (2026-11-01, PyPI + MCP Registry)</h2>
 <ul>
 <li>rebuild_quote checks provenance, not just arithmetic: each GPU line&#x27;s <code>rate_id</code> and price must match the pinned feed revision (<code>gpu_rates_sha256</code> equal to today&#x27;s feed) or the published daily snapshot for the receipt&#x27;s date (fetched from our own URL, never one taken from the receipt). Otherwise <code>reproduced: &quot;arithmetic_only&quot;</code> and <code>provenance_verified: false</code>; flat plan lines are unverified. No server signing key. The receipt sha256 is unkeyed, so it only shows the body wasn&#x27;t changed after hashing.</li>
 <li>Tool counts are 9 everywhere: manifest <code>tool_count</code> and note, README (with a <code>rebuild_quote</code> row), and /install/ (9 + 4 hosted-only = 13).</li>

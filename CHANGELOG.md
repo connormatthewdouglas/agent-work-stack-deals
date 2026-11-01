@@ -4,7 +4,12 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
-## 0.4.0 (2026-11-01, HOLD: not published until Gauge passes)
+## 0.4.1 (2026-11-01)
+
+- GPU counts (PR #61, Core; Gauge passed at de184627): `2x A100`, `8xH100` and `two H100s` are parsed and priced for N GPUs; GPU-hours vs GPU count are kept apart (no double multiply); requested vs billed GPUs are stated as assumptions; bad counts are rejected; `gpu_count` is part of `quote_id` and the receipt.
+- Published feed: `vram_note` is emitted on ranked rates and held records when a vendor's quote states a different memory size than `vram_gb`.
+
+## 0.4.0 (2026-11-01, PyPI + MCP Registry)
 
 - rebuild_quote checks provenance, not just arithmetic: each GPU line's `rate_id` and price must match the pinned feed revision (`gpu_rates_sha256` equal to today's feed) or the published daily snapshot for the receipt's date (fetched from our own URL, never one taken from the receipt). Otherwise `reproduced: "arithmetic_only"` and `provenance_verified: false`; flat plan lines are unverified. No server signing key. The receipt sha256 is unkeyed, so it only shows the body wasn't changed after hashing.
 - Tool counts are 9 everywhere: manifest `tool_count` and note, README (with a `rebuild_quote` row), and /install/ (9 + 4 hosted-only = 13).
