@@ -17,7 +17,7 @@ Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.or
 
 ### Tools
 
-Tool counts: **8** in the local package (stdio, below); **12** on the hosted endpoint (the same 8 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`).
+Tool counts: **9** in the local package (stdio, below); **13** on the hosted endpoint (the same 9 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`).
 
 | Tool | What it does |
 |---|---|
@@ -26,6 +26,7 @@ Tool counts: **8** in the local package (stdio, below); **12** on the hosted end
 | `optimize_stack` | Given monthly usage (pages scraped, proxy GB, emails, search queries, GPU hours/model), pick the cheapest tracked plan per line and total the monthly cost, with the calculation, sources and alternatives; unpublished prices are reported as `unknown`. |
 | `optimize_agent_stack` | Describe the agent in plain text (e.g. "scrapes 20k JS pages via 5 GB proxies, 3k searches, summarizes with an LLM, budget $300/mo"); a deterministic keyword parse (no LLM) maps it to components and returns the cheapest cited option per component with the math, `source_url`, `verified_at` and a referral disclosure where applicable. Components with no cited price say "no sourced price tracked". |
 | `estimate_job_cost` | Cost of one GPU job (not per hour) among tracked providers, cheapest first. You give `job_hours`, or `work_units` plus your own `throughput_units_per_gpu_hour`; for inference `workload`s with no throughput given, a cited closed-division MLPerf Inference figure for the exact GPU is used (`throughput_basis="published_benchmark"`, with source and caveats), and training returns "missing: throughput". Whole-instance billing; reserved and held rates never ranked; spot only with `allow_interruptible`. Returns per-rate `rate_id`, `source_url`, `verified_at`, assumptions, `missing_costs` and a `quote_id`. |
+| `rebuild_quote` | Reopen a past quote: pass the `receipt` from `optimize_stack`, `optimize_agent_stack` or `estimate_job_cost`. Returns `receipt_intact`, `reproduced` (`true` only when each line's arithmetic recomputes AND its `rate_id` and price match the pinned feed revision or that date's published daily snapshot; `"arithmetic_only"` with `provenance_verified: false` when that can't be confirmed), per-line `provenance`, and revalidation against today's feed (`unchanged`, `price_changed`, `evidence_changed`, `held_today`, `not_in_feed_today`). Nothing is re-ranked; no server key. |
 | `search_deals` | Search the deals feed by text, `category`, `offer_type`, `max_price` and `tags`; paginated summaries (`limit` 1-25, `cursor`). |
 | `compare_deals` | Compare 2-5 deals by id side by side, best customer value first. |
 | `get_deal` | Return the full public record for one deal id. |

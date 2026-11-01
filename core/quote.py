@@ -116,7 +116,62 @@ def _expected(l: dict) -> float | None:
     return l.get("quoted_price_usd")
 
 
-def rebuild(receipt: dict, gpu_today: dict | None) -> dict:
+def snapshot_prices(snapshot: dict | None) -> dict:
+    """rate_id -> hourly_usd for the rows of a published daily snapshot (data/gpu_pricing/snapshots/DATE.json)."""
+    out = {}
+    for row in (snapshot or {}).get("rows") or []:
+        try:
+            out.setdefault(rate_id(row), row.get("hourly_usd"))
+        except Exception:  # noqa: BLE001  (a malformed row simply can't vouch for anything)
+            pass
+    return out
+
+
+def _same_price(a, b) -> bool:
+    try:
+        return abs(float(a) - float(b)) <= 1e-6
+    except (TypeError, ValueError):
+        return False
+
+
+def provenance(receipt: dict, gpu_today: dict | None, snapshot: dict | None = None) -> dict:
+    """Check every line against data the server holds, never against the caller: the pinned feed revision (when the
+    receipt's gpu_rates_sha256 equals today's feed, the line's rate_id must exist there at the same price), else the
+    published daily snapshot for the receipt's date. No signing key: a line that can't be checked is unverified."""
+    fr = receipt.get("feed_revision") or {}
+    today_sha = _sha((gpu_today or {}).get("rates") or []) if gpu_today else None
+    pinned = bool(today_sha and fr.get("gpu_rates_sha256") == today_sha)
+    idx = gpu_rate_index(gpu_today) if pinned else {}
+    snap = snapshot_prices(snapshot) if snapshot else {}
+    lines, all_ok = [], True
+    for l in receipt.get("lines") or []:
+        rid, price = l.get("rate_id"), l.get("quoted_price_usd")
+        if l.get("kind") != "gpu_hour":
+            st, basis = "unverified", "flat plan lines have no pinned revision to check against"
+        elif pinned:
+            r = idx.get(rid)
+            if r is None:
+                st, basis = "unknown_rate_id", "rate_id not in the pinned feed revision"
+            elif _same_price(r.get("hourly_equiv_usd", r.get("hourly_usd")), price):
+                st, basis = "verified", "pinned feed revision (gpu_rates_sha256)"
+            else:
+                st, basis = "price_mismatch", "quoted_price_usd differs from the pinned feed revision"
+        elif snap:
+            if rid not in snap:
+                st, basis = "unknown_rate_id", "rate_id not in the daily snapshot"
+            elif _same_price(snap[rid], price):
+                st, basis = "verified", "daily snapshot"
+            else:
+                st, basis = "price_mismatch", "quoted_price_usd differs from the daily snapshot"
+        else:
+            st, basis = "unverified", "pinned revision is not today's feed and its daily snapshot was unavailable"
+        all_ok &= st == "verified"
+        lines.append({"line": l.get("line"), "rate_id": rid, "status": st, "basis": basis})
+    return {"verified": bool(all_ok and lines), "pinned_revision_is_today": pinned,
+            "snapshot_checked": bool(snap) and not pinned, "lines": lines}
+
+
+def rebuild(receipt: dict, gpu_today: dict | None, snapshot: dict | None = None) -> dict:
     """Re-run a past receipt: (1) reproduce its own arithmetic and integrity from the receipt alone, as of its
     feed revision; (2) separately revalidate each GPU line against today's feed. rate_id ignores cosmetic labels,
     so a renamed tier keeps its identity; a price or evidence change is reported as a new revision."""
@@ -165,7 +220,13 @@ def rebuild(receipt: dict, gpu_today: dict | None) -> dict:
                       "quoted_price_usd_today": now_l["quoted_price_usd"], "subtotal_usd_then": l["subtotal_usd"],
                       "subtotal_usd_today": now_l["subtotal_usd"], "source_url_today": now_l["source_url"],
                       "verified_at_today": now_l["verified_at"]})
-    return {"quote_id": receipt.get("quote_id"), "receipt_intact": intact, "reproduced": bool(ok and intact),
+    prov = provenance(receipt, gpu_today, snapshot)
+    # reproduced=True only when the arithmetic holds AND every line's rate_id and price check out against server-held
+    # data; the sha256 is unkeyed, so a self-consistent forged receipt is at best 'arithmetic_only'.
+    arith = bool(ok and intact)
+    reproduced = (True if prov["verified"] else "arithmetic_only") if arith else False
+    return {"quote_id": receipt.get("quote_id"), "receipt_intact": intact, "reproduced": reproduced,
+            "provenance_verified": prov["verified"], "provenance": prov,
             "as_of": receipt.get("feed_revision"), "lines": rep,
             "revalidation": {"feed_revision_today": feed_revision(gpu_today), "lines": reval,
                              "revision": "new" if changed else "same",

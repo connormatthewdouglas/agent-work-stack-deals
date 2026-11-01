@@ -60,3 +60,63 @@ def test_rebuild_detects_tamper_and_price_change():
 
 def test_rebuild_rejects_non_receipt():
     assert f(server.rebuild_quote)({"x": 1})["error"]["code"] == "invalid_argument"
+
+
+def _resign(r):
+    import core.quote as q
+    body = {k: v for k, v in r.items() if k != "receipt_sha256"}
+    r["receipt_sha256"] = q._sha(body)
+    return r
+
+
+def test_genuine_receipt_provenance_verified_against_pinned_revision():
+    out = f(server.rebuild_quote)(_job()["receipt"])
+    assert out["reproduced"] is True and out["provenance_verified"] is True
+    assert {x["status"] for x in out["provenance"]["lines"]} == {"verified"}
+
+
+def test_forged_price_is_arithmetic_only(monkeypatch, tmp_path):
+    monkeypatch.setenv("LANTERN_GPU_SNAPSHOT_DIR", str(tmp_path))  # no snapshot reachable offline
+    r = copy.deepcopy(_job()["receipt"])
+    l = r["lines"][0]; l["quoted_price_usd"] = 0.01
+    l["subtotal_usd"] = round(0.01 * l["hours"] * l["gpus_billed"], 2)
+    out = f(server.rebuild_quote)(_resign(r))
+    assert out["receipt_intact"] is True  # unkeyed hash: self-consistent forgery
+    assert out["reproduced"] == "arithmetic_only" and out["provenance_verified"] is False
+    assert out["provenance"]["lines"][0]["status"] == "price_mismatch"
+
+
+def test_fake_rate_id_is_arithmetic_only(monkeypatch, tmp_path):
+    monkeypatch.setenv("LANTERN_GPU_SNAPSHOT_DIR", str(tmp_path))
+    r = copy.deepcopy(_job()["receipt"]); r["lines"][0]["rate_id"] = "r_fake"
+    out = f(server.rebuild_quote)(_resign(r))
+    assert out["reproduced"] == "arithmetic_only" and out["provenance_verified"] is False
+    assert out["provenance"]["lines"][0]["status"] == "unknown_rate_id"
+
+
+def test_old_revision_checked_against_daily_snapshot(monkeypatch, tmp_path):
+    import json
+    import core.quote as q
+    r = copy.deepcopy(_job()["receipt"]); l = r["lines"][0]
+    r["feed_revision"] = {**r["feed_revision"], "gpu_rates_sha256": "0" * 64, "gpu_prices_feed_updated_at": "2026-10-30T12:00:00Z"}
+    row = {"vendor": l["vendor"], "gpu": l["offer"], "tier": l["tier"], "vram_gb": l["vram_gb"], "gpu_count": 1,
+           "billing_unit": "hourly", "hourly_usd": l["quoted_price_usd"], "price_usd": l["quoted_price_usd"]}
+    assert q.rate_id(row) == l["rate_id"]
+    (tmp_path / "2026-10-30.json").write_text(json.dumps({"rows": [row]}))
+    monkeypatch.setenv("LANTERN_GPU_SNAPSHOT_DIR", str(tmp_path))
+    r["lines"] = [l]
+    out = f(server.rebuild_quote)(_resign(r))
+    assert out["provenance"]["snapshot_checked"] and out["provenance"]["lines"][0]["status"] == "verified"
+    l["quoted_price_usd"] = 0.01; l["subtotal_usd"] = round(0.01 * l["hours"] * l["gpus_billed"], 2)
+    out = f(server.rebuild_quote)(_resign(r))
+    assert out["reproduced"] == "arithmetic_only" and out["provenance"]["lines"][0]["status"] == "price_mismatch"
+
+
+def test_manifest_tool_count_equals_server_tools():
+    import json
+    import re
+    m = json.loads((ROOT / "mcp/tools.manifest.json").read_text())
+    n = len(re.findall(r"^@mcp\.tool", (ROOT / "mcp_server/server.py").read_text(), re.M))
+    assert n == 9
+    assert m["mcp_server"]["tool_count"] == n == len(m["mcp_server"]["tools"])
+    assert f"these {n} tools" in m["mcp_server"]["note"]

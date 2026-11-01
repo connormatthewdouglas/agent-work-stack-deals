@@ -341,13 +341,34 @@ def estimate_job_cost(gpu_family: str, gpus_per_job: int, job_hours: float | Non
     return out
 
 
+def _load_snapshot(day: str):
+    """The published daily snapshot for a date, from our own URL (never a URL taken from the receipt)."""
+    import json
+    import os
+    import re
+    import urllib.request
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day or ""):
+        return None, None
+    d = os.environ.get("LANTERN_GPU_SNAPSHOT_DIR")
+    try:
+        if d:
+            return json.loads((Path(d) / f"{day}.json").read_text(encoding="utf-8")), f"{d}/{day}.json"
+        url = quote.SNAPSHOT_URL.format(date=day)
+        req = urllib.request.Request(url, headers={"User-Agent": core.USER_AGENT})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode("utf-8")), url
+    except Exception:  # noqa: BLE001  (unavailable -> lines stay unverified -> arithmetic_only)
+        return None, None
+
+
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
 @_contract
 def rebuild_quote(receipt: dict) -> dict:
     """Reopen a past quote. Pass the `receipt` object returned by optimize_stack, optimize_agent_stack or
-    estimate_job_cost. Returns receipt_intact (sha256 matches), reproduced (each line's subtotal recomputes from its
-    quoted price, as of the receipt's feed_revision; the daily snapshot URL lets you re-download that feed), and
+    estimate_job_cost. Returns receipt_intact (unkeyed sha256 matches), reproduced (true only if each line's subtotal
+    recomputes AND its rate_id and price match the pinned feed revision or that date's published daily snapshot;
+    "arithmetic_only" with provenance_verified=false when that can't be confirmed), per-line provenance, and
     revalidation against today's feed: per GPU line unchanged | price_changed | evidence_changed | held_today |
     not_in_feed_today (flat plans: not_revalidated), with revision 'same' or 'new'. Nothing is re-ranked."""
     if not isinstance(receipt, dict) or "lines" not in receipt or "receipt_sha256" not in receipt:
@@ -356,8 +377,12 @@ def rebuild_quote(receipt: dict) -> dict:
         gpu = gpu_loader.load()
     except DealError:
         gpu = None
-    out = quote.rebuild(receipt, gpu)
-    out["data_sources"] = [core.GPU_PRICES_URL]
+    snap, snap_url = None, None
+    fr = receipt.get("feed_revision") if isinstance(receipt.get("feed_revision"), dict) else {}
+    if not (gpu and fr.get("gpu_rates_sha256") == quote._sha(gpu.get("rates") or [])):
+        snap, snap_url = _load_snapshot(str(fr.get("gpu_prices_feed_updated_at") or "")[:10])
+    out = quote.rebuild(receipt, gpu, snap)
+    out["data_sources"] = [core.GPU_PRICES_URL] + ([snap_url] if snap_url else [])
     return out
 
 

@@ -6,6 +6,9 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## 0.4.0 (2026-11-01, HOLD: not published until Gauge passes)
 
+- rebuild_quote checks provenance, not just arithmetic: each GPU line's `rate_id` and price must match the pinned feed revision (`gpu_rates_sha256` equal to today's feed) or the published daily snapshot for the receipt's date (fetched from our own URL, never one taken from the receipt). Otherwise `reproduced: "arithmetic_only"` and `provenance_verified: false`; flat plan lines are unverified. No server signing key. The receipt sha256 is unkeyed, so it only shows the body wasn't changed after hashing.
+- Tool counts are 9 everywhere: manifest `tool_count` and note, README (with a `rebuild_quote` row), and /install/ (9 + 4 hosted-only = 13).
+
 - Reopenable receipts (T48, additive): optimize_stack, optimize_agent_stack and estimate_job_cost add a `receipt` object with each line's quoted price, evidence quote, source_url, verified_at, the pinned feed revision (feed timestamp, generation_id, GPU-rates sha256, daily snapshot URL) and a receipt_sha256. Existing fields (quote_id, quote_basis, ...) are unchanged.
 - New tool `rebuild_quote(receipt)`: checks integrity, recomputes each line from the receipt alone, and revalidates GPU lines against today's feed (unchanged, price_changed, evidence_changed, held_today, not_in_feed_today).
 
