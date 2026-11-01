@@ -61,6 +61,7 @@ def test_full_mode_is_default_and_unchanged_plus_envelope():
         for o in (default, full):
             o.pop("next_refresh_utc", None)
             o.pop("issued_at", None)  # T39: wall-clock time of the receipt (not part of quote_id)
+            o.pop("retrieval", None)  # wall-clock feed retrieval stamps; a call straddling a second boundary differs
         assert default == full, tool
         assert default["mode"] == "full"
 
