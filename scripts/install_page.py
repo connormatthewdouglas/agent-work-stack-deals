@@ -22,7 +22,7 @@ def _server_tools() -> tuple[str, ...]:
     import re
     src = (Path(__file__).resolve().parents[1] / "mcp_server" / "server.py").read_text(encoding="utf-8")
     names = re.findall(r"@mcp\.tool\([^)]*\)\n(?:@\w+\n)*def (\w+)\(", src)
-    order = ["compare_gpu_prices", "get_price_changes", "optimize_stack", "optimize_agent_stack", "estimate_job_cost", "search_deals", "compare_deals", "get_deal"]
+    order = ["compare_gpu_prices", "get_price_changes", "optimize_stack", "optimize_agent_stack", "estimate_job_cost", "search_deals", "compare_deals", "get_deal", "rebuild_quote"]
     return tuple(sorted(names, key=lambda n: (order.index(n) if n in order else len(order), n)))
 
 

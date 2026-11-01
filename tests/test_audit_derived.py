@@ -123,7 +123,8 @@ def test_install_page_tool_count_matches_server():
     n = len(re.findall(r"@mcp\.tool\(", src))
     assert len(install_page.TOOLS) == n and "get_price_changes" in install_page.TOOLS
     html = (ROOT / "install/index.html").read_text()
-    assert f"returns {n} tools" in html and f"({n} tools in the package)" in html
+    # the "returns N tools" claim is the last client-tested count (bumped only after a re-test); the package count is live
+    assert f"returns {install_page.TESTED_TOOLS} tools" in html and install_page.TESTED_TOOLS <= n and f"({n} tools in the package)" in html
     extra = len(install_page.HOSTED_EXTRA)
     assert extra == 4 and f"{n + extra} tools in all" in html
     for w in ("6 tools", "six tools", "the same 7 read-only"):

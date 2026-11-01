@@ -128,6 +128,11 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.4.0 (2026-11-01, HOLD: not published until Gauge passes)</h2>
+<ul>
+<li>Reopenable receipts (T48, additive): optimize_stack, optimize_agent_stack and estimate_job_cost add a <code>receipt</code> object with each line&#x27;s quoted price, evidence quote, source_url, verified_at, the pinned feed revision (feed timestamp, generation_id, GPU-rates sha256, daily snapshot URL) and a receipt_sha256. Existing fields (quote_id, quote_basis, ...) are unchanged.</li>
+<li>New tool <code>rebuild_quote(receipt)</code>: checks integrity, recomputes each line from the receipt alone, and revalidates GPU lines against today&#x27;s feed (unchanged, price_changed, evidence_changed, held_today, not_in_feed_today).</li>
+</ul>
 <h2>0.3.52 (2026-10-30)</h2>
 <ul>
 <li>/coverage/: serverless, preemptible rows (Modal A100, H100, H200, L40S) are excluded from the matrix and its counts; <code>excluded_serverless_rows</code> reports how many.</li>
