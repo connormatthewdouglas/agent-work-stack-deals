@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of  # noqa: E402
+from core.gpu import PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
 from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
@@ -409,6 +409,10 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
                        f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
+    also = [(slug, src) for src, slug in PAGE_ALSO.items() if fams.get(slug, {}).get("rates")]
+    also_note = "".join(f"<p class=\"meta\">{gen.esc(fams[slug]['name'])} ({sum(family_of(r['gpu']) == slug for r in fams[slug]['rates'])}) excludes the "
+                        f"{gen.esc(fams[src]['name'])}, listed separately ({sum(family_of(r['gpu']) == src for r in rates)}); "
+                        f"the {gen.esc(fams[slug]['name'])} pages list both ({len(fams[slug]['rates'])}).</p>" for slug, src in also)
     counted = sum(sum(family_of(r["gpu"]) == slug for r in f["rates"]) for slug, f in fams.items())  # H100 NVL also lists on H100: count once + sum(len(v) for v in others.values())
     assert counted == len(rates) == gen.live_rate_count(), (counted, len(rates), gen.live_rate_count())
     title = f"GPU rental price comparison: {gen.live_rate_count()} verified rates (H100, H200, A100, L40S, RTX 4090) — {fresh}"
@@ -429,6 +433,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
   <div class="tscroll"><table class="howto sticky1"><thead><tr><th>Model</th><th>Verified offers</th><th>Vendors</th><th>Lowest pay-as-you-go rate (reserved excluded)</th></tr></thead><tbody>
 {chr(10).join(summary)}
   </tbody></table></div>
+{also_note}
   <p>Comparisons: {" · ".join(f'<a href="{gen.BASE}/{p}/">{n}</a>' for p, n in _LINKS)}</p>
   <p>Models get their own page once they have at least {MIN_OFFERS} verified offers from {MIN_VENDORS} vendors.</p>
   <h2>All verified rates</h2>

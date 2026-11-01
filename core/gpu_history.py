@@ -172,7 +172,7 @@ def change_problems(base: dict[str, dict], docs: list[dict], label: str) -> list
     for doc in docs:
         for r in doc.get("records") or []:
             b = base.get(_key_of(r))
-            if not b or abs(float(b["price_usd"]) - float(r["price_usd"])) < 1e-9:
+            if not b or r.get("price_usd") is None or b.get("price_usd") is None or abs(float(b["price_usd"]) - float(r["price_usd"])) < 1e-9:
                 continue
             tag = f"{r['vendor']} {r['gpu']} ({r['tier']}): {b['price_usd']} -> {r['price_usd']} vs {label}"
             ev = r.get("evidence") or {}

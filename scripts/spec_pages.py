@@ -207,7 +207,9 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     desc += f" Checked {day}."
     body = [f'<nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/">GPU prices</a> › {esc(fam)}</nav>',
             f"<h1>Rent {esc(fam)}: price today</h1>",
-            f'<p class="meta">Prices verified {ts(mv)}. Per GPU-hour, among tracked providers only.</p>']
+            f'<p class="meta">Prices verified {ts(mv)} · {len(rows)} offers from {len({r["advertiser"] for r in rows})} vendors. Per GPU-hour, among tracked providers only.</p>']
+    ranked = sorted(gp.estimate(rows, gp.DEFAULT_HOURS), key=lambda r: ((r.get("tier_class") == "reserved"), r["hourly_equiv_usd"], r["advertiser"]))
+    split = gp._form_split(gen, ranked)  # Gauge Nov 1: same per-form lines (incl. H100 NVL) as /gpu/cheapest-<model>-rental/
     cards = []
     if od:
         r = od[0]
@@ -220,6 +222,8 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
             note += f" Median of {r['offer_count']} offers; lowest ${r['lowest_offer_usd']:g}."
         cards.append(f"<div class=\"card\"><h2>Cheapest spot / community among tracked providers</h2><p><strong>{m(r['hourly_equiv_usd'])}/GPU-hr</strong> · {vendor_link(gen, r)} · {esc(r['gpu'])} · {esc(r['tier'])}.{note}</p></div>")
     body += cards
+    if split:
+        body.append(split)
     body.append(f"<p><em>{DISCLOSURE}</em></p>")
     show7 = seven_day_ready(history)
     for b in BUCKETS:

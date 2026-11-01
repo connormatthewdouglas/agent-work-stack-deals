@@ -1493,7 +1493,7 @@
    "date": "2026-11-01",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-01.json",
    "snapshot_sha256": "3bc897393622c7e7a7e090b86671605887479e9b2025b806f7945941ece04fa8",
-   "feed_commit_for_listing_counts": "7903c41f41b5a5e28ba74cdc12178e95de766e05",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.49,
@@ -1570,11 +1570,12 @@
      "low_coverage": false
     },
     "RTX 4090": {
-     "median_usd_per_gpu_hour": 0.42,
-     "monthly_basis_usd": 306.6,
+     "median_usd_per_gpu_hour": 0.4372,
+     "monthly_basis_usd": 319.16,
      "min_usd_per_gpu_hour": 0.34,
-     "vendors": 5,
+     "vendors": 6,
      "vendor_prices": {
+      "Clore.ai": 0.555,
       "Nova Cloud": 0.42,
       "Novita AI": 0.67,
       "RunC.AI": 0.42,
@@ -1584,21 +1585,24 @@
      "low_coverage": false
     },
     "RTX 5090": {
-     "median_usd_per_gpu_hour": 0.67,
-     "monthly_basis_usd": 489.1,
+     "median_usd_per_gpu_hour": 0.69,
+     "monthly_basis_usd": 503.7,
      "min_usd_per_gpu_hour": 0.65,
-     "vendors": 2,
+     "vendors": 3,
      "vendor_prices": {
+      "Clore.ai": 0.7933,
       "CloudRift": 0.65,
       "RunPod": 0.69
      },
-     "low_coverage": true
+     "low_coverage": false
     }
    },
    "rows_included": [
     "99Stack Cloud|H100|On-demand|80|1",
     "Civo|A100|On-demand|80|1",
     "Civo|H100 SXM|On-demand|80|1",
+    "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
+    "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
     "CloudRift|A100 SXM|On-demand|80|1",
     "CloudRift|L40S|On-demand|48|1",
     "CloudRift|RTX 5090|On-demand|32|1",
@@ -1662,14 +1666,6 @@
     {
      "key": "Beam|RTX 4090|Machine (from)|24|1",
      "excluded_because": "held"
-    },
-    {
-     "key": "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
-     "excluded_because": "marketplace, listing count unknown"
-    },
-    {
-     "key": "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
-     "excluded_because": "marketplace, listing count unknown"
     },
     {
      "key": "CloudRift|A100 SXM|1-month commitment|80|1",
@@ -1834,24 +1830,20 @@
      "vendors_dropped": []
     },
     "RTX 4090": {
-     "matched_vendors": 5,
-     "matched_median_prev": 0.42,
-     "matched_median_cur": 0.42,
-     "matched_change_pct": 0.0,
+     "matched_vendors": 6,
+     "matched_median_prev": 0.438,
+     "matched_median_cur": 0.4372,
+     "matched_change_pct": -0.19,
      "vendors_added": [],
-     "vendors_dropped": [
-      "Clore.ai"
-     ]
+     "vendors_dropped": []
     },
     "RTX 5090": {
-     "matched_vendors": 2,
-     "matched_median_prev": 0.67,
-     "matched_median_cur": 0.67,
+     "matched_vendors": 3,
+     "matched_median_prev": 0.69,
+     "matched_median_cur": 0.69,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": [
-      "Clore.ai"
-     ]
+     "vendors_dropped": []
     }
    }
   }

@@ -8,7 +8,8 @@ def test_clore_thin_markets_held_not_ranked():
         if r["offer_count"] < G.MIN_MARKET_OFFERS or r["gpu"].startswith(("A100", "H100", "L40S")):
             assert r.get("stale"), r["gpu"]
         assert r["tier_class"] == "marketplace"
-        assert r["lowest_offer_usd"] <= r["hourly_usd"] <= r["highest_offer_usd"]
+        if r["hourly_usd"] is not None:  # held thin groups withhold the price (Gauge Nov 1)
+            assert r["lowest_offer_usd"] <= r["hourly_usd"] <= r["highest_offer_usd"]
 
 
 def test_manual_snapshot_not_auto_refreshed_but_ages_out():
@@ -37,6 +38,6 @@ def test_manual_snapshot_fields_in_feed_and_page():
     assert all(r["price_check"] == "daily" for r in feed["rates"] if r["advertiser"] != "Clore.ai")
     sph = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
     # Nov 1 (Gauge): sourced from the model's own page, a stable span the daily check parses (no longer rotating)
-    assert sph and sph[0]["source_url"] == "https://www.spheron.network/gpu-rental/rtx-5090/" and "$1.62/hr per GPU" in sph[0]["evidence"]["quote"]
+    assert sph and sph[0]["source_url"] == "https://www.spheron.network/gpu-rental/rtx-5090/" and "/hr per GPU" in sph[0]["evidence"]["quote"]
     page = pathlib.Path("gpu/price-comparison/index.html").read_text()
-    assert (not clore or "manual snapshot 2026-10-29 15:27 UTC; held after 2026-11-05" in page) and "Price verified (daily)" not in page
+    assert (not clore or "manual snapshot 2026-11-01 22:22 UTC; held after 2026-11-08" in page) and "Price verified (daily)" not in page

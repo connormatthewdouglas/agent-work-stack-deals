@@ -85,13 +85,17 @@ def record_problems(doc: dict) -> list[str]:
             out.append(f"{tag}: billing_unit must be one of {BILLING_UNITS}")
         if not isinstance(r["interruptible"], bool):
             out.append(f"{tag}: interruptible must be true/false")
-        if not (isinstance(r["price_usd"], (int, float)) and r["price_usd"] > 0):
+        if r["price_usd"] is None and r.get("stale"):
+            pass  # a held row (never ranked) may withhold its price, e.g. a thin Clore group (Gauge Nov 1)
+        elif not (isinstance(r["price_usd"], (int, float)) and r["price_usd"] > 0):
             out.append(f"{tag}: price_usd must be > 0")
             continue
         factor = {"per-second": 3600, "hourly": 1, "monthly": 1 / HOURS_PER_MONTH}.get(r["billing_unit"], 1)
         n = r.get("gpu_count", 1)
         if not (isinstance(n, int) and not isinstance(n, bool) and n >= 1):
             out.append(f"{tag}: gpu_count must be an integer >= 1")
+            continue
+        if r["price_usd"] is None:
             continue
         if abs(round(r["price_usd"] * factor / n, 4) - r["hourly_usd"]) > 1e-4:
             out.append(f"{tag}: hourly_usd {r['hourly_usd']} != price_usd x {factor:g} / gpu_count {n} (must be per GPU)")

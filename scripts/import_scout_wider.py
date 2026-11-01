@@ -21,7 +21,7 @@ FILES = {"RunPod": "runpod.json", "Lambda": "lambda.json", "Vast.ai": "vast.json
 NEVER = ("clore", "tensordock")
 MIN_VAST_OFFERS = 5  # same floor as core.gpu MIN_MARKET_OFFERS
 MAX_AGE = timedelta(hours=36)  # prices refresh daily
-VRAM_FIX = {("B300", None): 288, ("A40", "Vast.ai"): 48, ("L4", "Vast.ai"): 24, ("RTX A4000", "Vast.ai"): 16}
+VRAM_FIX = {("B300", None): 288, ("L40S", None): 48, ("A40", "Vast.ai"): 48, ("L4", "Vast.ai"): 24, ("RTX A4000", "Vast.ai"): 16}
 
 
 def _ts(s):
