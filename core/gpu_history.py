@@ -39,6 +39,8 @@ def snapshot_rows(docs: list[dict]) -> list[dict]:
     rows = []
     for doc in docs:
         for r in doc.get("records") or []:
+            if r.get("price_usd") is None:
+                continue  # a held row that withholds its price (thin Clore group) has no price to record
             held = doc.get("stale") or r.get("stale")
             rows.append({
                 "key": series_key(r["vendor"], r["gpu"], r["tier"], r.get("vram_gb"), r.get("gpu_count", 1)),

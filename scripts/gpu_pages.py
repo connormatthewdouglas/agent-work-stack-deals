@@ -37,9 +37,9 @@ def _vendor_link(gen, r: dict) -> str:
 
 def _rate_str(r: dict) -> str:
     if r["unit"] == "hour":
-        s = f"${r['price_usd']:g}/hr"
+        s = f"{usd(r['price_usd'])}/hr"
         if r.get("price_status") == "marketplace":
-            s += f" (variable marketplace median; lowest offer ${r['lowest_offer_usd']:g}/hr, {r['offer_count']} offers)"
+            s += f" (variable marketplace median; lowest offer {usd(r['lowest_offer_usd'])}/hr, {r['offer_count']} offers)"
         if (r.get("min_gpus") or 1) > 1:
             s += f" (sold only as {r['min_gpus']}-GPU instances)"
         return s
@@ -113,7 +113,7 @@ def _verified_cell(r: dict, esc) -> str:
 
 
 from core.gpu_availability import STOCK_EXPLAINER, REGIONS_NOTE  # noqa: E402  (one wording: core NOTE == page explainer)
-from core.deals import tie_label, out_of_stock  # noqa: E402  (J3 tie rule shared with the MCP summary)
+from core.deals import tie_label, out_of_stock, usd  # noqa: E402  (J3 tie rule shared with the MCP summary)
 
 
 def _tied_names(gen, rows, best) -> str:
@@ -248,7 +248,7 @@ def _mem_note(gen, rows, od) -> str:
     if not big:
         return ""
     b = min(big, key=lambda x: (x["monthly_cost_usd"], x["advertiser"]))
-    return (f" \u2014 memory sizes differ; cheapest {gen.esc(base)} {max(sizes)}GB among tracked providers: "
+    return (f" \u2014 memory sizes differ; cheapest on-demand {gen.esc(base)} {max(sizes)}GB among tracked providers: "
             f"{_tied_names(gen, big, b)} {gen.esc(b['gpu'])} {max(sizes)}GB at {_money(b['monthly_cost_usd'])}")
 
 
@@ -365,7 +365,7 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     held_v = sorted({h["vendor"] for h in held})
     unp = doc.get("unpriced") or []
     pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
-    med = [r for r in rates if r.get("offer_count")]
+    med = [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]  # Gauge G4
     resv = tc.get("reserved", 0)
     out = (f"How we count: {pl(len(rates), 'rate')} from {pl(len({r['advertiser'] for r in rates}), 'vendor')}, which is every priced row in "
            f"<a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> ({gen.esc(parts)}). ")
@@ -691,7 +691,7 @@ def changes_html(gen, gpu_family: str | None = None, days: int = 30, limit: int 
                 f"(daily snapshots since {gen.esc(since or '')}). Full series: <a href=\"{api}\">price history JSON</a>.</p>\n")
     rows = "".join(
         f"<tr><td>{gen.esc(c['date'])}</td><td>{gen.esc(c['vendor'])}</td><td>{gen.esc(c['gpu'])} ({gen.esc(c['tier'])})</td>"
-        f"<td>${c['from_hourly_usd']:g} → ${c['to_hourly_usd']:g}/hr</td>"
+        f"<td>{usd(c['from_hourly_usd'])} → {usd(c['to_hourly_usd'])}/hr</td>"
         f"<td>{_pct(c.get('change_pct'))}</td></tr>"
         for c in ch[:limit])
     return (head + f"  <p>Price changes among tracked providers in the last {days} days, per GPU-hour, from daily snapshots "

@@ -58,7 +58,7 @@ def normalize(r: dict) -> dict | None:
     rec = {"vendor": v, "gpu": gpu, "vram_gb": vram, "price_usd": price, "billing_unit": "hourly", "hourly_usd": price,
            "interruptible": "spot" in (r.get("tier") or "").lower(), "tier": r.get("tier"), "form_factor": form,
            "quote": quote, "source_url": src, "checked_at": when, "evidence": ev, "verified_at": when,
-           "batch": "wider-gpu"}
+           "batch": "wider-gpu", "price_check": "batch"}  # Gauge G5: re-read only when Scout pushes a batch
     if note:
         rec["vram_note"] = note
     if v == "Vast.ai":

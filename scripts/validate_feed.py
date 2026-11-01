@@ -239,6 +239,37 @@ def check_gpu_index() -> None:
                 err(f"gpu-price-index {d['date']} {s}: monthly_basis_usd != round(median*730, 2)")
 
 
+FUTURE_SKEW_S = 180  # Gauge G6: no timestamp may be after the build time (+3 min clock skew)
+
+
+def check_no_future_timestamps(now=None) -> None:
+    from datetime import datetime, timezone
+    now = now or datetime.now(timezone.utc)
+    p = ROOT / "api" / "v1" / "gpu-prices.json"
+    if not p.exists():
+        return
+    d = json.loads(p.read_text(encoding="utf-8"))
+
+    def chk(where, v):
+        if not isinstance(v, str) or len(v) < 19 or v[4] != "-" or v[10] != "T":
+            return
+        try:
+            t = datetime.fromisoformat(v.replace("Z", "+00:00"))
+        except ValueError:
+            return
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        if (t - now).total_seconds() > FUTURE_SKEW_S:
+            err(f"future timestamp: {where} = {v} (build time {now.isoformat(timespec='seconds')})")
+
+    for k in ("feed_updated_at", "prices_verified_through"):
+        chk(k, d.get(k))
+    for r in d.get("rates") or []:
+        for k in ("verified_at", "checked_at"):
+            chk(f"{r.get('advertiser')} {r.get('gpu')} {k}", r.get(k))
+        chk(f"{r.get('advertiser')} {r.get('gpu')} evidence.checked_at", (r.get("evidence") or {}).get("checked_at"))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gist", action="store_true", help="check gist mirror byte parity")
@@ -250,6 +281,7 @@ def main() -> int:
     check_private(feed)
     check_static()
     check_gpu_index()
+    check_no_future_timestamps()
     check_compliance(feed)
     if a.gist:
         check_gist()

@@ -16,6 +16,13 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+
+
+def usd(x) -> str:
+    """Gauge G7: at least 2 decimals, up to 4 when the source has them ($2.60, $0.555, $0.8045)."""
+    t = f"{float(x):.4f}".rstrip("0")
+    return "$" + (t + "0" * (2 - len(t.split(".")[1])))
+
 VERSION = "0.4.0"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
@@ -544,9 +551,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     if len(by_vram) > 1:
         big = max(v for v in by_vram if v)
         b = next((r for r in rows if r.get("vram_gb") == big and tier_class(r) == "on-demand" and not out_of_stock(r)), by_vram.get(big))
-        vram_note = (f" Memory sizes differ (cheapest {big}GB: {b['advertiser']} {b['gpu']} {big}GB at ${b['hourly_equiv_usd']:g}/hr, {b['tier']})"
+        vram_note = (f" Memory sizes differ (cheapest {'on-demand ' if tier_class(b) == 'on-demand' else ''}{big}GB: {b['advertiser']} {b['gpu']} {big}GB at {usd(b['hourly_equiv_usd'])}/hr, {b['tier']})"
                      ", compare like with like: " + "; ".join(
-            f"{v} GB from ${r['hourly_equiv_usd']:g}/hr ({r['advertiser']})" for v, r in sorted(by_vram.items(), key=lambda x: (x[0] is None, x[0] or 0)))
+            f"{v} GB from {usd(r['hourly_equiv_usd'])}/hr ({r['advertiser']})" for v, r in sorted(by_vram.items(), key=lambda x: (x[0] is None, x[0] or 0)))
             + f". Add the size (e.g. '{q[0].upper()} {max(v for v in by_vram if v)}GB') to filter.")
     results = []
     for i, r in enumerate(rows[:limit], 1):
