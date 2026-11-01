@@ -13,10 +13,10 @@
     "docs": "https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/REPORT-WRONG-PRICE.md"
   },
   "source_feed": "https://thelanternworks.com/api/v1/deals.json",
-  "feed_updated_at": "2026-11-01T11:10:33Z",
-  "generation_id": "20261101T111137Z-c0e0c522",
+  "feed_updated_at": "2026-11-01T12:11:14Z",
+  "generation_id": "20261101T121219Z-14e5b515",
   "wider_generation_id": "20261031T135634Z-0e93f074",
-  "availability_collected_at": "2026-11-01T11:10:33Z",
+  "availability_collected_at": "2026-11-01T12:11:14Z",
   "prices_verified_through": "2026-10-31T18:52:54Z",
   "deal_feed_updated_at": "2026-10-29T09:30:00-04:00",
   "hours_per_month": 730,
@@ -1950,14 +1950,14 @@
       "availability": {
         "status": "out of stock when checked",
         "in_stock": false,
-        "checked_at": "2026-11-01T11:10:33Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:33Z",
+        "availability_expires_at": "2026-11-01T13:11:14Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-11-01T12:10:33Z",
+        "regions_expires_at": "2026-11-01T13:11:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
       }
@@ -1999,16 +1999,39 @@
         "checked_at": "2026-10-31T18:50:27+00:00"
       },
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
-        "checked_at": "2026-11-01T11:10:33Z",
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-01T12:11:14Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:33Z",
+        "availability_expires_at": "2026-11-01T13:11:14Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-11-01T12:10:33Z",
+        "available_regions": [
+          "us-west-3"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "us-west-3",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:14Z",
+            "availability_expires_at": "2026-11-01T13:11:14Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "available_regions_normalized": [
+          {
+            "label": "us-west-3",
+            "zone": "US-WEST-3",
+            "country": "US",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-01T13:11:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
       }
@@ -2052,22 +2075,32 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:10:33Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:33Z",
+        "availability_expires_at": "2026-11-01T13:11:14Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "available_regions": [
+          "us-east-1",
           "us-west-2"
         ],
         "available_regions_detail": [
           {
+            "region": "us-east-1",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:14Z",
+            "availability_expires_at": "2026-11-01T13:11:14Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null
+          },
+          {
             "region": "us-west-2",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:33Z",
-            "availability_expires_at": "2026-11-01T12:10:33Z",
+            "checked_at": "2026-11-01T12:11:14Z",
+            "availability_expires_at": "2026-11-01T13:11:14Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null
@@ -2076,13 +2109,19 @@
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "available_regions_normalized": [
           {
+            "label": "us-east-1",
+            "zone": "US-EAST-1",
+            "country": "US",
+            "group": "NA"
+          },
+          {
             "label": "us-west-2",
             "zone": "US-WEST-2",
             "country": "US",
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:10:33Z",
+        "regions_expires_at": "2026-11-01T13:11:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
       }
@@ -2126,14 +2165,14 @@
       "availability": {
         "status": "out of stock when checked",
         "in_stock": false,
-        "checked_at": "2026-11-01T11:10:33Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:33Z",
+        "availability_expires_at": "2026-11-01T13:11:14Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-11-01T12:10:33Z",
+        "regions_expires_at": "2026-11-01T13:11:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
       }
@@ -2349,14 +2388,14 @@
       "availability": {
         "status": "out of stock when checked",
         "in_stock": false,
-        "checked_at": "2026-11-01T11:10:33Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:33Z",
+        "availability_expires_at": "2026-11-01T13:11:14Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-11-01T12:10:33Z",
+        "regions_expires_at": "2026-11-01T13:11:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
       }
@@ -2400,11 +2439,11 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:10:33Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:33Z",
+        "availability_expires_at": "2026-11-01T13:11:14Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "available_regions": [
@@ -2415,8 +2454,8 @@
           {
             "region": "us-east-1",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:33Z",
-            "availability_expires_at": "2026-11-01T12:10:33Z",
+            "checked_at": "2026-11-01T12:11:14Z",
+            "availability_expires_at": "2026-11-01T13:11:14Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null
@@ -2424,8 +2463,8 @@
           {
             "region": "us-midwest-1",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:33Z",
-            "availability_expires_at": "2026-11-01T12:10:33Z",
+            "checked_at": "2026-11-01T12:11:14Z",
+            "availability_expires_at": "2026-11-01T13:11:14Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null
@@ -2446,7 +2485,7 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:10:33Z",
+        "regions_expires_at": "2026-11-01T13:11:14Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type"
       }
@@ -2936,11 +2975,11 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:10:30Z",
+        "checked_at": "2026-11-01T12:11:11Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:30Z",
+        "availability_expires_at": "2026-11-01T13:11:11Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "available_regions": [
@@ -2950,13 +2989,13 @@
           {
             "region": "MON1 (CANADA, MONTREAL)",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:30Z",
-            "availability_expires_at": "2026-11-01T12:10:30Z",
+            "checked_at": "2026-11-01T12:11:11Z",
+            "availability_expires_at": "2026-11-01T13:11:11Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "available_gpus": 2,
-            "second_read_available_gpus": 5
+            "available_gpus": 5,
+            "second_read_available_gpus": 6
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
@@ -2968,7 +3007,7 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:10:30Z",
+        "regions_expires_at": "2026-11-01T13:11:11Z",
         "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page"
       }
     },
@@ -3012,11 +3051,11 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:10:30Z",
+        "checked_at": "2026-11-01T12:11:11Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:30Z",
+        "availability_expires_at": "2026-11-01T13:11:11Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "available_regions": [
@@ -3026,13 +3065,13 @@
           {
             "region": "MON1 (CANADA, MONTREAL)",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:30Z",
-            "availability_expires_at": "2026-11-01T12:10:30Z",
+            "checked_at": "2026-11-01T12:11:11Z",
+            "availability_expires_at": "2026-11-01T13:11:11Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "available_gpus": 4,
-            "second_read_available_gpus": 5
+            "available_gpus": 1,
+            "second_read_available_gpus": 1
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
@@ -3044,7 +3083,7 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:10:30Z",
+        "regions_expires_at": "2026-11-01T13:11:11Z",
         "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page"
       }
     },
@@ -3218,11 +3257,11 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:05:13Z",
+        "checked_at": "2026-11-01T12:05:42Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:05:13Z",
+        "availability_expires_at": "2026-11-01T13:05:42Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "stock_level": "Medium",
@@ -3234,7 +3273,6 @@
           "EUR-IS-3 (Europe)",
           "EUR-NO-2 (Europe)",
           "US-CA-2 (United States)",
-          "US-GA-2 (United States)",
           "US-MO-1 (United States)",
           "US-NE-1 (United States)"
         ],
@@ -3242,8 +3280,8 @@
           {
             "region": "AP-IN-1 (India)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:18Z",
-            "availability_expires_at": "2026-11-01T12:05:18Z",
+            "checked_at": "2026-11-01T12:05:46Z",
+            "availability_expires_at": "2026-11-01T13:05:46Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3251,8 +3289,8 @@
           {
             "region": "AP-IN-2 (India)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:19Z",
-            "availability_expires_at": "2026-11-01T12:05:19Z",
+            "checked_at": "2026-11-01T12:05:47Z",
+            "availability_expires_at": "2026-11-01T13:05:47Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3260,8 +3298,8 @@
           {
             "region": "AP-JP-1 (Japan)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:20Z",
-            "availability_expires_at": "2026-11-01T12:05:20Z",
+            "checked_at": "2026-11-01T12:05:49Z",
+            "availability_expires_at": "2026-11-01T13:05:49Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3269,8 +3307,8 @@
           {
             "region": "EU-FR-1 (France)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:33Z",
-            "availability_expires_at": "2026-11-01T12:05:33Z",
+            "checked_at": "2026-11-01T12:06:07Z",
+            "availability_expires_at": "2026-11-01T13:06:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3278,8 +3316,8 @@
           {
             "region": "EUR-IS-3 (Europe)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:45Z",
-            "availability_expires_at": "2026-11-01T12:05:45Z",
+            "checked_at": "2026-11-01T12:06:26Z",
+            "availability_expires_at": "2026-11-01T13:06:26Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3287,8 +3325,8 @@
           {
             "region": "EUR-NO-2 (Europe)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:48Z",
-            "availability_expires_at": "2026-11-01T12:05:48Z",
+            "checked_at": "2026-11-01T12:06:36Z",
+            "availability_expires_at": "2026-11-01T13:06:36Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3296,8 +3334,8 @@
           {
             "region": "US-CA-2 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:58Z",
-            "availability_expires_at": "2026-11-01T12:05:58Z",
+            "checked_at": "2026-11-01T12:06:46Z",
+            "availability_expires_at": "2026-11-01T13:06:46Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3305,17 +3343,17 @@
           {
             "region": "US-GA-2 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:06:01Z",
-            "availability_expires_at": "2026-11-01T12:06:01Z",
-            "confirmed": true,
+            "checked_at": "2026-11-01T12:06:51Z",
+            "availability_expires_at": "2026-11-01T13:06:51Z",
+            "confirmed": false,
             "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
+            "second_read_stock_level": null
           },
           {
             "region": "US-MO-1 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:06:19Z",
-            "availability_expires_at": "2026-11-01T12:06:19Z",
+            "checked_at": "2026-11-01T12:07:09Z",
+            "availability_expires_at": "2026-11-01T13:07:09Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3323,8 +3361,8 @@
           {
             "region": "US-NE-1 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:06:29Z",
-            "availability_expires_at": "2026-11-01T12:06:29Z",
+            "checked_at": "2026-11-01T12:07:19Z",
+            "availability_expires_at": "2026-11-01T13:07:19Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3375,12 +3413,6 @@
             "group": "NA"
           },
           {
-            "label": "US-GA-2 (United States)",
-            "zone": "US-GA-2",
-            "country": "US",
-            "group": "NA"
-          },
-          {
             "label": "US-MO-1 (United States)",
             "zone": "US-MO-1",
             "country": "US",
@@ -3393,7 +3425,7 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:05:18Z"
+        "regions_expires_at": "2026-11-01T13:05:46Z"
       }
     },
     {
@@ -3435,7 +3467,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-01T11:05:13Z",
+        "checked_at": "2026-11-01T12:05:42Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -3480,70 +3512,72 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:05:13Z",
+        "checked_at": "2026-11-01T12:05:42Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:05:13Z",
+        "availability_expires_at": "2026-11-01T13:05:42Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "stock_level": "Low",
         "available_regions": [
-          "EUR-IS-1 (Europe)",
-          "US-KS-2 (United States)",
-          "US-MD-1 (United States)"
+          "US-MD-1 (United States)",
+          "US-MO-1 (United States)"
         ],
         "available_regions_detail": [
           {
-            "region": "EUR-IS-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:43Z",
-            "availability_expires_at": "2026-11-01T12:05:43Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          },
-          {
             "region": "US-KS-2 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:06:10Z",
-            "availability_expires_at": "2026-11-01T12:06:10Z",
-            "confirmed": true,
+            "checked_at": "2026-11-01T12:07:00Z",
+            "availability_expires_at": "2026-11-01T13:07:00Z",
+            "confirmed": false,
             "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
+            "second_read_stock_level": null
           },
           {
             "region": "US-MD-1 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:06:11Z",
-            "availability_expires_at": "2026-11-01T12:06:11Z",
+            "checked_at": "2026-11-01T12:07:02Z",
+            "availability_expires_at": "2026-11-01T13:07:02Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
+          },
+          {
+            "region": "US-MO-1 (United States)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-01T12:07:09Z",
+            "availability_expires_at": "2026-11-01T13:07:09Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low"
+          },
+          {
+            "region": "US-WA-1 (United States)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-01T12:07:34Z",
+            "availability_expires_at": "2026-11-01T13:07:34Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "available_regions_normalized": [
           {
-            "label": "EUR-IS-1 (Europe)",
-            "zone": "EUR-IS-1",
-            "country": "IS",
-            "group": "EU"
-          },
-          {
-            "label": "US-KS-2 (United States)",
-            "zone": "US-KS-2",
-            "country": "US",
-            "group": "NA"
-          },
-          {
             "label": "US-MD-1 (United States)",
             "zone": "US-MD-1",
             "country": "US",
             "group": "NA"
+          },
+          {
+            "label": "US-MO-1 (United States)",
+            "zone": "US-MO-1",
+            "country": "US",
+            "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:05:43Z"
+        "regions_expires_at": "2026-11-01T13:07:00Z"
       }
     },
     {
@@ -3583,40 +3617,12 @@
         "checked_at": "2026-10-31T18:51:16+00:00"
       },
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-11-01T11:05:13Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:05:13Z",
-        "max_age_hours": 1.0,
-        "derived_from_regions": true,
-        "stock_level": "Low",
-        "available_regions": [
-          "CA-MTL-3 (Canada)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "CA-MTL-3 (Canada)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:29Z",
-            "availability_expires_at": "2026-11-01T12:05:29Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "available_regions_normalized": [
-          {
-            "label": "CA-MTL-3 (Canada)",
-            "zone": "CA-MTL-3",
-            "country": "CA",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-11-01T12:05:29Z"
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-11-01T12:05:42Z",
+        "note": "No confirmed region claim at overall_recomputed_at",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "origin": "scout"
       }
     },
     {
@@ -3830,45 +3836,25 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:05:13Z",
+        "checked_at": "2026-11-01T12:05:42Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:05:13Z",
+        "availability_expires_at": "2026-11-01T13:05:42Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
         "stock_level": "Low",
         "available_regions": [
-          "EU-CZ-1 (Europe)",
           "EU-RO-1 (Europe)",
-          "EUR-IS-1 (Europe)",
           "EUR-IS-2 (Europe)",
           "US-IL-1 (United States)"
         ],
         "available_regions_detail": [
           {
-            "region": "EU-CZ-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:31Z",
-            "availability_expires_at": "2026-11-01T12:05:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          },
-          {
             "region": "EU-RO-1 (Europe)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:41Z",
-            "availability_expires_at": "2026-11-01T12:05:41Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low"
-          },
-          {
-            "region": "EUR-IS-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:43Z",
-            "availability_expires_at": "2026-11-01T12:05:43Z",
+            "checked_at": "2026-11-01T12:06:16Z",
+            "availability_expires_at": "2026-11-01T13:06:16Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3876,26 +3862,17 @@
           {
             "region": "EUR-IS-2 (Europe)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:44Z",
-            "availability_expires_at": "2026-11-01T12:05:44Z",
+            "checked_at": "2026-11-01T12:06:25Z",
+            "availability_expires_at": "2026-11-01T13:06:25Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
           },
           {
-            "region": "EUR-NO-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-01T11:05:47Z",
-            "availability_expires_at": "2026-11-01T12:05:47Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null
-          },
-          {
             "region": "US-IL-1 (United States)",
             "stock_level": "Low",
-            "checked_at": "2026-11-01T11:06:02Z",
-            "availability_expires_at": "2026-11-01T12:06:02Z",
+            "checked_at": "2026-11-01T12:06:52Z",
+            "availability_expires_at": "2026-11-01T13:06:52Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low"
@@ -3904,21 +3881,9 @@
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "available_regions_normalized": [
           {
-            "label": "EU-CZ-1 (Europe)",
-            "zone": "EU-CZ-1",
-            "country": "CZ",
-            "group": "EU"
-          },
-          {
             "label": "EU-RO-1 (Europe)",
             "zone": "EU-RO-1",
             "country": "RO",
-            "group": "EU"
-          },
-          {
-            "label": "EUR-IS-1 (Europe)",
-            "zone": "EUR-IS-1",
-            "country": "IS",
             "group": "EU"
           },
           {
@@ -3934,7 +3899,7 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:05:31Z"
+        "regions_expires_at": "2026-11-01T13:06:16Z"
       }
     },
     {
@@ -4062,7 +4027,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-01T11:05:16Z",
+        "checked_at": "2026-11-01T12:05:44Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -4107,7 +4072,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-01T11:05:16Z",
+        "checked_at": "2026-11-01T12:05:44Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -4152,8 +4117,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-01T11:05:16Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+        "checked_at": "2026-11-01T12:05:44Z",
+        "note": "No confirmed region claim at overall_recomputed_at",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
       }
@@ -4197,8 +4162,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-01T11:05:16Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
+        "checked_at": "2026-11-01T12:05:44Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
       }
@@ -4242,7 +4207,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-01T11:05:16Z",
+        "checked_at": "2026-11-01T12:05:44Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -5752,18 +5717,17 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:10:21Z",
+        "checked_at": "2026-11-01T12:11:02Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:21Z",
+        "availability_expires_at": "2026-11-01T13:11:02Z",
         "max_age_hours": 1.0,
-        "offer_count": 21,
+        "offer_count": 20,
         "available_regions": [
           "AT",
           "CZ",
           "DE",
-          "FR",
           "JP",
           "US"
         ],
@@ -5771,30 +5735,30 @@
           {
             "region": "AT",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:21Z",
-            "availability_expires_at": "2026-11-01T12:10:21Z",
+            "checked_at": "2026-11-01T12:11:02Z",
+            "availability_expires_at": "2026-11-01T13:11:02Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 2,
+            "offer_count": 1,
             "second_read_offer_count": 2
           },
           {
             "region": "CZ",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:21Z",
-            "availability_expires_at": "2026-11-01T12:10:21Z",
+            "checked_at": "2026-11-01T12:11:02Z",
+            "availability_expires_at": "2026-11-01T13:11:02Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 5,
+            "offer_count": 4,
             "second_read_offer_count": 5
           },
           {
             "region": "DE",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:21Z",
-            "availability_expires_at": "2026-11-01T12:10:21Z",
+            "checked_at": "2026-11-01T12:11:02Z",
+            "availability_expires_at": "2026-11-01T13:11:02Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -5804,30 +5768,30 @@
           {
             "region": "FR",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:21Z",
-            "availability_expires_at": "2026-11-01T12:10:21Z",
-            "confirmed": true,
+            "checked_at": "2026-11-01T12:11:02Z",
+            "availability_expires_at": "2026-11-01T13:11:02Z",
+            "confirmed": false,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "offer_count": 1,
-            "second_read_offer_count": 1
+            "second_read_offer_count": 0
           },
           {
             "region": "JP",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:21Z",
-            "availability_expires_at": "2026-11-01T12:10:21Z",
+            "checked_at": "2026-11-01T12:11:02Z",
+            "availability_expires_at": "2026-11-01T13:11:02Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2
+            "offer_count": 3,
+            "second_read_offer_count": 3
           },
           {
             "region": "US",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:21Z",
-            "availability_expires_at": "2026-11-01T12:10:21Z",
+            "checked_at": "2026-11-01T12:11:02Z",
+            "availability_expires_at": "2026-11-01T13:11:02Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -5856,12 +5820,6 @@
             "group": "EU"
           },
           {
-            "label": "FR",
-            "zone": "FR",
-            "country": "FR",
-            "group": "EU"
-          },
-          {
             "label": "JP",
             "zone": "JP",
             "country": "JP",
@@ -5874,7 +5832,7 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:10:21Z",
+        "regions_expires_at": "2026-11-01T13:11:02Z",
         "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
       }
     },
@@ -5917,22 +5875,24 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-01T11:10:26Z",
+        "checked_at": "2026-11-01T12:11:07Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:26Z",
+        "availability_expires_at": "2026-11-01T13:11:07Z",
         "max_age_hours": 1.0,
         "offer_count": 40,
         "available_regions": [
-          "AU",
           "CA",
-          "DK",
+          "CN",
+          "EE",
           "ES",
+          "GB",
           "IE",
+          "IL",
+          "IN",
           "KR",
           "MY",
-          "NL",
           "SE",
           "US"
         ],
@@ -5940,85 +5900,96 @@
           {
             "region": "AU",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
-            "confirmed": true,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": false,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "offer_count": 1,
-            "second_read_offer_count": 1
+            "second_read_offer_count": 0
+          },
+          {
+            "region": "BG",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0
+          },
+          {
+            "region": "BR",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0
           },
           {
             "region": "CA",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "offer_count": 3,
-            "second_read_offer_count": 2
+            "second_read_offer_count": 6
           },
           {
-            "region": "DK",
+            "region": "CN",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 3,
-            "second_read_offer_count": 2
+            "offer_count": 1,
+            "second_read_offer_count": 3
+          },
+          {
+            "region": "EE",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 2,
+            "second_read_offer_count": 1
           },
           {
             "region": "ES",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 4,
+            "offer_count": 5,
             "second_read_offer_count": 3
+          },
+          {
+            "region": "FR",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0
           },
           {
             "region": "GB",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 0
-          },
-          {
-            "region": "IE",
-            "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 3
-          },
-          {
-            "region": "IN",
-            "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 0
-          },
-          {
-            "region": "KR",
-            "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -6026,10 +5997,21 @@
             "second_read_offer_count": 2
           },
           {
-            "region": "MY",
+            "region": "IE",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 3,
+            "second_read_offer_count": 1
+          },
+          {
+            "region": "IL",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -6037,10 +6019,10 @@
             "second_read_offer_count": 1
           },
           {
-            "region": "NL",
+            "region": "IN",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -6048,10 +6030,21 @@
             "second_read_offer_count": 1
           },
           {
-            "region": "NO",
+            "region": "KR",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 2
+          },
+          {
+            "region": "MK",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": false,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -6059,32 +6052,54 @@
             "second_read_offer_count": 0
           },
           {
+            "region": "MY",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 1
+          },
+          {
             "region": "SE",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "offer_count": 5,
-            "second_read_offer_count": 6
+            "second_read_offer_count": 5
+          },
+          {
+            "region": "TH",
+            "stock_level": null,
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0
           },
           {
             "region": "US",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 14,
-            "second_read_offer_count": 8
+            "offer_count": 8,
+            "second_read_offer_count": 7
           },
           {
             "region": "VN",
             "stock_level": null,
-            "checked_at": "2026-11-01T11:10:26Z",
-            "availability_expires_at": "2026-11-01T12:10:26Z",
+            "checked_at": "2026-11-01T12:11:07Z",
+            "availability_expires_at": "2026-11-01T13:11:07Z",
             "confirmed": false,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -6095,21 +6110,21 @@
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
         "available_regions_normalized": [
           {
-            "label": "AU",
-            "zone": "AU",
-            "country": "AU",
-            "group": "APAC"
-          },
-          {
             "label": "CA",
             "zone": "CA",
             "country": "CA",
             "group": "NA"
           },
           {
-            "label": "DK",
-            "zone": "DK",
-            "country": "DK",
+            "label": "CN",
+            "zone": "CN",
+            "country": "CN",
+            "group": null
+          },
+          {
+            "label": "EE",
+            "zone": "EE",
+            "country": "EE",
             "group": null
           },
           {
@@ -6119,10 +6134,28 @@
             "group": "EU"
           },
           {
+            "label": "GB",
+            "zone": "GB",
+            "country": "GB",
+            "group": "EU"
+          },
+          {
             "label": "IE",
             "zone": "IE",
             "country": "IE",
             "group": "EU"
+          },
+          {
+            "label": "IL",
+            "zone": "IL",
+            "country": "IL",
+            "group": null
+          },
+          {
+            "label": "IN",
+            "zone": "IN",
+            "country": "IN",
+            "group": "APAC"
           },
           {
             "label": "KR",
@@ -6137,12 +6170,6 @@
             "group": null
           },
           {
-            "label": "NL",
-            "zone": "NL",
-            "country": "NL",
-            "group": "EU"
-          },
-          {
             "label": "SE",
             "zone": "SE",
             "country": "SE",
@@ -6155,7 +6182,7 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-01T12:10:26Z",
+        "regions_expires_at": "2026-11-01T13:11:07Z",
         "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote."
       }
     },
@@ -6413,14 +6440,14 @@
       "availability": {
         "status": "out of stock when checked",
         "in_stock": false,
-        "checked_at": "2026-11-01T11:10:32Z",
+        "checked_at": "2026-11-01T12:11:13Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:32Z",
+        "availability_expires_at": "2026-11-01T13:11:13Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-11-01T12:10:32Z",
+        "regions_expires_at": "2026-11-01T13:11:13Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }
@@ -6462,16 +6489,16 @@
         "checked_at": "2026-10-31T18:52:54+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-01 06:10 ET)",
+        "status": "unknown (stale availability, last checked 2026-11-01 07:11 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-11-01T11:10:32Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "max_age_hours": 0.25,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-01T11:25:32Z"
+        "availability_expires_at": "2026-11-01T12:26:14Z"
       }
     },
     {
@@ -6513,14 +6540,14 @@
       "availability": {
         "status": "out of stock when checked",
         "in_stock": false,
-        "checked_at": "2026-11-01T11:10:32Z",
+        "checked_at": "2026-11-01T12:11:13Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:32Z",
+        "availability_expires_at": "2026-11-01T13:11:13Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-11-01T12:10:32Z",
+        "regions_expires_at": "2026-11-01T13:11:13Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }
@@ -6562,16 +6589,16 @@
         "checked_at": "2026-10-31T18:52:54+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-01 06:10 ET)",
+        "status": "unknown (stale availability, last checked 2026-11-01 07:11 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-11-01T11:10:32Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "max_age_hours": 0.25,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-01T11:25:32Z"
+        "availability_expires_at": "2026-11-01T12:26:14Z"
       }
     },
     {
@@ -6613,14 +6640,14 @@
       "availability": {
         "status": "out of stock when checked",
         "in_stock": false,
-        "checked_at": "2026-11-01T11:10:32Z",
+        "checked_at": "2026-11-01T12:11:13Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-01T12:10:32Z",
+        "availability_expires_at": "2026-11-01T13:11:13Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "regions_expires_at": "2026-11-01T12:10:32Z",
+        "regions_expires_at": "2026-11-01T13:11:13Z",
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available"
       }
@@ -6662,16 +6689,16 @@
         "checked_at": "2026-10-31T18:52:54+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-01 06:10 ET)",
+        "status": "unknown (stale availability, last checked 2026-11-01 07:11 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-11-01T11:10:32Z",
+        "checked_at": "2026-11-01T12:11:14Z",
         "max_age_hours": 0.25,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-01T11:25:32Z"
+        "availability_expires_at": "2026-11-01T12:26:14Z"
       }
     },
     {
