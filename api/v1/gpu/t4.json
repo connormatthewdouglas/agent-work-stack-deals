@@ -1,0 +1,79 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "license": {
+    "data": "CC-BY-4.0",
+    "data_license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Lantern Works (https://thelanternworks.com)",
+    "code": "MIT",
+    "details": "https://thelanternworks.com/methodology/#license"
+  },
+  "model": "T4",
+  "slug": "t4",
+  "url": "https://thelanternworks.com/api/v1/gpu/t4.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-11-01T22:39:34+00:00",
+  "row_count": 1,
+  "providers": [
+    "E2E Networks"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 16,
+        "provider": "E2E Networks",
+        "gpu": "T4",
+        "tier": "On-demand",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.45,
+        "unit": "hour",
+        "price_usd": 0.45,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-01T22:39:34+00:00",
+        "source_url": "https://www.e2enetworks.com/pricing",
+        "quote": "GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA T4 16 12 50 $0.45",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-01T22:39:34+00:00",
+          "source": "https://www.e2enetworks.com/pricing",
+          "note": "The public pricing page publishes no stock signal"
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "E2E Networks",
+      "gpu": "T4",
+      "vram_gb": 16,
+      "tier": "On-demand",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.45,
+      "unit": "hour",
+      "price_usd": 0.45,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-01T22:39:34+00:00",
+      "source_url": "https://www.e2enetworks.com/pricing",
+      "quote": "GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA T4 16 12 50 $0.45",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-11-01T22:39:34+00:00",
+        "source": "https://www.e2enetworks.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
+      }
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}
