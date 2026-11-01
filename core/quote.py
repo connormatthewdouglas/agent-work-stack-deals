@@ -33,7 +33,7 @@ def _item(line: dict, key: str) -> dict | None:
     qty = line.get("quantity")
     gpu = key in ("gpu_hours", "gpu") or line.get("need") == "gpu_hours" or line.get("component") == "gpu"
     return {"line": line.get(key), "rate_id": ch["rate_id"], "quantity": qty,
-            "hours": qty if gpu else None, "gpus": 1 if gpu else None,
+            "hours": line.get("hours_per_gpu", qty) if gpu else None, "gpus": (line.get("gpu_count") or 1) if gpu else None,
             "checked_at": ch.get("checked_at") or ch.get("verified_at")}
 
 
@@ -76,12 +76,13 @@ def feed_revision(gpu: dict | None, stack_data: dict | None = None) -> dict:
             "stack_pricing_feed_updated_at": (stack_data or {}).get("feed_updated_at")}
 
 
-def gpu_line(line: str, r: dict, hours: float, gpus_billed: int, instances: int | None, subtotal: float) -> dict:
+def gpu_line(line: str, r: dict, hours: float, gpus_billed: int, instances: int | None, subtotal: float,
+             gpu_count: int | None = None) -> dict:
     ev = r.get("evidence") or {}
     return {"line": line, "rate_id": rate_id(r), "kind": "gpu_hour", "vendor": r.get("advertiser") or r.get("vendor"),
             "offer": r.get("gpu"), "vram_gb": r.get("vram_gb"), "tier": r.get("tier"),
             "quoted_price_usd": r.get("hourly_equiv_usd", r.get("hourly_usd")), "price_unit": "per GPU-hour",
-            "hours": hours, "gpus_billed": gpus_billed, "instances": instances, "subtotal_usd": subtotal,
+            "hours": hours, "gpu_count": gpu_count or gpus_billed, "gpus_billed": gpus_billed, "instances": instances, "subtotal_usd": subtotal,
             "formula": "quoted_price_usd x hours x gpus_billed",
             "source_url": r.get("source_url"), "evidence_quote": ev.get("quote") or r.get("basis"),
             "evidence_checked_at": ev.get("checked_at"), "verified_at": r.get("verified_at") or r.get("checked_at")}
@@ -209,7 +210,7 @@ def rebuild(receipt: dict, gpu_today: dict | None, snapshot: dict | None = None)
             reval.append({"line": l["line"], "rate_id": l["rate_id"], "status": st})
             continue
         now_l = gpu_line(l["line"], r, l["hours"], l["gpus_billed"], l.get("instances"),
-                         _expected({**l, "quoted_price_usd": r.get("hourly_equiv_usd", r.get("hourly_usd"))}))
+                         gpu_count=l.get("gpu_count"), subtotal=_expected({**l, "quoted_price_usd": r.get("hourly_equiv_usd", r.get("hourly_usd"))}))
         if abs(float(now_l["quoted_price_usd"]) - float(l["quoted_price_usd"])) > 1e-9:
             st = "price_changed"
         elif (now_l["evidence_quote"], now_l["source_url"]) != (l.get("evidence_quote"), l.get("source_url")):

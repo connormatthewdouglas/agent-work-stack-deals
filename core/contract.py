@@ -82,6 +82,7 @@ _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock":
 _AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str}
 _OPTION = {**_OPTION, "properties": {**_OPTION["properties"], **_AVAIL_PROPS}}
 _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION, "availability_note": _str,
+                                                                     "gpu_count": {"type": ["integer", "null"], "minimum": 1},
                                                                      "alternatives": {"type": "array", "items": _OPTION}}}}
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"rate_id": _RATE_ID, "report_issue_url": _str,

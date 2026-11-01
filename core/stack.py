@@ -192,9 +192,9 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, g
                                               f"${r.get('server_price_usd') or 0:,.2f}/mo), flat regardless of hours"
                                               if per > 1 else f"${r['price_usd']:g}/mo x {n} server(s), flat regardless of hours")
         out.append({"rate_id": rate_id(r), "vendor": r.get("advertiser"), "plan": f"{r.get('gpu')} ({r.get('tier') or r.get('billing') or ''})".replace(" ()", ""),
-                    "deal_id": r.get("deal_id"), "monthly_cost_usd": round(cost, 2), "calc": calc, "quote": r.get("basis"),
+                    "deal_id": r.get("deal_id"), "gpus_requested": gpus, "gpus_billed": mg, "monthly_cost_usd": round(cost, 2), "calc": calc, "quote": r.get("basis"),
                     "source_url": r.get("source_url"), "checked_at": r.get("verified_at"),
-                    "assumptions": ["Excludes storage, egress, extra vCPU and taxes.", "1 GPU; hourly rates bill while running."]
+                    "assumptions": ["Excludes storage, egress, extra vCPU and taxes.", f"{gpus} GPU(s) requested, {mg} billed; hourly rates bill while running."]
                     + (["Interruptible: the vendor may preempt the job."] if r.get("interruptible") else [])
                     + ([f"Variable marketplace price: median of {r.get('offer_count')} offers at check time; lowest offer "
                         f"${r.get('lowest_offer_usd'):g}/hr. Prices change minute to minute."]
@@ -238,6 +238,7 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
                 raise StackError("gpu_hours needs GPU price data")
             priced = _gpu_options(gpu_data, qty, gpu_model, manual)
             line["gpu_model"] = gpu_model or "any"
+            line["gpu_count"] = 1
             untracked = [u.get("advertiser") for u in gpu_data.get("unpriced") or []]
         else:
             for o in data.get("offers") or []:
