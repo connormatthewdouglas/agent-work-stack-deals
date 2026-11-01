@@ -130,7 +130,7 @@ def test_cursor_plugin_manifest(srv):
     assert b == (ROOT / "logo.png").read_bytes()
     assert struct.unpack(">II", b[16:24]) == (400, 400)
     tools = sorted(t.name for t in asyncio.run(srv.mcp.list_tools()))
-    assert len(tools) == 8
+    assert len(tools) == 9
     for f in (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json"):
         m = json.loads((ROOT / f).read_text())
         e = m["plugins"][0]

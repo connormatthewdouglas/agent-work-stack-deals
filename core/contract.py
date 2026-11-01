@@ -54,6 +54,10 @@ SPEC = {
                            "quote_id", "issued_at"],
                           ["rank", "rate_id", "vendor", "gpu", "allocated_gpus", "instances", "compute_subtotal_usd",
                            "source_url", "verified_at", "stale"]),
+    "rebuild_quote": (["quote_id", "receipt_intact", "reproduced", "lines", "revalidation"], "lines",
+                      ["line", "matches"],
+                      ["quote_id", "receipt_intact", "reproduced", "lines", "revalidation"],
+                      ["line", "rate_id", "recorded_subtotal_usd", "recomputed_subtotal_usd", "matches"]),
     "get_deal": (["id"], None, [],
                  ["id", "title", "advertiser", "offer_type", "price_usd", "unit", "redeem_url", "verified_at", "affiliate"], []),
 }
@@ -88,6 +92,10 @@ EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "item
     "type": "object", "required": SPEC["estimate_job_cost"][2],
     "properties": {"rate_id": _RATE_ID, "data_age_hours": _num, "degraded": _bool, "stale": _bool, **_AVAIL_PROPS}}},
     "budget_verdict": {"type": "string", "enum": ["unresolved", "within", "over"]}}
+# T48 (0.4.0, additive): reopenable receipt on the three quoting tools.
+_RECEIPT = {"receipt": {"type": "object", "required": ["receipt_version", "tool", "quote_id", "lines", "feed_revision", "receipt_sha256"]}}
+for _t in ("optimize_stack", "optimize_agent_stack", "estimate_job_cost"):
+    EXTRA_PROPS[_t] = {**EXTRA_PROPS[_t], **_RECEIPT}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at")
 
 

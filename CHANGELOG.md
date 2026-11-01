@@ -4,6 +4,11 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.4.0 (2026-11-01, HOLD: not published until Gauge passes)
+
+- Reopenable receipts (T48, additive): optimize_stack, optimize_agent_stack and estimate_job_cost add a `receipt` object with each line's quoted price, evidence quote, source_url, verified_at, the pinned feed revision (feed timestamp, generation_id, GPU-rates sha256, daily snapshot URL) and a receipt_sha256. Existing fields (quote_id, quote_basis, ...) are unchanged.
+- New tool `rebuild_quote(receipt)`: checks integrity, recomputes each line from the receipt alone, and revalidates GPU lines against today's feed (unchanged, price_changed, evidence_changed, held_today, not_in_feed_today).
+
 ## 0.3.52 (2026-10-30)
 
 - /coverage/: serverless, preemptible rows (Modal A100, H100, H200, L40S) are excluded from the matrix and its counts; `excluded_serverless_rows` reports how many.
