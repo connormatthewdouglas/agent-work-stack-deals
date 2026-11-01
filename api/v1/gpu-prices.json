@@ -13,11 +13,11 @@
     "docs": "https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/REPORT-WRONG-PRICE.md"
   },
   "source_feed": "https://thelanternworks.com/api/v1/deals.json",
-  "feed_updated_at": "2026-11-01T22:39:34Z",
+  "feed_updated_at": "2026-11-01T22:50:48Z",
   "generation_id": "20261101T223407Z-7972885e",
   "wider_generation_id": "20261031T135634Z-0e93f074",
   "availability_collected_at": "2026-11-01T22:33:01Z",
-  "prices_verified_through": "2026-11-01T22:39:34Z",
+  "prices_verified_through": "2026-11-01T22:50:48Z",
   "deal_feed_updated_at": "2026-10-29T09:30:00-04:00",
   "hours_per_month": 730,
   "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
@@ -1009,6 +1009,51 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "deal_id": null,
+      "advertiser": "E2E Networks",
+      "gpu": "H100",
+      "vram_gb": 80,
+      "price_usd": 3.99,
+      "gpu_count": 1,
+      "server_price_usd": null,
+      "server_hourly_usd": null,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "price_basis": null,
+      "unit": "hour",
+      "tier": "On-demand",
+      "hourly_equiv_usd": 3.99,
+      "billing": "per hour while running",
+      "billing_unit": "hourly",
+      "price_per_second_usd": null,
+      "interruptible": false,
+      "form_factor": null,
+      "form_class": "form not stated",
+      "price_scope": "gpu_hour_only",
+      "region": "India (Delhi NCR, Chennai; per the vendor's rate card https://www.e2enetworks.com/pricing.md)",
+      "price_check": "daily",
+      "tier_class": "on-demand",
+      "offer_type": null,
+      "affiliate": false,
+      "verified_at": "2026-11-01T22:50:48+00:00",
+      "checked_at": "2026-11-01T22:50:48+00:00",
+      "source_url": "https://www.e2enetworks.com/pricing",
+      "redeem_url": "https://www.e2enetworks.com/pricing",
+      "basis": "GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA H100 80 26 250 $3.99",
+      "evidence": {
+        "source_url": "https://www.e2enetworks.com/pricing",
+        "quote": "GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA H100 80 26 250 $3.99",
+        "checked_at": "2026-11-01T22:50:48+00:00"
+      },
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": "2026-10-30T00:07:06+00:00",
+        "source": "https://www.e2enetworks.com/pricing",
+        "note": "The public pricing page publishes no stock signal"
       }
     },
     {
@@ -8583,10 +8628,10 @@
           "vram_gb": 48,
           "hourly_usd": null,
           "tier": "Marketplace on-demand (host USD listings; median per GPU)",
-          "quote": "Clore.ai API: 2 available L40S 48GB host USD listings; price withheld (fewer than 5 distinct machines)",
+          "quote": "Clore.ai API: 2 available L40S 45GB host USD listings; price withheld (fewer than 5 distinct machines)",
           "evidence": {
             "source_url": "https://api.clore.ai/v1/marketplace",
-            "quote": "Clore.ai API: 2 available L40S 48GB host USD listings; price withheld (fewer than 5 distinct machines)",
+            "quote": "Clore.ai API: 2 available L40S 45GB host USD listings; price withheld (fewer than 5 distinct machines)",
             "checked_at": "2026-11-01T22:22:43+00:00"
           }
         }
@@ -8634,29 +8679,6 @@
             "source_url": "https://www.cloudrift.ai/pricing",
             "quote": "A100 SXM4 NVIDIA On‑Demand $1.05 1 mo $0.95 3 mo $0.89 80 GB VRAM 800 GB Storage Max 8 GPUs",
             "checked_at": "2026-10-30T17:34:32+00:00"
-          }
-        }
-      ],
-      "scope": "record"
-    },
-    {
-      "vendor": "E2E Networks",
-      "deal_id": null,
-      "source_url": "https://www.e2enetworks.com/pricing",
-      "checked_at": "2026-11-01T17:45:36+00:00",
-      "reason": "Held: the vendor moved H100 pricing to https://www.e2enetworks.com/gpus/nvidia-h100, which now publishes INR only (₹379.05/hr on-demand, checked 2026-11-01); the USD $3.99 rate can no longer be verified",
-      "page_last_updated": null,
-      "records": [
-        {
-          "gpu": "H100",
-          "vram_gb": 80,
-          "hourly_usd": 3.99,
-          "tier": "On-demand",
-          "quote": "1 x GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA H100 80 26 250 $3.99",
-          "evidence": {
-            "source_url": "https://www.e2enetworks.com/pricing",
-            "quote": "1 x GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA H100 80 26 250 $3.99",
-            "checked_at": "2026-10-30T00:07:06+00:00"
           }
         }
       ],
