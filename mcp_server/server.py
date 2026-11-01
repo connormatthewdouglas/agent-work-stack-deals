@@ -199,7 +199,8 @@ def _stack_receipt(tool: str, out: dict, gpu: dict | None, sdata: dict | None, i
         name = l.get("need") or l.get("component")
         r = idx.get(ch.get("rate_id"))
         if r is not None:
-            lines.append(quote.gpu_line(name, r, l.get("quantity"), 1, None, ch.get("monthly_cost_usd")))
+            lines.append(quote.gpu_line(name, r, l.get("hours_per_gpu", l.get("quantity")), ch.get("gpus_billed") or 1, None,
+                                          ch.get("monthly_cost_usd"), gpu_count=l.get("gpu_count")))
         else:
             lines.append(quote.plan_line(name, ch))
     return quote.full_receipt(tool, out.get("quote_id"), lines, "components", quote.feed_revision(gpu, sdata),

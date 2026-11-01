@@ -23,7 +23,7 @@ NOT_A_SERVICE_TAGS = {"control-panel", "open-source", "antidetect-browser"}  # s
 # component -> (label, stack need or None, keyword regex, deal tags for the priced-deal fallback)
 COMPONENTS = {
     "gpu": ("GPU compute", "gpu_hours",
-            r"\bgpus?\b|\bh100\b|\ba100\b|\bh200\b|\bl40s?\b|\brtx\s?\d{4}\b|\bfine[- ]?tun\w*|\btrain(?:ing)?\b|"
+            r"\bgpus?\b|(?:(?<=\dx)|\b)(?:h100|a100|h200|b200|l40s?)s?\b|\brtx\s?\d{4}s?\b|\b[345]0[5-9]0s?\b(?=\s*(?:x|×|\d+\s*x\b|for\b|gpus?\b|$))|\bfine[- ]?tun\w*|\btrain(?:ing)?\b|"
             r"\bself[- ]host\w*\s+(?:an?\s+)?(?:llm|model)|\bvllm\b|\bollama\b|\b\d+(?:\.\d+)?\s?b\b(?:\s+(?:param|model))?", {"gpu"}),
     "scraping": ("Web scraping", "scrape_pages", r"\bscrap\w*|\bcrawl\w*|\bextract\w*\s+(?:data|content)\s+from\s+(?:web|site)", {"scrape", "scraping", "crawl"}),
     "proxy": ("Residential proxies", "proxy_gb", r"\bprox(?:y|ies)\b|\bresidential\s+ips?\b|\bip\s+rotation\b", {"proxy", "proxies", "residential-proxy"}),
@@ -38,9 +38,9 @@ COMPONENTS = {
 _NUM = r"(?<![a-z\d.])(\d[\d,]*(?:\.\d+)?)\s*([km])?"
 # GPU model names, so "10 H100 GPU hours" / "10x A100 hours" read the hours, not the model number.
 GPU_MODEL_RX = r"(?:rtx\s?\d{4}|[a-z]{1,2}\d{1,3}[a-z]{0,2}|[345]0[5-9]0)"
-GPU_MODEL_RE = r"\b(h100|h200|a100|b200|l40s|l4|a10g?|rtx\s?\d{4}|[345]0[5-9]0)\b"
+GPU_MODEL_RE = r"(?:(?<=\dx)|\b)(h100|h200|a100|b200|l40s|l4|a10g?|rtx\s?\d{4}|[345]0[5-9]0)(?=s?\b)"  # "8xH100", "4 A100s"
 QTY_PATTERNS = {
-    "gpu_hours": _NUM + r"\s*(?:x\s*)?(?:" + GPU_MODEL_RX + r"\s*)?(?:gpu[- ]?)?(?:hours|hrs|h)\b",
+    "gpu_hours": _NUM + r"\s*(?:x\s*)?(?:" + GPU_MODEL_RX + r"\s*)?(?:gpu[-\s·]*(?:hours?|hrs?|h)\b|gpuh\b|(?:hours?|hrs?|h)\b)",
     "scrape_pages": _NUM + r"(?:\s+[a-z-]+){0,3}?\s*(?:pages|urls|sites?)\b",
     "proxy_gb": _NUM + r"\s*gb\b(?:\s+of)?(?:\s+(?:proxy|residential|traffic|bandwidth))?",
     "search_queries": _NUM + r"\s*(?:search(?:es)?|queries|serp\s+(?:calls|requests))\b",
@@ -50,6 +50,19 @@ JS_RE = r"\bjs\b|javascript|headless|render\w*|dynamic\s+(?:pages|sites)|single[
 BUDGET_RE = (r"(?:budget|under|max(?:imum)?|up\s+to|less\s+than|spend(?:ing)?|cap)\s*(?:of\s*|is\s*|:\s*)?(?:about\s*)?\$\s?"
              + _NUM)  # a bare "$N/mo" is a price someone pays (e.g. a free plan at $0/mo), not a budget
 NEGATION_RE = re.compile(r"\b(?:no|without|not|never|don'?t\s+need|doesn'?t\s+need|zero)\s+(?:\w+\s+){0,2}$")
+_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "sixteen": 16, "single": 1,
+          "a pair of": 2, "pair of": 2}
+_GPU_H = r"(?:gpu[-\s·]*(?:hours?|hrs?|h)\b|gpuh\b)"  # "gpu hours", "gpu-hours", "gpu·h", "gpu-hrs", "gpuh"
+_HOURS_AFTER = r"(?![-\s·]*(?:gpus?[-\s·]*)?(?:hours?|hrs?|h)\b)(?![-\s·]*gpuh\b)"
+_MODEL_NAMES = r"(?:h100|h200|a100|b200|l40s|l4|a10g?|rtx\s?\d{4}|[345]0[5-9]0)"
+# GPU count: "2x A100", "2 x H100", "8xH100", "4 A100s", "two H100s", "a pair of H100s", "8 GPUs" (prefix) or
+# "H100 x2", "4090 2x", "A100 80GB 2x" (postfix). Never an hours quantity: "10 H100 gpu hours", "10 gpu-hours H100",
+# "10x A100 hours" are GPU-hours, count stays unset.
+GPU_COUNT_RE = (r"(?<![a-z\d.$])(-?)(\d{1,6}|" + "|".join(sorted(_WORDS, key=len, reverse=True)) + r")\s*(?:x|×)?\s*(?:"
+                + GPU_MODEL_RX + r"(?:\s*gpus?)?|gpus?)(?:'?s)?\b" + _HOURS_AFTER)
+GPU_COUNT_POST_RE = (r"(?:(?<=\dx)|\b)" + _MODEL_NAMES + r"s?(?:\s+\d+\s*gb)?\s*(?:(?:x|×)\s*(-?)(\d{1,6})|(-?)(\d{1,6})\s*(?:x|×))\b"
+                     + _HOURS_AFTER)
+MAX_GPU_COUNT = 1024
 MODEL_SIZE_RE = r"\b(\d+(?:\.\d+)?)\s?b\b(?:\s*(?:param\w*|model|llm))?"
 
 
@@ -69,11 +82,17 @@ def parse(description: str) -> dict:
             comps.append(c); matched[c] = m.group(0).strip()
         elif re.search(rx, text):
             excluded.append(c)
-    qty = {}
+    qty, gpu_h_total = {}, False
     for need, rx in QTY_PATTERNS.items():
         m = re.search(rx, text)
         if m:
             qty[need] = _n(m.group(1), m.group(2))
+            if need == "gpu_hours":
+                gpu_h_total = bool(re.search(_GPU_H, m.group(0)) or re.match(r"\S+\s*x", m.group(0)))
+    # "2 days" on a GPU job = 48 wall-clock hours (only when no hours were given and a GPU is mentioned).
+    md = re.search(_NUM + r"\s*(?:full\s+)?days?\b", text)
+    if md and "gpu_hours" not in qty and ("gpu" in comps or re.search(GPU_MODEL_RE, text)):
+        qty["gpu_hours"] = _n(md.group(1), md.group(2)) * 24
     # "100 GB" alone is only proxy traffic when proxies are mentioned; GB of VRAM etc. is not traffic.
     if "proxy_gb" in qty and "proxy" not in comps:
         qty.pop("proxy_gb")
@@ -88,6 +107,23 @@ def parse(description: str) -> dict:
     if mg:
         g = mg.group(1).upper().replace(" ", "")
         gm = "RTX " + g[3:] if g.startswith("RTX") else "RTX " + g if g.isdigit() else g
+    gc, gc_text, gc_err = None, None, None
+    mc = re.search(GPU_COUNT_RE, text)
+    mp = re.search(GPU_COUNT_POST_RE, text)
+    if mc and mp and mp.start() < mc.start():
+        mc = None
+    if mc:
+        sign, raw, gc_text = mc.group(1), mc.group(2), mc.group(0).strip()
+    elif mp:
+        sign, raw, gc_text = (mp.group(1) or mp.group(3) or ""), (mp.group(2) or mp.group(4)), mp.group(0).strip()
+    if mc or mp:
+        v = _WORDS.get(raw) or int(raw)
+        if sign or not 1 <= v <= MAX_GPU_COUNT:
+            gc_err = f"GPU count must be a whole number 1-{MAX_GPU_COUNT} (got '{gc_text}')"
+        else:
+            gc = v
+    if (gm or gc) and "gpu" not in comps and "gpu" not in excluded:
+        comps.append("gpu"); matched["gpu"] = gc_text or mg.group(0)
     js = bool(re.search(JS_RE, text))
     budget = None
     mb = re.search(BUDGET_RE, text)
@@ -98,7 +134,8 @@ def parse(description: str) -> dict:
                     ("search_queries", "search"), ("emails_sent", "email")):
         if need in qty and c not in comps and c not in excluded:
             comps.append(c); matched.setdefault(c, f"quantity: {qty[need]:g}")
-    return {"components": comps, "quantities": qty, "model_size_b": size, "gpu_model": gm, "js_rendering": js,
+    return {"components": comps, "quantities": qty, "model_size_b": size, "gpu_model": gm, "gpu_count": gc, "gpu_count_text": gc_text, "gpu_count_error": gc_err,
+            "gpu_hours_are_total": gpu_h_total, "js_rendering": js,
             "monthly_budget_usd": budget, "matched": matched, "excluded": excluded}
 
 
@@ -199,6 +236,11 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
     if llm_api and "llm_api" not in comps:
         comps.append("llm_api")
     gpu_model = gpu_model or p["gpu_model"]
+    if p["gpu_count_error"]:
+        raise stack.StackError(p["gpu_count_error"])
+    gpus = p["gpu_count"] or 1
+    # "N gpu hours" is the total across GPUs; plain "N hours" is wall-clock per GPU. A structured gpu_hours is GPU-hours.
+    gpu_h_total = p["gpu_hours_are_total"] or gpu_hours is not None
     js = p["js_rendering"] if js_rendering is None else js_rendering
     budget = monthly_budget_usd if monthly_budget_usd is not None else p["monthly_budget_usd"]
     if not comps:
@@ -229,6 +271,9 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
         line = {"component": c, "label": label + (" (JS rendering)" if need == "scrape_pages_js" else ""),
                 "matched": p["matched"].get(c, "structured field")}
         if need == "gpu_hours":
+            line["gpu_count"] = gpus
+            if p["gpu_count_text"]:
+                line["gpu_count_note"] = f"{gpus} GPU(s) parsed from '{p['gpu_count_text']}'"
             if not gdata:
                 lines.append({**line, "status": "no_data", "note": NO_DATA, "choice": None, "monthly_cost_usd": None}); continue
             if size:
@@ -238,7 +283,12 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                 assumptions.append(f"{size:g}B model: {size:g} x 2 bytes (FP16) x 1.2 overhead = {need_gb:g} GB VRAM on one GPU for inference; "
                                    "quantized models need less, full fine-tuning needs several times more.")
             hours = q.get("gpu_hours")
-            opts = stack._gpu_options(gdata, hours or 1, gpu_model, manual)
+            per_gpu = (hours / gpus if gpu_h_total else hours) if hours else None
+            if p["gpu_count_text"]:
+                assumptions.append(f"{gpus} GPU(s) (parsed from '{p['gpu_count_text']}')"
+                                   + (f"; {hours:,g} GPU-hours total = {per_gpu:,g} h per GPU" if hours and gpu_h_total
+                                      else f"; {hours:,g} wall-clock hours x {gpus} GPU(s)" if hours else ""))
+            opts = stack._gpu_options(gdata, per_gpu or 1, gpu_model, manual, gpus=gpus)
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
             opts.sort(key=lambda x: (x.get("in_stock") is False, x["monthly_cost_usd"], x["vendor"] or ""))
@@ -256,7 +306,8 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                               "choice": None, "monthly_cost_usd": None}); continue
             opts = [_disclose({**o, "verified_at": o.pop("checked_at", None)}) for o in opts]
             if hours:
-                line.update(status="priced", quantity=hours, unit="GPU-hours/month", choice=opts[0],
+                line.update(status="priced", quantity=hours, unit="GPU-hours/month" if gpu_h_total else "hours/month (wall-clock, per GPU)",
+                            hours_per_gpu=per_gpu, gpu_hours_total=round(per_gpu * gpus, 6), choice=opts[0],
                             monthly_cost_usd=opts[0]["monthly_cost_usd"], alternatives=opts[1:4])
             else:
                 best = opts[0]
