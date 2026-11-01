@@ -171,7 +171,7 @@ def _form_split(gen, rows) -> str:
         return ""
     items = "".join(f"<li><strong>H100 {gen.esc(fc)}</strong>: {gen.esc(by[fc]['advertiser'])} ({gen.esc(by[fc]['tier'])}) at "
                     f"{gen.esc(_rate_str(by[fc]))}, {_money(by[fc]['monthly_cost_usd'])} for {DEFAULT_HOURS} h</li>" for fc in FORM_ORDER if fc in by)
-    return ("  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL H100s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
+    return ("  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL (94 GB) H100s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
             "\u201cForm not stated\u201d means the vendor page doesn't say which.</p>\n  <ul>" + items + "</ul>\n")
 
 

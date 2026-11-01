@@ -230,7 +230,7 @@ def form_class(gpu: str, quote: str = "") -> str | None:
     g = (gpu or "").upper()
     if not g.startswith("H100"):
         return None
-    if "NVL" in g:  # 'H100 NVL' (94 GB PCIe pair) and 'H100 NVLink' rows
+    if "NVL" in g and "NVLINK" not in g:  # 'H100 NVL' (94 GB). 'H100 NVLink' names the bridge, not the form: not stated
         return "NVL"
     if "PCIE" in g:
         return "PCIe"
