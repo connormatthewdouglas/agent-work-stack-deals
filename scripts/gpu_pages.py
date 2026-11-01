@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of  # noqa: E402
+from core.gpu import PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of  # noqa: E402
 from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
@@ -152,9 +152,27 @@ def display_gpu(r: dict) -> str:
     quote says HGX (HGX boards are SXM), else 'form not stated', so SXM and PCIe rows never read alike."""
     g = r.get("gpu") or ""
     if g == "H100":
-        q = f"{r.get('basis') or ''} {(r.get('evidence') or {}).get('quote') or ''}"
-        return "H100 SXM (HGX)" if "HGX" in q.upper() else "H100 (form not stated)"
+        fc = r.get("form_class") or form_class(g, f"{r.get('basis') or ''} {(r.get('evidence') or {}).get('quote') or ''}")
+        return "H100 SXM (HGX)" if fc == "SXM" else "H100 (form not stated)"
     return g
+
+
+FORM_ORDER = ("SXM", "PCIe", "NVL", "form not stated")
+
+
+def _form_split(gen, rows) -> str:
+    """gpu_poor #18: never rank H100 SXM against PCIe as one 'cheapest'; name the cheapest per form factor."""
+    by = {}
+    for r in rows:  # rows are already in ranking order
+        fc = r.get("form_class")
+        if fc and fc not in by:
+            by[fc] = r
+    if len(by) < 2:
+        return ""
+    items = "".join(f"<li><strong>H100 {gen.esc(fc)}</strong>: {gen.esc(by[fc]['advertiser'])} ({gen.esc(by[fc]['tier'])}) at "
+                    f"{gen.esc(_rate_str(by[fc]))}, {_money(by[fc]['monthly_cost_usd'])} for {DEFAULT_HOURS} h</li>" for fc in FORM_ORDER if fc in by)
+    return ("  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL H100s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
+            "\u201cForm not stated\u201d means the vendor page doesn't say which.</p>\n  <ul>" + items + "</ul>\n")
 
 
 def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
@@ -185,7 +203,8 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
     return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
             f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
             "<th>Price verified</th>" + (f"<th>Availability ({av_head}, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
-            "<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
+            "<p class=\"meta\"><strong>Prices are GPU-hour only</strong>: they exclude storage, data egress and taxes. "
+            "Each Vendor quote links that vendor's pricing page, where those costs are listed if published. <strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
             + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. "
                + STOCK_EXPLAINER + " " + REGIONS_NOTE + " " if has_av else
@@ -318,7 +337,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
   <h1>{gen.esc(name)} rental: cheapest among tracked providers</h1>
   <p class="meta">Prices verified through {fresh} · {len(rows)} offers from {len(fam['vendors'])} vendors · sorted by cost for {DEFAULT_HOURS} GPU hours/month</p>
   <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, rows, cheapest)} {gen.esc(_mem_label(rows, cheapest))} ({gen.esc(cheapest['tier'])})</strong>{_stock_tag(gen, cheapest)} at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
-{_table(gen, rows, full)}
+{_form_split(gen, rows)}{_table(gen, rows, full)}
   <p>Basis: hourly rate × hours; dedicated servers are a flat monthly price. One GPU. Excludes storage, egress and tax.</p>
 {accuracy_html(gen, fam['rates'])}{changes_html(gen, slug)}  <h2>FAQ</h2>
 {_faq_html(gen, faqs)}

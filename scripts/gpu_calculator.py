@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import HOURS_PER_MONTH, build_rates  # noqa: E402
+from core.gpu import HOURS_PER_MONTH, PRICE_SCOPE, build_rates  # noqa: E402
 from core.data_age import CURRENT_MAX_HOURS as CURRENT_MAX_H  # noqa: E402
 from core.stack import MAX_GPU_HOURS_MONTH  # noqa: E402
 from core.gpu_availability import AVAIL_MAX_AGE_H  # noqa: E402
@@ -78,6 +78,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "free_credits": data["free_credits"],
         "unpriced": data["unpriced"],
         "held_stale": data["held_stale"],
+        "price_scope": PRICE_SCOPE,
     }
     gen.assert_public_clean(payload)
     return payload

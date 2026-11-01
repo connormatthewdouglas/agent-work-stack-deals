@@ -221,6 +221,33 @@ def _tier_class(r: dict) -> str:
 from .gpu_availability import availability_for  # noqa: E402
 
 
+PRICE_SCOPE = ("GPU-hour price only: excludes storage, data egress, extra vCPU/RAM and taxes. Check the vendor pricing page "
+               "(source_url) for those; storage/egress fields appear on a rate only where that vendor's own page states them.")
+
+
+def form_class(gpu: str, quote: str = "") -> str | None:
+    """H100 form factor for ranking splits (gpu_poor #18): SXM, PCIe, NVL, or 'form not stated'. HGX boards are SXM."""
+    g = (gpu or "").upper()
+    if not g.startswith("H100"):
+        return None
+    if "NVL" in g:  # 'H100 NVL' (94 GB PCIe pair) and 'H100 NVLink' rows
+        return "NVL"
+    if "PCIE" in g:
+        return "PCIe"
+    if "SXM" in g or "HGX" in (quote or "").upper():
+        return "SXM"
+    return "form not stated"
+
+
+def _published_extras(doc: dict) -> dict:
+    out = {}
+    for k in ("storage", "egress"):
+        x = (doc.get("extras") or {}).get(k) or {}
+        if x.get("status") == "published" and x.get("source_url"):
+            out[k] = {"text": x["text"], "source_url": x["source_url"], "checked_at": x.get("checked_at")}
+    return out
+
+
 def _price_too_old(r: dict, doc: dict) -> bool:
     if doc.get("manual_snapshot"):
         return False  # manual snapshots have their own hold_after rule
@@ -295,6 +322,8 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "billing_unit": r["billing_unit"],
                 "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
+                **({"form_class": fc} if (fc := form_class(r["gpu"], f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}")) else {}),
+                "price_scope": "gpu_hour_only", **_published_extras(doc),
                 **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region") if r.get(k)}),
                 # Manual snapshot vendors (e.g. Clore.ai): not re-checked daily; held automatically after hold_after.
                 **({"price_check": "manual snapshot", "snapshot_at": r["checked_at"],
