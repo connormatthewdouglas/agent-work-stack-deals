@@ -23,7 +23,7 @@ def _md(md: str) -> str:
         s = esc(s)
         s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
         s = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", s)
-        return re.sub(r"(https://[^\s<)]+[^\s<).,])", r'<a href="\1" rel="noopener">\1</a>', s)
+        return re.sub(r"(https://[^\s<)]+[^\s<).,])", r'<a href="\1" rel="noopener" style="overflow-wrap:anywhere">\1</a>', s)
     out, lines, i = [], md.splitlines(), 0
     while i < len(lines):
         ln = lines[i]
@@ -31,7 +31,7 @@ def _md(md: str) -> str:
             j = i + 1
             while j < len(lines) and not lines[j].startswith("```"):
                 j += 1
-            out.append("<pre>" + esc("\n".join(lines[i + 1:j])) + "</pre>"); i = j + 1; continue
+            out.append('<pre style="overflow-x:auto;max-width:100%">' + esc("\n".join(lines[i + 1:j])) + "</pre>"); i = j + 1; continue
         if ln.startswith("|"):
             rows = []
             while i < len(lines) and lines[i].startswith("|"):
@@ -39,7 +39,7 @@ def _md(md: str) -> str:
                 if not all(re.fullmatch(r"-+", c) for c in cells):
                     rows.append(cells)
                 i += 1
-            out.append('<div class="tscroll"><table class="howto"><thead><tr>' + "".join(f"<th>{inline(c)}</th>" for c in rows[0])
+            out.append('<div class="tscroll" style="overflow-x:auto;max-width:100%"><table class="howto"><thead><tr>' + "".join(f"<th>{inline(c)}</th>" for c in rows[0])
                        + "</tr></thead><tbody>" + "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in rows[1:])
                        + "</tbody></table></div>"); continue
         m = re.match(r"(#{1,3}) (.*)", ln)
@@ -55,7 +55,7 @@ def _md(md: str) -> str:
                     items[-1] += " " + lines[i].strip(); i += 1
             out.append(f"<{tag}>" + "".join(f"<li>{inline(x)}</li>" for x in items) + f"</{tag}>"); continue
         if ln.startswith("> "):
-            out.append(f"<blockquote>{inline(ln[2:])}</blockquote>"); i += 1; continue
+            out.append(f"<blockquote style='overflow-wrap:anywhere'>{inline(ln[2:])}</blockquote>"); i += 1; continue
         if not ln.strip():
             i += 1; continue
         para = [ln]; i += 1
@@ -95,13 +95,13 @@ def write_all(g) -> list[str]:
   <p class="meta"><strong>History: {n_days} days since {esc(idx['history_starts'])}</strong> · latest {esc(cur['date'])} · license {esc(idx['license'])}</p>
   <p>A daily reference rental price per GPU: the median across tracked vendors of each vendor's lowest on-demand-class rate (one vote per vendor), in USD per GPU-hour. Held, spot/interruptible, reserved/committed and thin or unknown-count marketplace rows are excluded. <a href="{base}/{MPATH}/">Methodology</a>.</p>
   {early}
-  <div class="tscroll rates-cards"><table class="howto"><thead><tr><th>GPU</th><th>Median per GPU-hour</th><th>Lowest</th><th>Vendors</th><th>Monthly basis (730 h)</th><th>Matched-vendor change vs previous day</th></tr></thead><tbody>
+  <div class="tscroll rates-cards" style="overflow-x:auto;max-width:100%;position:relative"><table class="howto"><thead><tr><th>GPU</th><th>Median per GPU-hour</th><th>Lowest</th><th>Vendors</th><th>Monthly basis (730 h)</th><th>Matched-vendor change vs previous day</th></tr></thead><tbody>
   {''.join(rows)}
   </tbody></table></div>
   <p class="meta">Low coverage = fewer than 3 vendors; don't headline these. The monthly basis is median × 730 h, a comparison basis, not a quote. The day change compares only vendors present on both days, so a newly tracked provider doesn't count as a price move.</p>
   <p>Download: <a href="{base}/api/v1/gpu-price-index.json">JSON</a> (full history with included/excluded row keys) · <a href="{base}/api/v1/gpu-price-index.csv">CSV</a>. Per-vendor rates and sources: <a href="{base}/gpu/price-comparison/">GPU price comparison</a>.</p>
   <h2 id="attribution">Attribution (CC BY 4.0)</h2>
-  <blockquote>{esc(attribution)}</blockquote>
+  <blockquote style="overflow-wrap:anywhere">{esc(attribution)}</blockquote>
   <p class="meta">Short form: Data: Lantern Works GPU Price Index, CC BY 4.0. Data license: <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener">CC BY 4.0</a>; code MIT.</p>
 """
     out = root / PATH / "index.html"
@@ -114,5 +114,5 @@ def write_all(g) -> list[str]:
     mout.parent.mkdir(parents=True, exist_ok=True)
     mout.write_text(g.page_shell("GPU Price Index methodology | Lantern Works",
                                  "How the Lantern Works GPU Price Index is computed: which rows count, the statistic, matched-vendor changes, license.",
-                                 f"{base}/{MPATH}/", _md(md) + f'\n  <p class="meta"><a href="{base}/{PATH}/">Back to the index</a></p>\n'), encoding="utf-8")
+                                 f"{base}/{MPATH}/", '<div style="overflow-wrap:anywhere">' + _md(md) + "</div>" + f'\n  <p class="meta"><a href="{base}/{PATH}/">Back to the index</a></p>\n'), encoding="utf-8")
     return [PATH, MPATH]

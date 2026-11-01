@@ -120,10 +120,10 @@
   <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, checked daily</span></header>
   <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/" aria-current="true">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/coverage/">GPU coverage</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/methodology/">Methodology</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
 <div id="content">
-<h2>Lantern Works GPU Price Index — methodology v1.0</h2>
+<div style="overflow-wrap:anywhere"><h2>Lantern Works GPU Price Index — methodology v1.0</h2>
 <p><strong>What it is:</strong> a daily, per-GPU reference rental price for six NVIDIA GPUs, computed only from Lantern Works&#x27; own sourced price rows (each row has a vendor source URL, verbatim quote and check time in the feed).</p>
 <h3>Scope</h3>
-<div class="tscroll"><table class="howto"><thead><tr><th>Series</th><th>Feed <code>gpu</code> values accepted</th><th>VRAM</th></tr></thead><tbody><tr><td>H100</td><td>H100, H100 SXM, H100 PCIe, H100 NVLink</td><td>80 GB</td></tr><tr><td>A100</td><td>A100, A100 SXM, A100 PCIe, A100 NVLink</td><td>80 GB (40 GB rows are excluded, never mixed)</td></tr><tr><td>H200</td><td>H200, H200 SXM</td><td>141 GB</td></tr><tr><td>L40S</td><td>L40S</td><td>48 GB</td></tr><tr><td>RTX 4090</td><td>RTX 4090</td><td>24 GB</td></tr><tr><td>RTX 5090</td><td>RTX 5090</td><td>32 GB</td></tr></tbody></table></div>
+<div class="tscroll" style="overflow-x:auto;max-width:100%"><table class="howto"><thead><tr><th>Series</th><th>Feed <code>gpu</code> values accepted</th><th>VRAM</th></tr></thead><tbody><tr><td>H100</td><td>H100, H100 SXM, H100 PCIe, H100 NVLink</td><td>80 GB</td></tr><tr><td>A100</td><td>A100, A100 SXM, A100 PCIe, A100 NVLink</td><td>80 GB (40 GB rows are excluded, never mixed)</td></tr><tr><td>H200</td><td>H200, H200 SXM</td><td>141 GB</td></tr><tr><td>L40S</td><td>L40S</td><td>48 GB</td></tr><tr><td>RTX 4090</td><td>RTX 4090</td><td>24 GB</td></tr><tr><td>RTX 5090</td><td>RTX 5090</td><td>32 GB</td></tr></tbody></table></div>
 <p>Each series is keyed to one memory size. The A100 series is 80 GB only: 40 GB A100 rows (for example Jarvislabs, Civo and E2E Networks, added 2026-10-29) are left out of the A100 median and minimum, and rows with no stated memory size are left out too, so the A100 history stays comparable from its first day. The same size is published per series as <code>series_vram_gb</code> in gpu-price-index.json.</p>
 <p>Form factors (SXM/PCIe/NVLink) are pooled in v1.0 for coverage; per-form-factor series are a v1.1 candidate once each has ≥3 vendors.</p>
 <h3>Which rows count</h3>
@@ -139,14 +139,14 @@
 <ul><li>Coverage grew a lot from Oct 27 to Oct 29 (e.g. H100 went from 4 to 9 vendors), so early movement is mostly composition.</li></ul>
 <p>  <strong>Don&#x27;t publish trend claims before 30 days of history</strong> (per T21), and show history length next to any chart.</p>
 <h3>Reproduce</h3>
-<pre>git clone https://github.com/connormatthewdouglas/agent-work-stack-deals repo
+<pre style="overflow-x:auto;max-width:100%">git clone https://github.com/connormatthewdouglas/agent-work-stack-deals repo
 python3 repo/scripts/gpu_index.py repo out   # writes out/gpu-price-index.json (audit trail: included/excluded row keys) + .csv</pre>
 <p>No price is entered by hand. Every value traces to a snapshot row with its <code>source_url</code> and <code>verified_at</code>.</p>
 <h3>License and attribution (CC BY 4.0)</h3>
-<p>Data: CC BY 4.0, <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a> . Code: MIT.</p>
+<p>Data: CC BY 4.0, <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener" style="overflow-wrap:anywhere">https://creativecommons.org/licenses/by/4.0/</a> . Code: MIT.</p>
 <p>Attribution text (use as-is):</p>
-<blockquote>Source: Lantern Works GPU Price Index (<a href="https://thelanternworks.com" rel="noopener">https://thelanternworks.com</a>), licensed CC BY 4.0. Median on-demand rental price per GPU-hour across tracked vendors; methodology at <a href="https://thelanternworks.com/gpu/index/methodology/" rel="noopener">https://thelanternworks.com/gpu/index/methodology/</a>.</blockquote>
-<p>Short form: <code>Data: Lantern Works GPU Price Index, CC BY 4.0</code>.</p>
+<blockquote style='overflow-wrap:anywhere'>Source: Lantern Works GPU Price Index (<a href="https://thelanternworks.com" rel="noopener" style="overflow-wrap:anywhere">https://thelanternworks.com</a>), licensed CC BY 4.0. Median on-demand rental price per GPU-hour across tracked vendors; methodology at <a href="https://thelanternworks.com/gpu/index/methodology/" rel="noopener" style="overflow-wrap:anywhere">https://thelanternworks.com/gpu/index/methodology/</a>.</blockquote>
+<p>Short form: <code>Data: Lantern Works GPU Price Index, CC BY 4.0</code>.</p></div>
   <p class="meta"><a href="https://thelanternworks.com/gpu/index/">Back to the index</a></p>
 
 </div>
