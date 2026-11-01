@@ -2,8 +2,8 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-11-01T22:33:01Z",
-  "as_of": "2026-11-01T22:33:01Z",
+  "feed_updated_at": "2026-11-01T22:50:48Z",
+  "as_of": "2026-11-01T22:50:48Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
@@ -12,22 +12,20 @@
   },
   "excluded_serverless_rows": 5,
   "counts": {
-    "models_tracked": 24,
-    "targets_tracked": 24,
+    "models_tracked": 25,
+    "targets_tracked": 25,
     "targets_total": 28,
     "targets_not_yet_tracked": [
       "MI250",
       "A10G",
-      "T4",
       "H200 NVL"
     ],
     "vendors": 23,
-    "cells_priced_or_in_stock": 86,
+    "cells_priced_or_in_stock": 88,
     "cells_in_stock": 9,
     "survey_cells_listed": 53,
     "survey_models_listed_not_priced": [
-      "H200 NVL",
-      "T4"
+      "H200 NVL"
     ]
   },
   "survey": {
@@ -196,6 +194,11 @@
           "rows": 1,
           "checked_at": "2026-11-01T17:46:00+00:00"
         },
+        "E2E Networks": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-01T22:50:48+00:00"
+        },
         "Hyperstack": {
           "status": "priced",
           "rows": 5,
@@ -245,7 +248,7 @@
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
-      "vendor_count": 12,
+      "vendor_count": 13,
       "in_stock_vendor_count": 3
     },
     {
@@ -908,6 +911,26 @@
       "in_stock_vendor_count": 0
     },
     {
+      "model": "T4",
+      "family": "t4",
+      "status": "tracked",
+      "variants": [
+        "T4 16GB"
+      ],
+      "vendors": {
+        "E2E Networks": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-01T22:39:34+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed"
+      },
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
       "model": "A10G",
       "family": "a10g",
       "status": "not yet tracked",
@@ -937,18 +960,6 @@
       "variants": [],
       "vendors": {},
       "vendor_lists": {},
-      "vendor_count": 0,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "T4",
-      "family": "t4",
-      "status": "not yet tracked",
-      "variants": [],
-      "vendors": {},
-      "vendor_lists": {
-        "Clore.ai": "listed"
-      },
       "vendor_count": 0,
       "in_stock_vendor_count": 0
     }

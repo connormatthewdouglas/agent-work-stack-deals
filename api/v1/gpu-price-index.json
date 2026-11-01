@@ -1492,19 +1492,20 @@
   {
    "date": "2026-11-01",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-01.json",
-   "snapshot_sha256": "e5ef4d801fddc7bee151748208634c82b885f22b9c12512a9a3d5a4da42d303c",
-   "feed_commit_for_listing_counts": "7fe06ffea61aa2beaad99e8c388809b8cdf1fab1",
+   "snapshot_sha256": "e7ac867427b7be2ae0b1c6978869647a069ec094cb1633d588fe9301fff16959",
+   "feed_commit_for_listing_counts": "3c3e6204ed4f169dbb50c0a9cba70f16dca19928",
    "series": {
     "H100": {
-     "median_usd_per_gpu_hour": 3.39,
-     "monthly_basis_usd": 2474.7,
+     "median_usd_per_gpu_hour": 3.49,
+     "monthly_basis_usd": 2547.7,
      "min_usd_per_gpu_hour": 1.99,
-     "vendors": 12,
+     "vendors": 13,
      "vendor_prices": {
       "99Stack Cloud": 2.8767,
       "Civo": 2.99,
       "CoreWeave": 6.155,
       "DigitalOcean GPU Droplets": 4.41,
+      "E2E Networks": 3.99,
       "Hyperstack": 2.5,
       "Jarvislabs": 3.49,
       "Lambda": 3.29,
@@ -1613,6 +1614,7 @@
     "DigitalOcean GPU Droplets|H200|On-demand|141|1",
     "DigitalOcean GPU Droplets|L40S|On-demand|48|1",
     "E2E Networks|A100|On-demand|80|1",
+    "E2E Networks|H100|On-demand|80|1",
     "Hyperstack|A100 NVLink|On-demand|80|1",
     "Hyperstack|A100 PCIe|On-demand|80|1",
     "Hyperstack|A100 SXM|On-demand|80|1",
@@ -1688,10 +1690,6 @@
     {
      "key": "CloudRift|RTX 5090|3 Month (reserved, \"3 mo\")|32|1",
      "excluded_because": "reserved/committed"
-    },
-    {
-     "key": "E2E Networks|H100|On-demand|80|1",
-     "excluded_because": "held"
     },
     {
      "key": "Hyperstack|A100 PCIe|Spot VM|80|1",
@@ -1800,14 +1798,12 @@
    ],
    "vs_previous_day_matched": {
     "H100": {
-     "matched_vendors": 12,
-     "matched_median_prev": 3.39,
-     "matched_median_cur": 3.39,
+     "matched_vendors": 13,
+     "matched_median_prev": 3.49,
+     "matched_median_cur": 3.49,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": [
-      "E2E Networks"
-     ]
+     "vendors_dropped": []
     },
     "A100": {
      "matched_vendors": 12,
