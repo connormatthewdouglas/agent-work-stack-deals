@@ -2,8 +2,8 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-11-01T19:11:33Z",
-  "as_of": "2026-11-01T19:11:33Z",
+  "feed_updated_at": "2026-11-01T22:30:00Z",
+  "as_of": "2026-11-01T22:30:00Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
@@ -12,22 +12,20 @@
   },
   "excluded_serverless_rows": 5,
   "counts": {
-    "models_tracked": 23,
-    "targets_tracked": 23,
+    "models_tracked": 24,
+    "targets_tracked": 24,
     "targets_total": 28,
     "targets_not_yet_tracked": [
       "MI250",
       "A10G",
       "T4",
-      "H200 NVL",
-      "H100 NVL"
+      "H200 NVL"
     ],
     "vendors": 22,
-    "cells_priced_or_in_stock": 83,
+    "cells_priced_or_in_stock": 84,
     "cells_in_stock": 0,
     "survey_cells_listed": 53,
     "survey_models_listed_not_priced": [
-      "H100 NVL",
       "H200 NVL",
       "T4"
     ]
@@ -766,6 +764,28 @@
       "in_stock_vendor_count": 0
     },
     {
+      "model": "H100 NVL",
+      "family": "h100-nvl",
+      "status": "tracked",
+      "variants": [
+        "H100 NVL 94GB"
+      ],
+      "vendors": {
+        "RunPod": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-11-01T22:30:00+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
       "model": "L4",
       "family": "l4",
       "status": "tracked",
@@ -874,20 +894,6 @@
       "variants": [],
       "vendors": {},
       "vendor_lists": {},
-      "vendor_count": 0,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "H100 NVL",
-      "family": "h100-nvl",
-      "status": "not yet tracked",
-      "variants": [],
-      "vendors": {},
-      "vendor_lists": {
-        "Clore.ai": "listed",
-        "RunPod": "listed",
-        "Vast.ai": "listed"
-      },
       "vendor_count": 0,
       "in_stock_vendor_count": 0
     },

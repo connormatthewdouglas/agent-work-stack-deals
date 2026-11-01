@@ -1,0 +1,127 @@
+{
+  "schema": "lantern-works-gpu-model-view/1",
+  "license": {
+    "data": "CC-BY-4.0",
+    "data_license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Lantern Works (https://thelanternworks.com)",
+    "code": "MIT",
+    "details": "https://thelanternworks.com/methodology/#license"
+  },
+  "model": "H100 NVL",
+  "slug": "h100-nvl",
+  "url": "https://thelanternworks.com/api/v1/gpu/h100-nvl.json",
+  "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
+  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "last_checked": "2026-11-01T22:30:00+00:00",
+  "row_count": 2,
+  "providers": [
+    "RunPod"
+  ],
+  "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 94,
+        "provider": "RunPod",
+        "gpu": "H100 NVL",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 3.19,
+        "unit": "hour",
+        "price_usd": 3.19,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-01T22:30:00+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ],
+    "spot-community": [
+      {
+        "vram_gb": 94,
+        "provider": "RunPod",
+        "gpu": "H100 NVL",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.59,
+        "unit": "hour",
+        "price_usd": 2.59,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-01T22:30:00+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider": "RunPod",
+      "gpu": "H100 NVL",
+      "vram_gb": 94,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.59,
+      "unit": "hour",
+      "price_usd": 2.59,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-01T22:30:00+00:00",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "H100 NVL",
+      "vram_gb": 94,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 3.19,
+      "unit": "hour",
+      "price_usd": 3.19,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-01T22:30:00+00:00",
+      "source_url": "https://www.runpod.io/pricing",
+      "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    }
+  ],
+  "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
+  "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json"
+}
