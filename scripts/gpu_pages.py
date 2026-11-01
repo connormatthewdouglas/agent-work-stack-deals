@@ -390,12 +390,13 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     vendors = sorted({r["advertiser"] for r in rates})
     summary = []
     for slug, f in fams.items():
-        if not f["rates"]:
+        own = [r for r in f["rates"] if family_of(r["gpu"]) == slug]  # H100 NVL counts in its own row here
+        if not own:
             continue
-        lo = _pick_cheapest(f["rates"])
+        lo = _pick_cheapest(own)
         link = f'<a href="{gen.BASE}/{pages[slug]}/">{gen.esc(f["name"])}</a>' if slug in pages else gen.esc(f["name"])
         note = "" if f["page"] else " <em>(few verified offers)</em>"
-        summary.append(f"<tr><td>{link}{note}</td><td>{len(f['rates'])}</td><td>{gen.esc(', '.join(f['vendors']))}</td>"
+        summary.append(f"<tr><td>{link}{note}</td><td>{len(own)}</td><td>{gen.esc(', '.join(sorted({r['advertiser'] for r in own})))}</td>"
                        f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
     # Every ranked rate is counted exactly once in the model table (audit T6/M3): families first, then each other model.
     others = {}
@@ -408,7 +409,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
                        f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
-    counted = sum(len(f["rates"]) for f in fams.values()) + sum(len(v) for v in others.values())
+    counted = sum(sum(family_of(r["gpu"]) == slug for r in f["rates"]) for slug, f in fams.items())  # H100 NVL also lists on H100: count once + sum(len(v) for v in others.values())
     assert counted == len(rates) == gen.live_rate_count(), (counted, len(rates), gen.live_rate_count())
     title = f"GPU rental price comparison: {gen.live_rate_count()} verified rates (H100, H200, A100, L40S, RTX 4090) — {fresh}"
     desc = f"Compare verified cloud GPU rental prices from {', '.join(vendors)}: per-hour and monthly, sorted by cost, with vendor quotes and dates."

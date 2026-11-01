@@ -172,6 +172,7 @@ FAMILIES = {"h100": "H100", "h200": "H200", "a100": "A100", "l40s": "L40S", "rtx
             "b300": "B300", "rtx-pro-6000": "RTX PRO 6000", "rtx-a4000": "RTX A4000",
             "h200-nvl": "H200 NVL", "h100-nvl": "H100 NVL",
             "gb300": "GB300", "quadro-rtx-6000": "Quadro RTX 6000"}
+PAGE_ALSO = {"h100-nvl": "h100"}  # H100 NVL rows also list (labelled by form) on the H100 pages; the NVL family keeps its own
 MIN_OFFERS, MIN_VENDORS = 3, 2  # below this a model gets no standalone page (avoid thin pages)
 
 
@@ -188,7 +189,7 @@ def family_of(gpu: str) -> str | None:
 def families(rates: list[dict]) -> dict[str, dict]:
     out = {}
     for slug, name in FAMILIES.items():
-        rs = [r for r in rates if family_of(r["gpu"]) == slug]
+        rs = [r for r in rates if family_of(r["gpu"]) == slug or PAGE_ALSO.get(family_of(r["gpu"])) == slug]
         vendors = {r["advertiser"] for r in rs}
         out[slug] = {"name": name, "rates": rs, "vendors": sorted(vendors),
                      "page": len(rs) >= MIN_OFFERS and len(vendors) >= MIN_VENDORS}

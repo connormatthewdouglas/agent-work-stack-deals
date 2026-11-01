@@ -34,8 +34,9 @@ def test_manual_snapshot_fields_in_feed_and_page():
     if not clore:  # all Clore rows held pending a fresh manual snapshot (Nov 1)
         assert "Clore.ai" in {h["vendor"] for h in feed["held_stale"]}
     assert all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in clore)
-    assert all(r["price_check"] == "daily" for r in feed["rates"] if r["advertiser"] not in ("Clore.ai", "Spheron"))
+    assert all(r["price_check"] == "daily" for r in feed["rates"] if r["advertiser"] != "Clore.ai")
     sph = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
-    assert sph and sph[0]["price_check"] == "rotating snapshot" and "..." not in sph[0]["evidence"]["quote"]
+    # Nov 1 (Gauge): sourced from the model's own page, a stable span the daily check parses (no longer rotating)
+    assert sph and sph[0]["source_url"] == "https://www.spheron.network/gpu-rental/rtx-5090/" and "$1.62/hr per GPU" in sph[0]["evidence"]["quote"]
     page = pathlib.Path("gpu/price-comparison/index.html").read_text()
     assert (not clore or "manual snapshot 2026-10-29 15:27 UTC; held after 2026-11-05" in page) and "Price verified (daily)" not in page
