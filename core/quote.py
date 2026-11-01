@@ -117,11 +117,12 @@ def _expected(l: dict) -> float | None:
 
 
 def snapshot_prices(snapshot: dict | None) -> dict:
-    """rate_id -> hourly_usd for the rows of a published daily snapshot (data/gpu_pricing/snapshots/DATE.json)."""
-    out = {}
+    """rate_id -> every hourly_usd for that rate_id in a published daily snapshot (data/gpu_pricing/snapshots/DATE.json).
+    Older snapshots have no gpu_count, so 1x and 8x rows can share a rate_id; a match to any of them counts."""
+    out: dict = {}
     for row in (snapshot or {}).get("rows") or []:
         try:
-            out.setdefault(rate_id(row), row.get("hourly_usd"))
+            out.setdefault(rate_id(row), []).append(row.get("hourly_usd"))
         except Exception:  # noqa: BLE001  (a malformed row simply can't vouch for anything)
             pass
     return out
@@ -159,7 +160,7 @@ def provenance(receipt: dict, gpu_today: dict | None, snapshot: dict | None = No
         elif snap:
             if rid not in snap:
                 st, basis = "unknown_rate_id", "rate_id not in the daily snapshot"
-            elif _same_price(snap[rid], price):
+            elif any(_same_price(p, price) for p in snap[rid]):
                 st, basis = "verified", "daily snapshot"
             else:
                 st, basis = "price_mismatch", "quoted_price_usd differs from the daily snapshot"

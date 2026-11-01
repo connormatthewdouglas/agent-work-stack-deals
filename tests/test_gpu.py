@@ -1,3 +1,4 @@
+import pytest
 import json
 from pathlib import Path
 from core.gpu import build_rates, estimate, load_vendor_files
@@ -109,8 +110,20 @@ def test_record_problems_and_staleness_detected():
     assert build_rates(FEED, [doc])["problems"]
 
 
-def test_published_api_matches_records():
+@pytest.fixture
+def pinned_build_clock(monkeypatch):
+    """Rebuild exactly as the generator built the published feed: clock pinned to the feed's build time and the
+    generator's 25-min build horizon. Without this the result depended on wall-clock time near an availability expiry
+    and on test order (importing scripts.generate_seo_pages, e.g. in test_core, setdefaults LW_BUILD_HORIZON_MIN=25
+    for the rest of the session)."""
     api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    monkeypatch.setenv("LW_AVAIL_NOW", api["feed_updated_at"])
+    monkeypatch.setenv("LW_BUILD_HORIZON_MIN", "25")
+    return api
+
+
+def test_published_api_matches_records(pinned_build_clock):
+    api = pinned_build_clock
     assert api["rates"] == build_rates(FEED)["rates"]
     assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale")}
     held = {d["vendor"] for d in load_vendor_files() if d.get("stale") or any(r.get("stale") for r in d["records"])}

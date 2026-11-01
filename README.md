@@ -31,6 +31,8 @@ Tool counts: **9** in the local package (stdio, below); **13** on the hosted end
 | `compare_deals` | Compare 2-5 deals by id side by side, best customer value first. |
 | `get_deal` | Return the full public record for one deal id. |
 
+Note on `rebuild_quote`: a receipt issued from an earlier feed generation on a day whose daily snapshot was later re-cut can come back `reproduced: "arithmetic_only"` (`price_mismatch`) even though its price was genuine at the time. That is a safe false negative; it never verifies a forged price.
+
 ### Install
 
 ```bash

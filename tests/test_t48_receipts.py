@@ -120,3 +120,15 @@ def test_manifest_tool_count_equals_server_tools():
     assert n == 9
     assert m["mcp_server"]["tool_count"] == n == len(m["mcp_server"]["tools"])
     assert f"these {n} tools" in m["mcp_server"]["note"]
+
+
+def test_snapshot_rows_sharing_a_rate_id_any_price_matches():
+    import core.quote as q
+    row = {"vendor": "Lambda", "gpu": "B200", "tier": "On-demand", "vram_gb": 180, "billing_unit": "hourly"}
+    snap = {"rows": [{**row, "hourly_usd": 6.99}, {**row, "hourly_usd": 5.99}]}
+    rid = q.rate_id(row)
+    assert q.snapshot_prices(snap)[rid] == [6.99, 5.99]
+    rec = {"feed_revision": {}, "lines": [{"kind": "gpu_hour", "rate_id": rid, "quoted_price_usd": 5.99}]}
+    assert q.provenance(rec, None, snap)["lines"][0]["status"] == "verified"
+    rec["lines"][0]["quoted_price_usd"] = 4.99
+    assert q.provenance(rec, None, snap)["lines"][0]["status"] == "price_mismatch"

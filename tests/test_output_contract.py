@@ -55,13 +55,18 @@ def test_every_tool_validates_in_both_modes(mode):
         _validate(tool, out)
 
 
+WALL_CLOCK_RETRIEVAL_FIELDS = ("last_successful_retrieval_at", "last_refresh_attempt_at", "cache_age_s")
+
+
 def test_full_mode_is_default_and_unchanged_plus_envelope():
     for tool, kw in _calls().items():
         default, full = getattr(s, tool)(**kw), getattr(s, tool)(**kw, mode="full")
         for o in (default, full):
             o.pop("next_refresh_utc", None)
             o.pop("issued_at", None)  # T39: wall-clock time of the receipt (not part of quote_id)
-            o.pop("retrieval", None)  # wall-clock feed retrieval stamps; a call straddling a second boundary differs
+            for f_ in (o.get("retrieval") or {}).get("feeds") or []:  # drop only wall-clock stamps (a call can straddle
+                for k in WALL_CLOCK_RETRIEVAL_FIELDS:                     # a second boundary); status/feeds still compared
+                    f_.pop(k, None)
         assert default == full, tool
         assert default["mode"] == "full"
 
