@@ -130,6 +130,10 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>0.4.0 (2026-11-01, HOLD: not published until Gauge passes)</h2>
 <ul>
+<li>rebuild_quote checks provenance, not just arithmetic: each GPU line&#x27;s <code>rate_id</code> and price must match the pinned feed revision (<code>gpu_rates_sha256</code> equal to today&#x27;s feed) or the published daily snapshot for the receipt&#x27;s date (fetched from our own URL, never one taken from the receipt). Otherwise <code>reproduced: &quot;arithmetic_only&quot;</code> and <code>provenance_verified: false</code>; flat plan lines are unverified. No server signing key. The receipt sha256 is unkeyed, so it only shows the body wasn&#x27;t changed after hashing.</li>
+<li>Tool counts are 9 everywhere: manifest <code>tool_count</code> and note, README (with a <code>rebuild_quote</code> row), and /install/ (9 + 4 hosted-only = 13).</li>
+</ul>
+<ul>
 <li>Reopenable receipts (T48, additive): optimize_stack, optimize_agent_stack and estimate_job_cost add a <code>receipt</code> object with each line&#x27;s quoted price, evidence quote, source_url, verified_at, the pinned feed revision (feed timestamp, generation_id, GPU-rates sha256, daily snapshot URL) and a receipt_sha256. Existing fields (quote_id, quote_basis, ...) are unchanged.</li>
 <li>New tool <code>rebuild_quote(receipt)</code>: checks integrity, recomputes each line from the receipt alone, and revalidates GPU lines against today&#x27;s feed (unchanged, price_changed, evidence_changed, held_today, not_in_feed_today).</li>
 </ul>
