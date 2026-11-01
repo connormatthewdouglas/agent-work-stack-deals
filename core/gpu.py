@@ -268,6 +268,12 @@ def _price_too_old(r: dict, doc: dict) -> bool:
     return h is not None and h > (BATCH_HOLD_HOURS if _is_batch(r) else STALE_HOURS)
 
 
+def _vram_note(r: dict) -> dict:
+    """Gauge nov1_mart4: a corrected vram_gb next to the vendor's verbatim quote (e.g. Clore '45GB' published as 48)
+    always travels with its explanation."""
+    return {"vram_note": r["vram_note"]} if r.get("vram_note") else {}
+
+
 def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dict:
     """Rates for /api/v1/gpu-prices.json and every GPU page, from the per-vendor records.
 
@@ -289,7 +295,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                          "checked_at": doc["checked_at"], "reason": doc["stale"]["reason"],
                          "page_last_updated": doc["stale"].get("page_last_updated"),
-                         "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}
                                      for r in doc["records"]]})
             continue
         vendors.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
@@ -301,7 +307,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
                          "checked_at": r["checked_at"], "reason": r["stale"]["reason"],
                          "page_last_updated": r["stale"].get("page_last_updated"),
-                         "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}], "scope": "record"})
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}], "scope": "record"})
         for r in doc["records"]:
             if r.get("stale"):
                 continue
@@ -310,7 +316,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 from .data_age import stale_label
                 held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
                              "checked_at": r["checked_at"], "reason": stale_label(r), "page_last_updated": None, "scope": "record",
-                             "records": [{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}]})
+                             "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}]})
                 continue
             monthly = r["billing_unit"] == "monthly"
             n = r.get("gpu_count", 1)
@@ -336,7 +342,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "interruptible": r["interruptible"], "form_factor": r["form_factor"],
                 **({"form_class": fc} if (fc := form_class(r["gpu"], f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}")) else {}),
                 "price_scope": "gpu_hour_only", **_published_extras(doc),
-                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region") if r.get(k)}),
+                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note") if r.get(k)}),
                 # Manual snapshot vendors (e.g. Clore.ai): not re-checked daily; held automatically after hold_after.
                 **({"price_check": "manual snapshot", "snapshot_at": r["checked_at"],
                     "hold_after": (datetime.fromisoformat(r["checked_at"]) + timedelta(days=STALE_DAYS)).isoformat()}
