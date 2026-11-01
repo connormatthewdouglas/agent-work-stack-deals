@@ -35,7 +35,7 @@ def test_manual_snapshot_fields_in_feed_and_page():
     if not clore:  # all Clore rows held pending a fresh manual snapshot (Nov 1)
         assert "Clore.ai" in {h["vendor"] for h in feed["held_stale"]}
     assert all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in clore)
-    assert all(r["price_check"] == "daily" for r in feed["rates"] if r["advertiser"] != "Clore.ai")
+    assert all(r["price_check"] == ("batch" if r.get("last_read") else "daily") for r in feed["rates"] if r["advertiser"] != "Clore.ai")  # G5
     sph = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
     # Nov 1 (Gauge): sourced from the model's own page, a stable span the daily check parses (no longer rotating)
     assert sph and sph[0]["source_url"] == "https://www.spheron.network/gpu-rental/rtx-5090/" and "/hr per GPU" in sph[0]["evidence"]["quote"]

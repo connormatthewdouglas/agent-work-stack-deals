@@ -253,12 +253,19 @@ def _published_extras(doc: dict) -> dict:
     return out
 
 
+BATCH_HOLD_HOURS = 48  # Gauge G5: batch rows (Scout wider-GPU) are not re-read daily; hold them like manual snapshots
+
+
+def _is_batch(r: dict) -> bool:
+    return r.get("price_check") == "batch" or bool(r.get("batch"))
+
+
 def _price_too_old(r: dict, doc: dict) -> bool:
     if doc.get("manual_snapshot"):
         return False  # manual snapshots have their own hold_after rule
     from .data_age import STALE_HOURS, age_fields
     h = age_fields(r)["data_age_hours"]
-    return h is not None and h > STALE_HOURS
+    return h is not None and h > (BATCH_HOLD_HOURS if _is_batch(r) else STALE_HOURS)
 
 
 def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dict:
@@ -333,7 +340,10 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 # Manual snapshot vendors (e.g. Clore.ai): not re-checked daily; held automatically after hold_after.
                 **({"price_check": "manual snapshot", "snapshot_at": r["checked_at"],
                     "hold_after": (datetime.fromisoformat(r["checked_at"]) + timedelta(days=STALE_DAYS)).isoformat()}
-                   if doc.get("manual_snapshot") else {"price_check": r.get("price_check", "daily"),
+                   if doc.get("manual_snapshot") else
+                   {"price_check": "batch", "last_read": r.get("verified_at") or r["checked_at"],
+                    "hold_after": (datetime.fromisoformat((r.get("verified_at") or r["checked_at"]).replace("Z", "+00:00"))
+                                   + timedelta(hours=BATCH_HOLD_HOURS)).isoformat()} if _is_batch(r) else {"price_check": r.get("price_check", "daily"),
                                                         **({"price_check_note": r["price_check_note"]} if r.get("price_check_note") else {})}),
                 "tier_class": _tier_class({"tier": r["tier"], "interruptible": r["interruptible"], "billing_unit": r["billing_unit"],
                                            "price_status": r.get("price_status", "listed")}) if not r.get("tier_class") else r["tier_class"],
@@ -342,7 +352,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
                 "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"))})
-    priced = {r["deal_id"] for r in rates}
+    priced = {r["deal_id"] for r in rates} | {d["id"] for d in deals if d.get("advertiser") in {h["vendor"] for h in held}}  # Gauge G1: held != unpriced
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}
                 for d in sorted(deals, key=lambda x: x["id"]) if is_gpu_deal(d) and d["id"] not in priced]

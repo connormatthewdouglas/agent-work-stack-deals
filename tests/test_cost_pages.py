@@ -215,7 +215,7 @@ def test_j8_cheapest_a100_summary_names_memory_sizes():
     # stock-independent: whether the J8 clause leads or follows a cheaper in-stock spot row depends on Scout's snapshot
     import re
     assert re.search(r"Jarvislabs A100 40GB \(On-demand\)(</strong>)? at \$89\.00", s)
-    assert "\u2014 memory sizes differ; cheapest A100 80GB among tracked providers: CloudRift A100 SXM 80GB at $105.00" in s
+    assert "\u2014 memory sizes differ; cheapest on-demand A100 80GB among tracked providers: CloudRift A100 SXM 80GB at $105.00" in s
 
 
 def test_index_a100_is_80gb_only():
@@ -235,7 +235,7 @@ def test_j8_80gb_clause_covers_every_variant_from_feed():
          and r["availability"].get("in_stock") is not False]
     b = min(c, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
     s = (ROOT / "gpu/cheapest-a100-rental/index.html").read_text()
-    m = re.search(r"cheapest A100 80GB among tracked providers: (.*?) at \$([\d,]+\.\d\d)", s)
+    m = re.search(r"cheapest on-demand A100 80GB among tracked providers: (.*?) at \$([\d,]+\.\d\d)", s)
     assert m and m.group(1).startswith(b["advertiser"]) and float(m.group(2).replace(",", "")) == round(b["hourly_equiv_usd"] * 100, 2)
 
 
@@ -303,7 +303,7 @@ def test_k2_mcp_a100_summary_names_cheapest_80gb():
     from core import deals as D
     data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     out = D.compare_gpu_prices(data, "A100", on_demand_only=True)
-    assert "Memory sizes differ (cheapest 80GB: CloudRift A100 SXM 80GB at $1.05/hr, On-demand)" in out["summary"]
+    assert "Memory sizes differ (cheapest on-demand 80GB: CloudRift A100 SXM 80GB at $1.05/hr, On-demand)" in out["summary"]
 
 
 def _fresh():
