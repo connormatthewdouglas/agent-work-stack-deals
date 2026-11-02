@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import os
 import sys
 import urllib.error
@@ -40,8 +41,11 @@ def week(day: str) -> str:
     return f"{y}-W{w:02d}"
 
 
+TEST_REF_RE = re.compile(r"^t\d+(-.*)?$")  # QA harness tags: t41, t17-openai-agents, ...
+
+
 def internal(ref: str) -> bool:
-    return ref in INTERNAL_REFS or ref.startswith("house-")
+    return ref in INTERNAL_REFS or ref.startswith("house-") or bool(TEST_REF_RE.match(ref))
 
 
 def _add(d: dict, k, n: int):
@@ -53,13 +57,15 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
 
     def slot(w):
         return out.setdefault(w, {"week": w, "mcp_tool_calls_by_ref": {}, "feed_fetches_by_ref": {},
-                                  "mcp_initialize_by_ref": {}, "external_mcp_tool_calls": 0,
+                                  "mcp_initialize_by_ref": {}, "external_mcp_tool_calls": 0, "untagged_mcp_tool_calls": 0,
                                   "telemetry_tool_calls": 0, "outbound_clicks": None})
 
     for r in hosted.get("rows") or []:
         s, ref = slot(week(r["day"])), str(r.get("ref") or "none")
         _add(s["mcp_tool_calls_by_ref"], ref, r.get("n"))
-        if not internal(ref):
+        if ref == "none":
+            s["untagged_mcp_tool_calls"] += int(r.get("n") or 0)
+        elif not internal(ref):
             s["external_mcp_tool_calls"] += int(r.get("n") or 0)
     for h in hosted.get("hits") or []:
         key = {"feed": "feed_fetches_by_ref", "initialize": "mcp_initialize_by_ref"}.get(h.get("kind"))
@@ -78,9 +84,13 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
         "schema": "lantern-works-site-stats/1",
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "note": "Weekly (ISO week, UTC) aggregate counts only. No IP addresses, user agents, cookies, keys or per-caller "
-                "data. ref is the ?ref= channel tag; refs ci, qa, test, smoke and house-* are our own checks and are "
-                "excluded from external_mcp_tool_calls.",
+                "data. ref is the ?ref= channel tag. Refs ci, qa, test, smoke, house-* and t<N>/t<N>-* are our own checks and are "
+                "excluded from external_mcp_tool_calls. Calls with no ref are counted separately in untagged_mcp_tool_calls "
+                "and may include our own checks. feed_fetches_by_ref counts only feed fetches through the hosted worker, not "
+                "GitHub Pages feed hits. mcp_initialize_by_ref['mcp-registry'] is probably MCP Registry health checks, not users.",
         "sources": {
+            "feed_fetches": "hosted worker only (lantern-works-mcp.lantern-works.workers.dev/api/...); GitHub Pages feed hits are not counted",
+            "mcp_initialize_mcp_registry": "probably MCP Registry health checks, not users",
             "hosted_mcp": "https://lantern-works-mcp.lantern-works.workers.dev/stats" + ("" if "error" not in hosted else " (unavailable this run)"),
             "telemetry": "opt-in LANTERN_TELEMETRY=1 aggregate" + ("" if "error" not in telemetry else " (unavailable this run)"),
             "outbound_clicks": "Cloudflare Web Analytics beacon, /e/out/ virtual page views, weekly total" if clicks is not None
