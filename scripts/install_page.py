@@ -12,7 +12,7 @@ PATH = "install"
 TESTED_ON = "2026-11-02"
 # Gauge F1: the version actually tested on TESTED_ON. 0.5.2: clean `uvx lantern-works-deals-mcp==0.5.2` re-run by hand over stdio
 # (initialize reports 0.5.2, tools/list 9 tools, compare_gpu_prices ok). Never pair TESTED_ON with a later version.
-TESTED_ON_VERSION = "0.5.2"
+TESTED_ON_VERSION = "0.5.3"  # Gauge rel053: test_pypi_install.py --version 0.5.3 --uvx re-run 2026-11-02 (serverInfo 0.5.3, 9 tools, all calls ok)
 CLIENT_TESTED_ON = "2026-11-02"  # T74: LlamaIndex (hosted + local) and plain MCP client re-run on CLIENT_TESTED_VERSION
 SKILL_CHECKED_ON = "2026-10-29"  # npx skills add check (not re-run in T74)
 import sys as _sys
@@ -33,7 +33,7 @@ TESTED_TOOLS = 9  # package tools/list + a call to each, clean uvx stdio and the
 # T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run, on 0.5.2 (plain uvx stdio: 9 tools; LlamaIndex with llama-index-tools-mcp 0.4.8, mcp<2: local 9, hosted 13; log on PR #72). Clients not re-run
 # (Claude Desktop, Cursor, Cline, Roo, Continue, Open WebUI in-app) carry no tool count or version claim.
 CLIENT_TESTED_TOOLS = 9
-CLIENT_TESTED_VERSION = "0.5.2"  # LlamaIndex re-run 2026-11-02 on 0.5.2: local 9, hosted 13
+CLIENT_TESTED_VERSION = "0.5.3"  # rel053: LlamaIndex (llama-index-tools-mcp 0.4.8, mcp 1.30.0) re-run on 0.5.3: local 9, hosted 13, compare_gpu_prices ok  # LlamaIndex re-run 2026-11-02 on 0.5.2: local 9, hosted 13
 # Verified 2026-11-02 by tools/list on the hosted endpoint: it serves every package tool except these
 # (rebuild_quote now served: live tools/list returned 13 = 9 package + 4 watch).
 HOSTED_MISSING: tuple[str, ...] = ()

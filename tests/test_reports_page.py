@@ -47,3 +47,6 @@ def test_nov2_spread_paragraph_recomputes_from_cited_feed():
     assert f"**${statistics.median(cost):.2f}** median" in para
     assert f"**${cost[0]:.2f}** at Civo" in para and f"**${cost[-1]:.2f}** at Verda" in para
     assert f"**${cost[-1] - cost[0]:.2f}** of difference" in para
+    # Gauge rel053: literal values too, so the fixture and the report can't drift together
+    assert len(rows) == 9 and "Across the 9 tracked rates" in para
+    assert statistics.median(cost) == 399.00 and "**$399.00** median" in para
