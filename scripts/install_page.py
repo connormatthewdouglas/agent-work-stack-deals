@@ -9,11 +9,12 @@ import json
 from pathlib import Path
 
 PATH = "install"
-TESTED_ON = "2026-10-30"
+TESTED_ON = "2026-11-02"
 # Gauge F1: the version actually tested on TESTED_ON (CI pypi-install run 41128647953, pip + stdio tools/list; uvx re-run
 # by hand the same day). Never pair TESTED_ON with a later version: pages say "tested X (vA); current vB".
-TESTED_ON_VERSION = "0.3.45"
-CLIENT_TESTED_ON = "2026-10-29"  # editor/client config checks (unchanged by F1; see CLIENT_TESTED_VERSION)
+TESTED_ON_VERSION = "0.4.2"
+CLIENT_TESTED_ON = "2026-11-02"  # T74: LlamaIndex (hosted + local) and plain MCP client re-run on CLIENT_TESTED_VERSION
+SKILL_CHECKED_ON = "2026-10-29"  # npx skills add check (not re-run in T74)
 import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core.deals import VERSION as TESTED_VERSION  # noqa: E402  (audit E1: from the package build, can't drift)
@@ -28,10 +29,13 @@ def _server_tools() -> tuple[str, ...]:
 
 TOOLS = _server_tools()
 # Tool count covered by the last recorded client tests (TESTED_ON). Bump only after re-testing with the new tool.
-TESTED_TOOLS = 8  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint
-# Per-client checks (Cline, LlamaIndex, Open WebUI/mcpo, Roo, Continue) re-run 2026-10-29 on 0.3.23 (audit F3).
-CLIENT_TESTED_TOOLS = 8
-CLIENT_TESTED_VERSION = "0.3.23"
+TESTED_TOOLS = 9  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint
+# T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run (0.4.2, 9 tools). Clients not re-run
+# (Claude Desktop, Cursor, Cline, Roo, Continue, Open WebUI in-app) carry no tool count or version claim.
+CLIENT_TESTED_TOOLS = 9
+CLIENT_TESTED_VERSION = "0.4.2"
+# Verified 2026-11-02 by tools/list on the hosted endpoint: it serves every package tool except these.
+HOSTED_MISSING = ("rebuild_quote",)
 
 
 def _hosted_extra_tools() -> tuple[str, ...]:
@@ -90,6 +94,9 @@ def write(g) -> str:
     desktop = json.dumps({"mcpServers": {"lantern-works-deals": CFG}}, indent=2)
     vscode = json.dumps({"servers": {"lantern-works-deals": {"type": "stdio", **CFG}}}, indent=2)
     tools = ", ".join(f"<code>{t}</code>" for t in TOOLS)
+    hp = len([t for t in TOOLS if t not in HOSTED_MISSING])
+    miss = ", ".join(f"<code>{t}</code>" for t in HOSTED_MISSING)
+    hosted_pkg = f"{hp} of the {len(TOOLS)} package tools (all except {miss})" if HOSTED_MISSING else f"the same {len(TOOLS)} package tools"
     body = f"""  <nav class="crumbs"><a href="{base}/">Lantern Works</a> › <a href="{base}/for-agents/">For agents</a> › Install</nav>
   <h1>GPU price monitor for your agent</h1>
   <p><strong>GPU price comparison for agents, checked daily.</strong> Free, read-only MCP server (<code>uvx lantern-works-deals-mcp</code>, version {TESTED_VERSION}); <code>compare_gpu_prices</code> is the main tool. Rate and provider counts change daily: see the live <a href="{base}/api/v1/gpu-prices.json">feed</a>. Some result links are referral links.</p>
@@ -103,11 +110,11 @@ def write(g) -> str:
   <p class="meta">Jump to: <a href="#hosted">Hosted endpoint</a> · <a href="#claude-code">Claude Code</a> · <a href="#claude-desktop">Claude Desktop</a> · <a href="#cursor">Cursor</a> · <a href="#vscode">VS Code</a> · <a href="#cline">Cline</a> · <a href="#llamaindex">LlamaIndex</a> · <a href="#openwebui">Open WebUI</a> · <a href="#roo-code">Roo Code</a> · <a href="#continue">Continue</a> · <a href="#generic">Any MCP client</a> · <a href="#examples">Framework examples</a> · <a href="{base}/methodology/">How prices are checked</a></p>
   <h2 id="add">Add Lantern Works to your agent</h2>
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: {tools} ({len(TOOLS)} tools in the package).</p>
-  <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> (v{TESTED_ON_VERSION}; current v{TESTED_VERSION}) initializes over stdio, <code>tools/list</code> returned every package tool of that version ({TESTED_TOOLS} then) and each returned results. The current package has {len(TOOLS)} tools; the hosted endpoint lists the same {len(TOOLS)} plus {len(HOSTED_EXTRA)} hosted-only price-watch tools ({len(TOOLS)} + {len(HOSTED_EXTRA)} = {len(TOOLS) + len(HOSTED_EXTRA)} in total).</p>
+  <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> (v{TESTED_ON_VERSION}; current v{TESTED_VERSION}) initializes over stdio, <code>tools/list</code> returned all {TESTED_TOOLS} package tools and <code>compare_gpu_prices</code> returned results. The current package has {len(TOOLS)} tools; on {TESTED_ON} the hosted endpoint listed {hosted_pkg} plus {len(HOSTED_EXTRA)} hosted-only price-watch tools ({hp} + {len(HOSTED_EXTRA)} = {hp + len(HOSTED_EXTRA)} in total).</p>
 
 
   <h2 id="hosted">Hosted endpoint (no install)</h2>
-  <p>The same {len(TOOLS)} read-only package tools plus {len(HOSTED_EXTRA)} hosted-only opt-in <a href="#price-watch">price-watch</a> tools ({", ".join(HOSTED_EXTRA)}; {len(TOOLS)} + {len(HOSTED_EXTRA)} = {len(TOOLS) + len(HOSTED_EXTRA)} tools in all) over streamable HTTP, served from a free Cloudflare Worker: <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>. It counts calls only as anonymous totals per tool per day (no IPs, user agents or arguments), published at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats">/stats</a>. The <code>?ref=</code> tag below just records that the link came from this page (counts at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats.json">/stats.json</a>).</p>
+  <p>{hosted_pkg[0].upper() + hosted_pkg[1:]} (read-only) plus {len(HOSTED_EXTRA)} hosted-only opt-in <a href="#price-watch">price-watch</a> tools ({", ".join(HOSTED_EXTRA)}; {hp} + {len(HOSTED_EXTRA)} = {hp + len(HOSTED_EXTRA)} tools in all, per <code>tools/list</code> on {TESTED_ON}) over streamable HTTP, served from a free Cloudflare Worker: <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code>. It counts calls only as anonymous totals per tool per day (no IPs, user agents or arguments), published at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats">/stats</a>. The <code>?ref=</code> tag below just records that the link came from this page (counts at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats.json">/stats.json</a>).</p>
   {_pre("claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install")}
   <p>Claude Desktop / Cursor / VS Code (<code>"type": "http"</code> or <code>"url"</code> server): <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code></p>
 
@@ -133,20 +140,20 @@ def write(g) -> str:
   {_pre(vscode)}
 
   <h2 id="cline">Cline</h2>
-  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code> (tested {CLIENT_TESTED_ON}: this exact config started the server and <code>tools/list</code> returned all {CLIENT_TESTED_TOOLS} package tools (history: tested on version {CLIENT_TESTED_VERSION}; current version {TESTED_VERSION} has {len(TOOLS)})):</p>
+  <p>MCP Servers → Configure → <code>cline_mcp_settings.json</code>:</p>
   {_pre(desktop)}
 
   <h2 id="llamaindex">LlamaIndex</h2>
   <p>Uses <code>pip install llama-index-tools-mcp</code> (<a href="https://developers.llamaindex.ai/python/framework/module_guides/mcp/llamaindex_mcp/">LlamaIndex MCP docs</a>). This uses the hosted endpoint; for the local server use <code>BasicMCPClient("uvx", args=["lantern-works-deals-mcp"])</code>:</p>
   {_pre(LLAMA)}
-  <p class="meta">Tested {CLIENT_TESTED_ON}: both clients listed all {CLIENT_TESTED_TOOLS} package tools (history: tested on version {CLIENT_TESTED_VERSION}; current version {TESTED_VERSION} has {len(TOOLS)}) and <code>compare_gpu_prices</code> returned live rates.</p>
+  <p class="meta">Tested {CLIENT_TESTED_ON} with v{CLIENT_TESTED_VERSION} (<code>llama-index-tools-mcp</code>, <code>mcp&lt;2</code>): the local server listed all {CLIENT_TESTED_TOOLS} package tools, the hosted endpoint listed {hp + len(HOSTED_EXTRA)} ({hp} package + {len(HOSTED_EXTRA)} watch tools), and <code>compare_gpu_prices</code> returned live rates on both.</p>
 
   <h2 id="openwebui">Open WebUI</h2>
   <p>Open WebUI 0.6.31+ connects to MCP servers over streamable HTTP (<a href="https://docs.openwebui.com/features/extensibility/mcp/">Open WebUI MCP docs</a>). As an admin: Settings → Admin → Integrations → External Tool Servers → + Add Connection, set <strong>Type</strong> to <strong>MCP (Streamable HTTP)</strong> (not OpenAPI), Server URL:</p>
   {_pre("https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install")}
   <p>No auth is needed. To run the local server instead, bridge it with <a href="https://github.com/open-webui/mcpo">mcpo</a> and add <code>http://localhost:8000</code> as an <strong>OpenAPI</strong> connection:</p>
   {_pre("uvx mcpo --port 8000 -- uvx lantern-works-deals-mcp")}
-  <p class="meta">Tested {CLIENT_TESTED_ON}: the hosted URL answers MCP <code>tools/list</code> with all {CLIENT_TESTED_TOOLS} package tools (history: tested on version {CLIENT_TESTED_VERSION}; current version {TESTED_VERSION} has {len(TOOLS)}) plus {len(HOSTED_EXTRA)} hosted-only watch tools; through mcpo all {CLIENT_TESTED_TOOLS} package tools (history: tested on version {CLIENT_TESTED_VERSION}; current version {TESTED_VERSION} has {len(TOOLS)}) appeared as OpenAPI routes and <code>compare_gpu_prices</code> returned rates. If mcpo fails to start with an import or <code>ssl_certfile</code> error, a dependency release broke it; <code>uvx --with "mcp&lt;2" --with "fastapi&lt;0.120" mcpo …</code> worked.</p>
+  <p class="meta">Not re-tested inside Open WebUI for the current version. If mcpo fails to start with an import or <code>ssl_certfile</code> error, a dependency release broke it; <code>uvx --with "mcp&lt;2" --with "fastapi&lt;0.120" mcpo …</code> worked.</p>
 
   <h2 id="roo-code">Roo Code</h2>
   <p>MCP icon → Edit Global MCP (<code>mcp_settings.json</code>) or Edit Project MCP (<code>.roo/mcp.json</code>) (<a href="https://docs.roocode.com/features/mcp/using-mcp-in-roo">Roo Code MCP docs</a>):</p>
@@ -158,11 +165,11 @@ def write(g) -> str:
   <p>Save as <code>.continue/mcpServers/lantern-works-deals.yaml</code> in your workspace; MCP tools work in Agent mode (<a href="https://docs.continue.dev/customize/deep-dives/mcp">Continue MCP docs</a>):</p>
   {_pre(CONTINUE)}
   <p>Hosted endpoint instead: replace the <code>command</code> and <code>args</code> lines with <code>type: streamable-http</code> and <code>url: https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=install</code>.</p>
-  <p class="meta">Tested {CLIENT_TESTED_ON} (Roo Code, Continue): the configs above parse, and the exact command and URL in them start or reach the server and list all {CLIENT_TESTED_TOOLS} package tools (history: tested on version {CLIENT_TESTED_VERSION}; current version {TESTED_VERSION} has {len(TOOLS)}). Not yet tested inside the editors themselves.</p>
+  <p class="meta">The command and URL in these configs are the same ones re-tested above with a plain MCP client; not tested inside Roo Code or Continue themselves.</p>
 
   <h2>Skills-based agents (Claude Code skills, OpenClaw)</h2>
   {_pre("npx skills add connormatthewdouglas/agent-work-stack-deals")}
-  <p>Installs <a href="{base}/SKILL.md">SKILL.md</a> (checked {CLIENT_TESTED_ON} with <code>-a claude-code</code>). For OpenClaw MCP, use the generic stdio config below.</p>
+  <p>Installs <a href="{base}/SKILL.md">SKILL.md</a> (checked {SKILL_CHECKED_ON} with <code>-a claude-code</code>). For OpenClaw MCP, use the generic stdio config below.</p>
 
   <h2 id="generic">Any MCP client (generic)</h2>
   <p>Command <code>uvx</code>, args <code>["lantern-works-deals-mcp"]</code>, transport stdio. pipx: <code>pipx run lantern-works-deals-mcp</code>. Docker: build the repo's <code>Dockerfile</code> and run <code>docker run -i --rm &lt;image&gt;</code>. Optional env: <code>LANTERN_DEALS_FILE</code>, <code>LANTERN_GPU_PRICES_FILE</code> (offline JSON).</p>

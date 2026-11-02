@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>For agents — query the Lantern Works deal feed and API</title>
-  <meta name="description" content="How AI agents query the Lantern Works deals feed: endpoints, JSON Schema, offer types, examples." />
+  <title>For agents — GPU rental prices, MCP tools and the Lantern Works feeds</title>
+  <meta name="description" content="How AI agents use Lantern Works: GPU coverage, sourced rates with receipts, MCP tools, and the deals feed." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://thelanternworks.com/for-agents/" />
-  <meta property="og:title" content="For agents — query the Lantern Works deal feed and API" />
-  <meta property="og:description" content="How AI agents query the Lantern Works deals feed: endpoints, JSON Schema, offer types, examples." />
+  <meta property="og:title" content="For agents — GPU rental prices, MCP tools and the Lantern Works feeds" />
+  <meta property="og:description" content="How AI agents use Lantern Works: GPU coverage, sourced rates with receipts, MCP tools, and the deals feed." />
   <meta property="og:url" content="https://thelanternworks.com/for-agents/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Lantern Works" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="For agents — query the Lantern Works deal feed and API" />
-  <meta name="twitter:description" content="How AI agents query the Lantern Works deals feed: endpoints, JSON Schema, offer types, examples." />
+  <meta name="twitter:title" content="For agents — GPU rental prices, MCP tools and the Lantern Works feeds" />
+  <meta name="twitter:description" content="How AI agents use Lantern Works: GPU coverage, sourced rates with receipts, MCP tools, and the deals feed." />
   <style>
     :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
     body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
@@ -121,8 +121,29 @@
   <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/coverage/">GPU coverage</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/methodology/">Methodology</a><a href="https://thelanternworks.com/for-agents/" aria-current="page">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
 <div id="content">
   <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › For agents</nav>
-  <h1>For agents: query the Lantern Works deal feed</h1>
-  <p>The catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists 203 deals (schema <code>1.6.0</code>, feed updated <code>2026-10-29T09:30:00-04:00</code>).</p>
+  <h1>For agents: GPU rental prices, with receipts</h1>
+  <p>Lantern Works tracks <strong>25 GPU models across 23 vendors</strong> (153 rates in the current feed, updated <code>2026-11-02T04:52:49Z</code>). Every rate is read from the vendor's own pricing page and carries its <code>source_url</code> and <code>checked_at</code>. Public, read-only, no API key.</p>
+  <ul>
+    <li>GPU price feed: <a href="https://thelanternworks.com/api/v1/gpu-prices.json">https://thelanternworks.com/api/v1/gpu-prices.json</a> · daily changes: <a href="https://thelanternworks.com/api/v1/gpu-price-changes.json">gpu-price-changes.json</a></li>
+    <li>Coverage by model and vendor: <a href="https://thelanternworks.com/coverage/">/coverage/</a> (<a href="https://thelanternworks.com/api/v1/coverage.json">coverage.json</a>)</li>
+  </ul>
+
+  <h2 id="receipts">Receipts and methodology</h2>
+  <ul>
+    <li><a href="https://thelanternworks.com/methodology/">How prices are checked</a>: sources, check times, tiers and how rows are ranked.</li>
+    <li>Each rate in the feed has its vendor <code>source_url</code>, a quoted <code>evidence</code> snippet and <code>checked_at</code>, so an agent can re-check it before acting.</li>
+    <li>Spot a wrong number? <a href="https://thelanternworks.com/report-price/">Report a wrong price</a>.</li>
+  </ul>
+
+  <h2 id="mcp-tools">MCP tools</h2>
+  <p>The <a href="https://thelanternworks.com/install/">MCP server</a> (<code>uvx lantern-works-deals-mcp</code>, version 0.4.2) has 9 read-only tools:</p>
+  <ul>
+<li><code>compare_gpu_prices</code></li><li><code>get_price_changes</code></li><li><code>optimize_stack</code></li><li><code>optimize_agent_stack</code></li><li><code>estimate_job_cost</code></li><li><code>search_deals</code></li><li><code>compare_deals</code></li><li><code>get_deal</code></li><li><code>rebuild_quote</code></li>
+  </ul>
+  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> tools (<code>create_watch_key</code>, <code>watch_price</code>, <code>list_watches</code>, <code>delete_watch</code>). Setup for each client: <a href="https://thelanternworks.com/install/">/install/</a>.</p>
+
+  <h2 id="deal-feed">Deal feed</h2>
+  <p>Separately, the deal catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists 203 deals (schema <code>1.6.0</code>, feed updated <code>2026-10-29T09:30:00-04:00</code>).</p>
 
   <h2>Endpoints</h2>
   <div class="tscroll"><table class="howto"><tbody>

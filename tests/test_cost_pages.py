@@ -137,7 +137,7 @@ def test_j_site_wording():
     assert "Listed but not ranked: no second vendor offers this exact variant in stock (form factor and memory); variants are never mixed; rows marked out of stock come last." in _page("h100", 100) + _page("a100", 100)
     inst = (ROOT / "install/index.html").read_text()
     from core.deals import VERSION
-    assert inst.count("version 0.3.23") == inst.count("history: tested on version 0.3.23") and f"current version {VERSION}" in inst
+    assert "0.3.23" not in inst and "history: tested on version" not in inst and f"version {VERSION}" in inst
     cheap = (ROOT / "gpu/cheapest-rtx-4090-rental/index.html").read_text()
     assert "Nova Cloud and RunC.AI (tie) RTX 4090" in cheap
     exp = "Where a status is shown, it is a snapshot from the time in the row, not a guarantee."

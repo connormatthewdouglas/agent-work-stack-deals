@@ -20,7 +20,7 @@ def _ver(v):
 
 def test_f1_install_never_pairs_date_with_later_version():
     import install_page as ip
-    dates = dict(re.findall(r"^## (\d+\.\d+\.\d+) \((\d{4}-\d{2}-\d{2})\)", (ROOT / "CHANGELOG.md").read_text(), re.M))
+    dates = dict(re.findall(r"^## (\d+\.\d+\.\d+) \((\d{4}-\d{2}-\d{2})[,)]", (ROOT / "CHANGELOG.md").read_text(), re.M))
     assert dates[ip.TESTED_ON_VERSION] <= ip.TESTED_ON  # the tested version existed on the tested date
     assert _ver(ip.TESTED_ON_VERSION) <= _ver(ip.TESTED_VERSION)
     page = (ROOT / "install" / "index.html").read_text()
