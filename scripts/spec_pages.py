@@ -25,6 +25,7 @@ FAMILY_MAP = {"H100": "H100", "H100 SXM": "H100", "H100 PCIe": "H100", "H100 NVL
               "H200": "H200", "H200 SXM": "H200",
               "A100": "A100", "A100 SXM": "A100", "A100 PCIe": "A100", "A100 NVLink": "A100"}
 MIN_VENDORS = 3
+ALWAYS_PAGE = {"B300", "MI300X", "L4"}  # Pulse report 2026-11-02: page these models whenever the feed has rows, even under MIN_VENDORS
 PAIRS = [("RunPod", "Verda (formerly DataCrunch)"), ("Lambda", "RunPod"), ("CoreWeave", "Nebius")]
 MIN_SHARED = 3
 DISCLOSURE = "Some links are referral links; Lantern Works may earn credit. Affiliate status is not a ranking factor."
@@ -180,7 +181,7 @@ def qualifying_families(rates) -> dict[str, list]:
     fams: dict[str, list] = {}
     for r in rates:
         fams.setdefault(family(r["gpu"]), []).append(r)
-    return {f: rs for f, rs in fams.items() if len({r["advertiser"] for r in rs if bucket(r) != "Reserved"}) >= MIN_VENDORS}
+    return {f: rs for f, rs in fams.items() if f in ALWAYS_PAGE or len({r["advertiser"] for r in rs if bucket(r) != "Reserved"}) >= MIN_VENDORS}
 
 
 def gpu_url(gen, fam: str) -> str:

@@ -135,6 +135,7 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
     has source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.
     limit 1-25. Unknown model returns not_found listing tracked models.
+    H100/A100: cheapest_by_form_factor gives one pick per form_factor (tier_class, interruptible, in_stock); same rule as the site. 'NVLink' rows are form 'not stated': NVLink is the bridge, and the vendor doesn't say SXM or PCIe.
     Each result has tier_class: on-demand | community | marketplace | interruptible (spot/preemptible) |
     reserved | dedicated-monthly. Reserved (reservation/commitment 'starting from') rates are left out unless
     include_reserved=true, and even then they are never reported as cheapest. The cheapest overall can be spot or community capacity; on_demand_only=true keeps only

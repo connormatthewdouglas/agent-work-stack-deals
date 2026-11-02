@@ -1263,7 +1263,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 </div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
-    <p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
@@ -1565,7 +1565,7 @@ if(t){{const d=t.closest("details")||t.querySelector("details");if(d)d.open=true
 addEventListener("hashchange",op);op();
 const f=document.getElementById("filters");if(f)f.addEventListener("input",()=>document.querySelectorAll("section.catsec details").forEach(d=>d.open=true));}})();
 </script>
-  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
@@ -1865,6 +1865,8 @@ def main() -> None:
     tool_paths.append(embed_page.write(sys.modules[__name__]))
     import coverage_page
     tool_paths.append(coverage_page.write(sys.modules[__name__]))
+    import reports_page
+    tool_paths += reports_page.write_all(sys.modules[__name__])
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])

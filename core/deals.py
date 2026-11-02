@@ -627,8 +627,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         cbf = cheapest_by_form_factor(rows)
         if cbf:
             extra["cheapest_by_form_factor"] = cbf
-            extra["cheapest_by_form_factor_note"] = ("Per form_factor: cheapest non-reserved row, preferring rows not marked out of stock; "
-                                                     "interruptible=true means a spot/community pick. " + NVLINK_FORM_NOTE)
+            extra["cheapest_by_form_factor_note"] = ("Cheapest non-reserved per form; in-stock/unknown before out-of-stock. "
+                                                     "NVLink rows = form 'not stated' (bridge, not SXM/PCIe).")
     region_note = ""
     if cons.get("region"):  # re30 c: say what the region filter found before naming any cheapest
         n_un = sum(1 for r in rows if unresolved(r))

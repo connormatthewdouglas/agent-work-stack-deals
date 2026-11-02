@@ -99,7 +99,7 @@ def test_rendered_rate_counts_all_equal_live_count():
     live = _live()
     seen = 0
     for p in ROOT.rglob("*.html"):
-        if ".git" in p.parts or "changelog" in p.parts:
+        if ".git" in p.parts or "changelog" in p.parts or "reports" in p.parts:  # reports are dated, verbatim snapshots
             continue
         t = p.read_text(encoding="utf-8")
         for m in HARDCODED.finditer(re.sub(r"<[^>]+>", "", t)):
