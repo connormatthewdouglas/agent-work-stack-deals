@@ -4,7 +4,11 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
-## 0.5.0 (2026-11-02, PyPI + MCP Registry)
+## 0.5.1 (2026-11-02, PyPI + MCP Registry)
+
+- T72 fix: brief compare_gpu_prices also keeps data_checked_at and refresh_hint (0.5.0 dropped them; the PyPI/Docker stdio checks need them).
+
+## 0.5.0 (2026-11-02, PyPI only; superseded by 0.5.1)
 
 - T77: the price-comparison model summary lists B200, B300 and GB300 and now labels a spot/interruptible lowest rate (e.g. Verda B300 $5.675/hr, Spot, interruptible) the way the GPU cost calculator does; a test checks every model the calculator can price has a summary row.
 - T78: flat monthly plans (Ucartz dedicated servers) show "—" with a flat-plan label in the 100 h/month column instead of the full monthly price; Full month keeps the flat price.

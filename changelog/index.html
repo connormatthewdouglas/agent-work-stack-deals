@@ -128,7 +128,11 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
-<h2>0.5.0 (2026-11-02, PyPI + MCP Registry)</h2>
+<h2>0.5.1 (2026-11-02, PyPI + MCP Registry)</h2>
+<ul>
+<li>T72 fix: brief compare_gpu_prices also keeps data_checked_at and refresh_hint (0.5.0 dropped them; the PyPI/Docker stdio checks need them).</li>
+</ul>
+<h2>0.5.0 (2026-11-02, PyPI only; superseded by 0.5.1)</h2>
 <ul>
 <li>T77: the price-comparison model summary lists B200, B300 and GB300 and now labels a spot/interruptible lowest rate (e.g. Verda B300 $5.675/hr, Spot, interruptible) the way the GPU cost calculator does; a test checks every model the calculator can price has a summary row.</li>
 <li>T78: flat monthly plans (Ucartz dedicated servers) show &quot;—&quot; with a flat-plan label in the 100 h/month column instead of the full monthly price; Full month keeps the flat price.</li>

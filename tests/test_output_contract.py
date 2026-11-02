@@ -160,7 +160,7 @@ def test_real_mcp_client_roundtrip_validates_structured_content():
 def test_t72_brief_compare_keeps_counts_scope_and_refresh():
     from core.contract import SPEC
     top, row = SPEC["compare_gpu_prices"][3], SPEC["compare_gpu_prices"][4]
-    for k in ("scope", "total", "excluded_non_on_demand", "excluded_reserved", "next_refresh_utc"):
+    for k in ("scope", "total", "excluded_non_on_demand", "excluded_reserved", "next_refresh_utc", "data_checked_at", "refresh_hint"):
         assert k in top
     for k in ("tier", "tier_class", "price_status", "in_stock"):
         assert k in row
