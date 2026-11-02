@@ -4440,128 +4440,24 @@
         "checked_at": "2026-11-02T13:22:16+00:00"
       },
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-02 08:46 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-02T13:46:15Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-02T14:46:15Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "stock_level": "Low",
-        "available_regions": [
-          "AP-IN-1 (India)",
-          "AP-JP-1 (Japan)",
-          "US-GA-2 (United States)",
-          "US-MO-1 (United States)",
-          "US-NE-1 (United States)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "AP-IN-1 (India)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-02T13:46:19Z",
-            "availability_expires_at": "2026-11-02T14:46:19Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-02T13:46:19Z",
-            "second_read_at": "2026-11-02T13:52:13Z",
-            "second_read_gap_s": 354.0
-          },
-          {
-            "region": "AP-JP-1 (Japan)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-02T13:46:29Z",
-            "availability_expires_at": "2026-11-02T14:46:29Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-02T13:46:29Z",
-            "second_read_at": "2026-11-02T13:52:13Z",
-            "second_read_gap_s": 344.0
-          },
-          {
-            "region": "US-GA-2 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-02T13:47:56Z",
-            "availability_expires_at": "2026-11-02T14:47:56Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-02T13:47:56Z",
-            "second_read_at": "2026-11-02T13:52:14Z",
-            "second_read_gap_s": 258.0
-          },
-          {
-            "region": "US-MO-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-02T13:48:28Z",
-            "availability_expires_at": "2026-11-02T14:48:28Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-02T13:48:28Z",
-            "second_read_at": "2026-11-02T13:52:15Z",
-            "second_read_gap_s": 227.0
-          },
-          {
-            "region": "US-NE-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-02T13:48:37Z",
-            "availability_expires_at": "2026-11-02T14:48:37Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-02T13:48:37Z",
-            "second_read_at": "2026-11-02T13:52:16Z",
-            "second_read_gap_s": 219.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "availability_expires_at": "2026-11-02T14:46:15Z",
+        "stock_read_at": "2026-11-02T13:46:15Z",
+        "price_read_at": "2026-11-02T13:22:16+00:00",
+        "price_at_claim_usd": 3.99,
+        "gpu_count": 1,
         "first_read_at": "2026-11-02T13:46:19Z",
         "second_read_at": "2026-11-02T13:52:13Z",
         "second_read_gap_s": 354.0,
         "second_read_basis": "region AP-IN-1 (India)",
-        "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "AP-IN-1 (India)",
-            "zone": "AP-IN-1",
-            "country": "IN",
-            "group": "APAC"
-          },
-          {
-            "label": "AP-JP-1 (Japan)",
-            "zone": "AP-JP-1",
-            "country": "JP",
-            "group": "APAC"
-          },
-          {
-            "label": "US-GA-2 (United States)",
-            "zone": "US-GA-2",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-MO-1 (United States)",
-            "zone": "US-MO-1",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-NE-1 (United States)",
-            "zone": "US-NE-1",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-11-02T14:46:19Z",
-        "stock_read_at": "2026-11-02T13:46:15Z",
-        "price_read_at": "2026-11-02T13:22:16+00:00",
-        "price_at_claim_usd": 3.99,
-        "gpu_count": 1
+        "two_read_gap_ok": true
       },
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link"
