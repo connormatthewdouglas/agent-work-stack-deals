@@ -8,6 +8,12 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
+## 0.5.4 (2026-11-02, PyPI + MCP Registry)
+
+- Cite guard (additive): a deal without a source_url and a verified_at/checked_at shows no price. In /api/v1/deals.json, /deals.json, the gist mirror and MCP search_deals / compare_deals / get_deal (brief and full), price_usd and list_price_usd are null and price_null_reason is "no cited price". Site pages show the label only.
+- MCP brief rows for search_deals, compare_deals and get_deal carry source_url (and price_null_reason when set).
+- Clore availability comes from the snapshot's listings_available; CI gate job ci-status turns the run red when validate, tests, latest-scout-import, release-gate, deploy or live-checks fail or are skipped unexpectedly.
+
 ## 0.5.3 (2026-11-02, PyPI + MCP Registry)
 
 - referral_label "Referral link" on every row whose link carries a referral or affiliate code (site, feeds, MCP brief and full); codes kept, order unchanged.
