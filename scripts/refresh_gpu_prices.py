@@ -170,18 +170,33 @@ def price_index(r: dict, quote: str) -> int | None:
 
 
 ROTATING = "rotating snapshot"  # price_check value: the page rotates the spec words (RAM/vCPU/NVMe) on every read
+# Gauge spheron84: Spheron's /pricing/ rows rotate RAM/vCPU/NVMe per read; treated as rotating without a data edit.
+ROTATING_SOURCES = {"Spheron": "spheron.network/pricing"}
+ROTATING_CONFIRM_S = 60  # a rotating-snapshot price changes only when two reads >= 60 s apart agree
+
+
+def is_rotating(r: dict, vendor: str | None = None) -> bool:
+    if r.get("price_check") == ROTATING:
+        return True
+    src = ROTATING_SOURCES.get(vendor or r.get("vendor") or "")
+    return bool(src and src in (r.get("source_url") or ""))
+
+
+def rotating_regex(gpu: str, vram_gb) -> re.Pattern:
+    """GPU name, then (an optional architecture word) its VRAM 'NN GB', then the row's first '$X /hr'. RAM, vCPU and
+    NVMe figures in between are bounded filler and never matched."""
+    lit = r"\s*".join(re.escape(w) for w in gpu.split())
+    vram = rf"[^$]{{0,40}}?\b{int(vram_gb)}\s*GB\b" if vram_gb else ""
+    return re.compile(r"(?<![\w-])" + lit + r"(?![\w-])" + vram + r"[^$]{0,160}?\$\s?([\d,]*\.?\d+)\s*/\s*hr")
 
 
 def parse_rotating(r: dict, text: str) -> tuple[str | None, str | None, str]:
-    """price_check 'rotating snapshot': match the GPU name followed by its first $ price only (spec words between
-    them are ignored, bounded to 200 chars without another $). The record's own price wins if present; otherwise a
-    single distinct value is the new price; several values are ambiguous."""
+    """-> (price, matched row text, message). The record's own price wins if present; otherwise one distinct value
+    is the candidate new price; several values are ambiguous. The matched text is display evidence only."""
     gpu = r.get("gpu") or ""
     if not gpu:
         return None, None, "rotating snapshot without a gpu name"
-    lit = r"\s*".join(re.escape(w) for w in gpu.split())
-    rx = re.compile(r"(?<![\w-])" + lit + r"(?![\w-])[^$]{0,200}?\$\s?([\d,]*\.?\d+)")
-    hits = [(_num(m.group(1)), " ".join(m.group(0).split())) for m in rx.finditer(text)]
+    hits = [(_num(m.group(1)), " ".join(m.group(0).split())) for m in rotating_regex(gpu, r.get("vram_gb")).finditer(text)]
     if not hits:
         return None, None, "quoted context not found on page"
     old = r.get("price_usd")
@@ -192,12 +207,12 @@ def parse_rotating(r: dict, text: str) -> tuple[str | None, str | None, str]:
         v, q = hits[0]
     else:
         return None, None, f"ambiguous: {len({h[0] for h in hits})} different values for the same context"
-    return f"{v:g}", q[:MAX_QUOTE], "parsed (rotating snapshot: gpu name + price)"
+    return f"{v:g}", q[:MAX_QUOTE], "parsed (rotating snapshot: gpu + VRAM + $/hr)"
 
 
 def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
     """-> (new price string, matched quote, message). price None = unreadable."""
-    if r.get("price_check") == ROTATING:
+    if is_rotating(r):
         return parse_rotating(r, text)
     quote = r["evidence"]["quote"]
     rx, _ = quote_pattern(quote)
@@ -273,6 +288,17 @@ class Fetcher:
             self.fetched_at[url] = datetime.now(timezone.utc)
             self.cache[url] = (None, "disallowed by robots.txt") if not self.allowed(url) else self._get(url)
         return self.cache[url]
+
+    def reread(self, url: str, min_gap_s: float) -> tuple[int | None, str]:
+        """A fresh read at least min_gap_s after the first (cached) one, for the rotating-snapshot two-read rule."""
+        first = getattr(self, "fetched_at", {}).get(url)
+        if first:
+            wait = min_gap_s - (datetime.now(timezone.utc) - first).total_seconds()
+            if wait > 0:
+                time.sleep(wait)
+        if not self.allowed(url):
+            return None, "disallowed by robots.txt"
+        return self._get(url)
 
 
 # Vendor pages that swap the live rate line for an explicit no-capacity sentence (Spheron, 2026-11-02).
@@ -364,7 +390,17 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     r["no_capacity"] = {"reason": NO_CAPACITY_REASON, "read_at": fstamp, "source_url": r["source_url"], "page_text": nc}
                     msg = NO_CAPACITY_REASON
                 else:
-                    new_s, quote, msg = parse_listed(r, text)
+                    new_s, quote, msg = parse_listed({**r, "vendor": doc["vendor"]}, text)
+                    if new_s is not None and is_rotating(r, doc["vendor"]) and abs(float(new_s) - r["price_usd"]) > 1e-9:
+                        # Gauge spheron84: the page flips values between reads; change only when a second read
+                        # >= ROTATING_CONFIRM_S later agrees (no second read available -> not applied)
+                        rr = getattr(fetcher, "reread", None)
+                        st2, body2 = rr(r["source_url"], ROTATING_CONFIRM_S) if rr else (None, "")
+                        v2 = parse_rotating(r, page_text(body2))[0] if st2 == 200 else None
+                        if v2 != new_s:
+                            row["result"] = (f"NOT applied: rotating snapshot read {new_s} then {v2} "
+                                             f"(needs two reads >= {ROTATING_CONFIRM_S}s apart to agree)")
+                            new_s = None
                     if new_s is not None:
                         r.pop("no_capacity", None)
             if new_s is not None:

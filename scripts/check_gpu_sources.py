@@ -212,6 +212,14 @@ def main() -> int:
                     continue
                 text = visible_text(body)
                 missing = [t for t in price_tokens(r["quote"]) if not price_found(t, r["quote"], text)]
+                if missing:
+                    # Gauge spheron84: rotating-snapshot rows (Spheron /pricing/ rotates RAM/vCPU/NVMe per read) are
+                    # matched on GPU name + VRAM + '$X /hr' only; the full quote stays as display evidence.
+                    from refresh_gpu_prices import is_rotating, parse_rotating
+                    if is_rotating(r, doc["vendor"]):
+                        v = parse_rotating(r, text)[0]
+                        if v is not None and abs(float(v) - r["hourly_usd"]) < 1e-9:
+                            missing = []
                 cv = CAPACITY_VARIANT.get(doc["vendor"])
                 if missing and cv and re.search(cv.format(gpu=re.escape(r["gpu"])), text):
                     # the vendor's page swaps its rate line for a no-capacity line while capacity is out; that is
