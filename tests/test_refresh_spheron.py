@@ -88,3 +88,22 @@ def test_no_capacity_marks_out_of_stock_keeps_price_and_quote():
 def test_capacity_page_is_not_no_capacity():
     assert m.no_capacity_sentence("Spheron", "RTX 5090", m.page_text(PAGE)) is None
     assert m.no_capacity_sentence("Spheron", "L40S", m.page_text(NOCAP)) is None
+
+
+def test_price_block_wording_is_no_capacity():
+    t = "Spheron Your price $0.89/hr Last known - No capacity now"
+    assert m.no_capacity_sentence("Spheron", "RTX 5090", t) == t
+
+
+def test_failed_reverification_keeps_checked_at():
+    class Bad(F):
+        def get(self, url):
+            return 200, "<p>nothing priced here</p>"
+    rec = copy.deepcopy(REC)
+    doc = {"vendor": "Spheron", "records": [rec]}
+    m.refresh([doc], Bad(), datetime(2026, 11, 2, 13, 0, tzinfo=timezone.utc))
+    r = doc["records"][0]
+    assert r["checked_at"] == REC["checked_at"] and r["last_failed_check_at"].startswith("2026-11-02T13")
+    doc = {"vendor": "Spheron", "records": [copy.deepcopy(REC)]}
+    m.refresh([doc], N(), datetime(2026, 11, 2, 13, 0, tzinfo=timezone.utc))
+    assert doc["records"][0]["checked_at"] == REC["checked_at"] and doc["records"][0]["no_capacity"]

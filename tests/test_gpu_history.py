@@ -70,7 +70,7 @@ def test_unreadable_keeps_old_price_and_verified_at():
     rows = R.refresh([d], Fake("<html>redesigned page $9.99</html>"), NOW)
     r = d["records"][0]
     assert r["price_usd"] == 1.99 and r["verified_at"] == "2026-11-01T10:00:00+00:00"
-    assert r["checked_at"].startswith("2026-11-03") and rows[0]["result"].startswith("unreadable")
+    assert r["checked_at"] == rec()["checked_at"] and r["last_failed_check_at"].startswith("2026-11-03") and rows[0]["result"].startswith("unreadable")  # strat2: no bump on failure
     assert "stale" not in r  # only 2 days old
 
 
