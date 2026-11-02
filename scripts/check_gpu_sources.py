@@ -72,6 +72,34 @@ def _fetch(url: str) -> tuple[int | None, str]:
         return None, f"{type(e).__name__}: {e}"
 
 
+MAX_UNRENDERED_AGE_DAYS = 7
+
+
+def quote_age_days(doc: dict, now=None) -> float | None:
+    from datetime import datetime, timezone
+    try:
+        t = datetime.fromisoformat(doc["checked_at"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return ((now or datetime.now(timezone.utc)) - t).total_seconds() / 86400
+
+
+def rendered_text(url: str, timeout: int = 60) -> str:
+    """Visible text of a client-rendered page after headless Chrome runs its scripts ('' when no Chrome or it fails).
+    Same page_text reader as the server-HTML check; nothing is logged but the outcome."""
+    import shutil
+    import subprocess
+    exe = next((shutil.which(x) for x in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser") if shutil.which(x)), None)
+    if not exe:
+        return ""
+    try:
+        dom = subprocess.run([exe, "--headless=new", "--no-sandbox", "--disable-gpu", "--virtual-time-budget=15000",
+                              f"--user-agent={UA}", "--dump-dom", url], capture_output=True, text=True, timeout=timeout).stdout
+    except (subprocess.SubprocessError, OSError):
+        return ""
+    return visible_text(dom) if dom else ""
+
+
 def visible_text(body: str) -> str:
     """The text the daily refresh reads prices from (scripts/refresh_gpu_prices.page_text): visible text with
     script/style/noscript/svg/template and aria-hidden subtrees skipped, plus the vendor's own meta/og/JSON-LD
@@ -201,6 +229,20 @@ def main() -> int:
                     miss.append(f"price not found on page (re-check by hand): {doc['vendor']} {o['need']} "
                                 f"({o['plan']}) quote {o['quote']!r} missing {missing} at {u}")
             if miss and doc["vendor"] in CLIENT_RENDERED:
+                # Gauge T73 F1-F6 #7: render the page headless and read the prices a visitor sees; the i18n script
+                # strings alone are labels, not plan data, so they never pass a quote on their own
+                rtext = rendered_text(u)
+                if rtext:
+                    miss = [m for o in doc["offers"] for m in miss if o["quote"] in m
+                            and any(not price_found(t, o["quote"], rtext) for t in price_tokens(o["quote"]))]
+                    if not miss:
+                        print(f"{doc['vendor']}: prices found in the rendered page (headless Chrome)")
+            if miss and doc["vendor"] in CLIENT_RENDERED:
+                age = quote_age_days(doc)
+                if age is not None and age > MAX_UNRENDERED_AGE_DAYS:  # warning-only stops at 7 days
+                    flags += [f"client-rendered quote not re-verified for {age:.1f} days (> {MAX_UNRENDERED_AGE_DAYS}; "
+                              f"checked_at {doc['checked_at']}) and not found in a headless render: {m}" for m in miss]
+                    miss = []
                 in_script = [m for o in doc["offers"] for m in miss if o["quote"] in m
                              and all(re.search(r"\$\s?" + re.escape(t) + r"(?![\d.])", body) for t in price_tokens(o["quote"]))]
                 warnings += [f"client-rendered, not visible in server HTML ({CLIENT_RENDERED[doc['vendor']]}): {m}" for m in in_script]

@@ -29,3 +29,17 @@ def test_bare_number_or_prefix_is_not_a_price():
     assert not c.price_found("2.27", "$2.27/h", "model 2.27 GB")
     assert not c.price_found("2.2", "$2.2/h", "$2.270/h")
     assert not c.price_found("2.270", "$2.270/h", "$2.270/month")
+
+
+def test_client_rendered_quote_fails_after_7_days(monkeypatch):
+    """Gauge T73 F1-F6 #7: the 9Proxy script-string exception is warning-only for at most 7 days."""
+    from datetime import datetime, timezone
+    import importlib.util, sys
+    spec = importlib.util.spec_from_file_location("cgs7", "scripts/check_gpu_sources.py")
+    m = importlib.util.module_from_spec(spec); sys.modules["cgs7"] = m; spec.loader.exec_module(m)
+    doc = {"checked_at": "2026-10-27T02:54:00-04:00"}
+    assert m.quote_age_days(doc, datetime(2026, 11, 2, 12, tzinfo=timezone.utc)) < 7
+    assert m.quote_age_days(doc, datetime(2026, 11, 3, 12, tzinfo=timezone.utc)) > m.MAX_UNRENDERED_AGE_DAYS
+    rendered = m.visible_text("<p>Enterprise Package 10000 GB $0.68 /GB $3.00/GB</p>")
+    assert m.price_found("0.68", "Starting from $0.68/GB", rendered)
+    assert not m.price_found("0.68", "Starting from $0.68/GB", m.visible_text('<script>"Starting from $0.68/GB"</script>'))
