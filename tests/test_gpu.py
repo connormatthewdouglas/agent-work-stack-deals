@@ -314,3 +314,19 @@ def test_tier_labels_ascii_normalized():
     for r in feed["rates"]:
         assert r["tier"] == normalize_tier(r["tier"]), r["tier"]
     assert not any(u["deal_id"] == "deal-cloreai-001" for u in feed.get("unpriced", []))
+
+
+def test_t71_multi_gpu_rows_label_whole_instance_totals():
+    """T71: multi-GPU instance rows never switch basis silently: the per-GPU Rate stays, and both totals say they are
+    for the whole instance with the multiplication shown (Lambda A100 SXM 8x: $2.79/GPU-hr -> $2,232.00 / $16,293.60)."""
+    import re
+    root = Path(__file__).resolve().parents[1]
+    html = (root / "gpu/price-comparison/index.html").read_text(encoding="utf-8")
+    rows = [r for r in re.findall(r"<tr data-tier.*?</tr>", html, re.S) if "8-GPU instances" in r or "-GPU server" in r]
+    assert rows
+    for r in rows:
+        cells = dict(re.findall(r'data-label="([^"]+)">(.*?)</td>', r, re.S))
+        assert "whole " in cells["100 h/month"] and "-GPU instance" in cells["100 h/month"], r
+        assert "whole " in cells["Full month"] and "-GPU instance" in cells["Full month"], r
+    lam = [r for r in rows if "Lambda" in r and "A100 SXM" in r]
+    assert lam and "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]

@@ -21,7 +21,8 @@ def _payload():
 
 
 def _money(s):
-    return float(s.replace("$", "").replace(",", "").strip())
+    # the leading amount; T71 appends "(whole N-GPU instance: ...)" to multi-GPU totals
+    return float(re.match(r"\s*\$?([\d,]+(?:\.\d+)?)", s).group(1).replace(",", ""))
 
 
 def _rows(html):
