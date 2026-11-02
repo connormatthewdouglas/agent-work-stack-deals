@@ -87,20 +87,28 @@ def quote_age_days(doc: dict, now=None) -> float | None:
     return ((now or datetime.now(timezone.utc)) - t).total_seconds() / 86400
 
 
-def rendered_text(url: str, timeout: int = 60) -> str:
-    """Visible text of a client-rendered page after headless Chrome runs its scripts ('' when no Chrome or it fails).
-    Same page_text reader as the server-HTML check; nothing is logged but the outcome."""
+RENDER_ERROR = re.compile(r"Application error: a client-side exception has occurred", re.I)
+
+
+def rendered_text(url: str, timeout: int = 60, tries: int = 3) -> str:
+    """Visible text of a client-rendered page after headless Chrome runs its scripts. '' means the render FAILED (no
+    Chrome, timeout, empty DOM, or the app's own client-side error page); callers count that as a failure, never a pass.
+    Headless Chrome sometimes returns an empty DOM, so it is retried up to `tries` times. Only the outcome is logged."""
     import shutil
     import subprocess
     exe = next((shutil.which(x) for x in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser") if shutil.which(x)), None)
     if not exe:
         return ""
-    try:
-        dom = subprocess.run([exe, "--headless=new", "--no-sandbox", "--disable-gpu", "--virtual-time-budget=15000",
-                              f"--user-agent={UA}", "--dump-dom", url], capture_output=True, text=True, timeout=timeout).stdout
-    except (subprocess.SubprocessError, OSError):
-        return ""
-    return visible_text(dom) if dom else ""
+    for _ in range(tries):
+        try:
+            dom = subprocess.run([exe, "--headless=new", "--no-sandbox", "--disable-gpu", "--virtual-time-budget=15000",
+                                  f"--user-agent={UA}", "--dump-dom", url], capture_output=True, text=True, timeout=timeout).stdout
+        except (subprocess.SubprocessError, OSError):
+            continue
+        t = visible_text(dom) if dom else ""
+        if len(t) >= 500 and not RENDER_ERROR.search(t):
+            return t
+    return ""
 
 
 def visible_text(body: str) -> str:
@@ -247,6 +255,10 @@ def main() -> int:
                             and any(not price_found(t, o["quote"], rtext) for t in price_tokens(o["quote"]))]
                     if not miss:
                         print(f"{doc['vendor']}: prices found in the rendered page (headless Chrome)")
+                else:
+                    # Gauge T73 fix7 #2: a render error is a failure, never a silent fallback to the server HTML
+                    flags.append(f"headless render failed (empty DOM or client-side error page): {doc['vendor']} {u}")
+                    miss = []
             if miss and doc["vendor"] in CLIENT_RENDERED:
                 age = quote_age_days(doc)
                 if age is not None and age > MAX_UNRENDERED_AGE_DAYS:  # warning-only stops at 7 days

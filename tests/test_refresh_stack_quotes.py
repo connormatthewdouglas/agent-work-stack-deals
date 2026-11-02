@@ -30,6 +30,15 @@ def test_verified_bumps_checked_at_only(tmp_path):
     out = json.loads(p.read_text())
     assert not flags and out["checked_at"] == "2026-11-02T18:00:00+00:00"
     assert out["offers"][0]["quote"] == "Starting from $0.68/GB"
+    lv = out["last_verification"]
+    assert lv["basis"] == "headless render" and "$0.68 /GB" in lv["matched_text"][0]
+
+
+def test_render_error_is_a_failure(tmp_path):
+    p, d = doc(tmp_path)
+    before = p.read_text()
+    ok, flags = r.refresh([(p, d)], fetch=lambda u: (200, "<p>i18n</p>"), render=lambda u: "", now=NOW)
+    assert not ok and "headless render failed" in flags[0] and p.read_text() == before
 
 
 def test_changed_price_flags_and_keeps_file(tmp_path):

@@ -57,13 +57,13 @@ def refresh(docs: list[tuple[Path, dict]], fetch=cgs.fetch, render=cgs.rendered_
         texts = [("server HTML", cgs.visible_text(body))]
         res = [(o, *match(o["quote"], texts[0][1])) for o in doc["offers"]]
         if not all(r[1] for r in res) and doc["vendor"] in cgs.CLIENT_RENDERED:
-            for _ in range(3):  # headless Chrome sometimes returns an empty/partial DOM; retry before flagging
-                rt = render(u)
-                if rt and all(match(o["quote"], rt)[0] for o in doc["offers"]):
-                    break
-            if rt:
-                texts = [("headless render", rt)]
-                res = [(o, *match(o["quote"], rt)) for o in doc["offers"]]
+            rt = render(u)  # check_gpu_sources.rendered_text retries; '' = render failed
+            if not rt:  # Gauge T73 fix7 #2: a render error is a failure, never a fallback
+                flags.append(f"{doc['vendor']}: headless render failed (empty DOM or client-side error page) at {u}; "
+                             f"checked_at kept {doc['checked_at']}, quote not rewritten")
+                continue
+            texts = [("headless render", rt)]
+            res = [(o, *match(o["quote"], rt)) for o in doc["offers"]]
         miss = [o for o, good, _ in res if not good]
         if miss:
             flags += [f"{doc['vendor']}: quoted price not shown on the visible page ({texts[0][0]}): {o['plan']} quote {o['quote']!r} "
@@ -71,6 +71,9 @@ def refresh(docs: list[tuple[Path, dict]], fetch=cgs.fetch, render=cgs.rendered_
             continue
         stamp = (now or datetime.now(timezone.utc)).replace(microsecond=0).isoformat()
         doc["checked_at"] = stamp
+        # evidence for the bump: where the prices were read and the visible text that matched (additive)
+        doc["last_verification"] = {"checked_at": stamp, "basis": texts[0][0], "source_url": u,
+                                    "matched_text": [s for _, _, sn in res for s in sn][:len(res)]}
         path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         ok += [f"{doc['vendor']}: {o['plan']} verified ({texts[0][0]}) -> checked_at {stamp}; matched: {' | '.join(s)}" for o, _, s in res]
     return ok, flags
