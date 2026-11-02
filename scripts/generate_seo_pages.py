@@ -570,11 +570,16 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
     <li>Coverage by model and vendor: <a href="{BASE}/coverage/">/coverage/</a> (<a href="{BASE}/api/v1/coverage.json">coverage.json</a>)</li>
   </ul>
 
+  <h2 id="first-call">Make your first useful call</h2>
+  <p><a href="{BASE}/quickstart/">Get a cited GPU comparison and job estimate with Python's standard library</a>: no package installation, account or API key. Already have a client? Use the <a href="{BASE}/install/">hosted MCP setup</a>.</p>
+  <p>Machine discovery: <a href="{BASE}/agent.json">agent.json</a> · smaller payloads: <a href="{BASE}/api/v1/gpu/index.json">per-model feed index</a> · maintain a tool or dataset? <a href="{BASE}/integrate/">Copy an integration snippet</a>.</p>
+
   <h2 id="receipts">Receipts and methodology</h2>
   <ul>
     <li><a href="{BASE}/methodology/">How prices are checked</a>: sources, check times, tiers and how rows are ranked.</li>
     <li>Each rate in the feed has its vendor <code>source_url</code>, a quoted <code>evidence</code> snippet and <code>checked_at</code>, so an agent can re-check it before acting.</li>
     <li>Spot a wrong number? <a href="{BASE}/report-price/">Report a wrong price</a>.</li>
+    <li><a href="{BASE}/receipts/">Receipts: dated MCP server test summaries</a> (separate from price-quote receipts; includes evidence limits and a verdict policy).</li>
   </ul>
 
   <h2 id="mcp-tools">MCP tools</h2>
@@ -1925,6 +1930,12 @@ def main() -> None:
     tool_paths.append(coverage_page.write(sys.modules[__name__]))
     import reports_page
     tool_paths += reports_page.write_all(sys.modules[__name__])
+    import agent_manifest
+    agent_manifest.write(ROOT)
+    import agent_growth_pages
+    tool_paths += agent_growth_pages.write_all(sys.modules[__name__])
+    import receipts_page
+    tool_paths.append(receipts_page.write(sys.modules[__name__]))
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Receipts — dated MCP server test summaries</title>
+  <meta name="description" content="62 dated MCP server test summaries by Pax, with task-specific findings, limitations, house-product disclosure and a verdict firewall." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/receipts/" />
+  <meta property="og:title" content="Receipts — dated MCP server test summaries" />
+  <meta property="og:description" content="62 dated MCP server test summaries by Pax, with task-specific findings, limitations, house-product disclosure and a verdict firewall." />
+  <meta property="og:url" content="https://thelanternworks.com/receipts/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Receipts — dated MCP server test summaries" />
+  <meta name="twitter:description" content="62 dated MCP server test summaries by Pax, with task-specific findings, limitations, house-product disclosure and a verdict firewall." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
+    }
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+  <!-- brand -->
+  <link rel="icon" href="https://thelanternworks.com/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://thelanternworks.com/favicon-32.png" />
+  <link rel="apple-touch-icon" href="https://thelanternworks.com/apple-touch-icon.png" />
+  <meta property="og:image" content="https://thelanternworks.com/logo.png" />
+  <meta property="og:image:width" content="400" />
+  <meta property="og:image:height" content="400" />
+  <meta property="og:image:alt" content="Lantern Works lantern logo" />
+  <meta name="twitter:image" content="https://thelanternworks.com/logo.png" />
+  <!-- /brand -->
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, checked daily</span></header>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/coverage/">GPU coverage</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/methodology/">Methodology</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
+<style>.receipt{border:1px solid #d1d5db;border-radius:10px;padding:1rem;margin:1rem 0;overflow-wrap:anywhere}.receipt h2{margin-top:0;font-size:1.15rem}.receipt code{white-space:normal}.receipt-policy{border-left:4px solid #f59e0b;padding-left:1rem}</style>
+<nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › Receipts</nav>
+<h1>Receipts: MCP server test summaries</h1>
+<p>Pax's reports of installing MCP servers, giving them a specific task and checking the output. 62 records: 20 failed tested task · 16 deferred — needs credentials · 9 worked · 17 worked with caveats.</p>
+<aside class="receipt-policy" aria-label="Verdict policy"><h2>Verdict firewall</h2><p>Money may buy testing or re-testing, never a changed verdict. Paid listings are re-tested under the same criteria; payment never changes a result or its placement.</p>
+<p>Record 000 is Lantern Works, our own product, tested at version 0.3.8; it is not an independent endorsement of today&#x27;s release.</p></aside>
+<h2>What this edition can establish</h2><p>These are Pax-authored summaries of specific versions and tasks, dated October 29–31, 2026. They are not security certifications or current compatibility guarantees. Credential-gated tests used decoy credentials: their successful authenticated workflows were not tested. Deferred means untested for the promised task, not broken.</p><p>Only the summaries are public in this edition. Write-up and transcript filenames in the JSON refer to project records that are not included here; no public transcript is implied.</p>
+<p><a href="https://thelanternworks.com/api/v1/receipts.json">Download all records as JSON</a>. Verdict values preserve the original reports; “failed tested task” is the original <code>broken</code> label, scoped to the dated task.</p>
+<p>Need GPU prices in your own agent? <a href="https://thelanternworks.com/quickstart/?ref=receipts">Try a free, cited comparison</a>. Price methodology is documented separately at <a href="https://thelanternworks.com/methodology/">/methodology/</a>.</p>
+<article class="receipt" id="test-000">
+<h2>#000 Lantern Works deals MCP</h2>
+<p><strong>Worked</strong> · <code>lantern-works-deals-mcp</code> v0.3.8 · tested 2026-10-29 by Pax</p>
+<p><strong>House product: made by Lantern Works. This is not an independent endorsement.</strong></p><p>House product (tested before Receipts existed): clean stdio install, 7 tools, sourced structured answer in seconds.</p>
+<p><strong>Task:</strong> compare_gpu_prices for H100 across tracked vendors</p>
+<p><strong>Graded against:</strong> the live gpu-prices.json feed the server draws from</p>
+<ul><li>House product — always labeled as such wherever this index is published</li><li>Answer correctly scoped itself: &#x27;cheapest among tracked providers, not the whole market&#x27;</li></ul></article><article class="receipt" id="test-001">
+<h2>#001 mcp-server-fetch</h2>
+<p><strong>Worked with caveats</strong> · <code>mcp-server-fetch</code> v2026.10.28 · tested 2026-10-29 by Pax</p>
+<p>Content faithful on both test pages, but error causes get discarded and proxied networks need flags.</p>
+<p><strong>Task:</strong> fetch a web page and return it as markdown</p>
+<p><strong>Graded against:</strong> independent direct fetches of example.com and thelanternworks.com in the same session</p>
+<ul><li>Readability extraction drops the page&#x27;s main heading on simple pages (example.com lost its H1)</li><li>Unexpected HTTP errors reach the client as a bare &#x27;Error executing tool fetch&#x27; — the underlying cause is thrown away, which made sandbox debugging take 7 runs</li><li>Default config cannot fetch behind proxy-mediated DNS (SSRF guard) without --allow-private-ips / --proxy-url</li><li>First fetch shells out to npm install for Readability.js unless --no-readability-js</li></ul></article><article class="receipt" id="test-002">
+<h2>#002 mcp-server-time</h2>
+<p><strong>Worked</strong> · <code>mcp-server-time</code> v2026.10.28 · tested 2026-10-29 by Pax</p>
+<p>Exact on both tasks, including the asymmetric DST fall-back week (NY→London +4.0h, not the usual +5h).</p>
+<p><strong>Task:</strong> current time in a timezone; convert a time between timezones on a date</p>
+<p><strong>Graded against:</strong> system date with TZ conversions in the same session</p>
+<ul></ul></article><article class="receipt" id="test-003">
+<h2>#003 mcp-server-git</h2>
+<p><strong>Worked</strong> · <code>mcp-server-git</code> v2026.10.28 · tested 2026-10-29 by batch1-A</p>
+<p>Status and log matched the git CLI exactly, down to the full commit hash.</p>
+<p><strong>Task:</strong> report git status and log of a prepared repo</p>
+<p><strong>Graded against:</strong> the git CLI in the same repo</p>
+<ul><li>Slowest startup of the reference set (~4.5s to initialize)</li><li>No git_init tool in this version — repo setup still needs the CLI</li><li>Text-only results, no structuredContent</li></ul></article><article class="receipt" id="test-004">
+<h2>#004 @modelcontextprotocol/server-everything</h2>
+<p><strong>Worked with caveats</strong> · <code>@modelcontextprotocol/server-everything</code> v2.1.0 · tested 2026-10-29 by batch1-A</p>
+<p>Echo and arithmetic exact — but the &#x27;add&#x27; tool was silently renamed to &#x27;get-sum&#x27; in v2.1.0.</p>
+<p><strong>Task:</strong> echo a string verbatim; add two numbers</p>
+<p><strong>Graded against:</strong> the submitted values themselves (137+264=401)</p>
+<ul><li>Tool &#x27;add&#x27; renamed to &#x27;get-sum&#x27; with no alias: calling &#x27;add&#x27; returns JSON-RPC -32602 &#x27;Tool add not found&#x27;</li><li>The documented npx install pulls a deprecated legacy sub-package (npm warning)</li><li>Tool list varies with the client&#x27;s protocol era</li></ul></article><article class="receipt" id="test-005">
+<h2>#005 @modelcontextprotocol/server-filesystem</h2>
+<p><strong>Worked with caveats</strong> · <code>@modelcontextprotocol/server-filesystem</code> v2.1.0 · tested 2026-10-29 by batch1-B</p>
+<p>Reads byte-exact and the boundary held 3/3 — but search_files silently misses subdirectory files for natural patterns.</p>
+<p><strong>Task:</strong> list, read, and search files in one allowed directory (planted files); probe the directory boundary</p>
+<p><strong>Graded against:</strong> the planted files, byte-for-byte; boundary probes against /etc/hostname, a sibling file, and a ../ traversal</p>
+<ul><li>search_files matches patterns against root-relative paths: &#x27;*.log&#x27; finds nothing in subdirectories (only &#x27;**/*.log&#x27; works), despite claiming recursive search — a silent wrong-answer generator</li><li>Write tools are enabled by default; the allowed-directory list is the entire security boundary</li><li>A deprecated read_file tool is still exposed</li></ul></article><article class="receipt" id="test-006">
+<h2>#006 @modelcontextprotocol/server-memory</h2>
+<p><strong>Worked with caveats</strong> · <code>@modelcontextprotocol/server-memory</code> v2.0.1 · tested 2026-10-29 by batch1-B</p>
+<p>Every fact round-tripped exactly, even across a restart — but the default data file lives inside the npx cache.</p>
+<p><strong>Task:</strong> create entities and a relation, then read/search the knowledge graph back (incl. after a restart)</p>
+<p><strong>Graded against:</strong> the exact entities, observations, and relation submitted</p>
+<ul><li>By default the graph persists to memory.jsonl inside the server&#x27;s package dir — under the documented npx install that&#x27;s ~/.npm/_npx/&lt;hash&gt;/... so a cache prune or version change silently resets an agent&#x27;s &#x27;persistent&#x27; memory unless MEMORY_FILE_PATH is set</li><li>open_nodes returns relations but not the neighboring entity itself</li><li>Retest check 2026-10-29 (test 037): npm latest is still 2.0.1, so this caveat stands unchanged; retest protocol recorded for when a newer version ships</li></ul></article><article class="receipt" id="test-007">
+<h2>#007 arxiv-mcp-server</h2>
+<p><strong>Worked</strong> · <code>arxiv-mcp-server</code> v0.8.2 · tested 2026-10-29 by batch1-C</p>
+<p>Title, all 8 authors, timestamp to the second, and abstract matched the arXiv API exactly.</p>
+<p><strong>Task:</strong> fetch metadata/abstract for arXiv 1706.03762 and find it by title search</p>
+<p><strong>Graded against:</strong> the official arXiv API response for 1706.03762, fetched independently</p>
+<ul><li>Title search passes through to arXiv&#x27;s loose matching (693,977 results for a title phrase) — the search tool is broad, not precise</li><li>17 of its 19 tools operate on a local downloaded-paper store rather than the live API</li><li>A plus: results carry an &#x27;untrusted external content&#x27; warning field</li></ul></article><article class="receipt" id="test-008">
+<h2>#008 wikipedia-mcp</h2>
+<p><strong>Failed tested task</strong> · <code>wikipedia-mcp</code> v2.0.1 · tested 2026-10-29 by batch1-C</p>
+<p>Returns summary: null with isError: false behind any HTTP proxy — its HTTP library discards proxy settings and the failure is invisible to the calling agent.</p>
+<p><strong>Task:</strong> fetch the summary of the article &#x27;Lantern&#x27; and search for it</p>
+<p><strong>Graded against:</strong> Wikipedia&#x27;s own API extract for &#x27;Lantern&#x27; (11,832 chars), fetched independently in the same session</p>
+<ul><li>Root cause: the wikipediaapi dependency builds its httpx client with an explicit transport, discarding environment proxy config; no server option exists to fix it (scoped: broken on proxy-egress networks; direct egress unobservable from this sandbox)</li><li>Failure is reported as success: summary null, isError false, &#x27;error&#x27; field containing only the bare API URL</li><li>tools/list registers all 22 tools twice (bare and wikipedia_-prefixed); serverInfo reports version 4.1.4 vs package 2.0.1</li></ul></article><article class="receipt" id="test-009">
+<h2>#009 open-meteo-mcp</h2>
+<p><strong>Failed tested task</strong> · <code>open-meteo-mcp</code> v0.2.0 · tested 2026-10-29 by batch1-D</p>
+<p>Crashes at import as installed per its own README — an upstream SDK rename (McpError→MCPError) kills it before initialize; needs two undocumented pins to run at all.</p>
+<p><strong>Task:</strong> current weather for New York City</p>
+<p><strong>Graded against:</strong> the Open-Meteo API fetched directly in the same minute, with pre-set tolerances (temp ±1.5°C, wind ±5 km/h, humidity ±5, pressure ±1.5 hPa, code exact)</p>
+<ul><li>With mcp==1.12.0 + pydantic==2.11.7 pinned (neither documented), it starts — but its &#x27;current&#x27; weather text reproduces the NEXT hour&#x27;s forecast bucket digit-for-digit, presented as current (gusts off by 7.6 km/h vs the API&#x27;s actual current block, outside tolerance)</li><li>Its two weather tools disagree with each other in the same minute (17.0°C/gusts 14.4 vs 17.2/16.9) and one emits a timezone-less GMT timestamp</li><li>Cause: open-ended dependency ranges (mcp&gt;=1.12.0, no upper bound) met two fatal upstream changes since 0.2.0 shipped</li></ul></article><article class="receipt" id="test-010">
+<h2>#010 mcp-server-calculator</h2>
+<p><strong>Worked</strong> · <code>mcp-server-calculator</code> v0.2.1 · tested 2026-10-29 by batch1-D</p>
+<p>All five expressions matched Python exactly (0.1+0.2 → 0.30000000000000004, honestly), and 1/0 is a clean tool error, not a crash.</p>
+<p><strong>Task:</strong> evaluate five expressions including 0.1+0.2, precedence/parentheses, and a divide-by-zero</p>
+<p><strong>Graded against:</strong> Python&#x27;s own arithmetic, computed separately</p>
+<ul><li>Slow cold start (~4.65s initialize)</li><li>Results returned as strings in structuredContent; handshake reports the SDK version, not the package version</li></ul></article><article class="receipt" id="test-011">
+<h2>#011 @modelcontextprotocol/server-sequential-thinking</h2>
+<p><strong>Worked</strong> · <code>@modelcontextprotocol/server-sequential-thinking</code> v2.0.0 · tested 2026-10-29 by batch1-E</p>
+<p>All gradeable behavior exact: step/revision/branch state echoed correctly, clean validation error on malformed input.</p>
+<p><strong>Task:</strong> run a 4-thought chain with a revision and a branch; submit malformed input</p>
+<p><strong>Graded against:</strong> the exact inputs submitted (step numbers, totals, flags)</p>
+<ul><li>Grading limit, stated plainly: the tool is a ledger for a model&#x27;s reasoning — reasoning quality itself is ungradeable; only bookkeeping fidelity was tested</li><li>A string thoughtNumber produces an error saying &#x27;received NaN&#x27; (SDK coercion wart)</li></ul></article><article class="receipt" id="test-012">
+<h2>#012 mcp-server-hacker-news</h2>
+<p><strong>Worked with caveats</strong> · <code>mcp-server-hacker-news</code> v0.1.4 · tested 2026-10-29 by batch1-E</p>
+<p>Data matched the official API exactly — but the README documents tools that don&#x27;t exist in the shipped server.</p>
+<p><strong>Task:</strong> fetch the top stories and one specific story with its comments</p>
+<p><strong>Graded against:</strong> the official HN Firebase API (topstories + item), fetched independently in the same session</p>
+<ul><li>README documents get_top_stories/get_story and --sse/--host/--port flags; the real tools are hacker_news_trends/hacker_news_get_article (documented names fail with &#x27;Unknown tool&#x27;)</li><li>serverInfo announces version 4.1.4 vs package 0.1.4</li><li>Article call took 15.2s (assembles the full comment tree, no opt-out); comment text is raw HN HTML; cold initialize ~7.9s with an ad banner on stderr</li></ul></article><article class="receipt" id="test-013">
+<h2>#013 @modelcontextprotocol/server-puppeteer</h2>
+<p><strong>Worked with caveats</strong> · <code>@modelcontextprotocol/server-puppeteer</code> v2025.5.12 · tested 2026-10-29 by batch2-A</p>
+<p>Task flawless once running (title exact, H1 correctly null, real 800x600 screenshot) — but the documented install failed after 21 minutes when the postinstall Chrome download died and npm rolled back.</p>
+<p><strong>Task:</strong> navigate to example.com, report the page title, take a screenshot</p>
+<p><strong>Graded against:</strong> example.com fetched independently twice in the same session (title &#x27;Example Domain&#x27;; the live page no longer has an H1)</p>
+<ul><li>637MB footprint (56MB packages + 581MB of browsers); package is deprecated and launches headed by default</li><li>serverInfo claims version 0.1.0</li><li>Chrome cannot consume this sandbox&#x27;s authenticated proxy from any flag; the test used a disclosed localhost relay plus cache hand-placement (see write-up)</li></ul></article><article class="receipt" id="test-014">
+<h2>#014 @playwright/mcp</h2>
+<p><strong>Worked with caveats</strong> · <code>@playwright/mcp</code> v0.0.83 · tested 2026-10-29 by batch2-A</p>
+<p>Strongest browser server tested: ~25 tools, accessibility-snapshot model, title verified three ways — but its own browser installer failed twice through the proxy and needed a curl-fetched browser plus the documented --executable-path flag.</p>
+<p><strong>Task:</strong> navigate to example.com, report the page title, take a screenshot</p>
+<p><strong>Graded against:</strong> example.com fetched independently twice in the same session (title &#x27;Example Domain&#x27;; the live page no longer has an H1)</p>
+<ul><li>serverInfo reports the bundled Playwright alpha version, not the package&#x27;s 0.0.83</li><li>Ships a self-described browser_run_code_unsafe tool</li></ul></article><article class="receipt" id="test-015">
+<h2>#015 @wonderwhy-er/desktop-commander</h2>
+<p><strong>Worked with caveats</strong> · <code>@wonderwhy-er/desktop-commander</code> v0.3.1 · tested 2026-10-29 by batch2-A</p>
+<p>Every task exact (byte-identical round-trip, shell returned 42) — but the defaults are an unconfined shell: empty allowedDirectories means file tools read/write anywhere (proven against /etc/os-release), the shell is guarded only by a 32-command denylist, and telemetry is on by default.</p>
+<p><strong>Task:</strong> write a file with planted content and read it back; execute a command computing 6*7; list the working directory</p>
+<p><strong>Graded against:</strong> planted file content byte-compared in Python; 6*7 by hand; /etc/os-release read independently first</p>
+<ul><li>No execute_command tool in v0.3.1 — the surface is a stateful start_process terminal family, so generic agent docs mislead</li><li>get_config returns a full host fingerprint (mounts, paths, runtime tables) to any connected client</li><li>244MB / 614-package install</li></ul></article><article class="receipt" id="test-016">
+<h2>#016 duckduckgo-mcp-server</h2>
+<p><strong>Failed tested task</strong> · <code>duckduckgo-mcp-server</code> v0.7.0 · tested 2026-10-29 by batch2-A</p>
+<p>Every search stalls ~31s, then returns zero results reported as success (isError: false). DuckDuckGo bot-blocks this egress, and the server&#x27;s own prescribed [browser] remedy changed nothing. (Scoped: broken on bot-blocked egress.)</p>
+<p><strong>Task:</strong> search &#x27;Lantern Works GPU price comparison&#x27; and &#x27;capital of Norway&#x27;</p>
+<p><strong>Graded against:</strong> direct curl to DuckDuckGo&#x27;s html and lite endpoints returned HTTP 202 bot-challenge pages in &lt;1.2s — the egress is refused before any query is evaluated</p>
+<ul><li>The failure shape is the defect: an agent reads an empty success as &#x27;no matches exist&#x27;, not &#x27;search is blocked&#x27; — the silent-failure pattern Receipts exists to catch</li><li>The error text itself is honest (names bot detection, prescribes the remedy); serverInfo version is an empty string</li></ul></article><article class="receipt" id="test-017">
+<h2>#017 DuckDB MCP servers (ladder)</h2>
+<p><strong>Failed tested task</strong> · <code>mcp-server-duckdb</code> v1.1.0 · tested 2026-10-29 by batch2-A</p>
+<p>No DuckDB MCP candidate ever answered initialize: mcp-server-duckdb 1.1.0 crashes on today&#x27;s SDK (&#x27;list_resources&#x27; removed), mcp-duckdb-server does not exist on PyPI, and duckdb-mcp&#x27;s install collapsed after ~11 min on a legacy native binding.</p>
+<p><strong>Task:</strong> create a table in a sandbox .duckdb file, insert planted rows, run a COUNT/SUM aggregate</p>
+<p><strong>Graded against:</strong> hand-computed aggregates from the planted rows (never reached — no candidate started)</p>
+<ul><li>Rung 1 and 2 failures are network-independent; rung 3&#x27;s install failure is partly proxy-specific (prebuilt download failed, source build died extracting Node headers)</li></ul></article><article class="receipt" id="test-018">
+<h2>#018 mcp-server-sqlite</h2>
+<p><strong>Failed tested task</strong> · <code>mcp-server-sqlite</code> v2025.4.25 · tested 2026-10-29 by batch2-B</p>
+<p>Reference server, dead on arrival: its unbounded mcp[cli]&gt;=1.6.0 resolves SDK 2.3.0, whose Server class dropped the list_resources decorator it registers with — it never answers initialize.</p>
+<p><strong>Task:</strong> against a planted database: list tables, read a schema, run a SELECT aggregate (COUNT, SUM)</p>
+<p><strong>Graded against:</strong> database planted with python3 sqlite3 (products: n=5, SUM price 110.49, SUM stock 540, plus a marker row); writes verified by reading the file directly with sqlite3</p>
+<ul><li>With two undocumented pins (mcp 1.17.0 + pydantic 2.11.7) the server itself is flawless: aggregates digit-for-digit, writes persist</li><li>Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0</li></ul></article><article class="receipt" id="test-019">
+<h2>#019 excel-mcp-server</h2>
+<p><strong>Worked</strong> · <code>excel-mcp-server</code> v2.2.3 · tested 2026-10-29 by batch2-B</p>
+<p>Best spreadsheet handling in the index: it evaluates formulas itself — returned the computed 60 where openpyxl had planted no cached value — with structuredContent throughout and an honest version handshake.</p>
+<p><strong>Task:</strong> read a planted workbook: sheet names, specific cell values on two sheets, and one formula cell</p>
+<p><strong>Graded against:</strong> workbook planted with openpyxl (Units 10/20/30, formula =SUM(B2:B4) with NO cached result, marker EXCEL-MARKER-9021, value 42.5)</p>
+<ul><li>Argument names changed from the older documented API (filepath -&gt; path), though errors self-correct (&#x27;did you mean path?&#x27;)</li><li>No filesystem boundary by default: any Excel file on the machine is openable unless launched with --allow-dir</li></ul></article><article class="receipt" id="test-020">
+<h2>#020 markitdown-mcp</h2>
+<p><strong>Worked with caveats</strong> · <code>markitdown-mcp</code> v0.0.1a8 · tested 2026-10-29 by batch2-B</p>
+<p>Both planted documents converted faithfully through a single URI-based tool (file:// and https://) — every planted string present and exact.</p>
+<p><strong>Task:</strong> convert planted documents (docx with heading/paragraph/table, simple PDF) to Markdown; bonus: convert example.com</p>
+<p><strong>Graded against:</strong> the planted heading, paragraph, table cells, and PDF markers; example.com&#x27;s known page text</p>
+<ul><li>The converter invents a spurious empty header row atop docx tables</li><li>Web conversion drops the page H1 — the same loss as test 001&#x27;s readability path</li><li>serverInfo version is an empty string</li></ul></article><article class="receipt" id="test-021">
+<h2>#021 pdf-mcp</h2>
+<p><strong>Worked with caveats</strong> · <code>pdf-mcp</code> v3.5.0 · tested 2026-10-29 by batch2-B</p>
+<p>Extraction is exact — page count, metadata, both markers on the right pages, keyword search with correct bounding box — but the default search mode silently downloads an embedding model on first use and hung past 280s on this egress.</p>
+<p><strong>Task:</strong> extract text and metadata from a planted 2-page PDF with a unique marker on each page; search for the page-2 marker</p>
+<p><strong>Graded against:</strong> the planted markers, page count (2), and metadata fields</p>
+<ul><li>mode=&#x27;auto&#x27; downloads a HuggingFace embedding model before answering; the keyword mode one argument away is instant (2.3s)</li><li>Keeps a persistent SQLite extraction cache in the user&#x27;s cache directory</li></ul></article><article class="receipt" id="test-022">
+<h2>#022 obsidian-mcp</h2>
+<p><strong>Worked with caveats</strong> · <code>obsidian-mcp</code> v2.0.1 · tested 2026-10-29 by batch2-B</p>
+<p>Hidden gate: it refuses to start against a plain Markdown folder — the vault must contain an .obsidian directory, i.e. have been opened in the Obsidian app once — so any agent-created or git-cloned vault is rejected (VAULT_NOT_INITIALIZED). Once initialized, search hit exactly the right line and read-back was byte-exact with an etag.</p>
+<p><strong>Task:</strong> in a planted vault (3 notes, a wikilink, a #tag, one subfolder note): list notes, search a planted unique word, read one note back</p>
+<p><strong>Graded against:</strong> the planted note contents, byte-for-byte</p>
+<ul><li>An empty hand-created .obsidian/ satisfies the gate (no running app or REST-API plugin needed), but that is nowhere documented</li><li>Error messages are exemplary; the server pressures clients toward a newer MCP protocol while working in legacy mode</li></ul></article><article class="receipt" id="test-023">
+<h2>#023 @upstash/context7-mcp</h2>
+<p><strong>Worked</strong> · <code>@upstash/context7-mcp</code> v4.4.4 · tested 2026-10-29 by batch2-C</p>
+<p>Genuine react.dev useState docs, verbatim-accurate against the live page, fully keyless — and its HTTP client honors proxy settings, making it the control case for this batch&#x27;s proxy failures.</p>
+<p><strong>Task:</strong> resolve the library &#x27;react&#x27;, then fetch documentation for the useState hook</p>
+<p><strong>Graded against:</strong> react.dev&#x27;s useState reference page, fetched directly in the same session</p>
+<ul><li>Thin client for Context7&#x27;s cloud: queries leave the machine, and a free-tier rate limit exists (not hit in 2 calls)</li><li>Resolve returns near-duplicate &#x27;React&#x27; entries and its benchmark score does not rank the canonical one first; some chunks carry MDX tag residue</li></ul></article><article class="receipt" id="test-024">
+<h2>#024 deepwiki-mcp</h2>
+<p><strong>Failed tested task</strong> · <code>deepwiki-mcp</code> v0.0.6 · tested 2026-10-29 by batch2-C</p>
+<p>Two stacked failures, both misreported: its proxy-blind fetch dies as a bare &#x27;fetch failed&#x27;, and with the proxy honored an upstream HTTP 429 comes back as a successful &#x27;Documentation not found&#x27; for a repo whose wiki demonstrably exists. (Scoped: proxy-egress/rate-limited environments; no successful call was observable from this VM.)</p>
+<p><strong>Task:</strong> get the DeepWiki index for modelcontextprotocol/servers, then read its overview page</p>
+<p><strong>Graded against:</strong> the repo&#x27;s README fetched directly from GitHub, plus DeepWiki&#x27;s page for the repo via an independent crawler (its claims verified 3/3, with file:line citations)</p>
+<ul><li>Worst error manners in the index: a transport failure discards its cause; a rate-limit is relabeled nonexistence and delivered without isError</li><li>No API contract — it scrapes deepwiki.com HTML with happy-dom, so any redesign, bot wall, or rate limit silently becomes its behavior</li></ul></article><article class="receipt" id="test-025">
+<h2>#025 @kimtaeyoon83/mcp-server-youtube-transcript</h2>
+<p><strong>Failed tested task</strong> · <code>@kimtaeyoon83/mcp-server-youtube-transcript</code> v0.1.1 · tested 2026-10-29 by batch2-C</p>
+<p>&#x27;Could not find captions&#x27; — false about the world: the captions exist, but YouTube serves this egress a watch page with zero caption tracks (verified by an independent scrape), and the server&#x27;s own fetch is proxy-blind underneath. (Scoped: this environment.)</p>
+<p><strong>Task:</strong> fetch the transcript of &#x27;Me at the zoo&#x27; (video jNQXAC9IVRw)</p>
+<p><strong>Graded against:</strong> the video&#x27;s documented transcript (Wikipedia&#x27;s printed transcript, NPR, two other extractors&#x27; published outputs for this video ID): the elephants/&#x27;really long trunks&#x27; opening</p>
+<ul><li>At least fails as a proper JSON-RPC error, unlike test 024&#x27;s fake success</li><li>serverInfo reports 0.1.0 vs package 0.1.1; the lang parameter is required despite a documented default</li></ul></article><article class="receipt" id="test-026">
+<h2>#026 @openbnb/mcp-server-airbnb</h2>
+<p><strong>Failed tested task</strong> · <code>@openbnb/mcp-server-airbnb</code> v0.3.0 · tested 2026-10-29 by batch2-C</p>
+<p>The one server with no workaround at all: node-fetch v3 has no proxy support and the server offers no proxy option, so every request dies in 0.1s on TLS — and behind that wall, Airbnb itself 403s this infrastructure. (Scoped: proxy-egress networks.)</p>
+<p><strong>Task:</strong> search Airbnb for Austin, TX (a November weekend, 2 guests), then get details for the first listing</p>
+<p><strong>Graded against:</strong> attempted independently: the server&#x27;s own constructed search URL fetched via an independent crawler returned Airbnb HTTP 403 — no listing data was obtainable from this network by any route</p>
+<ul><li>Its robots.txt politeness layer fails open — when the robots fetch fails it logs &#x27;assuming all paths allowed&#x27; while the startup banner still claims robotsRespected: true</li><li>Best error manners of the batch&#x27;s failures (isError, attempted URL, timestamps, structured logs); the design assumes Airbnb&#x27;s pages stay scrapable from the user&#x27;s IP, and both halves of that assumption failed in one test</li></ul></article><article class="receipt" id="test-027">
+<h2>#027 @antv/mcp-server-chart</h2>
+<p><strong>Worked with caveats</strong> · <code>@antv/mcp-server-chart</code> v0.9.10 · tested 2026-10-29 by batch2-C</p>
+<p>The chart is exactly right — but the &#x27;local&#x27; server POSTs your data to Ant Group&#x27;s hosted GPT-Vis service (antv-studio.alipay.com) and hosts the image on Alipay&#x27;s public CDN at unauthenticated URLs.</p>
+<p><strong>Task:</strong> generate a bar chart from planted data (quarters Q1-Q4 = 10/25/17/32)</p>
+<p><strong>Graded against:</strong> the planted dataset, checked against the response&#x27;s spec echo, a direct call to the rendering service with the identical spec, and visual inspection of the returned PNG (1800x1200, labels and proportions correct)</p>
+<ul><li>The server sets no request timeout and upstream latency is bimodal: first call produced no response in 240s, a retry took 2.34s — clients with a 60s tool timeout will see un-diagnosable hangs</li><li>serverInfo version is the literal placeholder string &#x27;0.8.x&#x27; vs package 0.9.10; the CDN serves PNG bytes labeled image/jpeg</li></ul></article><article class="receipt" id="test-028">
+<h2>#028 yahoo-finance-mcp</h2>
+<p><strong>Failed tested task</strong> · <code>yahoo-finance-mcp</code> v0.1.2 · tested 2026-10-29 by batch2-D</p>
+<p>Crashes at import as installed today (the mcp.server.fastmcp path was removed in mcp 2.3.0, which its unbounded requirement resolves to). Pinned to mcp 1.30 it starts — but both canonical calls timed out at ~60s and returned error strings with isError: false.</p>
+<p><strong>Task:</strong> historical daily price for AAPL (2024-01-02) and basic quote/company info for AAPL</p>
+<p><strong>Graded against:</strong> AAPL 2024-01-02 close 185.64 (EODHD and StockAnalysis agreeing to the cent; the assigned Stooq source was unreachable from this sandbox all evening). Yahoo&#x27;s chart API itself answered 200 in 0.9s via curl from the same sandbox</p>
+<ul><li>The live failure sits in yfinance&#x27;s cookie/crumb session flow on proxy egress, not in Yahoo&#x27;s API</li><li>A docstring promises start/end parameters that do not exist in the tool schema</li></ul></article><article class="receipt" id="test-029">
+<h2>#029 osm-mcp-server</h2>
+<p><strong>Failed tested task</strong> · <code>osm-mcp-server</code> v0.1.1 · tested 2026-10-29 by batch2-D</p>
+<p>SDK-drift crash as installed; pinned, it still cannot reach Nominatim on proxy-egress networks — every call builds an aiohttp session without trust_env=True, so proxy settings are silently ignored and TLS dies on the intercept.</p>
+<p><strong>Task:</strong> geocode &#x27;Statue of Liberty&#x27; and reverse-geocode the resulting coordinates</p>
+<p><strong>Graded against:</strong> the Nominatim API queried directly in the same session</p>
+<ul><li>With a clearly labeled 6-line trust_env shim (proxy handling only), the data was perfect: geocode identical to direct Nominatim to 7 decimals (40.6892532, -74.0445482), reverse field-for-field identical</li><li>Requires Python &gt;=3.13, which the README never mentions (the sandbox shipped 3.12)</li></ul></article><article class="receipt" id="test-030">
+<h2>#030 mcp-weather</h2>
+<p><strong>Failed tested task</strong> · <code>mcp-weather</code> v0.1.0 · tested 2026-10-29 by batch2-D</p>
+<p>The published wheel is empty: 1,139 bytes containing five metadata files and zero code — no module, no entry point, nothing that can answer an initialize on any machine — while pip install exits 0.</p>
+<p><strong>Task:</strong> current weather for New York City (the test-009 sequel: does a second weather server present next-hour data as current?)</p>
+<p><strong>Graded against:</strong> not applicable — no server output exists to grade; the evidence is the published package artifact itself (wheel listing, pip show -f, run attempts)</p>
+<ul><li>The package summary is the unedited project-template placeholder &#x27;Add your description here&#x27;; the whole README is one line naming no upstream API, so the assigned current-vs-next-hour check is moot</li><li>It also declares Requires-Python &gt;=3.13, so it will not even &#x27;install&#x27; on Python 3.12. A handshake census could never catch this; only install-and-look does</li></ul></article><article class="receipt" id="test-031">
+<h2>#031 mcp-server-qdrant</h2>
+<p><strong>Worked</strong> · <code>mcp-server-qdrant</code> v0.8.1 · tested 2026-10-29 by batch2-D</p>
+<p>Local mode works exactly as documented: exact retrieval, correct semantic ranking, persistence across a fresh process restart verified against the on-disk store — and it is the one package this wave whose own dependency pins (fastmcp 2.7.0, pydantic&lt;2.12) kept it installable today.</p>
+<p><strong>Task:</strong> in local mode (QDRANT_LOCAL_PATH, no server, no key): store planted texts with payloads, retrieve them back, check persistence across a restart (assigned as a vector-level task; translated 1:1 to this server&#x27;s text interface — it exposes no raw-vector API)</p>
+<p><strong>Graded against:</strong> the planted texts and payloads (exact-text query = embedding-space exact match; payload {label: quantum, slot: 2} verified intact)</p>
+<ul><li>It is a semantic text memory layer (qdrant-store/qdrant-find) — there is no collection/vector management API at all</li><li>First run eagerly downloads an ~87MB embedding model before answering initialize (12.8s unobstructed; in this sandbox it blew the 60s window until TMPDIR was redirected off the full /tmp)</li><li>Starts silently with no configuration at all</li></ul></article><article class="receipt" id="test-032">
+<h2>#032 mcp-server-rss</h2>
+<p><strong>Failed tested task</strong> · <code>mcp-server-rss</code> v0.1.0 · tested 2026-10-29 by batch2-D</p>
+<p>Fails its canonical task: &#x27;No RSS/Atom feeds found&#x27; for the live HN frontpage feed, because its detector judges a URL by spelling (end-anchored regexes) and HEAD response, never by content — the URL is never even fetched, and it burned 45.8s probing 18 guessed paths that all 404.</p>
+<p><strong>Task:</strong> fetch the Hacker News frontpage feed (hnrss.org/frontpage); top titles/links must match the feed XML fetched independently</p>
+<p><strong>Graded against:</strong> hnrss.org/frontpage XML (20 items), news.ycombinator.com/rss, and feeds.bbci.co.uk/news/rss.xml, all fetched directly in the same minutes</p>
+<ul><li>Rescuing it took three undocumented pins (fastmcp 2.7.0, mcp&lt;2, pydantic 2.11.7), starting from test 009&#x27;s exact McpError import crash</li><li>Second detector bug: pattern-matched URLs are verified by HEAD only — news.ycombinator.com/rss answers HEAD with 405 and was rejected too (GET returns the feed instantly)</li><li>The parser underneath is flawless: on the BBC feed (the one URL shape the detector accepts) the top 10 titles/links matched ground truth exactly, in order. All three failures are network-independent — it fails the same on its author&#x27;s network</li></ul></article><article class="receipt" id="test-033">
+<h2>#033 musicbrainz-mcp</h2>
+<p><strong>Worked with caveats</strong> · <code>musicbrainz-mcp</code> v1.2.7 · tested 2026-10-29 by batch2-E</p>
+<p>Search and lookup match the live API exactly — once the environment is proxy-aware. Under the standard sandbox env every call fails with &#x27;MusicBrainz unreachable. The service may be down&#x27; while the API is verifiably up: Node&#x27;s fetch ignores proxy variables and the server has no proxy configuration (NODE_USE_ENV_PROXY=1 fixes it instantly).</p>
+<p><strong>Task:</strong> look up the artist Radiohead (search, then lookup by MBID)</p>
+<p><strong>Graded against:</strong> the MusicBrainz API fetched independently in the same session (Radiohead, id a74b1b7f-71a5-4011-9441-d0b5e4122711, type Group, score 100)</p>
+<ul><li>The misleading error is the defect: on any proxy-mediated network it sends the user debugging a healthy upstream</li><li>Cold npx initialize 13.4s; output is the raw API JSON firehose, unsummarized; a stderr banner discloses the project is AI-maintained</li><li>Ladder note: the two PyPI names and @modelcontextprotocol/server-musicbrainz are all 404 — this npm package is the only installable MusicBrainz server under the canonical names</li></ul></article><article class="receipt" id="test-034">
+<h2>#034 Open Library MCP servers (ladder)</h2>
+<p><strong>Failed tested task</strong> · <code>ladder: mcp-server-openlibrary / openlibrary-mcp / open-library-mcp-server / openlibrary-mcp</code> vn/a · tested 2026-10-29 by batch2-E</p>
+<p>No installable Open Library MCP server exists under any canonical name on either registry: all four ladder rungs return 404 / &#x27;No matching distribution found&#x27;, while the Open Library API itself is healthy and keyless.</p>
+<p><strong>Task:</strong> get book details for ISBN 9780547928227 (The Hobbit, Mariner Books edition)</p>
+<p><strong>Graded against:</strong> openlibrary.org/isbn/9780547928227.json fetched independently (title &#x27;The Hobbit&#x27;, Mariner Books, 2012, 300 pages) — obtained and kept for the eventual retest; never used, because no server ran</p>
+<ul><li>Scope: servers may exist under other names or as GitHub-only projects; the ladder graded the four canonical package names, which is where a user&#x27;s search starts</li><li>The gap is purely the missing server — this is a listing-vs-reality finding, not a data finding</li></ul></article><article class="receipt" id="test-035">
+<h2>#035 SpaceX MCP servers (ladder)</h2>
+<p><strong>Failed tested task</strong> · <code>ladder: mcp-server-spacex / spacex-mcp-server / spacex-mcp / @modelcontextprotocol/server-spacex</code> vn/a · tested 2026-10-29 by batch2-E</p>
+<p>No installable SpaceX MCP server exists under any canonical name (all four rungs 404) — and the upstream community API was itself down the entire session, so no server could have served live data anyway.</p>
+<p><strong>Task:</strong> SpaceX company info and/or the latest launch, graded against api.spacexdata.com live</p>
+<p><strong>Graded against:</strong> api.spacexdata.com/v4/company and /v4/launches/latest — unreachable all session: Cloudflare 522/525 on 8+ attempts over ~25 minutes</p>
+<ul><li>The r-spacex API is a single point of failure for every SpaceX tool built on it</li><li>Retest protocol: check upstream health first, or the test grades the API, not the server</li></ul></article><article class="receipt" id="test-036">
+<h2>#036 Dictionary MCP servers (ladder)</h2>
+<p><strong>Failed tested task</strong> · <code>dictionary-mcp-server</code> v0.1.0 · tested 2026-10-29 by batch2-E</p>
+<p>Broken via every documented route: the PyPI server (dictionary-mcp-server 0.1.0) crashes at import on SDK drift, and the npm server (dictionary-mcp 1.0.6) ships no bin entry, so npx cannot run it at all. The other two ladder names are 404.</p>
+<p><strong>Task:</strong> define the word &#x27;serendipity&#x27;</p>
+<p><strong>Graded against:</strong> api.dictionaryapi.dev/api/v2/entries/en/serendipity fetched independently (first definition quoted verbatim in the write-up)</p>
+<ul><li>The PyPI rung needs the exact two-pin resuscitation from test 009 (mcp==1.12.0 + pydantic==2.11.7); pinning mcp alone moves the crash into pydantic internals</li><li>Supplementary grading: once resuscitated, BOTH servers returned the ground-truth first definition word-for-word — packaging rot, not data rot</li><li>Version misreports on both rungs (npm serverInfo &#x27;1.0.0&#x27; vs package 1.0.6; PyPI serverInfo reports the SDK&#x27;s 1.12.0 vs package 0.1.0); the PyPI server&#x27;s tools are German-named</li></ul></article><article class="receipt" id="test-038">
+<h2>#038 GitHub MCP server</h2>
+<p><strong>Worked with caveats</strong> · <code>@modelcontextprotocol/server-github</code> v2025.4.8 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Canonical public search completes with NO token at all — the key-required premise is false for it, and the README never says so.</p>
+<p><strong>Task:</strong> search_repositories for &quot;modelcontextprotocol&quot;</p>
+<p><strong>Graded against:</strong> GitHub&#x27;s public search API queried unauthenticated (total_count 1356, first item id 862570523 — exact match)</p>
+<ul><li>Completion was unauthenticated: for public search the token is optional, undisclosed in the docs</li><li>As-installed error shape is opaque (-32603 &quot;fetch failed&quot;)</li><li>Decoy-token run hung &gt;90s (no server-side timeout)</li><li>serverInfo reports 0.6.2 vs package 2025.4.8; npm marks the package deprecated (development moved to github/github-mcp-server)</li></ul></article><article class="receipt" id="test-039">
+<h2>#039 Slack MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@modelcontextprotocol/server-slack</code> v2025.4.25 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Best no-key gate in the batch (exits naming both required vars); the decoy-phase tool error is success-shaped.</p>
+<p><strong>Task:</strong> slack_list_channels (limit 5)</p>
+<p><strong>Graded against:</strong> Slack&#x27;s invalid_auth response via the token-as-parameter form (in ~0.85s)</p>
+<ul><li>Decoy-phase tool error is {&quot;error&quot;:&quot;fetch failed&quot;} with no isError flag — a silent-failure shape</li><li>Canonical task not gradable without a real Slack token</li></ul></article><article class="receipt" id="test-040">
+<h2>#040 Notion MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@notionhq/notion-mcp-server</code> v2.6.1 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Worst failure shape in the batch: hangs in every configuration — no gate, no error, no answer in 90s.</p>
+<p><strong>Task:</strong> API-post-search with query &quot;test&quot;</p>
+<p><strong>Graded against:</strong> Notion API unauthenticated 401 (partial; credentialed ground truth not obtainable from this egress)</p>
+<ul><li>No startup gate and no self-timeout: no-key, decoy, and decoy+proxy runs all hang silently</li><li>Docs claim 22 tools; 24 are listed</li></ul></article><article class="receipt" id="test-041">
+<h2>#041 Google Drive MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@modelcontextprotocol/server-gdrive</code> v2025.1.14 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs OAuth. The documented headless auth path is a silent dead end; fabricated saved credentials are accepted with zero validation.</p>
+<p><strong>Task:</strong> search for files matching &quot;test&quot;</p>
+<p><strong>Graded against:</strong> Not obtainable live (googleapis stalls from this egress even unauthenticated); graded on documented Google OAuth behaviour</p>
+<ul><li>Documented `auth` run headless prints &quot;Launching auth flow…&quot; then nothing — no URL, no error, hangs</li><li>Fabricated .gdrive-server-credentials.json accepted as &quot;Credentials loaded.&quot; with no validation; search then hangs &gt;90s</li><li>No-creds startup is clean (exit 1 with instructions)</li></ul></article><article class="receipt" id="test-042">
+<h2>#042 Google Maps MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@modelcontextprotocol/server-google-maps</code> v0.6.2 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Best decoy honesty in the batch (upstream error verbatim, isError:true, 0.90s) — but transport errors leak the API key in the request URL.</p>
+<p><strong>Task:</strong> geocode &quot;1600 Amphitheatre Parkway, Mountain View, CA&quot; with a decoy key (no data should return)</p>
+<p><strong>Graded against:</strong> Google&#x27;s own invalid-key error text, matched word-for-word via an independent call</p>
+<ul><li>SECURITY: on transport errors the tool output embeds the full request URL including key=&lt;API key&gt;; with a production key it lands in agent context and logs (upstream-error path does not leak)</li><li>README tool names are all wrong (documents geocode; ships maps_geocode, etc.)</li></ul></article><article class="receipt" id="test-043">
+<h2>#043 Brave Search MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@modelcontextprotocol/server-brave-search</code> v0.6.2 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Clean no-key exit naming the var; decoy fails fast with isError:true; the proxy-workaround run hangs.</p>
+<p><strong>Task:</strong> brave_web_search for &quot;capital of France&quot;</p>
+<p><strong>Graded against:</strong> Not established (this sandbox&#x27;s egress stalls on Brave&#x27;s API); grading rests on observed gate/error behaviour</p>
+<ul><li>With NODE_USE_ENV_PROXY=1 the decoy run hangs 60s instead of failing fast</li></ul></article><article class="receipt" id="test-044">
+<h2>#044 Perplexity MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@perplexity-ai/mcp-server</code> v1.3.0 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Clean no-key gate, but a decoy call hangs — the documented default timeout is 5 minutes for an auth failure.</p>
+<p><strong>Task:</strong> perplexity_ask — &quot;What is the capital of France?&quot;</p>
+<p><strong>Graded against:</strong> Not established (egress stall); grading rests on observed gate/error behaviour</p>
+<ul><li>Decoy perplexity_ask produced no response in 90s; documented 5-min default timeout is the worst failure shape in its wave</li></ul></article><article class="receipt" id="test-045">
+<h2>#045 Sentry MCP server</h2>
+<p><strong>Failed tested task</strong> · <code>mcp-server-sentry</code> v2025.1.14 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Broken as installed: import crash from a new SDK-drift variant — it imports httpx but declares only mcp, which now pulls httpx2 instead.</p>
+<p><strong>Task:</strong> get_sentry_issue for a fabricated issue ID (the server&#x27;s only tool)</p>
+<p><strong>Graded against:</strong> Not established (egress stall); both graded defects are in the package&#x27;s own code, observed directly</p>
+<ul><li>Declares only `mcp` as a dependency but imports httpx directly; mcp 2.x depends on httpx2, so the transitive httpx it relied on is gone</li><li>Behind the crash, an error-masking bug: every error path raises McpError(&lt;string&gt;), surfacing as &quot;&#x27;str&#x27; object has no attribute &#x27;message&#x27;&quot; instead of the real error</li><li>Docs name the wrong env var: code reads undocumented SENTRY_TOKEN; README documents only --auth-token</li></ul></article><article class="receipt" id="test-046">
+<h2>#046 PostgreSQL MCP server</h2>
+<p><strong>Worked with caveats</strong> · <code>@modelcontextprotocol/server-postgres</code> v0.6.2 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Honest, fast failure against a decoy DSN: proper JSON-RPC error in 0.10s, and the password never appears in output.</p>
+<p><strong>Task:</strong> query tool with SELECT 1 against a decoy connection string</p>
+<p><strong>Graded against:</strong> Raw `pg` driver behaviour against the same decoy DSN</p>
+<ul><li>Scope: this verdict grades decoy-failure behaviour against driver ground truth — no successful query against a real database was graded</li><li>The surfaced error is opaque (ECONNRESET, partly a sandbox-DNS artefact); the server validates nothing until the first call</li></ul></article><article class="receipt" id="test-047">
+<h2>#047 Firecrawl MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>firecrawl-mcp</code> v3.36.0 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key for the full toolset. Premise-breaker: no key is not an error — a keyless free tier runs (25 tools vs 27 with a key).</p>
+<p><strong>Task:</strong> firecrawl_scrape of https://example.com</p>
+<p><strong>Graded against:</strong> Not established (egress stall on Firecrawl&#x27;s API); grading rests on observed keyless/decoy behaviour</p>
+<ul><li>Keyless scrape fails honestly (isError:true); decoy scrape hangs 90s</li><li>Best documentation in the batch, including an explicit never-put-your-key-in-a-URL warning</li></ul></article><article class="receipt" id="test-048">
+<h2>#048 Exa MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>exa-mcp-server</code> v3.4.2 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Best error honesty in the batch: first call fails in 0.10s, isError:true, naming EXA_API_KEY.</p>
+<p><strong>Task:</strong> web_search_exa with query &quot;capital of France&quot;</p>
+<p><strong>Graded against:</strong> Not established (egress stall); grading rests on observed error behaviour</p>
+<ul><li>README now leads with the hosted remote MCP and no longer documents the local EXA_API_KEY configuration at all</li><li>Decoy-phase failures are bounded by the server&#x27;s own 60s timeout and stay isError:true</li></ul></article><article class="receipt" id="test-049">
+<h2>#049 Tavily MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>tavily-mcp</code> v0.2.22 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Starts in an undocumented &quot;keyless mode&quot;, then search never answers in either phase and the server has no self-timeout.</p>
+<p><strong>Task:</strong> tavily_search with query &quot;capital of France&quot;</p>
+<p><strong>Graded against:</strong> Not established (no answer ever returned in either phase)</p>
+<ul><li>Undocumented keyless mode contradicts the docs&#x27; key requirement</li><li>tavily_search produced no response within 60–90s in both no-key and decoy phases</li></ul></article><article class="receipt" id="test-050">
+<h2>#050 Stripe MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@stripe/mcp</code> v0.3.3 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Exemplary no-key gate; with a decoy the server never answers initialize (35–60s, three attempts), so tool behaviour is unobserved.</p>
+<p><strong>Task:</strong> list_customers / retrieve_balance with a format-valid test-mode decoy key</p>
+<p><strong>Graded against:</strong> Partial: Stripe&#x27;s 401 status observed once with the decoy; body not captured</p>
+<ul><li>Decoy-phase handshake stall means error behaviour could not be graded — flagged, not counted against the server</li><li>README&#x27;s --tools=all flag was removed in this version; docs are stale</li><li>Only a test-mode decoy (sk_test_…) was used; no live-format key anywhere</li></ul></article><article class="receipt" id="test-051">
+<h2>#051 Linear MCP server (community stdio)</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>linear-mcp-server</code> v0.1.0 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Model no-key one-line failure, but its upstream-error path builds a malformed result the SDK rejects instead of surfacing the error.</p>
+<p><strong>Task:</strong> linear_search_issues with no filters</p>
+<p><strong>Graded against:</strong> Not established (egress stall); the graded defect was observed live in the error path</p>
+<ul><li>On upstream errors the server returns a malformed tool result; the SDK rejects it with -32602, so the real error never reaches the user</li><li>README installs a different package name (@modelcontextprotocol/server-linear) than the package itself</li></ul></article><article class="receipt" id="test-052">
+<h2>#052 OpenAI MCP server (community npm)</h2>
+<p><strong>Failed tested task</strong> · <code>openai-mcp-server</code> v0.1.6 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Broken: the README&#x27;s documented configuration crashes 100% — the code reads the key from env only, never from the documented CLI argument — and every upstream error returns as a success-shaped result.</p>
+<p><strong>Task:</strong> ask-openai with prompt &quot;What is the capital of France?&quot;</p>
+<p><strong>Graded against:</strong> Not established from this sandbox (egress stall); both graded failures are in the server&#x27;s own code, source-verified, and independent of ground truth</p>
+<ul><li>Documented config (key as CLI arg) crashes at startup: shipped code never reads argv (verified in dist/index.js)</li><li>Via the undocumented env path, all upstream errors return generic text with isError absent — silent failure by design; the real cause appears only in stderr</li><li>serverInfo reports 0.1.0 vs package 0.1.6</li><li>The PyPI namesake (mcp-server-openai) was rejected with reason recorded: it manages keys/spending and documents no completion tool</li></ul></article><article class="receipt" id="test-053">
+<h2>#053 Anthropic MCP server (ladder)</h2>
+<p><strong>Failed tested task</strong> · <code>ladder: anthropic-mcp-server / @anthropic/mcp-server / anthropic-mcp / mcp-server-anthropic / anthropic-mcp-server</code> vn/a · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Broken as a ladder finding: no installable Anthropic MCP server exists under any canonical name — the npm package was unpublished in Jan 2026 and every other rung 404s.</p>
+<p><strong>Task:</strong> a Claude completion with a decoy ANTHROPIC_API_KEY (never reached)</p>
+<p><strong>Graded against:</strong> Anthropic API unauthenticated 401 (partial); the finding is installability itself</p>
+<ul><li>npm anthropic-mcp-server was unpublished 2026-01-12; @anthropic/mcp-server and all three PyPI names return 404</li><li>Scope: servers may exist under non-canonical names or GitHub-only, as with batch 2&#x27;s ladders</li></ul></article><article class="receipt" id="test-054">
+<h2>#054 EverArt MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@modelcontextprotocol/server-everart</code> v0.6.2 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Exemplary no-key gate; the decoy call hangs indefinitely — its HTTP library ignores the proxy and has no timeout.</p>
+<p><strong>Task:</strong> generate_image for &quot;a red circle&quot; (the server&#x27;s only tool)</p>
+<p><strong>Graded against:</strong> EverArt API unauthenticated 401, verbatim, after correcting the API base from the SDK source (api.ever.art is dead; api.everart.ai answers)</p>
+<ul><li>Decoy generate_image never returns: axios ignores proxy env and sets no timeout (the hang is sandbox-mediated; the missing timeout is the server&#x27;s)</li><li>serverInfo reports 0.2.0 vs package 0.6.2</li></ul></article><article class="receipt" id="test-055">
+<h2>#055 AWS Knowledge Base Retrieval MCP server</h2>
+<p><strong>Failed tested task</strong> · <code>@modelcontextprotocol/server-aws-kb-retrieval</code> v0.6.2 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Broken: every failure mode — no credentials, missing region, decoy credentials — returns &quot;Retrieval failed or returned no results.&quot; as a successful result with no isError flag.</p>
+<p><strong>Task:</strong> retrieve_from_aws_kb with a fabricated knowledgeBaseId and decoy AWS credentials</p>
+<p><strong>Graded against:</strong> AWS&#x27;s documented 403 behaviour; live ground truth not establishable (signed decoy request stalled at egress) — the verdict rests on the local no-credentials phase, which needs no network</p>
+<ul><li>Silent failure as success in its purest form: an agent cannot distinguish an empty knowledge base from rejected credentials</li><li>Real errors exist only in stderr (&quot;RAG Error: …&quot;), which no MCP consumer sees</li><li>npm marks the package deprecated / no longer supported; serverInfo reports 0.2.0 vs package 0.6.2</li></ul></article><article class="receipt" id="test-056">
+<h2>#056 Redis MCP server</h2>
+<p><strong>Worked with caveats</strong> · <code>@modelcontextprotocol/server-redis</code> v2025.4.25 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>SECURITY: the set/get round-trip works, but the server logs the full connection URL — password in clear text — to stderr on every connect, error, retry, and success.</p>
+<p><strong>Task:</strong> set then get the key &quot;receipts-test&quot;</p>
+<p><strong>Graded against:</strong> Raw node-redis driver against the same decoy URLs, plus a sandboxed fake-RESP server as positive control (round-trip verified)</p>
+<ul><li>SECURITY: the decoy password appears 40+ times in one test transcript; the raw driver&#x27;s own errors contain no password — the leak is the server&#x27;s own `Connection: ${REDIS_URL}` logging. With a real password, every host log is a credential spill</li><li>Connect-before-handshake: with an unreachable server, initialize is never answered (~35–60s of retries, then exit)</li><li>Logs &quot;Successfully connected&quot; on a bare TCP accept, before AUTH — a success claim for a connection that never authenticated</li><li>A wrong password is retried identically 5 times over ~34s instead of surfacing the (honest, verbatim) error</li><li>npm marks the package deprecated / no longer supported; serverInfo reports 0.0.1</li></ul></article><article class="receipt" id="test-057">
+<h2>#057 Neon MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@neondatabase/mcp-server-neon</code> v0.6.5 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Validates the key online at startup (a clean deferral), but the documented-in-code NEON_API_KEY env var is ignored — argv only — and the no-key error prints to stdout.</p>
+<p><strong>Task:</strong> list_projects (never reached — the server validates the key online at startup)</p>
+<p><strong>Graded against:</strong> Neon API unauthenticated 401, verbatim</p>
+<ul><li>NEON_API_KEY in env is silently ignored; only the README&#x27;s argv form works</li><li>The no-key error is printed to stdout, polluting the JSON-RPC stream</li><li>npm install warns the package is deprecated in favour of the remote MCP at mcp.neon.tech</li></ul></article><article class="receipt" id="test-058">
+<h2>#058 Supabase MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@supabase/mcp-server-supabase</code> v0.15.0 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Exemplary startup gate; decoy error is honest but content-free; tools/list is flaky — empty in 2 of 3 runs while the tools stay callable.</p>
+<p><strong>Task:</strong> list_projects with a decoy personal access token</p>
+<p><strong>Graded against:</strong> Partial: no-header 401 from the Supabase API</p>
+<ul><li>tools/list returned empty in 2 of 3 runs, yet list_projects remained callable while unlisted</li><li>Decoy error is a bare TypeError &quot;fetch failed&quot; — right shape (isError:true), no cause</li><li>--help crashes with ERR_PARSE_ARGS_UNKNOWN_OPTION</li></ul></article><article class="receipt" id="test-059">
+<h2>#059 GitLab MCP server</h2>
+<p><strong>Failed tested task</strong> · <code>@modelcontextprotocol/server-gitlab</code> v2025.4.25 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Broken: the decoy call crashes in 0.10s — the server .map()s GitLab&#x27;s object-shaped 401 body as if it were a results array, instead of surfacing the auth error.</p>
+<p><strong>Task:</strong> search_repositories with query &quot;gitlab&quot; and a decoy token</p>
+<p><strong>Graded against:</strong> Partial: GitLab&#x27;s no-header 401 body ({&quot;message&quot;:&quot;401 Unauthorized&quot;}) captured — exactly the object shape that triggers the crash</p>
+<ul><li>JSON-RPC -32603 &quot;Cannot read properties of undefined (reading &#x27;map&#x27;)&quot; replaces the real 401</li><li>serverInfo reports 0.5.1 vs package 2025.4.25</li><li>A retest on credential-permitting egress would confirm against a live 401; the crash mechanism is already demonstrated</li></ul></article><article class="receipt" id="test-060">
+<h2>#060 MongoDB MCP server</h2>
+<p><strong>Worked with caveats</strong> · <code>mongodb-mcp-server</code> v3.2.2 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Best ground-truth match of the batch: the server&#x27;s surfaced driver error is identical to the raw driver&#x27;s, in 0.10s, with the password never echoed.</p>
+<p><strong>Task:</strong> list-databases via a decoy connection string</p>
+<p><strong>Graded against:</strong> Raw MongoDB driver against the same decoy SRV string — the surfaced error matches exactly (querySrv EREFUSED)</p>
+<ul><li>Scope: this verdict grades decoy-failure behaviour against driver ground truth — no successful read against a real database was graded</li><li>connectionId &quot;preconfigured&quot; is undiscoverable from the tool itself</li><li>The plain-string connect path waits the full 30s driver timeout, then swallows the real error behind a generic message</li></ul></article><article class="receipt" id="test-061">
+<h2>#061 Airtable MCP server (community)</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>airtable-mcp-server</code> v1.14.0 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Clean startup gate naming AIRTABLE_API_KEY; the decoy error has an honest shape but its cause is stripped to &quot;fetch failed&quot;.</p>
+<p><strong>Task:</strong> list_bases with a decoy personal access token</p>
+<p><strong>Graded against:</strong> Partial: no-header 401 from the Airtable API</p>
+<ul><li>Startup failure comes with a noisy stack trace</li><li>Airtable offers no official stdio MCP server; this is the commonly installed community package</li></ul></article><article class="receipt" id="test-062">
+<h2>#062 Pinecone MCP server</h2>
+<p><strong>Deferred — needs credentials</strong> · <code>@pinecone-database/mcp</code> v0.4.0 · tested 2026-10-31 by batch-3 wave testers; reviewed by Pax</p>
+<p>Deferred — needs key. Best failure communication in the batch: its per-call error tells the user exactly how to fix it.</p>
+<p><strong>Task:</strong> list-indexes with a decoy key</p>
+<p><strong>Graded against:</strong> Partial: no-header 401 from the Pinecone API</p>
+<ul><li>Open question recorded: whether a real 401 lands in its &quot;network problem, retry once&quot; bucket is unobservable from this egress</li><li>Starts keyless with only a stderr warning rather than gating at startup — a defensible design, noted for contrast</li></ul></article>
+</div>
+  <footer>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/reports/">Reports</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "327dc277f310484b93db8d3156c54a0f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[href]"); if(!a||bypass) return;
+    try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
+      if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
+    let id;
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,""); }
+    else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
+      let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
+      if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;
+      id="out/h-"+u.hostname.toLowerCase().replace(/^www\./,"").replace(/[^a-z0-9-]/g,"-").slice(0,60);
+    }
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  // rel055: a landing ?ref= channel tag (same pattern the hosted worker accepts) counts once as /e/ref/<ref>/; nothing else from the query is sent
+  try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) lwTrack("ref/"+r); }catch(e){}
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
+</body>
+</html>

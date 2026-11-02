@@ -112,6 +112,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     <h2 id="install">Give your agent live GPU prices</h2>
     <pre>{esc(INSTALL_UVX)}</pre>
     <p>or <code>{esc(INSTALL_PIP)}</code>. Free MCP server, read-only, no API key. Lead tool: <code>compare_gpu_prices</code> (with <code>include_history</code> for price history). <a href="{BASE}/install/">Setup for Claude, Cursor, VS Code and more</a>.</p>
+    <p><a href="{BASE}/quickstart/">Get your first cited quote with Python — no package installation</a> · <a href="{BASE}/integrate/">Add GPU prices to your agent or README</a>.</p>
   </section>
   <section aria-labelledby="moved">
     <h2 id="moved">What moved since yesterday</h2>

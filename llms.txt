@@ -3,6 +3,8 @@
 > Cited prices for AI agent infrastructure: GPU rental rates, scraping, proxies, email and search APIs, ranked by price for the buyer among tracked providers, not the whole market.
 
 ## Data
+- [Agent discovery (JSON)](https://thelanternworks.com/agent.json): GPU-first entry points, hosted MCP, first call and decision rules; project-specific format
+- [GPU model feed index (JSON)](https://thelanternworks.com/api/v1/gpu/index.json): choose a small model-specific feed instead of downloading every rate
 - [GPU prices (JSON)](https://thelanternworks.com/api/v1/gpu-prices.json): per-row rate, tier, source_url, verified_at, availability
 - [GPU coverage (JSON)](https://thelanternworks.com/api/v1/coverage.json): GPU model x vendor matrix (in stock, priced, not listed) with checked_at; page at https://thelanternworks.com/coverage/
 - [Deals feed (JSON)](https://thelanternworks.com/api/v1/deals.json)
@@ -15,6 +17,9 @@
 - Pages show the same limit as "valid until HH:MM ET; after that treat as unknown".
 
 ## For agents
+- [First cited quote, no installation](https://thelanternworks.com/quickstart/): Python 3.10+ standard-library MCP example; compare H100 SXM on-demand rates, then optionally estimate a job with a quote receipt. No API key for read-only queries.
+- [Integration snippets](https://thelanternworks.com/integrate/): add remote MCP and a runnable first call to a README or dataset card, with a channel ref tag
+- [Receipts MCP test summaries](https://thelanternworks.com/receipts/), [JSON](https://thelanternworks.com/api/v1/receipts.json): Pax-authored, dated task/version findings. Summary evidence only, not security certifications; deferred is untested, not broken. Separate from GPU job quote receipts.
 - Prefer the MCP tool compare_gpu_prices in brief mode (mode='brief', the default): about 4k chars per answer with model, vendor, $/GPU-hr, checked_at and source_url. Hosted endpoint: https://lantern-works-mcp.lantern-works.workers.dev/mcp ; install: https://thelanternworks.com/install/
 - Every page below embeds a machine-readable price block: <script type="application/json" id="lw-price-block">. GPU pages: items {model, vendor, usd_per_hr, quote_currency, checked_at, source_url}, sorted by cost, from gpu-prices.json (MCP: compare_gpu_prices). Non-GPU (tool/API) pages: items carry the deal's cited price_usd and unit with quote_currency where a price is cited; usd_per_hr is null with usd_per_hr_null_reason (these deals are not hourly); feeds deals.json and stack-pricing.json (MCP: compare_deals / search_deals); deals without a source_url and check date are left out of the block. Rows whose link carries a referral or affiliate code have referral_label "Referral link"; referral status never changes order.
 - [Usage stats (JSON)](https://thelanternworks.com/stats.json): weekly aggregate ref= counts, no PII

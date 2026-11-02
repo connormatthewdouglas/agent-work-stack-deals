@@ -1,6 +1,19 @@
 # Lantern Works — GPU price comparison for agents, checked daily
 
-**Lantern Works** tracks hourly GPU rental prices (H100, A100, RTX 4090 and more) across cloud providers, re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate, plus daily price history (since 2026-10-27). Agents get it through the `compare_gpu_prices` MCP tool (`include_history=true` for price history) or plain JSON. "Cheapest" always means cheapest among tracked providers. It also keeps a directory of work-stack deals (scraping/unblock, email, search, hosting), ranked by customer value (price, free tier, fit), never by affiliate status. Some result links are referral links.
+**Lantern Works** compares GPU rental prices and estimates job costs for agents, with vendor source links, check times and quote receipts. Prices refresh daily; "cheapest" means among tracked providers. Referral links are labeled and never affect ranking.
+
+## Get your first quote — no installation or API key
+
+Python 3.10+, standard library only. [Read the example](examples/first_quote.py), then download and run it:
+
+```sh
+curl --fail --location https://raw.githubusercontent.com/connormatthewdouglas/agent-work-stack-deals/main/examples/first_quote.py --output first_quote.py
+python3 first_quote.py --gpu 'H100 SXM' --hours 100 --ref readme
+```
+
+This calls the public hosted MCP: three on-demand rates checked within 24 hours, then a 100-hour, one-GPU compute estimate with sources, assumptions, missing costs and a receipt. It creates no purchase or watch. Use `--qa` for internal tests.
+
+[Client setup](https://thelanternworks.com/install/?ref=readme) · [Quickstart](https://thelanternworks.com/quickstart/?ref=readme) · [Agent manifest](https://thelanternworks.com/agent.json) · [Small per-model JSON feeds](https://thelanternworks.com/api/v1/gpu/index.json) · [Add this to your README or dataset](docs/INTEGRATING.md)
 
 - **GPU prices:** [thelanternworks.com](https://thelanternworks.com/?ref=readme) · [/gpu/](https://thelanternworks.com/gpu/?ref=readme) · JSON [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · history [api/v1/gpu-prices/history.json](https://thelanternworks.com/api/v1/gpu-prices/history.json) · what moved since yesterday [api/v1/gpu-price-changes.json](https://thelanternworks.com/api/v1/gpu-price-changes.json) ([RSS](https://thelanternworks.com/api/v1/gpu-price-changes.xml))
 - **GPU coverage:** which GPU models each vendor is tracked for (in stock, priced, not listed): [/coverage/](https://thelanternworks.com/coverage/?ref=readme) · JSON [api/v1/coverage.json](https://thelanternworks.com/api/v1/coverage.json)
@@ -8,6 +21,7 @@
 - **Agent feed (JSON, no auth):** [thelanternworks.com/api/v1/deals.json](https://thelanternworks.com/api/v1/deals.json) (same bytes as `/deals.json`) · mirror: [gist](https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json)
 - **Stack pricing:** [api/v1/stack-pricing.json](https://thelanternworks.com/api/v1/stack-pricing.json)
 - **Query CLI:** `python3 query_deals.py --category unblock --max-price 20` (filter contract: [USAGE.md](USAGE.md))
+- **MCP test summaries:** [/receipts/](https://thelanternworks.com/receipts/?ref=readme) · [JSON](https://thelanternworks.com/api/v1/receipts.json) (dated findings, separate from job-price receipts)
 
 Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
