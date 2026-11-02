@@ -14,9 +14,9 @@
   },
   "source_feed": "https://thelanternworks.com/api/v1/deals.json",
   "feed_updated_at": "2026-11-02T14:39:27Z",
-  "generation_id": "20261102T135344Z-e851aba0",
+  "generation_id": "20261102T143859Z-7fee2771",
   "wider_generation_id": "20261102T110011Z-fe9e40b3",
-  "availability_collected_at": "2026-11-02T13:52:36Z",
+  "availability_collected_at": "2026-11-02T14:37:51Z",
   "prices_verified_through": "2026-11-02T14:39:27Z",
   "deal_feed_updated_at": "2026-10-29T09:30:00-04:00",
   "hours_per_month": 730,
@@ -302,23 +302,471 @@
         "checked_at": "2026-11-01T22:22:43+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:32Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:37:48Z",
+        "refresh": "manual snapshot, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "availability_expires_at": "2026-11-02T14:52:32Z",
-        "stock_read_at": "2026-11-02T13:52:32Z",
-        "price_read_at": "2026-11-01T22:22:43+00:00",
-        "price_at_claim_usd": 0.555,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:32Z",
-        "second_read_at": "2026-11-02T13:53:37Z",
+        "availability_expires_at": "2026-11-02T15:37:48Z",
+        "max_age_hours": 1.0,
+        "unrented_servers": 117,
+        "available_regions": [
+          "AR",
+          "BA",
+          "BY",
+          "CA",
+          "CN",
+          "DE",
+          "EE",
+          "FI",
+          "FR",
+          "HK",
+          "HR",
+          "KG",
+          "LT",
+          "LV",
+          "MD",
+          "NL",
+          "PL",
+          "RU",
+          "SE",
+          "SI",
+          "TR",
+          "UA",
+          "US"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "AR",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "BA",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "BY",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "CA",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "CN",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "DE",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "EE",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "FI",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "FR",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "HK",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "HR",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "KG",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "LT",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "LV",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "MD",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "NL",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "PL",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "RU",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "SE",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "SI",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "TR",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "UA",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          },
+          {
+            "region": "US",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:53Z",
+            "second_read_gap_s": 65.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:37:48Z",
+        "second_read_at": "2026-11-02T14:38:53Z",
         "second_read_gap_s": 65.0,
         "second_read_basis": "region AR",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "AR",
+            "zone": "AR",
+            "country": "AR",
+            "group": null
+          },
+          {
+            "label": "BA",
+            "zone": "BA",
+            "country": "BA",
+            "group": null
+          },
+          {
+            "label": "BY",
+            "zone": "BY",
+            "country": "BY",
+            "group": null
+          },
+          {
+            "label": "CA",
+            "zone": "CA",
+            "country": "CA",
+            "group": "NA"
+          },
+          {
+            "label": "CN",
+            "zone": "CN",
+            "country": "CN",
+            "group": null
+          },
+          {
+            "label": "DE",
+            "zone": "DE",
+            "country": "DE",
+            "group": "EU"
+          },
+          {
+            "label": "EE",
+            "zone": "EE",
+            "country": "EE",
+            "group": null
+          },
+          {
+            "label": "FI",
+            "zone": "FI",
+            "country": "FI",
+            "group": "EU"
+          },
+          {
+            "label": "FR",
+            "zone": "FR",
+            "country": "FR",
+            "group": "EU"
+          },
+          {
+            "label": "HK",
+            "zone": "HK",
+            "country": "HK",
+            "group": null
+          },
+          {
+            "label": "HR",
+            "zone": "HR",
+            "country": "HR",
+            "group": null
+          },
+          {
+            "label": "KG",
+            "zone": "KG",
+            "country": "KG",
+            "group": null
+          },
+          {
+            "label": "LT",
+            "zone": "LT",
+            "country": "LT",
+            "group": null
+          },
+          {
+            "label": "LV",
+            "zone": "LV",
+            "country": "LV",
+            "group": null
+          },
+          {
+            "label": "MD",
+            "zone": "MD",
+            "country": "MD",
+            "group": null
+          },
+          {
+            "label": "NL",
+            "zone": "NL",
+            "country": "NL",
+            "group": "EU"
+          },
+          {
+            "label": "PL",
+            "zone": "PL",
+            "country": "PL",
+            "group": "EU"
+          },
+          {
+            "label": "RU",
+            "zone": "RU",
+            "country": "RU",
+            "group": null
+          },
+          {
+            "label": "SE",
+            "zone": "SE",
+            "country": "SE",
+            "group": "EU"
+          },
+          {
+            "label": "SI",
+            "zone": "SI",
+            "country": "SI",
+            "group": null
+          },
+          {
+            "label": "TR",
+            "zone": "TR",
+            "country": "TR",
+            "group": null
+          },
+          {
+            "label": "UA",
+            "zone": "UA",
+            "country": "UA",
+            "group": null
+          },
+          {
+            "label": "US",
+            "zone": "US",
+            "country": "US",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:37:48Z",
+        "unrented_servers_note": "unrented servers (one server may hold several GPUs)",
+        "detail": "Unrented servers (one server may hold several GPUs), any currency",
+        "stock_read_at": "2026-11-02T14:37:48Z",
+        "price_read_at": "2026-11-01T22:22:43+00:00",
+        "price_at_claim_usd": 0.555,
+        "gpu_count": 1
       },
       "referral_url": "https://clore.ai/register?ref_id=rymfuis6",
       "referral_label": "Referral link"
@@ -692,24 +1140,26 @@
         "checked_at": "2026-11-02T14:36:18+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:45:51+00:00",
-        "price_at_claim_usd": 1.05,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:40Z",
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:55Z",
         "second_read_gap_s": 65.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' is INFERRED by Scout (the CloudRift API has no tier label); the feed join attaches this claim only if cost_per_hour/100 equals the feed price and VRAM is 80 GB. available_gpus = CloudRift nodes with a free 1-GPU slot per data center (available_nodes_per_dc of the 1-GPU variant); nodes, not GPUs",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:18+00:00",
+        "price_at_claim_usd": 1.05,
+        "gpu_count": 1
       }
     },
     {
@@ -1408,24 +1858,26 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:46:14+00:00",
-        "price_at_claim_usd": 3.2,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:41Z",
-        "second_read_gap_s": 66.0,
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 3.2,
+        "gpu_count": 1
       }
     },
     {
@@ -1469,24 +1921,26 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:46:14+00:00",
-        "price_at_claim_usd": 2.6,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:41Z",
-        "second_read_gap_s": 66.0,
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 2.6,
+        "gpu_count": 1
       }
     },
     {
@@ -1530,24 +1984,52 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:46:14+00:00",
-        "price_at_claim_usd": 2.5,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:41Z",
-        "second_read_gap_s": 66.0,
+        "available_regions": [
+          "CANADA-1"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "CANADA-1",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:50Z",
+            "availability_expires_at": "2026-11-02T15:37:50Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:50Z",
+            "second_read_at": "2026-11-02T14:38:57Z",
+            "second_read_gap_s": 67.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "CANADA-1",
+            "zone": "CANADA-1",
+            "country": null,
+            "group": null
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 2.5,
+        "gpu_count": 1
       }
     },
     {
@@ -1590,12 +2072,26 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
-        "source": "https://docs.hyperstack.cloud/docs/api-reference/get-gpu-stock",
-        "origin": "scout"
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "origin": "scout",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
+        "derived_from_regions": true,
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
+        "second_read_basis": "overall",
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 1.6,
+        "gpu_count": 1
       }
     },
     {
@@ -1638,24 +2134,26 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:46:14+00:00",
-        "price_at_claim_usd": 1.4,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:41Z",
-        "second_read_gap_s": 66.0,
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 1.4,
+        "gpu_count": 1
       }
     },
     {
@@ -1698,24 +2196,26 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:46:14+00:00",
-        "price_at_claim_usd": 1.35,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:41Z",
-        "second_read_gap_s": 66.0,
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 1.35,
+        "gpu_count": 1
       }
     },
     {
@@ -1759,24 +2259,26 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:46:14+00:00",
-        "price_at_claim_usd": 2.0,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:41Z",
-        "second_read_gap_s": 66.0,
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 2.0,
+        "gpu_count": 1
       }
     },
     {
@@ -1819,24 +2321,52 @@
         "checked_at": "2026-11-02T14:36:40+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:35Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:37:50Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:50Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:35Z",
-        "stock_read_at": "2026-11-02T13:52:35Z",
-        "price_read_at": "2026-11-01T17:46:14+00:00",
-        "price_at_claim_usd": 1.08,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:35Z",
-        "second_read_at": "2026-11-02T13:53:41Z",
-        "second_read_gap_s": 66.0,
+        "available_regions": [
+          "CANADA-1"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "CANADA-1",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:50Z",
+            "availability_expires_at": "2026-11-02T15:37:50Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:50Z",
+            "second_read_at": "2026-11-02T14:38:57Z",
+            "second_read_gap_s": 67.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:37:50Z",
+        "second_read_at": "2026-11-02T14:38:57Z",
+        "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "CANADA-1",
+            "zone": "CANADA-1",
+            "country": null,
+            "group": null
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:37:50Z",
+        "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
+        "stock_read_at": "2026-11-02T14:37:50Z",
+        "price_read_at": "2026-11-02T14:36:40+00:00",
+        "price_at_claim_usd": 1.08,
+        "gpu_count": 1
       }
     },
     {
@@ -2334,25 +2864,53 @@
         "checked_at": "2026-11-02T14:36:56+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:32Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:37:48Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:48Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:32Z",
-        "stock_read_at": "2026-11-02T13:52:32Z",
-        "price_read_at": "2026-11-01T17:46:30+00:00",
-        "price_at_claim_usd": 4.29,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:32Z",
-        "second_read_at": "2026-11-02T13:53:44Z",
-        "second_read_gap_s": 72.0,
+        "available_regions": [
+          "us-south-2"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "us-south-2",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:59Z",
+            "second_read_gap_s": 71.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:37:48Z",
+        "second_read_at": "2026-11-02T14:38:59Z",
+        "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "us-south-2",
+            "zone": "US-SOUTH-2",
+            "country": "US",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:37:48Z",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "stock_read_at": "2026-11-02T14:37:48Z",
+        "price_read_at": "2026-11-02T14:36:56+00:00",
+        "price_at_claim_usd": 4.29,
+        "gpu_count": 1
       }
     },
     {
@@ -2396,25 +2954,53 @@
         "checked_at": "2026-11-02T14:36:56+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:32Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:37:48Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:48Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:32Z",
-        "stock_read_at": "2026-11-02T13:52:32Z",
-        "price_read_at": "2026-11-01T17:46:30+00:00",
-        "price_at_claim_usd": 3.29,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:32Z",
-        "second_read_at": "2026-11-02T13:53:44Z",
-        "second_read_gap_s": 72.0,
+        "available_regions": [
+          "us-west-3"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "us-west-3",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:59Z",
+            "second_read_gap_s": 71.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:37:48Z",
+        "second_read_at": "2026-11-02T14:38:59Z",
+        "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "us-west-3",
+            "zone": "US-WEST-3",
+            "country": "US",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:37:48Z",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "stock_read_at": "2026-11-02T14:37:48Z",
+        "price_read_at": "2026-11-02T14:36:56+00:00",
+        "price_at_claim_usd": 3.29,
+        "gpu_count": 1
       }
     },
     {
@@ -2457,12 +3043,27 @@
         "checked_at": "2026-11-02T14:36:56+00:00"
       },
       "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": "2026-11-02T13:52:32Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
-        "source": "https://cloud.lambda.ai/api/v1/instance-types regions_with_capacity_available",
-        "origin": "scout"
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:48Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "origin": "scout",
+        "availability_expires_at": "2026-11-02T15:37:48Z",
+        "max_age_hours": 1.0,
+        "derived_from_regions": true,
+        "first_read_at": "2026-11-02T14:37:48Z",
+        "second_read_at": "2026-11-02T14:38:59Z",
+        "second_read_gap_s": 71.0,
+        "second_read_basis": "overall",
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:48Z",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "stock_read_at": "2026-11-02T14:37:48Z",
+        "price_read_at": "2026-11-02T14:36:56+00:00",
+        "price_at_claim_usd": 1.99,
+        "gpu_count": 1
       }
     },
     {
@@ -2505,25 +3106,27 @@
         "checked_at": "2026-11-02T14:36:56+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:32Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:48Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:48Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:32Z",
-        "stock_read_at": "2026-11-02T13:52:32Z",
-        "price_read_at": "2026-11-01T17:46:30+00:00",
-        "price_at_claim_usd": 1.99,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:32Z",
-        "second_read_at": "2026-11-02T13:53:44Z",
-        "second_read_gap_s": 72.0,
+        "first_read_at": "2026-11-02T14:37:48Z",
+        "second_read_at": "2026-11-02T14:38:59Z",
+        "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:48Z",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "stock_read_at": "2026-11-02T14:37:48Z",
+        "price_read_at": "2026-11-02T14:36:56+00:00",
+        "price_at_claim_usd": 1.99,
+        "gpu_count": 1
       }
     },
     {
@@ -2752,25 +3355,27 @@
         "checked_at": "2026-11-02T14:36:56+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:32Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:48Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:48Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:32Z",
-        "stock_read_at": "2026-11-02T13:52:32Z",
-        "price_read_at": "2026-11-01T17:46:30+00:00",
-        "price_at_claim_usd": 3.99,
-        "gpu_count": 8,
-        "first_read_at": "2026-11-02T13:52:32Z",
-        "second_read_at": "2026-11-02T13:53:44Z",
-        "second_read_gap_s": 72.0,
+        "first_read_at": "2026-11-02T14:37:48Z",
+        "second_read_at": "2026-11-02T14:38:59Z",
+        "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:48Z",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "stock_read_at": "2026-11-02T14:37:48Z",
+        "price_read_at": "2026-11-02T14:36:56+00:00",
+        "price_at_claim_usd": 3.99,
+        "gpu_count": 8
       }
     },
     {
@@ -2813,25 +3418,72 @@
         "checked_at": "2026-11-02T14:36:56+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:32Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:37:48Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:48Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:32Z",
-        "stock_read_at": "2026-11-02T13:52:32Z",
-        "price_read_at": "2026-11-01T17:46:30+00:00",
-        "price_at_claim_usd": 2.79,
-        "gpu_count": 8,
-        "first_read_at": "2026-11-02T13:52:32Z",
-        "second_read_at": "2026-11-02T13:53:44Z",
-        "second_read_gap_s": 72.0,
+        "available_regions": [
+          "us-east-1",
+          "us-midwest-1"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "us-east-1",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:59Z",
+            "second_read_gap_s": 71.0
+          },
+          {
+            "region": "us-midwest-1",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:48Z",
+            "availability_expires_at": "2026-11-02T15:37:48Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:37:48Z",
+            "second_read_at": "2026-11-02T14:38:59Z",
+            "second_read_gap_s": 71.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:37:48Z",
+        "second_read_at": "2026-11-02T14:38:59Z",
+        "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "us-east-1",
+            "zone": "US-EAST-1",
+            "country": "US",
+            "group": "NA"
+          },
+          {
+            "label": "us-midwest-1",
+            "zone": "US-MIDWEST-1",
+            "country": "US",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:37:48Z",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
+        "stock_read_at": "2026-11-02T14:37:48Z",
+        "price_read_at": "2026-11-02T14:36:56+00:00",
+        "price_at_claim_usd": 2.79,
+        "gpu_count": 8
       }
     },
     {
@@ -3345,23 +3997,24 @@
         "checked_at": "2026-11-02T14:37:20+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:36Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:51Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "availability_expires_at": "2026-11-02T14:52:36Z",
-        "stock_read_at": "2026-11-02T13:52:36Z",
-        "price_read_at": "2026-11-01T17:46:54+00:00",
-        "price_at_claim_usd": 0.67,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:36Z",
-        "second_read_at": "2026-11-02T13:53:43Z",
+        "availability_expires_at": "2026-11-02T15:37:51Z",
+        "max_age_hours": 1.0,
+        "first_read_at": "2026-11-02T14:37:51Z",
+        "second_read_at": "2026-11-02T14:38:58Z",
         "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "detail": "Novita products API (gpuNum=1, billingMethod=onDemand): in stock = availableDeploy true AND inventoryState low/normal/high; out of stock = availableDeploy false AND inventoryState none for every matching product; mixed/other -> unknown. Region rows only for a deployable product that lists exactly one cluster (multi-cluster lists don't say which cluster has stock)",
+        "stock_read_at": "2026-11-02T14:37:51Z",
+        "price_read_at": "2026-11-02T14:37:20+00:00",
+        "price_at_claim_usd": 0.67,
+        "gpu_count": 1
       },
       "referral_url": "https://novita.ai/?ref=mgezngr",
       "referral_label": "Referral link"
@@ -3413,24 +4066,54 @@
         "checked_at": "2026-11-02T14:37:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:29Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:37:46Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:46Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:29Z",
-        "stock_read_at": "2026-11-02T13:52:29Z",
-        "price_read_at": "2026-11-01T18:05:00+00:00",
-        "price_at_claim_usd": 3.5,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:29Z",
-        "second_read_at": "2026-11-02T13:53:33Z",
-        "second_read_gap_s": 64.0,
+        "available_regions": [
+          "MON1 (CANADA, MONTREAL)"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "MON1 (CANADA, MONTREAL)",
+            "stock_level": null,
+            "checked_at": "2026-11-02T14:37:46Z",
+            "availability_expires_at": "2026-11-02T15:37:46Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "available_gpus": 5,
+            "second_read_available_gpus": 5,
+            "first_read_at": "2026-11-02T14:37:46Z",
+            "second_read_at": "2026-11-02T14:38:48Z",
+            "second_read_gap_s": 62.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:37:46Z",
+        "second_read_at": "2026-11-02T14:38:48Z",
+        "second_read_gap_s": 62.0,
         "second_read_basis": "region MON1 (CANADA, MONTREAL)",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "MON1 (CANADA, MONTREAL)",
+            "zone": "MON1",
+            "country": "CA",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:37:46Z",
+        "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page",
+        "stock_read_at": "2026-11-02T14:37:46Z",
+        "price_read_at": "2026-11-02T14:37:27+00:00",
+        "price_at_claim_usd": 3.5,
+        "gpu_count": 1
       }
     },
     {
@@ -3479,24 +4162,26 @@
         "checked_at": "2026-11-02T14:37:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:29Z",
-        "max_age_hours": 1.0,
+        "status": "out of stock when checked",
+        "in_stock": false,
+        "checked_at": "2026-11-02T14:37:46Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:37:46Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:52:29Z",
-        "stock_read_at": "2026-11-02T13:52:29Z",
-        "price_read_at": "2026-11-01T18:05:00+00:00",
-        "price_at_claim_usd": 1.47,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:52:29Z",
-        "second_read_at": "2026-11-02T13:53:33Z",
-        "second_read_gap_s": 64.0,
+        "first_read_at": "2026-11-02T14:37:46Z",
+        "second_read_at": "2026-11-02T14:38:48Z",
+        "second_read_gap_s": 62.0,
         "second_read_basis": "region MON1 (CANADA, MONTREAL)",
-        "two_read_gap_ok": true
+        "two_read_gap_ok": true,
+        "regions_expires_at": "2026-11-02T15:37:46Z",
+        "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page",
+        "stock_read_at": "2026-11-02T14:37:46Z",
+        "price_read_at": "2026-11-02T14:37:27+00:00",
+        "price_at_claim_usd": 1.47,
+        "gpu_count": 1
       }
     },
     {
@@ -3692,24 +4377,83 @@
         "checked_at": "2026-11-02T14:37:46+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:46 ET)",
-        "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:46:15Z",
-        "max_age_hours": 1.0,
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-02T14:31:21Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "availability_expires_at": "2026-11-02T15:31:21Z",
+        "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "availability_expires_at": "2026-11-02T14:46:15Z",
-        "stock_read_at": "2026-11-02T13:46:15Z",
+        "stock_level": "Low",
+        "available_regions": [
+          "AP-IN-1 (India)",
+          "US-MO-1 (United States)"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "AP-IN-1 (India)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-02T14:31:26Z",
+            "availability_expires_at": "2026-11-02T15:31:26Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low",
+            "first_read_at": "2026-11-02T14:31:26Z",
+            "second_read_at": "2026-11-02T14:37:27Z",
+            "second_read_gap_s": 361.0
+          },
+          {
+            "region": "AP-JP-1 (Japan)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-02T14:31:35Z",
+            "availability_expires_at": "2026-11-02T15:31:35Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-02T14:31:35Z",
+            "second_read_at": "2026-11-02T14:37:28Z",
+            "second_read_gap_s": 353.0
+          },
+          {
+            "region": "US-MO-1 (United States)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-02T14:33:35Z",
+            "availability_expires_at": "2026-11-02T15:33:35Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low",
+            "first_read_at": "2026-11-02T14:33:35Z",
+            "second_read_at": "2026-11-02T14:37:32Z",
+            "second_read_gap_s": 237.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-02T14:31:26Z",
+        "second_read_at": "2026-11-02T14:37:27Z",
+        "second_read_gap_s": 361.0,
+        "second_read_basis": "region AP-IN-1 (India)",
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "AP-IN-1 (India)",
+            "zone": "AP-IN-1",
+            "country": "IN",
+            "group": "APAC"
+          },
+          {
+            "label": "US-MO-1 (United States)",
+            "zone": "US-MO-1",
+            "country": "US",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-02T15:31:26Z",
+        "stock_read_at": "2026-11-02T14:31:21Z",
         "price_read_at": "2026-11-01T17:47:19+00:00",
         "price_at_claim_usd": 3.99,
-        "gpu_count": 1,
-        "first_read_at": "2026-11-02T13:46:19Z",
-        "second_read_at": "2026-11-02T13:52:13Z",
-        "second_read_gap_s": 354.0,
-        "second_read_basis": "region AP-IN-1 (India)",
-        "two_read_gap_ok": true
+        "gpu_count": 1
       },
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link"
@@ -3762,7 +4506,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:15Z",
+        "checked_at": "2026-11-02T14:31:21Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -3817,7 +4561,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:15Z",
+        "checked_at": "2026-11-02T14:31:21Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -3872,7 +4616,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:15Z",
+        "checked_at": "2026-11-02T14:31:21Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -4139,7 +4883,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:15Z",
+        "checked_at": "2026-11-02T14:31:21Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -4301,7 +5045,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:17Z",
+        "checked_at": "2026-11-02T14:31:24Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -4357,7 +5101,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:17Z",
+        "checked_at": "2026-11-02T14:31:24Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -4412,8 +5156,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:17Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
+        "checked_at": "2026-11-02T14:31:24Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
       },
@@ -4467,7 +5211,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:17Z",
+        "checked_at": "2026-11-02T14:31:24Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -4522,7 +5266,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:17Z",
+        "checked_at": "2026-11-02T14:31:24Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
@@ -4843,7 +5587,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:15Z",
+        "checked_at": "2026-11-02T14:31:21Z",
         "note": "No confirmed region claim at overall_recomputed_at",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
@@ -4899,8 +5643,8 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-02T13:46:17Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
+        "checked_at": "2026-11-02T14:31:24Z",
+        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
       },
@@ -6499,19 +7243,17 @@
         "checked_at": "2026-11-02T14:39:15+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown (price changed)",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:21Z",
-        "max_age_hours": 1.0,
+        "price_join_failed": true,
+        "checked_at": "2026-11-02T14:37:36Z",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "availability_expires_at": "2026-11-02T14:52:21Z",
-        "stock_read_at": "2026-11-02T13:52:21Z",
+        "note": "The price changed after this stock check (the price shown when stock was read differs from today's price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.",
+        "stock_read_at": "2026-11-02T14:37:36Z",
         "price_read_at": "2026-11-01T17:48:45+00:00",
         "price_at_claim_usd": 1.2156,
         "gpu_count": 1,
-        "price_join_failed": true
+        "availability_expires_at": "2026-11-02T15:37:36Z"
       },
       "referral_url": "https://cloud.vast.ai/?ref_id=760339",
       "referral_label": "Referral link"
@@ -6558,19 +7300,17 @@
         "checked_at": "2026-11-02T14:39:21+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown (price changed)",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:25Z",
-        "max_age_hours": 1.0,
+        "price_join_failed": true,
+        "checked_at": "2026-11-02T14:37:41Z",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "availability_expires_at": "2026-11-02T14:52:25Z",
-        "stock_read_at": "2026-11-02T13:52:25Z",
+        "note": "The price changed after this stock check (the price shown when stock was read differs from today's price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.",
+        "stock_read_at": "2026-11-02T14:37:41Z",
         "price_read_at": "2026-11-01T17:48:51+00:00",
         "price_at_claim_usd": 0.4544,
         "gpu_count": 1,
-        "price_join_failed": true
+        "availability_expires_at": "2026-11-02T15:37:41Z"
       },
       "referral_url": "https://cloud.vast.ai/?ref_id=760339",
       "referral_label": "Referral link"
@@ -6909,20 +7649,18 @@
         "checked_at": "2026-11-02T14:39:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown (price changed)",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:31Z",
-        "max_age_hours": 1.0,
+        "price_join_failed": true,
+        "checked_at": "2026-11-02T14:37:47Z",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:31Z",
-        "stock_read_at": "2026-11-02T13:52:31Z",
+        "note": "The price changed after this stock check (the price shown when stock was read differs from today's price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.",
+        "stock_read_at": "2026-11-02T14:37:47Z",
         "price_read_at": "2026-11-01T17:48:57+00:00",
         "price_at_claim_usd": 4.793,
         "gpu_count": 1,
-        "price_join_failed": true
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "availability_expires_at": "2026-11-02T15:37:47Z"
       }
     },
     {
@@ -6966,20 +7704,12 @@
         "checked_at": "2026-11-02T14:39:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:31Z",
-        "max_age_hours": 0.25,
-        "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:07:31Z",
-        "stock_read_at": "2026-11-02T13:52:31Z",
-        "price_read_at": "2026-11-01T17:48:57+00:00",
-        "price_at_claim_usd": 2.397,
-        "gpu_count": 1,
-        "price_join_failed": true
+        "checked_at": "2026-11-02T14:37:48Z",
+        "note": "No confirmed region claim at overall_recomputed_at",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -7022,20 +7752,12 @@
         "checked_at": "2026-11-02T14:39:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:31Z",
-        "max_age_hours": 1.0,
-        "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:31Z",
-        "stock_read_at": "2026-11-02T13:52:31Z",
-        "price_read_at": "2026-11-01T17:48:57+00:00",
-        "price_at_claim_usd": 2.248,
-        "gpu_count": 1,
-        "price_join_failed": true
+        "checked_at": "2026-11-02T14:37:47Z",
+        "note": "No confirmed region claim at overall_recomputed_at",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -7078,20 +7800,12 @@
         "checked_at": "2026-11-02T14:39:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:31Z",
-        "max_age_hours": 0.25,
-        "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:07:31Z",
-        "stock_read_at": "2026-11-02T13:52:31Z",
-        "price_read_at": "2026-11-01T17:48:57+00:00",
-        "price_at_claim_usd": 1.124,
-        "gpu_count": 1,
-        "price_join_failed": true
+        "checked_at": "2026-11-02T14:37:48Z",
+        "note": "No confirmed region claim at overall_recomputed_at",
+        "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+        "origin": "scout"
       }
     },
     {
@@ -7134,20 +7848,18 @@
         "checked_at": "2026-11-02T14:39:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown (price changed)",
         "in_stock": null,
-        "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:31Z",
-        "max_age_hours": 1.0,
+        "price_join_failed": true,
+        "checked_at": "2026-11-02T14:37:47Z",
         "origin": "scout",
-        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:52:31Z",
-        "stock_read_at": "2026-11-02T13:52:31Z",
+        "note": "The price changed after this stock check (the price shown when stock was read differs from today's price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.",
+        "stock_read_at": "2026-11-02T14:37:47Z",
         "price_read_at": "2026-11-01T17:48:57+00:00",
         "price_at_claim_usd": 1.609,
         "gpu_count": 1,
-        "price_join_failed": true
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "availability_expires_at": "2026-11-02T15:37:47Z"
       }
     },
     {
@@ -7190,16 +7902,16 @@
         "checked_at": "2026-11-02T14:39:27+00:00"
       },
       "availability": {
-        "status": "unknown (stale availability, last checked 2026-11-02 08:52 ET)",
+        "status": "unknown (stale availability, last checked 2026-11-02 09:37 ET)",
         "in_stock": null,
         "availability_stale": true,
-        "checked_at": "2026-11-02T13:52:31Z",
+        "checked_at": "2026-11-02T14:37:48Z",
         "max_age_hours": 0.25,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "source_label": "authenticated vendor API (not publicly reproducible)",
-        "availability_expires_at": "2026-11-02T14:07:31Z",
-        "stock_read_at": "2026-11-02T13:52:31Z",
+        "availability_expires_at": "2026-11-02T14:52:48Z",
+        "stock_read_at": "2026-11-02T14:37:48Z",
         "price_read_at": "2026-11-01T17:48:57+00:00",
         "price_at_claim_usd": 0.8045,
         "gpu_count": 1,
