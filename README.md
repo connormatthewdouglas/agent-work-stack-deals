@@ -2,9 +2,9 @@
 
 **Lantern Works** tracks hourly GPU rental prices (H100, A100, RTX 4090 and more) across cloud providers, re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate, plus daily price history (since 2026-10-27). Agents get it through the `compare_gpu_prices` MCP tool (`include_history=true` for price history) or plain JSON. "Cheapest" always means cheapest among tracked providers. It also keeps a directory of work-stack deals (scraping/unblock, email, search, hosting), ranked by customer value (price, free tier, fit), never by affiliate status. Some result links are referral links.
 
-- **GPU prices:** [thelanternworks.com](https://thelanternworks.com/) · [/gpu/](https://thelanternworks.com/gpu/) · JSON [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · history [api/v1/gpu-prices/history.json](https://thelanternworks.com/api/v1/gpu-prices/history.json) · what moved since yesterday [api/v1/gpu-price-changes.json](https://thelanternworks.com/api/v1/gpu-price-changes.json) ([RSS](https://thelanternworks.com/api/v1/gpu-price-changes.xml))
-- **GPU coverage:** which GPU models each vendor is tracked for (in stock, priced, not listed): [/coverage/](https://thelanternworks.com/coverage/) · JSON [api/v1/coverage.json](https://thelanternworks.com/api/v1/coverage.json)
-- **Deals directory:** [thelanternworks.com/deals/](https://thelanternworks.com/deals/) · [About](https://thelanternworks.com/lanternworks/)
+- **GPU prices:** [thelanternworks.com](https://thelanternworks.com/?ref=readme) · [/gpu/](https://thelanternworks.com/gpu/?ref=readme) · JSON [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · history [api/v1/gpu-prices/history.json](https://thelanternworks.com/api/v1/gpu-prices/history.json) · what moved since yesterday [api/v1/gpu-price-changes.json](https://thelanternworks.com/api/v1/gpu-price-changes.json) ([RSS](https://thelanternworks.com/api/v1/gpu-price-changes.xml))
+- **GPU coverage:** which GPU models each vendor is tracked for (in stock, priced, not listed): [/coverage/](https://thelanternworks.com/coverage/?ref=readme) · JSON [api/v1/coverage.json](https://thelanternworks.com/api/v1/coverage.json)
+- **Deals directory:** [thelanternworks.com/deals/](https://thelanternworks.com/deals/?ref=readme) · [About](https://thelanternworks.com/lanternworks/?ref=readme)
 - **Agent feed (JSON, no auth):** [thelanternworks.com/api/v1/deals.json](https://thelanternworks.com/api/v1/deals.json) (same bytes as `/deals.json`) · mirror: [gist](https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json)
 - **Stack pricing:** [api/v1/stack-pricing.json](https://thelanternworks.com/api/v1/stack-pricing.json)
 - **Query CLI:** `python3 query_deals.py --category unblock --max-price 20` (filter contract: [USAGE.md](USAGE.md))
@@ -53,7 +53,7 @@ Cursor (`.cursor/mcp.json`) and Cline (`cline_mcp_settings.json`, via MCP Server
 { "mcpServers": { "lantern-works-deals": { "command": "uvx", "args": ["lantern-works-deals-mcp"] } } }
 ```
 
-Docker: `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp` (the root [`Dockerfile`](Dockerfile) installs the pinned PyPI release and runs the stdio server). Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Other clients: https://thelanternworks.com/install/ · Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`.
+Docker: `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp` (the root [`Dockerfile`](Dockerfile) installs the pinned PyPI release and runs the stdio server). Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Other clients: https://thelanternworks.com/install/?ref=readme · Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`.
 
 Telemetry is **off by default**. `LANTERN_TELEMETRY=1` opts in to an anonymous daily count of tool calls: tool name, version, day and count only. No arguments, IDs or IPs are sent or stored. See [PRIVACY.md](PRIVACY.md).
 
@@ -112,7 +112,7 @@ See a price that doesn't match the vendor's page, or an offer you can't rent? [O
 - **Deploy gate:** GitHub Actions runs schema validation, the test suite, a clean PyPI install check and a Docker build/stdio check; Pages deploys only after they pass, then live checks run.
 - **Migration test:** `python3 scripts/test_url_migration.py` checks old GitHub Pages project URLs 301 to the new domain, key pages return 200, and the feeds match.
 - **Compliance gate:** when the private registry (path set by `LANTERN_COMPLIANCE_REGISTRY`) is present, the generator publishes only deals whose status is `approved`; others move to a private held file and come back automatically once approved. Absent registry (CI) = feed published as-is.
-- **For agents:** https://thelanternworks.com/for-agents/ documents endpoints, schema and offer types.
+- **For agents:** https://thelanternworks.com/for-agents/?ref=readme documents endpoints, schema and offer types.
 
 ## License
 
