@@ -126,9 +126,10 @@ def test_install_page_tool_count_matches_server():
     html = (ROOT / "install/index.html").read_text()
     # Gauge nov1_mart3: current counts are the server's (9 + 4 = 13); an older tested count appears only as history
     assert install_page.TESTED_TOOLS <= n and f"({n} tools in the package)" in html
-    assert f"The current package has {n} tools; the hosted endpoint lists the same {n} plus" in html
+    hp = n - len(install_page.HOSTED_MISSING)
+    assert f"The current package has {n} tools; on {install_page.TESTED_ON} the hosted endpoint listed" in html
     extra = len(install_page.HOSTED_EXTRA)
-    assert extra == 4 and f"{n} + {extra} = {n + extra} tools in all" in html and f"{n} + {extra} = {n + extra} in total" in html
+    assert extra == 4 and f"{hp} + {extra} = {hp + extra} tools in all" in html and f"{hp} + {extra} = {hp + extra} in total" in html
     assert f"returns {install_page.TESTED_TOOLS} tools" not in html and f"same {install_page.TESTED_TOOLS} plus" not in html
     for w in ("6 tools", "six tools", "the same 7 read-only"):
         assert w not in html
@@ -198,3 +199,18 @@ def test_reversed_compare_stubs_redirect_and_stay_out_of_sitemap():
         assert (ROOT / "compare" / f"{b}-vs-{a}-gpu-prices" / "index.html").exists()
         assert f'url={real}"' in t and f'rel="canonical" href="{real}"' in t and "noindex" in t
         assert f"/compare/{a}-vs-{b}-gpu-prices/" not in sm
+
+
+def test_for_agents_leads_with_gpu_coverage():
+    """T79: /for-agents/ leads with GPU coverage (from gpu-prices.json), receipts and MCP tools; deals come later."""
+    import json as _j
+    import coverage_page
+    import install_page
+    html = (ROOT / "for-agents/index.html").read_text()
+    doc = _j.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    c = coverage_page.build(doc)["counts"]
+    assert f"{c['models_tracked']} GPU models across {c['vendors']} vendors" in html
+    i_gpu, i_rec, i_mcp, i_deal = (html.index(s) for s in ("GPU models across", 'id="receipts"', 'id="mcp-tools"', 'id="deal-feed"'))
+    assert i_gpu < i_rec < i_mcp < i_deal
+    assert all(f"<code>{t}</code>" in html[i_mcp:i_deal] for t in install_page.TOOLS)
+    assert "cheapest" not in html[:i_deal].lower()

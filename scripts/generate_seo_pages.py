@@ -552,9 +552,39 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
     }
     ot_rows = "\n".join(f"<tr><td><code>{esc(k)}</code></td><td>{esc(ot_desc[k])}</td><td>{dist.get(k, 0)}</td></tr>" for k in OFFER_TYPES)
     v1 = f"{BASE}/api/v1/deals.json"
+    # T79: lead with GPU coverage, computed at build time from the generated /api/v1/gpu-prices.json (same
+    # bytes as the live feed) via coverage_page.build, so the counts match /coverage/ and can't drift.
+    import coverage_page
+    import install_page
+    gdoc = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text(encoding="utf-8"))
+    gcov = coverage_page.build(gdoc)["counts"]
+    n_rates = len(gdoc.get("rates") or [])
+    mcp_tools = "".join(f"<li><code>{esc(t)}</code></li>" for t in install_page.TOOLS)
+    watch_tools = ", ".join(f"<code>{esc(t)}</code>" for t in install_page.HOSTED_EXTRA)
     body = f"""  <nav class="crumbs"><a href="{BASE}/">Lantern Works</a> › For agents</nav>
-  <h1>For agents: query the Lantern Works deal feed</h1>
-  <p>The catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists {len(deals)} deals (schema <code>{esc(feed.get("schema_version"))}</code>, feed updated <code>{esc(feed.get("updated_at"))}</code>).</p>
+  <h1>For agents: GPU rental prices, with receipts</h1>
+  <p>Lantern Works tracks <strong>{gcov["models_tracked"]} GPU models across {gcov["vendors"]} vendors</strong> ({n_rates} rates in the current feed, updated <code>{esc(gdoc.get("feed_updated_at"))}</code>). Every rate is read from the vendor's own pricing page and carries its <code>source_url</code> and <code>checked_at</code>. Public, read-only, no API key.</p>
+  <ul>
+    <li>GPU price feed: <a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> · daily changes: <a href="{BASE}/api/v1/gpu-price-changes.json">gpu-price-changes.json</a></li>
+    <li>Coverage by model and vendor: <a href="{BASE}/coverage/">/coverage/</a> (<a href="{BASE}/api/v1/coverage.json">coverage.json</a>)</li>
+  </ul>
+
+  <h2 id="receipts">Receipts and methodology</h2>
+  <ul>
+    <li><a href="{BASE}/methodology/">How prices are checked</a>: sources, check times, tiers and how rows are ranked.</li>
+    <li>Each rate in the feed has its vendor <code>source_url</code>, a quoted <code>evidence</code> snippet and <code>checked_at</code>, so an agent can re-check it before acting.</li>
+    <li>Spot a wrong number? <a href="{BASE}/report-price/">Report a wrong price</a>.</li>
+  </ul>
+
+  <h2 id="mcp-tools">MCP tools</h2>
+  <p>The <a href="{BASE}/install/">MCP server</a> (<code>uvx lantern-works-deals-mcp</code>, version {esc(install_page.TESTED_VERSION)}) has {len(install_page.TOOLS)} read-only tools:</p>
+  <ul>
+{mcp_tools}
+  </ul>
+  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> tools ({watch_tools}). Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
+
+  <h2 id="deal-feed">Deal feed</h2>
+  <p>Separately, the deal catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists {len(deals)} deals (schema <code>{esc(feed.get("schema_version"))}</code>, feed updated <code>{esc(feed.get("updated_at"))}</code>).</p>
 
   <h2>Endpoints</h2>
   <div class="tscroll"><table class="howto"><tbody>
@@ -644,8 +674,8 @@ python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r mcp_server/requirement
 """
     out = ROOT / "for-agents" / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(page_shell("For agents — query the Lantern Works deal feed and API",
-                              "How AI agents query the Lantern Works deals feed: endpoints, JSON Schema, offer types, examples.",
+    out.write_text(page_shell("For agents — GPU rental prices, MCP tools and the Lantern Works feeds",
+                              "How AI agents use Lantern Works: GPU coverage, sourced rates with receipts, MCP tools, and the deals feed.",
                               f"{BASE}/for-agents/", body), encoding="utf-8")
     return out
 
