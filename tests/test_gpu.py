@@ -16,7 +16,7 @@ def _rec(vendor, gpu, tier=None):
 def test_all_specs_verified_against_feed():
     r = build_rates(FEED)
     live = [d for d in load_vendor_files() if not d.get("stale")]
-    assert r["problems"] == [] and len(r["rates"]) == sum(1 for d in live for x in d["records"] if not x.get("stale"))
+    assert r["problems"] == [] and len(r["rates"]) == sum(1 for d in live for x in d["records"] if not x.get("stale") and not x.get("no_capacity"))
 
 
 def test_estimate_hourly_vs_flat_and_rank():
@@ -128,7 +128,7 @@ def test_published_api_matches_records(pinned_build_clock):
     api = pinned_build_clock
     assert api["rates"] == build_rates(FEED)["rates"]
     assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale")}
-    held = {d["vendor"] for d in load_vendor_files() if d.get("stale") or any(r.get("stale") for r in d["records"])}
+    held = {d["vendor"] for d in load_vendor_files() if d.get("stale") or any(r.get("stale") or r.get("no_capacity") for r in d["records"])}
     assert {h["vendor"] for h in api["held_stale"]} == held
 
 
