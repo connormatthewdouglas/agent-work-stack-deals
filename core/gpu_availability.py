@@ -289,7 +289,7 @@ def price_join_guard(a: dict, price_rec: dict | None) -> dict:
              "gpu_count": price_rec.get("gpu_count") or 1}
     if p is None or abs(float(p) - float(per_gpu_price(price_rec))) <= PRICE_JOIN_USD + 1e-9:
         return {**a, **audit}
-    out = {"status": "unknown (price changed since stock check)", "in_stock": None, "price_join_failed": True,
+    out = {"status": "unknown (price changed)", "in_stock": None, "price_join_failed": True,
            "checked_at": a.get("checked_at"), "origin": a.get("origin"), "note": PRICE_JOIN_NOTE, **audit}
     for k in ("source", "source_label", "availability_expires_at"):
         if a.get(k):

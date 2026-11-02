@@ -15,7 +15,7 @@ def test_unknown_is_never_out_of_stock_and_has_note():
                 assert a["status"].startswith("unknown (stale availability, last checked ") and a["checked_at"]
                 continue
             if a.get("price_join_failed"):  # T73: price moved > $0.005 after the stock read, claim dropped
-                assert a["status"] == "unknown (price changed since stock check)" and a["checked_at"]
+                assert a["status"] == "unknown (price changed)" and a["checked_at"]
                 continue
             if a.get("basis") == "vendor_static_label":
                 assert a["status"].startswith("vendor-labelled in stock (static page label") and a["checked_at"]
