@@ -424,7 +424,7 @@ def test_availability_coverage_on_gpu_hub():
     assert sum(m["rows"] for m in c["models"].values()) == len([r for r in rates if not r.get("interruptible")])
     assert c["excluded_interruptible_rows"] == sum(1 for r in rates if r.get("interruptible"))
     assert c["marketplace_rows"] and all(x["label"] == "marketplace listing" for x in c["marketplace_rows"])
-    assert {x["vendor"] for x in c["marketplace_rows"]} <= {"Vast.ai", "Clore.ai"}
+    assert {x["vendor"] for x in c["marketplace_rows"]} <= {"Vast.ai", "Clore.ai", "Spheron"}  # Spheron L40S: tier_class=marketplace
     spot = [{"advertiser": "RunPod", "gpu": "H100", "canonical_model": "H100", "interruptible": True,
              "availability": {"status": "available when checked"}}]
     assert availability_coverage(spot)["totals"] == {"rows": 0, "measurable": 0, "measured": 0, "coverage": None}
@@ -481,3 +481,20 @@ def test_coverage_shows_headline_and_all_rows_share():
                     and f"· {m['measured']} of {m['rows']} rows overall ({b}%)" in html), name
     t = c["totals"]
     assert f"Overall: measured {t['measured']} of {t['measurable']} rows with a public stock signal" in html
+
+
+def test_coverage_explains_drops_and_badges_spheron_l40s():
+    """Gauge T73 F1-F6 #4: price-join drops are named as such (not expiry); tier_class=marketplace rows are badged."""
+    from core.gpu import availability_coverage, is_marketplace_row
+    rates = [
+        {"advertiser": "Vast.ai", "gpu": "A100 SXM", "vram_gb": 80, "canonical_model": "A100", "price_status": "marketplace",
+         "availability": {"status": "unknown (price changed)", "in_stock": None, "price_join_failed": True}},
+        {"advertiser": "Spheron", "gpu": "L40S", "vram_gb": 48, "canonical_model": "L40S", "tier_class": "marketplace",
+         "availability": {"status": "unknown"}},
+        {"advertiser": "Lambda", "gpu": "A100 SXM", "vram_gb": 80, "canonical_model": "A100",
+         "availability": {"status": "unknown (stale availability, last checked x)", "availability_stale": True}},
+    ]
+    c = availability_coverage(rates)
+    assert c["dropped_claims"]["price_changed"] == ["Vast.ai A100 SXM 80GB"]
+    assert c["dropped_claims"]["expired"] == ["Lambda A100 SXM 80GB"]
+    assert is_marketplace_row(rates[1]) and any(x["vendor"] == "Spheron" for x in c["marketplace_rows"])

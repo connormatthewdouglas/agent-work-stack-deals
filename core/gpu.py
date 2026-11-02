@@ -485,7 +485,10 @@ def unmeasurable_reason(vendor: str, measured_vendors: frozenset = frozenset()):
 def availability_measured(r: dict) -> bool:
     """A real stock status: available / out of stock when checked, or stale with its last-check timestamp.
     'unknown' and static vendor page labels are not measurements."""
-    st = str((r.get("availability") or {}).get("status") or "unknown")
+    a = r.get("availability") or {}
+    if a.get("price_join_failed") or a.get("two_read_gap_ok") is False:  # dropped claims are not measurements
+        return False
+    st = str(a.get("status") or "unknown")
     return st in ("available when checked", "out of stock when checked") or st.startswith("unknown (stale availability, last checked")
 
 
@@ -497,7 +500,7 @@ COVERAGE_RULE = ("Interruptible (spot) rows are left out of coverage entirely (n
 
 
 def is_marketplace_row(r: dict) -> bool:
-    return r.get("price_status") == "marketplace" or str(r.get("advertiser") or "").startswith(MARKETPLACE_VENDORS)
+    return r.get("price_status") == "marketplace" or r.get("tier_class") == "marketplace" or str(r.get("advertiser") or "").startswith(MARKETPLACE_VENDORS)
 
 
 def availability_coverage(rates: list[dict]) -> dict:
@@ -523,5 +526,13 @@ def availability_coverage(rates: list[dict]) -> dict:
     unm = sorted({(r["advertiser"], unmeasurable_reason(r["advertiser"], mv)) for r in rates if unmeasurable_reason(r["advertiser"], mv)})
     market = [{"vendor": r["advertiser"], "gpu": r["gpu"], "vram_gb": r.get("vram_gb"), "label": MARKETPLACE_LABEL,
                "measured": availability_measured(r)} for r in rates if is_marketplace_row(r)]
+    # Gauge T73 F1-F6 #4: say why claims are missing, from the feed itself (price check vs expiry vs two-read gap)
+    lab = lambda r: f"{r['advertiser']} {r['gpu']}" + (f" {r['vram_gb']}GB" if r.get("vram_gb") else "")
+    av = lambda r: r.get("availability") or {}
+    dropped = {"price_changed": [lab(r) for r in rates if av(r).get("price_join_failed")],
+               "two_read_gap": [lab(r) for r in rates if av(r).get("two_read_gap_ok") is False and not av(r).get("price_join_failed")],
+               "expired": [lab(r) for r in rates if av(r).get("availability_stale") and not av(r).get("price_join_failed")
+                           and av(r).get("two_read_gap_ok") is not False]}
     return {"target": AVAILABILITY_TARGET, "models": models, "totals": tot, "unmeasurable": unm,
-            "excluded_interruptible_rows": len(spot), "marketplace_rows": market, "rule": COVERAGE_RULE}
+            "excluded_interruptible_rows": len(spot), "marketplace_rows": market, "rule": COVERAGE_RULE,
+            "dropped_claims": dropped}
