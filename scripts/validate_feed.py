@@ -4,7 +4,7 @@
 Checks:
   - deals.json conforms to schema.json (JSON Schema 2020-12) + timestamp parsing
   - no private commission/payout/compliance keys or values anywhere in public output
-  - /api/v1/deals.json is byte-identical to /deals.json
+  - /api/v1/deals.json is /deals.json with core.deals.cite_guard applied (unsourced prices null)
   - sitemap.xml URLs are on https://thelanternworks.com, no github.io hardcodes in public files
   --gist   : gist mirror raw deals.json is byte-identical to deals.json
   --links  : redeem_url link check (403/429/405/timeouts = warning; 404/410/DNS/5xx-after-retries = error)
@@ -111,8 +111,8 @@ def check_private(feed: dict) -> None:
 
 def check_static() -> None:
     a, b = (ROOT / "deals.json").read_bytes(), (ROOT / "api/v1/deals.json").read_bytes() if (ROOT / "api/v1/deals.json").exists() else b""
-    if a != b:
-        err("api/v1/deals.json is not byte-identical to deals.json (run scripts/generate_seo_pages.py)")
+    if gen.api_v1_bytes(a) != b:
+        err("api/v1/deals.json is not deals.json + cite_guard (run scripts/generate_seo_pages.py)")
     sm = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
     locs = re.findall(r"<loc>([^<]+)</loc>", sm)
     off = [u for u in locs if not u.startswith(gen.BASE + "/")]

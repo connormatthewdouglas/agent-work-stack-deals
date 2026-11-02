@@ -86,3 +86,33 @@ def test_deal_pages_show_no_unsourced_price():
         assert 'data-price=""' in g.filter_attrs(d), d["id"]
     page = (ROOT / "deals/dataimpulse-001/index.html").read_text()
     assert "Pricing on vendor site" in page
+
+
+def test_api_v1_feed_nulls_unsourced_prices_additively():
+    src = json.loads((ROOT / "deals.json").read_text())["deals"]
+    v1 = {d["id"]: d for d in json.loads((ROOT / "api/v1/deals.json").read_text())["deals"]}
+    fly = v1["deal-fly-trial-001"]
+    assert fly["price_usd"] is None and fly["price_null_reason"] == "no cited price"
+    for d in src:  # additive: nothing removed or renamed; only prices of unsourced deals change
+        o = v1[d["id"]]
+        assert set(d) <= set(o)
+        if is_sourced(d):
+            assert o == d
+        else:
+            assert o["price_usd"] is None and o["list_price_usd"] is None and o["price_null_reason"] == "no cited price"
+            assert {k: v for k, v in o.items() if k not in ("price_usd", "list_price_usd", "price_null_reason")} == \
+                   {k: v for k, v in d.items() if k not in ("price_usd", "list_price_usd")}
+
+
+def test_mcp_tools_never_return_unsourced_price(monkeypatch):
+    monkeypatch.setenv("LANTERN_DEALS_FILE", str(ROOT / "deals.json"))  # even from the raw source feed
+    from core import deals as cd
+    assert cd.cite_guard({"id": "x", "price_usd": 0})["price_null_reason"] == "no cited price"
+    s = {"id": "y", "price_usd": 3, "source_url": "https://v", "verified_at": "2026-11-02"}
+    assert cd.cite_guard(s) is s
+    assert "price_null_reason" in cd.PUBLIC_FIELDS and "price_null_reason" in cd.SUMMARY_FIELDS
+
+
+def test_deploy_serves_guarded_alias():
+    w = (ROOT / ".github/workflows/validate-and-deploy.yml").read_text()
+    assert "cp _site/api/v1/deals.json _site/deals.json" in w

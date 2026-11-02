@@ -329,6 +329,9 @@ jobs:
       # re21 P1: no raw repo data on the site (allowlisted files only, availability fields stripped); then the build fails if any reappears
       - run: python3 scripts/guard_site_raw_data.py _site && python3 scripts/guard_site_raw_data.py --check _site
         if: steps.head.outputs.go == 'true'
+      # Gauge rel053: the served /deals.json alias is the cite-guarded api/v1 feed (repo deals.json is source data, unsourced prices null on the site)
+      - run: cp _site/api/v1/deals.json _site/deals.json && cmp _site/api/v1/deals.json _site/deals.json
+        if: steps.head.outputs.go == 'true'
       # unique per attempt, so "Re-run failed jobs" never finds two github-pages artifacts (2026-10-30 failure)
       - uses: actions/upload-pages-artifact@v3
         if: steps.head.outputs.go == 'true'

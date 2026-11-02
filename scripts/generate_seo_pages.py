@@ -733,10 +733,17 @@ def write_skill_copies() -> None:
     (ROOT / "SKILL.md").write_bytes(b"\n" + src)
 
 
+def api_v1_bytes(src: bytes) -> bytes:
+    sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    from core.deals import cite_guard_feed
+    return (json.dumps(cite_guard_feed(json.loads(src)), indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
+
 def write_api_v1() -> Path:
-    """Stable versioned feed: byte-identical copy of /deals.json."""
+    """Stable versioned feed: /deals.json with cite_guard applied (Gauge rel053: an unsourced price is served as null
+    with price_null_reason "no cited price"; deals.json itself is source data and is not rewritten)."""
     API_V1_PATH.parent.mkdir(parents=True, exist_ok=True)
-    API_V1_PATH.write_bytes(DEALS_PATH.read_bytes())
+    API_V1_PATH.write_bytes(api_v1_bytes(DEALS_PATH.read_bytes()))
     return API_V1_PATH
 
 
