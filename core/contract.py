@@ -26,7 +26,7 @@ SPEC = {
                            # T72 (brief is the default here): keep the counts, scope and refresh time a caller needs to
                            # trust the ranking, plus tier/price_status/in_stock per row; the bulky per-row detail stays full-only.
                            ["gpu", "summary", "scope", "count", "total", "excluded_non_on_demand", "excluded_reserved",
-                            "next_refresh_utc", "data_checked_at", "refresh_hint", "results", "cheapest_by_form_factor"],  # the note is full-only; the tool description carries it
+                            "next_refresh_utc", "data_checked_at", "refresh_hint", "results", "cheapest_by_form_factor", "cheapest_by_form_factor_note"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "canonical_model", "form_factor", "source_url", "checked_at",
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link
@@ -227,8 +227,6 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
     if mode == "full":
         return {"ok": True, "mode": "full", **out}
     b = {k: copy.deepcopy(out[k]) for k in brief_keys if k in out}
-    if tool == "compare_gpu_prices" and isinstance(b.get("cheapest_by_form_factor"), list):  # brief picks join results by rate_id
-        b["cheapest_by_form_factor"] = [{k: v for k, v in p.items() if k not in ("source_url", "tier")} for p in b["cheapest_by_form_factor"]]
     if list_key and isinstance(b.get(list_key), list):
         b[list_key] = [_brief_row(tool, r, brief_row) if isinstance(r, dict) else r for r in b[list_key]]
     return {"ok": True, "mode": "brief", **b}

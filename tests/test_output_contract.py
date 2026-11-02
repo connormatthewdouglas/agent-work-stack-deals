@@ -76,7 +76,7 @@ def test_t72_compare_gpu_prices_defaults_to_brief_full_is_explicit():
     kw = _calls()["compare_gpu_prices"]
     default, brief, full = s.compare_gpu_prices(**kw), s.compare_gpu_prices(**kw, mode="brief"), s.compare_gpu_prices(**kw, mode="full")
     assert default["mode"] == "brief" and set(default) == set(brief)
-    assert full["mode"] == "full" and set(brief) <= set(full) and len(json.dumps(default)) < len(json.dumps(full)) * 0.4  # brief rows now carry referral_url/label disclosure (strat2) and audit fields; still well under half
+    assert full["mode"] == "full" and set(brief) <= set(full) and len(json.dumps(default)) < len(json.dumps(full)) * 0.4  # 0.4x already covers the restored form-factor note + pick source_url/tier (~450 chars, ~0.03x full; brief ~0.30x), so no further raise; additive-only rule (strat2). Brief rows also carry referral_url/label disclosure (strat2) and audit fields; still well under half
     assert s.default_mode("compare_gpu_prices") == "brief"
     assert all(s.default_mode(t) == "full" for t in _calls() if t != "compare_gpu_prices")
 
