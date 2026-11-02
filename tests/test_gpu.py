@@ -425,7 +425,14 @@ def test_availability_coverage_on_gpu_hub():
         assert 0 <= m["measured"] <= m["measurable"] <= m["rows"]
     assert unmeasurable_reason("Hyperstack") == "account required"
     assert unmeasurable_reason("DigitalOcean GPU Droplets") == "no public stock signal"
-    assert unmeasurable_reason("RunPod") is None and unmeasurable_reason("CloudRift") == "stock data under review, not yet counted"
+    assert unmeasurable_reason("RunPod") is None and unmeasurable_reason("CloudRift") is None
+    assert unmeasurable_reason("Hyperstack", frozenset({"Hyperstack"})) is None
+    assert unmeasurable_reason("Thunder Compute", frozenset({"Thunder Compute"})) == "account required"
+    fake = [{"advertiser": "Hyperstack", "gpu": "H100", "canonical_model": "H100", "availability": {"status": "available when checked"}},
+            {"advertiser": "Novita AI", "gpu": "H100", "canonical_model": "H100", "availability": {"status": "unknown"}}]
+    fc = availability_coverage(fake)
+    assert fc["models"]["H100"] == {"rows": 2, "measurable": 1, "measured": 1, "coverage": 1.0, "meets_target": True}
+    assert fc["unmeasurable"] == [("Novita AI", "account required")]
     assert availability_measured({"availability": {"status": "available when checked"}})
     assert not availability_measured({"availability": {"status": "unknown"}})
     assert not availability_measured({"availability": {"status": "vendor-labelled in stock (static page label, not a capacity check)"}})

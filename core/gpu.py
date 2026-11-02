@@ -466,13 +466,15 @@ def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) ->
 UNMEASURABLE_NO_SIGNAL = ("99Stack", "Civo", "CoreWeave", "DigitalOcean", "E2E", "Modal", "Nebius", "Ucartz", "RunC.AI", "SaladCloud")
 UNMEASURABLE_ACCOUNT = ("Hyperstack", "Novita", "Jarvislabs", "Thunder Compute")
 AVAILABILITY_TARGET = 0.80
-# Stock data not counted until a Gauge-passed import lands (T73 NO-GO, 2026-11-02): rows stay listed, not measured or counted.
-AVAILABILITY_HELD = ("CloudRift",)
+# Account-gated vendors whose stock Scout now collects (T73 rev 4, Gauge-passed): counted as soon as any of their
+# rows carries a real stock reading; until then they stay labelled "account required". Thunder Compute stays labelled
+# (its rows stay null: not reachable from the collector).
+ACCOUNT_COLLECTED = ("Hyperstack", "Novita")
 
 
-def unmeasurable_reason(vendor: str):
-    if any(vendor.startswith(p) for p in AVAILABILITY_HELD):
-        return "stock data under review, not yet counted"
+def unmeasurable_reason(vendor: str, measured_vendors: frozenset = frozenset()):
+    if vendor in measured_vendors and any(vendor.startswith(p) for p in ACCOUNT_COLLECTED):
+        return None
     if any(vendor.startswith(p) for p in UNMEASURABLE_NO_SIGNAL):
         return "no public stock signal"
     if any(vendor.startswith(p) for p in UNMEASURABLE_ACCOUNT):
@@ -490,12 +492,13 @@ def availability_measured(r: dict) -> bool:
 def availability_coverage(rates: list[dict]) -> dict:
     """Per canonical model: rows, rows from vendors with a free stock signal (measurable), and how many of those are
     measured. Computed from whatever feed is current."""
+    mv = frozenset(r["advertiser"] for r in rates if availability_measured(r))
     models = {}
     for r in rates:
         m = models.setdefault(r.get("canonical_model") or canonical_model(r["gpu"]),
                               {"rows": 0, "measurable": 0, "measured": 0})
         m["rows"] += 1
-        if unmeasurable_reason(r["advertiser"]) is None:
+        if unmeasurable_reason(r["advertiser"], mv) is None:
             m["measurable"] += 1
             m["measured"] += availability_measured(r)
     for m in models.values():
@@ -503,5 +506,5 @@ def availability_coverage(rates: list[dict]) -> dict:
         m["meets_target"] = m["coverage"] is not None and m["coverage"] >= AVAILABILITY_TARGET
     tot = {k: sum(m[k] for m in models.values()) for k in ("rows", "measurable", "measured")}
     tot["coverage"] = round(tot["measured"] / tot["measurable"], 4) if tot["measurable"] else None
-    unm = sorted({(r["advertiser"], unmeasurable_reason(r["advertiser"])) for r in rates if unmeasurable_reason(r["advertiser"])})
+    unm = sorted({(r["advertiser"], unmeasurable_reason(r["advertiser"], mv)) for r in rates if unmeasurable_reason(r["advertiser"], mv)})
     return {"target": AVAILABILITY_TARGET, "models": models, "totals": tot, "unmeasurable": unm}

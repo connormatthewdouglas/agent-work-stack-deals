@@ -6,7 +6,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
-- /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock data is not counted until a verified import lands.
+- /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
 ## 0.5.2 (2026-11-02, PyPI + MCP Registry)
 
