@@ -32,3 +32,18 @@ python3 query_deals.py --include-examples     # keep synthetic example=true rows
 Machine-readable copy: `deals.json` → `query` object.
 
 Default feed: `https://thelanternworks.com/deals.json` (mirror: `https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json`)
+
+## Stock-claim audit fields
+
+`compare_gpu_prices` rows (full: inside `availability`; brief: on the row) carry these when a stock claim exists:
+
+| Field | Meaning |
+|---|---|
+| `first_read_at`, `second_read_at` | UTC times of the two stock reads behind the claim |
+| `second_read_gap_s` | Seconds between the two reads (the field is `second_read_gap_s`, not `gap_s`) |
+| `second_read_basis` | What the second read was |
+| `two_read_gap_ok` | `true` when `second_read_gap_s` >= 60; claims under 60 s are not counted |
+| `stock_read_at`, `price_read_at`, `price_at_claim_usd` | When stock and price were read, and the per-GPU price the claim was read against |
+| `price_join_failed` | The claim's price no longer matches the row, so the claim is not shown as live |
+
+Brief rows also carry `gpu_count` (GPUs per server; per-GPU price is `price_usd`).
