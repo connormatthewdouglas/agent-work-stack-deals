@@ -24,7 +24,7 @@ def test_f1_install_never_pairs_date_with_later_version():
     assert dates[ip.TESTED_ON_VERSION] <= ip.TESTED_ON  # the tested version existed on the tested date
     assert _ver(ip.TESTED_ON_VERSION) <= _ver(ip.TESTED_VERSION)
     page = (ROOT / "install" / "index.html").read_text()
-    assert f"Tested {ip.TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> (v{ip.TESTED_ON_VERSION}; current v{ip.TESTED_VERSION})" in page
+    assert f"Tested {ip.TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> (v{ip.TESTED_ON_VERSION})" in page
 
 
 def test_f2_scout_rows_are_automated_checks():

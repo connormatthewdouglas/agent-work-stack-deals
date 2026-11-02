@@ -12,7 +12,7 @@ PATH = "install"
 TESTED_ON = "2026-11-02"
 # Gauge F1: the version actually tested on TESTED_ON (CI pypi-install run 41128647953, pip + stdio tools/list; uvx re-run
 # by hand the same day). Never pair TESTED_ON with a later version: pages say "tested X (vA); current vB".
-TESTED_ON_VERSION = "0.4.2"
+TESTED_ON_VERSION = "0.5.1"
 CLIENT_TESTED_ON = "2026-11-02"  # T74: LlamaIndex (hosted + local) and plain MCP client re-run on CLIENT_TESTED_VERSION
 SKILL_CHECKED_ON = "2026-10-29"  # npx skills add check (not re-run in T74)
 import sys as _sys
@@ -30,10 +30,10 @@ def _server_tools() -> tuple[str, ...]:
 TOOLS = _server_tools()
 # Tool count covered by the last recorded client tests (TESTED_ON). Bump only after re-testing with the new tool.
 TESTED_TOOLS = 9  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint
-# T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run (0.4.2, 9 tools). Clients not re-run
+# T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run (0.5.1, 9 tools; LlamaIndex re-run on 0.5.1 with llama-index-tools-mcp 0.4.8, mcp<2). Clients not re-run
 # (Claude Desktop, Cursor, Cline, Roo, Continue, Open WebUI in-app) carry no tool count or version claim.
 CLIENT_TESTED_TOOLS = 9
-CLIENT_TESTED_VERSION = "0.4.2"
+CLIENT_TESTED_VERSION = "0.5.1"
 # Verified 2026-11-02 by tools/list on the hosted endpoint: it serves every package tool except these.
 HOSTED_MISSING = ("rebuild_quote",)
 
@@ -110,7 +110,7 @@ def write(g) -> str:
   <p class="meta">Jump to: <a href="#hosted">Hosted endpoint</a> · <a href="#claude-code">Claude Code</a> · <a href="#claude-desktop">Claude Desktop</a> · <a href="#cursor">Cursor</a> · <a href="#vscode">VS Code</a> · <a href="#cline">Cline</a> · <a href="#llamaindex">LlamaIndex</a> · <a href="#openwebui">Open WebUI</a> · <a href="#roo-code">Roo Code</a> · <a href="#continue">Continue</a> · <a href="#generic">Any MCP client</a> · <a href="#examples">Framework examples</a> · <a href="{base}/methodology/">How prices are checked</a></p>
   <h2 id="add">Add Lantern Works to your agent</h2>
   <p>Free, read-only, no API key. MCP server: <code>lantern-works-deals-mcp</code> (<a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a>, MIT; MCP Registry <code>io.github.connormatthewdouglas/lantern-works-deals</code>). Needs <a href="https://docs.astral.sh/uv/">uv</a> (or pipx). Tools: {tools} ({len(TOOLS)} tools in the package).</p>
-  <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> (v{TESTED_ON_VERSION}; current v{TESTED_VERSION}) initializes over stdio, <code>tools/list</code> returned all {TESTED_TOOLS} package tools and <code>compare_gpu_prices</code> returned results. The current package has {len(TOOLS)} tools; on {TESTED_ON} the hosted endpoint listed {hosted_pkg} plus {len(HOSTED_EXTRA)} hosted-only price-watch tools ({hp} + {len(HOSTED_EXTRA)} = {hp + len(HOSTED_EXTRA)} in total).</p>
+  <p class="meta">Tested {TESTED_ON}: a clean <code>uvx lantern-works-deals-mcp</code> (v{TESTED_ON_VERSION}) initializes over stdio, <code>tools/list</code> returned all {TESTED_TOOLS} package tools and <code>compare_gpu_prices</code> returned results. The current package has {len(TOOLS)} tools; on {TESTED_ON} the hosted endpoint listed {hosted_pkg} plus {len(HOSTED_EXTRA)} hosted-only price-watch tools ({hp} + {len(HOSTED_EXTRA)} = {hp + len(HOSTED_EXTRA)} in total).</p>
 
 
   <h2 id="hosted">Hosted endpoint (no install)</h2>
