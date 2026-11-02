@@ -231,7 +231,13 @@ def _form_split(gen, rows) -> str:
 def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
     esc = gen.esc
     trs = []
-    has_av = any((r.get("availability") or {}).get("in_stock") is not None for r in rows)
+    from core.gpu import NO_STOCK_COLLECTION
+    # Keep the column when every scout claim has expired, or when a no-stock-collection vendor is listed,
+    # so 'unknown (stale ...)' and 'unmeasurable (no stock collection)' labels never silently disappear.
+    has_av = any((r.get("availability") or {}).get("in_stock") is not None
+                 or (r.get("availability") or {}).get("availability_stale")
+                 or any(str(r.get("advertiser") or "").startswith(p) for p in NO_STOCK_COLLECTION)
+                 for r in rows)
     kinds = {"manual snapshot" if str((r.get("availability") or {}).get("refresh", "")).startswith("manual") else "automated check"
              for r in rows if (r.get("availability") or {}).get("in_stock") is not None
              or (r.get("availability") or {}).get("checked_at")}  # unknown-but-checked rows are shown in the column too
