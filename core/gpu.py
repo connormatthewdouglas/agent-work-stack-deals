@@ -410,7 +410,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "verified_at": r.get("verified_at") or r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
-                "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"))})
+                "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r)})
     priced = {r["deal_id"] for r in rates} | {d["id"] for d in deals if d.get("advertiser") in {h["vendor"] for h in held}}  # Gauge G1: held != unpriced
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}

@@ -227,12 +227,67 @@ def build_now(now: datetime | None = None) -> datetime:
     return (now or now_utc()) + timedelta(minutes=int(os.environ.get("LW_BUILD_HORIZON_MIN") or 0))
 
 
-def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None) -> dict:
+PRICE_JOIN_USD = 0.005  # Gauge T73: a stock claim stands only if the price in force when stock was read is within $0.005 of today's
+PRICE_JOIN_NOTE = ("The price changed after this stock check (the price shown when stock was read differs from today's "
+                   "price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.")
+_SNAP_CACHE: dict | None = None
+
+
+def _snapshot_prices() -> dict:
+    """series key -> [(verified_at, price_usd)] from the daily price snapshots (append-only)."""
+    global _SNAP_CACHE
+    if _SNAP_CACHE is None:
+        from . import gpu_history
+        _SNAP_CACHE = {}
+        try:
+            snaps = gpu_history.load_snapshots()
+        except Exception:
+            snaps = []
+        for snap in snaps:
+            for row in snap.get("rows", []):
+                if row.get("verified_at") and row.get("price_usd") is not None:
+                    _SNAP_CACHE.setdefault(row["key"], []).append((row["verified_at"], row["price_usd"]))
+    return _SNAP_CACHE
+
+
+def price_at_claim(price_rec: dict, claim_at) -> tuple[float | None, str | None]:
+    """(price_usd, price read time) of the price in force at claim_at: the latest price read at or before the stock read."""
+    from . import gpu_history
+    t = _parse(claim_at)
+    if t is None or not isinstance(price_rec, dict) or price_rec.get("price_usd") is None:
+        return None, None
+    key = gpu_history.series_key(price_rec["vendor"], price_rec["gpu"], price_rec["tier"], price_rec.get("vram_gb"), price_rec.get("gpu_count", 1))
+    cur_at = price_rec.get("verified_at") or price_rec.get("checked_at")
+    cands = list(_snapshot_prices().get(key, [])) + ([(cur_at, price_rec["price_usd"])] if cur_at else [])
+    cands = [(_parse(a), a, p) for a, p in cands if _parse(a) and _parse(a) <= t]
+    if not cands:
+        return None, None
+    _, at, p = max(cands, key=lambda c: c[0])
+    return p, at
+
+
+def price_join_guard(a: dict, price_rec: dict | None) -> dict:
+    """A stock claim read against a price that no longer matches today's (> $0.005 apart) is dropped (unknown)."""
+    if not isinstance(a, dict) or a.get("in_stock") is None or not isinstance(price_rec, dict) or price_rec.get("price_usd") is None:
+        return a
+    p, _ = price_at_claim(price_rec, a.get("checked_at"))
+    if p is None or abs(float(p) - float(price_rec["price_usd"])) <= PRICE_JOIN_USD + 1e-9:
+        return a
+    out = {"status": "unknown (price changed since stock check)", "in_stock": None, "price_join_failed": True,
+           "checked_at": a.get("checked_at"), "origin": a.get("origin"), "note": PRICE_JOIN_NOTE}
+    for k in ("source", "source_label", "availability_expires_at"):
+        if a.get(k):
+            out[k] = a[k]
+    return out
+
+
+def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None,
+                     price_rec: dict | None = None) -> dict:
     now = build_now(now)
     r = _index().get((vendor, gpu, vram_gb, _tier_key(tier)))
     if not r and isinstance(record, dict):
-        return stale_guard(_from_record(record), now)  # record-origin stock expires at build time too
-    return stale_guard(_scout(vendor, r), now)
+        return price_join_guard(stale_guard(_from_record(record), now), price_rec)  # record-origin stock expires at build time too
+    return price_join_guard(stale_guard(_scout(vendor, r), now), price_rec)
 
 
 HELD_NOTE = "Held by Scout: fewer offers than its publish minimum, so no stock claim is shown."
