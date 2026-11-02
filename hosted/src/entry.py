@@ -72,7 +72,7 @@ CORS = {"access-control-allow-origin": "*", "access-control-allow-headers": "con
         "access-control-allow-methods": "GET, POST, OPTIONS"}
 # Brain #247: security headers on every response. CSP suits JSON plus the inline-styled /stats page (no scripts at all);
 # CORS stays open (*) so browser-based MCP clients keep working.
-SEC = {"x-content-type-options": "nosniff", "referrer-policy": "no-referrer",
+SEC = {"x-content-type-options": "nosniff", "referrer-policy": "no-referrer", "x-frame-options": "DENY",
        "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
        "strict-transport-security": "max-age=31536000; includeSubDomains"}
 CORS = {**CORS, **SEC}
