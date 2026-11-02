@@ -420,7 +420,14 @@ def test_availability_coverage_on_gpu_hub():
     rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
     c = availability_coverage(rates)
     assert c["target"] == 0.8
-    assert sum(m["rows"] for m in c["models"].values()) == len(rates)
+    # T73 F5: interruptible/spot rows are out of coverage entirely; marketplace rows count, labelled
+    assert sum(m["rows"] for m in c["models"].values()) == len([r for r in rates if not r.get("interruptible")])
+    assert c["excluded_interruptible_rows"] == sum(1 for r in rates if r.get("interruptible"))
+    assert c["marketplace_rows"] and all(x["label"] == "marketplace listing" for x in c["marketplace_rows"])
+    assert {x["vendor"] for x in c["marketplace_rows"]} <= {"Vast.ai", "Clore.ai"}
+    spot = [{"advertiser": "RunPod", "gpu": "H100", "canonical_model": "H100", "interruptible": True,
+             "availability": {"status": "available when checked"}}]
+    assert availability_coverage(spot)["totals"] == {"rows": 0, "measurable": 0, "measured": 0, "coverage": None}
     for m in c["models"].values():
         assert 0 <= m["measured"] <= m["measurable"] <= m["rows"]
     assert unmeasurable_reason("Hyperstack") == "account required"
@@ -439,6 +446,8 @@ def test_availability_coverage_on_gpu_hub():
     html = (root / "gpu/index.html").read_text(encoding="utf-8")
     assert 'id="availability-coverage"' in html and "Target: 80%" in html
     assert "account required" in html and "no public stock signal" in html
+    assert "interruptible (spot) rows do not count toward coverage" in html and "unrented marketplace servers count as available" in html
+    assert html.count(">marketplace listing</span>") == len(c["marketplace_rows"])
     assert "sign-up" not in html.lower() and "pending" not in html.lower()
 
 

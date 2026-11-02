@@ -489,9 +489,23 @@ def availability_measured(r: dict) -> bool:
     return st in ("available when checked", "out of stock when checked") or st.startswith("unknown (stale availability, last checked")
 
 
+MARKETPLACE_VENDORS = ("Vast.ai", "Clore")  # T73 F5: counted, labelled "marketplace listing"
+MARKETPLACE_LABEL = "marketplace listing"
+COVERAGE_RULE = ("Interruptible (spot) rows are left out of coverage entirely (numerator and denominator). Marketplace "
+                 "rows (Vast.ai, Clore.ai) count and are labelled \u201cmarketplace listing\u201d: an unrented marketplace "
+                 "server counts as available.")
+
+
+def is_marketplace_row(r: dict) -> bool:
+    return r.get("price_status") == "marketplace" or str(r.get("advertiser") or "").startswith(MARKETPLACE_VENDORS)
+
+
 def availability_coverage(rates: list[dict]) -> dict:
     """Per canonical model: rows, rows from vendors with a free stock signal (measurable), and how many of those are
-    measured. Computed from whatever feed is current."""
+    measured. Computed from whatever feed is current. T73 F5 (owner decision 2026-11-02): interruptible/spot rows are
+    excluded from every count; marketplace rows count and are listed with a 'marketplace listing' label."""
+    spot = [r for r in rates if r.get("interruptible")]
+    rates = [r for r in rates if not r.get("interruptible")]
     mv = frozenset(r["advertiser"] for r in rates if availability_measured(r))
     models = {}
     for r in rates:
@@ -507,4 +521,7 @@ def availability_coverage(rates: list[dict]) -> dict:
     tot = {k: sum(m[k] for m in models.values()) for k in ("rows", "measurable", "measured")}
     tot["coverage"] = round(tot["measured"] / tot["measurable"], 4) if tot["measurable"] else None
     unm = sorted({(r["advertiser"], unmeasurable_reason(r["advertiser"], mv)) for r in rates if unmeasurable_reason(r["advertiser"], mv)})
-    return {"target": AVAILABILITY_TARGET, "models": models, "totals": tot, "unmeasurable": unm}
+    market = [{"vendor": r["advertiser"], "gpu": r["gpu"], "vram_gb": r.get("vram_gb"), "label": MARKETPLACE_LABEL,
+               "measured": availability_measured(r)} for r in rates if is_marketplace_row(r)]
+    return {"target": AVAILABILITY_TARGET, "models": models, "totals": tot, "unmeasurable": unm,
+            "excluded_interruptible_rows": len(spot), "marketplace_rows": market, "rule": COVERAGE_RULE}

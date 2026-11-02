@@ -763,12 +763,18 @@ def availability_coverage_html(gen, rates: list[dict]) -> str:
         by.setdefault(why, []).append(v)
     unm = "".join(f"<li><strong>{gen.esc(why)}</strong>: {gen.esc(', '.join(vs))}</li>" for why, vs in sorted(by.items(), reverse=True))
     t = c["totals"]
+    ml = "".join(f"<li>{gen.esc(x['vendor'])} {gen.esc(x['gpu'])}{(' ' + str(x['vram_gb']) + ' GB') if x.get('vram_gb') else ''}: "
+                 f"<span class=\"badge\">{gen.esc(x['label'])}</span>{'' if x['measured'] else ' (not measured now)'}</li>"
+                 for x in c["marketplace_rows"])
+    mkt = (f"  <p class=\"meta\">Marketplace rows counted in coverage, each a <strong>marketplace listing</strong> "
+           f"(unrented marketplace servers count as available):</p>\n  <ul>{ml}</ul>\n") if ml else ""
     return (f"""  <h2 id="availability-coverage">Availability coverage</h2>
   <p>Share of rows with a free public stock signal that we actually measure (available, out of stock, or stale with its last-check time). Target: {pct(c['target'])} per model. Overall: {_cov_label(t, pct, target=False)}.</p>
+  <p><strong>Counting rule (owner decision, 2026-11-02):</strong> interruptible (spot) rows do not count toward coverage: they are left out of both the numerator and the denominator ({c['excluded_interruptible_rows']} spot rows excluded). Marketplace rows (Vast.ai, Clore.ai) do count, each labelled &ldquo;marketplace listing&rdquo;; unrented marketplace servers count as available.</p>
   <div class="tscroll"><table class="howto"><thead><tr><th>Model</th><th>Rows</th><th>Measurable rows</th><th>Measured</th><th>Coverage (headline: rows with a public stock signal · all rows)</th></tr></thead><tbody>{rows}</tbody></table></div>
   <p class="meta">Unmeasurable vendors (not counted as gaps):</p>
   <ul>{unm}</ul>
-""")
+{mkt}""")
 
 
 def write_hub(gen, rates: list[dict]) -> str:
