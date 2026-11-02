@@ -117,4 +117,5 @@ See a price that doesn't match the vendor's page, or an offer you can't rent? [O
 ## License
 
 - Code: MIT, see [LICENSE](LICENSE).
+- Field reference for `canonical_model` and `form_factor` in `gpu-prices.json`: [docs/GPU-PRICES-FIELDS.md](docs/GPU-PRICES-FIELDS.md).
 - Price and deal data (`deals.json`, `api/v1/*.json` including `gpu-prices.json`, the price history and change feed, `data/gpu_pricing/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), see [LICENSE-DATA](LICENSE-DATA). Attribution: "Lantern Works" with a link to https://thelanternworks.com. Every JSON feed carries these terms in its `license` field.

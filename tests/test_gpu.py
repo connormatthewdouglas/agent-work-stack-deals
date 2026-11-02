@@ -330,3 +330,25 @@ def test_t71_multi_gpu_rows_label_whole_instance_totals():
         assert "whole " in cells["Full month"] and "-GPU instance" in cells["Full month"], r
     lam = [r for r in rows if "Lambda" in r and "A100 SXM" in r]
     assert lam and "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]
+
+
+def test_t75_canonical_model_and_form_factor_on_every_rate():
+    from core.gpu import FAMILIES
+    api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    rates = api["rates"]
+    assert all(r.get("canonical_model") for r in rates) and all(isinstance(r.get("form_factor"), str) and r["form_factor"] for r in rates)
+    assert {r["canonical_model"] for r in rates} <= set(FAMILIES.values())
+    by = {}
+    for r in rates:
+        by.setdefault(r["gpu"], set()).add(r["canonical_model"])
+    for g in ("H100 SXM", "H100 PCIe", "H100 NVLink", "H100"):
+        if g in by:
+            assert by[g] == {"H100"}, g
+    if "H100 NVL" in by:
+        assert by["H100 NVL"] == {"H100 NVL"}
+    for r in rates:
+        assert r["form_factor"] in {"SXM", "SXM2", "SXM4", "SXM5", "PCIe", "NVL", "not stated"}, r["form_factor"]
+        if "PCIe" in r["gpu"]:
+            assert r["form_factor"] == "PCIe"
+        if "NVLink" in r["gpu"]:
+            assert r["form_factor"] in {"not stated", "SXM"}  # NVLink is the bridge; SXM only via vendor record/HGX quote
