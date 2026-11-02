@@ -13,7 +13,7 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-11-02T12:29:27+00:00",
+  "last_checked": "2026-11-02T12:59:27+00:00",
   "row_count": 29,
   "providers": [
     "Civo",
@@ -47,7 +47,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T12:26:45+00:00",
+        "verified_at": "2026-11-02T12:56:46+00:00",
         "source_url": "https://jarvislabs.ai/pricing",
         "quote": "NVIDIA A100 40GB 40 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $0.89",
         "availability": {
@@ -72,7 +72,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T12:26:18+00:00",
+        "verified_at": "2026-11-02T12:56:18+00:00",
         "source_url": "https://www.cloudrift.ai/a100",
         "quote": "Rent NVIDIA A100 80GB SXM4 GPUs from $1.05/hour. Each GPU ships with 15 CPU cores, 210 GB of RAM, and 800 GB of NVMe, and nodes scale to 8 GPUs over NVLink 3.0.",
         "availability": {
@@ -93,7 +93,7 @@
           "regions_expires_at": "2026-11-02T13:33:17Z",
           "detail": "Tier 'On-demand' is INFERRED by Scout (the CloudRift API has no tier label); the feed join attaches this claim only if cost_per_hour/100 equals the feed price and VRAM is 80 GB. available_gpus = CloudRift nodes with a free 1-GPU slot per data center (available_nodes_per_dc of the 1-GPU variant); nodes, not GPUs",
           "stock_read_at": "2026-11-02T12:33:17Z",
-          "price_read_at": "2026-11-02T12:26:18+00:00",
+          "price_read_at": "2026-11-01T17:45:51+00:00",
           "price_at_claim_usd": 1.05,
           "gpu_count": 1
         }
@@ -114,7 +114,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T12:29:27+00:00",
+        "verified_at": "2026-11-02T12:59:27+00:00",
         "source_url": "https://verda.com/pricing",
         "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.625/h $0.8125/h",
         "availability": {
@@ -125,18 +125,13 @@
           "max_age_hours": 0.25,
           "origin": "scout",
           "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-          "derived_from_regions": true,
           "source_label": "authenticated vendor API (not publicly reproducible)",
           "availability_expires_at": "2026-11-02T12:48:07Z",
           "stock_read_at": "2026-11-02T12:33:07Z",
-          "price_read_at": "2026-11-02T12:29:27+00:00",
-          "price_at_claim_usd": 0.8125,
+          "price_read_at": "2026-11-01T17:48:57+00:00",
+          "price_at_claim_usd": 0.8045,
           "gpu_count": 1,
-          "first_read_at": "2026-11-02T12:33:07Z",
-          "second_read_at": "2026-11-02T12:34:10Z",
-          "second_read_gap_s": 63.0,
-          "second_read_basis": "region FIN-01",
-          "two_read_gap_ok": true
+          "price_join_failed": true
         }
       },
       {
@@ -153,7 +148,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T12:26:41+00:00",
+        "verified_at": "2026-11-02T12:56:42+00:00",
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
         "quote": "GPU Model Spot VM NVIDIA H100 PCIe $2.00 NVIDIA RTX Pro 6000 SE $1.48 NVIDIA A100 $1.08",
         "availability": {
@@ -200,7 +195,7 @@
           "regions_expires_at": "2026-11-02T13:33:17Z",
           "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
           "stock_read_at": "2026-11-02T12:33:17Z",
-          "price_read_at": "2026-11-02T12:26:41+00:00",
+          "price_read_at": "2026-11-01T17:46:14+00:00",
           "price_at_claim_usd": 1.08,
           "gpu_count": 1
         }
@@ -221,7 +216,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T12:27:03+00:00",
+        "verified_at": "2026-11-02T12:57:03+00:00",
         "source_url": "https://modal.com/pricing",
         "quote": "Nvidia A100, 80 GB $ 0.000694 / sec",
         "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
@@ -249,7 +244,7 @@
         "server_hourly_usd": 4.2854,
         "min_gpus": 2,
         "price_status": "listed",
-        "verified_at": "2026-11-02T12:29:09+00:00",
+        "verified_at": "2026-11-02T12:59:09+00:00",
         "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
         "quote": "EPYC 7443P + 2 x A100 80GB HIGH PERFORMANCE United States Details and locations 24 cores / 48 threads 2 x A100 80GB GPU 512 GB 2 x 3.84 TB NVMe 100 TB 10 Gbps 5 IPv4 $ 3,128.32 /mo",
         "availability": {
@@ -276,7 +271,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:29:27+00:00",
+      "verified_at": "2026-11-02T12:59:27+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.625/h $0.8125/h",
       "availability": {
@@ -287,18 +282,13 @@
         "max_age_hours": 0.25,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "derived_from_regions": true,
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "availability_expires_at": "2026-11-02T12:48:07Z",
         "stock_read_at": "2026-11-02T12:33:07Z",
-        "price_read_at": "2026-11-02T12:29:27+00:00",
-        "price_at_claim_usd": 0.8125,
+        "price_read_at": "2026-11-01T17:48:57+00:00",
+        "price_at_claim_usd": 0.8045,
         "gpu_count": 1,
-        "first_read_at": "2026-11-02T12:33:07Z",
-        "second_read_at": "2026-11-02T12:34:10Z",
-        "second_read_gap_s": 63.0,
-        "second_read_basis": "region FIN-01",
-        "two_read_gap_ok": true
+        "price_join_failed": true
       }
     },
     {
@@ -315,7 +305,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:45+00:00",
+      "verified_at": "2026-11-02T12:56:46+00:00",
       "source_url": "https://jarvislabs.ai/pricing",
       "quote": "NVIDIA A100 40GB 40 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $0.89",
       "availability": {
@@ -340,7 +330,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:18+00:00",
+      "verified_at": "2026-11-02T12:56:18+00:00",
       "source_url": "https://www.cloudrift.ai/a100",
       "quote": "Rent NVIDIA A100 80GB SXM4 GPUs from $1.05/hour. Each GPU ships with 15 CPU cores, 210 GB of RAM, and 800 GB of NVMe, and nodes scale to 8 GPUs over NVLink 3.0.",
       "availability": {
@@ -361,7 +351,7 @@
         "regions_expires_at": "2026-11-02T13:33:17Z",
         "detail": "Tier 'On-demand' is INFERRED by Scout (the CloudRift API has no tier label); the feed join attaches this claim only if cost_per_hour/100 equals the feed price and VRAM is 80 GB. available_gpus = CloudRift nodes with a free 1-GPU slot per data center (available_nodes_per_dc of the 1-GPU variant); nodes, not GPUs",
         "stock_read_at": "2026-11-02T12:33:17Z",
-        "price_read_at": "2026-11-02T12:26:18+00:00",
+        "price_read_at": "2026-11-01T17:45:51+00:00",
         "price_at_claim_usd": 1.05,
         "gpu_count": 1
       }
@@ -380,7 +370,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:41+00:00",
+      "verified_at": "2026-11-02T12:56:42+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "GPU Model Spot VM NVIDIA H100 PCIe $2.00 NVIDIA RTX Pro 6000 SE $1.48 NVIDIA A100 $1.08",
       "availability": {
@@ -427,7 +417,7 @@
         "regions_expires_at": "2026-11-02T13:33:17Z",
         "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
         "stock_read_at": "2026-11-02T12:33:17Z",
-        "price_read_at": "2026-11-02T12:26:41+00:00",
+        "price_read_at": "2026-11-01T17:46:14+00:00",
         "price_at_claim_usd": 1.08,
         "gpu_count": 1
       }
@@ -446,7 +436,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:06+00:00",
+      "verified_at": "2026-11-02T12:56:07+00:00",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA A100 - 40GB 56 GB 8 200GB NVMe FREE $1.09 per hour",
       "availability": {
@@ -471,7 +461,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:29:03+00:00",
+      "verified_at": "2026-11-02T12:59:03+00:00",
       "source_url": "https://www.thundercompute.com/pricing",
       "quote": "A100 80GB 80 GB 8 included · 16 max 64–128 GB 100–500 GB $1.09 /hr",
       "availability": {
@@ -479,6 +469,37 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Vast.ai",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "tier_class": "marketplace",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.117,
+      "unit": "hour",
+      "price_usd": 1.117,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "marketplace",
+      "verified_at": "2026-11-02T12:59:15+00:00",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "quote": "Vast public offers API: 10 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1170/hr, min $0.9489/hr",
+      "availability": {
+        "status": "unknown (price changed)",
+        "in_stock": null,
+        "price_join_failed": true,
+        "checked_at": "2026-11-02T12:32:54Z",
+        "origin": "scout",
+        "note": "The price changed after this stock check (the price shown when stock was read differs from today's price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.",
+        "stock_read_at": "2026-11-02T12:32:54Z",
+        "price_read_at": "2026-11-01T17:48:45+00:00",
+        "price_at_claim_usd": 1.2156,
+        "gpu_count": 1,
+        "availability_expires_at": "2026-11-02T13:32:54Z"
       }
     },
     {
@@ -495,7 +516,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:29:27+00:00",
+      "verified_at": "2026-11-02T12:59:27+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.270/h $1.135/h",
       "availability": {
@@ -506,191 +527,13 @@
         "max_age_hours": 0.25,
         "origin": "scout",
         "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-        "derived_from_regions": true,
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "availability_expires_at": "2026-11-02T12:48:07Z",
         "stock_read_at": "2026-11-02T12:33:07Z",
-        "price_read_at": "2026-11-02T12:29:27+00:00",
-        "price_at_claim_usd": 1.135,
+        "price_read_at": "2026-11-01T17:48:57+00:00",
+        "price_at_claim_usd": 1.124,
         "gpu_count": 1,
-        "first_read_at": "2026-11-02T12:33:07Z",
-        "second_read_at": "2026-11-02T12:34:10Z",
-        "second_read_gap_s": 63.0,
-        "second_read_basis": "region FIN-01",
-        "two_read_gap_ok": true
-      }
-    },
-    {
-      "provider": "Vast.ai",
-      "gpu": "A100 SXM",
-      "vram_gb": 80,
-      "tier": "Marketplace on-demand (verified; median per GPU)",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 1.1893,
-      "unit": "hour",
-      "price_usd": 1.1893,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "marketplace",
-      "verified_at": "2026-11-02T12:29:15+00:00",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "quote": "Vast public offers API: 11 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1893/hr, min $1.0669/hr",
-      "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-11-02T12:32:54Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-02T13:32:54Z",
-        "max_age_hours": 1.0,
-        "offer_count": 11,
-        "available_regions": [
-          "AT",
-          "CZ",
-          "DE",
-          "JP",
-          "TW",
-          "US"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "AT",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:32:54Z",
-            "availability_expires_at": "2026-11-02T13:32:54Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2,
-            "first_read_at": "2026-11-02T12:32:54Z",
-            "second_read_at": "2026-11-02T12:33:55Z",
-            "second_read_gap_s": 61.0
-          },
-          {
-            "region": "CZ",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:32:54Z",
-            "availability_expires_at": "2026-11-02T13:32:54Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 1,
-            "first_read_at": "2026-11-02T12:32:54Z",
-            "second_read_at": "2026-11-02T12:33:55Z",
-            "second_read_gap_s": 61.0
-          },
-          {
-            "region": "DE",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:32:54Z",
-            "availability_expires_at": "2026-11-02T13:32:54Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2,
-            "first_read_at": "2026-11-02T12:32:54Z",
-            "second_read_at": "2026-11-02T12:33:55Z",
-            "second_read_gap_s": 61.0
-          },
-          {
-            "region": "JP",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:32:54Z",
-            "availability_expires_at": "2026-11-02T13:32:54Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1,
-            "first_read_at": "2026-11-02T12:32:54Z",
-            "second_read_at": "2026-11-02T12:33:55Z",
-            "second_read_gap_s": 61.0
-          },
-          {
-            "region": "TW",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:32:54Z",
-            "availability_expires_at": "2026-11-02T13:32:54Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2,
-            "first_read_at": "2026-11-02T12:32:54Z",
-            "second_read_at": "2026-11-02T12:33:55Z",
-            "second_read_gap_s": 61.0
-          },
-          {
-            "region": "US",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:32:54Z",
-            "availability_expires_at": "2026-11-02T13:32:54Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2,
-            "first_read_at": "2026-11-02T12:32:54Z",
-            "second_read_at": "2026-11-02T12:33:55Z",
-            "second_read_gap_s": 61.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "first_read_at": "2026-11-02T12:32:54Z",
-        "second_read_at": "2026-11-02T12:33:55Z",
-        "second_read_gap_s": 61.0,
-        "second_read_basis": "region AT",
-        "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "AT",
-            "zone": "AT",
-            "country": "AT",
-            "group": null
-          },
-          {
-            "label": "CZ",
-            "zone": "CZ",
-            "country": "CZ",
-            "group": "EU"
-          },
-          {
-            "label": "DE",
-            "zone": "DE",
-            "country": "DE",
-            "group": "EU"
-          },
-          {
-            "label": "JP",
-            "zone": "JP",
-            "country": "JP",
-            "group": "APAC"
-          },
-          {
-            "label": "TW",
-            "zone": "TW",
-            "country": "TW",
-            "group": "APAC"
-          },
-          {
-            "label": "US",
-            "zone": "US",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-11-02T13:32:54Z",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
-        "stock_read_at": "2026-11-02T12:32:54Z",
-        "price_read_at": "2026-11-02T12:29:15+00:00",
-        "price_at_claim_usd": 1.1893,
-        "gpu_count": 1
+        "price_join_failed": true
       }
     },
     {
@@ -707,7 +550,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:27:46+00:00",
+      "verified_at": "2026-11-02T12:57:47+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
       "availability": {
@@ -733,7 +576,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:41+00:00",
+      "verified_at": "2026-11-02T12:56:42+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 80 28 120 $1.35",
       "availability": {
@@ -780,7 +623,7 @@
         "regions_expires_at": "2026-11-02T13:33:17Z",
         "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
         "stock_read_at": "2026-11-02T12:33:17Z",
-        "price_read_at": "2026-11-02T12:26:41+00:00",
+        "price_read_at": "2026-11-01T17:46:14+00:00",
         "price_at_claim_usd": 1.35,
         "gpu_count": 1
       }
@@ -799,7 +642,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:27:46+00:00",
+      "verified_at": "2026-11-02T12:57:47+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
       "availability": {
@@ -825,7 +668,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:41+00:00",
+      "verified_at": "2026-11-02T12:56:42+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 NVLink 80 31 240 $1.40",
       "availability": {
@@ -846,7 +689,7 @@
         "regions_expires_at": "2026-11-02T13:33:17Z",
         "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
         "stock_read_at": "2026-11-02T12:33:17Z",
-        "price_read_at": "2026-11-02T12:26:41+00:00",
+        "price_read_at": "2026-11-01T17:46:14+00:00",
         "price_at_claim_usd": 1.4,
         "gpu_count": 1
       }
@@ -865,7 +708,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:27:27+00:00",
+      "verified_at": "2026-11-02T12:57:28+00:00",
       "source_url": "https://oblivus.com/pricing/",
       "quote": "A100 80GB PCIE 28 vCPU 120GB RAM 850GB NVMe On-Demand: $1.47/hr",
       "availability": {
@@ -914,7 +757,7 @@
         "regions_expires_at": "2026-11-02T13:33:04Z",
         "detail": "Available_gpus = GPUs available per location on Oblivus' public availability page",
         "stock_read_at": "2026-11-02T12:33:04Z",
-        "price_read_at": "2026-11-02T12:27:27+00:00",
+        "price_read_at": "2026-11-01T18:05:00+00:00",
         "price_at_claim_usd": 1.47,
         "gpu_count": 1
       }
@@ -933,7 +776,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:45+00:00",
+      "verified_at": "2026-11-02T12:56:46+00:00",
       "source_url": "https://jarvislabs.ai/pricing",
       "quote": "NVIDIA A100 80GB 80 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $1.49",
       "availability": {
@@ -958,7 +801,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:41+00:00",
+      "verified_at": "2026-11-02T12:56:42+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 SXM 80 24 120 $1.60",
       "availability": {
@@ -1005,7 +848,7 @@
         "regions_expires_at": "2026-11-02T13:33:17Z",
         "detail": "Tier 'On-demand' for non-spot models is INFERRED by Scout (the stock API has no tier label; '-spot' models map to 'Spot VM'); the feed join attaches the claim only if the live pricebook price (GET /v1/pricebook, same exact model name) equals the feed price and VRAM matches. Hyperstack stock API 'available' per region (string, e.g. '10+' read as >= 10); model matched by exact API name incl. VRAM; Reservation prices have no stock signal and stay unknown",
         "stock_read_at": "2026-11-02T12:33:17Z",
-        "price_read_at": "2026-11-02T12:26:41+00:00",
+        "price_read_at": "2026-11-01T17:46:14+00:00",
         "price_at_claim_usd": 1.6,
         "gpu_count": 1
       }
@@ -1024,31 +867,22 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:29:27+00:00",
+      "verified_at": "2026-11-02T12:59:27+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.625/h",
       "availability": {
-        "status": "out of stock when checked",
-        "in_stock": false,
+        "status": "unknown (price changed)",
+        "in_stock": null,
+        "price_join_failed": true,
         "checked_at": "2026-11-02T12:33:06Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-02T13:33:06Z",
-        "max_age_hours": 1.0,
-        "derived_from_regions": true,
-        "first_read_at": "2026-11-02T12:33:06Z",
-        "second_read_at": "2026-11-02T12:34:08Z",
-        "second_read_gap_s": 62.0,
-        "second_read_basis": "region FIN-01",
-        "two_read_gap_ok": true,
-        "regions_expires_at": "2026-11-02T13:33:06Z",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
+        "note": "The price changed after this stock check (the price shown when stock was read differs from today's price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.",
         "stock_read_at": "2026-11-02T12:33:06Z",
-        "price_read_at": "2026-11-02T12:29:27+00:00",
-        "price_at_claim_usd": 1.625,
-        "gpu_count": 1
+        "price_read_at": "2026-11-01T17:48:57+00:00",
+        "price_at_claim_usd": 1.609,
+        "gpu_count": 1,
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "availability_expires_at": "2026-11-02T13:33:06Z"
       }
     },
     {
@@ -1065,7 +899,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:06+00:00",
+      "verified_at": "2026-11-02T12:56:07+00:00",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA A100 - 80GB 96 GB 12 200GB NVMe FREE $1.79 per hour",
       "availability": {
@@ -1090,7 +924,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:27:46+00:00",
+      "verified_at": "2026-11-02T12:57:47+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
       "availability": {
@@ -1116,7 +950,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:27:46+00:00",
+      "verified_at": "2026-11-02T12:57:47+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
       "availability": {
@@ -1142,7 +976,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:33+00:00",
+      "verified_at": "2026-11-02T12:56:33+00:00",
       "source_url": "https://www.e2enetworks.com/pricing",
       "quote": "NVIDIA A100 40 16 115 $1.98",
       "availability": {
@@ -1167,7 +1001,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:57+00:00",
+      "verified_at": "2026-11-02T12:56:57+00:00",
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 PCIe 40 GB 30 225 GiB 512 GiB SSD $1.99",
       "availability": {
@@ -1189,7 +1023,7 @@
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
         "stock_read_at": "2026-11-02T12:33:07Z",
-        "price_read_at": "2026-11-02T12:26:57+00:00",
+        "price_read_at": "2026-11-01T17:46:30+00:00",
         "price_at_claim_usd": 1.99,
         "gpu_count": 1
       }
@@ -1208,7 +1042,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:57+00:00",
+      "verified_at": "2026-11-02T12:56:57+00:00",
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 SXM 40 GB 30 220 GiB 512 GiB SSD $1.99",
       "availability": {
@@ -1256,7 +1090,7 @@
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
         "stock_read_at": "2026-11-02T12:33:07Z",
-        "price_read_at": "2026-11-02T12:26:57+00:00",
+        "price_read_at": "2026-11-01T17:46:30+00:00",
         "price_at_claim_usd": 1.99,
         "gpu_count": 1
       }
@@ -1275,7 +1109,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:33+00:00",
+      "verified_at": "2026-11-02T12:56:33+00:00",
       "source_url": "https://www.e2enetworks.com/pricing",
       "quote": "NVIDIA A100 80 16 115 $2.10",
       "availability": {
@@ -1301,7 +1135,7 @@
       "server_hourly_usd": 4.2854,
       "min_gpus": 2,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:29:09+00:00",
+      "verified_at": "2026-11-02T12:59:09+00:00",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
       "quote": "EPYC 7443P + 2 x A100 80GB HIGH PERFORMANCE United States Details and locations 24 cores / 48 threads 2 x A100 80GB GPU 512 GB 2 x 3.84 TB NVMe 100 TB 10 Gbps 5 IPv4 $ 3,128.32 /mo",
       "availability": {
@@ -1325,76 +1159,22 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:29:27+00:00",
+      "verified_at": "2026-11-02T12:59:27+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.270/h",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (price changed)",
+        "in_stock": null,
+        "price_join_failed": true,
         "checked_at": "2026-11-02T12:33:06Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-02T13:33:06Z",
-        "max_age_hours": 1.0,
-        "derived_from_regions": true,
-        "available_regions": [
-          "FIN-01",
-          "FIN-03"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "FIN-01",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:33:06Z",
-            "availability_expires_at": "2026-11-02T13:33:06Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-02T12:33:06Z",
-            "second_read_at": "2026-11-02T12:34:08Z",
-            "second_read_gap_s": 62.0
-          },
-          {
-            "region": "FIN-03",
-            "stock_level": null,
-            "checked_at": "2026-11-02T12:33:06Z",
-            "availability_expires_at": "2026-11-02T13:33:06Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-02T12:33:06Z",
-            "second_read_at": "2026-11-02T12:34:08Z",
-            "second_read_gap_s": 62.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "first_read_at": "2026-11-02T12:33:06Z",
-        "second_read_at": "2026-11-02T12:34:08Z",
-        "second_read_gap_s": 62.0,
-        "second_read_basis": "region FIN-01",
-        "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "FIN-01",
-            "zone": "FIN-01",
-            "country": "FI",
-            "group": "EU"
-          },
-          {
-            "label": "FIN-03",
-            "zone": "FIN-03",
-            "country": "FI",
-            "group": "EU"
-          }
-        ],
-        "regions_expires_at": "2026-11-02T13:33:06Z",
-        "source_label": "authenticated vendor API (not publicly reproducible)",
-        "detail": "Offer_count not exposed by Verda API; in_stock=false means no listed location reports this type available",
+        "note": "The price changed after this stock check (the price shown when stock was read differs from today's price by more than $0.005), so the stock claim is dropped and shown as unknown until a newer check.",
         "stock_read_at": "2026-11-02T12:33:06Z",
-        "price_read_at": "2026-11-02T12:29:27+00:00",
-        "price_at_claim_usd": 2.27,
-        "gpu_count": 1
+        "price_read_at": "2026-11-01T17:48:57+00:00",
+        "price_at_claim_usd": 2.248,
+        "gpu_count": 1,
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+        "availability_expires_at": "2026-11-02T13:33:06Z"
       }
     },
     {
@@ -1411,7 +1191,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:27:03+00:00",
+      "verified_at": "2026-11-02T12:57:03+00:00",
       "source_url": "https://modal.com/pricing",
       "quote": "Nvidia A100, 80 GB $ 0.000694 / sec",
       "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
@@ -1437,7 +1217,7 @@
       "server_hourly_usd": 21.6,
       "min_gpus": 8,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:21+00:00",
+      "verified_at": "2026-11-02T12:56:21+00:00",
       "source_url": "https://www.coreweave.com/pricing",
       "quote": "NVIDIA A100 On-Demand Price: $21.60 / Hour",
       "availability": {
@@ -1462,7 +1242,7 @@
       "server_hourly_usd": 22.32,
       "min_gpus": 8,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:57+00:00",
+      "verified_at": "2026-11-02T12:56:57+00:00",
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 SXM 80 GB 240 1800 GiB 19.5 TiB SSD $2.79",
       "availability": {
@@ -1529,7 +1309,7 @@
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "detail": "Offer_count not exposed by Lambda API; in_stock=false means no region listed capacity for this instance type",
         "stock_read_at": "2026-11-02T12:33:07Z",
-        "price_read_at": "2026-11-02T12:26:57+00:00",
+        "price_read_at": "2026-11-01T17:46:30+00:00",
         "price_at_claim_usd": 2.79,
         "gpu_count": 8
       }
@@ -1548,7 +1328,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T12:26:41+00:00",
+      "verified_at": "2026-11-02T12:56:42+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 SXM $1.36 Reserve here",
       "availability": {
