@@ -23,7 +23,7 @@ def usd(x) -> str:
     t = f"{float(x):.4f}".rstrip("0")
     return "$" + (t + "0" * (2 - len(t.split(".")[1])))
 
-VERSION = "0.5.1"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.5.2"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -562,6 +562,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["checked_at"] = out.pop("verified_at")
         out["tier_class"] = tier_class(r)
         out["tier_note"] = TIER_NOTES[out["tier_class"]]
+        from .gpu import canonical_model as _cm, form_factor_of as _ff  # T75: same fields as gpu-prices.json rows
+        out["canonical_model"] = r.get("canonical_model") or _cm(r["gpu"])
+        out["form_factor"] = r.get("form_factor") or _ff(r["gpu"])
         out["rank"] = i
         out["in_stock"] = (out.get("availability") or {}).get("in_stock") if isinstance(out.get("availability"), dict) else None
         if out_of_stock(r):

@@ -254,13 +254,22 @@ def canonical_model(gpu: str) -> str:
     return FAMILIES[f] if f else gpu
 
 
-def form_factor_of(gpu: str, vendor_value: str | None = None, quote: str = "") -> str:
+def _vendor_gpu_id(r: dict) -> str:
+    """The vendor's own GPU id when the source cites one ('... id=NVIDIA B300 SXM6 AC')."""
+    for u in (r.get("source_url"), (r.get("evidence") or {}).get("source_url")):
+        m = re.search(r"\bid=(.+)$", str(u or ""))
+        if m:
+            return m.group(1)
+    return ""
+
+
+def form_factor_of(gpu: str, vendor_value: str | None = None, quote: str = "", vendor_id: str = "") -> str:
     """T75: complete form_factor. The vendor record's own value wins; otherwise the form stated in the GPU name (SXM,
     SXM2.., PCIe, NVL; 'NVLink' names the bridge, not the form), an HGX board in the quote (SXM), else 'not stated'.
     Never guessed from the model alone."""
     if vendor_value:
         return vendor_value
-    m = _FORM_TOKEN.search(gpu or "")
+    m = _FORM_TOKEN.search(gpu or "") or _FORM_TOKEN.search(vendor_id or "")  # vendor GPU id, e.g. RunPod "NVIDIA B300 SXM6 AC"
     if m:
         t = m.group(1)
         return "PCIe" if t.lower() == "pcie" else t.upper()
@@ -382,7 +391,8 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
                 "interruptible": r["interruptible"],
                 "canonical_model": canonical_model(r["gpu"]),
-                "form_factor": form_factor_of(r["gpu"], r.get("form_factor"), f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}"),
+                "form_factor": form_factor_of(r["gpu"], r.get("form_factor"), f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}",
+                                              _vendor_gpu_id(r)),
                 **({"form_class": fc} if (fc := form_class(r["gpu"], f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}")) else {}),
                 "price_scope": "gpu_hour_only", **_published_extras(doc),
                 **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note") if r.get(k)}),

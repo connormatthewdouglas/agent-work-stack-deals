@@ -8,6 +8,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock data is not counted until a verified import lands.
 
+## 0.5.2 (2026-11-02, PyPI + MCP Registry)
+
+- T75 fix: compare_gpu_prices results now carry canonical_model and form_factor (full and brief), as gpu-prices.json rows do. form_factor also reads the vendor's own GPU id cited in the source, so RunPod B300 (`NVIDIA B300 SXM6 AC`) is SXM6, not "not stated".
+
 ## 0.5.1 (2026-11-02, PyPI + MCP Registry)
 
 - T72 fix: brief compare_gpu_prices also keeps data_checked_at and refresh_hint (0.5.0 dropped them; the PyPI/Docker stdio checks need them).

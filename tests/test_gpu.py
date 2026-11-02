@@ -348,7 +348,7 @@ def test_t75_canonical_model_and_form_factor_on_every_rate():
     if "H100 NVL" in by:
         assert by["H100 NVL"] == {"H100 NVL"}
     for r in rates:
-        assert r["form_factor"] in {"SXM", "SXM2", "SXM4", "SXM5", "PCIe", "NVL", "not stated"}, r["form_factor"]
+        assert r["form_factor"] in {"SXM", "SXM2", "SXM4", "SXM5", "SXM6", "PCIe", "NVL", "not stated"}, r["form_factor"]
         if "PCIe" in r["gpu"]:
             assert r["form_factor"] == "PCIe"
         if "NVLink" in r["gpu"]:
@@ -433,3 +433,18 @@ def test_availability_coverage_on_gpu_hub():
     assert 'id="availability-coverage"' in html and "Target: 80%" in html
     assert "account required" in html and "no public stock signal" in html
     assert "sign-up" not in html.lower() and "pending" not in html.lower()
+
+
+def test_t75_compare_rows_carry_canonical_model_and_form_factor_and_vendor_id_form():
+    import core
+    from core.gpu import form_factor_of
+    from core.contract import SPEC
+    assert form_factor_of("B300", None, "", "NVIDIA B300 SXM6 AC") == "SXM6"
+    assert {"canonical_model", "form_factor"} <= set(SPEC["compare_gpu_prices"][4])  # brief keeps them too
+    feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text())
+    out = core.compare_gpu_prices(feed, "B300", 25)
+    assert out["results"]
+    for x in out["results"]:
+        assert x["canonical_model"] == "B300" and x["form_factor"], x
+    rp = [x for x in out["results"] if x["advertiser"] == "RunPod"]
+    assert rp and all(x["form_factor"] == "SXM6" for x in rp)

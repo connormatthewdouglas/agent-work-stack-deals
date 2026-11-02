@@ -28,7 +28,7 @@ SPEC = {
                            ["gpu", "summary", "scope", "count", "total", "excluded_non_on_demand", "excluded_reserved",
                             "next_refresh_utc", "data_checked_at", "refresh_hint", "results"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
-                            "in_stock", "source_url", "checked_at"]),
+                            "in_stock", "canonical_model", "form_factor", "source_url", "checked_at"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
@@ -89,7 +89,7 @@ _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": 
                                                                      "gpu_count": {"type": ["integer", "null"], "minimum": 1},
                                                                      "alternatives": {"type": "array", "items": _OPTION}}}}
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
-    "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"rate_id": _RATE_ID, "report_issue_url": _str,
+    "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"canonical_model": _str, "form_factor": _str, "rate_id": _RATE_ID, "report_issue_url": _str,
                                                                           "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}}}}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
