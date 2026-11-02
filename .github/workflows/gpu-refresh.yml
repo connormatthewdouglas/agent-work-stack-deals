@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   refresh:
-    continue-on-error: true  # failures go to the "Pipeline failing: GPU price refresh" issue, not a red run (no per-run email)
+    # a failing gate (pytest, check_gpu_changes) fails the run; the "Pipeline failing: GPU price refresh" issue is still opened/updated
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
