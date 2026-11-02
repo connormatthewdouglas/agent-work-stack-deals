@@ -11,6 +11,8 @@
   "slug": "rtx-4090",
   "url": "https://thelanternworks.com/api/v1/gpu/rtx-4090.json",
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+  "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-02T20:28:09+00:00",
@@ -51,6 +53,46 @@
           "checked_at": "2026-10-29T23:15:22+00:00",
           "source": "https://nova-cloud.ai/pricing (schema.org Offer availability InStock, USD 0.42/HOUR)",
           "note": "The vendor's own page labels this offer in stock; that label is static page markup, not a live capacity check, so it is treated as unknown availability."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand",
+          "vram_gb": 24
+        }
+      },
+      {
+        "vram_gb": 24,
+        "provider": "RunPod",
+        "gpu": "RTX 4090",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.89,
+        "unit": "hour",
+        "price_usd": 0.89,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:33+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:31:21Z",
+          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "origin": "scout"
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Secure Cloud)",
+          "vram_gb": 24
         }
       }
     ],
@@ -77,6 +119,129 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Lowest (Batch) priority, interruptible",
+          "vram_gb": 24
+        }
+      },
+      {
+        "vram_gb": 24,
+        "provider": "RunPod",
+        "gpu": "RTX 4090",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.34,
+        "unit": "hour",
+        "price_usd": 0.34,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:33+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:31:24Z",
+          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+          "origin": "scout"
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 24
+        }
+      },
+      {
+        "vram_gb": 24,
+        "provider": "Vast.ai",
+        "gpu": "RTX 4090",
+        "tier": "Marketplace on-demand (verified; median per GPU)",
+        "tier_class": "marketplace",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.4841,
+        "unit": "hour",
+        "price_usd": 0.4841,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "marketplace",
+        "verified_at": "2026-11-02T20:28:09+00:00",
+        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+        "quote": "Vast public offers API: 46 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4841/hr, min $0.3548/hr",
+        "availability": {
+          "status": "unknown (stale availability, last checked 2026-11-02 09:37 ET)",
+          "in_stock": null,
+          "availability_stale": true,
+          "checked_at": "2026-11-02T14:37:41Z",
+          "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "availability_expires_at": "2026-11-02T15:37:41Z",
+          "stock_read_at": "2026-11-02T14:37:41Z",
+          "price_read_at": "2026-11-01T17:48:51+00:00",
+          "price_at_claim_usd": 0.4544,
+          "gpu_count": 1,
+          "price_join_failed": true
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Marketplace on-demand (verified; median per GPU)",
+          "vram_gb": 24
+        }
+      },
+      {
+        "vram_gb": 24,
+        "provider": "Clore.ai",
+        "gpu": "RTX 4090",
+        "tier": "Marketplace on-demand (host USD listings; median per GPU)",
+        "tier_class": "marketplace",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.555,
+        "unit": "hour",
+        "price_usd": 0.555,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "marketplace",
+        "verified_at": "2026-11-02T15:14:19+00:00",
+        "source_url": "https://api.clore.ai/v1/marketplace",
+        "quote": "Clore.ai API: 113 available RTX 4090 24GB host USD listings, range $0.2706-$3.125; per-GPU median $0.555/hr, min $0.2706/hr",
+        "availability": {
+          "status": "available when checked",
+          "in_stock": true,
+          "checked_at": "2026-11-02T15:14:19+00:00",
+          "refresh": "automated check, time shown (prices checked daily)",
+          "source": "https://api.clore.ai/v1/marketplace",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "origin": "record",
+          "max_age_hours": 8,
+          "availability_expires_at": "2026-11-02T23:14:19Z",
+          "stock_level": "121 available listings",
+          "same_capture_as_price": true,
+          "detail": "Clore.ai API snapshot: 121 available RTX 4090 24GB listings (status available, any currency)",
+          "stock_read_at": "2026-11-02T15:14:19+00:00",
+          "price_read_at": "2026-11-02T15:14:19+00:00",
+          "price_at_claim_usd": 0.555,
+          "gpu_count": 1
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Marketplace on-demand (host USD listings; median per GPU)",
+          "vram_gb": 24
         }
       }
     ],
@@ -103,6 +268,13 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Dedicated server (monthly)",
+          "vram_gb": 24
         }
       }
     ]
@@ -130,7 +302,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -156,7 +330,9 @@
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Nova Cloud",
@@ -182,7 +358,9 @@
         "checked_at": "2026-10-29T23:15:22+00:00",
         "source": "https://nova-cloud.ai/pricing (schema.org Offer availability InStock, USD 0.42/HOUR)",
         "note": "The vendor's own page labels this offer in stock; that label is static page markup, not a live capacity check, so it is treated as unknown availability."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunC.AI",
@@ -207,7 +385,9 @@
         "checked_at": "2026-10-29T23:14:39+00:00",
         "source": "https://www.runc.ai/gpu/rtx-4090/",
         "note": "The public page publishes no stock signal and RunC.AI has no no-signup availability API"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Vast.ai",
@@ -240,7 +420,9 @@
         "price_at_claim_usd": 0.4544,
         "gpu_count": 1,
         "price_join_failed": true
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Clore.ai",
@@ -276,7 +458,9 @@
         "price_read_at": "2026-11-02T15:14:19+00:00",
         "price_at_claim_usd": 0.555,
         "gpu_count": 1
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Novita AI",
@@ -313,7 +497,9 @@
         "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -339,7 +525,9 @@
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Ucartz",
@@ -363,7 +551,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",

@@ -11,6 +11,8 @@
   "slug": "gh200",
   "url": "https://thelanternworks.com/api/v1/gpu/gh200.json",
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+  "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-02T20:25:44+00:00",
@@ -43,6 +45,44 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand instance (1x GPU)",
+          "vram_gb": 96
+        }
+      },
+      {
+        "vram_gb": 96,
+        "provider": "CoreWeave",
+        "gpu": "GH200",
+        "tier": "On-demand",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 6.5,
+        "unit": "hour",
+        "price_usd": 6.5,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:08+00:00",
+        "source_url": "https://www.coreweave.com/pricing",
+        "quote": "NVIDIA GH200 On-Demand Price: $6.50 / Hour",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand",
+          "vram_gb": 96
         }
       }
     ]
@@ -70,7 +110,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "CoreWeave",
@@ -94,7 +136,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",

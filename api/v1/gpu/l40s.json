@@ -11,6 +11,8 @@
   "slug": "l40s",
   "url": "https://thelanternworks.com/api/v1/gpu/l40s.json",
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+  "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-02T20:28:15+00:00",
@@ -51,6 +53,169 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "RunPod",
+        "gpu": "L40S",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.09,
+        "unit": "hour",
+        "price_usd": 1.09,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:33+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand L40S cloud GPU rental on Runpod. Community Cloud $0.79/hr, Secure Cloud $1.09/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Secure Cloud)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "Nebius",
+        "gpu": "L40S",
+        "tier": "On-demand (from, Intel CPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.55,
+        "unit": "hour",
+        "price_usd": 1.55,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:56+00:00",
+        "source_url": "https://nebius.com/prices",
+        "quote": "NVIDIA L40S with Intel CPU 8-40 32-160 from $0.74** from $1.55",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (from, Intel CPU)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "OVHcloud (US)",
+        "gpu": "L40S",
+        "tier": "Public Cloud GPU instance, hourly (\"Price ( excl. taxes / hour)\")",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.8,
+        "unit": "hour",
+        "price_usd": 1.8,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:23+00:00",
+        "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+        "quote": "l40s-90 90 GB 15 1x L40S ( 48 GB HBM2) 400 GB NVMe 8 Gbit/s 8 Gbit/s max. $1.8 $1,296",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Public Cloud GPU instance, hourly (\"Price ( excl. taxes / hour)\")",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "L40S",
+        "tier": "On-demand instance (1x GPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.92,
+        "unit": "hour",
+        "price_usd": 1.92,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:28:15+00:00",
+        "source_url": "https://verda.com/pricing",
+        "quote": "1x L40S 48GB 20 60 GB 48 GB $1.920/h",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand instance (1x GPU)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "CoreWeave",
+        "gpu": "L40S",
+        "tier": "On-demand, 8-GPU instance",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.25,
+        "unit": "hour",
+        "price_usd": 2.25,
+        "gpu_count": 8,
+        "server_hourly_usd": 18.0,
+        "min_gpus": 8,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:08+00:00",
+        "source_url": "https://www.coreweave.com/pricing",
+        "quote": "NVIDIA L40S On-Demand Price: $18.00 / Hour",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand, 8-GPU instance",
+          "vram_gb": 48
         }
       }
     ],
@@ -77,6 +242,75 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "Spheron",
+        "gpu": "L40S",
+        "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
+        "tier_class": "marketplace",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.96,
+        "unit": "hour",
+        "price_usd": 0.96,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:27:48+00:00",
+        "source_url": "https://www.spheron.network/pricing/",
+        "quote": "L40S Ada 48 GB 72 GB RAM 12 vCPUs 625 GB NVMe $0.96 /hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "L40S",
+        "tier": "Spot instance (1x GPU)",
+        "tier_class": "interruptible",
+        "bucket": "spot-community",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 0.96,
+        "unit": "hour",
+        "price_usd": 0.96,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:28:15+00:00",
+        "source_url": "https://verda.com/pricing",
+        "quote": "1x L40S 48GB 20 60 GB 48 GB $1.920/h $0.9600/h",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Spot instance (1x GPU)",
+          "vram_gb": 48
         }
       }
     ],
@@ -103,6 +337,45 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Serverless GPU instance (per-second billing)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "Modal",
+        "gpu": "L40S",
+        "tier": "Serverless, preemptible (per second)",
+        "tier_class": "interruptible",
+        "bucket": "serverless",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 1.9512,
+        "unit": "hour",
+        "price_usd": 1.9512,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:50+00:00",
+        "source_url": "https://modal.com/pricing",
+        "quote": "Nvidia L40S $ 0.000542 / sec",
+        "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Serverless, preemptible (per second)",
+          "vram_gb": 48
         }
       }
     ]
@@ -130,7 +403,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -154,7 +429,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Spheron",
@@ -178,7 +455,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Verda (formerly DataCrunch)",
@@ -202,7 +481,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -226,7 +507,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Koyeb",
@@ -250,7 +533,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Nebius",
@@ -274,7 +559,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "DigitalOcean GPU Droplets",
@@ -298,7 +585,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "OVHcloud (US)",
@@ -322,7 +611,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Verda (formerly DataCrunch)",
@@ -346,7 +637,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Modal",
@@ -371,7 +664,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "CoreWeave",
@@ -396,7 +691,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "CloudRift",
@@ -420,7 +717,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "CloudRift",
@@ -444,7 +743,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",

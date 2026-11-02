@@ -13,6 +13,9 @@ if str(ROOT) not in sys.path:
 from core.gpu import SERVERLESS, families  # noqa: E402
 from core.data_license import DATA_LICENSE  # noqa: E402
 
+from core.gpu import PRICE_BASIS_LABELS, price_bucket  # noqa: E402
+PRICE_BASIS_LABEL = PRICE_BASIS_LABELS["on-demand"]
+
 OUT = ROOT / "api" / "v1" / "gpu"
 SCHEMA = "lantern-works-gpu-model-view/1"
 BUCKETS = ("on-demand", "spot-community", "serverless", "reserved", "monthly")
@@ -40,7 +43,21 @@ def _row(r: dict) -> dict:
            "min_gpus": r.get("min_gpus") or 1, "price_status": r.get("price_status"),
            "verified_at": r.get("verified_at"), "source_url": r.get("source_url"), "quote": ev.get("quote"), "interruption_quote": ev.get("interruption_quote"),
            "availability": r.get("availability")}
-    return {k: v for k, v in out.items() if v is not None}
+    out = {k: v for k, v in out.items() if v is not None}
+    # Additive (600me review on gpuhunt#283 / llm-analysis#35 / gpu_poor#18): explicit form factor and price basis.
+    out["form_factor"] = _ff(r)
+    out["price_basis_label"] = PRICE_BASIS_LABELS[bucket(r)]
+    return out
+
+
+def _ff(r: dict) -> str:
+    v = r.get("form_factor")
+    return v if v and v != "not stated" else "unknown"
+
+
+def _group(r: dict) -> tuple:
+    """Like-for-like group: never compare SXM vs PCIe or Community vs Secure at headline $/GPU-hour."""
+    return (r.get("vram_gb") or 0, _ff(r), r.get("tier") or "unknown")
 
 
 def _key(r):
@@ -55,11 +72,25 @@ def build(slug: str, fam: dict, base: str) -> dict:
             continue
         for v in sorted({r.get("vram_gb") for r in rates if bucket(r) == b}, key=lambda x: x or 0):
             rs = [r for r in rates if bucket(r) == b and r.get("vram_gb") == v]
-            cheapest.setdefault(b, []).append({"vram_gb": v, **_row(min(rs, key=_key))})
+            groups = {}
+            for r in rs:
+                groups.setdefault(_group(r), []).append(r)
+            best = sorted((min(g, key=_key) for g in groups.values()), key=_key)
+            for r in best:
+                row = {"vram_gb": v, **_row(r)}
+                row["tier"] = r.get("tier") or "unknown"
+                row["verified_at"] = r.get("verified_at") or r.get("checked_at")
+                row["source_url"] = r.get("source_url")
+                row["group"] = {"form_factor": row["form_factor"], "tier": row["tier"], "vram_gb": v}
+                cheapest.setdefault(b, []).append(row)
     ver = [r["verified_at"] for r in rates if r.get("verified_at")]
     return {"schema": SCHEMA, "license": DATA_LICENSE, "model": fam["name"], "slug": slug,
             "url": f"{base}/api/v1/gpu/{slug}.json",
             "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+            "price_basis_label": PRICE_BASIS_LABEL,
+            "cheapest_grouping": ("cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; "
+                                  "SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. "
+                                  "form_factor is 'unknown' when the source does not say."),
             "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
             "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
             "last_checked": max(ver) if ver else None, "row_count": len(rates),

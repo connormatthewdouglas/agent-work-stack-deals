@@ -11,6 +11,8 @@
   "slug": "a100",
   "url": "https://thelanternworks.com/api/v1/gpu/a100.json",
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+  "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-02T20:28:15+00:00",
@@ -56,6 +58,100 @@
           "checked_at": "2026-10-30T00:05:46+00:00",
           "source": "https://jarvislabs.ai/pricing",
           "note": "The public pricing page publishes no stock signal"
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand",
+          "vram_gb": 40
+        }
+      },
+      {
+        "vram_gb": 40,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "A100 SXM",
+        "tier": "On-demand instance (1x GPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.625,
+        "unit": "hour",
+        "price_usd": 1.625,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:28:15+00:00",
+        "source_url": "https://verda.com/pricing",
+        "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.625/h",
+        "availability": {
+          "status": "unknown (stale availability, last checked 2026-11-02 09:37 ET)",
+          "in_stock": null,
+          "availability_stale": true,
+          "checked_at": "2026-11-02T14:37:47Z",
+          "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "source_label": "authenticated vendor API (not publicly reproducible)",
+          "availability_expires_at": "2026-11-02T15:37:47Z",
+          "stock_read_at": "2026-11-02T14:37:47Z",
+          "price_read_at": "2026-11-01T17:48:57+00:00",
+          "price_at_claim_usd": 1.609,
+          "gpu_count": 1,
+          "price_join_failed": true
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "On-demand instance (1x GPU)",
+          "vram_gb": 40
+        }
+      },
+      {
+        "vram_gb": 40,
+        "provider": "Lambda",
+        "gpu": "A100 PCIe",
+        "tier": "On-demand instance (1x GPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.99,
+        "unit": "hour",
+        "price_usd": 1.99,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:44+00:00",
+        "source_url": "https://lambda.ai/pricing",
+        "quote": "NVIDIA A100 PCIe 40 GB 30 225 GiB 512 GiB SSD $1.99",
+        "availability": {
+          "status": "unknown (stale availability, last checked 2026-11-02 09:37 ET)",
+          "in_stock": null,
+          "availability_stale": true,
+          "checked_at": "2026-11-02T14:37:48Z",
+          "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "derived_from_regions": true,
+          "source_label": "authenticated vendor API (not publicly reproducible)",
+          "availability_expires_at": "2026-11-02T15:37:48Z",
+          "stock_read_at": "2026-11-02T14:37:48Z",
+          "price_read_at": "2026-11-01T17:46:30+00:00",
+          "price_at_claim_usd": 1.99,
+          "gpu_count": 1,
+          "first_read_at": "2026-11-02T14:37:48Z",
+          "second_read_at": "2026-11-02T14:38:59Z",
+          "second_read_gap_s": 71.0,
+          "second_read_basis": "overall",
+          "two_read_gap_ok": true
+        },
+        "form_factor": "PCIe",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "PCIe",
+          "tier": "On-demand instance (1x GPU)",
+          "vram_gb": 40
         }
       },
       {
@@ -94,6 +190,267 @@
           "second_read_gap_s": 65.0,
           "second_read_basis": "overall",
           "two_read_gap_ok": true
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "On-demand",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "Thunder Compute",
+        "gpu": "A100",
+        "tier": "On-demand",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.09,
+        "unit": "hour",
+        "price_usd": 1.09,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:27:51+00:00",
+        "source_url": "https://www.thundercompute.com/pricing",
+        "quote": "A100 80GB 80 GB 8 included · 16 max 64–128 GB 100–500 GB $1.09 /hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "Hyperstack",
+        "gpu": "A100 PCIe",
+        "tier": "On-demand",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.35,
+        "unit": "hour",
+        "price_usd": 1.35,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:28+00:00",
+        "source_url": "https://www.hyperstack.cloud/gpu-pricing",
+        "quote": "NVIDIA A100 80 28 120 $1.35",
+        "availability": {
+          "status": "unknown (stale availability, last checked 2026-11-02 09:37 ET)",
+          "in_stock": null,
+          "availability_stale": true,
+          "checked_at": "2026-11-02T14:37:50Z",
+          "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "derived_from_regions": true,
+          "availability_expires_at": "2026-11-02T15:37:50Z",
+          "stock_read_at": "2026-11-02T14:37:50Z",
+          "price_read_at": "2026-11-01T17:46:14+00:00",
+          "price_at_claim_usd": 1.35,
+          "gpu_count": 1,
+          "first_read_at": "2026-11-02T14:37:50Z",
+          "second_read_at": "2026-11-02T14:38:57Z",
+          "second_read_gap_s": 67.0,
+          "second_read_basis": "overall",
+          "two_read_gap_ok": true
+        },
+        "form_factor": "PCIe",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "PCIe",
+          "tier": "On-demand",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "RunPod",
+        "gpu": "A100 PCIe",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.79,
+        "unit": "hour",
+        "price_usd": 1.79,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:33+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:31:21Z",
+          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "origin": "scout"
+        },
+        "form_factor": "PCIe",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "PCIe",
+          "tier": "On-demand (Secure Cloud)",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "RunPod",
+        "gpu": "A100 SXM",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.79,
+        "unit": "hour",
+        "price_usd": 1.79,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:33+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:31:21Z",
+          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "origin": "scout"
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "On-demand (Secure Cloud)",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "A100 SXM",
+        "tier": "On-demand instance (1x GPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.27,
+        "unit": "hour",
+        "price_usd": 2.27,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:28:15+00:00",
+        "source_url": "https://verda.com/pricing",
+        "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.270/h",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:37:47Z",
+          "note": "No confirmed region claim at overall_recomputed_at",
+          "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
+          "origin": "scout"
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "On-demand instance (1x GPU)",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "CoreWeave",
+        "gpu": "A100",
+        "tier": "On-demand, 8-GPU instance",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.7,
+        "unit": "hour",
+        "price_usd": 2.7,
+        "gpu_count": 8,
+        "server_hourly_usd": 21.6,
+        "min_gpus": 8,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:08+00:00",
+        "source_url": "https://www.coreweave.com/pricing",
+        "quote": "NVIDIA A100 On-Demand Price: $21.60 / Hour",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand, 8-GPU instance",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "Lambda",
+        "gpu": "A100 SXM",
+        "tier": "On-demand instance (8x GPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.79,
+        "unit": "hour",
+        "price_usd": 2.79,
+        "gpu_count": 8,
+        "server_hourly_usd": 22.32,
+        "min_gpus": 8,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T15:27:17+00:00",
+        "source_url": "https://lambda.ai/pricing",
+        "quote": "NVIDIA A100 SXM 80 GB 240 1800 GiB 19.5 TiB SSD $2.79",
+        "availability": {
+          "status": "unknown (stale availability, last checked 2026-11-02 09:37 ET)",
+          "in_stock": null,
+          "availability_stale": true,
+          "checked_at": "2026-11-02T14:37:48Z",
+          "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "derived_from_regions": true,
+          "source_label": "authenticated vendor API (not publicly reproducible)",
+          "availability_expires_at": "2026-11-02T15:37:48Z",
+          "stock_read_at": "2026-11-02T14:37:48Z",
+          "price_read_at": "2026-11-01T17:46:30+00:00",
+          "price_at_claim_usd": 2.79,
+          "gpu_count": 8,
+          "first_read_at": "2026-11-02T14:37:48Z",
+          "second_read_at": "2026-11-02T14:38:59Z",
+          "second_read_gap_s": 71.0,
+          "second_read_basis": "overall",
+          "two_read_gap_ok": true
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "On-demand instance (8x GPU)",
+          "vram_gb": 80
         }
       }
     ],
@@ -130,6 +487,13 @@
           "price_at_claim_usd": 0.8045,
           "gpu_count": 1,
           "price_join_failed": true
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "Spot instance (1x GPU)",
+          "vram_gb": 40
         }
       },
       {
@@ -168,6 +532,152 @@
           "second_read_gap_s": 67.0,
           "second_read_basis": "overall",
           "two_read_gap_ok": true
+        },
+        "form_factor": "PCIe",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "PCIe",
+          "tier": "Spot VM",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "Vast.ai",
+        "gpu": "A100 SXM",
+        "tier": "Marketplace on-demand (verified; median per GPU)",
+        "tier_class": "marketplace",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.135,
+        "unit": "hour",
+        "price_usd": 1.135,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "marketplace",
+        "verified_at": "2026-11-02T20:28:03+00:00",
+        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+        "quote": "Vast public offers API: 10 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1350/hr, min $0.9478/hr",
+        "availability": {
+          "status": "unknown (stale availability, last checked 2026-11-02 09:37 ET)",
+          "in_stock": null,
+          "availability_stale": true,
+          "checked_at": "2026-11-02T14:37:36Z",
+          "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "availability_expires_at": "2026-11-02T15:37:36Z",
+          "stock_read_at": "2026-11-02T14:37:36Z",
+          "price_read_at": "2026-11-01T17:48:45+00:00",
+          "price_at_claim_usd": 1.2156,
+          "gpu_count": 1,
+          "price_join_failed": true
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "Marketplace on-demand (verified; median per GPU)",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "A100 SXM",
+        "tier": "Spot instance (1x GPU)",
+        "tier_class": "interruptible",
+        "bucket": "spot-community",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 1.135,
+        "unit": "hour",
+        "price_usd": 1.135,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:28:15+00:00",
+        "source_url": "https://verda.com/pricing",
+        "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.270/h $1.135/h",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:37:48Z",
+          "note": "No confirmed region claim at overall_recomputed_at",
+          "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
+          "origin": "scout"
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "Spot instance (1x GPU)",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "RunPod",
+        "gpu": "A100 PCIe",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.19,
+        "unit": "hour",
+        "price_usd": 1.19,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:33+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:31:24Z",
+          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+          "origin": "scout"
+        },
+        "form_factor": "PCIe",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "PCIe",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "RunPod",
+        "gpu": "A100 SXM",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.39,
+        "unit": "hour",
+        "price_usd": 1.39,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:26:33+00:00",
+        "source_url": "https://www.runpod.io/pricing",
+        "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": "2026-11-02T14:31:24Z",
+          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+          "origin": "scout"
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 80
         }
       }
     ],
@@ -195,6 +705,13 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Serverless, preemptible (per second)",
+          "vram_gb": 80
         }
       }
     ],
@@ -222,6 +739,13 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Dedicated server (monthly)",
+          "vram_gb": 80
         }
       }
     ]
@@ -259,7 +783,9 @@
         "price_at_claim_usd": 0.8045,
         "gpu_count": 1,
         "price_join_failed": true
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Jarvislabs",
@@ -284,7 +810,9 @@
         "checked_at": "2026-10-30T00:05:46+00:00",
         "source": "https://jarvislabs.ai/pricing",
         "note": "The public pricing page publishes no stock signal"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "CloudRift",
@@ -322,7 +850,9 @@
         "second_read_gap_s": 65.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Hyperstack",
@@ -360,7 +890,9 @@
         "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "PCIe",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Civo",
@@ -385,7 +917,9 @@
         "checked_at": "2026-10-30T00:08:13+00:00",
         "source": "https://www.civo.com/pricing",
         "note": "The public pricing page publishes no stock signal"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Thunder Compute",
@@ -409,7 +943,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Vast.ai",
@@ -442,7 +978,9 @@
         "price_at_claim_usd": 1.2156,
         "gpu_count": 1,
         "price_join_failed": true
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Verda (formerly DataCrunch)",
@@ -468,7 +1006,9 @@
         "note": "No confirmed region claim at overall_recomputed_at",
         "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=true + /instance-types",
         "origin": "scout"
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -494,7 +1034,9 @@
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
-      }
+      },
+      "form_factor": "PCIe",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Hyperstack",
@@ -532,7 +1074,9 @@
         "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "PCIe",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -558,7 +1102,9 @@
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout"
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Hyperstack",
@@ -596,7 +1142,9 @@
         "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Oblivus",
@@ -634,7 +1182,9 @@
         "second_read_gap_s": 62.0,
         "second_read_basis": "region MON1 (CANADA, MONTREAL)",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "PCIe",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Jarvislabs",
@@ -659,7 +1209,9 @@
         "checked_at": "2026-10-30T00:05:46+00:00",
         "source": "https://jarvislabs.ai/pricing",
         "note": "The public pricing page publishes no stock signal"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Hyperstack",
@@ -697,7 +1249,9 @@
         "second_read_gap_s": 67.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Verda (formerly DataCrunch)",
@@ -731,7 +1285,9 @@
         "price_at_claim_usd": 1.609,
         "gpu_count": 1,
         "price_join_failed": true
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Civo",
@@ -756,7 +1312,9 @@
         "checked_at": "2026-10-30T00:08:13+00:00",
         "source": "https://www.civo.com/pricing",
         "note": "The public pricing page publishes no stock signal"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -782,7 +1340,9 @@
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
-      }
+      },
+      "form_factor": "PCIe",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -808,7 +1368,9 @@
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "E2E Networks",
@@ -833,7 +1395,9 @@
         "checked_at": "2026-10-30T00:07:06+00:00",
         "source": "https://www.e2enetworks.com/pricing",
         "note": "The public pricing page publishes no stock signal"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Lambda",
@@ -872,7 +1436,9 @@
         "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "PCIe",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Lambda",
@@ -911,7 +1477,9 @@
         "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "E2E Networks",
@@ -936,7 +1504,9 @@
         "checked_at": "2026-10-30T00:07:06+00:00",
         "source": "https://www.e2enetworks.com/pricing",
         "note": "The public pricing page publishes no stock signal"
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Ucartz",
@@ -961,7 +1531,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Verda (formerly DataCrunch)",
@@ -987,7 +1559,9 @@
         "note": "No confirmed region claim at overall_recomputed_at",
         "source": "https://api.datacrunch.io/v1/instance-availability?is_spot=false + /instance-types",
         "origin": "scout"
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Modal",
@@ -1012,7 +1586,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "CoreWeave",
@@ -1037,7 +1613,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Lambda",
@@ -1077,7 +1655,9 @@
         "second_read_gap_s": 71.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Hyperstack",
@@ -1101,7 +1681,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",

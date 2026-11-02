@@ -11,6 +11,8 @@
   "slug": "rtx-6000-ada",
   "url": "https://thelanternworks.com/api/v1/gpu/rtx-6000-ada.json",
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
+  "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+  "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-02T20:25:15+00:00",
@@ -44,6 +46,75 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Secure Cloud)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "RTX 6000 Ada",
+        "tier": "On-demand instance (1x GPU)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.513,
+        "unit": "hour",
+        "price_usd": 1.513,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T11:00:11Z",
+        "source_url": "https://api.datacrunch.io/v1/instance-types (1RTX6000ADA.10V)",
+        "quote": "RTX 6000 Ada instance-types price_per_hour (1 GPU) $1.513/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand instance (1x GPU)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "DigitalOcean GPU Droplets",
+        "gpu": "RTX 6000 Ada",
+        "tier": "On-demand",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.57,
+        "unit": "hour",
+        "price_usd": 1.57,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T20:25:15+00:00",
+        "source_url": "https://www.digitalocean.com/pricing/gpu-droplets",
+        "quote": "NVIDIA RTX 6000 Ada Generation $1.57 /GPU/hour On-Demand Price",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand",
+          "vram_gb": 48
         }
       }
     ],
@@ -70,6 +141,44 @@
           "in_stock": null,
           "checked_at": null,
           "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 48
+        }
+      },
+      {
+        "vram_gb": 48,
+        "provider": "Verda (formerly DataCrunch)",
+        "gpu": "RTX 6000 Ada",
+        "tier": "Spot instance (1x GPU)",
+        "tier_class": "interruptible",
+        "bucket": "spot-community",
+        "interruptible": true,
+        "hourly_usd_per_gpu": 0.7565,
+        "unit": "hour",
+        "price_usd": 0.7565,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-02T11:00:11Z",
+        "source_url": "https://api.datacrunch.io/v1/instance-types (1RTX6000ADA.10V)",
+        "quote": "RTX 6000 Ada instance-types spot_price (1 GPU) $0.7565/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Spot instance (1x GPU)",
+          "vram_gb": 48
         }
       }
     ]
@@ -97,7 +206,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Verda (formerly DataCrunch)",
@@ -121,7 +232,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",
@@ -145,7 +258,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Verda (formerly DataCrunch)",
@@ -169,7 +284,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "DigitalOcean GPU Droplets",
@@ -193,7 +310,9 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",

@@ -27,6 +27,32 @@ from pathlib import Path
 HOURS_PER_MONTH = 730  # 24 * 365 / 12
 
 SERVERLESS = "Serverless, preemptible (per second)"
+
+_EXCL = "tracked providers only; excludes storage, egress, idle time and preemption"
+PRICE_BASIS_LABELS = {
+    "on-demand": "on-demand list price per GPU-hour; " + _EXCL,
+    "spot-community": "interruptible/community/marketplace list price per GPU-hour (may be preempted); " + _EXCL,
+    "serverless": "serverless list price per GPU-hour while running (cold starts not included); " + _EXCL,
+    "reserved": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; " + _EXCL,
+    "monthly": "flat monthly price / 730 h per GPU; " + _EXCL,
+}
+
+
+def price_bucket(r: dict) -> str:
+    tc = r.get("tier_class") or "on-demand"
+    if r.get("tier") == SERVERLESS or "serverless" in (r.get("tier") or "").lower():
+        return "serverless"
+    if tc == "reserved":
+        return "reserved"
+    if tc == "dedicated-monthly" or r.get("unit") == "month":
+        return "monthly"
+    if tc in ("interruptible", "community", "marketplace"):
+        return "spot-community"
+    return "on-demand"
+
+
+def price_basis_label(r: dict) -> str:
+    return PRICE_BASIS_LABELS[price_bucket(r)]
 BILLING_UNITS = ("per-second", "hourly", "monthly")
 RECORD_FIELDS = ("vendor", "gpu", "vram_gb", "price_usd", "billing_unit", "hourly_usd", "interruptible",
                  "tier", "form_factor", "quote", "source_url", "checked_at")
@@ -441,6 +467,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r)})
     for x in rates:  # Gauge strat2 #4: label every code-carrying link; sort order is untouched
         x.update(referral_fields_for(x))
+        x["price_basis_label"] = price_basis_label(x)  # additive: plain-language basis (600me review)
     priced = {r["deal_id"] for r in rates} | {d["id"] for d in deals if d.get("advertiser") in {h["vendor"] for h in held}}  # Gauge G1: held != unpriced
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}
