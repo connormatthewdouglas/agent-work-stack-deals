@@ -739,6 +739,28 @@ def changes_html(gen, gpu_family: str | None = None, days: int = 30, limit: int 
             f"<tbody>{rows}</tbody></table></div>\n")
 
 
+def availability_coverage_html(gen, rates: list[dict]) -> str:
+    """/gpu/: per-model share of rows with a free stock signal that are actually measured, against the 80% target."""
+    from core.gpu import availability_coverage
+    c = availability_coverage(rates)
+    pct = lambda x: "n/a" if x is None else f"{x * 100:.0f}%"
+    order = sorted(c["models"].items(), key=lambda kv: (-kv[1]["rows"], kv[0]))
+    rows = "".join(f"<tr><td>{gen.esc(k)}</td><td>{m['rows']}</td><td>{m['measurable']}</td><td>{m['measured']}</td>"
+                   f"<td>{pct(m['coverage'])}{'' if m['coverage'] is None else (' ✓' if m['meets_target'] else ' (below target)')}</td></tr>"
+                   for k, m in order)
+    by = {}
+    for v, why in c["unmeasurable"]:
+        by.setdefault(why, []).append(v)
+    unm = "".join(f"<li><strong>{gen.esc(why)}</strong>: {gen.esc(', '.join(vs))}</li>" for why, vs in sorted(by.items(), reverse=True))
+    t = c["totals"]
+    return (f"""  <h2 id="availability-coverage">Availability coverage</h2>
+  <p>Share of rows with a free public stock signal that we actually measure (available, out of stock, or stale with its last-check time). Target: {pct(c['target'])} per model. Overall: {t['measured']} of {t['measurable']} measurable rows ({pct(t['coverage'])}); {t['rows']} rows in total.</p>
+  <div class="tscroll"><table class="howto"><thead><tr><th>Model</th><th>Rows</th><th>Measurable rows</th><th>Measured</th><th>Coverage</th></tr></thead><tbody>{rows}</tbody></table></div>
+  <p class="meta">Unmeasurable vendors (not counted as gaps):</p>
+  <ul>{unm}</ul>
+""")
+
+
 def write_hub(gen, rates: list[dict]) -> str:
     """/gpu/ hub: entry point linking every GPU page, tool and data endpoint."""
     path = "gpu"
@@ -754,7 +776,7 @@ def write_hub(gen, rates: list[dict]) -> str:
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › GPU</nav>
   <h1>GPU rental prices</h1>
   <p class="meta">{gen.live_rate_count()} tracked rates{(" · newest check " + fresh) if fresh else ""} · "cheapest" means cheapest among tracked providers</p>
-{changes_html(gen)}  <h2>Tools</h2>
+{changes_html(gen)}{availability_coverage_html(gen, rates)}  <h2>Tools</h2>
   <ul><li><a href="{gen.BASE}/{CALC}/">GPU cost calculator</a></li><li><a href="{gen.BASE}/gpu/price-comparison/">All tracked GPU rental prices</a></li><li><a href="{gen.BASE}/gpu/index/">GPU Price Index</a> (daily median per GPU, CC BY 4.0)</li><li><a href="{gen.BASE}/cost/">GPU rental cost for 10, 100 or 730 hours</a></li><li><a href="{gen.BASE}/gpu/free-credits/">Free GPU and cloud credit programs</a></li></ul>
   <h2>Cheapest GPU by model</h2>
   <ul>{li(cheapest)}</ul>

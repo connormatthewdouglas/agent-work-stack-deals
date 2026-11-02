@@ -450,3 +450,48 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
 def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) -> int:
     """The one public GPU rate count: ranked rates published in /api/v1/gpu-prices.json. Never hardcode it."""
     return len(build_rates(deals, vendor_docs)["rates"])
+
+
+# Availability coverage (T73 surfacing on /gpu/): vendors with no free stock signal are labelled, not counted as gaps.
+UNMEASURABLE_NO_SIGNAL = ("99Stack", "Civo", "CoreWeave", "DigitalOcean", "E2E", "Modal", "Nebius", "Ucartz", "RunC.AI", "SaladCloud")
+UNMEASURABLE_ACCOUNT = ("Hyperstack", "Novita", "Jarvislabs", "Thunder Compute")
+AVAILABILITY_TARGET = 0.80
+# Stock data not counted until a Gauge-passed import lands (T73 NO-GO, 2026-11-02): rows stay listed, not measured or counted.
+AVAILABILITY_HELD = ("CloudRift",)
+
+
+def unmeasurable_reason(vendor: str):
+    if any(vendor.startswith(p) for p in AVAILABILITY_HELD):
+        return "stock data under review, not yet counted"
+    if any(vendor.startswith(p) for p in UNMEASURABLE_NO_SIGNAL):
+        return "no public stock signal"
+    if any(vendor.startswith(p) for p in UNMEASURABLE_ACCOUNT):
+        return "account required"
+    return None
+
+
+def availability_measured(r: dict) -> bool:
+    """A real stock status: available / out of stock when checked, or stale with its last-check timestamp.
+    'unknown' and static vendor page labels are not measurements."""
+    st = str((r.get("availability") or {}).get("status") or "unknown")
+    return st in ("available when checked", "out of stock when checked") or st.startswith("unknown (stale availability, last checked")
+
+
+def availability_coverage(rates: list[dict]) -> dict:
+    """Per canonical model: rows, rows from vendors with a free stock signal (measurable), and how many of those are
+    measured. Computed from whatever feed is current."""
+    models = {}
+    for r in rates:
+        m = models.setdefault(r.get("canonical_model") or canonical_model(r["gpu"]),
+                              {"rows": 0, "measurable": 0, "measured": 0})
+        m["rows"] += 1
+        if unmeasurable_reason(r["advertiser"]) is None:
+            m["measurable"] += 1
+            m["measured"] += availability_measured(r)
+    for m in models.values():
+        m["coverage"] = round(m["measured"] / m["measurable"], 4) if m["measurable"] else None
+        m["meets_target"] = m["coverage"] is not None and m["coverage"] >= AVAILABILITY_TARGET
+    tot = {k: sum(m[k] for m in models.values()) for k in ("rows", "measurable", "measured")}
+    tot["coverage"] = round(tot["measured"] / tot["measurable"], 4) if tot["measurable"] else None
+    unm = sorted({(r["advertiser"], unmeasurable_reason(r["advertiser"])) for r in rates if unmeasurable_reason(r["advertiser"])})
+    return {"target": AVAILABILITY_TARGET, "models": models, "totals": tot, "unmeasurable": unm}

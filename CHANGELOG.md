@@ -4,6 +4,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## Unreleased (site)
+
+- /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock data is not counted until a verified import lands.
+
 ## 0.5.1 (2026-11-02, PyPI + MCP Registry)
 
 - T72 fix: brief compare_gpu_prices also keeps data_checked_at and refresh_hint (0.5.0 dropped them; the PyPI/Docker stdio checks need them).

@@ -412,3 +412,24 @@ def test_t77_calculator_models_all_in_comparison_summary_with_interruptible_labe
         tr = next(tr for tr in rows if _re.search(rf">{m}(<| <em)", tr))
         if "Spot" in tr:
             assert "interruptible" in tr, tr
+
+
+def test_availability_coverage_on_gpu_hub():
+    from core.gpu import availability_coverage, availability_measured, unmeasurable_reason
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    c = availability_coverage(rates)
+    assert c["target"] == 0.8
+    assert sum(m["rows"] for m in c["models"].values()) == len(rates)
+    for m in c["models"].values():
+        assert 0 <= m["measured"] <= m["measurable"] <= m["rows"]
+    assert unmeasurable_reason("Hyperstack") == "account required"
+    assert unmeasurable_reason("DigitalOcean GPU Droplets") == "no public stock signal"
+    assert unmeasurable_reason("RunPod") is None and unmeasurable_reason("CloudRift") == "stock data under review, not yet counted"
+    assert availability_measured({"availability": {"status": "available when checked"}})
+    assert not availability_measured({"availability": {"status": "unknown"}})
+    assert not availability_measured({"availability": {"status": "vendor-labelled in stock (static page label, not a capacity check)"}})
+    html = (root / "gpu/index.html").read_text(encoding="utf-8")
+    assert 'id="availability-coverage"' in html and "Target: 80%" in html
+    assert "account required" in html and "no public stock signal" in html
+    assert "sign-up" not in html.lower() and "pending" not in html.lower()
