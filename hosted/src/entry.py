@@ -17,6 +17,11 @@ from datetime import datetime, timedelta, timezone
 
 from workers import Response, WorkerEntrypoint, fetch
 
+try:  # written by build.sh at deploy time (Gauge T73 fix7 #3)
+    from _build import GIT_SHA
+except ImportError:
+    GIT_SHA = "unknown"
+
 # --- FastMCP stand-in: records tools in declaration order -------------------------------------------------------
 TOOLS = []
 
@@ -214,7 +219,7 @@ async def _handle(msg, env, ref, bearer=None, cls=("other", "other")):
         await _hit(env, "initialize", "none" if not cn else next((c for t, c in MCP_CLIENTS if t in cn), "other"), ref, *cls)
         return _ok(i, {"protocolVersion": p.get("protocolVersion") or PROTOCOL if p.get("protocolVersion") in ("2025-03-26", "2025-06-18", "2025-11-25") else PROTOCOL,
                        "capabilities": {"tools": {"listChanged": False}},
-                       "serverInfo": {"name": "lantern-works-deals", "title": "Lantern Works GPU Prices (hosted)", "version": core_deals.VERSION},
+                       "serverInfo": {"name": "lantern-works-deals", "title": "Lantern Works GPU Prices (hosted)", "version": core_deals.VERSION, "build": GIT_SHA},
                        "instructions": server.INSTRUCTIONS})
     if m == "ping":
         return _ok(i, {})
@@ -291,6 +296,8 @@ class Default(WorkerEntrypoint):
                                                                        "cache-control": "public, max-age=60", **CORS})
         if path in ("/stats", "/stats/"):
             return Response(_stats_html(await _stats(self.env)), headers={"content-type": "text/html; charset=utf-8", **CORS})
+        if path in ("/version", "/version.json"):  # additive: which commit this worker was built from
+            return Response(json.dumps({"version": core_deals.VERSION, "build": GIT_SHA}), headers={"content-type": "application/json", **CORS})
         if path == "/stats.json":
             return Response(json.dumps({"schema": "lantern-works-hosted-mcp-stats/1", "note": "anonymous aggregate counts per UTC day, tool and ref; nothing per caller is stored",
                                         "rows": await _stats(self.env), "watches": await watch_store.stats(self.env),
