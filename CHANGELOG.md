@@ -4,6 +4,13 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 
 
+## 0.4.2 (2026-11-01, PyPI + MCP Registry)
+
+- Docs (Gauge rel041): README.md and mcp_server/README.md (the PyPI description) state the package version; mcp_server/README.md now lists all 9 tools, including `rebuild_quote`. Tests fail when a README version differs from pyproject or a registered tool has no README row.
+- Data: Lambda's B200 rows (1x and 8x) carry the same B200 180 GB `vram_note` as RunPod and Verda (vendor quotes unchanged). A new test requires a note shared by 2+ vendors on every row of that GPU and VRAM.
+- Tests: test_tool_result_reports_retrieval builds its loader from the server's own core, so it passes with `pip install -e .` too.
+- No MCP output fields renamed or removed.
+
 ## 0.4.1 (2026-11-01)
 
 - GPU counts (PR #61, Core; Gauge passed at de184627): `2x A100`, `8xH100` and `two H100s` are parsed and priced for N GPUs; GPU-hours vs GPU count are kept apart (no double multiply); requested vs billed GPUs are stated as assumptions; bad counts are rejected; `gpu_count` is part of `quote_id` and the receipt.

@@ -128,6 +128,13 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.4.2 (2026-11-01, PyPI + MCP Registry)</h2>
+<ul>
+<li>Docs (Gauge rel041): README.md and mcp_server/README.md (the PyPI description) state the package version; mcp_server/README.md now lists all 9 tools, including <code>rebuild_quote</code>. Tests fail when a README version differs from pyproject or a registered tool has no README row.</li>
+<li>Data: Lambda&#x27;s B200 rows (1x and 8x) carry the same B200 180 GB <code>vram_note</code> as RunPod and Verda (vendor quotes unchanged). A new test requires a note shared by 2+ vendors on every row of that GPU and VRAM.</li>
+<li>Tests: test_tool_result_reports_retrieval builds its loader from the server&#x27;s own core, so it passes with <code>pip install -e .</code> too.</li>
+<li>No MCP output fields renamed or removed.</li>
+</ul>
 <h2>0.4.1 (2026-11-01)</h2>
 <ul>
 <li>GPU counts (PR #61, Core; Gauge passed at de184627): <code>2x A100</code>, <code>8xH100</code> and <code>two H100s</code> are parsed and priced for N GPUs; GPU-hours vs GPU count are kept apart (no double multiply); requested vs billed GPUs are stated as assumptions; bad counts are rejected; <code>gpu_count</code> is part of <code>quote_id</code> and the receipt.</li>
