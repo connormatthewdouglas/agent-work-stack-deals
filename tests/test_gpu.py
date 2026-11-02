@@ -326,7 +326,8 @@ def test_t71_multi_gpu_rows_label_whole_instance_totals():
     assert rows
     for r in rows:
         cells = dict(re.findall(r'data-label="([^"]+)">(.*?)</td>', r, re.S))
-        assert "whole " in cells["100 h/month"] and "-GPU instance" in cells["100 h/month"], r
+        if "flat monthly plan" not in cells["100 h/month"]:  # T78: flat plans show a dash in the hours column
+            assert "whole " in cells["100 h/month"] and "-GPU instance" in cells["100 h/month"], r
         assert "whole " in cells["Full month"] and "-GPU instance" in cells["Full month"], r
     lam = [r for r in rows if "Lambda" in r and "A100 SXM" in r]
     assert lam and "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]
@@ -368,3 +369,28 @@ def test_t76_vendor_counts_labelled_25_priced_vs_23_instance():
         assert lab in html, page
         if c["serverless_only"]:
             assert f"{c['priced_sources']} priced sources, {c['instance_vendors']} instance vendors" in html, page
+
+
+def test_t78_flat_monthly_rows_show_dash_in_hours_column():
+    import re as _re
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    assert any(r["unit"] == "month" for r in rates)
+    hourly_vendors = {r["advertiser"] for r in rates if r["unit"] == "hour"}
+    for page in ("gpu/price-comparison/index.html", "gpu/h100-vs-a100/index.html"):
+        p = root / page
+        if not p.exists():
+            continue
+        for tr in _re.findall(r"<tr data-tier.*?</tr>", p.read_text(encoding="utf-8"), _re.S):
+            cells = dict(_re.findall(r'data-label="([^"]+)">(.*?)</td>', tr, _re.S))
+            h = cells.get("100 h/month")
+            if h is None:
+                continue
+            flat = "flat monthly plan" in h
+            if flat:
+                assert _re.sub(r"<[^>]+>", "", h).strip().startswith("—"), tr[:200]
+                assert "$" in cells["Full month"], tr[:200]  # Full month keeps the flat price
+            else:
+                assert "$" in h, tr[:200]
+    html = (root / "gpu/price-comparison/index.html").read_text(encoding="utf-8")
+    assert html.count("flat monthly plan: same price at any hours") == sum(1 for r in rates if r["unit"] == "month")

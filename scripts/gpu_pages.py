@@ -69,6 +69,14 @@ def _total_cell(r: dict, amount: float, hours) -> str:
     return f"{_money(amount)} <span class=\"meta\">(whole {g}-GPU instance: {how})</span>"
 
 
+def _hours_cell(r: dict, amount: float, hours) -> str:
+    """T78: a flat monthly plan costs the same at 100 h as at 730 h, so the N h/month column shows a dash and the
+    flat-plan label instead of a number that looks like 100 h of use; Full month keeps the flat price."""
+    if r["unit"] != "hour":
+        return "— <span class=\"meta\">(flat monthly plan: same price at any hours; see Full month)</span>"
+    return _total_cell(r, amount, hours)
+
+
 def _quote_html(esc, r: dict, n: int = 70) -> str:
     """H4: short cleaned excerpt; the full verbatim quote is one click away."""
     q = " ".join(((r.get("evidence") or {}).get("quote") or "").split())
@@ -211,7 +219,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(display_gpu(r))}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
             f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
             f"<td data-label=\"Type\">{esc(r['tier'])}{badge}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
-            f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_total_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong></td><td data-label=\"Full month\">{_total_cell(r, full[_key(r)], HOURS_PER_MONTH)}</td>"
+            f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong></td><td data-label=\"Full month\">{_total_cell(r, full[_key(r)], HOURS_PER_MONTH)}</td>"
             f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
             f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
             + f"<td data-label=\"Link\">{'Referral link' if r['affiliate'] else 'Direct link'} <a class=\"meta\" rel=\"nofollow\" href=\"{gen.BASE}/report-price/?{esc(_report_q(r))}\">Wrong price?</a></td></tr>")
@@ -573,7 +581,7 @@ def write_h100_vs(gen, rates):
         best.setdefault(r["advertiser"], r)
     t1 = _simple_table(["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH} h)", "Vendor quote"],
                        [[i, _vendor_cell(gen, r), f"{gen.esc(r['gpu'])} · {gen.esc(r['tier'])}", gen.esc(_rate_str(r)),
-                         f"<strong>{_total_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r)]
+                         f"<strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r)]
                         for i, r in enumerate(rows, 1)])
     t2 = _simple_table(["Vendor", "Lowest-priced H100 (tracked)", "Billing and extras"],
                        [[_vendor_cell(gen, r), f"{gen.esc(r['gpu'])} ({gen.esc(r['tier'])}) {gen.esc(_rate_str(r))}", gen.esc(_VENDOR_FACTS[v])]
