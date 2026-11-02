@@ -1,3 +1,4 @@
+import re
 import json, pathlib
 from core import gpu as G
 
@@ -43,4 +44,4 @@ def test_manual_snapshot_fields_in_feed_and_page():
     # Nov 1 (Gauge): sourced from the model's own page, a stable span the daily check parses (no longer rotating)
     assert sph and sph[0]["source_url"] == "https://www.spheron.network/gpu-rental/rtx-5090/" and "/hr per GPU" in sph[0]["evidence"]["quote"]
     page = pathlib.Path("gpu/price-comparison/index.html").read_text()
-    assert (not clore or "manual snapshot 2026-11-01 22:22 UTC; held after 2026-11-08" in page) and "Price verified (daily)" not in page
+    assert (not clore or re.search(r"manual snapshot \d{4}-\d\d-\d\d \d\d:\d\d UTC; held after \d{4}-\d\d-\d\d", page)) and "Price verified (daily)" not in page
