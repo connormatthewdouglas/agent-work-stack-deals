@@ -8,6 +8,18 @@ import cost_pages  # noqa: E402
 FEED = json.loads((ROOT / "api/v1/gpu-prices.json").read_text(encoding="utf-8"))
 
 
+def _cheapest_a100_80(feed=None):
+    """Cheapest AVAILABLE on-demand A100 80GB row, by the app's stock rule: rows marked out of stock are skipped."""
+    feed = feed or json.loads((ROOT / "api/v1/gpu-prices.json").read_text(encoding="utf-8"))
+    c = [r for r in feed["rates"] if r["gpu"].split()[0] == "A100" and r.get("vram_gb") == 80 and r["tier_class"] == "on-demand"
+         and not r["interruptible"] and (r.get("availability") or {}).get("in_stock") is not False]
+    return min(c, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+
+
+def _label(b):
+    return f"{b['advertiser']} {b['gpu']} 80GB"
+
+
 import pytest  # noqa: E402
 
 
@@ -101,11 +113,11 @@ def test_rtx4090_has_cheapest_line_with_3_plus_vendors():
 
 
 
-# 2026-10-30: CloudRift A100 SXM $1.05 re-sourced from cloudrift.ai/a100 (1-mo/3-mo term rows held)
 def test_h1_scoped_cheapest_and_page_lowest():
     a = _page("a100", 100)
     assert "Cheapest among tracked providers" not in a
-    assert "<h2>A100 SXM 80GB</h2>" in a and "CloudRift A100" in a  # stock-independent: the lead depends on Scout
+    b = _cheapest_a100_80()  # derived from feed stock; which variant sections exist depends on Scout's snapshot
+    assert "<h2>A100 " in a and f"{b['advertiser']} {b['gpu']}" in a
     assert ("Lowest on-demand A100 on this page (not marked out of stock): Jarvislabs A100 40GB (variant not stated) at "
             "$8.90 / $89.00 / $649.70") in a
     for slug in ("h100", "l40s"):
@@ -230,7 +242,7 @@ def test_j8_cheapest_a100_summary_names_memory_sizes():
     # stock-independent: whether the J8 clause leads or follows a cheaper in-stock spot row depends on Scout's snapshot
     import re
     assert re.search(r"Jarvislabs A100 40GB \(On-demand\)(</strong>)? at \$89\.00", s)
-    assert "\u2014 memory sizes differ; cheapest on-demand A100 80GB among tracked providers: CloudRift A100 SXM 80GB at $105.00" in s
+    assert "\u2014 memory sizes differ; cheapest on-demand A100 80GB among tracked providers: " + _label(b := _cheapest_a100_80()) + f" at ${b['hourly_equiv_usd'] * 100:,.2f}" in s
 
 
 def test_index_a100_is_80gb_only():
@@ -280,7 +292,6 @@ def test_k2_cost_a100_any_variant_80gb_line_from_feed():
     b = min(c, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
     want = (f"Cheapest A100 80GB (any variant) among tracked providers: {b['advertiser']} {b['gpu']} 80GB at "
             + " / ".join(f"${b['hourly_equiv_usd'] * h:,.2f}" for h in (10, 100, 730)))
-    assert want == "Cheapest A100 80GB (any variant) among tracked providers: CloudRift A100 SXM 80GB at $10.50 / $105.00 / $766.50"
     for h in (10, 100, 730):
         assert want in _page("a100", h)
 
@@ -318,7 +329,28 @@ def test_k2_mcp_a100_summary_names_cheapest_80gb():
     from core import deals as D
     data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     out = D.compare_gpu_prices(data, "A100", on_demand_only=True)
-    assert "Memory sizes differ (cheapest on-demand 80GB: CloudRift A100 SXM 80GB at $1.05/hr, On-demand)" in out["summary"]
+    b = _cheapest_a100_80(data)
+    assert f"Memory sizes differ (cheapest on-demand 80GB: {_label(b)} at ${b['hourly_equiv_usd']:.2f}/hr, {b['tier']})" in out["summary"]
+
+
+def test_k2_mcp_a100_summary_pinned_fixture():
+    """Fixture-pinned: a small fixed feed where the cheapest 80GB row is out of stock, so the next in-stock one is named."""
+    import copy, sys
+    sys.path.insert(0, str(ROOT))
+    from core import deals as D
+    base = next(r for r in FEED["rates"] if r["gpu"].split()[0] == "A100" and r.get("vram_gb") == 80 and r["tier_class"] == "on-demand"
+                and not r["interruptible"])
+    def row(adv, gpu, vram, price, in_stock):
+        r = copy.deepcopy(base)
+        r.update(advertiser=adv, gpu=gpu, vram_gb=vram, price_usd=price, hourly_equiv_usd=price, tier="On-demand")
+        r["availability"] = {**(r.get("availability") or {}), "in_stock": in_stock,
+                             "status": "out_of_stock" if in_stock is False else (r.get("availability") or {}).get("status")}
+        return r
+    data = {**FEED, "rates": [row("VendorA", "A100 SXM", 80, 1.00, False), row("VendorB", "A100", 80, 1.20, None),
+                              row("VendorC", "A100 PCIe", 40, 0.50, None)]}
+    assert _cheapest_a100_80(data)["advertiser"] == "VendorB"
+    out = D.compare_gpu_prices(data, "A100", on_demand_only=True)
+    assert "Memory sizes differ (cheapest on-demand 80GB: VendorB A100 80GB at $1.20/hr, On-demand)" in out["summary"]
 
 
 def _fresh():
