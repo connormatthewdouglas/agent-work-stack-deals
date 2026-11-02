@@ -167,8 +167,8 @@ HOME_JS = r"""  <script>
 
 # Privacy-safe usage counts through the existing Cloudflare Web Analytics beacon, which has no custom events
 # but counts SPA route changes as page views (history.pushState / popstate). Each event becomes one aggregate
-# page view of a virtual path: /e/out/<deal-id>/ (or /e/out/h-<vendor-hostname>/ for outbound links without a deal id), /e/search/, /e/calculator/, /e/compare/. No cookies,
-# storage, identifiers or query values are sent; search terms are never recorded. Emitted only with the beacon.
+# page view of a virtual path: /e/out/<deal-id>/ (or /e/out/h-<vendor-hostname>/ for outbound links without a deal id), /e/search/, /e/calculator/, /e/compare/, /e/ref/<ref>/ (the landing ?ref= channel tag only). No cookies,
+# storage, identifiers or other query values are sent; search terms are never recorded. Emitted only with the beacon.
 TRACK_JS = r"""  <script>
 (()=>{
   const seen=new Set();
@@ -197,6 +197,8 @@ TRACK_JS = r"""  <script>
     ev.preventDefault();
     lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
   },true);
+  // rel055: a landing ?ref= channel tag (same pattern the hosted worker accepts) counts once as /e/ref/<ref>/; nothing else from the query is sent
+  try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) lwTrack("ref/"+r); }catch(e){}
   document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
   document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
 })();

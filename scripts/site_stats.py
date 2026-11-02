@@ -18,7 +18,7 @@ import os
 import sys
 import urllib.error
 import urllib.request
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,13 +52,46 @@ def _add(d: dict, k, n: int):
     d[k] = d.get(k, 0) + int(n or 0)
 
 
-def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: datetime) -> dict:
+REF_PATH_RE = re.compile(r"^/e/ref/([a-z0-9][a-z0-9_-]{0,31})/?$")
+OUT_PATH_RE = re.compile(r"^/e/out/[a-z0-9-]{1,80}/?$", re.I)
+BEACON_SINCE_WEEK = "2026-W45"  # site b392c8b3... beacon token 327dc277... shipped 2026-11-02
+BEACON_SINCE_REASON = "not measured: this Web Analytics site's beacon went live on 2026-11-02 (ISO week 2026-W45)"
+INSTALLS_NULL_REASON = ("not measurable: the opt-in telemetry worker records day x tool x version only, with no install id "
+                        "or ref; an install id needs Frosty's approval. Hosted connects by ref are in mcp_initialize_by_ref.")
+
+
+def rum_weekly(groups: list[dict]) -> dict:
+    """Cloudflare Web Analytics groups [{count, dimensions:{date, requestPath}}] -> {week: {page_views, visits_by_ref,
+    outbound_clicks}}. page_views counts real pages only (virtual /e/ paths excluded); visits_by_ref counts the
+    /e/ref/<ref>/ virtual view the beacon sends once per landing with ?ref= (pages built from rel055 on)."""
+    w: dict = {}
+    for g in groups:
+        dim = g.get("dimensions") or {}
+        path, day, n = dim.get("requestPath") or "", dim.get("date"), int(g.get("count") or 0)
+        if not day:
+            continue
+        s = w.setdefault(week(day), {"page_views": 0, "visits_by_ref": {}, "outbound_clicks": 0})
+        m = REF_PATH_RE.match(path)
+        if m:
+            _add(s["visits_by_ref"], m.group(1), n)
+        elif OUT_PATH_RE.match(path):
+            s["outbound_clicks"] += n
+        elif not path.startswith("/e/"):
+            s["page_views"] += n
+    return w
+
+
+def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: datetime,
+          rum: dict | None = None, rum_reason: str = "") -> dict:
     out: dict = {}
 
     def slot(w):
         return out.setdefault(w, {"week": w, "mcp_tool_calls_by_ref": {}, "feed_fetches_by_ref": {},
                                   "mcp_initialize_by_ref": {}, "external_mcp_tool_calls": 0, "untagged_mcp_tool_calls": 0,
-                                  "telemetry_tool_calls": 0, "outbound_clicks": None})
+                                  "telemetry_tool_calls": 0, "outbound_clicks": None,
+                                  "page_views": None, "visits_by_ref": None,
+                                  "visits_null_reason": rum_reason or None, "installs_by_ref": None,
+                                  "installs_null_reason": INSTALLS_NULL_REASON})
 
     for r in hosted.get("rows") or []:
         s, ref = slot(week(r["day"])), str(r.get("ref") or "none")
@@ -76,10 +109,22 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
             slot(week(r["day"]))["telemetry_tool_calls"] += int(r.get("n") or 0)
     for w, n in (clicks or {}).items():
         slot(w)["outbound_clicks"] = n
+    for w, r in (rum or {}).items():
+        s = slot(w)
+        s["page_views"], s["outbound_clicks"] = r["page_views"], r["outbound_clicks"]
+        s["visits_by_ref"] = dict(sorted(r["visits_by_ref"].items(), key=lambda x: (-x[1], x[0])))
+        s["visits_null_reason"] = None
+    if rum is not None:  # measured, so a week with no beacon rows is a real zero, from the beacon switch on
+        for s in out.values():
+            if s["week"] < BEACON_SINCE_WEEK and not rum.get(s["week"]):
+                s["visits_null_reason"] = BEACON_SINCE_REASON
+            elif s["page_views"] is None:
+                s.update(page_views=0, visits_by_ref={}, outbound_clicks=s["outbound_clicks"] or 0, visits_null_reason=None)
     rows = sorted(out.values(), key=lambda s: s["week"], reverse=True)[:weeks]
     for s in rows:
         for k in ("mcp_tool_calls_by_ref", "feed_fetches_by_ref", "mcp_initialize_by_ref"):
-            s[k] = dict(sorted(s[k].items(), key=lambda x: (-x[1], x[0])))
+            if s[k] is not None:
+                s[k] = dict(sorted(s[k].items(), key=lambda x: (-x[1], x[0])))
     return {
         "schema": "lantern-works-site-stats/1",
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -93,11 +138,23 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
             "mcp_initialize_mcp_registry": "probably MCP Registry health checks, not users",
             "hosted_mcp": "https://lantern-works-mcp.lantern-works.workers.dev/stats" + ("" if "error" not in hosted else " (unavailable this run)"),
             "telemetry": "opt-in LANTERN_TELEMETRY=1 aggregate" + ("" if "error" not in telemetry else " (unavailable this run)"),
-            "outbound_clicks": "Cloudflare Web Analytics beacon, /e/out/ virtual page views, weekly total" if clicks is not None
+            "outbound_clicks": "Cloudflare Web Analytics beacon, /e/out/ virtual page views, weekly total" if (clicks is not None or rum is not None)
                                else "not available this run (null)",
+            "page_views": ("Cloudflare Web Analytics beacon page views (site b392c8b3...), real pages only, weekly total" if rum is not None
+                           else f"null: {rum_reason}"),
+            "visits_by_ref": ("Cloudflare Web Analytics /e/ref/<ref>/ virtual views, sent once per landing with ?ref= by pages built "
+                              "from 2026-11-02 (rel055) on; earlier weeks cannot show refs" if rum is not None else f"null: {rum_reason}"),
+            "installs_by_ref": "null: " + INSTALLS_NULL_REASON,
         },
         "weeks": rows,
     }
+
+
+def _safe_clicks() -> dict | None:
+    try:
+        return weekly_clicks()
+    except Exception:  # noqa: BLE001  (never fail the stats run)
+        return None
 
 
 def weekly_clicks() -> dict | None:
@@ -117,16 +174,47 @@ def weekly_clicks() -> dict | None:
     return w
 
 
+RUM_QUERY = ("query($a:String!,$s:String!,$d:Date!){viewer{accounts(filter:{accountTag:$a}){rumPageloadEventsAdaptiveGroups("
+             "limit:5000,filter:{siteTag:$s,date_geq:$d}){count dimensions{date requestPath}}}}}")
+
+
+def fetch_rum(days: int = 84) -> tuple[list | None, str]:
+    """Read-only GraphQL (Analytics:Read token). Never raises: returns (groups, "") or (None, reason)."""
+    tok, acct, site = (os.environ.get(k) for k in ("CF_API_TOKEN", "CF_ACCOUNT_ID", "CF_SITE_TAG"))
+    if not tok:
+        return None, "CF_API_TOKEN (Cloudflare Analytics:Read) is not set for this run, so Web Analytics was not queried"
+    if not (acct and site):
+        return None, "CF_ACCOUNT_ID or CF_SITE_TAG is not set"
+    q = {"query": RUM_QUERY, "variables": {"a": acct, "s": site, "d": str(date.today() - timedelta(days=days))}}
+    req = urllib.request.Request("https://api.cloudflare.com/client/v4/graphql", data=json.dumps(q).encode(),
+                                 headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/json",
+                                          "User-Agent": "LanternWorks-site-stats"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            d = json.load(r)
+        if d.get("errors"):
+            return None, f"Cloudflare GraphQL error: {str(d['errors'][0].get('message'))[:120]}"
+        return d["data"]["viewer"]["accounts"][0]["rumPageloadEventsAdaptiveGroups"], ""
+    except Exception as e:  # noqa: BLE001  (never fail the stats run)
+        return None, f"Cloudflare GraphQL request failed ({type(e).__name__})"
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", default=str(ROOT / "stats.json"))
     ap.add_argument("--weeks", type=int, default=12)
+    ap.add_argument("--rum-groups", help="box-side fill: JSON file of rumPageloadEventsAdaptiveGroups rows read via the Cloudflare connector")
     a = ap.parse_args(argv)
+    if a.rum_groups:
+        groups, reason = json.loads(Path(a.rum_groups).read_text()), ""
+    else:
+        groups, reason = fetch_rum()
     hosted, telemetry = _get(HOSTED), _get(TELEMETRY)
     if "error" in hosted and "error" in telemetry:
         print("both sources unavailable; keeping the existing stats.json", file=sys.stderr)
         return 0
-    rep = build(hosted, telemetry, weekly_clicks(), a.weeks, datetime.now(timezone.utc))
+    rum = rum_weekly(groups) if groups is not None else None
+    rep = build(hosted, telemetry, None if rum is not None else _safe_clicks(), a.weeks, datetime.now(timezone.utc), rum, reason)
     Path(a.out).write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {a.out}: {len(rep['weeks'])} weeks")
     return 0

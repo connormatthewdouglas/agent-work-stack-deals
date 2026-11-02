@@ -1,38 +1,48 @@
 {
   "schema": "lantern-works-site-stats/1",
-  "generated_at": "2026-11-02T13:10:54Z",
+  "generated_at": "2026-11-02T16:37:18Z",
   "note": "Weekly (ISO week, UTC) aggregate counts only. No IP addresses, user agents, cookies, keys or per-caller data. ref is the ?ref= channel tag. Refs ci, qa, test, smoke, house-* and t<N>/t<N>-* are our own checks and are excluded from external_mcp_tool_calls. Calls with no ref are counted separately in untagged_mcp_tool_calls and may include our own checks. feed_fetches_by_ref counts only feed fetches through the hosted worker, not GitHub Pages feed hits. mcp_initialize_by_ref['mcp-registry'] is probably MCP Registry health checks, not users.",
   "sources": {
     "feed_fetches": "hosted worker only (lantern-works-mcp.lantern-works.workers.dev/api/...); GitHub Pages feed hits are not counted",
     "mcp_initialize_mcp_registry": "probably MCP Registry health checks, not users",
     "hosted_mcp": "https://lantern-works-mcp.lantern-works.workers.dev/stats",
     "telemetry": "opt-in LANTERN_TELEMETRY=1 aggregate",
-    "outbound_clicks": "not available this run (null)"
+    "outbound_clicks": "not available this run (null)",
+    "page_views": "null: CF_API_TOKEN (Cloudflare Analytics:Read) is not set for this run, so Web Analytics was not queried",
+    "visits_by_ref": "null: CF_API_TOKEN (Cloudflare Analytics:Read) is not set for this run, so Web Analytics was not queried",
+    "installs_by_ref": "null: not measurable: the opt-in telemetry worker records day x tool x version only, with no install id or ref; an install id needs Frosty's approval. Hosted connects by ref are in mcp_initialize_by_ref."
   },
   "weeks": [
     {
       "week": "2026-W45",
       "mcp_tool_calls_by_ref": {
-        "ci": 96,
-        "qa": 61,
-        "none": 23,
-        "house-gauge": 7,
+        "ci": 130,
+        "qa": 111,
+        "none": 28,
+        "house-gauge": 26,
         "install": 4,
-        "mcp-registry": 1
+        "mcp-registry": 3,
+        "install-test": 2
       },
       "feed_fetches_by_ref": {},
       "mcp_initialize_by_ref": {
-        "mcp-registry": 347,
-        "none": 89,
+        "mcp-registry": 419,
+        "none": 97,
+        "github-readme": 9,
         "install": 8,
-        "github-readme": 7,
-        "house-gauge": 3,
+        "house-gauge": 5,
+        "install-test": 4,
         "qa": 1
       },
-      "external_mcp_tool_calls": 5,
-      "untagged_mcp_tool_calls": 23,
+      "external_mcp_tool_calls": 9,
+      "untagged_mcp_tool_calls": 28,
       "telemetry_tool_calls": 0,
-      "outbound_clicks": null
+      "outbound_clicks": null,
+      "page_views": null,
+      "visits_by_ref": null,
+      "visits_null_reason": "CF_API_TOKEN (Cloudflare Analytics:Read) is not set for this run, so Web Analytics was not queried",
+      "installs_by_ref": null,
+      "installs_null_reason": "not measurable: the opt-in telemetry worker records day x tool x version only, with no install id or ref; an install id needs Frosty's approval. Hosted connects by ref are in mcp_initialize_by_ref."
     },
     {
       "week": "2026-W44",
@@ -62,7 +72,12 @@
       "external_mcp_tool_calls": 16,
       "untagged_mcp_tool_calls": 471,
       "telemetry_tool_calls": 0,
-      "outbound_clicks": null
+      "outbound_clicks": null,
+      "page_views": null,
+      "visits_by_ref": null,
+      "visits_null_reason": "CF_API_TOKEN (Cloudflare Analytics:Read) is not set for this run, so Web Analytics was not queried",
+      "installs_by_ref": null,
+      "installs_null_reason": "not measurable: the opt-in telemetry worker records day x tool x version only, with no install id or ref; an install id needs Frosty's approval. Hosted connects by ref are in mcp_initialize_by_ref."
     }
   ]
 }

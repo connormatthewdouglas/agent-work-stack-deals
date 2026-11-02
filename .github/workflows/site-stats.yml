@@ -26,6 +26,11 @@ jobs:
       - name: Build stats.json, commit, push (rebase-retry), dispatch deploy
         env:
           GH_TOKEN: ${{ github.token }}
+          # Cloudflare Web Analytics (public ids, not secrets). Without the CF_API_TOKEN secret (Analytics:Read)
+          # site_stats.py writes page_views/visits_by_ref null with a reason and the run stays green.
+          CF_ACCOUNT_ID: ef442e8e10dbf540761ddc41055775f1
+          CF_SITE_TAG: b392c8b327c143ae8483491ccd72751d
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"

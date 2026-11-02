@@ -23,3 +23,32 @@ def test_committed_stats_json_shape():
     p = Path(__file__).resolve().parents[1] / "stats.json"
     d = json.loads(p.read_text())
     assert d["schema"] == "lantern-works-site-stats/1" and isinstance(d["weeks"], list)
+
+
+def test_rum_weekly_refs_and_pages():
+    g = [{"count": 5, "dimensions": {"date": "2026-11-02", "requestPath": "/"}},
+         {"count": 2, "dimensions": {"date": "2026-11-02", "requestPath": "/e/ref/forum-hn/"}},
+         {"count": 1, "dimensions": {"date": "2026-11-02", "requestPath": "/e/out/deal-x/"}},
+         {"count": 3, "dimensions": {"date": "2026-11-02", "requestPath": "/e/search/"}}]
+    w = S.rum_weekly(g)["2026-W45"]
+    assert w == {"page_views": 5, "visits_by_ref": {"forum-hn": 2}, "outbound_clicks": 1}
+
+
+def test_no_token_is_null_with_reason_not_zero(monkeypatch):
+    monkeypatch.delenv("CF_API_TOKEN", raising=False)
+    groups, reason = S.fetch_rum()
+    assert groups is None and "CF_API_TOKEN" in reason
+    from datetime import datetime, timezone
+    rep = S.build({"rows": [{"day": "2026-11-02", "ref": "install", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc), None, reason)
+    wk = rep["weeks"][0]
+    assert wk["page_views"] is None and wk["visits_by_ref"] is None and reason in wk["visits_null_reason"]
+    assert wk["installs_by_ref"] is None and "install id" in wk["installs_null_reason"]
+
+
+def test_weeks_before_beacon_are_null_not_zero():
+    from datetime import datetime, timezone
+    rep = S.build({"rows": [{"day": "2026-10-28", "ref": "x", "n": 1}, {"day": "2026-11-02", "ref": "x", "n": 1}]}, {}, None, 12,
+                  datetime.now(timezone.utc), {}, "")
+    w = {x["week"]: x for x in rep["weeks"]}
+    assert w["2026-W44"]["page_views"] is None and "2026-11-02" in w["2026-W44"]["visits_null_reason"]
+    assert w["2026-W45"]["page_views"] == 0 and w["2026-W45"]["visits_by_ref"] == {}
