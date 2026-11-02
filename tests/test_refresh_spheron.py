@@ -107,3 +107,10 @@ def test_failed_reverification_keeps_checked_at():
     doc = {"vendor": "Spheron", "records": [copy.deepcopy(REC)]}
     m.refresh([doc], N(), datetime(2026, 11, 2, 13, 0, tzinfo=timezone.utc))
     assert doc["records"][0]["checked_at"] == REC["checked_at"] and doc["records"][0]["no_capacity"]
+
+
+def test_no_capacity_row_is_held_in_snapshot_so_changes_skip_it():
+    sys.path.insert(0, ".")
+    from core import gpu_history
+    rec = dict(copy.deepcopy(REC), no_capacity={"reason": "no capacity per vendor page", "read_at": "x", "source_url": "u"})
+    assert gpu_history.snapshot_rows([{"vendor": "Spheron", "records": [rec]}])[0]["status"] == "held"
