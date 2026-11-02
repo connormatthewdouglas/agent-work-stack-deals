@@ -13,11 +13,10 @@
   "scope": "tracked providers only; 'cheapest' means cheapest among tracked providers",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-11-02T03:04:00Z",
-  "row_count": 3,
+  "last_checked": "2026-11-02T11:00:04Z",
+  "row_count": 2,
   "providers": [
-    "RunPod",
-    "Vast.ai"
+    "RunPod"
   ],
   "cheapest": {
     "on-demand": [
@@ -35,7 +34,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T03:04:00Z",
+        "verified_at": "2026-11-02T11:00:04Z",
         "source_url": "https://api.runpod.io/graphql gpuTypes.securePrice id=NVIDIA RTX A4000",
         "quote": "RTX A4000 gpuTypes.securePrice (list price, 1 GPU) $0.25/hr",
         "availability": {
@@ -49,21 +48,21 @@
     "spot-community": [
       {
         "vram_gb": 16,
-        "provider": "Vast.ai",
+        "provider": "RunPod",
         "gpu": "RTX A4000",
-        "tier": "Marketplace on-demand (verified)",
-        "tier_class": "marketplace",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
         "bucket": "spot-community",
         "interruptible": false,
-        "hourly_usd_per_gpu": 0.1072,
+        "hourly_usd_per_gpu": 0.17,
         "unit": "hour",
-        "price_usd": 0.1072,
+        "price_usd": 0.17,
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T03:04:00Z",
-        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-        "quote": "Vast public offers API: 5 verified rentable on-demand RTX A4000 offers; per-GPU dph_total median $0.1072/hr",
+        "verified_at": "2026-11-02T11:00:04Z",
+        "source_url": "https://api.runpod.io/graphql gpuTypes.communityPrice id=NVIDIA RTX A4000",
+        "quote": "RTX A4000 gpuTypes.communityPrice (list price, 1 GPU) $0.17/hr",
         "availability": {
           "status": "unknown",
           "in_stock": null,
@@ -74,30 +73,6 @@
     ]
   },
   "rows": [
-    {
-      "provider": "Vast.ai",
-      "gpu": "RTX A4000",
-      "vram_gb": 16,
-      "tier": "Marketplace on-demand (verified)",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 0.1072,
-      "unit": "hour",
-      "price_usd": 0.1072,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-02T03:04:00Z",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "quote": "Vast public offers API: 5 verified rentable on-demand RTX A4000 offers; per-GPU dph_total median $0.1072/hr",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      }
-    },
     {
       "provider": "RunPod",
       "gpu": "RTX A4000",
@@ -112,7 +87,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T03:04:00Z",
+      "verified_at": "2026-11-02T11:00:04Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.communityPrice id=NVIDIA RTX A4000",
       "quote": "RTX A4000 gpuTypes.communityPrice (list price, 1 GPU) $0.17/hr",
       "availability": {
@@ -136,7 +111,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T03:04:00Z",
+      "verified_at": "2026-11-02T11:00:04Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.securePrice id=NVIDIA RTX A4000",
       "quote": "RTX A4000 gpuTypes.securePrice (list price, 1 GPU) $0.25/hr",
       "availability": {
