@@ -308,6 +308,10 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | N
                      price_rec: dict | None = None) -> dict:
     now = build_now(now)
     r = _index().get((vendor, gpu, vram_gb, _tier_key(tier)))
+    if isinstance(record, dict) and r and record.get("same_capture_as_price") and \
+            (_parse(record.get("checked_at")) or datetime.min.replace(tzinfo=timezone.utc)) > \
+            (_parse(r.get("availability_checked_at")) or datetime.min.replace(tzinfo=timezone.utc)):
+        r = None  # Gauge rel053: a newer record read from the same capture as the price beats an older Scout row
     if not r and isinstance(record, dict):
         return stale_guard(price_join_guard(_from_record(record), price_rec), now)  # record-origin stock expires at build time too
     # join first, then expiry: an expired claim still says which price it was read against (stale_guard keeps the audit)

@@ -52,6 +52,11 @@ def apply(doc: dict, snap: dict) -> list[str]:
                                     + ("; no available listing" if not n else ""), "page_last_updated": None}
             if n:  # lowest seen is kept as evidence context only (never published while held)
                 q += f"; lowest ${s['lowest_available_on_demand_usd_gpu_hr']}/hr"
+        la = s.get("listings_available")
+        if la is not None:  # Gauge rel053: stock from the same snapshot as the price (available listings, any currency)
+            r["availability"] = {"in_stock": la > 0, "checked_at": at, "source": src, "same_capture_as_price": True,
+                                 "stock_level": f"{la} available listings",
+                                 "note": f"Clore.ai API snapshot: {la} available {name} listings (status available, any currency)"}
         r.update(quote=q, source_url=src, checked_at=at, verified_at=at,
                  evidence={"source_url": src, "quote": q, "checked_at": at})
         log.append(f"{r['gpu']}: N={n} " + (f"median ${r['price_usd']} low ${r['lowest_offer_usd']}" if r["price_usd"] else "held"))
