@@ -13,3 +13,39 @@
 - A stock claim (availability.in_stock true or false) is valid until availability.availability_expires_at (UTC). Lambda, Verda, region-derived and per-region claims last at most 1 hour after checked_at; Vast marketplace overall claims last at most 1 hour; Clore overall claims at most 8 hours. After availability_expires_at, treat the claim as unknown: neither in stock nor sold out. Static feeds leave out claims within 25 minutes of expiry and are rebuilt on every availability snapshot. Consumers must still enforce availability_expires_at. compare_gpu_prices applies it at request time and is the source of truth.
 - availability.in_stock null means no signal, not sold out.
 - Pages show the same limit as "valid until HH:MM ET; after that treat as unknown".
+
+## For agents
+- Prefer the MCP tool compare_gpu_prices in brief mode (mode='brief', the default): about 4k chars per answer with model, vendor, $/GPU-hr, checked_at and source_url. Hosted endpoint: https://lantern-works-mcp.lantern-works.workers.dev/mcp ; install: https://thelanternworks.com/install/
+- Every page below embeds a machine-readable price block: <script type="application/json" id="lw-price-block"> with items {model, vendor, usd_per_hr, quote_currency, checked_at, source_url}, sorted by cost.
+- [Usage stats (JSON)](https://thelanternworks.com/stats.json): weekly aggregate ref= counts, no PII
+
+## GPU price pages
+- [A100 rental price](https://thelanternworks.com/gpu/a100-rental-price/)
+- [B200 rental price](https://thelanternworks.com/gpu/b200-rental-price/)
+- [H100 rental price](https://thelanternworks.com/gpu/h100-rental-price/)
+- [H200 rental price](https://thelanternworks.com/gpu/h200-rental-price/)
+- [L40S rental price](https://thelanternworks.com/gpu/l40s-rental-price/)
+- [RTX-4090 rental price](https://thelanternworks.com/gpu/rtx-4090-rental-price/)
+- [RTX-5090 rental price](https://thelanternworks.com/gpu/rtx-5090-rental-price/)
+- [RTX-6000-ADA rental price](https://thelanternworks.com/gpu/rtx-6000-ada-rental-price/)
+- [RTX-A6000 rental price](https://thelanternworks.com/gpu/rtx-a6000-rental-price/)
+- [V100 rental price](https://thelanternworks.com/gpu/v100-rental-price/)
+
+## Comparison pages
+- [ai-seo-writing-tools-comparison](https://thelanternworks.com/compare/ai-seo-writing-tools-comparison/)
+- [best-rotating-proxies-for-web-scraping](https://thelanternworks.com/compare/best-rotating-proxies-for-web-scraping/)
+- [cheap-gpu-rental](https://thelanternworks.com/compare/cheap-gpu-rental/)
+- [cheapest-cloud-vps-for-ai-agents](https://thelanternworks.com/compare/cheapest-cloud-vps-for-ai-agents/)
+- [cheapest-gpu-per-gb-vram](https://thelanternworks.com/compare/cheapest-gpu-per-gb-vram/)
+- [cheapest-residential-proxies](https://thelanternworks.com/compare/cheapest-residential-proxies/)
+- [cold-email-deliverability-warmup-tools](https://thelanternworks.com/compare/cold-email-deliverability-warmup-tools/)
+- [coreweave-vs-nebius-gpu-prices](https://thelanternworks.com/compare/coreweave-vs-nebius-gpu-prices/)
+- [email-verification-api-comparison](https://thelanternworks.com/compare/email-verification-api-comparison/)
+- [lambda-vs-runpod-gpu-prices](https://thelanternworks.com/compare/lambda-vs-runpod-gpu-prices/)
+- [runpod-community-vs-secure-cloud-prices](https://thelanternworks.com/compare/runpod-community-vs-secure-cloud-prices/)
+- [runpod-vs-thunder-compute-vs-modal-h100](https://thelanternworks.com/compare/runpod-vs-thunder-compute-vs-modal-h100/)
+- [runpod-vs-verda-gpu-prices](https://thelanternworks.com/compare/runpod-vs-verda-gpu-prices/)
+- [screenshot-api-comparison](https://thelanternworks.com/compare/screenshot-api-comparison/)
+- [serp-api-comparison](https://thelanternworks.com/compare/serp-api-comparison/)
+- [transactional-email-api-pricing](https://thelanternworks.com/compare/transactional-email-api-pricing/)
+- [web-scraping-api-deals](https://thelanternworks.com/compare/web-scraping-api-deals/)

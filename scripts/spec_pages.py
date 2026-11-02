@@ -260,6 +260,7 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     faqs.append(("How often are prices checked?", "A daily job re-reads every vendor pricing page; a rate not re-verified for 7 days is held and never ranked."))
     fh, fld = faq_block(gen, faqs)
     body.append(__import__("gpu_pages").accuracy_html(gen, rows))
+    body.append(__import__("gpu_pages").price_block(gen, rows))
     body.append("<h2>FAQ</h2>" + fh)
     sib = " · ".join(f'<a href="{gpu_url(gen, f)}">{esc(f)}</a>' for f in sorted(quals) if f != fam)
     body.append(f"<h2>More</h2><p>Other GPUs: {sib}</p><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data source: {feed_links(gen)}</p>")
@@ -352,6 +353,7 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
     faqs.append(("Are egress and storage included?", "No. Comparisons are compute-only; totals exclude storage, egress, extra vCPU and taxes. See Billing & extras."))
     fh, fld = faq_block(gen, faqs)
     body.append(__import__("gpu_pages").accuracy_html(gen, [ca[k] for k in shared] + [cb[k] for k in shared]))
+    body.append(__import__("gpu_pages").price_block(gen, [ca[k] for k in shared] + [cb[k] for k in shared]))
     body.append("<h2>FAQ</h2>" + fh + f"<h2>More</h2><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data: {feed_links(gen)}</p>")
     def prod(v, c):
         hr = [c[k] for k in shared if k[0] not in ("Monthly",)]

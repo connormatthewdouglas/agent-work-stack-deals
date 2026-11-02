@@ -408,11 +408,14 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
         )
         hubs = " · ".join(f'<a href="{base}/categories/{h}/">{esc(hub_titles.get(h, h))}</a>' for h in p["hubs"])
         gpu_block = ""
+        import gpu_pages as _gp
+        price_blk = _gp.price_block(g, [], [dict(d, price_text=ptm.get(d["id"])) for d in rows])
         if p.get("gpu"):
             import gpu_pages
             from core.gpu import build_rates
             grs = [r for r in build_rates(deals)["rates"] if r["deal_id"] in p["ids"] and (not p.get("focus") or r["gpu"].startswith("H100"))]
             gpu_block = gpu_pages.accuracy_html(g, grs)
+            price_blk = gpu_pages.price_block(g, grs)
         body = f"""
   <nav aria-label="Breadcrumb" class="crumbs"><a href="{base}/">Home</a> › <a href="{base}/{PILLAR['slug']}/">AI agent tool deals</a> › {esc(p['h1'])}</nav>
   <main>
@@ -438,7 +441,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
   <p>Other comparisons: {related}</p>
   <script type="application/ld+json">{json.dumps(faq_ld, ensure_ascii=False)}</script>
   <script type="application/ld+json">{json.dumps(_bc(base, crumbs), ensure_ascii=False)}</script>
-  </main>
+  {price_blk}  </main>
 """
         path = g.ROOT / "compare" / p["slug"] / "index.html"
         path.parent.mkdir(parents=True, exist_ok=True)

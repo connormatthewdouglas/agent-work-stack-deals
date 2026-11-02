@@ -263,6 +263,23 @@ def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, st
     return f'<script type="application/ld+json">{data}</script>'
 
 
+def price_block(gen, rows: list[dict], deals: list[dict] | None = None) -> str:
+    """Brain #247 task 2: short machine-readable price block (model, vendor, $/hr, checked_at) for agents.
+    GPU rows give usd_per_hr; non-GPU deals give a price text with usd_per_hr null. Sorted by cost (never by referral)."""
+    items = [{"model": r["gpu"], "vendor": r["advertiser"], "tier": r.get("tier"), "form_factor": r.get("form_factor"),
+              "usd_per_hr": r["hourly_equiv_usd"], "quote_currency": "USD", "checked_at": r.get("verified_at"),
+              "source_url": r.get("source_url")}
+             for r in sorted(rows, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))]
+    for d in deals or []:
+        items.append({"model": d.get("product") or d.get("title") or d["advertiser"], "vendor": d["advertiser"], "usd_per_hr": None,
+                      "price": d.get("price_text") or d.get("published_price") or None, "checked_at": d.get("verified_at"),
+                      "source_url": d.get("source_url") or d.get("url")})
+    data = {"schema": "lantern-works-price-block/1", "feeds": [f"{gen.BASE}/api/v1/gpu-prices.json", f"{gen.BASE}/api/v1/deals.json"],
+            "mcp": "compare_gpu_prices (brief mode)", "items": items}
+    js = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/json" id="lw-price-block">{js}</script>\n'
+
+
 def _faq_html(gen, faqs) -> str:
     return "\n".join(f"<h3>{gen.esc(q)}</h3>\n<p>{gen.esc(a)}</p>" for q, a in faqs)
 
@@ -514,7 +531,7 @@ def _cmp_page(gen, path, title, desc, h1, crumb, intro, sections, rows_ld, faqs,
   <h2>More</h2>
   <ul>{_more_links(gen, exclude=path)}</ul>
   {_jsonld(url, title, rows_ld, faqs, gen)}
-"""
+  {price_block(gen, rows_ld)}"""
     out = ROOT / path / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(gen.page_shell(title, desc, url, body + install_link_snippet(gen.BASE)), encoding="utf-8")
