@@ -308,7 +308,10 @@ def test_scout_v25_lambda_clore_render():
         return
     lam = [r for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("in_stock") is not None]
     assert all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
-    cl = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai" and r["availability"].get("in_stock") is not None]
+    cla = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai" and r["availability"].get("in_stock") is not None]
+    # Gauge rel053: a newer Clore snapshot (same capture as the price) carries its own available-listing count
+    assert all(r["availability"].get("same_capture_as_price") and r["availability"].get("stock_level") for r in cla if r["availability"].get("origin") == "record")
+    cl = [r for r in cla if r["availability"].get("origin") == "scout"]
     # Scout v35e publishes Clore rows with in_stock null (no claim, no expiry): zero Clore claims is valid
     assert all("offer_count" not in r["availability"] and r["availability"]["unrented_servers"] > 0 for r in cl)
     s = (ROOT / "gpu/cheapest-rtx-4090-rental/index.html").read_text()
