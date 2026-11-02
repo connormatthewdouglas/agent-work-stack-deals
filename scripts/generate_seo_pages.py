@@ -1015,10 +1015,16 @@ def deal_price_label(deal: dict) -> str:
     return price_label(deal, gpu_rates())[0]
 
 
+def _shown(deal: dict, key: str = "price_usd"):
+    sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    from core.price_label import shown_price
+    return shown_price(deal, key)  # Gauge rel053: unsourced prices are never rendered
+
+
 def price_bits(deal: dict) -> str:
-    price = deal.get("price_usd")
+    price = _shown(deal)
     unit = deal.get("unit") or ""
-    list_p = deal.get("list_price_usd")
+    list_p = _shown(deal, "list_price_usd")
     parts = []
     if price is None:
         # Never "unknown": cited GPU rate, plan prices in the note, or an honest offer-type label.
@@ -1117,8 +1123,8 @@ def json_ld(deal: dict, page_url: str) -> str:
         "category": deal.get("category"),
         "seller": {"@type": "Organization", "name": deal.get("advertiser")},
     }
-    if deal.get("price_usd") is not None:
-        offer["price"] = deal["price_usd"]
+    if _shown(deal) is not None:
+        offer["price"] = _shown(deal)
         offer["priceCurrency"] = "USD"
     if deal.get("unit"):
         offer["description"] = deal["unit"]
@@ -1133,7 +1139,7 @@ def json_ld(deal: dict, page_url: str) -> str:
 
 def filter_attrs(deal: dict) -> str:
     """Data attributes read by the homepage search/filter/compare script (public fields only)."""
-    price = deal.get("price_usd")
+    price = _shown(deal)
     vals = {"offer": deal.get("offer_type") or "", "offer-label": site_ui.OFFER_LABELS.get(deal.get("offer_type") or "", ""),
             "price": "" if price is None else price, "price-label": deal_price_label(deal) if price is None else "", "unit": deal.get("unit") or "", "advertiser": deal.get("advertiser") or "",
             "free": "1" if (deal.get("offer_type") == "free_tier" or is_free_tierish(deal)) else "0", "verified": "1" if deal.get("verified_at") else "0",

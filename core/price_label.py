@@ -26,6 +26,16 @@ OFFER_LABELS = {
 DEFAULT_LABEL = "Pricing on vendor site"
 
 
+def is_sourced(deal: dict) -> bool:
+    """Gauge rel053: a price may be shown only with a source_url and a check date (verified_at / checked_at)."""
+    return bool(deal.get("source_url") and (deal.get("verified_at") or deal.get("checked_at")))
+
+
+def shown_price(deal: dict, key: str = "price_usd"):
+    """The deal's price for rendering, or None when it is unsourced (never shown anywhere)."""
+    return deal.get(key) if is_sourced(deal) else None
+
+
 def has_plan_prices(deal: dict) -> bool:
     return any(PRICE_RE.search(deal.get(k) or "") for k in ("pricing_note", "unit"))
 

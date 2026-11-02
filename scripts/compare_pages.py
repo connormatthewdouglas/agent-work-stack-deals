@@ -15,6 +15,9 @@ PRICE_RE = re.compile(r"\$\s?\d|¢|free|\bfree\b|credits?", re.I)
 
 
 def price_text(d: dict) -> str | None:
+    from core.price_label import is_sourced
+    if not is_sourced(d):
+        return None  # Gauge rel053: no source_url + check date, so no price text anywhere on the page
     for key in ("pricing_note", "unit"):
         t = (d.get(key) or "").strip()
         if t and re.search(r"\$\s?\d|¢|₹|\bfree\b", t, re.I):
@@ -43,9 +46,9 @@ def facts(d: dict) -> tuple[list[str], list[str]]:
     pros, cons = [], []
     pt = price_text(d)
     if d.get("offer_type") == "verified_discount":
-        pros.append("Vendor-published discount: " + short(d.get("unit") or "see deal page", 120))
+        pros.append("Vendor-published discount: " + (short(d.get("unit") or "see deal page", 120) if pt else "see deal page"))
     if d.get("offer_type") == "listed_discount":
-        cons.append("Listed discount not confirmed on the vendor page: " + short(d.get("unit") or "see deal page", 120))
+        cons.append("Listed discount not confirmed on the vendor page: " + (short(d.get("unit") or "see deal page", 120) if pt else "see deal page"))
     if d.get("offer_type") == "free_tier" or re.search(r"\bfree (plan|tier|credits?|trial|usage|basic|developer|compute|starter)\b|\bfree \$|\$0(?![.\d])|credits? free|free credit", t, re.I):
         pros.append("Free plan, trial or credits to test before paying")
     if re.search(r"no card|no credit card|no payment method", t, re.I):
