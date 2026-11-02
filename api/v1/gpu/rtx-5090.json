@@ -14,11 +14,12 @@
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-02T11:59:41+00:00",
-  "row_count": 7,
+  "row_count": 8,
   "providers": [
     "Clore.ai",
     "CloudRift",
     "RunPod",
+    "Spheron",
     "Ucartz"
   ],
   "cheapest": {
@@ -191,6 +192,30 @@
       "verified_at": "2026-11-02T11:58:18+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.19/hr.",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      }
+    },
+    {
+      "provider": "Spheron",
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
+      "tier_class": "marketplace",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.56,
+      "unit": "hour",
+      "price_usd": 1.56,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-01T22:28:23+00:00",
+      "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+      "quote": "On Spheron the NVIDIA RTX 5090 is $1.56/hr per GPU, billed per minute",
       "availability": {
         "status": "unknown",
         "in_stock": null,
