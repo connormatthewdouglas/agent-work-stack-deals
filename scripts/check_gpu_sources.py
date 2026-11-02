@@ -37,6 +37,13 @@ GEO_VARIANT = {
     # No region-neutral URL or currency parameter changes this.
     "SendPulse": "regional pricing page served to CI runners; quoted prices verified from a non-CI network",
 }
+# Client-rendered pages (T73 F2): the server HTML carries no visible price text; the quoted price exists only as a
+# literal "$x/unit" string in the page's script bundle. For a vendor listed here ONLY, a price missing from visible
+# text but present as that exact "$x" string in a script is a warning ("client-rendered, not visible in server HTML"),
+# never a match. A price absent from the scripts too still fails.
+CLIENT_RENDERED = {
+    "9Proxy": "pricing page renders client-side (Next.js); server HTML has only the title/meta, the plan prices are script strings",
+}
 sys.path.insert(0, str(ROOT))
 from core.gpu import MIN_MARKET_OFFERS, STALE_DAYS, load_vendor_files, record_problems, stale_records  # noqa: E402
 from core import stack  # noqa: E402
@@ -63,6 +70,27 @@ def _fetch(url: str) -> tuple[int | None, str]:
         return e.code, ""
     except Exception as e:  # DNS, TLS, timeout, refused
         return None, f"{type(e).__name__}: {e}"
+
+
+def visible_text(body: str) -> str:
+    """The text the daily refresh reads prices from (scripts/refresh_gpu_prices.page_text): visible text with
+    script/style/noscript/svg/template and aria-hidden subtrees skipped, plus the vendor's own meta/og/JSON-LD
+    descriptions. Attributes (image src/srcset, data-*, SVG path data) are never read."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from refresh_gpu_prices import page_text
+    return page_text(body)
+
+
+_SHOWN = re.compile(r"\$\s?(\d[\d,]*(?:\.\d+)?|\.\d+)(?![\d.,]*\d)(\s?/\s?h(?:r|rs|our|ours)?(?![a-z]))?", re.I)
+
+
+def price_found(token: str, quote: str, text: str) -> bool:
+    """A quoted price counts only as a displayed price in visible text: '$' + the same amount (3.5 == 3.50), followed
+    by '/h' (/hr, /hour) when the quote shows it that way (the $x/h pattern). A bare digit run never counts, so
+    '2.248' inside SVG path data, an image path or a data attribute is not a match."""
+    want = float(token.replace(",", ""))
+    per_h = any(m.group(2) and float(m.group(1).replace(",", "")) == want for m in _SHOWN.finditer(quote))
+    return any(float(m.group(1).replace(",", "")) == want and (m.group(2) or not per_h) for m in _SHOWN.finditer(text))
 
 
 def price_tokens(quote: str) -> list[str]:
@@ -143,8 +171,8 @@ def main() -> int:
                     # Held records are not shown or ranked; a missing quote is expected (e.g. row removed by the vendor).
                     warnings.append(f"held, not re-checked: {doc['vendor']} {r['gpu']} ({r['tier']}): {r['stale']['reason']}")
                     continue
-                text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body
-                missing = [t for t in price_tokens(r["quote"]) if t not in text]
+                text = visible_text(body)
+                missing = [t for t in price_tokens(r["quote"]) if not price_found(t, r["quote"], text)]
                 if missing:
                     flags.append(f"price not found on page (re-check by hand): {doc['vendor']} {r['gpu']} "
                                  f"({r['tier']}) quote {r['quote']!r} missing {missing} at {r['source_url']}")
@@ -164,14 +192,19 @@ def main() -> int:
             if st != 200:
                 flags.append(f"unreachable: {doc['vendor']} {u} -> {st if st else body}")
                 continue
-            text = " ".join(re.sub(r"<[^>]+>", " ", body).split()) + body
+            text = visible_text(body)
             miss = []
             for o in doc["offers"]:
                 checked += 1
-                missing = [t for t in price_tokens(o["quote"]) if t not in text]
+                missing = [t for t in price_tokens(o["quote"]) if not price_found(t, o["quote"], text)]
                 if missing:
                     miss.append(f"price not found on page (re-check by hand): {doc['vendor']} {o['need']} "
                                 f"({o['plan']}) quote {o['quote']!r} missing {missing} at {u}")
+            if miss and doc["vendor"] in CLIENT_RENDERED:
+                in_script = [m for o in doc["offers"] for m in miss if o["quote"] in m
+                             and all(re.search(r"\$\s?" + re.escape(t) + r"(?![\d.])", body) for t in price_tokens(o["quote"]))]
+                warnings += [f"client-rendered, not visible in server HTML ({CLIENT_RENDERED[doc['vendor']]}): {m}" for m in in_script]
+                miss = [m for m in miss if m not in in_script]
             if miss and doc["vendor"] in GEO_VARIANT and len(miss) < len(doc["offers"]):
                 warnings += [f"unverifiable from CI ({GEO_VARIANT[doc['vendor']]}): {m}" for m in miss]
             else:
