@@ -41,3 +41,11 @@ def test_sourced_deal_unchanged_and_has_source_url(monkeypatch):
                if d.get("price_usd") is not None and d.get("source_url") and d.get("verified_at"))
     g = s.get_deal(id=src["id"], mode="brief")
     assert g["price_usd"] == src["price_usd"] and g["source_url"] == src["source_url"] and "price_null_reason" not in g
+
+
+def test_brief_list_price_usd_is_null_not_absent(monkeypatch):
+    s = _server(monkeypatch, "api/v1/deals.json")
+    g = s.get_deal(id="deal-fly-trial-001", mode="brief")
+    assert "list_price_usd" in g and g["list_price_usd"] is None
+    for r in s.search_deals(query="fly", mode="brief")["results"]:
+        assert "list_price_usd" in r

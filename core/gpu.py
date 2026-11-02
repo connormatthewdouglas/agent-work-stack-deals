@@ -494,7 +494,11 @@ def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) ->
 
 # Availability coverage (T73 surfacing on /gpu/): vendors with no free stock signal are labelled, not counted as gaps.
 UNMEASURABLE_NO_SIGNAL = ("99Stack", "Civo", "CoreWeave", "DigitalOcean", "E2E", "Modal", "Nebius", "Ucartz", "RunC.AI", "SaladCloud")
-UNMEASURABLE_ACCOUNT = ("Hyperstack", "Novita", "Jarvislabs", "Thunder Compute")
+UNMEASURABLE_ACCOUNT = ("Hyperstack", "Novita")
+# rel055 (Scout): Scout does not collect Jarvislabs stock and Thunder Compute collection is paused. Their rows keep
+# their cited prices; stock is labelled with this text on /gpu/ pages (existing status text and fields only).
+NO_STOCK_COLLECTION = ("Jarvislabs", "Thunder Compute")
+NO_STOCK_COLLECTION_LABEL = "unmeasurable (no stock collection)"
 AVAILABILITY_TARGET = 0.80
 # Account-gated vendors whose stock Scout now collects (T73 rev 4, Gauge-passed): counted as soon as any of their
 # rows carries a real stock reading; until then they stay labelled "account required". Thunder Compute stays labelled
@@ -509,6 +513,8 @@ def unmeasurable_reason(vendor: str, measured_vendors: frozenset = frozenset()):
         return "no public stock signal"
     if any(vendor.startswith(p) for p in UNMEASURABLE_ACCOUNT):
         return "account required"
+    if any(vendor.startswith(p) for p in NO_STOCK_COLLECTION):
+        return NO_STOCK_COLLECTION_LABEL
     return None
 
 

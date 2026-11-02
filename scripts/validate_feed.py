@@ -173,12 +173,12 @@ def fetch(url: str, method: str = "GET", timeout: int = 20) -> tuple[int | None,
         return None, f"{type(e).__name__}: {str(e)[:120]}"
 
 
-def check_gist() -> None:
+def check_gist(strict: bool = False) -> None:
     req = urllib.request.Request(GIST_RAW + f"?cb={int(time.time())}", headers={"User-Agent": UA, "Cache-Control": "no-cache"})
     try:
         body = urllib.request.urlopen(req, timeout=30).read()
     except Exception as e:
-        warn(f"gist fetch failed ({type(e).__name__}); parity not checked")
+        (err if strict else warn)(f"gist fetch failed ({type(e).__name__}); parity not checked")
         return
     # rel053: the gist mirrors the served feed (/deals.json == /api/v1/deals.json, cite-guarded), not the raw source
     local = (ROOT / "api" / "v1" / "deals.json").read_bytes()
@@ -274,6 +274,7 @@ def check_no_future_timestamps(now=None) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gist", action="store_true", help="check gist mirror byte parity")
+    ap.add_argument("--gist-strict", action="store_true", help="with --gist: a failed gist fetch is an error (release runs)")
     ap.add_argument("--links", action="store_true", help="link-check redeem URLs")
     a = ap.parse_args()
     feed = json.loads((ROOT / "deals.json").read_text(encoding="utf-8"))
@@ -285,7 +286,7 @@ def main() -> int:
     check_no_future_timestamps()
     check_compliance(feed)
     if a.gist:
-        check_gist()
+        check_gist(a.gist_strict)
     if a.links:
         check_links(feed)
     print(f"\nRESULT: {len(errors)} error(s), {len(warnings)} warning(s)")

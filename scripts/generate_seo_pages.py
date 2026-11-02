@@ -8,7 +8,8 @@ import os
 import sys
 import re
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
+import hashlib
 from pathlib import Path
 os.environ.setdefault("LW_BUILD_HORIZON_MIN", "25")  # Gauge re24 (a): Scout cadence (~15-23 min) + deploy; static output never outlives a claim
 
@@ -601,6 +602,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <p>Each item in <code>deals[]</code> has: <code>id</code>, <code>title</code>, <code>category</code>, <code>tags</code>, <code>advertiser</code>, <code>offer_type</code>, <code>affiliate</code>, <code>price_usd</code>, <code>list_price_usd</code>, <code>currency</code>, <code>unit</code>, <code>billing_period</code>, <code>promo_code</code>, <code>redeem_url</code>, <code>expires_at</code>, <code>verified_at</code>, <code>updated_at</code>, <code>agent_instructions</code>, plus optional <code>docs_url</code>, <code>source_url</code>, <code>pricing_note</code>, <code>claim_note</code>. See the schema for types.</p>
   <ul>
     <li><code>price_usd: null</code> means no single verified price (multi-plan, usage-based or not captured), not free; pages show the plan prices from <code>pricing_note</code>, a cited GPU rate, or the pricing model instead. <code>0</code> is used only for verified free tiers.</li>
+    <li><code>price_null_reason: "no cited price"</code>: a deal without a <code>source_url</code> plus a <code>verified_at</code> or <code>checked_at</code> date returns <code>price_usd</code> and <code>list_price_usd</code> as null with this reason, in the feeds and in MCP <code>search_deals</code>, <code>compare_deals</code> and <code>get_deal</code> (brief and full). The field appears only on such deals.</li>
     <li><code>verified_at: null</code> means no verification date is recorded. Dates are never back-filled.</li>
     <li><code>affiliate: true</code> marks referral links. It does not affect ranking.</li>
     <li>Categories in the feed now: {", ".join(f"<code>{esc(c)}</code>" for c in cats)}.</li>
@@ -733,17 +735,60 @@ def write_skill_copies() -> None:
     (ROOT / "SKILL.md").write_bytes(b"\n" + src)
 
 
-def api_v1_bytes(src: bytes) -> bytes:
+FEED_STATE_PATH = ROOT / "data" / "feed_state.json"  # rel055: served-feed content hash -> updated_at
+
+
+def _feed_hash(feed: dict) -> str:
+    body = {k: v for k, v in feed.items() if k != "updated_at"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def _ts(v):
+    try:
+        return datetime.fromisoformat(str(v))
+    except (TypeError, ValueError):
+        return None
+
+
+def _guarded(src: bytes):
     sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
     from core.deals import cite_guard_feed
-    return (json.dumps(cite_guard_feed(json.loads(src)), indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    return cite_guard_feed(json.loads(src))
+
+
+def api_v1_bytes(src: bytes, state: dict | None = None) -> bytes:
+    """Served feed bytes. updated_at is the later of the source's and the recorded served-content timestamp
+    (data/feed_state.json), so it moves whenever the served content changes (Gauge rel054 #3). Pure: no clock."""
+    feed = _guarded(src)
+    if state is None:
+        state = json.loads(FEED_STATE_PATH.read_text()) if FEED_STATE_PATH.exists() else {}
+    if state.get("content_sha256") == _feed_hash(feed):
+        a, b = _ts(feed.get("updated_at")), _ts(state.get("updated_at"))
+        if b and (not a or b > a):
+            feed["updated_at"] = state["updated_at"]
+    return (json.dumps(feed, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
+
+def refresh_feed_state(src: bytes, now: datetime | None = None) -> dict:
+    """Record a new served-content timestamp when the served content (excluding updated_at) changed."""
+    feed = _guarded(src)
+    h = _feed_hash(feed)
+    state = json.loads(FEED_STATE_PATH.read_text()) if FEED_STATE_PATH.exists() else {}
+    if state.get("content_sha256") != h:
+        now = now or datetime.now(timezone.utc).astimezone()
+        state = {"content_sha256": h, "updated_at": now.replace(microsecond=0, second=0).isoformat(timespec="minutes"),
+                 "note": "updated_at of the served feed (/deals.json, /api/v1/deals.json): set when its content changes"}
+        FEED_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        FEED_STATE_PATH.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+    return state
 
 
 def write_api_v1() -> Path:
     """Stable versioned feed: /deals.json with cite_guard applied (Gauge rel053: an unsourced price is served as null
     with price_null_reason "no cited price"; deals.json itself is source data and is not rewritten)."""
     API_V1_PATH.parent.mkdir(parents=True, exist_ok=True)
-    API_V1_PATH.write_bytes(api_v1_bytes(DEALS_PATH.read_bytes()))
+    src = DEALS_PATH.read_bytes()
+    API_V1_PATH.write_bytes(api_v1_bytes(src, refresh_feed_state(src)))
     return API_V1_PATH
 
 

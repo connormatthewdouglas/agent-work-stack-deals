@@ -1,4 +1,4 @@
-# Lantern Works GPU prices — MCP server (v0.5.4, read-only, stdio)
+# Lantern Works GPU prices — MCP server (v0.5.5, read-only, stdio)
 
 mcp-name: io.github.connormatthewdouglas/lantern-works-deals
 
@@ -53,6 +53,10 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 `compare_gpu_prices` uses exactly the data published at https://thelanternworks.com/api/v1/gpu-prices.json (history: https://thelanternworks.com/api/v1/gpu-prices/history.json). Prices are re-read daily from each vendor's own page or API and change only where a price was parsed; a rate not re-verified for 7 days is held out of rankings. Model matching is by whole tokens (`H100` matches `H100 SXM`; `L40` does not match `L40S`). "Cheapest" means cheapest among tracked providers, not the whole market.
 
 Errors: `{"error": {"code": "invalid_argument|invalid_cursor|not_found|feed_unavailable|feed_invalid", "message": ...}}`.
+
+## Uncited prices
+
+A deal without a `source_url` plus a `verified_at` or `checked_at` date has no cited price: `search_deals`, `compare_deals` and `get_deal` return `price_usd` and `list_price_usd` as `null` with `price_null_reason: "no cited price"` (brief and full modes; brief rows always carry `list_price_usd` and `source_url` when the deal has one). Deals with a cited price have no `price_null_reason`. The public feeds (`/deals.json`, `/api/v1/deals.json`) apply the same rule.
 
 ## Hours cap
 

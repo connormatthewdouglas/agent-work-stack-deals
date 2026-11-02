@@ -72,8 +72,10 @@ jobs:
         run: python3 scripts/check_internal_links.py
       - name: Schema, private-field leak, api/v1 parity, sitemap, old-host hardcode checks
         run: python3 scripts/validate_feed.py
-      - name: Gist mirror parity
-        run: python3 scripts/validate_feed.py --gist
+      - name: Gist mirror parity (Gauge rel054 - on release runs a failed gist fetch fails the job)
+        env:
+          RELEASE_RUN: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+        run: python3 scripts/validate_feed.py --gist $([ "$RELEASE_RUN" = true ] && echo --gist-strict)
       - name: Redeem URL link check (advisory; flaky vendors such as softshellweb 5xx never fail the job)
         continue-on-error: true
         run: python3 scripts/validate_feed.py --links

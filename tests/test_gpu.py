@@ -434,7 +434,7 @@ def test_availability_coverage_on_gpu_hub():
     assert unmeasurable_reason("DigitalOcean GPU Droplets") == "no public stock signal"
     assert unmeasurable_reason("RunPod") is None and unmeasurable_reason("CloudRift") is None
     assert unmeasurable_reason("Hyperstack", frozenset({"Hyperstack"})) is None
-    assert unmeasurable_reason("Thunder Compute", frozenset({"Thunder Compute"})) == "account required"
+    assert unmeasurable_reason("Thunder Compute", frozenset({"Thunder Compute"})) == "unmeasurable (no stock collection)"  # rel055: Thunder collection paused
     fake = [{"advertiser": "Hyperstack", "gpu": "H100", "canonical_model": "H100", "availability": {"status": "available when checked"}},
             {"advertiser": "Novita AI", "gpu": "H100", "canonical_model": "H100", "availability": {"status": "unknown"}}]
     fc = availability_coverage(fake)
@@ -445,7 +445,7 @@ def test_availability_coverage_on_gpu_hub():
     assert not availability_measured({"availability": {"status": "vendor-labelled in stock (static page label, not a capacity check)"}})
     html = (root / "gpu/index.html").read_text(encoding="utf-8")
     assert 'id="availability-coverage"' in html and "Target: 80%" in html
-    assert "account required" in html and "no public stock signal" in html
+    assert "unmeasurable (no stock collection)" in html and "no public stock signal" in html
     assert "interruptible (spot) rows do not count toward coverage" in html and "unrented marketplace servers count as available" in html
     assert html.count(">marketplace listing</span>") == len(c["marketplace_rows"])
     assert "sign-up" not in html.lower() and "pending" not in html.lower()

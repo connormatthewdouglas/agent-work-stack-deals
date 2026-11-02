@@ -48,11 +48,11 @@ SPEC = {
     "search_deals": (["total", "count", "results"], "results",
                      ["id"],
                      ["total", "count", "results", "next_cursor"],
-                     ["id", "advertiser", "title", "offer_type", "price_usd", "redeem_url", "source_url", "price_null_reason"]),
+                     ["id", "advertiser", "title", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason"]),
     "compare_deals": (["deals"], "deals",
                       ["id"],
                       ["order", "deals"],
-                      ["id", "advertiser", "offer_type", "price_usd", "redeem_url", "source_url", "price_null_reason"]),
+                      ["id", "advertiser", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason"]),
     "estimate_job_cost": (["gpu_family", "requested_gpus", "job_hours", "count", "results", "assumptions", "citations",
                            "missing_costs", "budget_verdict", "quote_id", "issued_at"], "results",
                           ["rank", "rate_id", "vendor", "allocated_gpus", "instances", "compute_subtotal_usd", "source_url"],
@@ -65,7 +65,7 @@ SPEC = {
                       ["quote_id", "receipt_intact", "reproduced", "lines", "revalidation"],
                       ["line", "rate_id", "recorded_subtotal_usd", "recomputed_subtotal_usd", "matches"]),
     "get_deal": (["id"], None, [],
-                 ["id", "title", "advertiser", "offer_type", "price_usd", "unit", "redeem_url", "verified_at", "affiliate",
+                 ["id", "title", "advertiser", "offer_type", "price_usd", "list_price_usd", "unit", "redeem_url", "verified_at", "affiliate",
                   "source_url", "price_null_reason"], []),
 }
 # Optional typed fields beyond the required ones (T38 paging for get_price_changes).
@@ -202,8 +202,13 @@ BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd"
                           "second_read_gap_s", "second_read_basis", "two_read_gap_ok", "price_join_failed")
 
 
+DEAL_TOOLS = ("search_deals", "compare_deals", "get_deal")
+
+
 def _brief_row(tool: str, row: dict, keys: list) -> dict:
     out = {k: row.get(k) for k in keys if k in row}
+    if tool in DEAL_TOOLS and "price_usd" in out:  # Gauge rel054 #4 (additive): list_price_usd is always present, null when unknown
+        out.setdefault("list_price_usd", None)
     if tool == "compare_gpu_prices" and (row.get("gpu_count") or 1) > 1:  # Gauge T73 fix7 #3 (additive): mark multi-GPU (8x) server rows; 1 is implied, keeps brief small
         out["gpu_count"] = row["gpu_count"]
     if tool == "compare_gpu_prices" and isinstance(row.get("availability"), dict):
@@ -228,6 +233,8 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
     if mode == "full":
         return {"ok": True, "mode": "full", **out}
     b = {k: copy.deepcopy(out[k]) for k in brief_keys if k in out}
+    if tool == "get_deal" and "price_usd" in b:
+        b.setdefault("list_price_usd", None)
     if list_key and isinstance(b.get(list_key), list):
         b[list_key] = [_brief_row(tool, r, brief_row) if isinstance(r, dict) else r for r in b[list_key]]
     return {"ok": True, "mode": "brief", **b}

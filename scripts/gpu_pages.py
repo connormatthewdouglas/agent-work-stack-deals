@@ -108,6 +108,9 @@ def _avail_cell(gen, r: dict) -> str:
     if a.get("availability_stale"):
         return gen.esc(a["status"])
     if a.get("in_stock") is None:
+        from core.gpu import NO_STOCK_COLLECTION, NO_STOCK_COLLECTION_LABEL
+        if any(str(r.get("advertiser") or "").startswith(p) for p in NO_STOCK_COLLECTION):
+            return gen.esc(NO_STOCK_COLLECTION_LABEL)
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         return gen.esc(f"unknown (no signal), checked {t} UTC") if t else "—"
     bits = [a["status"]]
