@@ -43,3 +43,13 @@ def test_client_rendered_quote_fails_after_7_days(monkeypatch):
     rendered = m.visible_text("<p>Enterprise Package 10000 GB $0.68 /GB $3.00/GB</p>")
     assert m.price_found("0.68", "Starting from $0.68/GB", rendered)
     assert not m.price_found("0.68", "Starting from $0.68/GB", m.visible_text('<script>"Starting from $0.68/GB"</script>'))
+
+
+def test_spheron_no_capacity_variant_is_a_warning_pattern():
+    import importlib.util, re, sys
+    spec = importlib.util.spec_from_file_location("cgs8", "scripts/check_gpu_sources.py")
+    m = importlib.util.module_from_spec(spec); sys.modules["cgs8"] = m; spec.loader.exec_module(m)
+    pat = m.CAPACITY_VARIANT["Spheron"].format(gpu=re.escape("RTX 5090"))
+    assert re.search(pat, "On Spheron the NVIDIA RTX 5090 has no capacity right now. $0.89/hr per GPU is the last rate")
+    assert not re.search(pat, "On Spheron the NVIDIA RTX 5090 is $1.62/hr per GPU, billed per minute")
+    assert not re.search(pat, "On Spheron the NVIDIA L40S has no capacity right now")

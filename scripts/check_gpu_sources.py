@@ -31,6 +31,9 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Vendor pages that replace the rate line with a no-capacity line while a GPU has no capacity (Spheron RTX 5090,
+# 2026-11-02: '$1.62/hr per GPU' with capacity, 'has no capacity right now ... $0.89/hr ... last rate' without).
+CAPACITY_VARIANT = {"Spheron": r"On Spheron the NVIDIA {gpu} has no capacity right now"}
 GEO_VARIANT = {
     # 2026-10-27: GitHub runners get a SendPulse SMTP page without the Pro/Enterprise/Pay As You Go prices
     # that the same URL shows from other networks (checked by hand the same day: all four present).
@@ -201,6 +204,13 @@ def main() -> int:
                     continue
                 text = visible_text(body)
                 missing = [t for t in price_tokens(r["quote"]) if not price_found(t, r["quote"], text)]
+                cv = CAPACITY_VARIANT.get(doc["vendor"])
+                if missing and cv and re.search(cv.format(gpu=re.escape(r["gpu"])), text):
+                    # the vendor's page swaps its rate line for a no-capacity line while capacity is out; that is
+                    # a stock signal, not a price change (the refresh keeps the last sourced price; > 7 days still fails)
+                    warnings.append(f"vendor page shows no capacity right now, rate line absent: {doc['vendor']} {r['gpu']} "
+                                    f"quote {r['quote']!r} (verified {r.get('verified_at') or r['checked_at']}) at {r['source_url']}")
+                    continue
                 if missing:
                     flags.append(f"price not found on page (re-check by hand): {doc['vendor']} {r['gpu']} "
                                  f"({r['tier']}) quote {r['quote']!r} missing {missing} at {r['source_url']}")
