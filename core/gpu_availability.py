@@ -270,11 +270,14 @@ def price_join_guard(a: dict, price_rec: dict | None) -> dict:
     """A stock claim read against a price that no longer matches today's (> $0.005 apart) is dropped (unknown)."""
     if not isinstance(a, dict) or a.get("in_stock") is None or not isinstance(price_rec, dict) or price_rec.get("price_usd") is None:
         return a
-    p, _ = price_at_claim(price_rec, a.get("checked_at"))
+    p, p_at = price_at_claim(price_rec, a.get("checked_at"))
+    # T73 F4 (additive): every stock claim carries when stock was read, when the price in force then was read, and
+    # that price, so the 60 s two-read and +/-$0.005 join rules can be audited from the feed and the MCP output
+    audit = {"stock_read_at": a.get("checked_at"), "price_read_at": p_at, "price_at_claim_usd": p}
     if p is None or abs(float(p) - float(price_rec["price_usd"])) <= PRICE_JOIN_USD + 1e-9:
-        return a
+        return {**a, **audit}
     out = {"status": "unknown (price changed since stock check)", "in_stock": None, "price_join_failed": True,
-           "checked_at": a.get("checked_at"), "origin": a.get("origin"), "note": PRICE_JOIN_NOTE}
+           "checked_at": a.get("checked_at"), "origin": a.get("origin"), "note": PRICE_JOIN_NOTE, **audit}
     for k in ("source", "source_label", "availability_expires_at"):
         if a.get(k):
             out[k] = a[k]
