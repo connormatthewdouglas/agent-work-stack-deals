@@ -10,9 +10,9 @@ from pathlib import Path
 
 PATH = "install"
 TESTED_ON = "2026-11-02"
-# Gauge F1: the version actually tested on TESTED_ON (CI pypi-install run 41128647953, pip + stdio tools/list; uvx re-run
-# by hand the same day). Never pair TESTED_ON with a later version: pages say "tested X (vA); current vB".
-TESTED_ON_VERSION = "0.5.1"
+# Gauge F1: the version actually tested on TESTED_ON. 0.5.2: clean `uvx lantern-works-deals-mcp==0.5.2` re-run by hand over stdio
+# (initialize reports 0.5.2, tools/list 9 tools, compare_gpu_prices ok). Never pair TESTED_ON with a later version.
+TESTED_ON_VERSION = "0.5.2"
 CLIENT_TESTED_ON = "2026-11-02"  # T74: LlamaIndex (hosted + local) and plain MCP client re-run on CLIENT_TESTED_VERSION
 SKILL_CHECKED_ON = "2026-10-29"  # npx skills add check (not re-run in T74)
 import sys as _sys
@@ -30,12 +30,13 @@ def _server_tools() -> tuple[str, ...]:
 TOOLS = _server_tools()
 # Tool count covered by the last recorded client tests (TESTED_ON). Bump only after re-testing with the new tool.
 TESTED_TOOLS = 9  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint
-# T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run (0.5.1, 9 tools; LlamaIndex re-run on 0.5.1 with llama-index-tools-mcp 0.4.8, mcp<2). Clients not re-run
+# T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run, on 0.5.2 (plain uvx stdio: 9 tools; LlamaIndex with llama-index-tools-mcp 0.4.8, mcp<2: local 9, hosted 13; log on PR #72). Clients not re-run
 # (Claude Desktop, Cursor, Cline, Roo, Continue, Open WebUI in-app) carry no tool count or version claim.
 CLIENT_TESTED_TOOLS = 9
-CLIENT_TESTED_VERSION = "0.5.1"
-# Verified 2026-11-02 by tools/list on the hosted endpoint: it serves every package tool except these.
-HOSTED_MISSING = ("rebuild_quote",)
+CLIENT_TESTED_VERSION = "0.5.2"  # LlamaIndex re-run 2026-11-02 on 0.5.2: local 9, hosted 13
+# Verified 2026-11-02 by tools/list on the hosted endpoint: it serves every package tool except these
+# (rebuild_quote now served: live tools/list returned 13 = 9 package + 4 watch).
+HOSTED_MISSING: tuple[str, ...] = ()
 
 
 def _hosted_extra_tools() -> tuple[str, ...]:
@@ -96,7 +97,7 @@ def write(g) -> str:
     tools = ", ".join(f"<code>{t}</code>" for t in TOOLS)
     hp = len([t for t in TOOLS if t not in HOSTED_MISSING])
     miss = ", ".join(f"<code>{t}</code>" for t in HOSTED_MISSING)
-    hosted_pkg = f"{hp} of the {len(TOOLS)} package tools (all except {miss})" if HOSTED_MISSING else f"the same {len(TOOLS)} package tools"
+    hosted_pkg = f"{hp} of the {len(TOOLS)} package tools (all except {miss})" if HOSTED_MISSING else f"all {len(TOOLS)} package tools"
     body = f"""  <nav class="crumbs"><a href="{base}/">Lantern Works</a> › <a href="{base}/for-agents/">For agents</a> › Install</nav>
   <h1>GPU price monitor for your agent</h1>
   <p><strong>GPU price comparison for agents, checked daily.</strong> Free, read-only MCP server (<code>uvx lantern-works-deals-mcp</code>, version {TESTED_VERSION}); <code>compare_gpu_prices</code> is the main tool. Rate and provider counts change daily: see the live <a href="{base}/api/v1/gpu-prices.json">feed</a>. Some result links are referral links.</p>
