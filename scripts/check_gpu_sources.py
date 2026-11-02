@@ -33,7 +33,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 # Vendor pages that replace the rate line with a no-capacity line while a GPU has no capacity (Spheron RTX 5090,
 # 2026-11-02: '$1.62/hr per GPU' with capacity, 'has no capacity right now ... $0.89/hr ... last rate' without).
-CAPACITY_VARIANT = {"Spheron": r"On Spheron the NVIDIA {gpu} has no capacity right now"}
+CAPACITY_VARIANT = {"Spheron": r"On Spheron the NVIDIA {gpu} has no capacity right now"}  # refresh_gpu_prices.NO_CAPACITY marks it out of stock
 GEO_VARIANT = {
     # 2026-10-27: GitHub runners get a SendPulse SMTP page without the Pro/Enterprise/Pay As You Go prices
     # that the same URL shows from other networks (checked by hand the same day: all four present).

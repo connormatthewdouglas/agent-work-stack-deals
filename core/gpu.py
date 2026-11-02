@@ -366,6 +366,16 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
         vendors.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                         "checked_at": doc["checked_at"], "billing_granularity": doc.get("billing_granularity"),
                         "extras": doc["extras"], "market_note": doc.get("market_note")})
+        for r in doc["records"]:
+            nc = r.get("no_capacity")
+            if nc and not r.get("stale"):
+                # Gauge T73 fix7 #1: vendor page says no capacity now -> out of stock, last sourced price kept, never ranked
+                held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
+                             "checked_at": nc["read_at"], "reason": f"{nc['reason']} (read {nc['read_at']}); last sourced "
+                             f"${r['hourly_usd']:.2f}/hr on {r['verified_at'][:10]}", "page_last_updated": None, "scope": "record",
+                             "availability": {"status": "out of stock when checked", "in_stock": False, "reason": nc["reason"],
+                                              "checked_at": nc["read_at"], "source": nc["source_url"], "page_text": nc.get("page_text")},
+                             "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}]})
         held_recs = [r for r in doc["records"] if r.get("stale")]
         for r in held_recs:
             # Record-level hold (e.g. marketplace too thin: < MIN_MARKET_OFFERS offers): listed, never ranked.
@@ -374,7 +384,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                          "page_last_updated": r["stale"].get("page_last_updated"),
                          "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}], "scope": "record"})
         for r in doc["records"]:
-            if r.get("stale"):
+            if r.get("stale") or r.get("no_capacity"):
                 continue
             if _price_too_old(r, doc):
                 # Gauge re28: a price not re-verified for STALE_DAYS never ranks on any page; listed in held_stale.

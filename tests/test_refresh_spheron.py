@@ -45,3 +45,46 @@ def test_manual_hold_keeps_checked_at():
     m.refresh([doc], F(), datetime(2026, 11, 2, 13, 0, tzinfo=timezone.utc))
     r = doc["records"][0]
     assert r["checked_at"] == "2026-11-02T11:56:35+00:00" and r["price_usd"] == 1.56 and r["stale"]
+
+
+# Gauge T73 fix7 #1: both page states
+NOCAP = ("<html><body><p>Rent RTX 5090 GPU from $0.89/hr</p><p>On Spheron the NVIDIA RTX 5090 has no capacity right now. "
+         "$0.89/hr per GPU is the last rate it was listed at.</p></body></html>")
+
+
+class N(F):
+    def get(self, url):
+        return 200, NOCAP
+
+
+def _doc(rec):
+    return {"vendor": "Spheron", "deal_id": None, "source_url": "https://www.spheron.network/pricing/", "checked_at": "2026-11-02T12:00:00+00:00",
+            "extras": {k: {"status": "unknown", "text": "x", "source_url": "u"} for k in ("egress", "storage", "interruption")},
+            "records": [rec]}
+
+
+def test_no_capacity_marks_out_of_stock_keeps_price_and_quote():
+    rec = dict(copy.deepcopy(REC), form_factor=None, price_usd=1.62, hourly_usd=1.62, quote="On Spheron the NVIDIA RTX 5090 is $1.62/hr per GPU, billed per minute")
+    rec["evidence"] = dict(rec["evidence"], quote=rec["quote"])
+    doc = _doc(rec)
+    m.refresh([doc], N(), datetime(2026, 11, 2, 13, 0, tzinfo=timezone.utc))
+    r = doc["records"][0]
+    assert r["price_usd"] == 1.62 and "$1.62/hr" in r["quote"] and r["verified_at"] == REC["verified_at"]
+    assert r["no_capacity"]["reason"] == "no capacity per vendor page" and r["no_capacity"]["read_at"].startswith("2026-11-02T13")
+    assert r["no_capacity"]["page_text"].startswith("On Spheron the NVIDIA RTX 5090 has no capacity right now")
+    sys.path.insert(0, '.')
+    from core.gpu import build_rates
+    out = build_rates([], [doc])
+    assert not out.get("problems"), out.get("problems")
+    assert not [x for x in out["rates"] if x["advertiser"] == "Spheron"]
+    h = [x for x in out["held_stale"] if x["vendor"] == "Spheron"][0]
+    assert h["availability"]["in_stock"] is False and h["availability"]["reason"] == "no capacity per vendor page"
+    assert h["records"][0]["hourly_usd"] == 1.62 and "last sourced $1.62/hr" in h["reason"]
+    # capacity back: the rate line parses again, no_capacity is cleared and the row ranks
+    m.refresh([doc], F(), datetime(2026, 11, 2, 14, 0, tzinfo=timezone.utc))
+    assert "no_capacity" not in doc["records"][0] and doc["records"][0]["verified_at"].startswith("2026-11-02T14")
+
+
+def test_capacity_page_is_not_no_capacity():
+    assert m.no_capacity_sentence("Spheron", "RTX 5090", m.page_text(PAGE)) is None
+    assert m.no_capacity_sentence("Spheron", "L40S", m.page_text(NOCAP)) is None

@@ -247,6 +247,18 @@ class Fetcher:
         return self.cache[url]
 
 
+# Vendor pages that swap the live rate line for an explicit no-capacity sentence (Spheron, 2026-11-02).
+NO_CAPACITY = {"Spheron": r"On Spheron the NVIDIA {gpu} has no capacity right now\.?"}
+NO_CAPACITY_REASON = "no capacity per vendor page"
+
+
+def no_capacity_sentence(vendor: str, gpu: str, text: str) -> str | None:
+    """The vendor's exact no-capacity sentence for this GPU, as shown on the page, or None."""
+    pat = NO_CAPACITY.get(vendor)
+    m = re.search(pat.format(gpu=re.escape(gpu)), text) if pat else None
+    return m.group(0) if m else None
+
+
 def _iso(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat()
 
@@ -316,7 +328,17 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
             elif manual_hold:
                 msg = "held (manual), untouched"
             else:
-                new_s, quote, msg = parse_listed(r, page_text(body))
+                text = page_text(body)
+                nc = no_capacity_sentence(doc["vendor"], r["gpu"], text)
+                if nc:
+                    # Gauge T73 fix7 #1: the vendor says no capacity now. Keep the last sourced price and quote (never
+                    # rewritten), mark the row out of stock with the read time; core/gpu.py keeps it out of rankings.
+                    r["no_capacity"] = {"reason": NO_CAPACITY_REASON, "read_at": fstamp, "source_url": r["source_url"], "page_text": nc}
+                    msg = NO_CAPACITY_REASON
+                else:
+                    new_s, quote, msg = parse_listed(r, text)
+                    if new_s is not None:
+                        r.pop("no_capacity", None)
             if new_s is not None:
                 new = float(new_s)
                 old = r["price_usd"]
