@@ -128,6 +128,18 @@
   </header>
   <main class="changelog">
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
+<h2>0.5.1 (2026-11-02, PyPI + MCP Registry)</h2>
+<ul>
+<li>T72 fix: brief compare_gpu_prices also keeps data_checked_at and refresh_hint (0.5.0 dropped them; the PyPI/Docker stdio checks need them).</li>
+</ul>
+<h2>0.5.0 (2026-11-02, PyPI only; superseded by 0.5.1)</h2>
+<ul>
+<li>T77: the price-comparison model summary lists B200, B300 and GB300 and now labels a spot/interruptible lowest rate (e.g. Verda B300 $5.675/hr, Spot, interruptible) the way the GPU cost calculator does; a test checks every model the calculator can price has a summary row.</li>
+<li>T78: flat monthly plans (Ucartz dedicated servers) show &quot;—&quot; with a flat-plan label in the 100 h/month column instead of the full monthly price; Full month keeps the flat price.</li>
+<li>T76: vendor counts reconciled. The home page and /gpu/price-comparison/ now say &quot;25 vendors (25 priced sources, 23 instance vendors: Koyeb and Modal sell serverless only)&quot;; 23 matches /coverage/, which excludes serverless rows.</li>
+<li>T72: brief keeps scope, total, excluded_* counts, next_refresh_utc and per-row tier/price_status/in_stock (H100 brief ~4.3k chars vs ~24.9k full). <code>compare_gpu_prices</code> now returns <code>mode=&quot;brief&quot;</code> by default (about 2k vs 12k characters for a 3-row H100 query; Pax measured ~4.2k vs ~29.8k at the default limit). Pass <code>mode=&quot;full&quot;</code> for the complete output; every field reachable in 0.4.2 is still returned there, unchanged. All other tools keep <code>full</code> as their default (audit: optimize_stack ~12.9k full vs 2.2k brief and optimize_agent_stack ~14k vs 1.9k stay full because their <code>receipt</code> feeds <code>rebuild_quote</code>; get_price_changes, search_deals, compare_deals and get_deal are under 5.5k). Additive only: no field renamed or removed.</li>
+<li>T75: every <code>gpu-prices.json</code> rate (and <code>compare_gpu_prices</code> result) has <code>canonical_model</code> (37 GPU strings -&gt; 25 tracked models) and a complete <code>form_factor</code> (<code>SXM</code>, <code>SXM2</code>, <code>PCIe</code>, <code>NVL</code> or <code>not stated</code>; vendor value first, never guessed). Documented in docs/GPU-PRICES-FIELDS.md.</li>
+</ul>
 <h2>0.4.2 (2026-11-01, PyPI + MCP Registry)</h2>
 <ul>
 <li>Docs (Gauge rel041): README.md and mcp_server/README.md (the PyPI description) state the package version; mcp_server/README.md now lists all 9 tools, including <code>rebuild_quote</code>. Tests fail when a README version differs from pyproject or a registered tool has no README row.</li>

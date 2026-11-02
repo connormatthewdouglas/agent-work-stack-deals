@@ -70,12 +70,12 @@ def test_no_commission_text_anywhere(srv):
 
 def test_compare_gpu_prices_same_data_sorted_sourced(srv):
     data = json.loads(GPU.read_text())
-    r = call(srv, "compare_gpu_prices", {"gpu": "H100", "limit": 25})
+    r = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 25})
     expected = [x for x in data["rates"] if "h100" in x["gpu"].lower().split() and x["tier_class"] != "reserved"]
     assert r["excluded_reserved"] == sum(1 for x in data["rates"] if "h100" in x["gpu"].lower().split()) - len(expected) >= 1
-    rr = call(srv, "compare_gpu_prices", {"gpu": "H200", "include_reserved": True, "limit": 25})
+    rr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "include_reserved": True, "limit": 25})
     assert rr["results"][0]["tier_class"] != "reserved" and rr["results"][-1]["tier_class"] == "reserved"
-    assert "Hyperstack" not in call(srv, "compare_gpu_prices", {"gpu": "H200", "limit": 1})["summary"] or "Reservation" not in call(srv, "compare_gpu_prices", {"gpu": "H200", "limit": 1})["summary"]
+    assert "Hyperstack" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"] or "Reservation" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"]
     assert r["total"] == len(expected) and r["count"] == min(25, len(expected)) >= 2
     hourly = [(x["in_stock"] is False, x["hourly_usd"]) for x in r["results"]]  # E5: out-of-stock rows sort last
     oos = lambda x: (x.get("availability") or {}).get("in_stock") is False
@@ -90,12 +90,12 @@ def test_compare_gpu_prices_same_data_sorted_sourced(srv):
 
 
 def test_compare_gpu_prices_token_match_and_errors(srv):
-    assert {x["gpu"] for x in call(srv, "compare_gpu_prices", {"gpu": "L40"})["results"]} == {"L40"}
-    assert all("4090" in x["gpu"] for x in call(srv, "compare_gpu_prices", {"gpu": "rtx-4090"})["results"])
-    nf = call(srv, "compare_gpu_prices", {"gpu": "TPU v5"})
+    assert {x["gpu"] for x in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "L40"})["results"]} == {"L40"}
+    assert all("4090" in x["gpu"] for x in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "rtx-4090"})["results"])
+    nf = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "TPU v5"})
     assert nf["error"]["code"] == "not_found" and "H100" in nf["error"]["message"]
-    assert call(srv, "compare_gpu_prices", {"gpu": " "})["error"]["code"] == "invalid_argument"
-    assert call(srv, "compare_gpu_prices", {"gpu": "H100", "limit": 0})["error"]["code"] == "invalid_argument"
+    assert call(srv, "compare_gpu_prices", {"mode": "full", "gpu": " "})["error"]["code"] == "invalid_argument"
+    assert call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 0})["error"]["code"] == "invalid_argument"
 
 
 def test_every_published_rate_has_source_and_date():
@@ -175,15 +175,15 @@ def test_optimize_stack_tool(srv):
 def test_compare_gpu_prices_include_history(srv):
     srv.history_loader.file = str(ROOT / "api" / "v1" / "gpu-prices" / "history.json")
     srv.history_loader._cache = None
-    plain = call(srv, "compare_gpu_prices", {"gpu": "H100"})
+    plain = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100"})
     assert "history" not in plain and "price_history" not in plain["results"][0]
-    r = call(srv, "compare_gpu_prices", {"gpu": "H100", "include_history": True})
+    r = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "include_history": True})
     assert r["history"]["source"].endswith("/api/v1/gpu-prices/history.json") and isinstance(r["history"]["recent_changes"], list)
     assert all(isinstance(x["price_history"], list) for x in r["results"])
     assert any(x["price_history"] for x in r["results"])  # every tracked rate has at least its seed point
     srv.history_loader.file = str(ROOT / "nope.json")
     srv.history_loader._cache = None
-    r = call(srv, "compare_gpu_prices", {"gpu": "H100", "include_history": True})
+    r = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "include_history": True})
     assert r["results"] and r["history"]["error"]  # history failure never breaks the comparison
 
 
@@ -210,7 +210,7 @@ def test_get_price_changes_tool(srv):
 
 
 def test_freshness_fields_on_gpu_and_agent_stack(srv):
-    for name, args in (("compare_gpu_prices", {"gpu": "H100", "limit": 1}),
+    for name, args in (("compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 1}),
                        ("optimize_agent_stack", {"description": "serve a 13B model, 40 GPU hours"})):
         r = call(srv, name, args)
         assert r["data_checked_at"] and r["next_refresh_utc"].endswith("T10:23:00Z")
@@ -234,7 +234,7 @@ def test_i3_i5_region_field_and_tie_named(monkeypatch):
     assert props["region"]["type"] == ["string", "null"]
     monkeypatch.setenv("LANTERN_GPU_PRICES_FILE", str(Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json"))
     from mcp_server import server as s
-    out = s.compare_gpu_prices("RTX 4090", on_demand_only=True)
+    out = s.compare_gpu_prices("RTX 4090", on_demand_only=True, mode="full")
     assert "Nova Cloud and RunC.AI (tie) RTX 4090 24GB at $0.42/hr" in out["summary"]
     nova = [r for r in out["results"] if r["advertiser"] == "Nova Cloud"][0]
     assert nova["region"] and nova["availability"]["in_stock"] is None and nova["availability"]["basis"] == "vendor_static_label"

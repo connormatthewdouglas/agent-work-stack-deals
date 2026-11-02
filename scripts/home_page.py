@@ -81,7 +81,8 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     esc, BASE = gen.esc, gen.BASE
     rates = build_rates(deals)["rates"]
     count = gen.live_rate_count()
-    vendors = len({r["advertiser"] for r in rates})
+    from core.gpu import vendor_counts_label
+    vendors = vendor_counts_label(rates)  # T76: "25 priced sources (23 instance vendors; ...)"
     fresh = max(((r.get("verified_at") or "")[:10] for r in rates), default="")
     rows = "".join(
         f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/cheapest-{s["slug"]}-rental/">{esc(s["name"])}</a></th>'
@@ -94,10 +95,10 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     counts = ch["counts"]
     title = f"{HERO} | Lantern Works"
     desc = (f"Cheapest H100, A100 and RTX 4090 rental prices among tracked providers, re-checked daily on vendor pricing pages. "
-            f"{count} rates from {vendors} vendors, with quotes, dates, price history and an MCP server for agents.")
+            f"{count} rates from {vendors}, with quotes, dates, price history and an MCP server for agents.")
     body = f"""  <header>
     <h1>{esc(HERO)}</h1>
-    <p>Hourly GPU rental prices re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate. <strong><span data-live-count>{count}</span> rates</strong> from {vendors} vendors, newest check {esc(fresh)}. "Cheapest" always means cheapest among tracked providers.</p>
+    <p>Hourly GPU rental prices re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate. <strong><span data-live-count>{count}</span> rates</strong> from {esc(vendors)}, newest check {esc(fresh)}. "Cheapest" always means cheapest among tracked providers.</p>
     <p class="meta"><small>{__import__("gpu_pages").rate_count_note(gen, deals)}</small></p>
   </header>
   <main id="content">

@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
+from core.gpu import vendor_counts_label, PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
 from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
@@ -46,6 +46,45 @@ def _rate_str(r: dict) -> str:
     if (r.get("gpu_count") or 1) > 1:
         return f"{_money(r['price_usd'])}/GPU-mo ({r['gpu_count']}-GPU server {_money(r['server_price_usd'])}/mo)"
     return f"{_money(r['price_usd'])}/mo"
+
+
+
+def _billed_gpus(r: dict) -> int:
+    """GPUs billed for one request of 1 GPU: whole servers/instances only (same rule as core.gpu.estimate)."""
+    import math
+    per = r.get("gpu_count") or 1
+    return math.ceil(max(1, r.get("min_gpus") or 1) / per) * per
+
+
+def _total_cell(r: dict, amount: float, hours) -> str:
+    """T71: a money total for a row billed as a whole multi-GPU instance says so, so the row never silently switches
+    from the per-GPU Rate column to a whole-instance total."""
+    g = _billed_gpus(r)
+    if g <= 1:
+        return _money(amount)
+    if r["unit"] == "hour":
+        how = f"{g} GPUs × {usd(r['price_usd'])}/hr × {hours} h"
+    else:
+        how = f"{g} GPUs × {_money(r['price_usd'])}/GPU-mo"
+    return f"{_money(amount)} <span class=\"meta\">(whole {g}-GPU instance: {how})</span>"
+
+
+def _hours_cell(r: dict, amount: float, hours) -> str:
+    """T78: a flat monthly plan costs the same at 100 h as at 730 h, so the N h/month column shows a dash and the
+    flat-plan label instead of a number that looks like 100 h of use; Full month keeps the flat price."""
+    if r["unit"] != "hour":
+        return "— <span class=\"meta\">(flat monthly plan: same price at any hours; see Full month)</span>"
+    return _total_cell(r, amount, hours)
+
+
+def _lo_kind(r: dict) -> str:
+    """T77: say when the lowest rate in the model summary is a spot/interruptible (or community) tier, as the GPU cost
+    calculator does, so the two pages never contradict on what kind of rate it is."""
+    if r.get("interruptible") or r.get("tier_class") == "interruptible":
+        return f" <span class=\"meta\">({r['tier']}, interruptible)</span>"
+    if r.get("tier_class") == "community":
+        return f" <span class=\"meta\">({r['tier']})</span>"
+    return ""
 
 
 def _quote_html(esc, r: dict, n: int = 70) -> str:
@@ -190,7 +229,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(display_gpu(r))}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
             f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
             f"<td data-label=\"Type\">{esc(r['tier'])}{badge}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
-            f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_money(r['monthly_cost_usd'])}</strong></td><td data-label=\"Full month\">{_money(full[_key(r)])}</td>"
+            f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong></td><td data-label=\"Full month\">{_total_cell(r, full[_key(r)], HOURS_PER_MONTH)}</td>"
             f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
             f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
             + f"<td data-label=\"Link\">{'Referral link' if r['affiliate'] else 'Direct link'} <a class=\"meta\" rel=\"nofollow\" href=\"{gen.BASE}/report-price/?{esc(_report_q(r))}\">Wrong price?</a></td></tr>")
@@ -201,7 +240,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
     if not show_filter:
         filt = ""
     return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
-            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; flat plans as listed)</th><th>Vendor quote</th>"
+            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; × GPUs for whole multi-GPU instances; flat plans as listed)</th><th>Vendor quote</th>"
             "<th>Price verified</th>" + (f"<th>Availability ({av_head}, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             "<p class=\"meta\"><strong>Prices are GPU-hour only</strong>: they exclude storage, data egress and taxes. "
             "Each Vendor quote links that vendor's pricing page, where those costs are listed if published. <strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
@@ -367,7 +406,7 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
     med = [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]  # Gauge G4
     resv = tc.get("reserved", 0)
-    out = (f"How we count: {pl(len(rates), 'rate')} from {pl(len({r['advertiser'] for r in rates}), 'vendor')}, which is every priced row in "
+    out = (f"How we count: {pl(len(rates), 'rate')} from {gen.esc(vendor_counts_label(rates))}, which is every priced row in "
            f"<a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> ({gen.esc(parts)}). ")
     if med:
         out += (f"{pl(len(med), 'of those rows is a marketplace median', ) if len(med) == 1 else str(len(med)) + ' of those rows are marketplace medians'} "
@@ -397,7 +436,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         link = f'<a href="{gen.BASE}/{pages[slug]}/">{gen.esc(f["name"])}</a>' if slug in pages else gen.esc(f["name"])
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(own)}</td><td>{gen.esc(', '.join(sorted({r['advertiser'] for r in own})))}</td>"
-                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
+                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}{_lo_kind(lo)}</td></tr>")
     # Every ranked rate is counted exactly once in the model table (audit T6/M3): families first, then each other model.
     others = {}
     for r in rates:
@@ -408,7 +447,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         lo = _pick_cheapest(rs)
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
-                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
+                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}{_lo_kind(lo)}</td></tr>")
     also = [(slug, src) for src, slug in PAGE_ALSO.items() if fams.get(slug, {}).get("rates")]
     also_note = "".join(f"<p class=\"meta\">{gen.esc(fams[slug]['name'])} ({sum(family_of(r['gpu']) == slug for r in fams[slug]['rates'])}) excludes the "
                         f"{gen.esc(fams[src]['name'])}, listed separately ({sum(family_of(r['gpu']) == src for r in rates)}); "
@@ -426,7 +465,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     ]
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU price comparison</nav>
   <h1>GPU rental price comparison</h1>
-  <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
+  <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {gen.esc(vendor_counts_label(rates))} · sorted by effective hourly cost</p>
   <p class="meta"><small>{rate_count_note(gen, _DEALS)}</small></p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
   <h2>By GPU model (all {len(rates)} rates)</h2>
@@ -552,7 +591,7 @@ def write_h100_vs(gen, rates):
         best.setdefault(r["advertiser"], r)
     t1 = _simple_table(["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH} h)", "Vendor quote"],
                        [[i, _vendor_cell(gen, r), f"{gen.esc(r['gpu'])} · {gen.esc(r['tier'])}", gen.esc(_rate_str(r)),
-                         f"<strong>{_money(r['monthly_cost_usd'])}</strong>", _money(full[_key(r)]), _quote_cell(gen, r)]
+                         f"<strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r)]
                         for i, r in enumerate(rows, 1)])
     t2 = _simple_table(["Vendor", "Lowest-priced H100 (tracked)", "Billing and extras"],
                        [[_vendor_cell(gen, r), f"{gen.esc(r['gpu'])} ({gen.esc(r['tier'])}) {gen.esc(_rate_str(r))}", gen.esc(_VENDOR_FACTS[v])]

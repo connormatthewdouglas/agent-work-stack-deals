@@ -244,6 +244,47 @@ def form_class(gpu: str, quote: str = "") -> str | None:
     return "form not stated"
 
 
+_FORM_TOKEN = re.compile(r"\b(SXM\d?|PCIe|NVL)\b", re.I)
+
+
+def canonical_model(gpu: str) -> str:
+    """T75: the tracked model a GPU string belongs to (e.g. 'H100 SXM', 'H100 PCIe', 'H100 NVLink' -> 'H100';
+    'H100 NVL' stays its own model). Unknown strings map to themselves."""
+    f = family_of(gpu or "")
+    return FAMILIES[f] if f else gpu
+
+
+def form_factor_of(gpu: str, vendor_value: str | None = None, quote: str = "") -> str:
+    """T75: complete form_factor. The vendor record's own value wins; otherwise the form stated in the GPU name (SXM,
+    SXM2.., PCIe, NVL; 'NVLink' names the bridge, not the form), an HGX board in the quote (SXM), else 'not stated'.
+    Never guessed from the model alone."""
+    if vendor_value:
+        return vendor_value
+    m = _FORM_TOKEN.search(gpu or "")
+    if m:
+        t = m.group(1)
+        return "PCIe" if t.lower() == "pcie" else t.upper()
+    if "HGX" in (quote or "").upper():
+        return "SXM"
+    return "not stated"
+
+
+def vendor_counts(rates: list[dict]) -> dict:
+    """T76: '25 vs 23'. priced_sources = every advertiser with a priced rate (gpu-prices.json); instance_vendors = those with
+    at least one non-serverless row (the /coverage/ matrix count, which excludes serverless rows)."""
+    priced = {r["advertiser"] for r in rates}
+    inst = {r["advertiser"] for r in rates if "serverless" not in str(r.get("tier") or "").lower()}
+    return {"priced_sources": len(priced), "instance_vendors": len(inst), "serverless_only": sorted(priced - inst)}
+
+
+def vendor_counts_label(rates: list[dict]) -> str:
+    c = vendor_counts(rates)
+    if not c["serverless_only"]:
+        return f"{c['priced_sources']} vendors"
+    return (f"{c['priced_sources']} vendors ({c['priced_sources']} priced sources, {c['instance_vendors']} instance vendors: "
+            f"{' and '.join(c['serverless_only'])} sell serverless only)")
+
+
 def _published_extras(doc: dict) -> dict:
     out = {}
     for k in ("storage", "egress"):
@@ -339,7 +380,9 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                             "monthly": "flat monthly (dedicated server)"}[r["billing_unit"]],
                 "billing_unit": r["billing_unit"],
                 "price_per_second_usd": r["price_usd"] if r["billing_unit"] == "per-second" else None,
-                "interruptible": r["interruptible"], "form_factor": r["form_factor"],
+                "interruptible": r["interruptible"],
+                "canonical_model": canonical_model(r["gpu"]),
+                "form_factor": form_factor_of(r["gpu"], r.get("form_factor"), f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}"),
                 **({"form_class": fc} if (fc := form_class(r["gpu"], f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}")) else {}),
                 "price_scope": "gpu_hour_only", **_published_extras(doc),
                 **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note") if r.get(k)}),

@@ -314,3 +314,101 @@ def test_tier_labels_ascii_normalized():
     for r in feed["rates"]:
         assert r["tier"] == normalize_tier(r["tier"]), r["tier"]
     assert not any(u["deal_id"] == "deal-cloreai-001" for u in feed.get("unpriced", []))
+
+
+def test_t71_multi_gpu_rows_label_whole_instance_totals():
+    """T71: multi-GPU instance rows never switch basis silently: the per-GPU Rate stays, and both totals say they are
+    for the whole instance with the multiplication shown (Lambda A100 SXM 8x: $2.79/GPU-hr -> $2,232.00 / $16,293.60)."""
+    import re
+    root = Path(__file__).resolve().parents[1]
+    html = (root / "gpu/price-comparison/index.html").read_text(encoding="utf-8")
+    rows = [r for r in re.findall(r"<tr data-tier.*?</tr>", html, re.S) if "8-GPU instances" in r or "-GPU server" in r]
+    assert rows
+    for r in rows:
+        cells = dict(re.findall(r'data-label="([^"]+)">(.*?)</td>', r, re.S))
+        if "flat monthly plan" not in cells["100 h/month"]:  # T78: flat plans show a dash in the hours column
+            assert "whole " in cells["100 h/month"] and "-GPU instance" in cells["100 h/month"], r
+        assert "whole " in cells["Full month"] and "-GPU instance" in cells["Full month"], r
+    lam = [r for r in rows if "Lambda" in r and "A100 SXM" in r]
+    assert lam and "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]
+
+
+def test_t75_canonical_model_and_form_factor_on_every_rate():
+    from core.gpu import FAMILIES
+    api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    rates = api["rates"]
+    assert all(r.get("canonical_model") for r in rates) and all(isinstance(r.get("form_factor"), str) and r["form_factor"] for r in rates)
+    assert {r["canonical_model"] for r in rates} <= set(FAMILIES.values())
+    by = {}
+    for r in rates:
+        by.setdefault(r["gpu"], set()).add(r["canonical_model"])
+    for g in ("H100 SXM", "H100 PCIe", "H100 NVLink", "H100"):
+        if g in by:
+            assert by[g] == {"H100"}, g
+    if "H100 NVL" in by:
+        assert by["H100 NVL"] == {"H100 NVL"}
+    for r in rates:
+        assert r["form_factor"] in {"SXM", "SXM2", "SXM4", "SXM5", "PCIe", "NVL", "not stated"}, r["form_factor"]
+        if "PCIe" in r["gpu"]:
+            assert r["form_factor"] == "PCIe"
+        if "NVLink" in r["gpu"]:
+            assert r["form_factor"] in {"not stated", "SXM"}  # NVLink is the bridge; SXM only via vendor record/HGX quote
+
+
+def test_t76_vendor_counts_labelled_25_priced_vs_23_instance():
+    from core.gpu import vendor_counts, vendor_counts_label
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    cov = json.loads((root / "api/v1/coverage.json").read_text())
+    c = vendor_counts(rates)
+    assert c["priced_sources"] == len({r["advertiser"] for r in rates})
+    assert c["instance_vendors"] == cov["counts"]["vendors"]
+    lab = vendor_counts_label(rates)
+    for page in ("index.html", "gpu/price-comparison/index.html"):
+        html = (root / page).read_text(encoding="utf-8")
+        assert lab in html, page
+        if c["serverless_only"]:
+            assert f"{c['priced_sources']} priced sources, {c['instance_vendors']} instance vendors" in html, page
+
+
+def test_t78_flat_monthly_rows_show_dash_in_hours_column():
+    import re as _re
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    assert any(r["unit"] == "month" for r in rates)
+    hourly_vendors = {r["advertiser"] for r in rates if r["unit"] == "hour"}
+    for page in ("gpu/price-comparison/index.html", "gpu/h100-vs-a100/index.html"):
+        p = root / page
+        if not p.exists():
+            continue
+        for tr in _re.findall(r"<tr data-tier.*?</tr>", p.read_text(encoding="utf-8"), _re.S):
+            cells = dict(_re.findall(r'data-label="([^"]+)">(.*?)</td>', tr, _re.S))
+            h = cells.get("100 h/month")
+            if h is None:
+                continue
+            flat = "flat monthly plan" in h
+            if flat:
+                assert _re.sub(r"<[^>]+>", "", h).strip().startswith("—"), tr[:200]
+                assert "$" in cells["Full month"], tr[:200]  # Full month keeps the flat price
+            else:
+                assert "$" in h, tr[:200]
+    html = (root / "gpu/price-comparison/index.html").read_text(encoding="utf-8")
+    assert html.count("flat monthly plan: same price at any hours") == sum(1 for r in rates if r["unit"] == "month")
+
+
+def test_t77_calculator_models_all_in_comparison_summary_with_interruptible_label():
+    import re as _re
+    from core.gpu import FAMILIES, family_of
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    html = (root / "gpu/price-comparison/index.html").read_text(encoding="utf-8")
+    t = html[html.index("sticky1"):]
+    t = t[:t.index("</table>")]
+    rows = _re.findall(r"<tr>(.*?)</tr>", t, _re.S)[1:]
+    names = {_re.sub(r"<[^>]+>|\(few verified offers\)", "", _re.findall(r"<td>(.*?)</td>", tr, _re.S)[0]).strip() for tr in rows}
+    for r in rates:  # every GPU the calculator can price (it embeds the full feed) has a summary row
+        assert (FAMILIES.get(family_of(r["gpu"])) or r["gpu"]) in names, r["gpu"]
+    for m in ("B200", "B300", "GB300"):
+        tr = next(tr for tr in rows if _re.search(rf">{m}(<| <em)", tr))
+        if "Spot" in tr:
+            assert "interruptible" in tr, tr
