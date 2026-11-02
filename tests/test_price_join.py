@@ -50,3 +50,28 @@ def test_mcp_compare_output_carries_claim_audit_fields():
     rs = deals.compare_gpu_prices(feed, "H100", limit=25)["results"]
     claims = [r["availability"] for r in rs if (r.get("availability") or {}).get("in_stock") is not None]
     assert claims and all("price_at_claim_usd" in a and "price_read_at" in a and "stock_read_at" in a for a in claims)
+
+
+def test_lambda_8x_claim_price_is_per_gpu(monkeypatch):
+    """Gauge T73 F1-F6 #1: an 8x server priced $31.92/h is $3.99 per GPU; the join compares per-GPU prices."""
+    key = "Lambda|H100 SXM|On-demand instance (8x GPU)|80|8"
+    monkeypatch.setattr(ga, "_SNAP_CACHE", {key: [("2026-11-01T17:46:30+00:00", 3.99)]})
+    rec = {"vendor": "Lambda", "gpu": "H100 SXM", "tier": "On-demand instance (8x GPU)", "vram_gb": 80, "gpu_count": 8,
+           "billing_unit": "hourly", "price_usd": 31.92, "hourly_usd": 3.99, "verified_at": "2026-11-02T11:57:29+00:00"}
+    c = {"in_stock": True, "status": "available when checked", "checked_at": "2026-11-02T12:19:13Z", "origin": "scout"}
+    out = ga.price_join_guard(c, rec)
+    assert out["in_stock"] is True and out["price_at_claim_usd"] == 3.99 and out["gpu_count"] == 8
+    # the per-GPU price moved since the stock read: dropped, even though the server price is still in the record
+    monkeypatch.setattr(ga, "_SNAP_CACHE", {key: [("2026-11-02T12:00:00+00:00", 3.79)]})
+    rec2 = dict(rec, verified_at="2026-11-02T13:00:00+00:00")
+    assert ga.price_join_guard(c, rec2)["in_stock"] is None
+
+
+def test_feed_claim_prices_are_per_gpu():
+    import json
+    from pathlib import Path
+    feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text())
+    for r in feed["rates"]:
+        a = r["availability"]
+        if a.get("in_stock") is not None and a.get("price_at_claim_usd") is not None:
+            assert abs(a["price_at_claim_usd"] - r["price_usd"]) <= 0.005 + 1e-9, (r["advertiser"], r["gpu"], r["tier"])

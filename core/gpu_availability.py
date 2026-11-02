@@ -246,19 +246,30 @@ def _snapshot_prices() -> dict:
         for snap in snaps:
             for row in snap.get("rows", []):
                 if row.get("verified_at") and row.get("price_usd") is not None:
-                    _SNAP_CACHE.setdefault(row["key"], []).append((row["verified_at"], row["price_usd"]))
+                    _SNAP_CACHE.setdefault(row["key"], []).append((row["verified_at"], per_gpu_price(row)))
     return _SNAP_CACHE
 
 
+def per_gpu_price(row: dict) -> float | None:
+    """Per-GPU price, the same unit as the feed's price_usd: monthly servers divided by gpu_count, otherwise the
+    per-GPU hourly rate (hourly_usd; an 8x Lambda server at $31.92/h is $3.99 per GPU-hour)."""
+    if row.get("price_usd") is None:
+        return None
+    n = row.get("gpu_count") or 1
+    if row.get("billing_unit") == "monthly":
+        return round(row["price_usd"] / n, 2)
+    return row["hourly_usd"] if row.get("hourly_usd") is not None else round(row["price_usd"] / n, 6)
+
+
 def price_at_claim(price_rec: dict, claim_at) -> tuple[float | None, str | None]:
-    """(price_usd, price read time) of the price in force at claim_at: the latest price read at or before the stock read."""
+    """(per-GPU price, price read time) of the price in force at claim_at: the latest price read at or before the stock read."""
     from . import gpu_history
     t = _parse(claim_at)
     if t is None or not isinstance(price_rec, dict) or price_rec.get("price_usd") is None:
         return None, None
     key = gpu_history.series_key(price_rec["vendor"], price_rec["gpu"], price_rec["tier"], price_rec.get("vram_gb"), price_rec.get("gpu_count", 1))
     cur_at = price_rec.get("verified_at") or price_rec.get("checked_at")
-    cands = list(_snapshot_prices().get(key, [])) + ([(cur_at, price_rec["price_usd"])] if cur_at else [])
+    cands = list(_snapshot_prices().get(key, [])) + ([(cur_at, per_gpu_price(price_rec))] if cur_at else [])
     cands = [(_parse(a), a, p) for a, p in cands if _parse(a) and _parse(a) <= t]
     if not cands:
         return None, None
@@ -273,8 +284,10 @@ def price_join_guard(a: dict, price_rec: dict | None) -> dict:
     p, p_at = price_at_claim(price_rec, a.get("checked_at"))
     # T73 F4 (additive): every stock claim carries when stock was read, when the price in force then was read, and
     # that price, so the 60 s two-read and +/-$0.005 join rules can be audited from the feed and the MCP output
-    audit = {"stock_read_at": a.get("checked_at"), "price_read_at": p_at, "price_at_claim_usd": p}
-    if p is None or abs(float(p) - float(price_rec["price_usd"])) <= PRICE_JOIN_USD + 1e-9:
+    # price_at_claim_usd is per GPU (gpu_count says how many GPUs the priced server has), the feed's price_usd unit
+    audit = {"stock_read_at": a.get("checked_at"), "price_read_at": p_at, "price_at_claim_usd": p,
+             "gpu_count": price_rec.get("gpu_count") or 1}
+    if p is None or abs(float(p) - float(per_gpu_price(price_rec))) <= PRICE_JOIN_USD + 1e-9:
         return {**a, **audit}
     out = {"status": "unknown (price changed since stock check)", "in_stock": None, "price_join_failed": True,
            "checked_at": a.get("checked_at"), "origin": a.get("origin"), "note": PRICE_JOIN_NOTE, **audit}
