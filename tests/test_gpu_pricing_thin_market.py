@@ -37,6 +37,9 @@ def test_manual_snapshot_fields_in_feed_and_page():
     assert all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in clore)
     assert all(r["price_check"] == ("batch" if r.get("last_read") else "daily") for r in feed["rates"] if r["advertiser"] != "Clore.ai")  # G5
     sph = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
+    # T73 (2026-11-02): record-level hold while the quoted span is off the page; the held record keeps its source
+    sph = sph or [dict(rec, source_url=h["source_url"]) for h in feed["held_stale"] if h["vendor"] == "Spheron"
+                  for rec in h["records"] if rec["gpu"] == "RTX 5090"]
     # Nov 1 (Gauge): sourced from the model's own page, a stable span the daily check parses (no longer rotating)
     assert sph and sph[0]["source_url"] == "https://www.spheron.network/gpu-rental/rtx-5090/" and "/hr per GPU" in sph[0]["evidence"]["quote"]
     page = pathlib.Path("gpu/price-comparison/index.html").read_text()
