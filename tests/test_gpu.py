@@ -352,3 +352,19 @@ def test_t75_canonical_model_and_form_factor_on_every_rate():
             assert r["form_factor"] == "PCIe"
         if "NVLink" in r["gpu"]:
             assert r["form_factor"] in {"not stated", "SXM"}  # NVLink is the bridge; SXM only via vendor record/HGX quote
+
+
+def test_t76_vendor_counts_labelled_25_priced_vs_23_instance():
+    from core.gpu import vendor_counts, vendor_counts_label
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    cov = json.loads((root / "api/v1/coverage.json").read_text())
+    c = vendor_counts(rates)
+    assert c["priced_sources"] == len({r["advertiser"] for r in rates})
+    assert c["instance_vendors"] == cov["counts"]["vendors"]
+    lab = vendor_counts_label(rates)
+    for page in ("index.html", "gpu/price-comparison/index.html"):
+        html = (root / page).read_text(encoding="utf-8")
+        assert lab in html, page
+        if c["serverless_only"]:
+            assert f"{c['priced_sources']} priced sources, {c['instance_vendors']} instance vendors" in html, page

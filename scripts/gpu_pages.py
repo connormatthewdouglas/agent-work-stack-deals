@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
+from core.gpu import vendor_counts_label, PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
 from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
@@ -388,7 +388,7 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
     med = [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]  # Gauge G4
     resv = tc.get("reserved", 0)
-    out = (f"How we count: {pl(len(rates), 'rate')} from {pl(len({r['advertiser'] for r in rates}), 'vendor')}, which is every priced row in "
+    out = (f"How we count: {pl(len(rates), 'rate')} from {gen.esc(vendor_counts_label(rates))}, which is every priced row in "
            f"<a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> ({gen.esc(parts)}). ")
     if med:
         out += (f"{pl(len(med), 'of those rows is a marketplace median', ) if len(med) == 1 else str(len(med)) + ' of those rows are marketplace medians'} "
@@ -447,7 +447,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     ]
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU price comparison</nav>
   <h1>GPU rental price comparison</h1>
-  <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {len(vendors)} vendors · sorted by effective hourly cost</p>
+  <p class="meta">Prices verified through {fresh} · {gen.live_rate_count()} rates from {gen.esc(vendor_counts_label(rates))} · sorted by effective hourly cost</p>
   <p class="meta"><small>{rate_count_note(gen, _DEALS)}</small></p>
   <p>Verified per-hour and monthly prices for cloud GPUs, from each vendor's own pricing page. Use the <a href="{gen.BASE}/{CALC}/">GPU cost calculator</a> to price your exact hours.</p>
   <h2>By GPU model (all {len(rates)} rates)</h2>

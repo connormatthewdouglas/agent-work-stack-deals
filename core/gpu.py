@@ -269,6 +269,22 @@ def form_factor_of(gpu: str, vendor_value: str | None = None, quote: str = "") -
     return "not stated"
 
 
+def vendor_counts(rates: list[dict]) -> dict:
+    """T76: '25 vs 23'. priced_sources = every advertiser with a priced rate (gpu-prices.json); instance_vendors = those with
+    at least one non-serverless row (the /coverage/ matrix count, which excludes serverless rows)."""
+    priced = {r["advertiser"] for r in rates}
+    inst = {r["advertiser"] for r in rates if "serverless" not in str(r.get("tier") or "").lower()}
+    return {"priced_sources": len(priced), "instance_vendors": len(inst), "serverless_only": sorted(priced - inst)}
+
+
+def vendor_counts_label(rates: list[dict]) -> str:
+    c = vendor_counts(rates)
+    if not c["serverless_only"]:
+        return f"{c['priced_sources']} vendors"
+    return (f"{c['priced_sources']} vendors ({c['priced_sources']} priced sources, {c['instance_vendors']} instance vendors: "
+            f"{' and '.join(c['serverless_only'])} sell serverless only)")
+
+
 def _published_extras(doc: dict) -> dict:
     out = {}
     for k in ("storage", "egress"):
