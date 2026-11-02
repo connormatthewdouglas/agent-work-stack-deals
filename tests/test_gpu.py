@@ -394,3 +394,21 @@ def test_t78_flat_monthly_rows_show_dash_in_hours_column():
                 assert "$" in h, tr[:200]
     html = (root / "gpu/price-comparison/index.html").read_text(encoding="utf-8")
     assert html.count("flat monthly plan: same price at any hours") == sum(1 for r in rates if r["unit"] == "month")
+
+
+def test_t77_calculator_models_all_in_comparison_summary_with_interruptible_label():
+    import re as _re
+    from core.gpu import FAMILIES, family_of
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    html = (root / "gpu/price-comparison/index.html").read_text(encoding="utf-8")
+    t = html[html.index("sticky1"):]
+    t = t[:t.index("</table>")]
+    rows = _re.findall(r"<tr>(.*?)</tr>", t, _re.S)[1:]
+    names = {_re.sub(r"<[^>]+>|\(few verified offers\)", "", _re.findall(r"<td>(.*?)</td>", tr, _re.S)[0]).strip() for tr in rows}
+    for r in rates:  # every GPU the calculator can price (it embeds the full feed) has a summary row
+        assert (FAMILIES.get(family_of(r["gpu"])) or r["gpu"]) in names, r["gpu"]
+    for m in ("B200", "B300", "GB300"):
+        tr = next(tr for tr in rows if _re.search(rf">{m}(<| <em)", tr))
+        if "Spot" in tr:
+            assert "interruptible" in tr, tr

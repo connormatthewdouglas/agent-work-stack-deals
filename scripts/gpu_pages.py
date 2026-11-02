@@ -77,6 +77,16 @@ def _hours_cell(r: dict, amount: float, hours) -> str:
     return _total_cell(r, amount, hours)
 
 
+def _lo_kind(r: dict) -> str:
+    """T77: say when the lowest rate in the model summary is a spot/interruptible (or community) tier, as the GPU cost
+    calculator does, so the two pages never contradict on what kind of rate it is."""
+    if r.get("interruptible") or r.get("tier_class") == "interruptible":
+        return f" <span class=\"meta\">({r['tier']}, interruptible)</span>"
+    if r.get("tier_class") == "community":
+        return f" <span class=\"meta\">({r['tier']})</span>"
+    return ""
+
+
 def _quote_html(esc, r: dict, n: int = 70) -> str:
     """H4: short cleaned excerpt; the full verbatim quote is one click away."""
     q = " ".join(((r.get("evidence") or {}).get("quote") or "").split())
@@ -426,7 +436,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         link = f'<a href="{gen.BASE}/{pages[slug]}/">{gen.esc(f["name"])}</a>' if slug in pages else gen.esc(f["name"])
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(own)}</td><td>{gen.esc(', '.join(sorted({r['advertiser'] for r in own})))}</td>"
-                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
+                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}{_lo_kind(lo)}</td></tr>")
     # Every ranked rate is counted exactly once in the model table (audit T6/M3): families first, then each other model.
     others = {}
     for r in rates:
@@ -437,7 +447,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         lo = _pick_cheapest(rs)
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
-                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}</td></tr>")
+                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}{_lo_kind(lo)}</td></tr>")
     also = [(slug, src) for src, slug in PAGE_ALSO.items() if fams.get(slug, {}).get("rates")]
     also_note = "".join(f"<p class=\"meta\">{gen.esc(fams[slug]['name'])} ({sum(family_of(r['gpu']) == slug for r in fams[slug]['rates'])}) excludes the "
                         f"{gen.esc(fams[src]['name'])}, listed separately ({sum(family_of(r['gpu']) == src for r in rates)}); "

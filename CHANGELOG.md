@@ -6,6 +6,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## 0.5.0 (2026-11-02, PyPI + MCP Registry)
 
+- T77: the price-comparison model summary lists B200, B300 and GB300 and now labels a spot/interruptible lowest rate (e.g. Verda B300 $5.675/hr, Spot, interruptible) the way the GPU cost calculator does; a test checks every model the calculator can price has a summary row.
 - T78: flat monthly plans (Ucartz dedicated servers) show "—" with a flat-plan label in the 100 h/month column instead of the full monthly price; Full month keeps the flat price.
 - T76: vendor counts reconciled. The home page and /gpu/price-comparison/ now say "25 vendors (25 priced sources, 23 instance vendors: Koyeb and Modal sell serverless only)"; 23 matches /coverage/, which excludes serverless rows.
 - T72: brief keeps scope, total, excluded_* counts, next_refresh_utc and per-row tier/price_status/in_stock (H100 brief ~4.3k chars vs ~24.9k full). `compare_gpu_prices` now returns `mode="brief"` by default (about 2k vs 12k characters for a 3-row H100 query; Pax measured ~4.2k vs ~29.8k at the default limit). Pass `mode="full"` for the complete output; every field reachable in 0.4.2 is still returned there, unchanged. All other tools keep `full` as their default (audit: optimize_stack ~12.9k full vs 2.2k brief and optimize_agent_stack ~14k vs 1.9k stay full because their `receipt` feeds `rebuild_quote`; get_price_changes, search_deals, compare_deals and get_deal are under 5.5k). Additive only: no field renamed or removed.
