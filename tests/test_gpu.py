@@ -1,3 +1,4 @@
+import os
 import pytest
 import json
 from pathlib import Path
@@ -117,7 +118,8 @@ def pinned_build_clock(monkeypatch):
     and on test order (importing scripts.generate_seo_pages, e.g. in test_core, setdefaults LW_BUILD_HORIZON_MIN=25
     for the rest of the session)."""
     api = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
-    monkeypatch.setenv("LW_AVAIL_NOW", api["feed_updated_at"])
+    # A caller that built the tree under a pinned clock (scripts/check_latest_scout_import.sh) passes that build time.
+    monkeypatch.setenv("LW_AVAIL_NOW", os.environ.get("LW_AVAIL_NOW") or api["feed_updated_at"])
     monkeypatch.setenv("LW_BUILD_HORIZON_MIN", "25")
     return api
 

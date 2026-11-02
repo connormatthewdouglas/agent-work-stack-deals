@@ -1,3 +1,4 @@
+import os
 import json, re, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
@@ -5,6 +6,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import cost_pages  # noqa: E402
 
 FEED = json.loads((ROOT / "api/v1/gpu-prices.json").read_text(encoding="utf-8"))
+
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def pinned_build_clock(monkeypatch):
+    """Judge the committed pages and feed as of the moment the generator built them: clock pinned to the feed's build
+    time and the generator's 25-min build horizon (same pattern as tests/test_gpu.py, Gauge nov1_mart4 fix 2). Without
+    this, freshness checks used the wall clock, so results flipped as the data aged past an availability expiry."""
+    # A caller that built the tree under a pinned clock (scripts/check_latest_scout_import.sh) passes that build time.
+    monkeypatch.setenv("LW_AVAIL_NOW", os.environ.get("LW_AVAIL_NOW") or FEED["feed_updated_at"])
+    monkeypatch.setenv("LW_BUILD_HORIZON_MIN", "25")
+    return FEED
 
 
 def test_twelve_pages_in_sitemap():
@@ -319,7 +334,8 @@ def _fresh():
     rows = json.loads((ROOT / "data/gpu_availability/latest.json").read_text()).get("rows") or []
     import os
     from datetime import timedelta
-    now = datetime.now(timezone.utc) + timedelta(minutes=int(os.environ.get("LW_BUILD_HORIZON_MIN") or 25))  # same build horizon as the generator
+    from core.gpu_availability import now_utc
+    now = now_utc() + timedelta(minutes=int(os.environ.get("LW_BUILD_HORIZON_MIN") or 25))  # same clock (LW_AVAIL_NOW) and build horizon as the generator
     return any(r.get("availability_expires_at") and _parse(r["availability_expires_at"]) > now for r in rows)
 
 

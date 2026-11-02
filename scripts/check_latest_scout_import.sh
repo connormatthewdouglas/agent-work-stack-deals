@@ -16,6 +16,9 @@ git -C "$ROOT" show origin/scout-data:latest/manifest.json > "$T/manifest.json" 
 git -C "$ROOT" show origin/scout-data:latest/latest_manifest.json > "$T/latest_manifest.json" 2>/dev/null || : > "$T/latest_manifest.json"
 echo "scout-data $(git -C "$ROOT" rev-parse --short origin/scout-data): $(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("generation_id"))' "$T/manifest.json" 2>/dev/null || echo '?')"
 cd "$W"
+# One build clock for the whole rebuild and the tests, so they judge the tree as of the moment it was built
+# (otherwise a claim expiring between the build and the test run flips the result).
+LW_AVAIL_NOW=${LW_AVAIL_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}; export LW_AVAIL_NOW
 LW_SCOUT_MANIFESTS="$T/manifest.json:$T/latest_manifest.json" LW_SCOUT_AVAIL="$T/availability_v2_latest.json" \
   python3 scripts/import_scout_availability.py "$T/feed_enriched_v2_latest.json"
 python3 scripts/generate_seo_pages.py > /dev/null
