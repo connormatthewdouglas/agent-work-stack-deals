@@ -34,8 +34,8 @@ TESTED_TOOLS = 9  # package tools/list + a call to each, clean uvx stdio and the
 # (Claude Desktop, Cursor, Cline, Roo, Continue, Open WebUI in-app) carry no tool count or version claim.
 CLIENT_TESTED_TOOLS = 9
 CLIENT_TESTED_VERSION = "0.5.1"
-# Verified 2026-11-02 by tools/list on the hosted endpoint: it serves every package tool except these.
-HOSTED_MISSING = ("rebuild_quote",)
+# Verified 2026-11-02 by tools/list on the hosted endpoint after the 0.5.2 redeploy: 13 tools, all 9 package tools + 4 watch tools.
+HOSTED_MISSING = ()
 
 
 def _hosted_extra_tools() -> tuple[str, ...]:
