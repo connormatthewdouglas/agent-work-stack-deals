@@ -65,6 +65,12 @@ FEED_RE = re.compile(r"^/(api/v1/[a-z0-9_./-]+\.json|deals\.json)$")
 REF_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 CORS = {"access-control-allow-origin": "*", "access-control-allow-headers": "content-type, authorization, mcp-protocol-version, mcp-session-id",
         "access-control-allow-methods": "GET, POST, OPTIONS"}
+# Brain #247: security headers on every response. CSP suits JSON plus the inline-styled /stats page (no scripts at all);
+# CORS stays open (*) so browser-based MCP clients keep working.
+SEC = {"x-content-type-options": "nosniff", "referrer-policy": "no-referrer",
+       "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+       "strict-transport-security": "max-age=31536000; includeSubDomains"}
+CORS = {**CORS, **SEC}
 
 
 async def _feeds():
@@ -299,9 +305,9 @@ class Default(WorkerEntrypoint):
                                                getattr(self.env, "WATCH_PUSH_SECRET", None), int(time.time()))
             except W.WatchError as e:
                 code = {"unauthorized": 401, "unavailable": 503}.get(e.code, 400)
-                return Response(json.dumps({"ok": False, "error": e.code}), status=code, headers={"content-type": "application/json"})
+                return Response(json.dumps({"ok": False, "error": e.code}), status=code, headers={"content-type": "application/json", **SEC})
             r = await watch_store.deliver(self.env, events, regions, fetch)
-            return Response(json.dumps({"ok": True, **r}), headers={"content-type": "application/json"})
+            return Response(json.dumps({"ok": True, **r}), headers={"content-type": "application/json", **SEC})
         if path in ("/mcp", "/mcp/"):
             if request.method == "GET":
                 return Response("Lantern Works MCP endpoint (streamable HTTP, POST JSON-RPC). Server-sent event streams are not offered; use POST.",
