@@ -73,6 +73,20 @@ def run(cmd, **kw):
     print("+", " ".join(cmd), flush=True)
     return subprocess.run(cmd, check=True, **kw)
 
+def pip_install_retry(cmd, attempts=5, delay=30, runner=None, sleep=time.sleep, **kw):
+    """pip install, retried: PyPI's simple index can lag the JSON API by ~30 s after an upload
+    (Gauge rel042: run 41365500111 failed 28 s after the 0.4.2 upload). 5 attempts, 30 s apart."""
+    runner = runner or run
+    for i in range(attempts):
+        try:
+            return runner(cmd, **kw)
+        except subprocess.CalledProcessError:
+            if i == attempts - 1:
+                raise
+            print(f"pip install failed (PyPI index lag?); retry {i + 2}/{attempts} in {delay} s", flush=True)
+            sleep(delay)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--version", default="latest", help="'latest' = newest release on PyPI (so CI covers each new release as soon as it is published)")
@@ -98,7 +112,7 @@ def main():
             run([py, "-m", "pip", "install", "-q", "--no-cache-dir", "--isolated", "mcp>=1.10,<2"], env=env, cwd=tmp)
             run([py, cl, a.version, "docker", "run", "-i", "--rm", a.docker], env=env, cwd=tmp)
             print("RESULT: ok"); return
-        run([py, "-m", "pip", "install", "-q", "--no-cache-dir", "--isolated", target], env=env, cwd=tmp)
+        pip_install_retry([py, "-m", "pip", "install", "-q", "--no-cache-dir", "--isolated", target], env=env, cwd=tmp)
         run([py, cl, a.version, os.path.join(vd, "bin", PKG)], env=env, cwd=tmp)
         if a.uvx and not a.wheel:
             uvx = shutil.which("uvx") or sys.exit("uvx not found")

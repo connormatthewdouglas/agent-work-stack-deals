@@ -291,6 +291,8 @@ jobs:
     continue-on-error: true  # failures go to the pipeline-failure issue, not a red run (no per-run email)
     outputs:
       ok: ${{ steps.lw_ok.outputs.ok }}
+      # Gauge rel042: 'true' only when this run actually put its build live; 'superseded' when a newer main head will
+      deployed: ${{ steps.lw_ok.outputs.deployed }}
     # Deploy is gated on validation. Only from main pushes / manual runs.
     needs: [validate, tests, pypi-install, release-gate, latest-scout-import]  # Gauge re31: docker (PyPI race) never blocks the Pages deploy
     # Pages source = "GitHub Actions" (build_type=workflow) with repo variable PAGES_DEPLOY_VIA_ACTIONS=true,
@@ -358,7 +360,9 @@ jobs:
         run: echo "page_url=${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}" >> "$GITHUB_OUTPUT"
       - id: lw_ok
         if: always()
-        run: echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "ok=${{ job.status == 'success' }}" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.head.outputs.go }}" = false ]; then echo deployed=superseded; elif [ "${{ job.status }}" = success ] && [ -n "${{ steps.deployment.outputs.page_url }}" ]; then echo deployed=true; else echo deployed=false; fi >> "$GITHUB_OUTPUT"
 
   expiry-alert:
     # Gauge re18 R2: a failed run (any gate, deploy or live check) while the LIVE stock claims expire within 2 h
@@ -399,7 +403,7 @@ jobs:
   pipeline-failure-issue:
     # Any failed gate, deploy or live check on main opens (or comments on) one issue, whatever the claim expiry.
     needs: [validate, tests, latest-scout-import, pypi-install, docker, release-gate, deploy, live-checks]
-    if: always() && !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && (contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false')
+    if: always() && !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && ((contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false' || ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && needs.deploy.outputs.deployed != 'superseded' && (needs.deploy.outputs.deployed != 'true' || needs.live-checks.result != 'success'))))
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
@@ -411,12 +415,23 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           NEEDS: ${{ toJSON(needs) }}
-        run: sh scripts/pipeline_issue.sh "Validate/deploy"
+          EVENT: ${{ github.event_name }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          DEPLOYED: ${{ needs.deploy.outputs.deployed }}
+          LIVE_RESULT: ${{ needs.live-checks.result }}
+        run: |
+          DETAIL=""
+          if { [ "$EVENT" = push ] || [ "$EVENT" = workflow_dispatch ]; } && [ "$DEPLOYED" != true ]; then
+            DETAIL="NOT DEPLOYED: deploy job $DEPLOY_RESULT (deployed=${DEPLOYED:-n/a}), live-checks $LIVE_RESULT; the live site is still the previous build."
+            echo "::error title=Not deployed::$DETAIL"; echo "### :x: $DETAIL" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          export DETAIL
+          sh scripts/pipeline_issue.sh "Validate/deploy"
 
   pipeline-green:
     # The first fully green main run closes the open "Pipeline failing: Validate/deploy" issue.
     needs: [validate, tests, latest-scout-import, pypi-install, docker, release-gate, deploy, live-checks]
-    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !(contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false')
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !((contains(needs.*.result, 'failure') || needs.validate.outputs.ok == 'false' || needs.tests.outputs.ok == 'false' || needs.latest-scout-import.outputs.ok == 'false' || needs.pypi-install.outputs.ok == 'false' || needs.docker.outputs.ok == 'false' || needs.release-gate.outputs.ok == 'false' || needs.deploy.outputs.ok == 'false' || needs.live-checks.outputs.ok == 'false' || ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && needs.deploy.outputs.deployed != 'superseded' && (needs.deploy.outputs.deployed != 'true' || needs.live-checks.result != 'success')))) && needs.deploy.outputs.deployed != 'superseded'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
@@ -427,4 +442,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: sh scripts/pipeline_issue.sh "Validate/deploy" --green
+        run: |
+          if [ "${{ needs.deploy.outputs.deployed }}" = true ]; then echo "### :white_check_mark: Deployed ${{ github.sha }} (live-checks=${{ needs.live-checks.result }})"; else echo "### No deploy in this ${{ github.event_name }} run (deploy=${{ needs.deploy.result }}); checks green"; fi >> "$GITHUB_STEP_SUMMARY"
+          sh scripts/pipeline_issue.sh "Validate/deploy" --green
