@@ -739,6 +739,16 @@ def changes_html(gen, gpu_family: str | None = None, days: int = 30, limit: int 
             f"<tbody>{rows}</tbody></table></div>\n")
 
 
+def _cov_label(m: dict, pct, target: bool = True) -> str:
+    """Headline share (rows with a public stock signal, vs the 80% target) and the all-rows share, both labelled."""
+    if not m["measurable"]:
+        head = f"no rows with a public stock signal (0 of {m['rows']} rows overall measured)"
+        return head
+    mark = "" if not target else (" ✓" if m.get("meets_target") else " (below target)")
+    return (f"measured {m['measured']} of {m['measurable']} rows with a public stock signal ({pct(m['measured'] / m['measurable'])}){mark}"
+            f" · {m['measured']} of {m['rows']} rows overall ({pct(m['measured'] / m['rows'])})")
+
+
 def availability_coverage_html(gen, rates: list[dict]) -> str:
     """/gpu/: per-model share of rows with a free stock signal that are actually measured, against the 80% target."""
     from core.gpu import availability_coverage
@@ -746,7 +756,7 @@ def availability_coverage_html(gen, rates: list[dict]) -> str:
     pct = lambda x: "n/a" if x is None else f"{x * 100:.0f}%"
     order = sorted(c["models"].items(), key=lambda kv: (-kv[1]["rows"], kv[0]))
     rows = "".join(f"<tr><td>{gen.esc(k)}</td><td>{m['rows']}</td><td>{m['measurable']}</td><td>{m['measured']}</td>"
-                   f"<td>{pct(m['coverage'])}{'' if m['coverage'] is None else (' ✓' if m['meets_target'] else ' (below target)')}</td></tr>"
+                   f"<td>{_cov_label(m, pct)}</td></tr>"
                    for k, m in order)
     by = {}
     for v, why in c["unmeasurable"]:
@@ -754,8 +764,8 @@ def availability_coverage_html(gen, rates: list[dict]) -> str:
     unm = "".join(f"<li><strong>{gen.esc(why)}</strong>: {gen.esc(', '.join(vs))}</li>" for why, vs in sorted(by.items(), reverse=True))
     t = c["totals"]
     return (f"""  <h2 id="availability-coverage">Availability coverage</h2>
-  <p>Share of rows with a free public stock signal that we actually measure (available, out of stock, or stale with its last-check time). Target: {pct(c['target'])} per model. Overall: {t['measured']} of {t['measurable']} measurable rows ({pct(t['coverage'])}); {t['rows']} rows in total.</p>
-  <div class="tscroll"><table class="howto"><thead><tr><th>Model</th><th>Rows</th><th>Measurable rows</th><th>Measured</th><th>Coverage</th></tr></thead><tbody>{rows}</tbody></table></div>
+  <p>Share of rows with a free public stock signal that we actually measure (available, out of stock, or stale with its last-check time). Target: {pct(c['target'])} per model. Overall: {_cov_label(t, pct, target=False)}.</p>
+  <div class="tscroll"><table class="howto"><thead><tr><th>Model</th><th>Rows</th><th>Measurable rows</th><th>Measured</th><th>Coverage (headline: rows with a public stock signal · all rows)</th></tr></thead><tbody>{rows}</tbody></table></div>
   <p class="meta">Unmeasurable vendors (not counted as gaps):</p>
   <ul>{unm}</ul>
 """)

@@ -455,3 +455,20 @@ def test_t75_compare_rows_carry_canonical_model_and_form_factor_and_vendor_id_fo
         assert x["canonical_model"] == "B300" and x["form_factor"], x
     rp = [x for x in out["results"] if x["advertiser"] == "RunPod"]
     assert rp and all(x["form_factor"] == "SXM6" for x in rp)
+
+
+def test_coverage_shows_headline_and_all_rows_share():
+    import re as _re
+    from core.gpu import availability_coverage
+    root = Path(__file__).resolve().parents[1]
+    rates = json.loads((root / "api/v1/gpu-prices.json").read_text())["rates"]
+    c = availability_coverage(rates)
+    html = _re.sub(r"\s+", " ", (root / "gpu/index.html").read_text(encoding="utf-8"))
+    for name, m in c["models"].items():
+        if m["measurable"]:
+            a = round(m["measured"] / m["measurable"] * 100)
+            b = round(m["measured"] / m["rows"] * 100)
+            assert (f"measured {m['measured']} of {m['measurable']} rows with a public stock signal ({a}%)" in html
+                    and f"· {m['measured']} of {m['rows']} rows overall ({b}%)" in html), name
+    t = c["totals"]
+    assert f"Overall: measured {t['measured']} of {t['measurable']} rows with a public stock signal" in html
