@@ -42,6 +42,58 @@ def verify_manifests(raw: bytes, name: str = "feed_enriched_v2_latest.json") -> 
     return n
 
 
+def _gap_s(first, second) -> float | None:
+    from core.gpu_availability import _parse
+    a, b = _parse(first), _parse(second)
+    return round((b - a).total_seconds(), 1) if a and b else None
+
+
+def _reads(a: dict) -> dict:
+    """first/second stock read times for one raw Scout row (Gauge T73 F1-F6 #2); the gap is computed from the two stamps."""
+    out = {"first_read_at": a.get("checked_at"), "second_read_at": a.get("second_read_at")}
+    out["second_read_gap_s"] = _gap_s(out["first_read_at"], out["second_read_at"])
+    return out
+
+
+def _same_tier(raw: str, feed: str) -> bool:
+    """Scout's raw tier vs the feed's (the feed may add basis words inside the parentheses, e.g. '; median per GPU')."""
+    raw, feed = str(raw or ""), str(feed or "")
+    return raw == feed or (raw.endswith(")") and feed.startswith(raw[:-1]) and feed[len(raw) - 1] in ";,") or \
+        (feed.startswith(raw + " (") and "(" not in raw)
+
+
+def _raw_for(row: dict, raw_rows: list) -> tuple[dict | None, dict]:
+    """(overall raw row, {region: raw row}) for one feed row: vendor (first word), GPU, VRAM and tier."""
+    v = str(row["vendor"]).split(" ")[0].lower()
+    hits = [a for a in raw_rows if str(a.get("vendor")).split(" ")[0].lower() == v and a.get("gpu_model") == row["gpu"]
+            and (a.get("vram_gb") in (None, row.get("vram_gb"))) and _same_tier(a.get("tier"), row["tier"])]
+    ov = next((a for a in hits if a.get("region") == "all"), None)
+    return ov, {a["region"]: a for a in hits if a.get("region") and a["region"] != "all"}
+
+
+def _carry_reads(row: dict, ov: dict | None, regions: dict) -> None:
+    """Additive: per-region and overall read timestamps from Scout's raw availability file. An overall row with no
+    second read of its own, derived from regions, takes the supporting region with the widest gap (labelled)."""
+    for d in row.get("available_regions_detail") or []:
+        a = regions.get(d.get("region"))
+        if a:
+            d.update(_reads(a))
+            if a.get("second_read_stock_level") is not None and d.get("second_read_stock_level") is None:
+                d["second_read_stock_level"] = a["second_read_stock_level"]
+    if row.get("in_stock") is None:
+        return
+    rd = _reads(ov) if ov and ov.get("second_read_at") else None
+    if rd:
+        rd["second_read_basis"] = "overall"
+    else:
+        sup = [a for a in regions.values() if a.get("in_stock") is row["in_stock"] and a.get("second_read_at")]
+        best = max(sup, key=lambda a: _reads(a)["second_read_gap_s"] or -1, default=None)
+        if best:
+            rd = {**_reads(best), "second_read_basis": f"region {best.get('region')}"}
+    rd = rd or {"first_read_at": row.get("availability_checked_at"), "second_read_at": None, "second_read_gap_s": None}
+    row.update(rd)
+
+
 def main() -> None:
     raw = SRC.read_bytes()
     checked = verify_manifests(raw)
@@ -55,7 +107,7 @@ def main() -> None:
     if age is None or age > AVAIL_MAX_AGE_H:  # same refusal as Scout's enrich_feed_v2
         raise SystemExit(f"Scout snapshot {snap or '(no checked_at)'} is {'?' if age is None else f'{age:.1f}'}h old "
                          f"(> {AVAIL_MAX_AGE_H}h); refusing to import")
-    overall = {}
+    overall, raw_rows = {}, []
     ap = Path(os.environ.get("LW_SCOUT_AVAIL") or SRC.with_name("availability_v2_latest.json"))
     if ap.is_file():  # Scout's raw availability file: overall-row derived_from_regions (v3.2); sha256-checked when listed
         araw = ap.read_bytes()
@@ -63,6 +115,7 @@ def main() -> None:
         for a in json.loads(araw.decode("utf-8")).get("rows") or []:
             if a.get("region") == "all":
                 overall[(str(a.get("vendor")).lower(), a.get("gpu_model"), a.get("tier"))] = a
+            raw_rows.append(a)
     rows = []
     for r in d["rows"]:
         if r.get("in_live_feed") is not True:  # v2.5: only rows confirmed in the live feed (None/missing are skipped)
@@ -73,6 +126,8 @@ def main() -> None:
         ov = overall.get((str(row["vendor"]).split(" ")[0].lower(), row["gpu"], row["tier"]))
         if ov and ov.get("derived_from_regions") is not None:  # N1: carried through from Scout's availability file
             row["derived_from_regions"] = ov["derived_from_regions"]
+        rov, rreg = _raw_for(row, raw_rows)
+        _carry_reads(row, rov, rreg)
         if row["in_stock"] is True and row["vendor"] == "RunPod":
             if not row.get("available_regions"):  # N2: a GPU-type-wide lowestPrice hint with no confirmed region is not a stock claim
                 row["in_stock"] = None

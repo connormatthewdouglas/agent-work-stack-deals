@@ -171,7 +171,7 @@ def region_guard(a, now: datetime | None = None):
 
 
 CLAIM_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "gpu_count", "price_join_failed",
-                    "first_read_at", "second_read_at", "second_read_gap_s", "two_read_gap_ok")
+                    "first_read_at", "second_read_at", "second_read_gap_s", "second_read_basis", "two_read_gap_ok")
 
 
 def stale_guard(a, now: datetime | None = None):
@@ -317,6 +317,9 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | N
 HELD_NOTE = "Held by Scout: fewer offers than its publish minimum, so no stock claim is shown."
 
 
+TWO_READ_MIN_S = 60
+
+
 def _scout(vendor: str, r: dict | None) -> dict:
     if r and r.get("feed_status") == "held_below_min_offers":  # v3.2: never shown as available
         return {"status": "unknown (held: below minimum offers)", "in_stock": None, "checked_at": r.get("availability_checked_at"),
@@ -337,6 +340,12 @@ def _scout(vendor: str, r: dict | None) -> dict:
     for k in ("feed_status", "derived_from_regions", "offer_count", "unrented_servers", "stock_level", "available_regions", "available_regions_detail", "available_regions_label"):
         if r.get(k) is not None:
             out[k] = r[k]
+    if "first_read_at" in r:  # Gauge T73 F1-F6 #2: both read times stored; a claim with reads < 60 s apart is not counted
+        for k in ("first_read_at", "second_read_at", "second_read_gap_s", "second_read_basis"):
+            if k in r:
+                out[k] = r[k]
+        g = r.get("second_read_gap_s")
+        out["two_read_gap_ok"] = g is not None and g >= TWO_READ_MIN_S
     if out.get("available_regions"):  # re30 a: {label (original), zone, country, group} per published region
         from .regions import normalize as _rn
         out["available_regions_normalized"] = [_rn(x) for x in out["available_regions"]]

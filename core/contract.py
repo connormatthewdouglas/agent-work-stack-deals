@@ -196,7 +196,7 @@ def error(code: str, message: str) -> dict:
 
 
 BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "first_read_at", "second_read_at",
-                          "second_read_gap_s", "two_read_gap_ok", "price_join_failed")
+                          "second_read_gap_s", "second_read_basis", "two_read_gap_ok", "price_join_failed")
 
 
 def _brief_row(tool: str, row: dict, keys: list) -> dict:
