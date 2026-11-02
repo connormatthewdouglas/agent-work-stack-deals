@@ -17,7 +17,7 @@ Ranking is by estimated cost for the user's hours, never by affiliate status or 
 """
 from __future__ import annotations
 
-from .referrals import referral_fields
+from .referrals import referral_fields_for
 import json
 import math
 import re
@@ -436,10 +436,11 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 # Brain #247 (additive): every tracked vendor quotes in USD, so no FX conversion is applied (fx_date null);
                 # last_verified = when the price itself was last confirmed on the vendor page (same as verified_at).
                 "quote_currency": "USD", "fx_date": None, "last_verified": r.get("verified_at") or r["checked_at"],
-                **referral_fields(r["vendor"]),
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
                 "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r)})
+    for x in rates:  # Gauge strat2 #4: label every code-carrying link; sort order is untouched
+        x.update(referral_fields_for(x))
     priced = {r["deal_id"] for r in rates} | {d["id"] for d in deals if d.get("advertiser") in {h["vendor"] for h in held}}  # Gauge G1: held != unpriced
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}

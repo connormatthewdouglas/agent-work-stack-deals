@@ -7,13 +7,30 @@ ROOT = Path(__file__).resolve().parents[1]
 FEED = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
 
 
-def test_referral_only_on_runpod_and_thunder():
+def test_referral_label_on_every_code_carrying_row():
+    from core.referrals import has_ref_code
     for r in FEED["rates"]:
-        if r["advertiser"] in ("RunPod", "Thunder Compute"):
+        if r["advertiser"] in REFERRALS:
             assert r["referral_url"] == REFERRALS[r["advertiser"]] and r["referral_label"] == REFERRAL_LABEL
-        else:
+        if r.get("affiliate") or has_ref_code(r.get("redeem_url")) or has_ref_code(r.get("referral_url")):
+            assert r.get("referral_label") == REFERRAL_LABEL, (r["advertiser"], r.get("redeem_url"))
+        if r["advertiser"] in ("Lambda", "Hyperstack") or r["advertiser"].startswith("Verda"):
             assert "referral_url" not in r and "referral_label" not in r, r["advertiser"]
-    assert {"Lambda", "Hyperstack"} <= {r["advertiser"] for r in FEED["rates"]}
+    labelled = {r["advertiser"] for r in FEED["rates"] if r.get("referral_label")}
+    assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "99Stack Cloud", "RunPod", "Thunder Compute"} <= labelled
+
+
+def test_codes_are_never_stripped():
+    for r in FEED["rates"]:
+        if r.get("referral_url") and r["advertiser"] not in REFERRALS:
+            assert r["referral_url"] == r["redeem_url"]
+
+
+def test_has_ref_code_detects_common_params():
+    from core.referrals import has_ref_code
+    for u in ("https://x.com/?ref=a", "https://x.com/?ref_id=1", "https://x.com/aff.php?aff=5", "https://x.com/a/abc", "https://x.com/?via=lw", "https://x.com/?fpr=lw"):
+        assert has_ref_code(u), u
+    assert not has_ref_code("https://lambda.ai/pricing")
 
 
 def test_additive_currency_fields():
@@ -46,4 +63,19 @@ def test_brief_output_keeps_new_fields(monkeypatch):
     rows = out["results"]
     assert rows and all(r["quote_currency"] == "USD" and "last_verified" in r and "fx_date" in r for r in rows)
     for r in rows:
-        assert ("referral_url" in r) == (r["advertiser"] in REFERRALS)
+        if r["advertiser"] in REFERRALS:
+            assert r["referral_url"] == REFERRALS[r["advertiser"]] and r["referral_label"] == REFERRAL_LABEL
+    full = server.compare_gpu_prices("H100", limit=25, mode="full")["results"]
+    for r in full:
+        if r.get("redeem_url") and r.get("affiliate"):
+            assert r.get("referral_label") == REFERRAL_LABEL, r["advertiser"]
+
+
+def test_site_tables_label_every_code_carrying_gpu_row():
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    t = (root / "gpu/rtx-4090-rental-price/index.html").read_text()
+    for row in re.findall(r"<tr>.*?</tr>", t, re.S):
+        if "Vast.ai" in row and "Link" in row:
+            assert "Referral link" in row

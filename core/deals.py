@@ -388,6 +388,37 @@ def out_of_stock(r: dict) -> bool:
     return isinstance(a, dict) and a.get("in_stock") is False
 
 
+NVLINK_FORM_NOTE = ("Rows named 'NVLink' (e.g. Hyperstack 'H100 NVLink', 'A100 NVLink') count as form 'not stated': NVLink names the "
+                    "GPU-to-GPU bridge, and the vendor page does not say SXM or PCIe. A row maps to SXM only where the vendor says SXM or HGX.")
+
+
+def cheapest_by_form_factor(rows: list[dict]) -> list[dict]:
+    """gpu_poor #18, one rule for pages and MCP: per form_factor, the cheapest non-reserved row, preferring rows not marked
+    out of stock (in stock or unknown); an out-of-stock row is named only when nothing else exists for that form. Each entry
+    says whether the pick is interruptible (spot/community) so it is never read as on-demand. Empty when only one form."""
+    from .gpu import form_of, FORM_FACTOR_ORDER
+    from .ids import rate_id
+    byf: dict = {}
+    for r in rows:
+        if tier_class(r) == "reserved" or r.get("hourly_equiv_usd") is None:
+            continue
+        k = (out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or "")
+        f = form_of(r)
+        if f not in byf or k < byf[f][0]:
+            byf[f] = (k, r)
+    if len(byf) < 2:
+        return []
+    out = []
+    for f in sorted(byf, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99):
+        r = byf[f][1]
+        tc = tier_class(r)
+        out.append({"form_factor": f, "rate_id": rate_id(r), "advertiser": r["advertiser"], "gpu": r["gpu"],
+                    "hourly_usd": r["hourly_equiv_usd"], "tier": r.get("tier"), "tier_class": tc,
+                    "interruptible": tc == "interruptible", "in_stock": (r.get("availability") or {}).get("in_stock")
+                    if isinstance(r.get("availability"), dict) else None, "source_url": r.get("source_url")})
+    return out
+
+
 def stock_phrase(a) -> str:
     """Stock state for a summary lead, with the availability check time (never the price date)."""
     a = a if isinstance(a, dict) else {}
@@ -591,17 +622,13 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     elif out_of_stock(c):
         oos_msg = f" Note: this row was {oos_note(c)}; no in-stock or unknown-availability row matched."
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
-    from .gpu import split_by_form, form_of, FORM_FACTOR_ORDER
-    if split_by_form(gpu):  # gpu_poor #18 (additive): cheapest per form factor, so SXM and PCIe are never one ranking
-        byf = {}
-        for x in results:
-            if x.get("tier_class") != "reserved":
-                byf.setdefault(form_of(x), x)
-        if len(byf) > 1:
-            extra["cheapest_by_form_factor"] = [
-                {"form_factor": f, "rate_id": byf[f]["rate_id"], "advertiser": byf[f]["advertiser"], "gpu": byf[f]["gpu"],
-                 "hourly_usd": byf[f]["hourly_usd"], "tier": byf[f]["tier"], "source_url": byf[f]["source_url"]}
-                for f in sorted(byf, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99)]
+    from .gpu import split_by_form
+    if split_by_form(gpu):  # gpu_poor #18 (additive): cheapest per form factor, same rule as the pages
+        cbf = cheapest_by_form_factor(rows)
+        if cbf:
+            extra["cheapest_by_form_factor"] = cbf
+            extra["cheapest_by_form_factor_note"] = ("Per form_factor: cheapest non-reserved row, preferring rows not marked out of stock; "
+                                                     "interruptible=true means a spot/community pick. " + NVLINK_FORM_NOTE)
     region_note = ""
     if cons.get("region"):  # re30 c: say what the region filter found before naming any cheapest
         n_un = sum(1 for r in rows if unresolved(r))

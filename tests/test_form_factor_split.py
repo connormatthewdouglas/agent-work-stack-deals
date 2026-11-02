@@ -31,3 +31,17 @@ def test_pair_pages_pair_within_form_factor():
         for row in re.findall(r"<tr><td data-label=\"GPU\">(.*?)</tr>", f.read_text(), re.S):
             cells = re.findall(r'<small>\(([^)]*)\)</small>', row)
             assert not ("SXM" in row and "PCIe" in row), f
+
+
+def test_page_and_mcp_share_one_form_factor_rule():
+    """Gauge strat2: the page and MCP pick the same row per form factor (one out-of-stock rule), with interruptible marked."""
+    out = core.compare_gpu_prices(FEED, "H100", limit=25)
+    picks = out["cheapest_by_form_factor"]
+    assert all({"tier_class", "interruptible", "in_stock"} <= set(p) for p in picks)
+    assert all(p["interruptible"] == (p["tier_class"] == "interruptible") for p in picks)
+    assert "NVLink" in out["cheapest_by_form_factor_note"]
+    page = re.sub(r"<[^>]+>", " ", (ROOT / "gpu/h100-rental-price/index.html").read_text())
+    sec = page[page.index("by form factor"):][:3000]
+    for p in picks:
+        assert p["advertiser"] in sec and str(p["hourly_usd"]) in sec, p
+    assert "NVLink names the" in sec

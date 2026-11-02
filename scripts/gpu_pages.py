@@ -200,22 +200,29 @@ FORM_ORDER = ("SXM", "PCIe", "NVL", "form not stated")
 
 
 def _form_split(gen, rows) -> str:
-    """gpu_poor #18: never rank SXM against PCIe as one 'cheapest' (H100, A100); name the cheapest per form_factor."""
-    from core.gpu import split_by_form, form_of, FORM_FACTOR_ORDER
-    by = {}
-    for r in rows:  # rows are already in ranking order
-        if not split_by_form(r.get("gpu")) or r.get("tier_class") == "reserved":
-            continue
-        fc = form_of(r)
-        if fc not in by:
-            by[fc] = r
-    if len(by) < 2:
+    """gpu_poor #18: never rank SXM against PCIe as one 'cheapest' (H100, A100). Uses core.deals.cheapest_by_form_factor,
+    the same rule (and same out-of-stock handling) as compare_gpu_prices' cheapest_by_form_factor."""
+    from core.gpu import split_by_form
+    from core.deals import cheapest_by_form_factor, NVLINK_FORM_NOTE
+    rows = [r for r in rows if split_by_form(r.get("gpu"))]
+    picks = cheapest_by_form_factor(rows)
+    if not picks:
         return ""
     model = (rows[0].get("canonical_model") or rows[0]["gpu"]).split()[0]
-    items = "".join(f"<li><strong>{gen.esc(model)} {gen.esc('form not stated' if fc == 'not stated' else fc)}</strong>: {gen.esc(by[fc]['advertiser'])} ({gen.esc(by[fc]['tier'])}) at "
-                    f"{gen.esc(_rate_str(by[fc]))}, {_money(by[fc]['monthly_cost_usd'])} for {DEFAULT_HOURS} h</li>" for fc in FORM_FACTOR_ORDER if fc in by)
+    by_id = {}
+    from core.ids import rate_id
+    for r in rows:
+        by_id.setdefault(rate_id(r), r)
+    items = ""
+    for p in picks:
+        r = by_id[p["rate_id"]]
+        tags = (" <em>(spot/interruptible)</em>" if p["interruptible"] else "") + (" <em>(out of stock when checked)</em>" if p["in_stock"] is False else "")
+        cost = f", {_money(r['monthly_cost_usd'])} for {DEFAULT_HOURS} h" if r.get("monthly_cost_usd") is not None else ""
+        items += (f"<li><strong>{gen.esc(model)} {gen.esc('form not stated' if p['form_factor'] == 'not stated' else p['form_factor'])}</strong>: "
+                  f"{gen.esc(p['advertiser'])} ({gen.esc(p['tier'])}) at {gen.esc(_rate_str(r))}{cost}{tags}</li>")
     return (f"  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL {gen.esc(model)}s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
-            "\u201cForm not stated\u201d means the vendor page doesn't say which.</p>\n  <ul>" + items + "</ul>\n")
+            "Each line is the cheapest non-reserved offer among tracked providers for that form, preferring offers not marked out of stock. "
+            "\u201cForm not stated\u201d means the vendor page doesn't say which. " + gen.esc(NVLINK_FORM_NOTE) + "</p>\n  <ul>" + items + "</ul>\n")
 
 
 def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: bool = True) -> str:
@@ -236,7 +243,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong></td><td data-label=\"Full month\">{_total_cell(r, full[_key(r)], HOURS_PER_MONTH)}</td>"
             f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
             f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
-            + f"<td data-label=\"Link\">{'Referral link' if r['affiliate'] else 'Direct link'} <a class=\"meta\" rel=\"nofollow\" href=\"{gen.BASE}/report-price/?{esc(_report_q(r))}\">Wrong price?</a></td></tr>")
+            + f"<td data-label=\"Link\">{'Referral link' if (r.get('affiliate') or r.get('referral_label')) else 'Direct link'} <a class=\"meta\" rel=\"nofollow\" href=\"{gen.BASE}/report-price/?{esc(_report_q(r))}\">Wrong price?</a></td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
             f"function(t){{t.hidden=this.checked&&t.dataset.tier!=='on-demand'}}.bind(this))\"> On-demand only</label> "
@@ -268,18 +275,30 @@ def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, st
 
 
 def price_block(gen, rows: list[dict], deals: list[dict] | None = None) -> str:
-    """Brain #247 task 2: short machine-readable price block (model, vendor, $/hr, checked_at) for agents.
-    GPU rows give usd_per_hr; non-GPU deals give a price text with usd_per_hr null. Sorted by cost (never by referral)."""
+    """Brain #247: short machine-readable price block for agents. GPU pages: model, vendor, usd_per_hr, quote_currency,
+    checked_at from gpu-prices.json rows, sorted by cost (never by referral). Non-GPU pages: the deal's cited price_usd and
+    unit; usd_per_hr is null with a reason unless the cited price is per hour."""
+    from core.referrals import referral_fields_for
     items = [{"model": r["gpu"], "vendor": r["advertiser"], "tier": r.get("tier"), "form_factor": r.get("form_factor"),
               "usd_per_hr": r["hourly_equiv_usd"], "quote_currency": "USD", "checked_at": r.get("verified_at"),
-              "source_url": r.get("source_url")}
+              "source_url": r.get("source_url"), **referral_fields_for(r)}
              for r in sorted(rows, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))]
     for d in deals or []:
-        items.append({"model": d.get("product") or d.get("title") or d["advertiser"], "vendor": d["advertiser"], "usd_per_hr": None,
-                      "price": d.get("price_text") or d.get("published_price") or None, "checked_at": d.get("verified_at"),
-                      "source_url": d.get("source_url") or d.get("url")})
-    data = {"schema": "lantern-works-price-block/1", "feeds": [f"{gen.BASE}/api/v1/gpu-prices.json", f"{gen.BASE}/api/v1/deals.json"],
-            "mcp": "compare_gpu_prices (brief mode)", "items": items}
+        cited = d.get("price_usd") is not None and bool(d.get("verified_at"))
+        hourly = cited and "hour" in str(d.get("unit") or "").lower().split(";")[0] and "/mo" not in str(d.get("unit") or "")
+        it = {"model": d.get("title") or d["advertiser"], "vendor": d["advertiser"], "quote_currency": d.get("currency") or "USD",
+              "price_usd": d.get("price_usd") if cited else None, "unit": d.get("unit") if cited else None,
+              "usd_per_hr": d.get("price_usd") if hourly else None, "price": d.get("price_text"),
+              "checked_at": d.get("verified_at"), "source_url": d.get("source_url"), **referral_fields_for(d)}
+        if not hourly:
+            it["usd_per_hr_null_reason"] = (f"cited price is per {d.get('unit')}, not per hour" if cited
+                                            else "no cited numeric price on the vendor page")
+        items.append(it)
+    gpu = bool(rows) and not deals
+    data = {"schema": "lantern-works-price-block/1",
+            "feeds": ([f"{gen.BASE}/api/v1/gpu-prices.json"] if gpu else [f"{gen.BASE}/api/v1/deals.json", f"{gen.BASE}/api/v1/stack-pricing.json"]),
+            "mcp": "compare_gpu_prices (brief mode)" if gpu else "compare_deals / search_deals",
+            "items": items}
     js = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     return f'<script type="application/json" id="lw-price-block">{js}</script>\n'
 

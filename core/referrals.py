@@ -15,3 +15,33 @@ REFERRALS = {
 def referral_fields(advertiser: str | None) -> dict:
     url = REFERRALS.get(advertiser or "")
     return {"referral_url": url, "referral_label": REFERRAL_LABEL} if url else {}
+
+
+import re
+from urllib.parse import parse_qsl, urlsplit
+
+# Query parameters that carry an affiliate or referral code (any URL with one gets the label; codes are never stripped).
+REF_PARAMS = frozenset({"ref", "ref_id", "referral", "referral_code", "aff", "aff_id", "affiliate", "via", "fpr", "fp_ref",
+                        "invitecode", "invite", "code", "r", "a_aid", "atp", "red", "deal", "partner", "coupon", "promo"})
+_REF_PATH = re.compile(r"/(a|r|aff|invite|join|share|go|refer)/[^/]+", re.I)
+
+
+def has_ref_code(url: str | None) -> bool:
+    if not url:
+        return False
+    u = urlsplit(url)
+    return any(k.lower() in REF_PARAMS for k, _ in parse_qsl(u.query, keep_blank_values=True)) or bool(_REF_PATH.search(u.path))
+
+
+def referral_fields_for(row: dict) -> dict:
+    """Gauge strat2 #4: every row whose link carries an affiliate/referral code is labelled 'Referral link'.
+    referral_url is the code-carrying URL as published (RunPod/Thunder Compute: their agent-feed link). Never a ranking input."""
+    if row.get("referral_url"):
+        return {"referral_url": row["referral_url"], "referral_label": REFERRAL_LABEL}
+    adv = row.get("advertiser") or row.get("vendor")
+    if adv in REFERRALS:
+        return referral_fields(adv)
+    url = row.get("redeem_url")
+    if row.get("affiliate") or has_ref_code(url):
+        return {"referral_url": url, "referral_label": REFERRAL_LABEL}
+    return {}

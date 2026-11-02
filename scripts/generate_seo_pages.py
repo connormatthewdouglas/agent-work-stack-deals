@@ -1066,7 +1066,8 @@ def badges(deal: dict) -> str:
         bits.append(fresh_badge)
     if is_example(deal):
         bits.append('<span class="badge example">example</span>')
-    if deal.get("affiliate"):
+    from core.referrals import has_ref_code
+    if deal.get("affiliate") or has_ref_code(deal.get("redeem_url") or ""):
         bits.append('<span class="badge affiliate">Referral link</span>')
     elif not is_example(deal):
         bits.append('<span class="badge public">Direct link</span>')

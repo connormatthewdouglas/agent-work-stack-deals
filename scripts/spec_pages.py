@@ -23,7 +23,7 @@ SCHEMAS = {"prices": ("gpu-prices.json", ("lantern-works-gpu-prices/1",)),
            "history": ("gpu-prices/history.json", ("lantern-works-gpu-price-history/1", "lantern-works-gpu-price-history/2"))}
 FAMILY_MAP = {"H100": "H100", "H100 SXM": "H100", "H100 PCIe": "H100", "H100 NVLink": "H100", "H100 NVL": "H100",  # every H100 form on one page (Gauge Nov 1)
               "H200": "H200", "H200 SXM": "H200",
-              "A100": "A100", "A100 SXM": "A100", "A100 PCIe": "A100"}
+              "A100": "A100", "A100 SXM": "A100", "A100 PCIe": "A100", "A100 NVLink": "A100"}
 MIN_VENDORS = 3
 PAIRS = [("RunPod", "Verda (formerly DataCrunch)"), ("Lambda", "RunPod"), ("CoreWeave", "Nebius")]
 MIN_SHARED = 3
@@ -133,7 +133,7 @@ def vendor_link(gen, r) -> str:
 
 
 def link_word(r) -> str:
-    return "Referral link" if r.get("affiliate") else "Direct link"
+    return "Referral link" if (r.get("affiliate") or r.get("referral_label")) else "Direct link"
 
 
 def link_cell(gen, r) -> str:
