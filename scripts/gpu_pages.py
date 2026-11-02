@@ -771,7 +771,7 @@ def availability_coverage_html(gen, rates: list[dict]) -> str:
     d = c["dropped_claims"]
     why = []
     if d["price_changed"]:
-        why.append(f"{len(d['price_changed'])} dropped by the price check (the price changed after the stock check, so the claim is shown as unknown): "
+        why.append(f"{len(d['price_changed'])} dropped by the price check (the price changed after the stock check, so the stock claim is dropped): "
                    + gen.esc(", ".join(d["price_changed"])))
     if d["two_read_gap"]:
         why.append(f"{len(d['two_read_gap'])} not counted because their two stock reads were less than 60 s apart or the second read time is missing: "
