@@ -29,3 +29,21 @@ def test_report_text_is_verbatim():
     t = re.sub(r"<[^>]+>", "", R.read_text()).replace("&quot;", '"').replace("&#x27;", "'").replace("&amp;", "&")
     for line in ("Verda moved all 24 of its tracked rates up by 0.8% to 1.0%", "2 down, 27 up, 2 new, 1 removed."):
         assert line in md and line in t
+
+
+def test_nov2_spread_paragraph_recomputes_from_cited_feed():
+    """Pulse's rule: H100 SXM (form_factor SXM, any name), single GPU, on-demand, non-interruptible, vendors not held_stale."""
+    import json, statistics
+    feed = json.loads((ROOT / "tests/fixtures/gpu-prices-2026-11-02.json").read_text())
+    assert feed["feed_updated_at"] == "2026-11-02T12:59:30Z"
+    held = set(feed["held_stale_vendors"])
+    rows = [r for r in feed["rates"] if (r.get("canonical_model") or r["gpu"]).startswith("H100") and r.get("form_factor") == "SXM"
+            and r["tier_class"] == "on-demand" and (r.get("gpu_count") or 1) == 1 and not r.get("interruptible")
+            and r["advertiser"] not in held]
+    cost = sorted(round(r["hourly_equiv_usd"] * 100, 2) for r in rows)
+    md = (ROOT / "data/reports/gpu-report-2026-11-02.md").read_text()
+    para = md[md.index("For an H100 SXM 80GB on-demand"):].split("\n\n")[0]
+    assert f"Across the {len(rows)} tracked rates" in para
+    assert f"**${statistics.median(cost):.2f}** median" in para
+    assert f"**${cost[0]:.2f}** at Civo" in para and f"**${cost[-1]:.2f}** at Verda" in para
+    assert f"**${cost[-1] - cost[0]:.2f}** of difference" in para

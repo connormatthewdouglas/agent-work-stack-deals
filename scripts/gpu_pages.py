@@ -274,6 +274,9 @@ def _jsonld(page_url: str, name: str, rows: list[dict], faqs: list[tuple[str, st
     return f'<script type="application/ld+json">{data}</script>'
 
 
+_FROM_PRICE = __import__("re").compile(r"\$([0-9]+(?:\.[0-9]+)?)\s*/\s*([A-Za-z]{1,8})\b")
+
+
 def price_block(gen, rows: list[dict], deals: list[dict] | None = None) -> str:
     """Brain #247: short machine-readable price block for agents. GPU pages: model, vendor, usd_per_hr, quote_currency,
     checked_at from gpu-prices.json rows, sorted by cost (never by referral). Non-GPU pages: the deal's cited price_usd and
@@ -284,15 +287,26 @@ def price_block(gen, rows: list[dict], deals: list[dict] | None = None) -> str:
               "source_url": r.get("source_url"), **referral_fields_for(r)}
              for r in sorted(rows, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))]
     for d in deals or []:
-        cited = d.get("price_usd") is not None and bool(d.get("verified_at"))
-        hourly = cited and "hour" in str(d.get("unit") or "").lower().split(";")[0] and "/mo" not in str(d.get("unit") or "")
+        if not d.get("source_url") or not d.get("verified_at"):
+            continue  # Gauge strat2 re1: a block row needs a source and a check date (e.g. DataImpulse has neither)
+        cited = d.get("price_usd") is not None
+        price, unit, options = d.get("price_usd"), d.get("unit"), None
+        if not cited:  # parse a cited "from $X/unit [or $Y/unit]" (9Proxy) without touching the vendor quote
+            opts = [(float(a), b.strip()) for a, b in _FROM_PRICE.findall(" ".join(str(d.get(k) or "") for k in ("unit", "title")))]
+            opts = list(dict.fromkeys(opts))
+            if opts:
+                cited, price, unit = True, opts[0][0], f"per {opts[0][1]}"
+                options = [{"price_usd": a, "unit": f"per {b}"} for a, b in opts] if len(opts) > 1 else None
+        hourly = cited and "hour" in str(unit or "").lower().split(";")[0] and "/mo" not in str(unit or "")
         it = {"model": d.get("title") or d["advertiser"], "vendor": d["advertiser"], "quote_currency": d.get("currency") or "USD",
-              "price_usd": d.get("price_usd") if cited else None, "unit": d.get("unit") if cited else None,
-              "usd_per_hr": d.get("price_usd") if hourly else None, "price": d.get("price_text"),
+              "price_usd": price if cited else None, "unit": unit if cited else None,
+              "usd_per_hr": price if hourly else None, "price": d.get("price_text"),
               "checked_at": d.get("verified_at"), "source_url": d.get("source_url"), **referral_fields_for(d)}
+        if options:
+            it["price_options"] = options
         if not hourly:
-            it["usd_per_hr_null_reason"] = (f"cited price is per {d.get('unit')}, not per hour" if cited
-                                            else "no cited numeric price on the vendor page")
+            it["usd_per_hr_null_reason"] = (f"cited price is {unit}, not per hour" if cited
+                                            else "no numeric price cited for this deal")
         items.append(it)
     gpu = bool(rows) and not deals
     data = {"schema": "lantern-works-price-block/1",

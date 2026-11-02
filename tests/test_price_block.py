@@ -25,3 +25,15 @@ def test_live_compare_pages_have_price_block_and_llms_lists_them():
             continue
         assert _block(f), f
         assert "/" + str(Path(f).parent.relative_to(ROOT)) + "/" in llms
+
+
+def test_nonGPU_block_parses_cited_from_price_and_drops_unsourced_rows():
+    import json, re
+    from pathlib import Path
+    t = (Path(__file__).resolve().parents[1] / "compare/cheapest-residential-proxies/index.html").read_text()
+    items = json.loads(re.search(r'id="lw-price-block">(.*?)</script>', t).group(1).replace("<\\/", "</"))["items"]
+    nine = [i for i in items if i["vendor"] == "9Proxy"][0]
+    assert nine["price_usd"] == 0.018 and nine["unit"] == "per IP"
+    assert {"price_usd": 0.68, "unit": "per GB"} in nine["price_options"]
+    assert all(i["source_url"] and i["checked_at"] for i in items)
+    assert not any(i["vendor"] == "DataImpulse" for i in items)
