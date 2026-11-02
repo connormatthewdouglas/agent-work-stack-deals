@@ -203,7 +203,7 @@ BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd"
 
 def _brief_row(tool: str, row: dict, keys: list) -> dict:
     out = {k: row.get(k) for k in keys if k in row}
-    if tool == "compare_gpu_prices" and "gpu_count" in row:  # Gauge T73 fix7 #3 (additive): mark 8x server rows
+    if tool == "compare_gpu_prices" and (row.get("gpu_count") or 1) > 1:  # Gauge T73 fix7 #3 (additive): mark multi-GPU (8x) server rows; 1 is implied, keeps brief small
         out["gpu_count"] = row["gpu_count"]
     if tool == "compare_gpu_prices" and isinstance(row.get("availability"), dict):
         # Gauge T73 F1-F6 #3 (additive): brief rows carry the stock-claim audit fields that full rows hold in availability
