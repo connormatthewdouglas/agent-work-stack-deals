@@ -419,6 +419,7 @@ jobs:
           DEPLOY_RESULT: ${{ needs.deploy.result }}
           DEPLOYED: ${{ needs.deploy.outputs.deployed }}
           LIVE_RESULT: ${{ needs.live-checks.result }}
+          LIVE_OK: ${{ needs.live-checks.outputs.ok }}
         run: |
           DETAIL=""
           if { [ "$EVENT" = push ] || [ "$EVENT" = workflow_dispatch ]; } && [ "$DEPLOYED" != true ]; then
@@ -427,6 +428,13 @@ jobs:
           fi
           export DETAIL
           sh scripts/pipeline_issue.sh "Validate/deploy"
+          # T73 F3: a failed live-checks job must not leave the run reported as success (pipeline-green is already
+          # skipped). The issue above is still the per-pipeline signal; this step makes the run itself show the failure.
+          if [ "$LIVE_RESULT" = failure ] || [ "$LIVE_OK" = false ]; then
+            echo "::error title=live-checks failed::live-checks failed in this run; the run is marked failed (see the Validate/deploy issue)."
+            echo "### :x: live-checks failed: run marked failed" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
 
   pipeline-green:
     # The first fully green main run that actually deployed (deployed == 'true') closes the open "Pipeline failing: Validate/deploy" issue.
