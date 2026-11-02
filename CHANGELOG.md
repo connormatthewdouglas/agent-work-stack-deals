@@ -8,7 +8,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
-## 0.5.3 (2026-11-02, repo + hosted endpoint; not yet on PyPI or the MCP Registry)
+## Unreleased (planned 0.5.3; version files stay 0.5.2 until Gauge passes)
 
 - referral_label "Referral link" on every row whose link carries a referral or affiliate code (site, feeds, MCP brief and full); codes kept, order unchanged.
 - compare_gpu_prices cheapest_by_form_factor (additive): same rule as the pages (prefers rows not marked out of stock), each pick carries tier_class and interruptible; cheapest_by_form_factor_note explains why NVLink rows are form "not stated".
