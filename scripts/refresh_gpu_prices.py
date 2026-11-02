@@ -347,7 +347,8 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         del r["stale"]
                     row.update(result="changed" if abs(new - old) > 1e-9 else "unchanged", new=r["hourly_usd"])
             if new_s is None:
-                r["checked_at"] = stamp
+                if not manual_hold:  # Gauge T73 F1-F6 #6: a held row was not checked, so its checked_at is not bumped
+                    r["checked_at"] = stamp
                 age = now - datetime.fromisoformat(r["verified_at"])
                 if not r.get("stale") and age > timedelta(days=stale_days):
                     r["stale"] = {"reason": f"Price not re-verified on the vendor page since {r['verified_at'][:10]} "
