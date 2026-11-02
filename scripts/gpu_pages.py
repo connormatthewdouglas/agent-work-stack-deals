@@ -200,17 +200,21 @@ FORM_ORDER = ("SXM", "PCIe", "NVL", "form not stated")
 
 
 def _form_split(gen, rows) -> str:
-    """gpu_poor #18: never rank H100 SXM against PCIe as one 'cheapest'; name the cheapest per form factor."""
+    """gpu_poor #18: never rank SXM against PCIe as one 'cheapest' (H100, A100); name the cheapest per form_factor."""
+    from core.gpu import split_by_form, form_of, FORM_FACTOR_ORDER
     by = {}
     for r in rows:  # rows are already in ranking order
-        fc = r.get("form_class")
-        if fc and fc not in by:
+        if not split_by_form(r.get("gpu")) or r.get("tier_class") == "reserved":
+            continue
+        fc = form_of(r)
+        if fc not in by:
             by[fc] = r
     if len(by) < 2:
         return ""
-    items = "".join(f"<li><strong>H100 {gen.esc(fc)}</strong>: {gen.esc(by[fc]['advertiser'])} ({gen.esc(by[fc]['tier'])}) at "
-                    f"{gen.esc(_rate_str(by[fc]))}, {_money(by[fc]['monthly_cost_usd'])} for {DEFAULT_HOURS} h</li>" for fc in FORM_ORDER if fc in by)
-    return ("  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL (94 GB) H100s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
+    model = (rows[0].get("canonical_model") or rows[0]["gpu"]).split()[0]
+    items = "".join(f"<li><strong>{gen.esc(model)} {gen.esc('form not stated' if fc == 'not stated' else fc)}</strong>: {gen.esc(by[fc]['advertiser'])} ({gen.esc(by[fc]['tier'])}) at "
+                    f"{gen.esc(_rate_str(by[fc]))}, {_money(by[fc]['monthly_cost_usd'])} for {DEFAULT_HOURS} h</li>" for fc in FORM_FACTOR_ORDER if fc in by)
+    return (f"  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL {gen.esc(model)}s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
             "\u201cForm not stated\u201d means the vendor page doesn't say which.</p>\n  <ul>" + items + "</ul>\n")
 
 
@@ -606,10 +610,15 @@ def write_h100_vs(gen, rates):
     best = {}
     for r in rows:
         best.setdefault(r["advertiser"], r)
-    t1 = _simple_table(["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH} h)", "Vendor quote"],
-                       [[i, _vendor_cell(gen, r), f"{gen.esc(r['gpu'])} · {gen.esc(r['tier'])}", gen.esc(_rate_str(r)),
-                         f"<strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r)]
-                        for i, r in enumerate(rows, 1)])
+    from core.gpu import form_of, FORM_FACTOR_ORDER
+    t1 = ""  # gpu_poor #18: one ranked table per form_factor; SXM and PCIe are never ranked together
+    for ff in sorted({form_of(r) for r in rows}, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99):
+        fr = [r for r in rows if form_of(r) == ff]
+        t1 += f"  <h2>H100 {gen.esc('form not stated' if ff == 'not stated' else ff)}</h2>\n" + _simple_table(
+            ["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH} h)", "Vendor quote"],
+            [[i, _vendor_cell(gen, r), f"{gen.esc(r['gpu'])} · {gen.esc(r['tier'])}", gen.esc(_rate_str(r)),
+              f"<strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r)]
+             for i, r in enumerate(fr, 1)])
     t2 = _simple_table(["Vendor", "Lowest-priced H100 (tracked)", "Billing and extras"],
                        [[_vendor_cell(gen, r), f"{gen.esc(r['gpu'])} ({gen.esc(r['tier'])}) {gen.esc(_rate_str(r))}", gen.esc(_VENDOR_FACTS[v])]
                         for v, r in best.items()])

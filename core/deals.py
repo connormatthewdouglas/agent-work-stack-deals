@@ -591,6 +591,17 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     elif out_of_stock(c):
         oos_msg = f" Note: this row was {oos_note(c)}; no in-stock or unknown-availability row matched."
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
+    from .gpu import split_by_form, form_of, FORM_FACTOR_ORDER
+    if split_by_form(gpu):  # gpu_poor #18 (additive): cheapest per form factor, so SXM and PCIe are never one ranking
+        byf = {}
+        for x in results:
+            if x.get("tier_class") != "reserved":
+                byf.setdefault(form_of(x), x)
+        if len(byf) > 1:
+            extra["cheapest_by_form_factor"] = [
+                {"form_factor": f, "rate_id": byf[f]["rate_id"], "advertiser": byf[f]["advertiser"], "gpu": byf[f]["gpu"],
+                 "hourly_usd": byf[f]["hourly_usd"], "tier": byf[f]["tier"], "source_url": byf[f]["source_url"]}
+                for f in sorted(byf, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99)]
     region_note = ""
     if cons.get("region"):  # re30 c: say what the region filter found before naming any cheapest
         n_un = sum(1 for r in rows if unresolved(r))

@@ -231,6 +231,20 @@ PRICE_SCOPE = ("GPU-hour price only: excludes storage, data egress, extra vCPU/R
                "(source_url) for those; storage/egress fields appear on a rate only where that vendor's own page states them.")
 
 
+SPLIT_FORM_MODELS = ("H100", "A100")
+FORM_FACTOR_ORDER = ("SXM", "PCIe", "NVL", "not stated")
+
+
+def split_by_form(gpu: str | None) -> bool:
+    """gpu_poor #18: H100 and A100 are compared within one form factor (SXM vs PCIe never ranked as one)."""
+    return (gpu or "").upper().startswith(SPLIT_FORM_MODELS)
+
+
+def form_of(r: dict) -> str:
+    """The row's existing form_factor field, normalised for grouping ('not stated' when absent)."""
+    return r.get("form_factor") or "not stated"
+
+
 def form_class(gpu: str, quote: str = "") -> str | None:
     """H100 form factor for ranking splits (gpu_poor #18): SXM, PCIe, NVL, or 'form not stated'. HGX boards are SXM."""
     g = (gpu or "").upper()

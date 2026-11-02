@@ -226,8 +226,15 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         body.append(split)
     body.append(f"<p><em>{DISCLOSURE}</em></p>")
     show7 = seven_day_ready(history)
-    for b in BUCKETS:
-        rs = by_b[b]
+    from core.gpu import split_by_form, form_of, FORM_FACTOR_ORDER
+    groups = []
+    for b in BUCKETS:  # gpu_poor #18: H100/A100 get one table per form_factor inside each bucket
+        if split_by_form(fam) and len({form_of(r) for r in by_b[b]}) > 1:
+            for ff in sorted({form_of(r) for r in by_b[b]}, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99):
+                groups.append((b, f"{b} \u00b7 {fam} {'form not stated' if ff == 'not stated' else ff}", [r for r in by_b[b] if form_of(r) == ff]))
+        else:
+            groups.append((b, b, by_b[b]))
+    for b, glabel, rs in groups:
         if not rs:
             continue
         has_av = any(((r.get("availability") or {}).get("in_stock") is not None) for r in rs)
@@ -241,7 +248,7 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
                        f"<td data-label=\"Since {esc(prev)}\">{change_text(gen, ch, key(r), prev)}</td><td data-label=\"Egress / storage\"><small>{ext}</small></td><td data-label=\"Vendor quote\">{gp._quote_html(esc, r)}</td>"
                        f"<td data-label=\"Verified\"><small>{ts(r['verified_at'])}</small>{recheck_flag(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
                        + f"<td data-label=\"Link\">{link_cell(gen, r)}</td></tr>")
-        label = b + (" (reservation / term contract; excluded from the cheapest among tracked providers ranking)" if b == "Reserved" else "")
+        label = glabel + (" (reservation / term contract; excluded from the cheapest among tracked providers ranking)" if b == "Reserved" else "")
         av_note = ("<strong>Availability:</strong> " + gp.STOCK_EXPLAINER + " " + gp.REGIONS_NOTE
                    if has_av else "<strong>Availability</strong> is hidden because no vendor here publishes a stock signal yet.")
         body.append(f"<h2>{esc(label)}</h2><div class=\"tscroll rates-cards\"><table class=\"howto\"><thead>{hdr}</thead><tbody>{''.join(trs)}</tbody></table></div>"
@@ -281,7 +288,9 @@ def cells(rates, vendor):
     for r in rates:
         if r["advertiser"] != vendor or bucket(r) == "Reserved":
             continue
-        k = (bucket(r), r["gpu"], r["vram_gb"])
+        from core.gpu import split_by_form, form_of
+        # gpu_poor #18: H100/A100 rows pair by form_factor (SXM with SXM, PCIe with PCIe), never across forms
+        k = (bucket(r), f"{r.get('canonical_model') or r['gpu']} {form_of(r).replace('not stated', '(form not stated)')}" if split_by_form(r["gpu"]) else r["gpu"], r["vram_gb"])
         if k not in out or r["hourly_equiv_usd"] < out[k]["hourly_equiv_usd"]:
             out[k] = r
     return out

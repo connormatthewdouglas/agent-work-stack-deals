@@ -26,7 +26,7 @@ SPEC = {
                            # T72 (brief is the default here): keep the counts, scope and refresh time a caller needs to
                            # trust the ranking, plus tier/price_status/in_stock per row; the bulky per-row detail stays full-only.
                            ["gpu", "summary", "scope", "count", "total", "excluded_non_on_demand", "excluded_reserved",
-                            "next_refresh_utc", "data_checked_at", "refresh_hint", "results"],
+                            "next_refresh_utc", "data_checked_at", "refresh_hint", "results", "cheapest_by_form_factor"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "canonical_model", "form_factor", "source_url", "checked_at",
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link
