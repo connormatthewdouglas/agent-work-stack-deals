@@ -17,6 +17,7 @@ Ranking is by estimated cost for the user's hours, never by affiliate status or 
 """
 from __future__ import annotations
 
+from .referrals import referral_fields
 import json
 import math
 import re
@@ -408,6 +409,10 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                                            "price_status": r.get("price_status", "listed")}) if not r.get("tier_class") else r["tier_class"],
                 "offer_type": d.get("offer_type"), "affiliate": bool(d.get("affiliate")),
                 "verified_at": r.get("verified_at") or r["checked_at"], "checked_at": r["checked_at"], "source_url": r["source_url"],
+                # Brain #247 (additive): every tracked vendor quotes in USD, so no FX conversion is applied (fx_date null);
+                # last_verified = when the price itself was last confirmed on the vendor page (same as verified_at).
+                "quote_currency": "USD", "fx_date": None, "last_verified": r.get("verified_at") or r["checked_at"],
+                **referral_fields(r["vendor"]),
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
                 "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r)})

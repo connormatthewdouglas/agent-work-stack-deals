@@ -565,6 +565,11 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         from .gpu import canonical_model as _cm, form_factor_of as _ff  # T75: same fields as gpu-prices.json rows
         out["canonical_model"] = r.get("canonical_model") or _cm(r["gpu"])
         out["form_factor"] = r.get("form_factor") or _ff(r["gpu"])
+        # Brain #247 (additive): quote currency, FX date, last verification; disclosed referral link only where the feed has one
+        out["quote_currency"] = r.get("quote_currency") or "USD"
+        out["fx_date"] = r.get("fx_date")
+        out["last_verified"] = r.get("last_verified") or r.get("verified_at")
+        out.update({k: r[k] for k in ("referral_url", "referral_label") if r.get(k)})
         out["rank"] = i
         out["in_stock"] = (out.get("availability") or {}).get("in_stock") if isinstance(out.get("availability"), dict) else None
         if out_of_stock(r):
