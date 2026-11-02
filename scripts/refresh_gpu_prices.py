@@ -169,8 +169,36 @@ def price_index(r: dict, quote: str) -> int | None:
     return None
 
 
+ROTATING = "rotating snapshot"  # price_check value: the page rotates the spec words (RAM/vCPU/NVMe) on every read
+
+
+def parse_rotating(r: dict, text: str) -> tuple[str | None, str | None, str]:
+    """price_check 'rotating snapshot': match the GPU name followed by its first $ price only (spec words between
+    them are ignored, bounded to 200 chars without another $). The record's own price wins if present; otherwise a
+    single distinct value is the new price; several values are ambiguous."""
+    gpu = r.get("gpu") or ""
+    if not gpu:
+        return None, None, "rotating snapshot without a gpu name"
+    lit = r"\s*".join(re.escape(w) for w in gpu.split())
+    rx = re.compile(r"(?<![\w-])" + lit + r"(?![\w-])[^$]{0,200}?\$\s?([\d,]*\.?\d+)")
+    hits = [(_num(m.group(1)), " ".join(m.group(0).split())) for m in rx.finditer(text)]
+    if not hits:
+        return None, None, "quoted context not found on page"
+    old = r.get("price_usd")
+    same = [h for h in hits if old is not None and abs(h[0] - old) < 1e-9]
+    if same:
+        v, q = same[0]
+    elif len({h[0] for h in hits}) == 1:
+        v, q = hits[0]
+    else:
+        return None, None, f"ambiguous: {len({h[0] for h in hits})} different values for the same context"
+    return f"{v:g}", q[:MAX_QUOTE], "parsed (rotating snapshot: gpu name + price)"
+
+
 def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
     """-> (new price string, matched quote, message). price None = unreadable."""
+    if r.get("price_check") == ROTATING:
+        return parse_rotating(r, text)
     quote = r["evidence"]["quote"]
     rx, _ = quote_pattern(quote)
     i = price_index(r, quote)

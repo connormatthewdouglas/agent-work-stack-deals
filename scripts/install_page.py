@@ -147,7 +147,7 @@ def write(g) -> str:
   <h2 id="llamaindex">LlamaIndex</h2>
   <p>Uses <code>pip install llama-index-tools-mcp</code> (<a href="https://developers.llamaindex.ai/python/framework/module_guides/mcp/llamaindex_mcp/">LlamaIndex MCP docs</a>). This uses the hosted endpoint; for the local server use <code>BasicMCPClient("uvx", args=["lantern-works-deals-mcp"])</code>:</p>
   {_pre(LLAMA)}
-  <p class="meta">Tested {CLIENT_TESTED_ON} with v{CLIENT_TESTED_VERSION} (<code>llama-index-tools-mcp</code>, <code>mcp&lt;2</code>): the local server listed all {CLIENT_TESTED_TOOLS} package tools, the hosted endpoint listed {hp + len(HOSTED_EXTRA)} ({hp} package + {len(HOSTED_EXTRA)} watch tools), and <code>compare_gpu_prices</code> returned live rates on both.</p>
+  <p class="meta">Tested {CLIENT_TESTED_ON} with v{CLIENT_TESTED_VERSION} (<code>llama-index-tools-mcp</code> 0.6.0, <code>mcp</code> 2.3.0): the local server listed all {CLIENT_TESTED_TOOLS} package tools, the hosted endpoint listed {hp + len(HOSTED_EXTRA)} ({hp} package + {len(HOSTED_EXTRA)} watch tools), and <code>compare_gpu_prices</code> returned live rates on both.</p>
 
   <h2 id="openwebui">Open WebUI</h2>
   <p>Open WebUI 0.6.31+ connects to MCP servers over streamable HTTP (<a href="https://docs.openwebui.com/features/extensibility/mcp/">Open WebUI MCP docs</a>). As an admin: Settings → Admin → Integrations → External Tool Servers → + Add Connection, set <strong>Type</strong> to <strong>MCP (Streamable HTTP)</strong> (not OpenAPI), Server URL:</p>

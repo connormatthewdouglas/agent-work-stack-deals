@@ -57,7 +57,7 @@ OUT_PATH_RE = re.compile(r"^/e/out/[a-z0-9-]{1,80}/?$", re.I)
 BEACON_SINCE_WEEK = "2026-W45"  # site b392c8b3... beacon token 327dc277... shipped 2026-11-02
 BEACON_SINCE_REASON = "not measured: this Web Analytics site's beacon went live on 2026-11-02 (ISO week 2026-W45)"
 INSTALLS_NULL_REASON = ("not measurable: the opt-in telemetry worker records day x tool x version only, with no install id "
-                        "or ref; an install id needs Frosty's approval. Hosted connects by ref are in mcp_initialize_by_ref.")
+                        "or ref; an install id needs the owner's approval. Hosted connects by ref are in mcp_initialize_by_ref.")
 
 
 def rum_weekly(groups: list[dict]) -> dict:
@@ -182,7 +182,8 @@ def fetch_rum(days: int = 84) -> tuple[list | None, str]:
     """Read-only GraphQL (Analytics:Read token). Never raises: returns (groups, "") or (None, reason)."""
     tok, acct, site = (os.environ.get(k) for k in ("CF_API_TOKEN", "CF_ACCOUNT_ID", "CF_SITE_TAG"))
     if not tok:
-        return None, "CF_API_TOKEN (Cloudflare Analytics:Read) is not set for this run, so Web Analytics was not queried"
+        return None, ("not queried in this run: CI has no Cloudflare token; page views are filled box-side through the "
+                      "Cloudflare connector (scripts/rum_box_fill.py)")
     if not (acct and site):
         return None, "CF_ACCOUNT_ID or CF_SITE_TAG is not set"
     q = {"query": RUM_QUERY, "variables": {"a": acct, "s": site, "d": str(date.today() - timedelta(days=days))}}
@@ -199,6 +200,23 @@ def fetch_rum(days: int = 84) -> tuple[list | None, str]:
         return None, f"Cloudflare GraphQL request failed ({type(e).__name__})"
 
 
+RUM_KEYS = ("page_views", "visits_by_ref", "visits_null_reason")
+
+
+def _carry_forward(rep: dict, old_path: Path) -> None:
+    """A run without Web Analytics access keeps page views measured earlier (box-side fill) instead of nulling them."""
+    try:
+        old = {w["week"]: w for w in json.loads(old_path.read_text()).get("weeks", [])}
+    except Exception:  # noqa: BLE001
+        return
+    for s in rep.get("weeks", []):
+        o = old.get(s["week"])
+        if o and o.get("page_views") is not None:
+            for k in RUM_KEYS + ("outbound_clicks",):
+                if k in o:
+                    s[k] = o[k]
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", default=str(ROOT / "stats.json"))
@@ -213,8 +231,13 @@ def main(argv=None) -> int:
     if "error" in hosted and "error" in telemetry:
         print("both sources unavailable; keeping the existing stats.json", file=sys.stderr)
         return 0
+    if groups == []:  # beacon live but no rows yet: not a measured zero
+        groups, reason = None, ("Cloudflare Web Analytics returned no rows yet for site b392c8b3... (beacon live since "
+                                "2026-11-02; ingestion can lag), so not counted")
     rum = rum_weekly(groups) if groups is not None else None
     rep = build(hosted, telemetry, None if rum is not None else _safe_clicks(), a.weeks, datetime.now(timezone.utc), rum, reason)
+    if rum is None:
+        _carry_forward(rep, Path(a.out))
     Path(a.out).write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {a.out}: {len(rep['weeks'])} weeks")
     return 0

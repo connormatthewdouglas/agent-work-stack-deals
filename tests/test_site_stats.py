@@ -37,7 +37,7 @@ def test_rum_weekly_refs_and_pages():
 def test_no_token_is_null_with_reason_not_zero(monkeypatch):
     monkeypatch.delenv("CF_API_TOKEN", raising=False)
     groups, reason = S.fetch_rum()
-    assert groups is None and "CF_API_TOKEN" in reason
+    assert groups is None and "box-side" in reason
     from datetime import datetime, timezone
     rep = S.build({"rows": [{"day": "2026-11-02", "ref": "install", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc), None, reason)
     wk = rep["weeks"][0]
@@ -52,3 +52,15 @@ def test_weeks_before_beacon_are_null_not_zero():
     w = {x["week"]: x for x in rep["weeks"]}
     assert w["2026-W44"]["page_views"] is None and "2026-11-02" in w["2026-W44"]["visits_null_reason"]
     assert w["2026-W45"]["page_views"] == 0 and w["2026-W45"]["visits_by_ref"] == {}
+
+
+def test_carry_forward_keeps_box_filled_page_views(tmp_path):
+    import site_stats as ss
+    old = tmp_path / "stats.json"
+    old.write_text(json.dumps({"weeks": [{"week": "2026-W45", "page_views": 12, "visits_by_ref": {"forum-x": 2},
+                                          "visits_null_reason": None, "outbound_clicks": 1}]}))
+    rep = {"weeks": [{"week": "2026-W45", "page_views": None, "visits_by_ref": None, "visits_null_reason": "x",
+                      "outbound_clicks": None}, {"week": "2026-W46", "page_views": None}]}
+    ss._carry_forward(rep, old)
+    assert rep["weeks"][0]["page_views"] == 12 and rep["weeks"][0]["visits_by_ref"] == {"forum-x": 2}
+    assert rep["weeks"][1]["page_views"] is None

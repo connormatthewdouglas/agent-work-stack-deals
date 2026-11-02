@@ -1,7 +1,7 @@
 # Free-plan Python Worker. No paid features. Deploy: ./build.sh && npx wrangler deploy
 name = "lantern-works-mcp"
 main = "src/entry.py"
-compatibility_date = "2025-09-01"
+compatibility_date = "2025-10-16"  # rel054: newer Python runtime with dedicated snapshots (startup CPU < 1000 ms)
 compatibility_flags = ["python_workers"]
 workers_dev = true
 
