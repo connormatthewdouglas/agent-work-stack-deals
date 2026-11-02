@@ -38,7 +38,8 @@ INSTRUCTIONS = ("Read-only GPU rental price comparison (compare_gpu_prices, chec
                 "Confirm terms on the vendor page and get the user's approval before any paid signup. "
                 "Every tool returns ok (true/false); failures carry error {code, message} with a stable code "
                 "(invalid_argument, invalid_cursor, not_found, feed_unavailable, feed_invalid, upstream_unavailable, internal_error). "
-                "Every tool takes mode='full' (default, complete output) or mode='brief' (essential fields only).")
+                "Every tool takes mode='brief' (essential fields only) or mode='full' (complete output). compare_gpu_prices defaults "
+                "to brief (pass mode='full' for every field); all other tools default to full.")
 
 mcp = FastMCP("lantern-works-deals", instructions=INSTRUCTIONS)
 __version__ = VERSION
@@ -60,13 +61,25 @@ def _counted(fn):
     return wrapper
 
 
+# T72: compare_gpu_prices returns ~30k chars in full mode vs ~4k brief for the same query; brief is its default and
+# full stays one explicit mode="full" away (same fields as before). Other tools keep full as the default (see audit).
+BRIEF_DEFAULT = frozenset({"compare_gpu_prices"})
+
+
+def default_mode(name: str) -> str:
+    return "brief" if name in BRIEF_DEFAULT else "full"
+
+
 def _contract(fn):
-    """T36: adds mode ("brief"|"full", default full) and wraps every result in the typed envelope
+    """T36: adds mode ("brief"|"full"; default per default_mode, T72) and wraps every result in the typed envelope
     (ok, mode, error{code,message}); exceptions become typed errors, never raw tracebacks."""
     import inspect
 
+    dm = default_mode(fn.__name__)
+
     @functools.wraps(fn)
-    def wrapper(*a, mode: str = "full", **kw):
+    def wrapper(*a, mode: str | None = None, **kw):
+        mode = dm if mode is None else mode
         if mode not in contract.MODES:
             return contract.error("invalid_argument", f"mode must be one of {list(contract.MODES)}")
         return _with_retrieval(_inner(*a, mode=mode, **kw))
@@ -85,7 +98,7 @@ def _contract(fn):
         return contract.finalize(fn.__name__, out, mode)
 
     sig = inspect.signature(fn)
-    params = list(sig.parameters.values()) + [inspect.Parameter("mode", inspect.Parameter.KEYWORD_ONLY, default="full", annotation="str")]
+    params = list(sig.parameters.values()) + [inspect.Parameter("mode", inspect.Parameter.KEYWORD_ONLY, default=dm, annotation="str")]
     wrapper.__signature__ = sig.replace(parameters=params)
     wrapper.__annotations__ = {**getattr(fn, "__annotations__", {}), "mode": "str"}
     wrapper.output_schema = contract.output_schema(fn.__name__)

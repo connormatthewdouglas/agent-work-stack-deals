@@ -67,13 +67,23 @@ def test_full_mode_is_default_and_unchanged_plus_envelope():
             for f_ in (o.get("retrieval") or {}).get("feeds") or []:  # drop only wall-clock stamps (a call can straddle
                 for k in WALL_CLOCK_RETRIEVAL_FIELDS:                     # a second boundary); status/feeds still compared
                     f_.pop(k, None)
-        assert default == full, tool
-        assert default["mode"] == "full"
+        if s.default_mode(tool) == "full":
+            assert default == full, tool
+        assert default["mode"] == s.default_mode(tool)
+
+
+def test_t72_compare_gpu_prices_defaults_to_brief_full_is_explicit():
+    kw = _calls()["compare_gpu_prices"]
+    default, brief, full = s.compare_gpu_prices(**kw), s.compare_gpu_prices(**kw, mode="brief"), s.compare_gpu_prices(**kw, mode="full")
+    assert default["mode"] == "brief" and set(default) == set(brief)
+    assert full["mode"] == "full" and set(brief) <= set(full) and len(json.dumps(default)) < len(json.dumps(full)) / 3
+    assert s.default_mode("compare_gpu_prices") == "brief"
+    assert all(s.default_mode(t) == "full" for t in _calls() if t != "compare_gpu_prices")
 
 
 def test_brief_is_a_subset():
     for tool, kw in _calls().items():
-        full, brief = getattr(s, tool)(**kw), getattr(s, tool)(**kw, mode="brief")
+        full, brief = getattr(s, tool)(**kw, mode="full"), getattr(s, tool)(**kw, mode="brief")
         assert set(brief) <= set(full) and len(json.dumps(brief)) < len(json.dumps(full)), tool
 
 
