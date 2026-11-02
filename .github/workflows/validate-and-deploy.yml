@@ -455,3 +455,19 @@ jobs:
           # Gauge rel042b: only a run that really deployed may close the issue. Schedule runs never deploy, so they
           # must not close a "Pipeline failing" issue while the live site may still be an old build. Job stays green.
           if [ "${{ needs.deploy.outputs.deployed }}" = true ]; then sh scripts/pipeline_issue.sh "Validate/deploy" --green; else echo "Not closing the Validate/deploy issue: no deploy in this ${{ github.event_name }} run." | tee -a "$GITHUB_STEP_SUMMARY"; fi
+
+  ci-status:
+    # Gauge rel053: the run's overall status. Jobs above use continue-on-error, so without this a run with failed
+    # tests / latest-scout-import and a skipped deploy (41473330377) reported success. This job has no
+    # continue-on-error: it fails the run whenever a required job failed or deploy was skipped unexpectedly.
+    needs: [validate, tests, latest-scout-import, pypi-install, docker, release-gate, deploy, live-checks]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+        run: python3 scripts/ci_status.py
