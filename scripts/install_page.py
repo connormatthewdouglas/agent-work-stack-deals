@@ -10,9 +10,9 @@ from pathlib import Path
 
 PATH = "install"
 TESTED_ON = "2026-11-02"
-# Gauge F1: the version actually tested on TESTED_ON (CI pypi-install run 41128647953, pip + stdio tools/list; uvx re-run
-# by hand the same day). Never pair TESTED_ON with a later version: pages say "tested X (vA); current vB".
-TESTED_ON_VERSION = "0.5.1"
+# Gauge F1: the version actually tested on TESTED_ON. 0.5.2: clean `uvx lantern-works-deals-mcp==0.5.2` re-run by hand over stdio
+# (initialize reports 0.5.2, tools/list 9 tools, compare_gpu_prices ok). Never pair TESTED_ON with a later version.
+TESTED_ON_VERSION = "0.5.2"
 CLIENT_TESTED_ON = "2026-11-02"  # T74: LlamaIndex (hosted + local) and plain MCP client re-run on CLIENT_TESTED_VERSION
 SKILL_CHECKED_ON = "2026-10-29"  # npx skills add check (not re-run in T74)
 import sys as _sys
