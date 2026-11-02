@@ -30,7 +30,7 @@ def _server_tools() -> tuple[str, ...]:
 TOOLS = _server_tools()
 # Tool count covered by the last recorded client tests (TESTED_ON). Bump only after re-testing with the new tool.
 TESTED_TOOLS = 9  # package tools/list + a call to each, clean uvx stdio and the hosted endpoint
-# T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run (0.5.1, 9 tools; LlamaIndex re-run on 0.5.1 with llama-index-tools-mcp 0.4.8, mcp<2). Clients not re-run
+# T74 (2026-11-02): only LlamaIndex and the plain MCP client were re-run, on 0.5.2 (plain uvx stdio: 9 tools; LlamaIndex with llama-index-tools-mcp 0.4.8, mcp<2: local 9, hosted 13; log on PR #72). Clients not re-run
 # (Claude Desktop, Cursor, Cline, Roo, Continue, Open WebUI in-app) carry no tool count or version claim.
 CLIENT_TESTED_TOOLS = 9
 CLIENT_TESTED_VERSION = "0.5.2"  # LlamaIndex re-run 2026-11-02 on 0.5.2: local 9, hosted 13
