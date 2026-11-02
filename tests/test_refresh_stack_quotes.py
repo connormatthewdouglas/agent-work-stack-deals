@@ -51,3 +51,10 @@ def test_changed_price_flags_and_keeps_file(tmp_path):
 def test_free_quote_needs_free_shown():
     assert r.match("Basic: 12000 emails, Free", "Basic Free plan")[0]
     assert not r.match("Basic: 12000 emails, Free", "Basic plan")[0]
+
+
+def test_brief_rows_carry_gpu_count():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from core import contract
+    row = {"gpu_count": 8, "price_usd": 2.79}
+    assert contract._brief_row("compare_gpu_prices", row, ["price_usd"])["gpu_count"] == 8
