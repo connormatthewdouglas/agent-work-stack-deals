@@ -258,6 +258,12 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         body.append(f"<p><small>7-day change appears once price history spans 7 days (history starts {esc(history['first_snapshot'])}).</small></p>")
     held = [h for h in prices.get("held_stale", []) if any(family(x.get("gpu", "")) == fam for x in h.get("records", []))]
     for h in held:
+        av = h.get("availability") or {}
+        if av.get("in_stock") is False:  # vendor page says no capacity now: out of stock, last sourced price kept, unranked
+            g = (h.get("records") or [{}])[0]
+            body.append(f"<p><small>{esc(h['vendor'])} {esc(g.get('gpu', ''))} not ranked: out of stock, {esc(av.get('reason', ''))} "
+                        f"(read {esc(av.get('checked_at', ''))}); last sourced ${g.get('hourly_usd', 0):.2f}/hr.</small></p>")
+            continue
         body.append(f"<p><small>{esc(h['vendor'])} not shown: held until re-verified (vendor pricing page last updated {esc(h.get('page_last_updated') or 'unknown')}).</small></p>")
     faqs = []
     if od:
