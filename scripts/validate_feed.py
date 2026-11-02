@@ -6,7 +6,7 @@ Checks:
   - no private commission/payout/compliance keys or values anywhere in public output
   - /api/v1/deals.json is /deals.json with core.deals.cite_guard applied (unsourced prices null)
   - sitemap.xml URLs are on https://thelanternworks.com, no github.io hardcodes in public files
-  --gist   : gist mirror raw deals.json is byte-identical to deals.json
+  --gist   : gist mirror raw deals.json is byte-identical to api/v1/deals.json (the served, cite-guarded feed)
   --links  : redeem_url link check (403/429/405/timeouts = warning; 404/410/DNS/5xx-after-retries = error)
 """
 from __future__ import annotations
@@ -180,9 +180,10 @@ def check_gist() -> None:
     except Exception as e:
         warn(f"gist fetch failed ({type(e).__name__}); parity not checked")
         return
-    local = (ROOT / "deals.json").read_bytes()
+    # rel053: the gist mirrors the served feed (/deals.json == /api/v1/deals.json, cite-guarded), not the raw source
+    local = (ROOT / "api" / "v1" / "deals.json").read_bytes()
     if body != local:
-        err(f"gist mirror differs from deals.json (gist sha256 {hashlib.sha256(body).hexdigest()[:12]} vs local {hashlib.sha256(local).hexdigest()[:12]})")
+        err(f"gist mirror differs from api/v1/deals.json (gist sha256 {hashlib.sha256(body).hexdigest()[:12]} vs local {hashlib.sha256(local).hexdigest()[:12]})")
     else:
         print("gist_parity=ok")
 
