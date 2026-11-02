@@ -1,0 +1,63 @@
+{
+  "schema": "lantern-works-site-stats/1",
+  "generated_at": "2026-11-02T12:36:47Z",
+  "note": "Weekly (ISO week, UTC) aggregate counts only. No IP addresses, user agents, cookies, keys or per-caller data. ref is the ?ref= channel tag; refs ci, qa, test, smoke and house-* are our own checks and are excluded from external_mcp_tool_calls.",
+  "sources": {
+    "hosted_mcp": "https://lantern-works-mcp.lantern-works.workers.dev/stats",
+    "telemetry": "opt-in LANTERN_TELEMETRY=1 aggregate",
+    "outbound_clicks": "not available this run (null)"
+  },
+  "weeks": [
+    {
+      "week": "2026-W45",
+      "mcp_tool_calls_by_ref": {
+        "ci": 74,
+        "qa": 30,
+        "none": 14,
+        "house-gauge": 7,
+        "install": 4,
+        "mcp-registry": 1
+      },
+      "feed_fetches_by_ref": {},
+      "mcp_initialize_by_ref": {
+        "mcp-registry": 341,
+        "none": 85,
+        "install": 8,
+        "github-readme": 7,
+        "house-gauge": 3
+      },
+      "external_mcp_tool_calls": 19,
+      "telemetry_tool_calls": 0,
+      "outbound_clicks": null
+    },
+    {
+      "week": "2026-W44",
+      "mcp_tool_calls_by_ref": {
+        "none": 471,
+        "qa": 240,
+        "ci": 164,
+        "house-gauge": 102,
+        "mcp-registry": 12,
+        "house-chatgpt-review": 5,
+        "install": 4,
+        "t17-openai-agents": 1,
+        "t17-python-mcp-sdk": 1,
+        "test": 1
+      },
+      "feed_fetches_by_ref": {
+        "t41": 153,
+        "house-gauge": 3,
+        "other": 1,
+        "qa": 1
+      },
+      "mcp_initialize_by_ref": {
+        "mcp-registry": 1115,
+        "none": 120,
+        "house-gauge": 6
+      },
+      "external_mcp_tool_calls": 489,
+      "telemetry_tool_calls": 0,
+      "outbound_clicks": null
+    }
+  ]
+}
