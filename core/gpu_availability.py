@@ -170,6 +170,10 @@ def region_guard(a, now: datetime | None = None):
     return out
 
 
+CLAIM_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "gpu_count", "price_join_failed",
+                    "first_read_at", "second_read_at", "second_read_gap_s", "two_read_gap_ok")
+
+
 def stale_guard(a, now: datetime | None = None):
     """Scout (or record-level, J6) availability older than AVAIL_MAX_AGE_H renders unknown (in_stock null, availability_stale true).
     Applied when the feed is built and again when the MCP tool reads it, so a stale stock claim never ranks or leads."""
@@ -192,6 +196,9 @@ def stale_guard(a, now: datetime | None = None):
         out["derived_from_regions"] = True
     for k in ("source", "source_label", "availability_expires_at", "feed_status"):
         if a.get(k):
+            out[k] = a[k]
+    for k in CLAIM_AUDIT_KEYS:  # Gauge T73 F1-F6 #3: an expired claim keeps its audit fields (additive)
+        if k in a:
             out[k] = a[k]
     return out
 
@@ -302,8 +309,9 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | N
     now = build_now(now)
     r = _index().get((vendor, gpu, vram_gb, _tier_key(tier)))
     if not r and isinstance(record, dict):
-        return price_join_guard(stale_guard(_from_record(record), now), price_rec)  # record-origin stock expires at build time too
-    return price_join_guard(stale_guard(_scout(vendor, r), now), price_rec)
+        return stale_guard(price_join_guard(_from_record(record), price_rec), now)  # record-origin stock expires at build time too
+    # join first, then expiry: an expired claim still says which price it was read against (stale_guard keeps the audit)
+    return stale_guard(price_join_guard(_scout(vendor, r), price_rec), now)
 
 
 HELD_NOTE = "Held by Scout: fewer offers than its publish minimum, so no stock claim is shown."

@@ -195,8 +195,18 @@ def error(code: str, message: str) -> dict:
     return {"ok": False, "error": {"code": code, "message": str(message)}}
 
 
+BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "first_read_at", "second_read_at",
+                          "second_read_gap_s", "two_read_gap_ok", "price_join_failed")
+
+
 def _brief_row(tool: str, row: dict, keys: list) -> dict:
     out = {k: row.get(k) for k in keys if k in row}
+    if tool == "compare_gpu_prices" and isinstance(row.get("availability"), dict):
+        # Gauge T73 F1-F6 #3 (additive): brief rows carry the stock-claim audit fields that full rows hold in availability
+        av = row["availability"]
+        for k in BRIEF_AVAIL_AUDIT_KEYS:
+            if k in av:
+                out[k] = av[k]
     if isinstance(out.get("choice"), dict):
         out["choice"] = {k: out["choice"][k] for k in BRIEF_CHOICE_KEYS if k in out["choice"]}
     return out

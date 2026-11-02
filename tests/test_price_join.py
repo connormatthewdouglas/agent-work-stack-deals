@@ -75,3 +75,24 @@ def test_feed_claim_prices_are_per_gpu():
         a = r["availability"]
         if a.get("in_stock") is not None and a.get("price_at_claim_usd") is not None:
             assert abs(a["price_at_claim_usd"] - r["price_usd"]) <= 0.005 + 1e-9, (r["advertiser"], r["gpu"], r["tier"])
+
+
+def test_expired_claim_keeps_audit_fields():
+    from datetime import datetime, timezone
+    a = {"in_stock": True, "status": "available when checked", "checked_at": "2026-11-02T10:00:00Z", "origin": "scout",
+         "availability_expires_at": "2026-11-02T11:00:00Z", "stock_read_at": "2026-11-02T10:00:00Z",
+         "price_read_at": "2026-11-02T09:00:00Z", "price_at_claim_usd": 2.79, "gpu_count": 8}
+    out = ga.stale_guard(a, datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc))
+    assert out["availability_stale"] and out["in_stock"] is None
+    assert (out["stock_read_at"], out["price_read_at"], out["price_at_claim_usd"], out["gpu_count"]) == (
+        "2026-11-02T10:00:00Z", "2026-11-02T09:00:00Z", 2.79, 8)
+
+
+def test_mcp_brief_rows_add_audit_fields_only():
+    from core import contract
+    row = {"rank": 1, "rate_id": "r", "advertiser": "Lambda", "gpu": "A100 SXM", "hourly_usd": 2.79, "source_url": "u",
+           "in_stock": True, "availability": {"in_stock": True, "stock_read_at": "s", "price_read_at": "p", "price_at_claim_usd": 2.79}}
+    out = contract.finalize("compare_gpu_prices", {"gpu": "A100", "summary": "x", "count": 1, "results": [row]}, "brief")
+    b = out["results"][0]
+    assert (b["stock_read_at"], b["price_read_at"], b["price_at_claim_usd"]) == ("s", "p", 2.79)
+    assert "availability" not in b and b["in_stock"] is True  # existing brief keys unchanged
