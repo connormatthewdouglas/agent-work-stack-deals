@@ -9,7 +9,7 @@ update the price ONLY where it was actually parsed:
   found and gives exactly one value. The new evidence {source_url, quote, checked_at} is the matched page text.
 * Marketplace medians (Vast.ai): the same public offers API and filter as before (verified, rentable, not rented,
   on-demand, exact VRAM, per GPU); a median is published only with >= MIN_MARKET_OFFERS offers.
-* Anything unreadable keeps its old price and verified_at; checked_at records the attempt. A rate not verified for
+* Anything unreadable keeps its old price, verified_at and checked_at; last_failed_check_at records the attempt. A rate not verified for
   STALE_DAYS gets an automatic hold (stale.auto = true): listed under held_stale, never ranked or "verified",
   until a later run parses it again.
 * Manual holds (vendor-level stale such as TensorDock, record-level holds without auto) are left untouched.
@@ -248,14 +248,14 @@ class Fetcher:
 
 
 # Vendor pages that swap the live rate line for an explicit no-capacity sentence (Spheron, 2026-11-02).
-NO_CAPACITY = {"Spheron": r"On Spheron the NVIDIA {gpu} has no capacity right now\.?"}
+NO_CAPACITY = {"Spheron": r"On Spheron the NVIDIA {gpu} has no capacity right now\.?|Spheron Your price \$\s?[\d.]+\s?/hr Last known\s*-\s*No capacity now"}
 NO_CAPACITY_REASON = "no capacity per vendor page"
 
 
 def no_capacity_sentence(vendor: str, gpu: str, text: str) -> str | None:
     """The vendor's exact no-capacity sentence for this GPU, as shown on the page, or None."""
     pat = NO_CAPACITY.get(vendor)
-    m = re.search(pat.format(gpu=re.escape(gpu)), text) if pat else None
+    m = re.search(pat.replace("{gpu}", re.escape(gpu)), text) if pat else None
     return m.group(0) if m else None
 
 
@@ -369,8 +369,10 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         del r["stale"]
                     row.update(result="changed" if abs(new - old) > 1e-9 else "unchanged", new=r["hourly_usd"])
             if new_s is None:
-                if not manual_hold:  # Gauge T73 F1-F6 #6: a held row was not checked, so its checked_at is not bumped
-                    r["checked_at"] = stamp
+                if not manual_hold:
+                    # Gauge strat2: a row that failed re-verification keeps its checked_at (no bump); the failed attempt
+                    # is recorded separately (additive) so the feed never implies a check that did not confirm the price
+                    r["last_failed_check_at"] = stamp
                 age = now - datetime.fromisoformat(r["verified_at"])
                 if not r.get("stale") and age > timedelta(days=stale_days):
                     r["stale"] = {"reason": f"Price not re-verified on the vendor page since {r['verified_at'][:10]} "
