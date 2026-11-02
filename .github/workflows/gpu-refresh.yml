@@ -64,6 +64,8 @@ jobs:
               python3 scripts/gpu_index.py . api/v1 > /dev/null
             else
               python3 scripts/refresh_gpu_prices.py --report /tmp/refresh.md
+              # stack_pricing: bump checked_at only when every quoted price is on the visible page; misses are flagged, never rewritten
+              python3 scripts/refresh_stack_quotes.py --report /tmp/stack.md > /dev/null && cat /tmp/stack.md >> /tmp/refresh.md
             fi
             python3 scripts/generate_seo_pages.py > /dev/null
             python3 scripts/check_gpu_changes.py --base HEAD
