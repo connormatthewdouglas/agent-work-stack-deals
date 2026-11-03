@@ -15,11 +15,10 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-11-02T11:00:05Z",
-  "row_count": 2,
+  "last_checked": "2026-11-02T22:57:10Z",
+  "row_count": 1,
   "providers": [
-    "RunPod",
-    "Vast.ai"
+    "RunPod"
   ],
   "cheapest": {
     "on-demand": [
@@ -37,7 +36,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-02T11:00:04Z",
+        "verified_at": "2026-11-02T22:57:10Z",
         "source_url": "https://api.runpod.io/graphql gpuTypes.securePrice id=NVIDIA A40",
         "quote": "A40 gpuTypes.securePrice (list price, 1 GPU) $0.59/hr",
         "availability": {
@@ -51,39 +50,6 @@
         "group": {
           "form_factor": "unknown",
           "tier": "On-demand (Secure Cloud)",
-          "vram_gb": 48
-        }
-      }
-    ],
-    "spot-community": [
-      {
-        "vram_gb": 48,
-        "provider": "Vast.ai",
-        "gpu": "A40",
-        "tier": "Marketplace on-demand (verified)",
-        "tier_class": "marketplace",
-        "bucket": "spot-community",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 0.6147,
-        "unit": "hour",
-        "price_usd": 0.6147,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-02T11:00:05Z",
-        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-        "quote": "Vast public offers API: 6 verified rentable on-demand A40 offers; per-GPU dph_total median $0.6147/hr",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Marketplace on-demand (verified)",
           "vram_gb": 48
         }
       }
@@ -104,7 +70,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-02T11:00:04Z",
+      "verified_at": "2026-11-02T22:57:10Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.securePrice id=NVIDIA A40",
       "quote": "A40 gpuTypes.securePrice (list price, 1 GPU) $0.59/hr",
       "availability": {
@@ -115,32 +81,6 @@
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Vast.ai",
-      "gpu": "A40",
-      "vram_gb": 48,
-      "tier": "Marketplace on-demand (verified)",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 0.6147,
-      "unit": "hour",
-      "price_usd": 0.6147,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-02T11:00:05Z",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "quote": "Vast public offers API: 6 verified rentable on-demand A40 offers; per-GPU dph_total median $0.6147/hr",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
