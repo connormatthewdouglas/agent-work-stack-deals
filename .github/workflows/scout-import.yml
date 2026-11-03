@@ -104,6 +104,7 @@ jobs:
             # optional wider-GPU price batch (schema 3.2, batch wider-gpu): merged into data/gpu_pricing; refusal keeps current records
             if git show origin/scout-data:latest/wider_gpu_prices_latest.json > "$RUNNER_TEMP/wider.json" 2>/dev/null; then
               LW_WIDER_GEN="$(git log -1 --format=%s origin/scout-data -- latest/wider_gpu_prices_latest.json | grep -o 'gen [^ ]*' | cut -c5-)" python3 scripts/import_scout_wider.py "$RUNNER_TEMP/wider.json" >> "$S" 2>&1 || { git checkout -q -- data/gpu_pricing; echo "wider-gpu import refused, current records kept" >> "$S"; }
+              python3 scripts/sync_today_snapshot.py >> "$S" 2>&1 || return 3  # T73: changes feed must match imported prices
             fi
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
             python3 scripts/gpu_index.py . api/v1 > /dev/null || return 3
