@@ -19,9 +19,9 @@
     "2026-10-31.99caba77",
     "2026-11-01.5581fea0",
     "2026-11-02.3bacc547",
-    "2026-11-03.c909f8b2"
+    "2026-11-03.0d220f1a"
   ],
-  "last_seq": 70,
+  "last_seq": 68,
   "note": "points are change points: each point is the first snapshot date at that price/status; status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors).",
   "series": [
     {
@@ -3364,27 +3364,6 @@
       "last_seen": "2026-11-03"
     },
     {
-      "key": "Vast.ai|RTX 6000 Ada|Marketplace on-demand (verified)|48|1",
-      "rate_id": "r_9f050544ea95",
-      "vendor": "Vast.ai",
-      "gpu": "RTX 6000 Ada",
-      "tier": "Marketplace on-demand (verified)",
-      "vram_gb": 48,
-      "gpu_count": 1,
-      "billing_unit": "hourly",
-      "first_seen": "2026-11-03",
-      "points": [
-        {
-          "date": "2026-11-03",
-          "price_usd": 0.6422,
-          "hourly_usd": 0.6422,
-          "status": "ranked",
-          "verified_at": "2026-11-03T14:56:34Z"
-        }
-      ],
-      "last_seen": "2026-11-03"
-    },
-    {
       "key": "Vast.ai|RTX A4000|Marketplace on-demand (verified)|16|1",
       "rate_id": "r_46185468c6c9",
       "vendor": "Vast.ai",
@@ -3400,7 +3379,7 @@
           "price_usd": 0.0881,
           "hourly_usd": 0.0881,
           "status": "ranked",
-          "verified_at": "2026-11-03T14:56:34Z"
+          "verified_at": "2026-11-03T19:00:45Z"
         }
       ],
       "last_seen": "2026-11-03"
@@ -3425,13 +3404,13 @@
         },
         {
           "date": "2026-11-03",
-          "price_usd": 1.6004,
-          "hourly_usd": 1.6004,
-          "status": "ranked",
-          "verified_at": "2026-11-03T14:56:34Z"
+          "price_usd": 2.1087,
+          "hourly_usd": 2.1087,
+          "status": "removed",
+          "verified_at": "2026-11-02T11:00:05Z"
         }
       ],
-      "last_seen": "2026-11-03"
+      "last_seen": "2026-11-02"
     },
     {
       "key": "Vast.ai|RTX PRO 6000 Server|Marketplace on-demand (verified)|96|1",
@@ -3460,10 +3439,10 @@
         },
         {
           "date": "2026-11-03",
-          "price_usd": 1.6706,
-          "hourly_usd": 1.6706,
+          "price_usd": 1.7035,
+          "hourly_usd": 1.7035,
           "status": "ranked",
-          "verified_at": "2026-11-03T14:56:34Z"
+          "verified_at": "2026-11-03T19:00:45Z"
         }
       ],
       "last_seen": "2026-11-03"
@@ -3495,10 +3474,10 @@
         },
         {
           "date": "2026-11-03",
-          "price_usd": 1.9974,
-          "hourly_usd": 1.9974,
+          "price_usd": 1.8425,
+          "hourly_usd": 1.8425,
           "status": "ranked",
-          "verified_at": "2026-11-03T14:56:34Z"
+          "verified_at": "2026-11-03T19:00:45Z"
         }
       ],
       "last_seen": "2026-11-03"
@@ -3523,13 +3502,13 @@
         },
         {
           "date": "2026-11-03",
-          "price_usd": 0.2333,
-          "hourly_usd": 0.2333,
-          "status": "ranked",
-          "verified_at": "2026-11-03T14:56:34Z"
+          "price_usd": 0.1603,
+          "hourly_usd": 0.1603,
+          "status": "removed",
+          "verified_at": "2026-11-02T11:00:05Z"
         }
       ],
-      "last_seen": "2026-11-03"
+      "last_seen": "2026-11-02"
     },
     {
       "key": "Verda (formerly DataCrunch)|A100 SXM|On-demand instance (1x GPU)|40|1",
@@ -4364,7 +4343,7 @@
       "key": "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
       "rate_id": "r_d92acb858f8f",
       "event_id": "2026-11-03:r_d92acb858f8f:up",
-      "snapshot_id": "2026-11-03.c909f8b2",
+      "snapshot_id": "2026-11-03.0d220f1a",
       "vendor": "Vast.ai",
       "gpu": "A100 SXM",
       "tier": "Marketplace on-demand (verified; median per GPU)",
@@ -4374,31 +4353,14 @@
       "change_pct": 17.8,
       "status": "ranked",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "seq": 70
-    },
-    {
-      "date": "2026-11-03",
-      "key": "Vast.ai|RTX PRO 6000 Max-Q|Marketplace on-demand (verified)|96|1",
-      "rate_id": "r_c716014bcd5b",
-      "event_id": "2026-11-03:r_c716014bcd5b:down",
-      "snapshot_id": "2026-11-03.c909f8b2",
-      "vendor": "Vast.ai",
-      "gpu": "RTX PRO 6000 Max-Q",
-      "tier": "Marketplace on-demand (verified)",
-      "vram_gb": 96,
-      "from_hourly_usd": 2.1087,
-      "to_hourly_usd": 1.6004,
-      "change_pct": -24.1,
-      "status": "ranked",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "seq": 69
+      "seq": 68
     },
     {
       "date": "2026-11-03",
       "key": "Spheron|RTX 5090|Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)|32|1",
       "rate_id": "r_6928b54f3d7a",
       "event_id": "2026-11-03:r_6928b54f3d7a:up",
-      "snapshot_id": "2026-11-03.c909f8b2",
+      "snapshot_id": "2026-11-03.0d220f1a",
       "vendor": "Spheron",
       "gpu": "RTX 5090",
       "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
@@ -4408,14 +4370,14 @@
       "change_pct": 92.9,
       "status": "ranked",
       "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
-      "seq": 68
+      "seq": 67
     },
     {
       "date": "2026-11-03",
       "key": "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
       "rate_id": "r_67f379013921",
       "event_id": "2026-11-03:r_67f379013921:up",
-      "snapshot_id": "2026-11-03.c909f8b2",
+      "snapshot_id": "2026-11-03.0d220f1a",
       "vendor": "Vast.ai",
       "gpu": "RTX 4090",
       "tier": "Marketplace on-demand (verified; median per GPU)",
@@ -4425,38 +4387,21 @@
       "change_pct": 7.9,
       "status": "ranked",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "seq": 67
+      "seq": 66
     },
     {
       "date": "2026-11-03",
       "key": "Vast.ai|RTX PRO 6000 Server|Marketplace on-demand (verified)|96|1",
       "rate_id": "r_383c896111f0",
       "event_id": "2026-11-03:r_383c896111f0:down",
-      "snapshot_id": "2026-11-03.c909f8b2",
+      "snapshot_id": "2026-11-03.0d220f1a",
       "vendor": "Vast.ai",
       "gpu": "RTX PRO 6000 Server",
       "tier": "Marketplace on-demand (verified)",
       "vram_gb": 96,
       "from_hourly_usd": 1.7337,
-      "to_hourly_usd": 1.6706,
-      "change_pct": -3.6,
-      "status": "ranked",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "seq": 66
-    },
-    {
-      "date": "2026-11-03",
-      "key": "Vast.ai|V100|Marketplace on-demand (verified)|32|1",
-      "rate_id": "r_0da34bc6e33b",
-      "event_id": "2026-11-03:r_0da34bc6e33b:up",
-      "snapshot_id": "2026-11-03.c909f8b2",
-      "vendor": "Vast.ai",
-      "gpu": "V100",
-      "tier": "Marketplace on-demand (verified)",
-      "vram_gb": 32,
-      "from_hourly_usd": 0.1603,
-      "to_hourly_usd": 0.2333,
-      "change_pct": 45.5,
+      "to_hourly_usd": 1.7035,
+      "change_pct": -1.7,
       "status": "ranked",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
       "seq": 65
