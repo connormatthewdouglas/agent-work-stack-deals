@@ -70,10 +70,10 @@ def test_no_commission_text_anywhere(srv):
 
 def test_compare_gpu_prices_same_data_sorted_sourced(srv):
     data = json.loads(GPU.read_text())
-    r = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 25})
+    r = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 25, "on_demand_only": False})
     expected = [x for x in data["rates"] if "h100" in x["gpu"].lower().split() and x["tier_class"] != "reserved"]
     assert r["excluded_reserved"] == sum(1 for x in data["rates"] if "h100" in x["gpu"].lower().split()) - len(expected) >= 1
-    rr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "include_reserved": True, "limit": 25})
+    rr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "include_reserved": True, "limit": 25, "on_demand_only": False})
     assert rr["results"][0]["tier_class"] != "reserved" and rr["results"][-1]["tier_class"] == "reserved"
     assert "Hyperstack" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"] or "Reservation" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"]
     assert r["total"] == len(expected) and r["count"] == min(25, len(expected)) >= 2
@@ -238,3 +238,13 @@ def test_i3_i5_region_field_and_tie_named(monkeypatch):
     assert "Nova Cloud and RunC.AI (tie) RTX 4090 24GB at $0.42/hr" in out["summary"]
     nova = [r for r in out["results"] if r["advertiser"] == "Nova Cloud"][0]
     assert nova["region"] and nova["availability"]["in_stock"] is None and nova["availability"]["basis"] == "vendor_static_label"
+
+
+def test_compare_gpu_prices_defaults_to_on_demand(srv):
+    """T67: default on_demand_only=true, results[0] is the cheapest on-demand row; spot/community stays opt-in and labelled."""
+    data = json.loads(GPU.read_text())
+    r = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 25})
+    assert r["on_demand_only"] is True and r["results"] and all(x["tier_class"] == "on-demand" for x in r["results"])
+    allr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 25, "on_demand_only": False})
+    assert {x["tier_class"] for x in allr["results"]} - {"on-demand"}
+    assert all("tier_class" in x and "interruptible" in x for x in allr["results"])

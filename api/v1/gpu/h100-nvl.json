@@ -15,9 +15,10 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-11-02T20:26:33+00:00",
-  "row_count": 2,
+  "last_checked": "2026-11-03T05:40:03+00:00",
+  "row_count": 3,
   "providers": [
+    "Microsoft Azure",
     "RunPod"
   ],
   "cheapest": {
@@ -52,6 +53,37 @@
         "group": {
           "form_factor": "NVL",
           "tier": "On-demand (Secure Cloud)",
+          "vram_gb": 94
+        }
+      },
+      {
+        "vram_gb": 94,
+        "provider": "Microsoft Azure",
+        "gpu": "H100 NVL",
+        "tier": "On-demand (pay-as-you-go) VM NC40ads_H100_v5, 1-GPU",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 6.98,
+        "unit": "hour",
+        "price_usd": 6.98,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-03T05:40:03+00:00",
+        "source_url": "https://prices.azure.com/api/retail/prices?$filter=armSkuName%20eq%20%27Standard_NC40ads_H100_v5%27%20and%20armRegionName%20eq%20%27eastus%27%20and%20priceType%20eq%20%27Consumption%27",
+        "quote": "Azure Retail Prices API: Standard_NC40ads_H100_v5 eastus Consumption (Linux) retailPrice $6.98 USD per 1 Hour",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "NVL",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "NVL",
+          "tier": "On-demand (pay-as-you-go) VM NC40ads_H100_v5, 1-GPU",
           "vram_gb": 94
         }
       }
@@ -145,6 +177,32 @@
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout"
+      },
+      "form_factor": "NVL",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "Microsoft Azure",
+      "gpu": "H100 NVL",
+      "vram_gb": 94,
+      "tier": "On-demand (pay-as-you-go) VM NC40ads_H100_v5, 1-GPU",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 6.98,
+      "unit": "hour",
+      "price_usd": 6.98,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-03T05:40:03+00:00",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=armSkuName%20eq%20%27Standard_NC40ads_H100_v5%27%20and%20armRegionName%20eq%20%27eastus%27%20and%20priceType%20eq%20%27Consumption%27",
+      "quote": "Azure Retail Prices API: Standard_NC40ads_H100_v5 eastus Consumption (Linux) retailPrice $6.98 USD per 1 Hour",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
       },
       "form_factor": "NVL",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"

@@ -8,6 +8,11 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
+## 0.6.0 (2026-11-03, PyPI + MCP Registry)
+
+- MCP compare_gpu_prices: on_demand_only now defaults to true, so results[0] is the cheapest on-demand rate. Pass on_demand_only=false for spot/interruptible, community and marketplace rates (still labelled by tier_class and interruptible). No field renames; if a model has no on-demand rate the default falls back to all rates and sets on_demand_fallback.
+- GPU feed: first-party prices added with source_url and verified_at: DigitalOcean MI300X $2.59, Hot Aisle MI300X $2.99 (VM), Azure MI300X from $6.00/GPU (East US 2, 8-GPU VM), Azure H100 NVL $6.98 (East US), Jarvislabs L4 $0.44, Hyperstack RTX A4000 $0.15 (on-demand).
+
 ## 0.5.5 (2026-11-02, PyPI + MCP Registry)
 
 - MCP brief mode (additive): search_deals, compare_deals and get_deal always carry list_price_usd (null when unknown).

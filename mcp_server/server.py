@@ -128,7 +128,7 @@ def _run(fn, *a, **kw) -> dict:
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
 @_contract
-def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = False, include_reserved: bool = False,
+def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = True, include_reserved: bool = False,
                        max_data_age_hours: float | None = None, region: str | None = None) -> dict:
     """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.
 
@@ -138,8 +138,11 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     H100/A100: cheapest_by_form_factor gives one pick per form_factor (tier_class, interruptible, in_stock); same rule as the site. 'NVLink' rows are form 'not stated': NVLink is the bridge, and the vendor doesn't say SXM or PCIe.
     Each result has tier_class: on-demand | community | marketplace | interruptible (spot/preemptible) |
     reserved | dedicated-monthly. Reserved (reservation/commitment 'starting from') rates are left out unless
-    include_reserved=true, and even then they are never reported as cheapest. The cheapest overall can be spot or community capacity; on_demand_only=true keeps only
-    on-demand rates, and the summary names the cheapest on-demand rate when the overall cheapest isn't.
+    include_reserved=true, and even then they are never reported as cheapest. DEFAULT on_demand_only=true: results[0] is the cheapest
+    on-demand rate. Pass on_demand_only=false to include spot/interruptible, community and marketplace capacity (each
+    such row is labelled by tier_class and interruptible); the summary then names the cheapest on-demand rate when the
+    overall cheapest isn't. If a model has no on-demand rate, the default falls back to all rates and says so in
+    on_demand_fallback.
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
@@ -158,8 +161,15 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
                 hist = history_loader.load()
             except DealError as e:
                 hist = {"series": [], "changes": [], "error": e.message}
-        out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, history=hist, on_demand_only=on_demand_only, include_reserved=include_reserved,
-                                     max_data_age_hours=max_data_age_hours, region=region or None)
+        kw = dict(history=hist, include_reserved=include_reserved, max_data_age_hours=max_data_age_hours, region=region or None)
+        try:
+            out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, on_demand_only=on_demand_only, **kw)
+        except DealError as e:
+            if not on_demand_only or "No on-demand tracked price" not in e.message:
+                raise
+            out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, on_demand_only=False, **kw)
+            out["on_demand_fallback"] = ("No on-demand rate is tracked for this model, so these results include "
+                                         "spot/community/marketplace rates (see each row's tier_class).")
         if hist and hist.get("error"):
             out["history"]["error"] = hist["error"]
         out.update(core.freshness(_gpu_checked_at()))

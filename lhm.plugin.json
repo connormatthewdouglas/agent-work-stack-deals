@@ -1,7 +1,7 @@
 {
   "identifier": "lantern-works-deals-mcp",
   "name": "Lantern Works GPU Prices & Work-Stack Deals",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "description": "Compare tracked hourly GPU rental prices (H100, A100, RTX 4090 and more) with source links, check dates and price history, and search work-stack tool deals (compute, search, crawl, hosting, email). Public data, no auth. Some result links are referral links and are marked as such.",
   "author": "Lantern Works",
   "authorUrl": "https://github.com/connormatthewdouglas",
@@ -20,7 +20,7 @@
   "tools": [
     {
       "name": "compare_gpu_prices",
-      "description": "Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first.\n\nSame data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result\nhas source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.\nlimit 1-25. Unknown model returns not_found listing tracked models.\nEach result has tier_class: on-demand | community | marketplace | interruptible (spot/preemptible) |\nreserved | dedicated-monthly. Reserved (reservation/commitment 'starting from') rates are left out unless\ninclude_reserved=true, and even then they are never reported as cheapest. The cheapest overall can be spot or community capacity; on_demand_only=true keeps only\non-demand rates, and the summary names the cheapest on-demand rate when the overall cheapest isn't.\ninclude_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes\n(price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.\nEach result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).\nmax_data_age_hours (optional) drops older rates; excluded_too_old reports how many were dropped.",
+      "description": "Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.\n\nSame data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result\nhas source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.\nlimit 1-25. Unknown model returns not_found listing tracked models.\nH100/A100: cheapest_by_form_factor gives one pick per form_factor (tier_class, interruptible, in_stock); same rule as the site. 'NVLink' rows are form 'not stated': NVLink is the bridge, and the vendor doesn't say SXM or PCIe.\nEach result has tier_class: on-demand | community | marketplace | interruptible (spot/preemptible) |\nreserved | dedicated-monthly. Reserved (reservation/commitment 'starting from') rates are left out unless\ninclude_reserved=true, and even then they are never reported as cheapest. DEFAULT on_demand_only=true: results[0] is the cheapest\non-demand rate. Pass on_demand_only=false to include spot/interruptible, community and marketplace capacity (each\nsuch row is labelled by tier_class and interruptible); the summary then names the cheapest on-demand rate when the\noverall cheapest isn't. If a model has no on-demand rate, the default falls back to all rates and says so in\non_demand_fallback.\ninclude_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes\n(price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.\nEach result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).\nBy default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices\n('stale price (N days old)'); if every rate is stale, results is empty and the summary says no current cheapest.\nmax_data_age_hours (optional) replaces the 168 h default and drops older rates; excluded_too_old counts them.\nregion (optional): a country/area code ('US', 'EU') matches every published zone in it; a zone code ('US-NE-1', 'us-east-1') matches exactly, any case. Rates whose unexpired published regions exclude it are dropped; rates with no region\nevidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,\nunknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price\nwatches use. Unknown stock is not confirmed availability.\n",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -36,8 +36,9 @@
             "default": false
           },
           "on_demand_only": {
-            "type": "boolean",
-            "default": false
+            "default": true,
+            "title": "On Demand Only",
+            "type": "boolean"
           },
           "include_reserved": {
             "type": "boolean",

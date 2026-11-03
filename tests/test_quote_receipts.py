@@ -61,7 +61,7 @@ def test_every_optimizer_option_has_rate_id():
 
 
 def test_gpu_option_ids_match_compare_ids():
-    cmp_ids = {r["rate_id"] for r in s.compare_gpu_prices(gpu="H100", limit=25)["results"]}
+    cmp_ids = {r["rate_id"] for r in s.compare_gpu_prices(gpu="H100", limit=25, on_demand_only=False)["results"]}
     line = s.optimize_stack(gpu_hours=10, gpu_model="H100")["lines"][0]
     assert {o["rate_id"] for o in [line["choice"]] + line["alternatives"]} <= cmp_ids
 

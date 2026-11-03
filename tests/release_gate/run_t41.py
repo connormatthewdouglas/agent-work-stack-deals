@@ -154,7 +154,7 @@ def _(f, ev):
 
 @case("T41-03")
 def _(f, ev):
-    out = tool(SRV.compare_gpu_prices, "H100", limit=25)
+    out = tool(SRV.compare_gpu_prices, "H100", limit=25, on_demand_only=False)
     res = out.get("results") or []
     rows = [r for r in RATES if "h100" in toks(r["gpu"]) and D.tier_class(r) != "reserved"]
     # E5: rows the feed marks out of stock are ranked after in-stock/unknown rows, so they are never "cheapest"
@@ -198,8 +198,8 @@ def _(f, ev):
     gpu = "H100"
     rows = [r for r in RATES if "h100" in toks(r["gpu"])]
     nres = sum(D.tier_class(r) == "reserved" for r in rows)
-    a = tool(SRV.compare_gpu_prices, gpu, limit=25)
-    b = tool(SRV.compare_gpu_prices, gpu, limit=25, include_reserved=True)
+    a = tool(SRV.compare_gpu_prices, gpu, limit=25, on_demand_only=False)
+    b = tool(SRV.compare_gpu_prices, gpu, limit=25, include_reserved=True, on_demand_only=False)
     if any(x["tier_class"] == "reserved" for x in a["results"]): f.append("default call returned reserved rows")
     if a.get("excluded_reserved") != nres: f.append(f"excluded_reserved {a.get('excluded_reserved')} != {nres}")
     cls = [x["tier_class"] == "reserved" for x in b["results"]]
@@ -309,7 +309,7 @@ def _(f, ev):
     mx = max(ts(r["verified_at"]) for r in RATES)
     if fu + timedelta(seconds=1) < mx: f.append(f"feed_updated_at {fu} < newest verified_at {mx}")
     if NOW - fu > timedelta(hours=36): f.append(f"feed_updated_at {fu} older than 36h")
-    out = tool(SRV.compare_gpu_prices, "H100", limit=25)
+    out = tool(SRV.compare_gpu_prices, "H100", limit=25, on_demand_only=False)
     for x in out["results"]:
         if x.get("degraded") or x.get("stale"): f.append(f"{rid(x)}: data_age_hours={x.get('data_age_hours')} degraded/stale")
     for k in ("next_refresh_utc",):
@@ -350,7 +350,7 @@ def _(f, ev):
         if not h.get("reason"): f.append(f"{h['vendor']}: held without reason")
         for rec in h["records"]:
             try:
-                out = tool(SRV.compare_gpu_prices, rec["gpu"], limit=25)
+                out = tool(SRV.compare_gpu_prices, rec["gpu"], limit=25, on_demand_only=False)
                 hits = [x for x in out.get("results") or [] if x["advertiser"] == h["vendor"] and x.get("gpu") == rec["gpu"]
                         and (h.get("scope") != "record" or same_tier(x.get("tier"), rec.get("tier")))]
                 if hits: f.append(f"compare {rec['gpu']} returns held {h['vendor']}")
@@ -417,7 +417,7 @@ def _(f, ev):
     a = tool(SRV.compare_gpu_prices, "Z9999")
     if (a.get("error") or {}).get("code", a.get("error")) not in ("not_found",) and "not_found" not in json.dumps(a)[:300]:
         f.append(f"Z9999 -> {json.dumps(a)[:200]}")
-    b = tool(SRV.compare_gpu_prices, "L40", limit=25)
+    b = tool(SRV.compare_gpu_prices, "L40", limit=25, on_demand_only=False)
     leak = [x for x in b.get("results") or [] if "l40s" in toks(x["gpu"])]
     if leak: f.append(f"'L40' returned L40S rows: {[rid(x) for x in leak]}")
     ev.update(z9999=json.dumps(a)[:240], l40=[rid(x) for x in b.get("results") or []] or json.dumps(b)[:200])
@@ -425,12 +425,12 @@ def _(f, ev):
 
 @case("T41-18")
 def _(f, ev):
-    a = tool(SRV.compare_gpu_prices, "A100 80GB", limit=25)
+    a = tool(SRV.compare_gpu_prices, "A100 80GB", limit=25, on_demand_only=False)
     bad = [rid(x) + f" {x['vram_gb']}GB" for x in a.get("results") or [] if x.get("vram_gb") != 80]
     if bad: f.append(f"'A100 80GB' returned other sizes: {bad}")
     if not a.get("results"): f.append(f"'A100 80GB' -> {json.dumps(a)[:200]}")
     sizes = {r["vram_gb"] for r in RATES if "a100" in toks(r["gpu"]) and D.tier_class(r) != "reserved"}
-    b = tool(SRV.compare_gpu_prices, "A100", limit=25)
+    b = tool(SRV.compare_gpu_prices, "A100", limit=25, on_demand_only=False)
     if len(sizes) > 1 and "Memory sizes differ" not in (b.get("summary") or ""): f.append("plain 'A100' summary lacks 'Memory sizes differ'")
     ev.update(a100_sizes=sorted(sizes), a100_80_count=len(a.get("results") or []))
 
