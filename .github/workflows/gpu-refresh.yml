@@ -38,7 +38,10 @@ jobs:
           SLOT: ${{ github.event.schedule }}
         run: |
           f="data/gpu_pricing/snapshots/$(date -u +%F).json"
-          if [ "$SLOT" = "47 14 * * *" ] && [ -f "$f" ]; then
+          # scout-import (sync_today_snapshot.py) also writes today's snapshot, so the file alone doesn't prove a
+          # price refresh ran: rebuild-only also requires the last refresh (oldest checked_at) to be < 20 h old.
+          fresh=$(python3 -c 'import sys;sys.path.insert(0,"scripts");from datetime import datetime,timezone as t;import check_gpu_freshness as c;print(int(c.status(datetime.now(t.utc),20)[0]==0))' 2>/dev/null || echo 0)
+          if [ "$SLOT" = "47 14 * * *" ] && [ -f "$f" ] && [ "$fresh" = 1 ]; then
             # re17: still rebuild pages and feeds so availability claims past availability_expires_at flip to unknown
             echo "rebuild_only=1" >> "$GITHUB_OUTPUT"; echo "Fallback slot: $f exists; rebuilding pages and feeds only (no price re-read)." >> "$GITHUB_STEP_SUMMARY"
           fi
