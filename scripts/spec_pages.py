@@ -23,7 +23,8 @@ SCHEMAS = {"prices": ("gpu-prices.json", ("lantern-works-gpu-prices/1",)),
            "history": ("gpu-prices/history.json", ("lantern-works-gpu-price-history/1", "lantern-works-gpu-price-history/2"))}
 FAMILY_MAP = {"H100": "H100", "H100 SXM": "H100", "H100 PCIe": "H100", "H100 NVLink": "H100", "H100 NVL": "H100",  # every H100 form on one page (Gauge Nov 1)
               "H200": "H200", "H200 SXM": "H200",
-              "A100": "A100", "A100 SXM": "A100", "A100 PCIe": "A100", "A100 NVLink": "A100"}
+              "A100": "A100", "A100 SXM": "A100", "A100 PCIe": "A100", "A100 NVLink": "A100",
+              "V100": "V100", "V100 PCIe": "V100", "V100 SXM2": "V100", "V100 SXM": "V100"}  # T73: RunPod V100 forms on the V100 page
 MIN_VENDORS = 3
 ALWAYS_PAGE = {"B300", "MI300X", "L4"}  # Pulse report 2026-11-02: page these models whenever the feed has rows, even under MIN_VENDORS
 PAIRS = [("RunPod", "Verda (formerly DataCrunch)"), ("Lambda", "RunPod"), ("CoreWeave", "Nebius")]
