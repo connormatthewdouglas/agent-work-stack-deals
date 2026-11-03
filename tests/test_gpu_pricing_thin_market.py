@@ -36,7 +36,9 @@ def test_manual_snapshot_fields_in_feed_and_page():
     if not clore:  # all Clore rows held pending a fresh manual snapshot (Nov 1)
         assert "Clore.ai" in {h["vendor"] for h in feed["held_stale"]}
     assert all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in clore)
-    assert all(r["price_check"] == ("batch" if r.get("last_read") else "daily") for r in feed["rates"] if r["advertiser"] != "Clore.ai")  # G5
+    assert all(r["price_check"] == ("batch" if r.get("last_read") else "daily") for r in feed["rates"] if r["advertiser"] not in {"Clore.ai", "Microsoft Azure"})  # G5
+    azure = [r for r in feed["rates"] if r["advertiser"] == "Microsoft Azure"]  # T60: Retail Prices API snapshot
+    assert azure and all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in azure)
     sph = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
     # T73 (2026-11-02): record-level hold while the quoted span is off the page; the held record keeps its source
     sph = sph or [dict(rec, source_url=h["source_url"]) for h in feed["held_stale"] if h["vendor"] == "Spheron"
