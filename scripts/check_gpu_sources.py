@@ -220,6 +220,14 @@ def main() -> int:
                         v = parse_rotating(r, text)[0]
                         if v is not None and abs(float(v) - r["hourly_usd"]) < 1e-9:
                             missing = []
+                if missing and r.get("price_rotates"):
+                    # T87 follow-up: the vendor rotates this row's price over the day, so the exact amount is not
+                    # required; the GPU name + VRAM + a '$X /hr' price must still be on the page.
+                    from refresh_gpu_prices import rotating_regex
+                    if rotating_regex(r["gpu"], r.get("vram_gb")).search(text):
+                        warnings.append(f"rotating marketplace price, exact amount not required: {doc['vendor']} {r['gpu']} "
+                                        f"(listed ${r['hourly_usd']}, verified {r.get('verified_at') or r['checked_at']})")
+                        continue
                 cv = CAPACITY_VARIANT.get(doc["vendor"])
                 if missing and cv and re.search(cv.format(gpu=re.escape(r["gpu"])), text):
                     # the vendor's page swaps its rate line for a no-capacity line while capacity is out; that is

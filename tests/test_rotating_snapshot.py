@@ -69,3 +69,12 @@ def test_price_changes_only_when_two_reads_60s_apart_agree():
     move = "<p>L40S Ada 48 GB 294 GB RAM 16 vCPUs 128 GB NVMe $1.01 /hr</p>"
     r, row, _ = _run(move, move.replace("294", "96"))
     assert r["price_usd"] == 1.01 and row["result"] == "changed"
+
+
+def test_spheron_5090_labelled_rotating_marketplace_price():
+    """T87 follow-up: additive price_rotates label on the record, in the feed and on the page."""
+    import json, pathlib
+    feed = json.loads(pathlib.Path("api/v1/gpu-prices.json").read_text())
+    rows = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
+    assert rows and rows[0]["price_rotates"]["label"] == "rotating marketplace price"
+    assert "rotating marketplace price" in pathlib.Path("gpu/price-comparison/index.html").read_text()

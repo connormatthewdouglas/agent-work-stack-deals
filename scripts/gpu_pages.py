@@ -147,6 +147,8 @@ def _avail_cell(gen, r: dict) -> str:
 
 
 def _verified_cell(r: dict, esc) -> str:
+    if r.get("price_rotates"):  # T87 follow-up: vendor rotates the displayed price over the day
+        return esc(f"{(r['verified_at'] or '')[:10]} (rotating marketplace price: last read; Spheron shows different prices through the day)")
     if r.get("price_check") == "manual snapshot":
         return esc(f"manual snapshot {r['snapshot_at'][:16].replace('T', ' ')} UTC; held after {r['hold_after'][:10]} unless re-checked")
     if r.get("price_check") == "rotating snapshot":

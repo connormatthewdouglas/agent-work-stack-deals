@@ -446,7 +446,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                                               _vendor_gpu_id(r)),
                 **({"form_class": fc} if (fc := form_class(r["gpu"], f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}")) else {}),
                 "price_scope": "gpu_hour_only", **_published_extras(doc),
-                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note") if r.get(k)}),
+                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note", "price_rotates") if r.get(k)}),
                 # Manual snapshot vendors (e.g. Clore.ai): not re-checked daily; held automatically after hold_after.
                 **({"price_check": "manual snapshot", "snapshot_at": r["checked_at"],
                     "hold_after": (datetime.fromisoformat(r["checked_at"]) + timedelta(days=STALE_DAYS)).isoformat()}
