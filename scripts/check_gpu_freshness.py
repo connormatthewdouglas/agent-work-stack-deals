@@ -23,7 +23,9 @@ from core.gpu_history import SNAPSHOT_DIR  # noqa: E402
 def status(now: datetime, fail_hours: float = 26.0) -> tuple[int, list[str]]:
     # Oldest checked_at among records the refresh touches (vendor-level holds are skipped). The refresh stamps
     # every such record, readable or not, so a hand-added vendor with a fresh stamp can't mask a missed run.
-    stamps = [datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"]]  # manual snapshots (Clore) are never auto-refreshed; their own 7-day hold applies
+    # Since Gauge strat2 the refresh keeps checked_at on a failed read and records last_failed_check_at instead, and
+    # row-level holds are never re-stamped: a touch is the later of the two, and held rows are skipped.
+    stamps = [max(datetime.fromisoformat(t) for t in (r["checked_at"], r.get("last_failed_check_at")) if t) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"] if not r.get("stale")]  # manual snapshots (Clore) are never auto-refreshed; their own 7-day hold applies
     last = min(stamps)
     age_h = (now - last).total_seconds() / 3600
     snaps = sorted(p.stem for p in Path(SNAPSHOT_DIR).glob("????-??-??.json"))
