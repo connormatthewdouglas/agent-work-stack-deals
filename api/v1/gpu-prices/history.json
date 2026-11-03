@@ -19,9 +19,9 @@
     "2026-10-31.99caba77",
     "2026-11-01.5581fea0",
     "2026-11-02.3bacc547",
-    "2026-11-03.a6d008bc"
+    "2026-11-03.287d0502"
   ],
-  "last_seq": 65,
+  "last_seq": 66,
   "note": "points are change points: each point is the first snapshot date at that price/status; status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors).",
   "series": [
     {
@@ -3236,13 +3236,13 @@
         },
         {
           "date": "2026-11-03",
-          "price_usd": 2.1087,
-          "hourly_usd": 2.1087,
-          "status": "removed",
-          "verified_at": "2026-11-02T11:00:05Z"
+          "price_usd": 1.7302,
+          "hourly_usd": 1.7302,
+          "status": "ranked",
+          "verified_at": "2026-11-03T02:54:50Z"
         }
       ],
-      "last_seen": "2026-11-02"
+      "last_seen": "2026-11-03"
     },
     {
       "key": "Vast.ai|RTX PRO 6000 Server|Marketplace on-demand (verified)|96|1",
@@ -3274,7 +3274,7 @@
           "price_usd": 1.7341,
           "hourly_usd": 1.7341,
           "status": "ranked",
-          "verified_at": "2026-11-02T22:57:10Z"
+          "verified_at": "2026-11-03T02:54:50Z"
         }
       ],
       "last_seen": "2026-11-03"
@@ -3306,10 +3306,10 @@
         },
         {
           "date": "2026-11-03",
-          "price_usd": 1.9747,
-          "hourly_usd": 1.9747,
+          "price_usd": 2.1711,
+          "hourly_usd": 2.1711,
           "status": "ranked",
-          "verified_at": "2026-11-02T22:57:10Z"
+          "verified_at": "2026-11-03T02:54:50Z"
         }
       ],
       "last_seen": "2026-11-03"
@@ -4172,10 +4172,27 @@
   "changes": [
     {
       "date": "2026-11-03",
+      "key": "Vast.ai|RTX PRO 6000 Max-Q|Marketplace on-demand (verified)|96|1",
+      "rate_id": "r_c716014bcd5b",
+      "event_id": "2026-11-03:r_c716014bcd5b:down",
+      "snapshot_id": "2026-11-03.287d0502",
+      "vendor": "Vast.ai",
+      "gpu": "RTX PRO 6000 Max-Q",
+      "tier": "Marketplace on-demand (verified)",
+      "vram_gb": 96,
+      "from_hourly_usd": 2.1087,
+      "to_hourly_usd": 1.7302,
+      "change_pct": -17.9,
+      "status": "ranked",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "seq": 66
+    },
+    {
+      "date": "2026-11-03",
       "key": "Vast.ai|RTX PRO 6000 Server|Marketplace on-demand (verified)|96|1",
       "rate_id": "r_383c896111f0",
       "event_id": "2026-11-03:r_383c896111f0:up",
-      "snapshot_id": "2026-11-03.a6d008bc",
+      "snapshot_id": "2026-11-03.287d0502",
       "vendor": "Vast.ai",
       "gpu": "RTX PRO 6000 Server",
       "tier": "Marketplace on-demand (verified)",
