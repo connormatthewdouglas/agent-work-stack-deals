@@ -64,3 +64,13 @@ def test_carry_forward_keeps_box_filled_page_views(tmp_path):
     ss._carry_forward(rep, old)
     assert rep["weeks"][0]["page_views"] == 12 and rep["weeks"][0]["visits_by_ref"] == {"forum-x": 2}
     assert rep["weeks"][1]["page_views"] is None
+
+
+def test_go_clicks_per_provider_test_traffic_apart():
+    rep = S.build({"rows": [{"day": "2026-11-02", "ref": "x", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc))
+    S.add_go_clicks(rep, {"rows": [{"day": "2026-11-03", "provider": "A", "src": "site", "ref": "none", "n": 2},
+                                   {"day": "2026-11-03", "provider": "A", "src": "mcp-test", "ref": "none", "n": 1},
+                                   {"day": "2026-11-03", "provider": "B", "src": "feed", "ref": "qa", "n": 1}]})
+    w = rep["weeks"][0]
+    assert w["go_clicks_by_provider"] == {"A": {"site": 2}}
+    assert w["test_go_clicks_by_provider"] == {"A": {"mcp": 1}, "B": {"feed": 1}}

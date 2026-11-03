@@ -169,6 +169,8 @@ HOME_JS = r"""  <script>
 # but counts SPA route changes as page views (history.pushState / popstate). Each event becomes one aggregate
 # page view of a virtual path: /e/out/<deal-id>/ (or /e/out/h-<vendor-hostname>/ for outbound links without a deal id), /e/search/, /e/calculator/, /e/compare/, /e/ref/<ref>/ (the landing ?ref= channel tag only). No cookies,
 # storage, identifiers or other query values are sent; search terms are never recorded. Emitted only with the beacon.
+# Deal links (data-deal) are also sent through the telemetry worker's /go/<id>?src=site redirect at click time
+# (aggregate day x deal x src x ref count in D1, then 302 to the deal's stored redeem_url).
 TRACK_JS = r"""  <script>
 (()=>{
   const seen=new Set();
@@ -186,7 +188,11 @@ TRACK_JS = r"""  <script>
     try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
       if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
     let id;
-    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,""); }
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+      // route deal links through the counted /go/ redirect (302 to the same stored redeem_url, utm_source kept; aggregate count only)
+      const g=new URL("https://lantern-works-telemetry.lantern-works.workers.dev/go/"+id.slice(4)); g.searchParams.set("src","site");
+      try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) g.searchParams.set("ref",r); }catch(e){}
+      a.href=g.href; }
     else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
       let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
       if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;

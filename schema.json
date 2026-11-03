@@ -257,6 +257,11 @@
             "null"
           ],
           "description": "Honest pricing label when price_usd is null (pricing model, plan prices in pricing_note, or GPU rates in /api/v1/gpu-prices.json). Never a guessed number."
+        },
+        "tracked_url": {
+          "type": ["string", "null"],
+          "pattern": "^https://",
+          "description": "Counted redirect (/go/<id>?src=feed) to this deal's redeem_url; aggregate click counts only, no cookies or IPs. redeem_url is unchanged."
         }
       },
       "additionalProperties": false

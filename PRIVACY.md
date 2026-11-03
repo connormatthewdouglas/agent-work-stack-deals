@@ -39,4 +39,4 @@ To turn it off, unset `LANTERN_TELEMETRY` or set it to anything other than `1`. 
 
 ## Website
 
-The site uses Cloudflare Web Analytics for page views; it sets no cookies. Clicks on search, compare, calculator and outbound links are counted as virtual page views under `/e/...`.
+The site uses Cloudflare Web Analytics for page views; it sets no cookies. Clicks on search, compare, calculator and outbound links are counted as virtual page views under `/e/...`. Deal links (and the `tracked_url` field in the feed and MCP results) go through a `/go/<deal-id>` redirect on the telemetry worker, which adds one to an aggregate counter per UTC day, deal, provider, `src` and `?ref=` tag, then redirects to that deal's listed `redeem_url`. No IP address, cookie, user agent or other identifier is stored.

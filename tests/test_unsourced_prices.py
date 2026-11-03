@@ -94,7 +94,7 @@ def test_api_v1_feed_nulls_unsourced_prices_additively():
     fly = v1["deal-fly-trial-001"]
     assert fly["price_usd"] is None and fly["price_null_reason"] == "no cited price"
     for d in src:  # additive: nothing removed or renamed; only prices of unsourced deals change
-        o = v1[d["id"]]
+        o = {k: v for k, v in v1[d["id"]].items() if k != "tracked_url"}  # tracked_url: additive /go/ redirect
         assert set(d) <= set(o)
         if is_sourced(d):
             assert o == d

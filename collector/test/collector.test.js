@@ -60,3 +60,20 @@ test("stats endpoint is read-only aggregate", async () => {
   assert.equal(r.total_calls, 3);
   assert.deepEqual(Object.keys(r.rows[0]).sort(), ["day", "n", "tool", "version"]);
 });
+
+test("/go/ redirects only to the feed's stored redeem_url and counts the click", async () => {
+  const { dealMap, clickParams } = await import("../src/index.js");
+  const feed = { deals: [{ id: "deal-x", advertiser: "X", redeem_url: "https://x.example/r?a=1" }] };
+  const realFetch = globalThis.fetch; globalThis.fetch = async () => new Response(JSON.stringify(feed));
+  const m = await dealMap(fetch, Date.now());
+  assert.equal(m.get("deal-x").url, "https://x.example/r?a=1");
+  const calls = [];
+  const env = { DB: { prepare: (sql) => ({ bind: (...a) => ({ run: async () => calls.push(a) }) }) } };
+  const r = await worker.fetch(new Request("https://w/go/deal-x?src=feed-test&ref=qa&to=https://evil.example"), env);
+  assert.equal(r.status, 302);
+  assert.equal(r.headers.get("location"), "https://x.example/r?a=1");
+  assert.deepEqual(calls[0].slice(1), ["deal-x", "X", "feed-test", "qa"]);
+  assert.equal((await worker.fetch(new Request("https://w/go/nope"), env)).status, 404);
+  assert.deepEqual(clickParams(new URL("https://w/go/a?src=EVIL")), { src: "other", ref: "none" });
+  globalThis.fetch = realFetch;
+});

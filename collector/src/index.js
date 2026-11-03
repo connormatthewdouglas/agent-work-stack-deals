@@ -2,6 +2,9 @@
 // Stores ONLY aggregate counts per (day, tool, version). Never stores IPs, headers or IDs.
 // POST /v1/events  {"events":[{"t":tool,"v":version,"d":"YYYY-MM-DD","n":count}, ...]}
 // GET  /v1/stats?days=30  -> read-only aggregates
+// GET  /go/<deal-id>?src=site|mcp|feed|readme[-test]&ref=<tag>  -> 302 to that deal's stored redeem_url (looked up in the
+//      served feed; never a caller-supplied URL, so not an open redirect). Counts one click per (day, deal, provider, src, ref).
+// GET  /v1/clicks?days=30 -> read-only click aggregates
 export const TOOLS = new Set(["search_deals", "compare_deals", "get_deal", "compare_gpu_prices", "optimize_stack", "optimize_agent_stack"]);
 export const MAX_BODY = 4096, MAX_EVENTS = 50, MAX_N = 10000, MAX_AGE_DAYS = 8;
 const VERSION_RE = /^\d{1,3}\.\d{1,3}\.\d{1,3}$/;
@@ -47,6 +50,30 @@ export function validate(body, now = new Date()) {
   return null;
 }
 
+export const FEED_URL = "https://thelanternworks.com/api/v1/deals.json";
+export const SRCS = new Set(["site", "mcp", "feed", "readme"].flatMap((x) => [x, x + "-test"]));
+const ID_RE = /^[a-z0-9][a-z0-9-]{0,79}$/;
+const REF_RE = /^[a-z0-9][a-z0-9_-]{0,31}$/;
+let feedCache = { at: 0, byId: null };
+
+export async function dealMap(fetchFn = fetch, now = Date.now()) {
+  if (feedCache.byId && now - feedCache.at < 300_000) return feedCache.byId;
+  const r = await fetchFn(FEED_URL, { cf: { cacheTtl: 300 } });
+  if (!r.ok) { if (feedCache.byId) return feedCache.byId; throw new Error("feed " + r.status); }
+  const byId = new Map();
+  for (const d of (await r.json()).deals || []) {
+    if (d && d.id && !d.example && /^https:\/\//.test(d.redeem_url || "")) byId.set(d.id, { url: d.redeem_url, provider: d.advertiser || "" });
+  }
+  feedCache = { at: now, byId };
+  return byId;
+}
+
+export function clickParams(url) {
+  const src = (url.searchParams.get("src") || "").toLowerCase();
+  const ref = (url.searchParams.get("ref") || "").toLowerCase();
+  return { src: SRCS.has(src) ? src : (src ? "other" : "none"), ref: REF_RE.test(ref) ? ref : (ref ? "other" : "none") };
+}
+
 const json = (obj, status = 200) => new Response(JSON.stringify(obj), {
   status, headers: { "content-type": "application/json", "access-control-allow-origin": "*", "cache-control": "no-store" } });
 
@@ -80,7 +107,33 @@ export default {
       return json({ since, total_calls: total, rows: results,
         note: "Opt-in (LANTERN_TELEMETRY=1) aggregate tool-call counts. No IPs or IDs are stored." });
     }
-    if (url.pathname === "/") return json({ service: "lantern-works-mcp-telemetry", endpoints: ["POST /v1/events", "GET /v1/stats?days=30"] });
+    if (url.pathname.startsWith("/go/") && (request.method === "GET" || request.method === "HEAD")) {
+      const id = url.pathname.slice(4).replace(/\/$/, "").toLowerCase();
+      if (!ID_RE.test(id)) return json({ error: "bad deal id" }, 400);
+      let byId;
+      try { byId = await dealMap(); } catch { return json({ error: "feed unavailable" }, 503); }
+      const deal = byId.get(id);
+      if (!deal) return json({ error: "unknown deal id" }, 404);
+      const { src, ref } = clickParams(url);
+      let target = deal.url;
+      if (src.startsWith("site")) {  // keep the site's existing T51 utm_source tag
+        try { const t = new URL(target); if (!t.searchParams.has("utm_source")) t.searchParams.set("utm_source", "lanternworks"); target = t.href; } catch {}
+      }
+      const day = new Date().toISOString().slice(0, 10);
+      if (request.method === "GET") try {
+        await env.DB.prepare("INSERT INTO clicks (day, deal_id, provider, src, ref, n) VALUES (?1, ?2, ?3, ?4, ?5, 1) " +
+          "ON CONFLICT(day, deal_id, provider, src, ref) DO UPDATE SET n = n + 1").bind(day, id, deal.provider, src, ref).run();
+      } catch {}  // never block the redirect on a counter failure
+      return new Response(null, { status: 302, headers: { location: target, "cache-control": "no-store", "referrer-policy": "no-referrer-when-downgrade" } });
+    }
+    if (url.pathname === "/v1/clicks" && request.method === "GET") {
+      const days = Math.min(Math.max(parseInt(url.searchParams.get("days") || "30", 10) || 30, 1), 365);
+      const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+      const { results } = await env.DB.prepare(
+        "SELECT day, deal_id, provider, src, ref, n FROM clicks WHERE day >= ?1 ORDER BY day, provider, src").bind(since).all();
+      return json({ since, rows: results, note: "Aggregate /go/ redirect clicks per UTC day x deal x provider x src x ref. No IPs, cookies or IDs. src ending -test is our own test traffic." });
+    }
+    if (url.pathname === "/") return json({ service: "lantern-works-mcp-telemetry", endpoints: ["POST /v1/events", "GET /v1/stats?days=30", "GET /go/<deal-id>?src=", "GET /v1/clicks?days=30"] });
     return json({ error: "not found" }, 404);
   },
 };

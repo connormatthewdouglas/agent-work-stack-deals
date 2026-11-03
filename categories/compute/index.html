@@ -210,7 +210,7 @@
 
 
     <article class="deal" id="deal-alphavps-001" data-category="compute" data-affiliate="true" data-offer="standard_referral" data-offer-label="Standard signup" data-price="" data-price-label="Plan prices listed (see details)" data-unit="per server per month" data-advertiser="AlphaVPS" data-free="0" data-verified="0" data-verified-at="">
-      <h2><a href="https://thelanternworks.com/deals/alphavps-001/">AlphaVPS — EU VPS, dedicated and GPU servers (RTX PRO 6000 / RTX 5090)</a> <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
+      <h2><a href="https://thelanternworks.com/deals/alphavps-001/">AlphaVPS — EU VPS, dedicated and GPU servers (RTX PRO 6000 / RTX 5090)</a> <span class="badge fresh-updated">Updated</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h2>
       <p class="meta"><span class="cat">compute</span> · <strong>Plan prices listed (see details)</strong> · AlphaVPS</p>
       <p class="freshness">Updated Oct 27, 2026</p>
       <p class="tags"><span class="tag">vps</span> <span class="tag">gpu</span> <span class="tag">dedicated-server</span> <span class="tag">bare-metal</span> <span class="tag">compute</span> <span class="tag">eu-hosting</span> <span class="tag">alphavps</span> <span class="tag">affiliate</span></p>
@@ -374,7 +374,11 @@
     try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
       if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
     let id;
-    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,""); }
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+      // route deal links through the counted /go/ redirect (302 to the same stored redeem_url, utm_source kept; aggregate count only)
+      const g=new URL("https://lantern-works-telemetry.lantern-works.workers.dev/go/"+id.slice(4)); g.searchParams.set("src","site");
+      try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) g.searchParams.set("ref",r); }catch(e){}
+      a.href=g.href; }
     else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
       let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
       if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;

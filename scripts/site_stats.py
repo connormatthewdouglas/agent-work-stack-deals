@@ -6,7 +6,7 @@ Sources (all aggregate, no visitor-level data):
   - opt-in telemetry worker /v1/stats: tool calls per day x tool x version (test version 0.0.0 dropped)
   - Cloudflare Web Analytics beacon (/e/out/<id> virtual page views = outbound clicks): weekly totals only, and only
     when CF_API_TOKEN, CF_ACCOUNT_ID and CF_SITE_TAG are set; otherwise reported as not available
-Rows are rolled up to ISO weeks (YYYY-Www). No per-caller, per-key or per-vendor click data is published.
+Rows are rolled up to ISO weeks (YYYY-Www). No per-caller or per-key data is published; /go/ redirect clicks are published per provider x src (aggregate).
   python3 scripts/site_stats.py [--out stats.json] [--weeks 12]
 """
 from __future__ import annotations
@@ -24,6 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 HOSTED = "https://lantern-works-mcp.lantern-works.workers.dev/stats.json"
 TELEMETRY = "https://lantern-works-telemetry.lantern-works.workers.dev/v1/stats?days=120"
+GO_CLICKS = "https://lantern-works-telemetry.lantern-works.workers.dev/v1/clicks?days=120"
 INTERNAL_REFS = {"ci", "qa", "test", "smoke"}  # plus any ref starting with "house-": our own checks
 
 
@@ -150,6 +151,26 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
     }
 
 
+def add_go_clicks(rep: dict, go: dict) -> None:
+    """Per-provider /go/ redirect clicks by src (site|mcp|feed|readme), weekly. src ending -test and internal refs are our
+    own test traffic: kept apart in test_go_clicks_by_provider and never counted in go_clicks_by_provider."""
+    ok = "error" not in go
+    rep["sources"]["go_clicks"] = ("telemetry worker /go/<deal-id>?src= redirect (aggregate day x deal x provider x src x ref in D1; "
+                                   "no IPs or cookies). test_go_clicks_by_provider = our own test clicks (src *-test or internal ref), "
+                                   "excluded from go_clicks_by_provider" if ok else "not available this run")
+    weeks = {w["week"]: w for w in rep["weeks"]}
+    for w in weeks.values():
+        w["go_clicks_by_provider"], w["test_go_clicks_by_provider"] = {}, {}
+    for r in go.get("rows") or [] if ok else []:
+        w = weeks.get(week(r["day"]))
+        if w is None:
+            continue
+        src, ref = str(r.get("src") or "none"), str(r.get("ref") or "none")
+        test = src.endswith("-test") or internal(ref)
+        key = "test_go_clicks_by_provider" if test else "go_clicks_by_provider"
+        _add(w[key].setdefault(str(r.get("provider") or "unknown"), {}), src.removesuffix("-test"), r.get("n"))
+
+
 def _safe_clicks() -> dict | None:
     try:
         return weekly_clicks()
@@ -238,6 +259,7 @@ def main(argv=None) -> int:
     rep = build(hosted, telemetry, None if rum is not None else _safe_clicks(), a.weeks, datetime.now(timezone.utc), rum, reason)
     if rum is None:
         _carry_forward(rep, Path(a.out))
+    add_go_clicks(rep, _get(GO_CLICKS))
     Path(a.out).write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {a.out}: {len(rep['weeks'])} weeks")
     return 0

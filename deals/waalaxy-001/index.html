@@ -123,7 +123,7 @@
 
   <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/lanternworks/">Lantern Works</a> · <a href="https://thelanternworks.com/categories/email-apis/">email-apis</a></p>
   <article class="deal" id="deal-waalaxy-001">
-    <h1>Waalaxy — LinkedIn and email prospecting automation <span class="badge fresh-new">New</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h1>
+    <h1>Waalaxy — LinkedIn and email prospecting automation <span class="badge fresh-updated">Updated</span> <span class="badge affiliate">Referral link</span> <span class="badge unverified">Price not verified</span></h1>
     <p class="meta"><span class="cat">email-apis</span> · <strong>Plan prices listed (see details)</strong> · Advertiser: Waalaxy</p>
     <p class="tags"><span class="tag">email</span> <span class="tag">cold-email</span> <span class="tag">linkedin</span> <span class="tag">prospecting</span> <span class="tag">outreach</span> <span class="tag">automation</span> <span class="tag">email-finder</span> <span class="tag">waalaxy</span> <span class="tag">affiliate</span></p>
     <p class="meta">Published pricing (verify on vendor site): Price not verified in USD: waalaxy.com/pricing lists Pro, Advanced and Business plans in EUR (Pro from €19/user/month) with monthly, quarterly and yearly billing. Landing page advertises a 14-day free trial (unverified).</p>
@@ -181,7 +181,11 @@
     try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
       if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
     let id;
-    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,""); }
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+      // route deal links through the counted /go/ redirect (302 to the same stored redeem_url, utm_source kept; aggregate count only)
+      const g=new URL("https://lantern-works-telemetry.lantern-works.workers.dev/go/"+id.slice(4)); g.searchParams.set("src","site");
+      try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) g.searchParams.set("ref",r); }catch(e){}
+      a.href=g.href; }
     else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
       let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
       if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;

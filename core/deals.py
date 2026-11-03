@@ -39,7 +39,7 @@ OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0, "l
 PUBLIC_FIELDS = ("id", "title", "advertiser", "category", "offer_type", "tags", "affiliate", "agent_only",
                  "price_usd", "list_price_usd", "currency", "unit", "billing_period", "promo_code",
                  "redeem_url", "expires_at", "verified_at", "updated_at", "agent_instructions",
-                 "docs_url", "source_url", "pricing_note", "claim_note", "signup", "signup_note", "price_null_reason")
+                 "docs_url", "source_url", "pricing_note", "claim_note", "signup", "signup_note", "price_null_reason", "tracked_url")
 SUMMARY_FIELDS = ("id", "title", "advertiser", "category", "offer_type", "price_usd", "unit",
                   "verified_at", "redeem_url", "affiliate", "signup", "price_null_reason", "source_url")
 NO_CITED_PRICE = "no cited price"
@@ -53,8 +53,24 @@ def cite_guard(deal: dict) -> dict:
     return {**deal, "price_usd": None, "list_price_usd": None, "price_null_reason": NO_CITED_PRICE}
 
 
+# /go/<deal-id> click redirect (telemetry worker): 302s to the deal's stored redeem_url, counting day x deal x src
+# (no IP, cookie or id). Additive field: redeem_url stays the direct link.
+GO_BASE = "https://lantern-works-telemetry.lantern-works.workers.dev/go/"
+
+
+def tracked_url(deal: dict, src: str) -> str | None:
+    if not isinstance(deal, dict) or not deal.get("id") or not deal.get("redeem_url") or deal.get("example"):
+        return None
+    return f"{GO_BASE}{deal['id']}?src={src}"
+
+
+def _with_tracked(deal: dict, src: str) -> dict:
+    t = tracked_url(deal, src)
+    return {**deal, "tracked_url": t} if t else deal
+
+
 def cite_guard_feed(feed: dict) -> dict:
-    return {**feed, "deals": [cite_guard(d) for d in feed.get("deals") or []]}
+    return {**feed, "deals": [_with_tracked(cite_guard(d), "feed") for d in feed.get("deals") or []]}
 
 
 MAX_LIMIT = 25
@@ -695,7 +711,10 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
 
 
 def public_view(deal: dict, fields: tuple[str, ...] = PUBLIC_FIELDS) -> dict:
-    return {k: deal.get(k) for k in fields if k in deal}
+    out = {k: deal.get(k) for k in fields if k in deal}
+    if "redeem_url" in fields and (t := tracked_url(deal, "mcp")):
+        out["tracked_url"] = t  # additive: counted /go/ redirect to the same redeem_url
+    return out
 
 
 def _parse_dt(s: Any) -> datetime | None:
