@@ -37,3 +37,20 @@ def test_nonGPU_block_parses_cited_from_price_and_drops_unsourced_rows():
     assert {"price_usd": 0.68, "unit": "per GB"} in nine["price_options"]
     assert all(i["source_url"] and i["checked_at"] for i in items)
     assert not any(i["vendor"] == "DataImpulse" for i in items)
+
+
+def test_compare_index_lists_gpu_pages_first_and_llms_links_it():
+    t = (ROOT / "compare/index.html").read_text()
+    llms = (ROOT / "llms.txt").read_text()
+    assert "https://thelanternworks.com/compare/)" in llms and "## GPU comparison pages" in llms
+    gpu_h2, tool_h2 = t.index("GPU price comparisons"), t.index("Tool and API comparisons")
+    for f in glob.glob(str(ROOT / "compare/*/index.html")):
+        s = Path(f).read_text()
+        if 'http-equiv="refresh"' in s:
+            continue
+        slug = Path(f).parent.name
+        pos = t.index(f"/compare/{slug}/")
+        if "compare_gpu_prices" in s.split('id="lw-price-block">', 1)[1].split("</script>", 1)[0]:
+            assert gpu_h2 < pos < tool_h2, slug
+        else:
+            assert pos > tool_h2, slug

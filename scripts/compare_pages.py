@@ -511,3 +511,42 @@ def nav_html(base: str) -> str:
         f'<nav class="compare-nav" style="margin-top:.5rem;"><strong>Comparisons:</strong> '
         f'<a href="{base}/{PILLAR["slug"]}/">AI agent tool deals (overview)</a> · {links}</nav>'
     )
+
+
+def write_compare_index(g) -> str:
+    """Brain T93/#268: /compare/ index (was 404). Lists every live compare page (refresh stubs skipped), GPU pages first,
+    each of which embeds <script id="lw-price-block">. Derived from the generated compare/*/index.html files."""
+    base, esc = g.BASE, g.esc
+    gpu, other = [], []
+    for f in sorted((g.ROOT / "compare").glob("*/index.html")):
+        t = f.read_text(encoding="utf-8")
+        if 'http-equiv="refresh"' in t:
+            continue
+        m = re.search(r"<h1[^>]*>(.*?)</h1>", t, re.S)
+        name = re.sub(r"<[^>]+>", "", m.group(1)).strip() if m else f.parent.name
+        blk = re.search(r'id="lw-price-block">(.*?)</script>', t, re.S)
+        is_gpu = False
+        if blk:
+            try:
+                is_gpu = "compare_gpu_prices" in str(json.loads(blk.group(1).replace("<\\/", "</")).get("mcp"))
+            except ValueError:
+                pass
+        (gpu if is_gpu else other).append((f.parent.name, name))
+    li = lambda xs: "".join(f'<li><a href="{base}/compare/{s}/">{esc(n)}</a></li>' for s, n in xs)
+    url = f"{base}/compare/"
+    body = f"""
+  <nav aria-label="Breadcrumb" class="crumbs"><a href="{base}/">Home</a> › Comparisons</nav>
+  <main>
+  <h1>Comparisons</h1>
+  <p>Side-by-side pages built from the cited feed. Every page embeds a machine-readable price block
+  (<code>&lt;script type="application/json" id="lw-price-block"&gt;</code>); GPU pages list model, vendor, usd_per_hr, checked_at and source_url, sorted by cost.
+  Agents: prefer the MCP tool compare_gpu_prices (brief mode) or <a href="{base}/api/v1/gpu-prices.json">gpu-prices.json</a>; see <a href="{base}/llms.txt">llms.txt</a>.</p>
+  <h2>GPU price comparisons</h2><ul>{li(gpu)}</ul>
+  <h2>Tool and API comparisons</h2><ul>{li(other)}</ul>
+  </main>
+"""
+    path = g.ROOT / "compare" / "index.html"
+    path.write_text(g.page_shell("GPU and AI tool price comparisons — Lantern Works",
+                                 "Index of Lantern Works comparison pages, GPU first, each with a machine-readable price block.",
+                                 url, body + install_link_snippet(base)), encoding="utf-8")
+    return "compare"

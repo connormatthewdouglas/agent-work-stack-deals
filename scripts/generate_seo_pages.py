@@ -1939,6 +1939,7 @@ def main() -> None:
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])
+    tool_paths.append(compare_pages.write_compare_index(sys.modules[__name__]))  # T93: after all compare/* pages exist
     import stale_js
     print(f"av_stale_js_pages={stale_js.inject(ROOT)}")
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
