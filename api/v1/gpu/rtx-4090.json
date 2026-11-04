@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-11-04T15:17:25+00:00",
+  "last_checked": "2026-11-04T15:24:01+00:00",
   "row_count": 11,
   "providers": [
     "Clore.ai",
@@ -246,6 +246,49 @@
         "group": {
           "form_factor": "unknown",
           "tier": "Marketplace spot node (interruptible)",
+          "vram_gb": 24
+        }
+      },
+      {
+        "vram_gb": 24,
+        "provider": "Clore.ai",
+        "gpu": "RTX 4090",
+        "tier": "Marketplace on-demand (host USD listings; median per GPU)",
+        "tier_class": "marketplace",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.5154,
+        "unit": "hour",
+        "price_usd": 0.5154,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "marketplace",
+        "verified_at": "2026-11-04T15:24:01+00:00",
+        "source_url": "https://api.clore.ai/v1/marketplace",
+        "quote": "Clore.ai API: 99 available RTX 4090 24GB host USD listings, range $0.2412-$1.6667; per-GPU median $0.5154/hr, min $0.2412/hr",
+        "availability": {
+          "status": "available when checked",
+          "in_stock": true,
+          "checked_at": "2026-11-04T15:24:01+00:00",
+          "refresh": "automated check, time shown (prices checked daily)",
+          "source": "https://api.clore.ai/v1/marketplace",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "origin": "record",
+          "max_age_hours": 8,
+          "availability_expires_at": "2026-11-04T23:24:01Z",
+          "stock_level": "102 available listings",
+          "same_capture_as_price": true,
+          "detail": "Clore.ai API snapshot: 102 available RTX 4090 24GB listings (status available, any currency)",
+          "stock_read_at": "2026-11-04T15:24:01+00:00",
+          "price_read_at": "2026-11-04T15:24:01+00:00",
+          "price_at_claim_usd": 0.5154,
+          "gpu_count": 1
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Marketplace on-demand (host USD listings; median per GPU)",
           "vram_gb": 24
         }
       },
@@ -645,384 +688,6 @@
           "tier": "Marketplace on-demand (verified; median per GPU)",
           "vram_gb": 24
         }
-      },
-      {
-        "vram_gb": 24,
-        "provider": "Clore.ai",
-        "gpu": "RTX 4090",
-        "tier": "Marketplace on-demand (host USD listings; median per GPU)",
-        "tier_class": "marketplace",
-        "bucket": "spot-community",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 0.555,
-        "unit": "hour",
-        "price_usd": 0.555,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "marketplace",
-        "verified_at": "2026-11-02T15:14:19+00:00",
-        "source_url": "https://api.clore.ai/v1/marketplace",
-        "quote": "Clore.ai API: 113 available RTX 4090 24GB host USD listings, range $0.2706-$3.125; per-GPU median $0.555/hr, min $0.2706/hr",
-        "availability": {
-          "status": "available when checked",
-          "in_stock": true,
-          "checked_at": "2026-11-04T15:01:31Z",
-          "refresh": "manual snapshot, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-          "origin": "scout",
-          "availability_expires_at": "2026-11-04T16:01:31Z",
-          "max_age_hours": 1.0,
-          "unrented_servers": 105,
-          "available_regions": [
-            "AR",
-            "BA",
-            "BY",
-            "CN",
-            "DE",
-            "FI",
-            "FR",
-            "HK",
-            "HR",
-            "LV",
-            "MD",
-            "NL",
-            "RU",
-            "SE",
-            "TR",
-            "UA",
-            "US"
-          ],
-          "available_regions_detail": [
-            {
-              "region": "AR",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "BA",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "BY",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "CN",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "DE",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "FI",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "FR",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "HK",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "HR",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "LV",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "MD",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "NL",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "RU",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "SE",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "TR",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "UA",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "US",
-              "stock_level": null,
-              "checked_at": "2026-11-04T15:01:31Z",
-              "availability_expires_at": "2026-11-04T16:01:31Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-04T15:01:31Z",
-              "second_read_at": "2026-11-04T15:02:34Z",
-              "second_read_gap_s": 63.0
-            }
-          ],
-          "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-          "first_read_at": "2026-11-04T15:01:31Z",
-          "second_read_at": "2026-11-04T15:02:34Z",
-          "second_read_gap_s": 63.0,
-          "second_read_basis": "region AR",
-          "two_read_gap_ok": true,
-          "available_regions_normalized": [
-            {
-              "label": "AR",
-              "zone": "AR",
-              "country": "AR",
-              "group": null
-            },
-            {
-              "label": "BA",
-              "zone": "BA",
-              "country": "BA",
-              "group": null
-            },
-            {
-              "label": "BY",
-              "zone": "BY",
-              "country": "BY",
-              "group": null
-            },
-            {
-              "label": "CN",
-              "zone": "CN",
-              "country": "CN",
-              "group": null
-            },
-            {
-              "label": "DE",
-              "zone": "DE",
-              "country": "DE",
-              "group": "EU"
-            },
-            {
-              "label": "FI",
-              "zone": "FI",
-              "country": "FI",
-              "group": "EU"
-            },
-            {
-              "label": "FR",
-              "zone": "FR",
-              "country": "FR",
-              "group": "EU"
-            },
-            {
-              "label": "HK",
-              "zone": "HK",
-              "country": "HK",
-              "group": null
-            },
-            {
-              "label": "HR",
-              "zone": "HR",
-              "country": "HR",
-              "group": null
-            },
-            {
-              "label": "LV",
-              "zone": "LV",
-              "country": "LV",
-              "group": null
-            },
-            {
-              "label": "MD",
-              "zone": "MD",
-              "country": "MD",
-              "group": null
-            },
-            {
-              "label": "NL",
-              "zone": "NL",
-              "country": "NL",
-              "group": "EU"
-            },
-            {
-              "label": "RU",
-              "zone": "RU",
-              "country": "RU",
-              "group": null
-            },
-            {
-              "label": "SE",
-              "zone": "SE",
-              "country": "SE",
-              "group": "EU"
-            },
-            {
-              "label": "TR",
-              "zone": "TR",
-              "country": "TR",
-              "group": null
-            },
-            {
-              "label": "UA",
-              "zone": "UA",
-              "country": "UA",
-              "group": null
-            },
-            {
-              "label": "US",
-              "zone": "US",
-              "country": "US",
-              "group": "NA"
-            }
-          ],
-          "regions_expires_at": "2026-11-04T16:01:31Z",
-          "unrented_servers_note": "unrented servers (one server may hold several GPUs)",
-          "detail": "Unrented servers (one server may hold several GPUs), any currency",
-          "stock_read_at": "2026-11-04T15:01:31Z",
-          "price_read_at": "2026-11-02T15:14:19+00:00",
-          "price_at_claim_usd": 0.555,
-          "gpu_count": 1
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Marketplace on-demand (host USD listings; median per GPU)",
-          "vram_gb": 24
-        }
       }
     ],
     "monthly": [
@@ -1241,6 +906,44 @@
         "stock_read_at": "2026-11-04T15:17:25+00:00",
         "price_read_at": "2026-11-04T15:17:25+00:00",
         "price_at_claim_usd": 0.47,
+        "gpu_count": 1
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "Clore.ai",
+      "gpu": "RTX 4090",
+      "vram_gb": 24,
+      "tier": "Marketplace on-demand (host USD listings; median per GPU)",
+      "tier_class": "marketplace",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.5154,
+      "unit": "hour",
+      "price_usd": 0.5154,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "marketplace",
+      "verified_at": "2026-11-04T15:24:01+00:00",
+      "source_url": "https://api.clore.ai/v1/marketplace",
+      "quote": "Clore.ai API: 99 available RTX 4090 24GB host USD listings, range $0.2412-$1.6667; per-GPU median $0.5154/hr, min $0.2412/hr",
+      "availability": {
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-04T15:24:01+00:00",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "source": "https://api.clore.ai/v1/marketplace",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "origin": "record",
+        "max_age_hours": 8,
+        "availability_expires_at": "2026-11-04T23:24:01Z",
+        "stock_level": "102 available listings",
+        "same_capture_as_price": true,
+        "detail": "Clore.ai API snapshot: 102 available RTX 4090 24GB listings (status available, any currency)",
+        "stock_read_at": "2026-11-04T15:24:01+00:00",
+        "price_read_at": "2026-11-04T15:24:01+00:00",
+        "price_at_claim_usd": 0.5154,
         "gpu_count": 1
       },
       "form_factor": "unknown",
@@ -1639,379 +1342,6 @@
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
-      "provider": "Clore.ai",
-      "gpu": "RTX 4090",
-      "vram_gb": 24,
-      "tier": "Marketplace on-demand (host USD listings; median per GPU)",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 0.555,
-      "unit": "hour",
-      "price_usd": 0.555,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "marketplace",
-      "verified_at": "2026-11-02T15:14:19+00:00",
-      "source_url": "https://api.clore.ai/v1/marketplace",
-      "quote": "Clore.ai API: 113 available RTX 4090 24GB host USD listings, range $0.2706-$3.125; per-GPU median $0.555/hr, min $0.2706/hr",
-      "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-11-04T15:01:31Z",
-        "refresh": "manual snapshot, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-04T16:01:31Z",
-        "max_age_hours": 1.0,
-        "unrented_servers": 105,
-        "available_regions": [
-          "AR",
-          "BA",
-          "BY",
-          "CN",
-          "DE",
-          "FI",
-          "FR",
-          "HK",
-          "HR",
-          "LV",
-          "MD",
-          "NL",
-          "RU",
-          "SE",
-          "TR",
-          "UA",
-          "US"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "AR",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "BA",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "BY",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "CN",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "DE",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "FI",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "FR",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "HK",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "HR",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "LV",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "MD",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "NL",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "RU",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "SE",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "TR",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "UA",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "US",
-            "stock_level": null,
-            "checked_at": "2026-11-04T15:01:31Z",
-            "availability_expires_at": "2026-11-04T16:01:31Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-04T15:01:31Z",
-            "second_read_at": "2026-11-04T15:02:34Z",
-            "second_read_gap_s": 63.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "first_read_at": "2026-11-04T15:01:31Z",
-        "second_read_at": "2026-11-04T15:02:34Z",
-        "second_read_gap_s": 63.0,
-        "second_read_basis": "region AR",
-        "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "AR",
-            "zone": "AR",
-            "country": "AR",
-            "group": null
-          },
-          {
-            "label": "BA",
-            "zone": "BA",
-            "country": "BA",
-            "group": null
-          },
-          {
-            "label": "BY",
-            "zone": "BY",
-            "country": "BY",
-            "group": null
-          },
-          {
-            "label": "CN",
-            "zone": "CN",
-            "country": "CN",
-            "group": null
-          },
-          {
-            "label": "DE",
-            "zone": "DE",
-            "country": "DE",
-            "group": "EU"
-          },
-          {
-            "label": "FI",
-            "zone": "FI",
-            "country": "FI",
-            "group": "EU"
-          },
-          {
-            "label": "FR",
-            "zone": "FR",
-            "country": "FR",
-            "group": "EU"
-          },
-          {
-            "label": "HK",
-            "zone": "HK",
-            "country": "HK",
-            "group": null
-          },
-          {
-            "label": "HR",
-            "zone": "HR",
-            "country": "HR",
-            "group": null
-          },
-          {
-            "label": "LV",
-            "zone": "LV",
-            "country": "LV",
-            "group": null
-          },
-          {
-            "label": "MD",
-            "zone": "MD",
-            "country": "MD",
-            "group": null
-          },
-          {
-            "label": "NL",
-            "zone": "NL",
-            "country": "NL",
-            "group": "EU"
-          },
-          {
-            "label": "RU",
-            "zone": "RU",
-            "country": "RU",
-            "group": null
-          },
-          {
-            "label": "SE",
-            "zone": "SE",
-            "country": "SE",
-            "group": "EU"
-          },
-          {
-            "label": "TR",
-            "zone": "TR",
-            "country": "TR",
-            "group": null
-          },
-          {
-            "label": "UA",
-            "zone": "UA",
-            "country": "UA",
-            "group": null
-          },
-          {
-            "label": "US",
-            "zone": "US",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-11-04T16:01:31Z",
-        "unrented_servers_note": "unrented servers (one server may hold several GPUs)",
-        "detail": "Unrented servers (one server may hold several GPUs), any currency",
-        "stock_read_at": "2026-11-04T15:01:31Z",
-        "price_read_at": "2026-11-02T15:14:19+00:00",
-        "price_at_claim_usd": 0.555,
-        "gpu_count": 1
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
       "provider": "Novita AI",
       "gpu": "RTX 4090",
       "vram_gb": 24,
@@ -2109,5 +1439,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261104T150330Z-7e442973",
-  "feed_updated_at": "2026-11-04T15:17:25Z"
+  "feed_updated_at": "2026-11-04T15:24:01Z"
 }
