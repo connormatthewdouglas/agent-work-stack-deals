@@ -48,3 +48,18 @@ def test_free_credits_page_cited_and_clean():
     main = s.split("<h1>", 1)[1].split("</table>", 1)[0]
     assert "Frosty" not in s and "commission" not in main.lower() and "?ref=" not in main
     assert "/gpu/free-credits/" in (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+
+
+def test_methodology_like_for_like_demo_from_feed():
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import methodology_page as m
+    doc = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text(encoding="utf-8"))
+    rows = m.like_for_like(doc["rates"], doc.get("hours_per_month") or 730)
+    s = (ROOT / "methodology" / "index.html").read_text(encoding="utf-8")
+    for x in rows:
+        lo, hi = x["lo"], x["hi"]
+        assert lo["tier_class"] == hi["tier_class"] == "on-demand" and not lo.get("interruptible") and not hi.get("interruptible")
+        assert (lo["canonical_model"], lo["form_factor"], lo["vram_gb"], lo["gpu_count"]) == (hi["canonical_model"], hi["form_factor"], hi["vram_gb"], hi["gpu_count"])
+        assert f'${x["gap_month"]:,}/mo per GPU' in s
+    assert 'id="like-for-like"' in s and "cheapest" not in s.split('id="like-for-like"')[1].split('id="cadence"')[0].lower()
