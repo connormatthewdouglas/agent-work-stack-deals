@@ -555,7 +555,7 @@ def availability_measured(r: dict) -> bool:
     return st in ("available when checked", "out of stock when checked") or st.startswith("unknown (stale availability, last checked")
 
 
-MARKETPLACE_VENDORS = ("Vast.ai", "Clore")  # T73 F5: counted, labelled "marketplace listing"
+MARKETPLACE_VENDORS = ("Vast.ai", "Clore", "Lium")  # T73 F5: counted, labelled "marketplace listing"
 MARKETPLACE_LABEL = "marketplace listing"
 COVERAGE_RULE = ("Interruptible (spot) rows are left out of coverage entirely (numerator and denominator). Marketplace "
                  "rows (Vast.ai, Clore.ai) count and are labelled \u201cmarketplace listing\u201d: an unrented marketplace "

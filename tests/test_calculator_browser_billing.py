@@ -28,7 +28,8 @@ def test_browser_matches_python_engine(gpus):
     py = G.estimate([r for r in rates if r["unit"] == "hour"], 10, gpus, "H100")
     want = sorted(round(r["monthly_cost_usd"], 2) for r in py)
     got = render(f"?hours=10&gpus={gpus}&gpu=H100&flat=0")
-    assert sorted(c for c, *_ in got) == want
+    g = sorted(c for c, *_ in got)  # half-cent ties (e.g. Lium $1.7945 x 90 h = 161.505) round differently in JS vs Python
+    assert len(g) == len(want) and all(abs(a - b) <= 0.0100001 for a, b in zip(g, want)), (g, want)
     for c, g, a, calc in got:
         m = next(r for r in py if r["advertiser"] == a and round(r["monthly_cost_usd"], 2) == c)
         assert f"× {m['billed_gpus']} GPU" in calc

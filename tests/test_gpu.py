@@ -68,7 +68,8 @@ def test_new_families_and_modal_per_second():
     fams = families(data["rates"])
     for slug in ("h200", "l40s", "rtx-a6000", "rtx-5090"):
         assert fams[slug]["page"], slug
-    assert not fams["rtx-3090"]["page"]  # only one verified vendor
+    f3 = fams["rtx-3090"]  # one verified vendor until Lium (T62) rows are live; page only with >= 3 rates from >= 2 vendors
+    assert f3["page"] == (len(f3["rates"]) >= 3 and len(f3["vendors"]) >= 2)
     modal = [r for r in data["rates"] if r["tier"] == SERVERLESS]
     assert modal and all(r["billing"] == "per second while running" for r in modal)
     h200 = next(r for r in modal if r["gpu"] == "H200 SXM")
@@ -154,7 +155,7 @@ def test_every_record_has_live_evidence():
     for doc in load_vendor_files():
         for r in doc["records"]:
             ev = r["evidence"]
-            n -= r.get("batch") == "wider-gpu"  # Scout wider-GPU batch (scripts/import_scout_wider.py) is counted separately
+            n -= r.get("batch") == "wider-gpu" or doc["vendor"] == "Lium"  # Lium (T62 collector) rows vary per capture  # Scout wider-GPU batch (scripts/import_scout_wider.py) is counted separately
             assert set(ev) in ({"source_url", "quote", "checked_at"}, {"source_url", "quote", "checked_at", "interruption_quote", "interruption_source_url", "interruption_checked_at"}), r["gpu"]
             assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
             assert ev["checked_at"] == (r.get("verified_at") or r["checked_at"])  # evidence = last parsed price
@@ -424,7 +425,7 @@ def test_availability_coverage_on_gpu_hub():
     assert sum(m["rows"] for m in c["models"].values()) == len([r for r in rates if not r.get("interruptible")])
     assert c["excluded_interruptible_rows"] == sum(1 for r in rates if r.get("interruptible"))
     assert c["marketplace_rows"] and all(x["label"] == "marketplace listing" for x in c["marketplace_rows"])
-    assert {x["vendor"] for x in c["marketplace_rows"]} <= {"Vast.ai", "Clore.ai", "Spheron"}  # Spheron L40S: tier_class=marketplace
+    assert {x["vendor"] for x in c["marketplace_rows"]} <= {"Vast.ai", "Clore.ai", "Spheron", "Lium"}  # Spheron L40S: tier_class=marketplace
     spot = [{"advertiser": "RunPod", "gpu": "H100", "canonical_model": "H100", "interruptible": True,
              "availability": {"status": "available when checked"}}]
     assert availability_coverage(spot)["totals"] == {"rows": 0, "measurable": 0, "measured": 0, "coverage": None}
