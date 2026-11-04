@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-11-04T15:17:25+00:00",
+  "last_checked": "2026-11-04T15:34:57Z",
   "row_count": 10,
   "providers": [
     "Lium",
@@ -39,7 +39,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-04T15:03:23Z",
+        "verified_at": "2026-11-04T15:34:53Z",
         "source_url": "https://api.runpod.io/graphql gpuTypes.securePrice id=NVIDIA RTX PRO 6000 Blackwell Server Edition",
         "quote": "RTX PRO 6000 Server gpuTypes.securePrice (list price, 1 GPU) $2.49/hr",
         "availability": {
@@ -70,7 +70,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-04T15:03:30Z",
+        "verified_at": "2026-11-04T15:34:57Z",
         "source_url": "https://api.datacrunch.io/v1/instance-types (1RTXPRO6000.30V)",
         "quote": "RTX PRO 6000 instance-types price_per_hour (1 GPU) $2.698/hr",
         "availability": {
@@ -103,7 +103,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-04T15:03:30Z",
+        "verified_at": "2026-11-04T15:34:57Z",
         "source_url": "https://api.datacrunch.io/v1/instance-types (1RTXPRO6000.30V)",
         "quote": "RTX PRO 6000 instance-types spot_price (1 GPU) $1.349/hr",
         "availability": {
@@ -122,37 +122,6 @@
       },
       {
         "vram_gb": 96,
-        "provider": "Vast.ai",
-        "gpu": "RTX PRO 6000 Workstation",
-        "tier": "Marketplace on-demand (verified)",
-        "tier_class": "marketplace",
-        "bucket": "spot-community",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 1.5744,
-        "unit": "hour",
-        "price_usd": 1.5744,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-04T15:03:23Z",
-        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-        "quote": "Vast public offers API: 13 verified rentable on-demand RTX PRO 6000 Workstation offers; per-GPU dph_total median $1.5744/hr",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Marketplace on-demand (verified)",
-          "vram_gb": 96
-        }
-      },
-      {
-        "vram_gb": 96,
         "provider": "RunPod",
         "gpu": "RTX PRO 6000 Max-Q",
         "tier": "On-demand (Community Cloud)",
@@ -165,7 +134,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-04T15:03:23Z",
+        "verified_at": "2026-11-04T15:34:53Z",
         "source_url": "https://api.runpod.io/graphql gpuTypes.communityPrice id=NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
         "quote": "RTX PRO 6000 Max-Q gpuTypes.communityPrice (list price, 1 GPU) $1.64/hr",
         "availability": {
@@ -179,6 +148,37 @@
         "group": {
           "form_factor": "unknown",
           "tier": "On-demand (Community Cloud)",
+          "vram_gb": 96
+        }
+      },
+      {
+        "vram_gb": 96,
+        "provider": "Vast.ai",
+        "gpu": "RTX PRO 6000 Server",
+        "tier": "Marketplace on-demand (verified)",
+        "tier_class": "marketplace",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.7337,
+        "unit": "hour",
+        "price_usd": 1.7337,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-04T15:34:53Z",
+        "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+        "quote": "Vast public offers API: 9 verified rentable on-demand RTX PRO 6000 Server offers; per-GPU dph_total median $1.7337/hr",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "Marketplace on-demand (verified)",
           "vram_gb": 96
         }
       },
@@ -287,35 +287,9 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:30Z",
+      "verified_at": "2026-11-04T15:34:57Z",
       "source_url": "https://api.datacrunch.io/v1/instance-types (1RTXPRO6000.30V)",
       "quote": "RTX PRO 6000 instance-types spot_price (1 GPU) $1.349/hr",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Vast.ai",
-      "gpu": "RTX PRO 6000 Workstation",
-      "vram_gb": 96,
-      "tier": "Marketplace on-demand (verified)",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 1.5744,
-      "unit": "hour",
-      "price_usd": 1.5744,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:23Z",
-      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "quote": "Vast public offers API: 13 verified rentable on-demand RTX PRO 6000 Workstation offers; per-GPU dph_total median $1.5744/hr",
       "availability": {
         "status": "unknown",
         "in_stock": null,
@@ -339,7 +313,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:23Z",
+      "verified_at": "2026-11-04T15:34:53Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.communityPrice id=NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
       "quote": "RTX PRO 6000 Max-Q gpuTypes.communityPrice (list price, 1 GPU) $1.64/hr",
       "availability": {
@@ -365,7 +339,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:23Z",
+      "verified_at": "2026-11-04T15:34:53Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.communityPrice id=NVIDIA RTX PRO 6000 Blackwell Server Edition",
       "quote": "RTX PRO 6000 Server gpuTypes.communityPrice (list price, 1 GPU) $1.69/hr",
       "availability": {
@@ -391,9 +365,35 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:23Z",
+      "verified_at": "2026-11-04T15:34:53Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.communityPrice id=NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
       "quote": "RTX PRO 6000 Workstation gpuTypes.communityPrice (list price, 1 GPU) $1.69/hr",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "Vast.ai",
+      "gpu": "RTX PRO 6000 Server",
+      "vram_gb": 96,
+      "tier": "Marketplace on-demand (verified)",
+      "tier_class": "marketplace",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.7337,
+      "unit": "hour",
+      "price_usd": 1.7337,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-04T15:34:53Z",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22in%22%3A%5B%22A10%22%2C%22A40%22%2C%22B200%22%2C%22B300%22%2C%22GH200%22%2C%22L4%22%2C%22MI300X%22%2C%22Q%20RTX%206000%22%2C%22RTX%206000Ada%22%2C%22RTX%20A4000%22%2C%22RTX%20PRO%206000%20Max-Q%22%2C%22RTX%20PRO%206000%20S%22%2C%22RTX%20PRO%206000%20WS%22%2C%22Tesla%20T4%22%2C%22Tesla%20V100%22%5D%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "quote": "Vast public offers API: 9 verified rentable on-demand RTX PRO 6000 Server offers; per-GPU dph_total median $1.7337/hr",
       "availability": {
         "status": "unknown",
         "in_stock": null,
@@ -495,7 +495,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:23Z",
+      "verified_at": "2026-11-04T15:34:53Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.securePrice id=NVIDIA RTX PRO 6000 Blackwell Server Edition",
       "quote": "RTX PRO 6000 Server gpuTypes.securePrice (list price, 1 GPU) $2.49/hr",
       "availability": {
@@ -521,7 +521,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:23Z",
+      "verified_at": "2026-11-04T15:34:53Z",
       "source_url": "https://api.runpod.io/graphql gpuTypes.securePrice id=NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
       "quote": "RTX PRO 6000 Workstation gpuTypes.securePrice (list price, 1 GPU) $2.59/hr",
       "availability": {
@@ -547,7 +547,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-04T15:03:30Z",
+      "verified_at": "2026-11-04T15:34:57Z",
       "source_url": "https://api.datacrunch.io/v1/instance-types (1RTXPRO6000.30V)",
       "quote": "RTX PRO 6000 instance-types price_per_hour (1 GPU) $2.698/hr",
       "availability": {
