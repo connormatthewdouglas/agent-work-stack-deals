@@ -2,27 +2,39 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-11-04T15:48:12Z",
+  "feed_updated_at": "2026-11-04T16:11:55Z",
   "generation_id": "20261104T153457Z-1efdef17",
-  "as_of": "2026-11-04T15:48:12Z",
+  "as_of": "2026-11-04T16:11:55Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
-    "not listed": "vendor absent from the model's vendors map",
+    "not listed": "vendor absent from our feed for this model (shown as '·' on the page: not in our feed, not a claim the vendor does not offer it)",
     "vendor_lists (separate)": "vendor's public catalogue names the model (survey); not a price, not a stock claim; 'listed, no sourced price' = catalogue shows it without a price we could source"
   },
   "excluded_serverless_rows": 5,
   "counts": {
-    "models_tracked": 31,
-    "targets_tracked": 26,
+    "models_tracked": 33,
+    "targets_tracked": 28,
     "targets_total": 28,
-    "targets_not_yet_tracked": [
+    "targets_not_yet_tracked": [],
+    "vendors": 28,
+    "cells_priced_or_in_stock": 114,
+    "cells_in_stock": 14,
+    "models_single_vendor": [
+      "A10",
+      "A10G",
+      "A40",
+      "GB300",
+      "H200 NVL",
       "MI250",
-      "A10G"
+      "MI325X",
+      "MI355X",
+      "Quadro RTX 6000",
+      "RTX PRO 4000",
+      "RTX PRO 4500",
+      "RTX PRO 5000",
+      "T4"
     ],
-    "vendors": 26,
-    "cells_priced_or_in_stock": 112,
-    "cells_in_stock": 20,
     "survey_cells_listed": 53,
     "survey_models_listed_not_priced": []
   },
@@ -43,6 +55,8 @@
   },
   "vendors": [
     "99Stack Cloud",
+    "Amazon Web Services",
+    "Cirrascale",
     "Civo",
     "Clore.ai",
     "CloudRift",
@@ -105,10 +119,9 @@
           "checked_at": "2026-11-03T17:43:06+00:00"
         },
         "Hyperstack": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-03T17:43:18+00:00",
-          "stock_checked_at": "2026-11-04T15:33:44Z"
+          "checked_at": "2026-11-03T17:43:18+00:00"
         },
         "Jarvislabs": {
           "status": "priced",
@@ -147,10 +160,9 @@
           "checked_at": "2026-11-03T17:45:48+00:00"
         },
         "Vast.ai": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-03T17:45:54+00:00",
-          "stock_checked_at": "2026-11-04T15:26:54Z"
+          "checked_at": "2026-11-03T17:45:54+00:00"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
@@ -165,7 +177,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 14,
-      "in_stock_vendor_count": 3
+      "in_stock_vendor_count": 1
     },
     {
       "model": "H100",
@@ -204,10 +216,9 @@
           "checked_at": "2026-11-03T17:43:06+00:00"
         },
         "Hyperstack": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-03T17:43:18+00:00",
-          "stock_checked_at": "2026-11-04T15:33:44Z"
+          "checked_at": "2026-11-03T17:43:18+00:00"
         },
         "Jarvislabs": {
           "status": "priced",
@@ -231,10 +242,9 @@
           "checked_at": "2026-11-03T17:43:48+00:00"
         },
         "Oblivus": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-03T17:44:07+00:00",
-          "stock_checked_at": "2026-11-04T15:33:42Z"
+          "checked_at": "2026-11-03T17:44:07+00:00"
         },
         "RunPod": {
           "status": "priced",
@@ -258,7 +268,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 14,
-      "in_stock_vendor_count": 3
+      "in_stock_vendor_count": 1
     },
     {
       "model": "L40S",
@@ -331,10 +341,9 @@
       ],
       "vendors": {
         "Clore.ai": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-04T15:24:01+00:00",
-          "stock_checked_at": "2026-11-04T15:33:39Z"
+          "checked_at": "2026-11-04T15:24:01+00:00"
         },
         "Lium": {
           "status": "in stock",
@@ -373,10 +382,9 @@
           "checked_at": "2026-11-03T17:45:48+00:00"
         },
         "Vast.ai": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-03T17:46:00+00:00",
-          "stock_checked_at": "2026-11-04T15:26:58Z"
+          "checked_at": "2026-11-03T17:46:00+00:00"
         }
       },
       "vendor_lists": {
@@ -386,7 +394,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 9,
-      "in_stock_vendor_count": 3
+      "in_stock_vendor_count": 1
     },
     {
       "model": "H200",
@@ -956,6 +964,24 @@
       "in_stock_vendor_count": 0
     },
     {
+      "model": "A10G",
+      "family": "a10g",
+      "status": "tracked",
+      "variants": [
+        "A10G 24GB"
+      ],
+      "vendors": {
+        "Amazon Web Services": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-04T16:11:55+00:00"
+        }
+      },
+      "vendor_lists": {},
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
       "model": "A40",
       "family": "a40",
       "status": "tracked",
@@ -1014,6 +1040,24 @@
       },
       "vendor_count": 1,
       "in_stock_vendor_count": 1
+    },
+    {
+      "model": "MI250",
+      "family": "mi250",
+      "status": "tracked",
+      "variants": [
+        "MI250 128GB"
+      ],
+      "vendors": {
+        "Cirrascale": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-04T16:11:55+00:00"
+        }
+      },
+      "vendor_lists": {},
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
     },
     {
       "model": "MI325X",
@@ -1142,26 +1186,6 @@
         "Clore.ai": "listed"
       },
       "vendor_count": 1,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "A10G",
-      "family": "a10g",
-      "status": "not yet tracked",
-      "variants": [],
-      "vendors": {},
-      "vendor_lists": {},
-      "vendor_count": 0,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "MI250",
-      "family": "mi250",
-      "status": "not yet tracked",
-      "variants": [],
-      "vendors": {},
-      "vendor_lists": {},
-      "vendor_count": 0,
       "in_stock_vendor_count": 0
     }
   ]
