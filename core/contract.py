@@ -30,7 +30,9 @@ SPEC = {
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "canonical_model", "form_factor", "source_url", "checked_at",
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link
-                            "quote_currency", "fx_date", "last_verified", "referral_url", "referral_label"]),
+                            "quote_currency", "fx_date", "last_verified", "referral_url", "referral_label",
+                            # T112 (additive): 7-day observed in-stock share and the availability-adjusted estimate
+                            "availability_rate_7d", "expected_cost_usd"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],

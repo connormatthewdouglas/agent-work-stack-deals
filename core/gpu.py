@@ -18,6 +18,7 @@ Ranking is by estimated cost for the user's hours, never by affiliate status or 
 from __future__ import annotations
 
 from .referrals import referral_fields_for
+from . import availability_rate
 import json
 import math
 import re
@@ -467,7 +468,9 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "quote_currency": "USD", "fx_date": None, "last_verified": r.get("verified_at") or r["checked_at"],
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
-                "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r)})
+                "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r),
+                # T112 (additive estimate, never replaces the rate): 7-day in-stock share and rate / max(share, 0.1)
+                **availability_rate.fields(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r["hourly_usd"])})
     for x in rates:  # Gauge strat2 #4: label every code-carrying link; sort order is untouched
         x.update(referral_fields_for(x))
         x["price_basis_label"] = price_basis_label(x)  # additive: plain-language basis (600me review)
