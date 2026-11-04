@@ -3,6 +3,7 @@ code (core/gpu.py constants, the refresh workflow cron) or the feed's own `metho
 from __future__ import annotations
 
 import html
+import json
 import re
 from pathlib import Path
 
@@ -22,6 +23,58 @@ def _crons() -> list[str]:
 def _hhmm(c: str) -> str:
     m, h = c.split()
     return f"{int(h):02d}:{int(m):02d} UTC"
+
+
+def like_for_like(rates: list[dict], hours: int) -> list[dict]:
+    """T34 dollar demo: same canonical_model + stated form factor + VRAM + GPUs per instance, on-demand,
+    non-interruptible listed rates only (reserved/spot/marketplace never enter). Per-GPU hourly_equiv_usd;
+    one (cheapest) rate per vendor; groups need >= 3 vendors. Sorted by monthly gap, largest first."""
+    groups: dict = {}
+    for r in rates:
+        if (r.get("tier_class") != "on-demand" or r.get("interruptible") or r.get("price_status") != "listed"
+                or r.get("hourly_equiv_usd") is None or r.get("form_factor") in (None, "", "not stated")):
+            continue
+        key = (r["canonical_model"], r["form_factor"], r["vram_gb"], r.get("gpu_count") or 1)
+        best = groups.setdefault(key, {})
+        if r["advertiser"] not in best or r["hourly_equiv_usd"] < best[r["advertiser"]]["hourly_equiv_usd"]:
+            best[r["advertiser"]] = r
+    out = []
+    for (model, form, vram, n), vend in groups.items():
+        if len(vend) < 3:
+            continue
+        s = sorted(vend.values(), key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+        lo, hi = s[0], s[-1]
+        out.append({"model": model, "form": form, "vram": vram, "gpus": n, "vendors": len(vend), "lo": lo, "hi": hi,
+                    "gap_month": round((hi["hourly_equiv_usd"] - lo["hourly_equiv_usd"]) * hours)})
+    return sorted(out, key=lambda x: (-x["gap_month"], x["model"]))
+
+
+def _hr(v: float) -> str:
+    p = f"{v:.3f}"
+    return "$" + (p[:-1] if p.endswith("0") else p)
+
+
+def _demo_html(base: str) -> str:
+    doc = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text(encoding="utf-8"))
+    hours = int(doc.get("hours_per_month") or 730)
+    rows = like_for_like(doc["rates"], hours)
+    if not rows:
+        return ""
+    e = html.escape
+
+    def cell(r):
+        return (f'<a href="{e(r["source_url"])}" rel="noopener">{e(r["advertiser"])}</a> {_hr(r["hourly_equiv_usd"])}/hr'
+                f' (${r["hourly_equiv_usd"] * hours:,.0f}/mo)')
+    trs = "".join(f'<tr><td>{e(x["model"])} {e(x["form"])} {x["vram"]} GB, {x["gpus"]}-GPU instance</td><td>{x["vendors"]}</td>'
+                  f'<td>{cell(x["lo"])}</td><td>{cell(x["hi"])}</td><td><strong>${x["gap_month"]:,}/mo per GPU</strong></td></tr>'
+                  for x in rows)
+    t = rows[0]
+    return f"""
+  <h2 id="like-for-like">A like-for-like example, in dollars</h2>
+  <p>The same GPU can cost very different amounts depending on the vendor. Today's largest gap between tracked providers for an identical setup ({e(t["model"])} {e(t["form"])} {t["vram"]} GB, {t["gpus"]}-GPU instance, on-demand): {cell(t["lo"])} vs {cell(t["hi"])}, about <strong>${t["gap_month"]:,} per GPU per month</strong> apart.</p>
+  <p>Rows are grouped only when model, form factor, memory and GPUs per instance all match, and only pay-as-you-go (on-demand, non-interruptible) rates are compared; reserved, spot and marketplace rates are left out. Prices are per GPU-hour from each vendor's own page and exclude storage, egress and taxes; a month is {hours} hours (the feed's <code>hours_per_month</code>), running around the clock. Groups need at least three vendors. Computed from the <a href="{base}/api/v1/gpu-prices.json">GPU price feed</a> as of {e(doc.get("feed_updated_at", ""))}, so it moves when prices move. "Lowest" means lowest among tracked providers, not the whole market.</p>
+  <table><thead><tr><th>Same setup</th><th>Vendors</th><th>Lowest</th><th>Highest</th><th>Gap</th></tr></thead><tbody>{trs}</tbody></table>
+"""
 
 
 def write(g) -> str:
@@ -64,6 +117,7 @@ def write(g) -> str:
   <h2 id="reserved">Why reserved rates are not "cheapest"</h2>
   <p>Some vendors publish lower prices that need a reservation, a contract or a minimum term. Those prices are real, so they are shown, but they are not comparable with pay-as-you-go rates you can start and stop at any time. They are always listed separately, after every pay-as-you-go rate, and are never counted when this site calls a rate the cheapest among tracked providers.</p>
 
+{_demo_html(base)}
   <h2 id="cadence">Update schedule</h2>
   <ul>
     <li>GPU prices are refreshed once a day. The job is scheduled for {primary}, with a backup run at {fallback} that only runs if the first one did not.</li>
