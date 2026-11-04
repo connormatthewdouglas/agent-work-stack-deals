@@ -22,13 +22,13 @@ try:  # installed wheel: core is vendored as a subpackage
     from lantern_works_deals_mcp.core import deals as core
     from lantern_works_deals_mcp.core import stack
     from lantern_works_deals_mcp.core import agent_stack
-    from lantern_works_deals_mcp.core import contract, quote, cost_per_job
+    from lantern_works_deals_mcp.core import contract, quote, cost_per_job, gpu_identity
 except ImportError:  # repo checkout: shared top-level core/
     from core import VERSION, DealError, FeedLoader, GpuChangesLoader, GpuHistoryLoader, GpuPricesLoader, StackPricingLoader  # noqa: E402
     from core import deals as core  # noqa: E402
     from core import stack  # noqa: E402
     from core import agent_stack  # noqa: E402
-    from core import contract, quote, cost_per_job  # noqa: E402
+    from core import contract, quote, cost_per_job, gpu_identity  # noqa: E402
 
 INSTRUCTIONS = ("Read-only GPU rental price comparison (compare_gpu_prices, checked daily, with price history; get_price_changes lists what moved), a "
                 "stack cost optimizer (optimize_stack, or optimize_agent_stack from a plain-text agent description), and the Lantern Works agent work-stack deal feed. Results are ranked by "
@@ -177,7 +177,8 @@ def _run(fn, *a, **kw) -> dict:
 @_counted
 @_contract
 def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = True, include_reserved: bool = False,
-                       max_data_age_hours: float | None = None, region: str | None = None) -> dict:
+                       max_data_age_hours: float | None = None, region: str | None = None,
+                       min_usable_memory_gb: float | None = None) -> dict:
     """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
@@ -201,7 +202,14 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     evidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,
     unknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price
     watches use. Unknown stock is not confirmed availability.
+    model_identity (T61): sourced nominal_memory and usable_memory (vendor-allocatable) for the queried model, each
+    with source_url; unknown stays 'unknown'. min_usable_memory_gb (optional) keeps only rows whose SOURCED usable
+    memory meets it; rows with unknown usable memory are counted in usable_memory_filter.unknown and never matched
+    on nominal memory or vram_gb.
     """
+    if min_usable_memory_gb is not None and (not isinstance(min_usable_memory_gb, (int, float)) or isinstance(min_usable_memory_gb, bool)
+                                             or not 0 < min_usable_memory_gb <= 4096):
+        return DealError("invalid_argument", "min_usable_memory_gb must be a number 0-4096").to_dict()
     try:
         hist = None
         if include_history:
@@ -221,6 +229,15 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
         if hist and hist.get("error"):
             out["history"]["error"] = hist["error"]
         out.update(core.freshness(_gpu_checked_at()))
+        out["model_identity"] = gpu_identity.identity(gpu)
+        if min_usable_memory_gb is not None:
+            f = gpu_identity.filter_usable(out.get("results") or [], min_usable_memory_gb)
+            out["results"] = f["matched"]
+            out["usable_memory_filter"] = {"min_usable_memory_gb": min_usable_memory_gb, "matched": len(f["matched"]),
+                                           "below": len(f["below"]), "unknown": len(f["unknown"]), "note": f["note"]}
+            if not f["matched"]:
+                out["summary"] = (f"No tracked {gpu} rate has a sourced usable memory >= {min_usable_memory_gb:g} GB "
+                                  f"({len(f['unknown'])} unknown). Nominal memory is not used as usable memory.")
         return out
     except DealError as e:
         return e.to_dict()
