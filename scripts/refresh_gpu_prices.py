@@ -328,6 +328,8 @@ class Fetcher:
 # Vendor pages that swap the live rate line for an explicit no-capacity sentence (Spheron, 2026-11-02).
 NO_CAPACITY = {"Spheron": r"On Spheron the NVIDIA {gpu} has no capacity right now\.?|Spheron Your price \$\s?[\d.]+\s?/hr Last known\s*-\s*No capacity now"}
 NO_CAPACITY_REASON = "no capacity per vendor page"
+# Vendor pages that withdraw a published rate for "priced upon request" (CloudRift A100, 2026-11-04). {gpu} = model word.
+PRICE_WITHDRAWN = {"CloudRift": r"the {gpu} is priced upon request"}
 
 
 def no_capacity_sentence(vendor: str, gpu: str, text: str) -> str | None:
@@ -407,6 +409,12 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                 msg = "held (manual), untouched"
             else:
                 text = page_text(body)
+                pw = PRICE_WITHDRAWN.get(doc["vendor"])
+                pw = pw and re.search(pw.replace("{gpu}", re.escape(r["gpu"].split()[0])), text, re.I)
+                if pw:
+                    # price no longer published: auto hold (released by the next successful parse), price/quote untouched
+                    r["stale"] = {"reason": f"Rate withdrawn on {r['source_url']} (page: \"{pw.group(0)}\") at {stamp}; "
+                                            "held, not shown or ranked, until a price is published again.", "auto": True}
                 nc = no_capacity_sentence(doc["vendor"], r["gpu"], text)
                 if nc:
                     # Gauge T73 fix7 #1: the vendor says no capacity now. Keep the last sourced price and quote (never

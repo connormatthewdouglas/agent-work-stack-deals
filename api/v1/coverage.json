@@ -2,9 +2,9 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-11-04T22:13:18Z",
+  "feed_updated_at": "2026-11-04T22:22:18Z",
   "generation_id": "20261104T153457Z-1efdef17",
-  "as_of": "2026-11-04T22:13:18Z",
+  "as_of": "2026-11-04T22:22:18Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
@@ -20,7 +20,7 @@
       "H200 NVL"
     ],
     "vendors": 28,
-    "cells_priced_or_in_stock": 112,
+    "cells_priced_or_in_stock": 111,
     "cells_in_stock": 13,
     "models_single_vendor": [
       "A10",
@@ -87,101 +87,6 @@
     "Verda (formerly DataCrunch)"
   ],
   "models": [
-    {
-      "model": "A100",
-      "family": "a100",
-      "status": "tracked",
-      "variants": [
-        "A100 40GB",
-        "A100 80GB",
-        "A100 NVLink 80GB",
-        "A100 PCIe 40GB",
-        "A100 PCIe 80GB",
-        "A100 SXM 40GB",
-        "A100 SXM 80GB"
-      ],
-      "vendors": {
-        "Civo": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-04T18:04:27+00:00"
-        },
-        "CloudRift": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-04T18:04:39+00:00"
-        },
-        "CoreWeave": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-04T18:04:42+00:00"
-        },
-        "E2E Networks": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-04T18:04:54+00:00"
-        },
-        "Hyperstack": {
-          "status": "priced",
-          "rows": 5,
-          "checked_at": "2026-11-04T18:05:06+00:00"
-        },
-        "Jarvislabs": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-04T18:05:12+00:00"
-        },
-        "Lambda": {
-          "status": "priced",
-          "rows": 3,
-          "checked_at": "2026-11-04T18:05:24+00:00"
-        },
-        "Lium": {
-          "status": "in stock",
-          "rows": 1,
-          "checked_at": "2026-11-04T22:13:18+00:00",
-          "stock_checked_at": "2026-11-04T22:13:18+00:00"
-        },
-        "Oblivus": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-04T18:05:54+00:00"
-        },
-        "RunPod": {
-          "status": "priced",
-          "rows": 4,
-          "checked_at": "2026-11-04T18:06:13+00:00"
-        },
-        "Thunder Compute": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-04T18:07:45+00:00"
-        },
-        "Ucartz": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-04T18:07:51+00:00"
-        },
-        "Vast.ai": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-04T18:07:57+00:00"
-        },
-        "Verda (formerly DataCrunch)": {
-          "status": "priced",
-          "rows": 4,
-          "checked_at": "2026-11-04T18:08:09+00:00"
-        }
-      },
-      "vendor_lists": {
-        "Clore.ai": "listed",
-        "Oblivus": "listed",
-        "RunPod": "listed",
-        "Vast.ai": "listed"
-      },
-      "vendor_count": 14,
-      "in_stock_vendor_count": 1
-    },
     {
       "model": "H100",
       "family": "h100",
@@ -274,6 +179,96 @@
       "in_stock_vendor_count": 1
     },
     {
+      "model": "A100",
+      "family": "a100",
+      "status": "tracked",
+      "variants": [
+        "A100 40GB",
+        "A100 80GB",
+        "A100 NVLink 80GB",
+        "A100 PCIe 40GB",
+        "A100 PCIe 80GB",
+        "A100 SXM 40GB",
+        "A100 SXM 80GB"
+      ],
+      "vendors": {
+        "Civo": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-11-04T18:04:27+00:00"
+        },
+        "CoreWeave": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-04T18:04:42+00:00"
+        },
+        "E2E Networks": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-11-04T18:04:54+00:00"
+        },
+        "Hyperstack": {
+          "status": "priced",
+          "rows": 5,
+          "checked_at": "2026-11-04T18:05:06+00:00"
+        },
+        "Jarvislabs": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-11-04T18:05:12+00:00"
+        },
+        "Lambda": {
+          "status": "priced",
+          "rows": 3,
+          "checked_at": "2026-11-04T18:05:24+00:00"
+        },
+        "Lium": {
+          "status": "in stock",
+          "rows": 1,
+          "checked_at": "2026-11-04T22:13:18+00:00",
+          "stock_checked_at": "2026-11-04T22:13:18+00:00"
+        },
+        "Oblivus": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-04T18:05:54+00:00"
+        },
+        "RunPod": {
+          "status": "priced",
+          "rows": 4,
+          "checked_at": "2026-11-04T18:06:13+00:00"
+        },
+        "Thunder Compute": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-04T18:07:45+00:00"
+        },
+        "Ucartz": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-04T18:07:51+00:00"
+        },
+        "Vast.ai": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-04T18:07:57+00:00"
+        },
+        "Verda (formerly DataCrunch)": {
+          "status": "priced",
+          "rows": 4,
+          "checked_at": "2026-11-04T18:08:09+00:00"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "Oblivus": "listed",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 13,
+      "in_stock_vendor_count": 1
+    },
+    {
       "model": "L40S",
       "family": "l40s",
       "status": "tracked",
@@ -284,7 +279,7 @@
         "CloudRift": {
           "status": "priced",
           "rows": 3,
-          "checked_at": "2026-11-04T18:04:33+00:00"
+          "checked_at": "2026-11-04T22:22:18+00:00"
         },
         "CoreWeave": {
           "status": "priced",
@@ -469,7 +464,7 @@
         "CloudRift": {
           "status": "priced",
           "rows": 3,
-          "checked_at": "2026-11-04T18:04:33+00:00"
+          "checked_at": "2026-11-04T22:22:18+00:00"
         },
         "Lium": {
           "status": "in stock",
