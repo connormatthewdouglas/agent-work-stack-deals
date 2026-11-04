@@ -74,7 +74,12 @@ def test_price_changes_only_when_two_reads_60s_apart_agree():
 def test_spheron_5090_labelled_rotating_marketplace_price():
     """T87 follow-up: additive price_rotates label on the record, in the feed and on the page."""
     import json, pathlib
+    rec = [r for r in json.loads(pathlib.Path("data/gpu_pricing/spheron.json").read_text())["records"] if r["gpu"] == "RTX 5090"]
+    assert rec and rec[0]["price_rotates"]["label"] == "rotating marketplace price"  # the record always keeps the label
     feed = json.loads(pathlib.Path("api/v1/gpu-prices.json").read_text())
     rows = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
-    assert rows and rows[0]["price_rotates"]["label"] == "rotating marketplace price"
+    if not rows:  # T68: no live row today (e.g. vendor page says no capacity) is data, not a regression
+        assert rec[0].get("no_capacity") or rec[0].get("stale") or rec[0].get("held"), "row missing from feed without a recorded reason"
+        return
+    assert rows[0]["price_rotates"]["label"] == "rotating marketplace price"
     assert "rotating marketplace price" in pathlib.Path("gpu/price-comparison/index.html").read_text()
