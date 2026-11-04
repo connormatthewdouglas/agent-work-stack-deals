@@ -76,8 +76,11 @@ def test_published_feed_held_stale_never_ranked():
         assert not ({r["vendor"] for r in res} & (held - live))
 
 
-def test_mcp_tool_contract():
+def test_mcp_tool_contract(monkeypatch):
+    from core.deals import GpuPricesLoader
     from mcp_server import server
+    # read the committed feed, not the live site (the live feed lags the build; H100 rows there flaked CI 2026-11-04)
+    monkeypatch.setattr(server, "gpu_loader", GpuPricesLoader(file=str(Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json")))
     ok = server.estimate_job_cost("H100", 9, job_hours=10)
     assert ok["ok"] and ok["quote_id"].startswith("q_") and ok["results"]
     brief = server.estimate_job_cost("H100", 9, job_hours=10, mode="brief")
