@@ -55,6 +55,14 @@ def _add(d: dict, k, n: int):
 
 REF_PATH_RE = re.compile(r"^/e/ref/([a-z0-9][a-z0-9_-]{0,31})/?$")
 OUT_PATH_RE = re.compile(r"^/e/out/[a-z0-9-]{1,80}/?$", re.I)
+RECEIPTS_PATH_RE = re.compile(r"^/receipts(/|$)")
+RECEIPTS_REF_RE = re.compile(r"^receipts(-|$)")  # T55: Receipts links carry ?ref=receipts-<channel>; GPU traffic never uses it
+RECEIPTS_FUNNEL_NOTE = ("T55: Receipts (MCP test summaries) measured apart from GPU demand. page_views = beacon views of /receipts/ "
+                        "pages; visits_by_ref / mcp_initialize_by_ref / mcp_tool_calls_by_ref = refs matching receipts or "
+                        "receipts-<channel> only. api/v1/receipts.json is served by GitHub Pages, which publishes no fetch counts, so "
+                        "json_fetches is null. Independent inquiries arrive by email and are not published here (null).")
+RECEIPTS_JSON_NULL = "not measurable: /api/v1/receipts.json is served by GitHub Pages only (no request counts); not proxied by the hosted worker"
+RECEIPTS_INQ_NULL = "not published: inquiries arrive by email; counts stay private (no PII in stats.json)"
 BEACON_SINCE_WEEK = "2026-W45"  # site b392c8b3... beacon token 327dc277... shipped 2026-11-02
 BEACON_SINCE_REASON = "not measured: this Web Analytics site's beacon went live on 2026-11-02 (ISO week 2026-W45)"
 INSTALLS_NULL_REASON = ("not measurable: the opt-in telemetry worker records day x tool x version only, with no install id "
@@ -71,7 +79,7 @@ def rum_weekly(groups: list[dict]) -> dict:
         path, day, n = dim.get("requestPath") or "", dim.get("date"), int(g.get("count") or 0)
         if not day:
             continue
-        s = w.setdefault(week(day), {"page_views": 0, "visits_by_ref": {}, "outbound_clicks": 0})
+        s = w.setdefault(week(day), {"page_views": 0, "visits_by_ref": {}, "outbound_clicks": 0, "receipts_page_views": 0})
         m = REF_PATH_RE.match(path)
         if m:
             _add(s["visits_by_ref"], m.group(1), n)
@@ -79,6 +87,8 @@ def rum_weekly(groups: list[dict]) -> dict:
             s["outbound_clicks"] += n
         elif not path.startswith("/e/"):
             s["page_views"] += n
+            if RECEIPTS_PATH_RE.match(path):
+                s["receipts_page_views"] = s.get("receipts_page_views", 0) + n
     return w
 
 
@@ -121,6 +131,19 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
                 s["visits_null_reason"] = BEACON_SINCE_REASON
             elif s["page_views"] is None:
                 s.update(page_views=0, visits_by_ref={}, outbound_clicks=s["outbound_clicks"] or 0, visits_null_reason=None)
+    for s in out.values():
+        r = (rum or {}).get(s["week"]) or {}
+        measured = s["page_views"] is not None
+        sel = lambda d: {k: v for k, v in sorted((d or {}).items(), key=lambda x: (-x[1], x[0])) if RECEIPTS_REF_RE.match(k)}
+        s["receipts_funnel"] = {
+            "page_views": int(r.get("receipts_page_views", 0)) if measured else None,
+            "visits_by_ref": sel(s["visits_by_ref"]) if measured else None,
+            "mcp_initialize_by_ref": sel(s["mcp_initialize_by_ref"]),
+            "mcp_tool_calls_by_ref": sel(s["mcp_tool_calls_by_ref"]),
+            "json_fetches": None, "json_fetches_null_reason": RECEIPTS_JSON_NULL,
+            "inquiries": None, "inquiries_null_reason": RECEIPTS_INQ_NULL,
+            "page_views_null_reason": None if measured else (s["visits_null_reason"] or "Web Analytics not available this run"),
+        }
     rows = sorted(out.values(), key=lambda s: s["week"], reverse=True)[:weeks]
     for s in rows:
         for k in ("mcp_tool_calls_by_ref", "feed_fetches_by_ref", "mcp_initialize_by_ref"):
@@ -146,6 +169,7 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
             "visits_by_ref": ("Cloudflare Web Analytics /e/ref/<ref>/ virtual views, sent once per landing with ?ref= by pages built "
                               "from 2026-11-02 (rel055) on; earlier weeks cannot show refs" if rum is not None else f"null: {rum_reason}"),
             "installs_by_ref": "null: " + INSTALLS_NULL_REASON,
+            "receipts_funnel": RECEIPTS_FUNNEL_NOTE,
         },
         "weeks": rows,
     }
@@ -236,6 +260,12 @@ def _carry_forward(rep: dict, old_path: Path) -> None:
             for k in RUM_KEYS + ("outbound_clicks",):
                 if k in o:
                     s[k] = o[k]
+            orf, rf = o.get("receipts_funnel") or {}, s.get("receipts_funnel")
+            if rf is not None and orf.get("page_views") is not None:
+                rf.update(page_views=orf["page_views"], visits_by_ref=orf.get("visits_by_ref") or {}, page_views_null_reason=None)
+            elif rf is not None and s.get("visits_by_ref") is not None:  # older fill without receipts paths
+                rf.update(visits_by_ref={k: v for k, v in s["visits_by_ref"].items() if RECEIPTS_REF_RE.match(k)},
+                          page_views_null_reason="not split by path in the last box-side fill; next fill adds it")
 
 
 def main(argv=None) -> int:

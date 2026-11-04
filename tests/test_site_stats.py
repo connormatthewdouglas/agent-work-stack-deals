@@ -31,7 +31,7 @@ def test_rum_weekly_refs_and_pages():
          {"count": 1, "dimensions": {"date": "2026-11-02", "requestPath": "/e/out/deal-x/"}},
          {"count": 3, "dimensions": {"date": "2026-11-02", "requestPath": "/e/search/"}}]
     w = S.rum_weekly(g)["2026-W45"]
-    assert w == {"page_views": 5, "visits_by_ref": {"forum-hn": 2}, "outbound_clicks": 1}
+    assert w == {"page_views": 5, "visits_by_ref": {"forum-hn": 2}, "outbound_clicks": 1, "receipts_page_views": 0}
 
 
 def test_no_token_is_null_with_reason_not_zero(monkeypatch):
@@ -74,3 +74,24 @@ def test_go_clicks_per_provider_test_traffic_apart():
     w = rep["weeks"][0]
     assert w["go_clicks_by_provider"] == {"A": {"site": 2}}
     assert w["test_go_clicks_by_provider"] == {"A": {"mcp": 1}, "B": {"feed": 1}}
+
+
+def test_receipts_funnel_separate_from_gpu():
+    g = [{"count": 4, "dimensions": {"date": "2026-11-03", "requestPath": "/receipts/"}},
+         {"count": 6, "dimensions": {"date": "2026-11-03", "requestPath": "/gpu/h100-rental-price/"}},
+         {"count": 2, "dimensions": {"date": "2026-11-03", "requestPath": "/e/ref/receipts-colony/"}},
+         {"count": 3, "dimensions": {"date": "2026-11-03", "requestPath": "/e/ref/github-readme/"}}]
+    hosted = {"rows": [{"day": "2026-11-03", "tool": "a", "ref": "receipts-colony", "n": 1}, {"day": "2026-11-03", "tool": "a", "ref": "x", "n": 9}],
+              "hits": [{"day": "2026-11-03", "kind": "initialize", "name": "m", "ref": "receipts", "n": 2}]}
+    w = S.build(hosted, {}, None, 12, datetime.now(timezone.utc), S.rum_weekly(g))["weeks"][0]
+    f = w["receipts_funnel"]
+    assert f["page_views"] == 4 and f["visits_by_ref"] == {"receipts-colony": 2}
+    assert f["mcp_tool_calls_by_ref"] == {"receipts-colony": 1} and f["mcp_initialize_by_ref"] == {"receipts": 2}
+    assert f["json_fetches"] is None and f["json_fetches_null_reason"] and f["inquiries"] is None
+    assert w["page_views"] == 10  # existing totals unchanged (additive)
+
+
+def test_receipts_funnel_null_with_reason_without_beacon():
+    w = S.build({"rows": [{"day": "2026-11-03", "tool": "a", "ref": "x", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc))["weeks"][0]
+    f = w["receipts_funnel"]
+    assert f["page_views"] is None and f["page_views_null_reason"] and f["visits_by_ref"] is None
