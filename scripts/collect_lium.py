@@ -112,8 +112,8 @@ def build(payload: dict, old: dict | None, now: datetime) -> tuple[dict, list[st
                               "stock_level": f"{g['stock']} GPUs free on {g['node_count']} nodes",
                               "note": f"Lium public nodes API: {g['stock']} available GPUs ({tier} tier)"},
              "evidence": {"source_url": NODES_URL, "quote": q, "checked_at": gen}}
-        if mg > 1:
-            r["min_gpus"] = mg
+        if mg > 1:  # whole-node ask (A8): sold only as mg GPUs -> server price, per-GPU rate unchanged (T41-09)
+            r.update(min_gpus=mg, gpu_count=mg, price_usd=round(p * mg, 4), server_hourly_usd=round(p * mg, 4))
         if notes.get((fg, vram)):  # shared model-level VRAM note (same wording as every other vendor's row)
             r["vram_note"] = notes[(fg, vram)]
         if b.get("gpu_memory_gb") and abs(b["gpu_memory_gb"] - vram) > 2:
@@ -124,12 +124,12 @@ def build(payload: dict, old: dict | None, now: datetime) -> tuple[dict, list[st
         k = (r["gpu"], r["tier"])
         if k in recs:
             continue
-        q = f"Lium nodes API {gen}: 0 available {r.get('lium_model', r['gpu'])} nodes in this tier; price withheld"
-        r.update(price_usd=None, hourly_usd=None, quote=q, checked_at=gen,
+        # quote/evidence stay the last captured ask (evidence = last parsed price); the price itself is withdrawn
+        r.pop("server_hourly_usd", None)
+        r.update(price_usd=None, hourly_usd=None, checked_at=gen,
                  availability={"in_stock": False, "checked_at": gen, "source": NODES_URL, "same_capture_as_price": True,
                                "stock_level": "0 GPUs free", "note": "No available node in the Lium public nodes feed"},
-                 evidence={"source_url": NODES_URL, "quote": q, "checked_at": gen},
-                 stale={"reason": f"no available Lium node at {gen}", "auto": True})
+                 stale={"reason": f"no available Lium node at {gen}; price withheld until a node is listed again", "auto": True})
         recs[k] = r
         log.append(f"{r['gpu']} [{r['tier']}]: no available node, held")
     ex = {k: dict(EXTRA, checked_at=gen) for k in ("egress", "storage")}
