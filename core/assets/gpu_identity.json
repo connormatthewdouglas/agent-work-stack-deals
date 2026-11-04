@@ -1,0 +1,694 @@
+{
+ "task": "T61",
+ "agent": "Scout",
+ "collected_at": "2026-11-04",
+ "source_repo": "agent-deals-feed origin/main data/gpu_pricing/*.json",
+ "model_count": 39,
+ "nominal_known": 32,
+ "usable_known": 0,
+ "usable_unknown": 39,
+ "models": [
+  {
+   "model": "A10",
+   "nominal_memory": {
+    "value": "24GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/products/a10-gpu/",
+    "quote": "GPU memory | 24GB GDDR6"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "A100",
+   "nominal_memory": {
+    "value": "40GB or 80GB variants (page lists 80GB HBM2e PCIe/SXM)",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/a100/",
+    "quote": "GPU Memory | 80GB HBM2e | 80GB HBM2e"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   },
+   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+  },
+  {
+   "model": "A100 NVLink",
+   "nominal_memory": {
+    "value": "80GB HBM2e (80GB variant on page)",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/a100/",
+    "quote": "GPU Memory | 80GB HBM2e | 80GB HBM2e"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   },
+   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+  },
+  {
+   "model": "A100 PCIe",
+   "nominal_memory": {
+    "value": "80GB HBM2e (80GB variant on page)",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/a100/",
+    "quote": "GPU Memory | 80GB HBM2e | 80GB HBM2e"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   },
+   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+  },
+  {
+   "model": "A100 SXM",
+   "nominal_memory": {
+    "value": "80GB HBM2e (80GB variant on page)",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/a100/",
+    "quote": "GPU Memory | 80GB HBM2e | 80GB HBM2e"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   },
+   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+  },
+  {
+   "model": "A40",
+   "nominal_memory": {
+    "value": "48 GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/a40/",
+    "quote": "GPU Memory | 48 GB GDDR6 with error-correcting code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "B200",
+   "nominal_memory": {
+    "value": "180 GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://lambda.ai/pricing",
+    "quote": "NVIDIA B200 SXM6 180 GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "B300",
+   "nominal_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": "https://www.nvidia.com/en-us/data-center/dgx-b300/",
+    "quote": "GPU Memory | 2.1 TB (DGX B300 system total; per-GPU not stated)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "GB300",
+   "nominal_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": "https://www.nvidia.com/en-us/data-center/gb300-nvl72/",
+    "quote": "GPU Memory | Bandwidth | 20 TB (NVL72 rack total; per-GPU not stated)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "GH200",
+   "nominal_memory": {
+    "value": "96 GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://lambda.ai/pricing",
+    "quote": "NVIDIA GH200 96 GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "H100",
+   "nominal_memory": {
+    "value": "80GB (SXM) / 94GB (NVL)",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/h100/",
+    "quote": "GPU Memory | 80GB | 94GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "H100 NVL",
+   "nominal_memory": {
+    "value": "94GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/h100/",
+    "quote": "GPU Memory | 80GB | 94GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "H100 NVLink",
+   "nominal_memory": {
+    "value": "80GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/h100/",
+    "quote": "GPU Memory | 80GB | 94GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "H100 PCIe",
+   "nominal_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": "https://www.nvidia.com/en-us/data-center/h100/",
+    "quote": "Page lists 80GB (SXM) | 94GB (NVL); PCIe not listed"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "H100 SXM",
+   "nominal_memory": {
+    "value": "80GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/h100/",
+    "quote": "GPU Memory | 80GB | 94GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "H200",
+   "nominal_memory": {
+    "value": "141GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/h200/",
+    "quote": "GPU Memory | 141GB | 141GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "H200 SXM",
+   "nominal_memory": {
+    "value": "141GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/h200/",
+    "quote": "GPU Memory | 141GB | 141GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "L4",
+   "nominal_memory": {
+    "value": "24GB",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/l4/",
+    "quote": "GPU memory | 24GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "L40",
+   "nominal_memory": {
+    "value": "48 GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/l40/",
+    "quote": "GPU Memory | 48 GB GDDR6 with ECC"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "L40S",
+   "nominal_memory": {
+    "value": "48GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/l40s/",
+    "quote": "GPU Memory | 48GB GDDR6 with ECC"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "MI300X",
+   "nominal_memory": {
+    "value": "192 GB HBM3",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.amd.com/en/products/accelerators/instinct/mi300/mi300x.html",
+    "quote": "Dedicated Memory Size | 192 GB | Dedicated Memory Type | HBM3"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "MI325X",
+   "nominal_memory": {
+    "value": "256 GB HBM3E",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.amd.com/en/products/accelerators/instinct/mi300/mi325x.html",
+    "quote": "Dedicated Memory Size | 256 GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "MI355X",
+   "nominal_memory": {
+    "value": "288 GB HBM3E",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.amd.com/en/products/accelerators/instinct/mi350/mi355x.html",
+    "quote": "Dedicated Memory Size | 288 GB"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "Quadro RTX 6000",
+   "nominal_memory": {
+    "value": "24 GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/design-visualization/quadro/rtx-6000/",
+    "quote": "GPU Memory | 24 GB GDDR6"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX 3090",
+   "nominal_memory": {
+    "value": "24 GB GDDR6X",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090-3090ti/",
+    "quote": "Standard Memory Config | 24 GB GDDR6X"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX 4090",
+   "nominal_memory": {
+    "value": "24 GB GDDR6X",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4090/",
+    "quote": "Standard Memory Config | 24 GB GDDR6X"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX 5090",
+   "nominal_memory": {
+    "value": "32 GB GDDR7",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/",
+    "quote": "Standard Memory Config | 32 GB GDDR7"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX 6000 Ada",
+   "nominal_memory": {
+    "value": "48GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/design-visualization/rtx-6000/",
+    "quote": "GPU Memory | 48GB GDDR6 with error-correcting code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX A4000",
+   "nominal_memory": {
+    "value": "16GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/design-visualization/rtx-a4000/",
+    "quote": "GPU Memory | 16GB GDDR6 with error-correction code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX A5000",
+   "nominal_memory": {
+    "value": "24GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/design-visualization/rtx-a5000/",
+    "quote": "GPU Memory | 24GB GDDR6 with error-correction code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX A6000",
+   "nominal_memory": {
+    "value": "48 GB GDDR6",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/design-visualization/rtx-a6000/",
+    "quote": "GPU Memory | 48 GB GDDR6 with error-correcting code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX PRO 6000",
+   "nominal_memory": {
+    "value": "96GB GDDR7",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000/",
+    "quote": "GPU Memory | 96GB GDDR7 with error-correction code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX PRO 6000 Max-Q",
+   "nominal_memory": {
+    "value": "96GB GDDR7",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000-max-q/",
+    "quote": "GPU Memory | 96GB GDDR7 with error-correction code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX PRO 6000 Server",
+   "nominal_memory": {
+    "value": "96 GB GDDR7",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/data-center/rtx-pro-6000-blackwell-server-edition/",
+    "quote": "GPU Memory | 96 GB GDDR7"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "RTX PRO 6000 Workstation",
+   "nominal_memory": {
+    "value": "96GB GDDR7",
+    "unit_as_stated": "GB",
+    "source_url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000/",
+    "quote": "GPU Memory | 96GB GDDR7 with error-correction code (ECC)"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "T4",
+   "nominal_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": "https://www.nvidia.com/en-us/data-center/tesla-t4/",
+    "quote": "Memory not found in fetched page text"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "V100",
+   "nominal_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": "https://www.nvidia.com/en-us/data-center/v100/",
+    "quote": "Memory not found in fetched page text"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "V100 PCIe",
+   "nominal_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": "https://www.nvidia.com/en-us/data-center/v100/",
+    "quote": "Memory not found in fetched page text"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  },
+  {
+   "model": "V100 SXM2",
+   "nominal_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": "https://www.nvidia.com/en-us/data-center/v100/",
+    "quote": "Memory not found in fetched page text"
+   },
+   "usable_memory": {
+    "value": "unknown",
+    "unit_as_stated": null,
+    "source_url": null,
+    "quote": null,
+    "note": "No vendor-stated allocatable/usable figure found in this pass"
+   }
+  }
+ ],
+ "amd_identity_specs": {
+  "MI325X": {
+   "source_url": "https://www.amd.com/en/products/accelerators/instinct/mi300/mi325x.html",
+   "memory_size": "256 GB",
+   "memory_type": "HBM3E",
+   "bandwidth": "6 TB/s",
+   "form_factor": "OAM Module",
+   "tdp": "unknown (AMD states Typical Board Power (TBP): 1000W Peak)",
+   "quotes": [
+    "Dedicated Memory Size | 256 GB",
+    "Memory Type | HBM3E",
+    "Peak Memory Bandwidth | 6 TB/s",
+    "Form Factor | OAM Module",
+    "Typical Board Power (TBP) | 1000W Peak"
+   ],
+   "manufacturer": "AMD",
+   "power_note": "AMD publishes Typical Board Power (TBP), not TDP; tdp stays unknown."
+  },
+  "MI350X": {
+   "source_url": "https://www.amd.com/en/products/accelerators/instinct/mi350/mi350x.html",
+   "memory_size": "288 GB",
+   "memory_type": "HBM3E",
+   "bandwidth": "8 TB/s",
+   "form_factor": "OAM Module",
+   "tdp": "unknown (AMD states Typical Board Power (TBP): 1000W)",
+   "quotes": [
+    "Dedicated Memory Size | 288 GB",
+    "Memory Type | HBM3E",
+    "Peak Memory Bandwidth | 8 TB/s",
+    "Form Factor | OAM Module",
+    "Typical Board Power (TBP) | 1000W (TBP)"
+   ],
+   "manufacturer": "AMD",
+   "power_note": "AMD publishes Typical Board Power (TBP), not TDP; tdp stays unknown."
+  },
+  "MI355X": {
+   "source_url": "https://www.amd.com/en/products/accelerators/instinct/mi350/mi355x.html",
+   "memory_size": "288 GB",
+   "memory_type": "HBM3E",
+   "bandwidth": "8 TB/s",
+   "form_factor": "OAM Module",
+   "tdp": "unknown (AMD states Typical Board Power (TBP): 1400W)",
+   "quotes": [
+    "Dedicated Memory Size | 288 GB",
+    "Memory Type | HBM3E",
+    "Peak Memory Bandwidth | 8 TB/s",
+    "Form Factor | OAM Module",
+    "Typical Board Power (TBP) | 1400W (TBP)"
+   ],
+   "manufacturer": "AMD",
+   "power_note": "AMD publishes Typical Board Power (TBP), not TDP; tdp stays unknown."
+  }
+ },
+ "_about": "T61 sourced GPU identity/memory registry, copied from Scout /workspace/scout-t61/t61_memory_specs.json (collected 2026-11-04). Every value carries its source_url and quote; 'unknown' stays unknown. Nominal memory is a spec-sheet figure, never usable/allocatable memory."
+}
