@@ -49,7 +49,7 @@ def test_mcp_compare_output_carries_claim_audit_fields():
     feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text())
     import pytest
     # every GPU with a live claim (data-dependent: when all H100 claims have expired, H100 alone has none)
-    rs = [r for g in sorted({x["gpu"] for x in feed["rates"]}) for r in deals.compare_gpu_prices(feed, g, limit=25)["results"]]
+    rs = [r for g in sorted({x["gpu"] for x in feed["rates"]}) for r in deals.compare_gpu_prices(feed, g, limit=25, include_reserved=True)["results"]]  # T59: MI250 is reserved-only
     claims = [r["availability"] for r in rs if (r.get("availability") or {}).get("in_stock") is not None]
     if not claims:
         pytest.skip("no live stock claim in the committed feed right now")
