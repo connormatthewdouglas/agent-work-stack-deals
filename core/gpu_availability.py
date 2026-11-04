@@ -324,7 +324,19 @@ HELD_NOTE = "Held by Scout: fewer offers than its publish minimum, so no stock c
 TWO_READ_MIN_S = 60
 
 
+SCOUT_STATUS_KEYS = ("availability_status", "availability_reason", "availability_reason_detail")
+
+
 def _scout(vendor: str, r: dict | None) -> dict:
+    """Additive: Scout's own availability_status/reason/reason_detail (schema 3.2) carried through unchanged."""
+    out = _scout_base(vendor, r)
+    for k in SCOUT_STATUS_KEYS:
+        if r and r.get(k) is not None:
+            out[k] = r[k]
+    return out
+
+
+def _scout_base(vendor: str, r: dict | None) -> dict:
     if r and r.get("feed_status") == "held_below_min_offers":  # v3.2: never shown as available
         return {"status": "unknown (held: below minimum offers)", "in_stock": None, "checked_at": r.get("availability_checked_at"),
                 "note": HELD_NOTE, "feed_status": r["feed_status"], "origin": "scout",

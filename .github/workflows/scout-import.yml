@@ -101,6 +101,13 @@ jobs:
               git checkout -q -- data/gpu_availability
               DETAIL="Import refused, current availability kept: $(tail -1 "$RUNNER_TEMP/import.log")" sh scripts/pipeline_issue.sh "Scout import refused" || true
             fi
+            # T112: Scout's own 7-day availability rate (optional), copied verbatim; core/availability_rate.py prefers it when fresh
+            if git show origin/scout-data:latest/t112_availability_rate_7d.json > "$RUNNER_TEMP/t112.json" 2>/dev/null && [ -s "$RUNNER_TEMP/t112.json" ] \
+               && python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d.get("kind")=="t112_availability_rate_inputs" else 1)' "$RUNNER_TEMP/t112.json"; then
+              cp "$RUNNER_TEMP/t112.json" data/gpu_availability/scout_rate_7d.json
+            else
+              echo "Scout t112_availability_rate_7d.json absent or unreadable: git-history rate used" >> "$S"
+            fi
             # optional wider-GPU price batch (schema 3.2, batch wider-gpu): merged into data/gpu_pricing; refusal keeps current records
             if git show origin/scout-data:latest/wider_gpu_prices_latest.json > "$RUNNER_TEMP/wider.json" 2>/dev/null; then
               LW_WIDER_GEN="$(git log -1 --format=%s origin/scout-data -- latest/wider_gpu_prices_latest.json | grep -o 'gen [^ ]*' | cut -c5-)" python3 scripts/import_scout_wider.py "$RUNNER_TEMP/wider.json" >> "$S" 2>&1 || { git checkout -q -- data/gpu_pricing; echo "wider-gpu import refused, current records kept" >> "$S"; }

@@ -32,7 +32,9 @@ SPEC = {
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link
                             "quote_currency", "fx_date", "last_verified", "referral_url", "referral_label",
                             # T112 (additive): 7-day observed in-stock share and the availability-adjusted estimate
-                            "availability_rate_7d", "expected_cost_usd"]),
+                            "availability_rate_7d", "expected_cost_usd",
+                            # Scout schema 3.2 (additive): Scout's own status (in_stock|out_of_stock|unknown) and reason
+                            "availability_status", "availability_reason", "availability_reason_detail"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],

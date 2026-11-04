@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Publish a Lantern Scout snapshot to the orphan branch scout-data, at latest/.
 # Usage: scripts/push_scout_snapshot.sh <scout out dir>
-# Copies (never moves or edits) availability_v2_latest.json and feed_enriched_v2_latest.json, plus their CSVs and
-# RUN_LOG.txt if present, and writes latest/manifest.json (snapshot time, sha256, pushed_at). Uses the caller's
+# Copies (never moves or edits) availability_v2_latest.json and feed_enriched_v2_latest.json, plus their CSVs,
+# t112_availability_rate_7d.json and RUN_LOG.txt if present, and writes latest/manifest.json (snapshot time, sha256, pushed_at). Uses the caller's
 # existing git/gh auth. Prints no tokens or remote URLs. Exits 0 without a commit if nothing changed.
 set -euo pipefail
 OUT="${1:?usage: push_scout_snapshot.sh <scout out dir>}"
@@ -26,7 +26,7 @@ PY
 git -c credential.helper= -c credential.helper='!gh auth git-credential' clone -q --depth 1 --branch scout-data "$REPO_URL" "$W/r" 2>/dev/null \
   || { echo "could not clone scout-data (check gh auth status)" >&2; exit 3; }
 mkdir -p "$W/r/latest"
-for f in availability_v2_latest.json feed_enriched_v2_latest.json availability_v2_latest.csv feed_enriched_v2_latest.csv RUN_LOG.txt; do
+for f in availability_v2_latest.json feed_enriched_v2_latest.json availability_v2_latest.csv feed_enriched_v2_latest.csv t112_availability_rate_7d.json RUN_LOG.txt; do
   [ -f "$OUT/$f" ] && cp "$OUT/$f" "$W/r/latest/$f"
 done
 # wider-gpu (optional): pushed when present; when absent, any earlier copy is removed so latest/ never carries a stale one

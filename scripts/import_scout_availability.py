@@ -20,7 +20,8 @@ OUT = ROOT / "data" / "gpu_availability" / "latest.json"
 KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "unrented_servers",
         "stock_level", "availability_source", "availability_source_type", "availability_checked_at", "availability_note",
         "available_regions_detail", "available_regions_label",  # v2.9: per-region checked_at/expiry (1 h), confirmation
-        "feed_status", "feed_min_offers", "derived_from_regions", "availability_expires_at")  # v3.2: carried through unchanged
+        "feed_status", "feed_min_offers", "derived_from_regions", "availability_expires_at",  # v3.2: carried through unchanged
+        "availability_status", "availability_reason", "availability_reason_detail")  # v3.2 (8fb30d76): carried through unchanged
 
 
 def verify_manifests(raw: bytes, name: str = "feed_enriched_v2_latest.json") -> int:
