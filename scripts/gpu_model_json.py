@@ -105,10 +105,15 @@ def write(gen, rates: list[dict]) -> list[Path]:
     for p in OUT.glob("*.json"):
         p.unlink()
     paths, idx = [], []
+    try:  # T68: every small view names the full-feed generation it was built from (additive fields)
+        _f = json.loads((OUT.parent / "gpu-prices.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        _f = {}
+    gen_fields = {"generation_id": _f.get("generation_id"), "feed_updated_at": _f.get("feed_updated_at")}
     for slug, fam in families(rates).items():
         if not fam["rates"]:
             continue
-        doc = build(slug, fam, gen.BASE)
+        doc = {**build(slug, fam, gen.BASE), **gen_fields}
         gen.assert_public_clean(doc)
         p = OUT / f"{slug}.json"
         p.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -117,7 +122,7 @@ def write(gen, rates: list[dict]) -> list[Path]:
                     "providers": len(doc["providers"]), "last_checked": doc["last_checked"]})
     index = {"schema": "lantern-works-gpu-model-index/1", "license": DATA_LICENSE,
              "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json; reserved rows excluded from cheapest.",
-             "models": idx}
+             **gen_fields, "models": idx}
     gen.assert_public_clean(index)
     (OUT / "index.json").write_text(json.dumps(index, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return paths

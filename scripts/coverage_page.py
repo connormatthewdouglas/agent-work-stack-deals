@@ -92,7 +92,7 @@ def build(doc: dict, now: datetime | None = None, survey: dict | None = None) ->
     vendors = sorted({v for m in out for v in m["vendors"]}, key=str.lower)
     tracked = [m for m in out if m["status"] == "tracked"]
     return {"schema": SCHEMA, "license": "CC BY 4.0", "source": "/api/v1/gpu-prices.json",
-            "feed_updated_at": doc.get("feed_updated_at"), "as_of": now.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "feed_updated_at": doc.get("feed_updated_at"), "generation_id": doc.get("generation_id"), "as_of": now.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "cell_values": {"in stock": "sourced rate and a current in-stock claim at build time",
                             "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
                             "not listed": "vendor absent from the model's vendors map",

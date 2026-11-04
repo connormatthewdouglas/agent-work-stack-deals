@@ -16,11 +16,21 @@ def _run(tmp):
     return (out / "gpu-price-index.json").read_text(), (out / "gpu-price-index.csv").read_text()
 
 
+def _unpin(idx):
+    """T68: feed_commit_for_listing_counts is 'uncommitted' when the feed and the index are committed together, and becomes
+    the real sha on the next regeneration (data workflows pin it in a follow-up commit). That self-reference is not a data
+    difference, so it no longer turns main red; every other field must match exactly."""
+    for d in idx.get("history") or []:
+        if "feed_commit_for_listing_counts" in d:
+            d["feed_commit_for_listing_counts"] = "<pin>"
+    return idx
+
+
 def test_deterministic_and_matches_committed(tmp_path):
     a = _run(tmp_path)
     b = _run(tmp_path)
     assert a == b
-    assert json.loads(a[0]) == json.loads((ROOT / "api/v1/gpu-price-index.json").read_text())
+    assert _unpin(json.loads(a[0])) == _unpin(json.loads((ROOT / "api/v1/gpu-price-index.json").read_text()))
     assert a[1] == (ROOT / "api/v1/gpu-price-index.csv").read_text()
 
 
