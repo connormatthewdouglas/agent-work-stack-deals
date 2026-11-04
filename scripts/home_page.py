@@ -147,7 +147,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
 <body>
 {gen.site_ui.nav_html(BASE, BASE + "/")}{body}
 {JS}  <footer><p>Prices are re-checked daily; confirm on the vendor page before you rent. Some result links are referral links (marked); that never changes ranking or your price.</p>
-    <p><strong>Lantern Works</strong> · <a href="{BASE}/gpu/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p><strong>Lantern Works</strong> · <a href="{BASE}/gpu/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
   </footer>
 {gen.analytics_snippet()}</body>
 </html>

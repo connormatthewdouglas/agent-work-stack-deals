@@ -695,7 +695,7 @@ def write_about(deals: list[dict]) -> Path:
   <p class="lede">Lantern Works checks GPU rental prices and other tools AI agents use, every day, and publishes them in one place you can read and agents can query.</p>
 
   <h2>Who runs it</h2>
-  <p>Lantern Works is a small independent project, with AI agents doing much of the daily checking. A person reviews what goes on the site. Questions, corrections and vendor requests go to <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a>.</p>
+  <p>Lantern Works is a small independent project, with AI agents doing much of the daily checking. A person reviews what goes on the site. Questions, corrections and vendor requests: use <a href="{BASE}/report-price/">/report-price/</a> or open a <a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/issues">GitHub issue</a>.</p>
 
   <h2>Why it exists</h2>
   <p>GPU prices change often and every vendor lists them differently: per GPU or per machine, on-demand or spot, with or without a commitment. Comparing them by hand takes a long time and is easy to get wrong. We wanted one table where an hourly rate means the same thing on every row, with a link to where each number came from.</p>
@@ -711,7 +711,7 @@ def write_about(deals: list[dict]) -> Path:
   <h2>Using it from an agent</h2>
   <p>Instructions for agents, including the JSON feed, MCP server and query examples, are on the <a href="{BASE}/for-agents/">For agents</a> page.</p>
 
-  <p class="meta">Not investment advice, and not an endorsement of any vendor. Confirm price and terms on the vendor's site before you spend. Contact: <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+  <p class="meta">Not investment advice, and not an endorsement of any vendor. Confirm price and terms on the vendor's site before you spend. Corrections: <a href="{BASE}/report-price/">/report-price/</a></p>
 """
     out = ROOT / "lanternworks" / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -1267,7 +1267,6 @@ def homepage_json_ld(deals: list[dict], home: bool = False) -> str:
             "@id": org_id,
             "name": SITE_NAME,
             "url": f"{BASE}/",
-            "email": "lanternworks@agentmail.to",
             "logo": {"@type": "ImageObject", "url": LOGO_URL, "width": 400, "height": 400},
             "image": LOGO_URL,
             "description": (
@@ -1326,7 +1325,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 </div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
-    <p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+    <p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
@@ -1628,7 +1627,7 @@ if(t){{const d=t.closest("details")||t.querySelector("details");if(d)d.open=true
 addEventListener("hashchange",op);op();
 const f=document.getElementById("filters");if(f)f.addEventListener("input",()=>document.querySelectorAll("section.catsec details").forEach(d=>d.open=true));}})();
 </script>
-  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="mailto:lanternworks@agentmail.to">lanternworks@agentmail.to</a></p>
+  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
     <p>Affiliate disclosure: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
