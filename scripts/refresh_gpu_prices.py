@@ -210,6 +210,21 @@ def parse_rotating(r: dict, text: str) -> tuple[str | None, str | None, str]:
     return f"{v:g}", q[:MAX_QUOTE], "parsed (rotating snapshot: gpu + VRAM + $/hr)"
 
 
+# Vendor relabelled a plan on its page (same row, same specs, same per-GPU price). Tried only when the original
+# context is not found; the new evidence quote is the matched page text, as usual. Prices are never mapped.
+LABEL_ALIASES = {
+    "lambda.ai/pricing": [("NVIDIA B200 SXM6 180 GB 208", "NVIDIA HGX B200 180 GB 208"),  # 2026-11-02: 8x plans -> "HGX"
+                          ("NVIDIA H100 SXM 80 GB 208", "NVIDIA HGX H100 80 GB 208"),
+                          ("NVIDIA A100 SXM 80 GB 240", "NVIDIA HGX A100 80 GB 240")],
+}
+
+
+def _aliased_quotes(r: dict, quote: str) -> list[str]:
+    q = " ".join(quote.split())
+    return [q.replace(old, new) for src, pairs in LABEL_ALIASES.items() if src in (r.get("source_url") or "")
+            for old, new in pairs if old in q]
+
+
 def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
     """-> (new price string, matched quote, message). price None = unreadable."""
     if is_rotating(r):
@@ -228,6 +243,15 @@ def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
     for m in rx.finditer(text):
         vals.add(_num(m.group(i + 1)))
         quotes.append(" ".join(m.group(0).split()))
+    if not vals:
+        for aq in _aliased_quotes(r, quote):
+            arx, _ = quote_pattern(aq)
+            if any(True for _ in arx.finditer(text)):
+                rx = arx
+                for m in rx.finditer(text):
+                    vals.add(_num(m.group(i + 1)))
+                    quotes.append(" ".join(m.group(0).split()))
+                break
     if not vals:
         return None, None, "quoted context not found on page"
     if len(vals) > 1:
