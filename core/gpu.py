@@ -202,7 +202,10 @@ FAMILIES = {"h100": "H100", "h200": "H200", "a100": "A100", "l40s": "L40S", "rtx
             "a10g": "A10G", "a40": "A40", "rtx-6000-ada": "RTX 6000 Ada", "t4": "T4", "v100": "V100",
             "b300": "B300", "rtx-pro-6000": "RTX PRO 6000", "rtx-a4000": "RTX A4000",
             "h200-nvl": "H200 NVL", "h100-nvl": "H100 NVL",
-            "gb300": "GB300", "quadro-rtx-6000": "Quadro RTX 6000"}
+            "gb300": "GB300", "quadro-rtx-6000": "Quadro RTX 6000",
+            # T69 (Pax research-t69, Nov 2): broader hardware; RTX PRO 5000 48GB and 72GB stay separate rows (vram_gb)
+            "mi325x": "MI325X", "mi355x": "MI355X", "rtx-pro-5000": "RTX PRO 5000", "rtx-pro-4000": "RTX PRO 4000",
+            "rtx-pro-4500": "RTX PRO 4500"}
 PAGE_ALSO = {"h100-nvl": "h100"}  # H100 NVL rows also list (labelled by form) on the H100 pages; the NVL family keeps its own
 MIN_OFFERS, MIN_VENDORS = 3, 2  # below this a model gets no standalone page (avoid thin pages)
 
