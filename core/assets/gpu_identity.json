@@ -27,10 +27,11 @@
   {
    "model": "A100",
    "nominal_memory": {
-    "value": "40GB or 80GB variants (page lists 80GB HBM2e PCIe/SXM)",
+    "value": "80GB HBM2e (80GB variant on page)",
     "unit_as_stated": "GB",
     "source_url": "https://www.nvidia.com/en-us/data-center/a100/",
-    "quote": "GPU Memory | 80GB HBM2e | 80GB HBM2e"
+    "quote": "GPU Memory | 80GB HBM2e | 80GB HBM2e",
+    "note": "Scout's value also named a 40GB variant, but the cited quote supports only 80GB; 40GB dropped until sourced (Gauge 1104)."
    },
    "usable_memory": {
     "value": "unknown",
@@ -39,7 +40,7 @@
     "quote": null,
     "note": "No vendor-stated allocatable/usable figure found in this pass"
    },
-   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+   "note": "A100 caveat: the cited page lists only the 80GB HBM2e variant; tracked rows may state other memory sizes. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
   },
   {
    "model": "A100 NVLink",
@@ -56,7 +57,7 @@
     "quote": null,
     "note": "No vendor-stated allocatable/usable figure found in this pass"
    },
-   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+   "note": "A100 caveat: the cited page lists only the 80GB HBM2e variant; tracked rows may state other memory sizes. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
   },
   {
    "model": "A100 PCIe",
@@ -73,7 +74,7 @@
     "quote": null,
     "note": "No vendor-stated allocatable/usable figure found in this pass"
    },
-   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+   "note": "A100 caveat: the cited page lists only the 80GB HBM2e variant; tracked rows may state other memory sizes. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
   },
   {
    "model": "A100 SXM",
@@ -90,7 +91,7 @@
     "quote": null,
     "note": "No vendor-stated allocatable/usable figure found in this pass"
    },
-   "note": "A100 is sold as 40GB and 80GB variants; the cited page lists only the 80GB HBM2e variant. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
+   "note": "A100 caveat: the cited page lists only the 80GB HBM2e variant; tracked rows may state other memory sizes. A row's own vram_gb (vendor-stated) decides the variant; this value is not a workload-fit promise."
   },
   {
    "model": "A40",
