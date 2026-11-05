@@ -73,7 +73,7 @@ def load_vendor_files(directory: Path | None = None) -> list[dict]:
 
 
 # Integrated / laptop-class GPUs are not cloud GPU rentals; they never belong in the comparison (audit T7/M4).
-INTERRUPTIBLE_TIER_RE = re.compile(r"(?<!not )(?<!non-)(?:spot|preempt|interrupt)", re.I)
+INTERRUPTIBLE_TIER_RE = re.compile(r"(?<!not )(?<!non-)(?:spot|preempt|interrupt|\bbid\b)", re.I)
 NON_DEDICATED_RE = re.compile(r"\b(radeon\s+\d{3,4}m|iris|uhd graphics|vega\s*\d+|integrated|igpu)\b", re.I)
 
 
