@@ -51,16 +51,27 @@ def test_eight_gpu_only_offer_bills_sixteen_for_nine():
     assert est["billed_gpus"] == 16 and est["instances"] == 2
 
 
-def test_per_second_service():
-    r = normalize(row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=None, price_usd_sec=0.000119,
-                      billing_unit="per-second", price_basis="serverless flex price per second (1 GPU)"))
-    assert r["billing_unit"] == "per-second" and r["price_usd"] == 0.000119 and r["hourly_usd"] == round(0.000119 * 3600, 4)
-    _valid("RunPod", r)
+def test_serverless_per_second_is_held():
+    for r in (row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=None, price_usd_sec=0.000119,
+                  billing_unit="per-second", price_basis="serverless flex price per second (1 GPU)"),
+              row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.43, price_basis="serverless active worker price (1 GPU)"),
+              row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.43, tier="Serverless flex")):
+        rec, why = normalize_ex(r)
+        assert rec is None and "serverless" in why, r
+
+
+def test_community_and_marketplace_are_interruptible():
+    for tier in ("Community Cloud", "Marketplace on-demand", "Spot"):
+        r = normalize(row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.39, tier=tier))
+        assert r["interruptible"] is True, tier
+        _valid("RunPod", r)
+    assert normalize(row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.39))["interruptible"] is False
 
 
 def test_marketplace_median_keeps_sample_and_method():
     r = normalize(row(vendor="Vast.ai", gpu_model="A40", vram_gb=48, price_usd_hr=0.5344, offer_count=7, distinct_machines=6,
                       lowest_offer_usd=0.41, gpu_count=1, price_basis="median per-GPU dph_total", tier="Marketplace on-demand"))
+    assert r["interruptible"] is True
     assert r["price_status"] == "marketplace" and r["offer_count"] == 7 and r["lowest_offer_usd"] == 0.41
     assert r["market_sample"]["distinct_machines"] == 6 and r["evidence_kind"] == "api_field"
     assert "7 offers" in r["evidence"]["quote"] and "0.5344" in r["evidence"]["quote"]
