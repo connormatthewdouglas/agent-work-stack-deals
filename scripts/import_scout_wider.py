@@ -29,7 +29,7 @@ ONE_GPU_RE = re.compile(r"\b1 GPU\b")
 # Serverless / per-second / active-worker prices are not dedicated instance rates (Gauge 1104 #102): held, never imported.
 SERVERLESS_RE = re.compile(r"serverless|\bflex\b|active[- ]worker|per[- ]second|\bper\s+sec", re.I)
 # Interruptible / non-guaranteed capacity: spot, preemptible, community and marketplace tiers.
-INTERRUPTIBLE_RE = re.compile(r"spot|preempt|interrupt|community|marketplace", re.I)
+INTERRUPTIBLE_RE = re.compile(r"spot|preempt|interrupt", re.I)
 VERBATIM_KEYS = ("quote_verbatim", "verbatim_text")
 
 
@@ -121,8 +121,6 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     quote = quote[:200]
     tier = r.get("tier")
     intr = bool(INTERRUPTIBLE_RE.search(tier or ""))
-    if intr and not re.search(r"spot|preempt|interrupt", tier or "", re.I):
-        tier = f"{tier} (interruptible)"  # core rule: the tier label must say so when interruptible=true
     rec = {"vendor": v, "gpu": gpu, "vram_gb": vram, "price_usd": price, "billing_unit": unit, "hourly_usd": hourly,
            "interruptible": intr, "tier": tier, "form_factor": form,
            "quote": quote, "source_url": page if kind == "verbatim" else src if src.startswith("https://") else page,
