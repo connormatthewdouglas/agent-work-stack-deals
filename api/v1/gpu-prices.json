@@ -624,18 +624,15 @@
         "checked_at": "2026-11-04T15:24:01+00:00"
       },
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-04 10:24 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:24:01+00:00",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://api.clore.ai/v1/marketplace",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "max_age_hours": 8.0,
         "origin": "record",
-        "max_age_hours": 8,
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.clore.ai/v1/marketplace",
         "availability_expires_at": "2026-11-04T23:24:01Z",
-        "stock_level": "126 available listings",
-        "same_capture_as_price": true,
-        "detail": "Clore.ai API snapshot: 126 available RTX 5090 32GB listings (status available, any currency)",
         "stock_read_at": "2026-11-04T15:24:01+00:00",
         "price_read_at": "2026-11-04T15:24:01+00:00",
         "price_at_claim_usd": 0.7137,
@@ -672,6 +669,9 @@
       "canonical_model": "L40S",
       "form_factor": "not stated",
       "price_scope": "gpu_hour_only",
+      "vendor_confirmed": "CloudRift, 2026-11-04",
+      "vendor_confirmed_by": "CloudRift",
+      "vendor_confirmed_at": "2026-11-04",
       "price_check": "daily",
       "tier_class": "on-demand",
       "offer_type": null,
@@ -724,6 +724,9 @@
       "canonical_model": "L40S",
       "form_factor": "not stated",
       "price_scope": "gpu_hour_only",
+      "vendor_confirmed": "CloudRift, 2026-11-04",
+      "vendor_confirmed_by": "CloudRift",
+      "vendor_confirmed_at": "2026-11-04",
       "price_check": "daily",
       "tier_class": "reserved",
       "offer_type": null,
@@ -776,6 +779,9 @@
       "canonical_model": "L40S",
       "form_factor": "not stated",
       "price_scope": "gpu_hour_only",
+      "vendor_confirmed": "CloudRift, 2026-11-04",
+      "vendor_confirmed_by": "CloudRift",
+      "vendor_confirmed_at": "2026-11-04",
       "price_check": "daily",
       "tier_class": "reserved",
       "offer_type": null,
@@ -828,6 +834,9 @@
       "canonical_model": "RTX 5090",
       "form_factor": "not stated",
       "price_scope": "gpu_hour_only",
+      "vendor_confirmed": "CloudRift, 2026-11-04",
+      "vendor_confirmed_by": "CloudRift",
+      "vendor_confirmed_at": "2026-11-04",
       "price_check": "daily",
       "tier_class": "on-demand",
       "offer_type": null,
@@ -880,6 +889,9 @@
       "canonical_model": "RTX 5090",
       "form_factor": "not stated",
       "price_scope": "gpu_hour_only",
+      "vendor_confirmed": "CloudRift, 2026-11-04",
+      "vendor_confirmed_by": "CloudRift",
+      "vendor_confirmed_at": "2026-11-04",
       "price_check": "daily",
       "tier_class": "reserved",
       "offer_type": null,
@@ -932,6 +944,9 @@
       "canonical_model": "RTX 5090",
       "form_factor": "not stated",
       "price_scope": "gpu_hour_only",
+      "vendor_confirmed": "CloudRift, 2026-11-04",
+      "vendor_confirmed_by": "CloudRift",
+      "vendor_confirmed_at": "2026-11-04",
       "price_check": "daily",
       "tier_class": "reserved",
       "offer_type": null,
@@ -6002,15 +6017,14 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:01Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "unconfirmed_two_reads"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
       },
       "availability_rate_7d": {
         "rate": 1.0,
@@ -6021,9 +6035,9 @@
       },
       "expected_cost_usd": 3.99,
       "expected_cost_label": "estimate: hourly rate / max(7-day observed in-stock share, 0.1); not a price. Based on Lantern Scout stock checks; unknown when fewer than 6 readings.",
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "unconfirmed_two_reads",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6074,15 +6088,14 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:01Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
       },
       "availability_rate_7d": {
         "rate": 1.0,
@@ -6093,9 +6106,9 @@
       },
       "expected_cost_usd": 2.89,
       "expected_cost_label": "estimate: hourly rate / max(7-day observed in-stock share, 0.1); not a price. Based on Lantern Scout stock checks; unknown when fewer than 6 readings.",
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6145,15 +6158,14 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:01Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "unconfirmed_two_reads"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
       },
       "availability_rate_7d": {
         "rate": 1.0,
@@ -6164,9 +6176,9 @@
       },
       "expected_cost_usd": 1.79,
       "expected_cost_label": "estimate: hourly rate / max(7-day observed in-stock share, 0.1); not a price. Based on Lantern Scout stock checks; unknown when fewer than 6 readings.",
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "unconfirmed_two_reads",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6216,15 +6228,14 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:01Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
       },
       "availability_rate_7d": {
         "rate": 1.0,
@@ -6235,9 +6246,9 @@
       },
       "expected_cost_usd": 1.79,
       "expected_cost_label": "estimate: hourly rate / max(7-day observed in-stock share, 0.1); not a price. Based on Lantern Scout stock checks; unknown when fewer than 6 readings.",
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6523,15 +6534,14 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:01Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
       },
       "availability_rate_7d": {
         "rate": 1.0,
@@ -6542,9 +6552,9 @@
       },
       "expected_cost_usd": 0.89,
       "expected_cost_label": "estimate: hourly rate / max(7-day observed in-stock share, 0.1); not a price. Based on Lantern Scout stock checks; unknown when fewer than 6 readings.",
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6713,21 +6723,20 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:03Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "availability_rate_7d": null,
       "expected_cost_usd": null,
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6778,21 +6787,20 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:03Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "availability_rate_7d": null,
       "expected_cost_usd": null,
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6842,15 +6850,14 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:03Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "availability_rate_7d": {
         "rate": 1.0,
@@ -6861,9 +6868,9 @@
       },
       "expected_cost_usd": 1.39,
       "expected_cost_label": "estimate: hourly rate / max(7-day observed in-stock share, 0.1); not a price. Based on Lantern Scout stock checks; unknown when fewer than 6 readings.",
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6913,15 +6920,14 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:03Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "availability_rate_7d": {
         "rate": 1.0,
@@ -6932,9 +6938,9 @@
       },
       "expected_cost_usd": 1.19,
       "expected_cost_label": "estimate: hourly rate / max(7-day observed in-stock share, 0.1); not a price. Based on Lantern Scout stock checks; unknown when fewer than 6 readings.",
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -6984,21 +6990,20 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:03Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "availability_rate_7d": null,
       "expected_cost_usd": null,
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -7344,21 +7349,20 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:01Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
       },
       "availability_rate_7d": null,
       "expected_cost_usd": null,
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -7409,21 +7413,20 @@
         "checked_at": "2026-11-04T18:06:13+00:00"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-04 10:27 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-04T15:27:03Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "availability_rate_7d": null,
       "expected_cost_usd": null,
-      "availability_status": "unknown",
-      "availability_reason": "no_source",
-      "availability_reason_detail": "api_null_signal",
+      "availability_status": null,
+      "availability_reason": null,
+      "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"

@@ -1,5 +1,6 @@
 """T20 Phase A regression tests: whole-instance billing, no guessed throughput, contract envelope."""
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,8 @@ from core import contract
 from core.cost_per_job import JobCostError, estimate_job_cost
 
 ROOT = Path(__file__).resolve().parents[1]
-NOW_ROW = "2026-10-29T00:00:00+00:00"
+# fixture rows are "fresh" relative to the run (a fixed date aged past the 168 h max-age window on 2026-11-05)
+NOW_ROW = (datetime.now(timezone.utc) - timedelta(hours=1)).replace(microsecond=0).isoformat()
 
 
 def _row(vendor, price, per=1, min_gpus=1, tier_class="on-demand", interruptible=False, gpu="H100"):
