@@ -30,8 +30,9 @@ def test_usable_unknown_everywhere_and_never_nominal():
 def test_unknown_nominal_stays_unknown():
     for m in ("B300", "GB300", "T4", "V100", "H100 PCIe"):
         assert gi.identity(m)["nominal_memory"]["gb"] is None
-    assert gi.identity("A100")["nominal_memory"]["gb"] is None  # '40GB or 80GB' is not one figure
-    assert "40GB and 80GB" in gi.identity("A100 SXM")["note"]
+    a100 = gi.identity("A100")["nominal_memory"]
+    assert "40GB" not in a100["value"] and a100["gb"] == 80 and "80GB" in a100["quote"]  # Gauge 1104: only the sourced figure
+    assert "only the 80GB" in gi.identity("A100 SXM")["note"]
 
 
 def test_aliases_do_not_collide():
