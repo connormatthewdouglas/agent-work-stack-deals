@@ -26,6 +26,10 @@ VRAM_FIX = {("L40S", None): 48, ("A40", "Vast.ai"): 48, ("L4", "Vast.ai"): 24, (
 UNITS = {"hourly": 1, "per-second": 3600}
 RESERVED_RE = re.compile(r"reserved|commit|\d+\s*-?\s*(?:month|year|yr)\b", re.I)
 ONE_GPU_RE = re.compile(r"\b1 GPU\b")
+# Serverless / per-second / active-worker prices are not dedicated instance rates (Gauge 1104 #102): held, never imported.
+SERVERLESS_RE = re.compile(r"serverless|\bflex\b|active[- ]worker|per[- ]second|\bper\s+sec", re.I)
+# Interruptible / non-guaranteed capacity: spot, preemptible, community and marketplace tiers.
+INTERRUPTIBLE_RE = re.compile(r"spot|preempt|interrupt|community|marketplace", re.I)
 VERBATIM_KEYS = ("quote_verbatim", "verbatim_text")
 
 
@@ -55,6 +59,9 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     gpu = re.sub(r"\s*\d+\s*GB$", "", m).strip()
     if family_of(gpu) in (None, "t4"):
         return None, None if family_of(gpu) == "t4" else f"unsupported GPU {m!r}"
+    blob = " ".join(str(r.get(k) or "") for k in ("tier", "price_basis", "product", "source_detail", "billing_unit"))
+    if SERVERLESS_RE.search(blob) or r.get("price_usd_sec") is not None:
+        return None, "serverless/per-second price: not a dedicated instance rate"
     unit = r.get("billing_unit") or ("per-second" if r.get("price_usd_sec") is not None else "hourly")
     if unit not in UNITS:
         return None, f"unsupported billing unit {unit!r}"
@@ -112,8 +119,12 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     else:
         quote, kind = f"{basis}: {raw} ({src})", "api_field"
     quote = quote[:200]
+    tier = r.get("tier")
+    intr = bool(INTERRUPTIBLE_RE.search(tier or ""))
+    if intr and not re.search(r"spot|preempt|interrupt", tier or "", re.I):
+        tier = f"{tier} (interruptible)"  # core rule: the tier label must say so when interruptible=true
     rec = {"vendor": v, "gpu": gpu, "vram_gb": vram, "price_usd": price, "billing_unit": unit, "hourly_usd": hourly,
-           "interruptible": "spot" in (r.get("tier") or "").lower(), "tier": r.get("tier"), "form_factor": form,
+           "interruptible": intr, "tier": tier, "form_factor": form,
            "quote": quote, "source_url": page if kind == "verbatim" else src if src.startswith("https://") else page,
            "checked_at": when, "evidence": {"source_url": src if src.startswith("https://") else page, "quote": quote, "checked_at": when},
            "evidence_kind": kind, "normalized_summary": summary, "verified_at": when,
