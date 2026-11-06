@@ -1,8 +1,12 @@
 """F1: optimize_stack / optimize_agent_stack / estimate_job_cost never pick an explicit out-of-stock row over
 in-stock/unknown rows; the cheaper out-of-stock row is named in a note with its checked_at time."""
 from core import agent_stack, stack
+from datetime import datetime, timedelta, timezone
 from core.contract import EXTRA_PROPS
 from core.cost_per_job import estimate_job_cost
+
+# Price freshness is not the behavior under test; keep synthetic prices inside the 168h window.
+FRESH = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
 
 OOS = {"status": "out of stock when checked", "in_stock": False, "checked_at": "2026-10-29T15:19:43Z", "note": None}
 UNK = {"status": "unknown", "in_stock": None, "checked_at": None, "note": "unknown, not sold out."}
@@ -11,7 +15,7 @@ TS = "2026-10-29T15:19:43Z"
 
 def _r(adv, price, avail=None, tier="On-demand", interruptible=False):
     r = {"advertiser": adv, "gpu": "A100", "vram_gb": 40, "price_usd": price, "unit": "hour", "tier": tier,
-         "verified_at": "2026-10-29T19:00:00Z", "source_url": "https://example.com", "interruptible": interruptible}
+         "verified_at": FRESH, "source_url": "https://example.com", "interruptible": interruptible}
     if avail is not None:
         r["availability"] = avail
     return r

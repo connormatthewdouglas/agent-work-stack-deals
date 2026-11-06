@@ -1,8 +1,12 @@
 """E5: availability passes through compare_gpu_prices; out-of-stock rows are demoted (not dropped) and never 'cheapest'."""
 import pytest
+from datetime import datetime, timedelta, timezone
 from core.contract import EXTRA_PROPS
 from core.deals import RATE_FIELDS, compare_gpu_prices
 from scripts.home_page import spread
+
+# Price freshness is not the behavior under test; keep synthetic prices inside the 168h window.
+FRESH = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
 
 OOS = {"status": "out of stock when checked", "in_stock": False, "checked_at": "2026-10-29T15:19:43Z", "note": None}
 UNK = {"status": "unknown", "in_stock": None, "checked_at": None, "note": "unknown, not sold out."}
@@ -10,7 +14,7 @@ UNK = {"status": "unknown", "in_stock": None, "checked_at": None, "note": "unkno
 
 def _row(adv, price, avail="absent", vram=40, tier="On-demand"):
     r = {"advertiser": adv, "gpu": "A100 SXM", "vram_gb": vram, "hourly_equiv_usd": price, "tier": tier,
-         "verified_at": "2026-10-29T19:00:00Z", "source_url": "https://example.com"}
+         "verified_at": FRESH, "source_url": "https://example.com"}
     if avail != "absent":
         r["availability"] = avail
     return r
