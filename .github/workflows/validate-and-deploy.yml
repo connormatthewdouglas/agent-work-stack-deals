@@ -59,6 +59,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # T121: sitemap lastmod uses git log -1 %cs; must match tests job
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
