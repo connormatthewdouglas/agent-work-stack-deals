@@ -108,12 +108,16 @@ def build_history(snapshots: list[dict]) -> dict:
             if last and last.get("status") != "removed" and last["hourly_usd"] != row["hourly_usd"]:
                 old, new = last["hourly_usd"], row["hourly_usd"]
                 kind = "down" if new < old else "up"
+                # Historical snapshots remain immutable; exported citations use canonical URLs.
+                from core.source_urls import split_source
+                source, request = split_source(row["source_url"])
                 changes.append({"date": day, "key": k, "rate_id": s["rate_id"],
                                 "event_id": event_id(day, s["rate_id"], kind), "snapshot_id": sid,
                                 "vendor": row["vendor"], "gpu": row["gpu"], "tier": row["tier"],
                                 "vram_gb": row["vram_gb"], "from_hourly_usd": old, "to_hourly_usd": new,
                                 "change_pct": round((new - old) / old * 100, 1) if old else None,
-                                "status": row["status"], "source_url": row["source_url"]})
+                                "status": row["status"], "source_url": source,
+                                **({"evidence": request} if request else {})})
             if (not last or last["hourly_usd"] != row["hourly_usd"] or last["price_usd"] != row["price_usd"]
                     or last["status"] != row["status"]):
                 s["points"].append({"date": day, "price_usd": row["price_usd"], "hourly_usd": row["hourly_usd"],

@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- T117: canonical HTTPS price citations; API request method, operation and record id moved to evidence fields. Repairs 23 RunPod and 12 Verda legacy citation suffixes without changing any price or quote. Import/export validation rejects malformed URLs; POST-only GraphQL sources are documented.
+
 - T116: deprecate `expected_cost_usd` to explicit null (with a deprecation label). Stock frequency is a descriptive statistic with known/unknown counts, observed window, sample size and stale-window labels, never a quote, budget verdict or predicted bill. The previous T112 price/share formula is withdrawn; raw vendor prices are unchanged.
 - GPU feed (T69, broader hardware): first-party DigitalOcean rows for AMD MI325X 256GB ($3.80/GPU-hr on-demand) and MI355X 288GB ($4.50/GPU-hr spot, interruptible), quoted from digitalocean.com/pricing/gpu-droplets; model families added for MI325X, MI355X, RTX PRO 5000 (48GB and 72GB kept as separate rows), RTX PRO 4000 and RTX PRO 4500.
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.

@@ -62,6 +62,7 @@ STALE_DAYS = 7
 EVIDENCE_FIELDS = ("source_url", "quote", "checked_at")
 # optional second cited quote for the row's interruption/preemption terms (Modal); all three or none
 EVIDENCE_OPTIONAL = ("interruption_quote", "interruption_source_url", "interruption_checked_at")
+EVIDENCE_REQUEST_FIELDS = ("request_method", "operation", "record_id")
 MIN_MARKET_OFFERS = 5
 MAX_QUOTE = 200
 
@@ -83,7 +84,8 @@ def is_non_dedicated(gpu: str) -> bool:
 
 def record_problems(doc: dict) -> list[str]:
     """Schema/consistency checks for one vendor file. Empty list = valid."""
-    out, name = [], doc.get("vendor") or "?"
+    from core.source_urls import citation_problems
+    out, name = citation_problems(doc), doc.get("vendor") or "?"
     for k in ("vendor", "source_url", "checked_at", "records", "extras"):
         if not doc.get(k):
             out.append(f"{name}: missing {k}")
@@ -155,8 +157,8 @@ def record_problems(doc: dict) -> list[str]:
         if not isinstance(ev, dict) or any(not ev.get(k) for k in EVIDENCE_FIELDS):
             out.append(f"{tag}: evidence needs {EVIDENCE_FIELDS}")
         else:
-            if set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL):
-                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL))}")
+            if set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL) - set(EVIDENCE_REQUEST_FIELDS):
+                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL) - set(EVIDENCE_REQUEST_FIELDS))}")
             opt = [k for k in EVIDENCE_OPTIONAL if ev.get(k)]
             if opt and len(opt) != len(EVIDENCE_OPTIONAL):
                 out.append(f"{tag}: evidence interruption quote needs {EVIDENCE_OPTIONAL}")
@@ -301,6 +303,9 @@ def canonical_model(gpu: str) -> str:
 
 def _vendor_gpu_id(r: dict) -> str:
     """The vendor's own GPU id when the source cites one ('... id=NVIDIA B300 SXM6 AC')."""
+    record_id = (r.get("evidence") or {}).get("record_id")
+    if record_id:
+        return record_id
     for u in (r.get("source_url"), (r.get("evidence") or {}).get("source_url")):
         m = re.search(r"\bid=(.+)$", str(u or ""))
         if m:
