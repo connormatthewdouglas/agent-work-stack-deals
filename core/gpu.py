@@ -469,7 +469,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
                 "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r),
-                # T112 (additive estimate, never replaces the rate): 7-day in-stock share and rate / max(share, 0.1)
+                # T116: descriptive stock observations; legacy expected_cost_usd is deprecated/null.
                 **availability_rate.fields(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r["hourly_usd"])})
     for x in rates:  # Scout schema 3.2 (additive): top-level copies of Scout's availability status/reason; null when Scout has none
         for k in ("availability_status", "availability_reason", "availability_reason_detail"):

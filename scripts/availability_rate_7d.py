@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """T112: trailing-7-day observed in-stock share per (vendor, gpu, vram_gb, tier) from the git history of
 data/gpu_availability/latest.json (one Scout import = one check; duplicate generations counted once).
-Only readings with in_stock true/false count; unknown/failed checks are excluded (T66 honesty rule).
+Only true/false readings enter the rate; unknown checks are counted separately, never treated as failures.
 Writes data/gpu_availability/rate_7d.json, read by core/availability_rate.py. Needs full git history (fetch-depth 0).
 Usage: availability_rate_7d.py [--days 7]"""
 from __future__ import annotations
@@ -34,14 +34,21 @@ def main() -> int:
             continue
         seen.add(gen)
         for r in doc.get("rows") or []:
-            if r.get("in_stock") not in (True, False):
-                continue
             k = (r["vendor"], r["gpu"], r.get("vram_gb"), r["tier"])
-            c = counts.setdefault(k, [0, 0])
-            c[0] += 1
-            c[1] += r["in_stock"] is True
-    rows = [{"vendor": v, "gpu": g, "vram_gb": m, "tier": t, "checks": n, "in_stock_checks": s, "rate": round(s / n, 4)}
-            for (v, g, m, t), (n, s) in sorted(counts.items(), key=str)]
+            c = counts.setdefault(k, {"checks": 0, "in_stock_checks": 0, "unknown_checks": 0,
+                                      "first_check_at": None, "last_check_at": None})
+            if r.get("in_stock") is True or r.get("in_stock") is False:
+                c["checks"] += 1
+                c["in_stock_checks"] += r["in_stock"] is True
+            else:
+                c["unknown_checks"] += 1
+            stamp = r.get("checked_at") or doc.get("collected_at")
+            if stamp:
+                c["first_check_at"] = min(c["first_check_at"] or stamp, stamp)
+                c["last_check_at"] = max(c["last_check_at"] or stamp, stamp)
+    rows = [{"vendor": v, "gpu": g, "vram_gb": m, "tier": t, **c,
+             "rate": round(c["in_stock_checks"] / c["checks"], 4) if c["checks"] else None}
+            for (v, g, m, t), c in sorted(counts.items(), key=str)]
     OUT.write_text(json.dumps({"schema": "lantern-works-availability-rate/1", "window_days": days,
                                "window_start": since.isoformat(), "window_end": now.isoformat(),
                                "generations": len(seen), "rows": rows}, indent=1) + "\n", encoding="utf-8")
