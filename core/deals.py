@@ -23,7 +23,7 @@ def usd(x) -> str:
     t = f"{float(x):.4f}".rstrip("0")
     return "$" + (t + "0" * (2 - len(t.split(".")[1])))
 
-VERSION = "0.6.0"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.6.1"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"

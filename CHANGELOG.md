@@ -11,6 +11,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
+## 0.6.1 (2026-11-06, PyPI + MCP Registry)
+
+- T115/T118: brief GPU comparisons retain the on-demand fallback indicator, interruptible flag and applied constraints. Stdio serverInfo.build carries the release commit. Existing stock/availability feed fields pass through without renames. Source: PR #112 (Gauge-approved f83d3e0).
+
 ## 0.6.0 (2026-11-03, PyPI + MCP Registry)
 
 - MCP compare_gpu_prices: on_demand_only now defaults to true, so results[0] is the cheapest on-demand rate. Pass on_demand_only=false for spot/interruptible, community and marketplace rates (still labelled by tier_class and interruptible). No field renames; if a model has no on-demand rate the default falls back to all rates and sets on_demand_fallback.
