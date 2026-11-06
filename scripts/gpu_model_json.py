@@ -43,6 +43,9 @@ def _row(r: dict) -> dict:
            "min_gpus": r.get("min_gpus") or 1, "price_status": r.get("price_status"),
            "verified_at": r.get("verified_at"), "source_url": r.get("source_url"), "quote": ev.get("quote"), "interruption_quote": ev.get("interruption_quote"),
            "availability": r.get("availability")}
+    request = {k: ev[k] for k in ("request_method", "operation", "record_id") if k in ev}
+    if request:
+        out["evidence"] = request
     out = {k: v for k, v in out.items() if v is not None}
     # Additive (600me review on gpuhunt#283 / llm-analysis#35 / gpu_poor#18): explicit form factor and price basis.
     out["form_factor"] = _ff(r)

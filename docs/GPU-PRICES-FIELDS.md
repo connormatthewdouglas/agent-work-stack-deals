@@ -28,6 +28,40 @@ Every rate in `api/v1/gpu-prices.json` carries these fields (since 0.5.0, T75):
 | `availability_reason` | string or null | Scout's machine-readable reason for the status (e.g. `no_source`), unchanged. |
 | `availability_reason_detail` | string or null | Scout's finer reason (e.g. `no_api`), unchanged. |
 
-`availability_rate_7d` / `expected_cost_usd` (T112) keep their names and shape. `availability_rate_7d.source` (additive) is
-`scout_t112` when the rate comes from Scout's `t112_availability_rate_7d.json` (used when present, under 24 h old, with at
-least 6 known checks for the row) or `git_history` for the fallback built by `scripts/availability_rate_7d.py`.
+## T116: stock frequency is not a dollar cost
+
+`expected_cost_usd` is **deprecated and always null**. `expected_cost_label` explicitly marks the deprecation.
+The old `hourly / max(observed_share, 0.1)` formula was not a quote or predicted bill and must not be used
+for quotes, budgets, rankings, or financial forecasts. No replacement monetary estimate is emitted.
+Use `hourly_equiv_usd` and the existing whole-instance/minimum-GPU rules for compute subtotals.
+
+`availability_rate_7d` remains a descriptive observation: `rate` (stocked / known checks, null with zero known),
+`checks` (legacy known count), `known_checks`, `unknown_checks`, `total_checks`, `in_stock_checks`,
+`window_start`, `window_end`, `window_days`, and first/last observation timestamps. Unknown observations
+are excluded from the share, but not hidden from the counts. Legacy captures without unknown counts emit null,
+not an invented zero. `sample_status` distinguishes observed, insufficient_sample (<6 known), and all_unknown;
+`window_stale` flags windows whose last observation is older than 24h or undated. Sparse/old data remains
+labelled historical description, never a probability forecast. `source` is `scout_t112` or `git_history`.
+
+No MCP field was renamed or removed; the legacy dollar field must remain null wherever exposed.
+
+## T117: usable citation URLs and API evidence
+
+Every current price citation's `source_url` (also `evidence.source_url`) is a syntactically valid HTTPS URL
+without appended operation text. The 23 RunPod and 12 Verda/DataCrunch legacy citations were repaired
+mechanically, without changing prices, quotes, quote timestamps or identity. No replacement webpage was guessed.
+
+- RunPod: `https://api.runpod.io/graphql` is **POST-only GraphQL**, not a browsable pricing page. A GET/HEAD
+  rejection does not mean this citation is dead. `evidence.request_method=POST`, `evidence.operation`
+  (`gpuTypes.securePrice` or `gpuTypes.communityPrice`), and `evidence.record_id` retain the exact quoted
+  field and vendor GPU type id. An authenticated vendor API request may be needed to reproduce it;
+  no credentials are published.
+- Verda/DataCrunch: `https://api.datacrunch.io/v1/instance-types`, `request_method=GET`,
+  `operation=instance-types`; `record_id` retains the exact instance key previously placed in parentheses.
+  API access may require vendor authentication; evidence is not a promise of anonymous access.
+
+`scripts/normalize_gpu_sources.py` runs at the Scout import boundary, splits only these known formats, and
+rejects unrecognized invalid URLs before writing anything. `--check` validates without repair. The shared
+price-record validator also rejects invalid URLs at export. Model feeds preserve request metadata, and
+history exports normalize citations without rewriting historical snapshots. API evidence fields are additive;
+no MCP fields are renamed.
