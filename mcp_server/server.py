@@ -45,6 +45,54 @@ mcp = FastMCP("lantern-works-deals", instructions=INSTRUCTIONS)
 __version__ = VERSION
 # FastMCP otherwise reports the mcp SDK's version in serverInfo; report this package's version.
 mcp._mcp_server.version = __version__
+
+
+def _build_sha() -> str:
+    """T118: the git commit this server was built from, reported as serverInfo.build (same field as hosted).
+    Release builds write mcp_server/_build.py (scripts/write_build_sha.sh); a git checkout falls back to HEAD."""
+    try:
+        from ._build import GIT_SHA  # type: ignore
+        return GIT_SHA
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        import subprocess
+        out = subprocess.run(["git", "-C", str(Path(__file__).resolve().parent), "rev-parse", "HEAD"],
+                             capture_output=True, text=True, timeout=5)
+        sha = out.stdout.strip()
+        if out.returncode == 0 and len(sha) == 40:
+            return sha
+    except Exception:  # noqa: BLE001
+        pass
+    return "unknown"
+
+
+BUILD_SHA = _build_sha()
+
+
+def _install_build_in_server_info() -> None:
+    """The mcp SDK builds serverInfo from fixed fields; Implementation allows extras, so add build like hosted does."""
+    try:
+        import mcp.types as _t
+        from mcp.server import session as _session
+    except ImportError:  # stubbed mcp (hosted-worker contract tests): nothing to patch
+        return
+
+    class _ServerInfo(_t.Implementation):
+        def __init__(self, **kw):  # an extra (Implementation allows extras), set explicitly: serialized as the base type
+            kw.setdefault("build", BUILD_SHA)
+            super().__init__(**kw)
+
+    class _Types:
+        Implementation = _ServerInfo
+
+        def __getattr__(self, name):
+            return getattr(_t, name)
+
+    _session.types = _Types()
+
+
+_install_build_in_server_info()
 loader = FeedLoader()
 gpu_loader = GpuPricesLoader()
 history_loader = GpuHistoryLoader()

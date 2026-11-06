@@ -475,7 +475,10 @@ def oos_note(r: dict) -> str:
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
                "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id",
                "gpu_count", "server_price_usd", "server_hourly_usd", "evidence", "min_gpus", "price_status",
-               "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability", "region")
+               "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability", "region",
+               # T112/T113 (additive pass-through of existing feed fields; T118 found them dropped here)
+               "availability_rate_7d", "expected_cost_usd", "expected_cost_label", "availability_status",
+               "availability_reason", "availability_reason_detail")
 
 
 def _tokens(s: str) -> list[str]:
