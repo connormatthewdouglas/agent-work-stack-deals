@@ -6,10 +6,14 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
-- GPU feed + MCP compare_gpu_prices (T112, additive): availability_rate_7d (observed in-stock share over the last 7 days of Lantern Scout stock checks, with check counts) and expected_cost_usd = hourly rate / max(share, 0.1), labelled as an estimate; null with fewer than 6 readings. The raw rate is unchanged.
 - GPU feed (T69, broader hardware): first-party DigitalOcean rows for AMD MI325X 256GB ($3.80/GPU-hr on-demand) and MI355X 288GB ($4.50/GPU-hr spot, interruptible), quoted from digitalocean.com/pricing/gpu-droplets; model families added for MI325X, MI355X, RTX PRO 5000 (48GB and 72GB kept as separate rows), RTX PRO 4000 and RTX PRO 4500.
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
+
+## 0.6.2 (2026-11-06, PyPI)
+
+- T116: `expected_cost_usd` deprecated to explicit null with a deprecation label; stock frequency stays descriptive only (known/unknown counts, observed window, sample size, stale-window labels) — not a quote, budget verdict or predicted bill. The previous T112 price/share formula is withdrawn; raw vendor prices are unchanged. Source: PR #113 (Gauge content GO at 572575eb).
+- T117: 35 citation URL repairs (23 RunPod, 12 Verda); API request method/operation/record id kept in evidence fields; zero price/quote/identity/timestamp drift. Source: PR #113.
 
 ## 0.6.1 (2026-11-06, PyPI + MCP Registry)
 

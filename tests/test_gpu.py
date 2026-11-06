@@ -156,7 +156,10 @@ def test_every_record_has_live_evidence():
         for r in doc["records"]:
             ev = r["evidence"]
             n -= r.get("batch") == "wider-gpu" or doc["vendor"] == "Lium"  # Lium (T62 collector) rows vary per capture  # Scout wider-GPU batch (scripts/import_scout_wider.py) is counted separately
-            assert set(ev) in ({"source_url", "quote", "checked_at"}, {"source_url", "quote", "checked_at", "interruption_quote", "interruption_source_url", "interruption_checked_at"}), r["gpu"]
+            required = {"source_url", "quote", "checked_at"}
+            optional = {"interruption_quote", "interruption_source_url", "interruption_checked_at",
+                        "request_method", "operation", "record_id"}
+            assert required <= set(ev) <= required | optional, r["gpu"]
             assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
             assert ev["checked_at"] == (r.get("verified_at") or r["checked_at"])  # evidence = last parsed price
             from datetime import datetime

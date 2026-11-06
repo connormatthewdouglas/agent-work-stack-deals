@@ -59,7 +59,7 @@ class N(F):
 
 def _doc(rec):
     return {"vendor": "Spheron", "deal_id": None, "source_url": "https://www.spheron.network/pricing/", "checked_at": "2026-11-02T12:00:00+00:00",
-            "extras": {k: {"status": "unknown", "text": "x", "source_url": "u"} for k in ("egress", "storage", "interruption")},
+            "extras": {k: {"status": "unknown", "text": "x", "source_url": "https://example.com/pricing"} for k in ("egress", "storage", "interruption")},
             "records": [rec]}
 
 
@@ -112,7 +112,7 @@ def test_failed_reverification_keeps_checked_at():
 def test_no_capacity_row_is_held_in_snapshot_so_changes_skip_it():
     sys.path.insert(0, ".")
     from core import gpu_history
-    rec = dict(copy.deepcopy(REC), no_capacity={"reason": "no capacity per vendor page", "read_at": "x", "source_url": "u"})
+    rec = dict(copy.deepcopy(REC), no_capacity={"reason": "no capacity per vendor page", "read_at": "x", "source_url": "https://example.com/pricing"})
     assert gpu_history.snapshot_rows([{"vendor": "Spheron", "records": [rec]}])[0]["status"] == "held"
 
 
