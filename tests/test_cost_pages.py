@@ -122,7 +122,9 @@ def test_h1_scoped_cheapest_and_page_lowest():
             "$8.90 / $89.00 / $649.70") in a
     for slug in ("h100", "l40s"):
         assert "on this page (not marked out of stock)" in _page(slug, 10)
-    assert "CloudRift L40S 48GB at $6.30" in _page("l40s", 10)
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    rate = next(r for r in feed["rates"] if r["advertiser"] == "CloudRift" and r["gpu"] == "L40S" and r["tier_class"] == "on-demand")
+    assert f"CloudRift L40S 48GB at ${rate['hourly_equiv_usd'] * 10:.2f}" in _page("l40s", 10)
 
 
 def test_h2_availability_wording_all_pages():

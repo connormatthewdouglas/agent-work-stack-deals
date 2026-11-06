@@ -439,7 +439,16 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                 new = float(new_s)
                 old = r["price_usd"]
                 pct = (new - old) / old * 100 if old else 0
-                if abs(pct) > MAX_AUTO_CHANGE_PCT:
+                # A per-GPU quote cannot substantiate a changed whole-instance total in the
+                # current evidence gate. Fail closed instead of writing an unpublishable price.
+                n = r.get("gpu_count", 1) or 1
+                quoted = [_num(m.group(1)) for m in PRICE_RE.finditer(quote or "")]
+                if n > 1 and abs(new - old) > 1e-9 and not any(abs(v - new) < 1e-9 for v in quoted):
+                    r["stale"] = {"reason": "Changed per-GPU vendor quote cannot substantiate the whole-instance total "
+                                            "under the current evidence contract; held until re-sourced with supported evidence.", "auto": True}
+                    row.update(result="HELD: changed whole-instance total missing from vendor quote")
+                    new_s = None
+                elif abs(pct) > MAX_AUTO_CHANGE_PCT:
                     row.update(result=f"NOT applied: {old} -> {new} ({pct:+.1f}%) exceeds {MAX_AUTO_CHANGE_PCT:.0f}%; re-check by hand")
                     new_s = None
                 else:

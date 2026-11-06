@@ -114,3 +114,19 @@ def test_no_capacity_row_is_held_in_snapshot_so_changes_skip_it():
     from core import gpu_history
     rec = dict(copy.deepcopy(REC), no_capacity={"reason": "no capacity per vendor page", "read_at": "x", "source_url": "u"})
     assert gpu_history.snapshot_rows([{"vendor": "Spheron", "records": [rec]}])[0]["status"] == "held"
+
+
+def test_changed_per_gpu_quote_holds_whole_instance_without_rewriting_evidence():
+    q = "NVIDIA B200 SXM6 180 GB 208 2900 GiB 22 TiB SSD $6.69"
+    r = dict(copy.deepcopy(REC), vendor="Lambda", gpu="B200", gpu_count=8,
+             price_usd=53.52, hourly_usd=6.69, tier="On-demand instance (8x GPU)",
+             quote=q, source_url="https://lambda.ai/pricing")
+    r["evidence"] = dict(r["evidence"], quote=q, source_url=r["source_url"])
+    before = copy.deepcopy(r)
+    class Changed(F):
+        def get(self, url):
+            return 200, "<p>NVIDIA HGX B200 180 GB 208 2900 GiB 22 TiB SSD $7.69</p>"
+    m.refresh([{"vendor": "Lambda", "records": [r]}], Changed(), datetime(2026, 11, 6, tzinfo=timezone.utc))
+    assert r["stale"]["auto"] and "whole-instance" in r["stale"]["reason"]
+    for k in ("price_usd", "hourly_usd", "quote", "evidence", "checked_at", "verified_at"):
+        assert r[k] == before[k]

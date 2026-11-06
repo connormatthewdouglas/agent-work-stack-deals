@@ -331,7 +331,13 @@ def test_t71_multi_gpu_rows_label_whole_instance_totals():
             assert "whole " in cells["100 h/month"] and "-GPU instance" in cells["100 h/month"], r
         assert "whole " in cells["Full month"] and "-GPU instance" in cells["Full month"], r
     lam = [r for r in rows if "Lambda" in r and "A100 SXM" in r]
-    assert lam and "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]
+    if lam:
+        assert "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]
+    else:  # vendor rate changed: an unsupported 8x evidence total must be held, never ranked
+        feed = json.loads((root / "api/v1/gpu-prices.json").read_text())
+        assert any(h["vendor"] == "Lambda" and h.get("scope") == "record" and
+                   any(r["gpu"] == "A100 SXM" and "8x" in r["tier"] for r in h["records"])
+                   for h in feed["held_stale"])
 
 
 def test_t75_canonical_model_and_form_factor_on_every_rate():

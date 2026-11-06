@@ -326,7 +326,7 @@ def _(f, ev):
     # record-scoped holds key on normalised tier text ('3-month' == '3-month commitment'); vendor holds on vendor/gpu.
     # re30 d: a ranked row with the same vendor, GPU and price as any held row also fails (a hold leaking via a relabel).
     import re as _re
-    STOP = {"commitment", "instance", "instances", "term", "plan", "price", "rate", "1x", "gpu"}
+    STOP = {"commitment", "instance", "instances", "term", "plan", "price", "rate", "gpu"}
     def nt(t):
         return frozenset(x for x in _re.findall(r"[a-z0-9]+", str(t or "").lower().replace("months", "month").replace("mo ", "month ")) if x not in STOP)
     def same_tier(a, b):

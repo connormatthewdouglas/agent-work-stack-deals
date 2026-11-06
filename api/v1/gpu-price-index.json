@@ -3366,12 +3366,12 @@
   {
    "date": "2026-11-06",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-06.json",
-   "snapshot_sha256": "7046926f897b1ef3ff304200308b3dab7104a68b9036cbf6e40992757c6c9c88",
-   "feed_commit_for_listing_counts": "afb0b98a5e1b9d14176055a09e99ee277a6639c0",
+   "snapshot_sha256": "e80a2392adc0668d59caef1f91e910b153e503171743460d73e5b488b379f25c",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
-     "median_usd_per_gpu_hour": 3.49,
-     "monthly_basis_usd": 2547.7,
+     "median_usd_per_gpu_hour": 3.5,
+     "monthly_basis_usd": 2555.0,
      "min_usd_per_gpu_hour": 1.99,
      "vendors": 13,
      "vendor_prices": {
@@ -3382,7 +3382,7 @@
       "E2E Networks": 3.99,
       "Hyperstack": 2.5,
       "Jarvislabs": 3.49,
-      "Lambda": 3.29,
+      "Lambda": 3.79,
       "Nebius": 4.5,
       "Oblivus": 3.5,
       "RunPod": 1.99,
@@ -3392,17 +3392,16 @@
      "low_coverage": false
     },
     "A100": {
-     "median_usd_per_gpu_hour": 1.49,
-     "monthly_basis_usd": 1087.7,
+     "median_usd_per_gpu_hour": 1.48,
+     "monthly_basis_usd": 1080.4,
      "min_usd_per_gpu_hour": 1.09,
-     "vendors": 11,
+     "vendors": 10,
      "vendor_prices": {
       "Civo": 1.79,
       "CoreWeave": 2.7,
       "E2E Networks": 2.1,
       "Hyperstack": 1.35,
       "Jarvislabs": 1.49,
-      "Lambda": 2.79,
       "Oblivus": 1.47,
       "RunPod": 1.19,
       "Thunder Compute": 1.09,
@@ -3429,10 +3428,10 @@
     "L40S": {
      "median_usd_per_gpu_hour": 1.57,
      "monthly_basis_usd": 1146.1,
-     "min_usd_per_gpu_hour": 0.63,
+     "min_usd_per_gpu_hour": 0.69,
      "vendors": 7,
      "vendor_prices": {
-      "CloudRift": 0.63,
+      "CloudRift": 0.69,
       "CoreWeave": 2.25,
       "DigitalOcean GPU Droplets": 1.57,
       "Nebius": 1.55,
@@ -3496,10 +3495,8 @@
     "Hyperstack|H200 SXM|On-demand|141|1",
     "Jarvislabs|A100|On-demand|80|1",
     "Jarvislabs|H100 SXM|On-demand|80|1",
-    "Lambda|A100 SXM|On-demand instance (8x GPU)|80|8",
     "Lambda|H100 PCIe|On-demand instance (1x GPU)|80|1",
     "Lambda|H100 SXM|On-demand instance (1x GPU)|80|1",
-    "Lambda|H100 SXM|On-demand instance (8x GPU)|80|8",
     "Nebius|H100|On-demand|80|1",
     "Nebius|H200|On-demand|141|1",
     "Nebius|L40S|On-demand (from, Intel CPU)|48|1",
@@ -3592,8 +3589,12 @@
      "excluded_because": "spot/interruptible"
     },
     {
-     "key": "Lium|A100 SXM|Marketplace secure node|80|1",
-     "excluded_because": "marketplace, listing count unknown"
+     "key": "Lambda|A100 SXM|On-demand instance (8x GPU)|80|8",
+     "excluded_because": "held"
+    },
+    {
+     "key": "Lambda|H100 SXM|On-demand instance (8x GPU)|80|8",
+     "excluded_because": "held"
     },
     {
      "key": "Lium|H100 SXM|Marketplace secure node|80|1",
@@ -3716,18 +3717,20 @@
     "H100": {
      "matched_vendors": 13,
      "matched_median_prev": 3.49,
-     "matched_median_cur": 3.49,
-     "matched_change_pct": 0.0,
+     "matched_median_cur": 3.5,
+     "matched_change_pct": 0.29,
      "vendors_added": [],
      "vendors_dropped": []
     },
     "A100": {
-     "matched_vendors": 11,
-     "matched_median_prev": 1.49,
-     "matched_median_cur": 1.49,
+     "matched_vendors": 10,
+     "matched_median_prev": 1.48,
+     "matched_median_cur": 1.48,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": []
+     "vendors_dropped": [
+      "Lambda"
+     ]
     },
     "H200": {
      "matched_vendors": 6,
