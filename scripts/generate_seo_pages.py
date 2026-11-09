@@ -1716,10 +1716,23 @@ def _source_paths_for(url_path: str) -> list[str]:
     return []
 
 
+def _changes_content_day() -> str | None:
+    """Day the published price-changes feed moved. The file's own date, not the generator's commit and not the clock."""
+    try:
+        doc = json.loads((ROOT / "api/v1/gpu-price-changes.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return _iso_date(doc.get("date"))
+
+
 def sitemap_lastmod_for_loc(loc: str) -> str | None:
     """Honest YYYY-MM-DD lastmod for a sitemap loc, or None to omit the tag."""
     url_path = _sitemap_url_path(loc)
     stripped = url_path.strip("/")
+    # gpu/changes.xml is the changes feed. Its lastmod is that feed's date, so a later edit to a
+    # generator script or a CI merge commit does not move it.
+    if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:
+        return _changes_content_day() or _gpu_feed_day()
 
     # Per-deal pages: the deal record is the content source of truth.
     m = re.fullmatch(r"deals/([^/]+)", stripped)

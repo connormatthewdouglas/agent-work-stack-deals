@@ -159,8 +159,13 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
                      and any(fam in str(rec.get("gpu") or "") for rec in h.get("records") or [])})
     if owners:
         parts.append(f"<p>Temporarily held, not a live verified price: {esc(', '.join(owners))}.</p>")
+    rental = Path(g.ROOT) / "gpu" / f"{slug}-rental-price"
+    if rental.is_dir():
+        full_list = f'<a href="{base}/gpu/{slug}-rental-price/">{esc(fam)} rental prices</a>'
+    else:
+        full_list = f'<a href="{base}/gpu/price-comparison/">all GPU prices</a>'
     parts.append(
-        f"<p>Other durations: {other}. Full price list: <a href=\"{base}/gpu/{slug}-rental-price/\">{esc(fam)} rental prices</a>. "
+        f"<p>Other durations: {other}. Full price list: {full_list}. "
         f"For your own hours or throughput, use the MCP tool <code>estimate_job_cost</code>.</p>"
         "<p class=\"meta\">Order is by cost only; referral links are labelled and never change the order. "
         f"Feed updated {esc(_et(feed.get('feed_updated_at')))}. Data CC BY 4.0, Lantern Works "

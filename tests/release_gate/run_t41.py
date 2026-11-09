@@ -152,27 +152,57 @@ def _(f, ev):
     ev["monthly_rows"] = m
 
 
+def _h100_buckets():
+    """Listed H100 rows vs the rows compare will rank. Serverless is always held. min_gpus above the
+    request (1 GPU when compare is given no count) is held only once compare reports excluded_min_gpus,
+    which is #130's rule; before that those rows stay ranked."""
+    from core.serverless import rate_reason
+    listed = [r for r in RATES if "h100" in toks(r["gpu"])]
+    reserved = [r for r in listed if D.tier_class(r) == "reserved"]
+    serverless = [r for r in listed if rate_reason(r)]
+    return listed, reserved, serverless
+
+
 @case("T41-03")
 def _(f, ev):
     out = tool(SRV.compare_gpu_prices, "H100", limit=25, on_demand_only=False)
     res = out.get("results") or []
-    rows = [r for r in RATES if "h100" in toks(r["gpu"]) and D.tier_class(r) != "reserved"]
+    listed, reserved, serverless = _h100_buckets()
+    # Ranked-eligible: not reserved (this call does not pass include_reserved), not serverless.
+    ranked = [r for r in listed if r not in reserved and r not in serverless]
+    if "excluded_min_gpus" in out:
+        # #130: a row with min_gpus above the requested count is listed, not ranked. No count means 1 GPU.
+        try:
+            from core.gpu import min_gpus_unmet
+        except ImportError:
+            def min_gpus_unmet(r, gpus=1):
+                return (r.get("min_gpus") or 1) > (gpus or 1)
+        ranked = [r for r in ranked if not min_gpus_unmet(r, 1)]
     # E5: rows the feed marks out of stock are ranked after in-stock/unknown rows, so they are never "cheapest"
     oos = lambda r: (r.get("availability") or {}).get("in_stock") is False
-    exp = min((r["hourly_equiv_usd"] for r in rows if not oos(r)), default=min(r["hourly_equiv_usd"] for r in rows))
+    pool = [r for r in ranked if not oos(r)] or ranked
+    exp = min(r["hourly_equiv_usd"] for r in pool)
     ev.update(tool_cheapest=res[0] and {k: res[0][k] for k in ("advertiser", "gpu", "tier", "hourly_usd", "tier_class")}, feed_min=exp,
-              feed_rows=len(rows), tool_count=out.get("count"))
-    if abs(res[0]["hourly_usd"] - exp) > 1e-9: f.append(f"cheapest {res[0]['hourly_usd']} != feed min {exp}")
+              listed=len(listed), reserved=len(reserved), serverless=len(serverless), ranked=len(ranked),
+              feed_rows=len(ranked), tool_count=out.get("count"), tool_total=out.get("total"))
+    if not res: f.append("no ranked H100 result")
+    elif abs(res[0]["hourly_usd"] - exp) > 1e-9: f.append(f"cheapest {res[0]['hourly_usd']} != ranked min {exp}")
     # Never weaker than before E5: the row shown as cheapest must not be reserved, thin or held, whatever its price.
-    if res[0].get("tier_class") == "reserved": f.append("reserved row shown as cheapest")
-    if res[0].get("price_status") in ("thin", "held", "held_stale"): f.append(f"{res[0].get('price_status')} row shown as cheapest")
+    if res and res[0].get("tier_class") == "reserved": f.append("reserved row shown as cheapest")
+    if res and res[0].get("price_status") in ("thin", "held", "held_stale"): f.append(f"{res[0].get('price_status')} row shown as cheapest")
     held_keys = {(h.get("vendor"), x.get("gpu"), x.get("tier")) for h in (FEED.get("held_stale") or []) for x in (h.get("records") or [])}
     ranked_keys = {(r.get("advertiser"), r.get("gpu"), r.get("tier")) for r in RATES}
     held_keys -= ranked_keys  # same label also ranked (fresh) is fine; only a held-only row may not lead
-    if (res[0].get("advertiser"), res[0].get("gpu"), res[0].get("tier")) in held_keys: f.append("held/thin row shown as cheapest")
+    if res and (res[0].get("advertiser"), res[0].get("gpu"), res[0].get("tier")) in held_keys: f.append("held/thin row shown as cheapest")
     hs = [(x.get("in_stock") is False, x["hourly_usd"]) for x in res]
     if hs != sorted(hs): f.append(f"not sorted ascending (out-of-stock last): {hs}")
-    if out.get("total") != len(rows) and len(rows) <= 25 and out.get("count") != len(rows): f.append(f"count {out.get('count')} != feed rows {len(rows)}")
+    # Always on. The old len>25 guard hid a serverless (and, once #130 lands, min_gpus) mismatch.
+    if out.get("excluded_serverless") != len(serverless):
+        f.append(f"excluded_serverless {out.get('excluded_serverless')} != listed serverless {len(serverless)}")
+    if out.get("total") != len(ranked):
+        f.append(f"total {out.get('total')} != ranked-eligible {len(ranked)} (listed {len(listed)}, serverless {len(serverless)}, reserved {len(reserved)})")
+    if out.get("count") != min(25, len(ranked)):
+        f.append(f"count {out.get('count')} != min(25, {len(ranked)})")
     if out.get("scope") != "cheapest among tracked providers": f.append(f"scope={out.get('scope')!r}")
     if "among tracked providers" not in (out.get("summary") or ""): f.append("summary lacks 'among tracked providers'")
 
