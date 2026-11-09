@@ -15,13 +15,88 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
-  "last_checked": "2026-11-05T02:46:23+00:00",
-  "row_count": 2,
+  "last_checked": "2026-11-09T06:46:08Z",
+  "row_count": 7,
   "providers": [
-    "Lium"
+    "Lium",
+    "RunPod"
   ],
   "cheapest": {
+    "on-demand": [
+      {
+        "vram_gb": 96,
+        "provider": "RunPod",
+        "gpu": "RTX PRO 6000 Server",
+        "tier": "On-demand (Secure Cloud)",
+        "tier_class": "on-demand",
+        "bucket": "on-demand",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.49,
+        "unit": "hour",
+        "price_usd": 2.49,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-09T06:46:08Z",
+        "source_url": "https://api.runpod.io/graphql",
+        "quote": "gpuTypes.securePrice (list price, 1 GPU): 2.49",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "evidence": {
+          "request_method": "POST",
+          "operation": "gpuTypes.securePrice",
+          "record_id": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Secure Cloud)",
+          "vram_gb": 96
+        }
+      }
+    ],
     "spot-community": [
+      {
+        "vram_gb": 96,
+        "provider": "RunPod",
+        "gpu": "RTX PRO 6000 Max-Q",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 1.64,
+        "unit": "hour",
+        "price_usd": 1.64,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-09T06:46:08Z",
+        "source_url": "https://api.runpod.io/graphql",
+        "quote": "gpuTypes.communityPrice (list price, 1 GPU): 1.64",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "evidence": {
+          "request_method": "POST",
+          "operation": "gpuTypes.communityPrice",
+          "record_id": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition"
+        },
+        "form_factor": "unknown",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "unknown",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 96
+        }
+      },
       {
         "vram_gb": 96,
         "provider": "Lium",
@@ -107,6 +182,99 @@
   },
   "rows": [
     {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Max-Q",
+      "vram_gb": 96,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.64,
+      "unit": "hour",
+      "price_usd": 1.64,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-09T06:46:08Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.communityPrice (list price, 1 GPU): 1.64",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.communityPrice",
+        "record_id": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition"
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Server",
+      "vram_gb": 96,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.69,
+      "unit": "hour",
+      "price_usd": 1.69,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-09T06:46:08Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.communityPrice (list price, 1 GPU): 1.69",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.communityPrice",
+        "record_id": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Workstation",
+      "vram_gb": 96,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.69,
+      "unit": "hour",
+      "price_usd": 1.69,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-09T06:46:08Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.communityPrice (list price, 1 GPU): 1.69",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.communityPrice",
+        "record_id": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
       "provider": "Lium",
       "gpu": "RTX PRO 6000 Server",
       "vram_gb": 96,
@@ -176,10 +344,72 @@
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Server",
+      "vram_gb": 96,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.49,
+      "unit": "hour",
+      "price_usd": 2.49,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-09T06:46:08Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.securePrice (list price, 1 GPU): 2.49",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.securePrice",
+        "record_id": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX PRO 6000 Workstation",
+      "vram_gb": 96,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.59,
+      "unit": "hour",
+      "price_usd": 2.59,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-09T06:46:08Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.securePrice (list price, 1 GPU): 2.59",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.securePrice",
+        "record_id": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261106T025255Z-beb5802e",
-  "feed_updated_at": "2026-11-09T06:04:41Z"
+  "generation_id": "20261109T064615Z-38d2f8b6",
+  "feed_updated_at": "2026-11-09T06:46:10Z"
 }
