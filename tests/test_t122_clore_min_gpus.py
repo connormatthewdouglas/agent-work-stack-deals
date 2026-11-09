@@ -189,7 +189,10 @@ def test_rtx_5090_d_is_its_own_identity_and_never_aliases():
     d, std = gpu_identity.identity("RTX 5090 D"), gpu_identity.identity("RTX 5090")
     assert d["model"] == "RTX 5090 D" and std["model"] == "RTX 5090"
     assert d["nominal_memory"]["gb"] == 32 and "32 GB GDDR7" in d["nominal_memory"]["quote"]
-    assert d["nominal_memory"]["source_url"].startswith("https://www.nvidia.cn/") and d["usable_memory"]["gb"] is None
+    # Bjorn 1109: NVIDIA's own 5090 D page as archived 2025-03-10 is the source (the live URL now shows the 24 GB v2)
+    assert d["nominal_memory"]["source_url"] == ("https://web.archive.org/web/20250310021605/"
+                                                 "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5090-d/")
+    assert d["usable_memory"]["gb"] is None
     assert gpu_identity.identity("RTX 5090 D v2") is None  # the 24 GB v2 is a different SKU, not this entry
     assert G.canonical_model("RTX 5090 D") == "RTX 5090 D" and G.family_of("RTX 5090 D") is None
     assert G.canonical_model("RTX 5090 D v2") != "RTX 5090"
