@@ -110,6 +110,79 @@ def vast(min_machines=None):
         rows.append(r)
     return rows
 
+# ---- Vast per-allocation rows (Bjorn 1108; collect() uses this instead of the pooled vast()) ----
+# One row per (GPU, num_gpus): gpu_count = min_gpus = the offers' own num_gpus, price = median dph_total of those offers / num_gpus.
+# Publishes only when BOTH reads (>= VAST_READ_GAP_S apart) have >= max(VAST_ALLOC_MIN_MACHINES = 7, feed floor) distinct machine_id at that size and the two
+# per-GPU medians are within VAST_STABLE_PCT. Anything else emits no row; the reason goes to meta (never to a published row).
+# Pooled mixed-allocation rows are not emitted (no verifiable allocation). Offers with a missing/non-integer num_gpus never count.
+VAST_ALLOC_MIN_MACHINES = 7  # Bjorn 1108: raised from 5; required in BOTH reads
+VAST_READ_GAP_S = 180  # Bjorn 1108: widened from 60 s; run_cycle.sh.vastalloc_staged raises the wider-step timeout to 300 s
+VAST_STABLE_PCT = 0.05
+VAST_ALLOC_META = {}  # last vast_alloc() run: read times, per-size counts/medians and hold reasons (copied into doc["meta"])
+_sleep, _mono = time.sleep, time.monotonic
+
+def _vast_alloc_groups(offers):
+    """{(fam, form, vram, num_gpus): {"t": [dph_total...], "m": {machine_id}, "raw": {vendor GB: offers}, "nomid": n}}"""
+    agrp = defaultdict(lambda: {"t": [], "m": set(), "raw": defaultdict(int), "nomid": 0})
+    for o in offers:
+        ng, tot = o.get("num_gpus"), o.get("dph_total")
+        if o.get("gpu_name") not in VAST_NEW or not o.get("gpu_ram"): continue
+        if not (isinstance(ng, int) and not isinstance(ng, bool) and ng >= 1): continue  # never infer an allocation
+        if not (isinstance(tot, (int, float)) and not isinstance(tot, bool) and tot > 0): continue
+        fam, form = VAST_NEW[o["gpu_name"]]; vr = round(o["gpu_ram"] / 1024)
+        _, vram, _ = canon(fam, form, vr)
+        a = agrp[(fam, form, vram, ng)]; a["t"].append(tot); a["raw"][vr] += 1
+        if o.get("machine_id") is not None: a["m"].add(o["machine_id"])
+        else: a["nomid"] += 1
+    return agrp
+
+def vast_alloc(min_machines=None):
+    q = {"gpu_name": {"in": sorted(VAST_NEW)}, "rentable": {"eq": True}, "rented": {"eq": False}, "verified": {"eq": True}, "type": "on-demand", "limit": 1000}
+    url = "https://console.vast.ai/api/v0/bundles/?q=" + urllib.parse.quote(json.dumps(q, separators=(",", ":")))  # same query as vast()
+    th = max(VAST_ALLOC_MIN_MACHINES, min_machines or 0)
+    VAST_ALLOC_META.clear(); VAST_ALLOC_META.update(min_machines=th, read_gap_s=VAST_READ_GAP_S, stable_pct=VAST_STABLE_PCT)
+    g1 = _vast_alloc_groups(c.get(url).get("offers", [])); ts1 = c.NOW(); t1 = _mono()  # read 1 failure raises -> Vast source error (as today)
+    VAST_ALLOC_META["read1_at"] = ts1
+    wait = VAST_READ_GAP_S - (_mono() - t1)
+    if wait > 0: _sleep(wait)
+    try:
+        if _mono() - t1 < VAST_READ_GAP_S: raise RuntimeError("second read earlier than the minimum gap")
+        g2 = _vast_alloc_groups(c.get(url).get("offers", [])); ts2 = c.NOW()
+    except Exception as ex:  # read 2 failed: every size holds, no row and no fresh timestamp
+        VAST_ALLOC_META.update(read2_at=None, read2_error=type(ex).__name__ + ": " + str(ex)[:120], sizes=[
+            dict(gpu=canon(k[0], k[1], k[2])[0], vram_gb=k[2], gpu_count=k[3], offers1=len(a["t"]), machines1=len(a["m"]), status="held: second read failed")
+            for k, a in sorted(g1.items(), key=lambda kv: (str(kv[0][:3]), kv[0][3]))])
+        return []
+    VAST_ALLOC_META["read2_at"] = ts2
+    rows, sizes = [], []
+    for k in sorted(set(g1) | set(g2), key=lambda k: (str(k[:3]), k[3])):
+        fam, form, vram, ng = k; a1, a2 = g1.get(k), g2.get(k)
+        m1, m2 = (len(a1["m"]) if a1 else 0), (len(a2["m"]) if a2 else 0)
+        p1 = round(round(statistics.median(a1["t"]), 4) / ng, 4) if a1 else None
+        p2 = round(round(statistics.median(a2["t"]), 4) / ng, 4) if a2 else None
+        info = dict(gpu=canon(fam, form, vram)[0], vram_gb=vram, gpu_count=ng, offers1=len(a1["t"]) if a1 else 0, machines1=m1, median1=p1,
+                    offers2=len(a2["t"]) if a2 else 0, machines2=m2, median2=p2)
+        if m1 < th or m2 < th:
+            info["status"] = f"held: fewer than {th} distinct machines in {'both reads' if m1 < th and m2 < th else 'read 1' if m1 < th else 'read 2'}"
+        elif abs(p2 - p1) > VAST_STABLE_PCT * p1:
+            info["status"] = f"held: medians differ by {abs(p2 - p1) / p1:.1%} (> {VAST_STABLE_PCT:.0%})"
+        else:
+            info["status"] = "published (read 2)"
+            tot = round(statistics.median(a2["t"]), 4); n = len(a2["t"])
+            figs = dict(a2["raw"])
+            vn = None if set(figs) == {vram} else "vendor reports " + ", ".join(f"{x}GB ({v} offers)" for x, v in sorted(figs.items())) + f"; {spec_label(fam)} {vram}GB"
+            cnt = f"{n} offers on {m2} distinct machine_id" + (f" ({a2['nomid']} offers without machine_id, not counted)" if a2["nomid"] else "")
+            r = row("Vast.ai", fam, form, vram, f"Marketplace on-demand (verified, {ng}x GPU)", p2,
+                    f"median per-GPU dph_total of num_gpus={ng} offers only, same snapshot as offer_count", url, ts2, offer_count=n, distinct_machines=m2,
+                    price_refresh="4h", gpu_count=ng, min_gpus=ng, server_price_usd_hr=tot, allocation_source=f"offers[].num_gpus == {ng}",
+                    stability_check=f"read 1 {ts1}: {p1} on {m1} machines; read 2 {ts2}: {p2} on {m2} machines (<= {VAST_STABLE_PCT:.0%} apart)",
+                    availability_note=f"{cnt} at num_gpus={ng} (read 2); in_stock not asserted")
+            r["vram_note"] = "; ".join(x for x in (vn, VRAM_EXCEPTIONS.get(fam) if VRAM_MODE == "official" else None) if x) or None
+            rows.append(r)
+        sizes.append(info)
+    VAST_ALLOC_META["sizes"] = sizes
+    return rows
+
 # ---- Clore: stock count only ----
 CLORE_NEW = {"NVIDIA L4": ("L4", None, 23), "Tesla T4": ("T4", None, 15), "NVIDIA RTX A4000": ("RTX A4000", None, 16),
              "Tesla V100SXM216GB": ("V100", "SXM2", 16), "Tesla V100SXM232GB": ("V100", "SXM2", 32),
@@ -258,7 +331,7 @@ def counts(rows):
 def collect(secrets_dir="secrets"):
     rows, errs, t0 = [], {}, time.time()
     mmo = c.feed_min_market_offers()
-    srcs = [("RunPod", runpod), ("Vast.ai", lambda: vast(mmo)), ("Clore.ai", clore), ("Oblivus", oblivus), ("Oblivus listed", oblivus_listed),
+    srcs = [("RunPod", runpod), ("Vast.ai", lambda: vast_alloc(mmo)), ("Clore.ai", clore), ("Oblivus", oblivus), ("Oblivus listed", oblivus_listed),
             ("Verda", lambda: verda(os.path.join(secrets_dir, "verda.env")))]
     if not DROP_LIVE_DUPES: srcs.append(("Lambda", lambda: lambda_(os.path.join(secrets_dir, "lambda.env"))))
     for name, fn in srcs:
@@ -271,7 +344,8 @@ def collect(secrets_dir="secrets"):
     return {"version": "3.2", "batch": "wider-gpu", "collected_at": c.NOW(), "errors": errs, "family_scope": list(FAMILY_SCOPE),
             "settings": {"VRAM_MODE": VRAM_MODE, "NAME_MODE": NAME_MODE, "DROP_LIVE_DUPES": DROP_LIVE_DUPES},
             "meta": {"feed_min_market_offers": mmo, "vast_hold_counts": "distinct machine_id", "run_seconds": round(time.time() - t0, 1),
-                     "dropped_live_dupes": len(dropped), "counts": counts(rows)}, "rows": rows}
+                     "dropped_live_dupes": len(dropped), "counts": counts(rows),
+                     "vast_allocation": json.loads(json.dumps(VAST_ALLOC_META))}, "rows": rows}
 
 LATEST = "wider_gpu_prices_latest.json"
 def move_aside(out, why):
@@ -281,14 +355,26 @@ def move_aside(out, why):
         dst = os.path.join(out, f"wider_gpu_prices_REJECTED_{stamp()}.json")
         os.replace(p, dst); print(f"wider-gpu: {why}; moved {LATEST} aside -> {os.path.basename(dst)}", file=sys.stderr)
 
+def keep_or_move_aside(out, why):
+    """Gauge vast-alloc #4: after a failed or killed run, keep the PREVIOUS good latest file only if it is still the one registered in
+    the manifest (sha256 match, same rule as scout_io._carry_optional), so it is reused with its own old timestamps and the push /
+    screen_optional 6 h age limits still apply. Anything else (unregistered, changed, or a new file that was never registered) is moved
+    aside as before. Never writes or re-stamps the file."""
+    import scout_io
+    p = os.path.join(out, LATEST)
+    if not os.path.exists(p): return "absent"
+    if LATEST in scout_io._carry_optional(out):
+        print(f"wider-gpu: {why}; kept previous registered {LATEST} (not re-stamped)", file=sys.stderr); return "kept"
+    move_aside(out, why); return "moved"
+
 def main(out="out", secrets=None):
     try: doc = collect(secrets or os.environ.get("WGPU_SECRETS_DIR", "secrets"))
-    except Exception as ex: move_aside(out, f"run failed ({type(ex).__name__})"); return 1
+    except Exception as ex: keep_or_move_aside(out, f"run failed ({type(ex).__name__})"); return 1
     os.makedirs(out, exist_ok=True)
     stamp = doc["collected_at"].replace("-", "").replace(":", "")
     json.dump(doc, open(f"{out}/wider_gpu_prices_{stamp}{'_FAILED' if doc['errors'] else ''}.json", "w"), indent=1)
     if doc["errors"]:
-        move_aside(out, f"run failed {sorted(doc['errors'])}"); return 1
+        keep_or_move_aside(out, f"run failed {sorted(doc['errors'])}"); return 1
     tmp = f"{out}/.{LATEST}.tmp"; json.dump(doc, open(tmp, "w"), indent=1); os.replace(tmp, f"{out}/{LATEST}")
     try:
         import scout_io
