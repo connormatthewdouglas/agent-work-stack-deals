@@ -193,6 +193,21 @@ def test_idempotent_and_removes_stale_rows_only():
     assert docs["Verda"]["records"][0] is stale  # inputs not mutated
 
 
+def test_source_detail_is_evidence_only_and_interruptible_follows_tier():
+    ob = normalize(row(vendor="Oblivus", gpu_model="RTX 4090", vram_gb=24, price_usd_hr=0.64, gpu_count=1,
+                       source_url="https://oblivus.com/pricing/",
+                       source_detail='https://oblivus.com/pricing/ ("RTX 4090" card)'))
+    assert ob["source_url"] == "https://oblivus.com/pricing/"
+    assert ob["evidence"]["source_url"] == "https://oblivus.com/pricing/"
+    assert "RTX 4090" in ob["source_detail"] and "(" not in ob["source_url"] and ob["interruptible"] is False
+    assert normalize(row(vendor="RunPod", gpu_model="H100", vram_gb=80, price_usd_hr=2, gpu_count=1, tier="Spot"))["interruptible"] is True
+    assert normalize(row(vendor="RunPod", gpu_model="H100", vram_gb=80, price_usd_hr=2, gpu_count=1, tier="Preemptible"))["interruptible"] is True
+    assert normalize(row(vendor="RunPod", gpu_model="H100", vram_gb=80, price_usd_hr=2, gpu_count=1, tier="Interruptible"))["interruptible"] is True
+    assert normalize(row(vendor="RunPod", gpu_model="H100", vram_gb=80, price_usd_hr=2, gpu_count=1, tier="bid"))["interruptible"] is True
+    assert normalize(row(vendor="Oblivus", gpu_model="H100", vram_gb=80, price_usd_hr=2, gpu_count=1,
+                         source_url='https://oblivus.com/pricing/ ("H100" card)')) is None
+
+
 def test_refuses_wrong_schema(tmp_path):
     f = tmp_path / "w.json"
     f.write_text(json.dumps({"version": "3.1", "batch": "wider-gpu", "collected_at": datetime.now(timezone.utc).isoformat(), "rows": []}))

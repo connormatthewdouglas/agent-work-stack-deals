@@ -180,9 +180,11 @@ def test_committed_data_snapshots_and_history():
 
 
 def test_mcp_compare_include_history():
-    data = {"rates": build_rates([], [doc(rec())])["rates"]}
+    # The synthetic row has to be inside the 7-day price hold. A fixed 2026-11-01 stamp ages out and build_rates drops it.
+    fresh = (datetime.now(timezone.utc) - timedelta(hours=6)).replace(microsecond=0).isoformat()
+    row = rec(price=1.89, quote="$1.89", checked_at=fresh, verified_at=fresh)
     h = H.build_history([_snap("2026-11-01", 1.99), _snap("2026-11-03", 1.89)])
-    data = {"rates": build_rates([], [doc(rec(price=1.89, quote="$1.89"))])["rates"]}
+    data = {"rates": build_rates([], [doc(row)])["rates"]}
     out = core.compare_gpu_prices(data, "A100", 5, history=h)
     assert out["results"][0]["price_history"] == [{"date": "2026-11-01", "hourly_usd": 1.99, "status": "ranked"},
                                                   {"date": "2026-11-03", "hourly_usd": 1.89, "status": "ranked"}]

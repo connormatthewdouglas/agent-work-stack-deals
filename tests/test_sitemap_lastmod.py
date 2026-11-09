@@ -1,10 +1,13 @@
 """T121: sitemap lastmod must be honest per URL (no global stale stamp)."""
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 import sys
+import time
 from collections import Counter
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -75,7 +78,7 @@ def test_sitemap_write_path_does_not_use_lastmod_constant():
 def test_sitemap_lastmod_helper_varies_and_skips_future():
     entries = _entries()
     assert entries, "sitemap.xml missing entries"
-    today = date.today().isoformat()
+    today = datetime.now(timezone.utc).date().isoformat()
     for loc, lm in entries:
         if lm is None:
             continue
@@ -85,6 +88,27 @@ def test_sitemap_lastmod_helper_varies_and_skips_future():
     for loc, lm in entries[:20]:
         got = gen.sitemap_lastmod_for_loc(loc)
         assert got == lm, (loc, lm, got)
+
+
+def test_iso_date_and_git_lastmod_are_utc():
+    assert gen._iso_date("2026-11-08T22:30:00-05:00") == "2026-11-09"
+    assert gen._iso_date("2026-11-08T22:30:00Z") == "2026-11-08"
+    assert gen._iso_date("2026-11-08") == "2026-11-08"
+    gen._SITEMAP_GIT_DATE_CACHE.clear()
+    old = os.environ.get("TZ")
+    os.environ["TZ"] = "America/New_York"
+    time.tzset()
+    try:
+        got = gen._git_commit_date("README.md")
+    finally:
+        if old is None:
+            os.environ.pop("TZ", None)
+        else:
+            os.environ["TZ"] = old
+        time.tzset()
+        gen._SITEMAP_GIT_DATE_CACHE.clear()
+    ts = int(subprocess.check_output(["git", "log", "-1", "--format=%ct", "--", "README.md"], cwd=ROOT))
+    assert got == datetime.fromtimestamp(ts, timezone.utc).date().isoformat()
 
 
 def test_rewrite_sitemap_lastmods_keeps_url_count_and_fixes_coverage_slash():

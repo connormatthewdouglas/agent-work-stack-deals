@@ -96,8 +96,12 @@ def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path):
     try:
         r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m)}, tmp_path)
         assert r.returncode == 0, r.stderr
-        got = json.loads(out.read_text())["rows"][0]
+        rows = json.loads(out.read_text())["rows"]
+        got = next(x for x in rows if x["vendor"] == "RunPod" and x["gpu"] == "H100 PCIe")
         assert got["in_stock"] is None and got["stock_level"] is None and "no region" in got["availability_note"]
+        # Owner-held vendors are copied from the previous file, not replaced by this snapshot.
+        from core.owner_hold import is_held
+        assert any(is_held(x["vendor"]) for x in rows)
     finally:
         out.write_bytes(keep)
 
@@ -146,7 +150,8 @@ def test_only_in_live_feed_true_rows_import(tmp_path, live):
     try:
         r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m)}, tmp_path)
         assert r.returncode == 0, r.stderr
-        rows = json.loads(out.read_text())["rows"]
+        from core.owner_hold import is_held
+        rows = [x for x in json.loads(out.read_text())["rows"] if not is_held(x["vendor"])]
         assert [x["gpu"] for x in rows] == ["H100 SXM"]
     finally:
         out.write_bytes(keep)

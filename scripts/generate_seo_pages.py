@@ -1486,16 +1486,25 @@ def guides_nav_html() -> str:
 
 
 def _iso_date(value: str | None) -> str | None:
-    """Return YYYY-MM-DD from an ISO-8601 timestamp, or None if unusable."""
+    """UTC calendar day (YYYY-MM-DD) of an ISO-8601 timestamp, or None if unusable.
+
+    A date-only value is that UTC day. A zoned timestamp is converted to UTC before the day is taken,
+    so 19:00 America/New_York (00:00Z next day) is not stamped as the previous local date.
+    """
     if not value or not isinstance(value, str):
         return None
     s = value.strip()
-    if len(s) < 10:
+    if not s:
         return None
-    day = s[:10]
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
         return None
-    return day
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).date().isoformat()
 
 
 # T121 — sitemap lastmod method (do not stamp a single global date):
@@ -1506,8 +1515,9 @@ def _iso_date(value: str | None) -> str | None:
 #    max'd with the generator script's git date
 # 3. Deal hubs / homepage / categories / guides → deals.json updated_at,
 #    max'd with the generator script's git date
-# 4. Other pages → git log -1 --format=%cs on the generator script that owns
-#    the URL; fall back to the published artifact only when no source is known
+# 4. Other pages → git committer date as a UTC day (unix %ct, not %cs, so the
+#    runner's TZ does not move the day after 19:00 America/New_York); fall back
+#    to the published artifact only when no source is known
 # 5. Omit <lastmod> when nothing honest is available
 _SITEMAP_GIT_DATE_CACHE: dict[str, str | None] = {}
 _SITEMAP_DEAL_DATES: dict[str, str] | None = None
@@ -1558,7 +1568,7 @@ def _git_commit_date(rel: Path | str) -> str | None:
         return _SITEMAP_GIT_DATE_CACHE[key]
     try:
         proc = subprocess.run(
-            ["git", "log", "-1", "--format=%cs", "--", key],
+            ["git", "log", "-1", "--format=%ct", "--", key],
             cwd=ROOT,
             capture_output=True,
             text=True,
@@ -1567,9 +1577,11 @@ def _git_commit_date(rel: Path | str) -> str | None:
     except OSError:
         _SITEMAP_GIT_DATE_CACHE[key] = None
         return None
-    day = (proc.stdout or "").strip() or None
-    if day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
-        day = None
+    raw = (proc.stdout or "").strip()
+    day = None
+    if raw.isdigit():
+        # %ct is timezone-independent. Do not read TZ or use %cs (local committer date).
+        day = datetime.fromtimestamp(int(raw), timezone.utc).date().isoformat()
     _SITEMAP_GIT_DATE_CACHE[key] = day
     return day
 
