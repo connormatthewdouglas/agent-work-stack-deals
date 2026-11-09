@@ -152,27 +152,59 @@ def _(f, ev):
     ev["monthly_rows"] = m
 
 
+def _h100_buckets():
+    """Listed H100 rows. Serverless is always held out of the ranked total. min_gpus above the
+    request is held only when compare reports min_gpus_unmet (the count #130 keeps in brief mode)."""
+    from core.serverless import rate_reason
+    listed = [r for r in RATES if "h100" in toks(r["gpu"])]
+    reserved = [r for r in listed if D.tier_class(r) == "reserved"]
+    serverless = [r for r in listed if rate_reason(r)]
+    return listed, reserved, serverless
+
+
+from t41_counts import ranked_after_min_gpus  # noqa: E402
+
+
 @case("T41-03")
 def _(f, ev):
     out = tool(SRV.compare_gpu_prices, "H100", limit=25, on_demand_only=False)
     res = out.get("results") or []
-    rows = [r for r in RATES if "h100" in toks(r["gpu"]) and D.tier_class(r) != "reserved"]
+    listed, reserved, serverless = _h100_buckets()
+    # Ranked before the min_gpus hold: not reserved (include_reserved is not set), not serverless.
+    before_min = [r for r in listed if r not in reserved and r not in serverless]
+    n_ranked = ranked_after_min_gpus(len(before_min), out)
+    if out.get("min_gpus_unmet"):
+        ranked = [r for r in before_min if (r.get("min_gpus") or 1) <= 1]
+    else:
+        ranked = before_min
     # E5: rows the feed marks out of stock are ranked after in-stock/unknown rows, so they are never "cheapest"
     oos = lambda r: (r.get("availability") or {}).get("in_stock") is False
-    exp = min((r["hourly_equiv_usd"] for r in rows if not oos(r)), default=min(r["hourly_equiv_usd"] for r in rows))
+    pool = [r for r in ranked if not oos(r)] or ranked
+    exp = min(r["hourly_equiv_usd"] for r in pool)
     ev.update(tool_cheapest=res[0] and {k: res[0][k] for k in ("advertiser", "gpu", "tier", "hourly_usd", "tier_class")}, feed_min=exp,
-              feed_rows=len(rows), tool_count=out.get("count"))
-    if abs(res[0]["hourly_usd"] - exp) > 1e-9: f.append(f"cheapest {res[0]['hourly_usd']} != feed min {exp}")
+              listed=len(listed), reserved=len(reserved), serverless=len(serverless), ranked=n_ranked,
+              min_gpus_unmet=out.get("min_gpus_unmet") or 0,
+              feed_rows=n_ranked, tool_count=out.get("count"), tool_total=out.get("total"))
+    if not res: f.append("no ranked H100 result")
+    elif abs(res[0]["hourly_usd"] - exp) > 1e-9: f.append(f"cheapest {res[0]['hourly_usd']} != ranked min {exp}")
     # Never weaker than before E5: the row shown as cheapest must not be reserved, thin or held, whatever its price.
-    if res[0].get("tier_class") == "reserved": f.append("reserved row shown as cheapest")
-    if res[0].get("price_status") in ("thin", "held", "held_stale"): f.append(f"{res[0].get('price_status')} row shown as cheapest")
+    if res and res[0].get("tier_class") == "reserved": f.append("reserved row shown as cheapest")
+    if res and res[0].get("price_status") in ("thin", "held", "held_stale"): f.append(f"{res[0].get('price_status')} row shown as cheapest")
     held_keys = {(h.get("vendor"), x.get("gpu"), x.get("tier")) for h in (FEED.get("held_stale") or []) for x in (h.get("records") or [])}
     ranked_keys = {(r.get("advertiser"), r.get("gpu"), r.get("tier")) for r in RATES}
     held_keys -= ranked_keys  # same label also ranked (fresh) is fine; only a held-only row may not lead
-    if (res[0].get("advertiser"), res[0].get("gpu"), res[0].get("tier")) in held_keys: f.append("held/thin row shown as cheapest")
+    if res and (res[0].get("advertiser"), res[0].get("gpu"), res[0].get("tier")) in held_keys: f.append("held/thin row shown as cheapest")
     hs = [(x.get("in_stock") is False, x["hourly_usd"]) for x in res]
     if hs != sorted(hs): f.append(f"not sorted ascending (out-of-stock last): {hs}")
-    if out.get("total") != len(rows) and len(rows) <= 25 and out.get("count") != len(rows): f.append(f"count {out.get('count')} != feed rows {len(rows)}")
+    # Always on. The old len>25 guard hid a serverless (and, once #130 lands, min_gpus) mismatch.
+    if out.get("excluded_serverless") != len(serverless):
+        f.append(f"excluded_serverless {out.get('excluded_serverless')} != listed serverless {len(serverless)}")
+    if out.get("min_gpus_unmet") and len(ranked) != n_ranked:
+        f.append(f"min_gpus_unmet {out.get('min_gpus_unmet')} != {len(before_min) - len(ranked)} feed rows with min_gpus>1")
+    if out.get("total") != n_ranked:
+        f.append(f"total {out.get('total')} != ranked-eligible {n_ranked} (listed {len(listed)}, serverless {len(serverless)}, reserved {len(reserved)}, min_gpus_unmet {out.get('min_gpus_unmet') or 0})")
+    if out.get("count") != min(25, n_ranked):
+        f.append(f"count {out.get('count')} != min(25, {n_ranked})")
     if out.get("scope") != "cheapest among tracked providers": f.append(f"scope={out.get('scope')!r}")
     if "among tracked providers" not in (out.get("summary") or ""): f.append("summary lacks 'among tracked providers'")
 
@@ -305,19 +337,29 @@ def _(f, ev):
 
 @case("T41-12")
 def _(f, ev):
+    from core.owner_hold import is_held
     fu = ts(FEED["feed_updated_at"])
-    mx = max(ts(r["verified_at"]) for r in RATES)
-    if fu + timedelta(seconds=1) < mx: f.append(f"feed_updated_at {fu} < newest verified_at {mx}")
+    # Owner-held prices are held, not ranked. They must not be the row that fails the 48h bar.
+    pool = [r for r in RATES if not is_held(r.get("advertiser"))]
+    mx = max((ts(r["verified_at"]) for r in pool), default=None)
+    if mx is not None and fu + timedelta(seconds=1) < mx: f.append(f"feed_updated_at {fu} < newest verified_at {mx}")
     if NOW - fu > timedelta(hours=36): f.append(f"feed_updated_at {fu} older than 36h")
     out = tool(SRV.compare_gpu_prices, "H100", limit=25, on_demand_only=False)
     for x in out["results"]:
-        if x.get("degraded") or x.get("stale"): f.append(f"{rid(x)}: data_age_hours={x.get('data_age_hours')} degraded/stale")
+        if is_held(x.get("advertiser")): f.append(f"{rid(x)}: owner_hold row ranked")
+        elif x.get("degraded") or x.get("stale"): f.append(f"{rid(x)}: data_age_hours={x.get('data_age_hours')} degraded/stale")
     for k in ("next_refresh_utc",):
         if not out.get(k): f.append(f"compare output missing {k}")
-    old = sorted(((NOW - ts(r["verified_at"])).total_seconds() / 3600, rid(r)) for r in RATES)[-1]
-    if old[0] > 48: f.append(f"oldest verified row {old[1]} is {old[0]:.1f} h old")
-    ev.update(feed_updated_at=FEED["feed_updated_at"], newest_verified=mx.isoformat(), oldest_row_age_h=round(old[0], 1),
-              oldest_row=old[1], next_refresh_utc=out.get("next_refresh_utc"), freshness={k: out.get(k) for k in out if "fresh" in k or "checked" in k})
+    if pool:
+        old = sorted(((NOW - ts(r["verified_at"])).total_seconds() / 3600, rid(r)) for r in pool)[-1]
+        if old[0] > 48: f.append(f"oldest verified row {old[1]} is {old[0]:.1f} h old")
+        oldest_h, oldest_id = round(old[0], 1), old[1]
+    else:
+        oldest_h, oldest_id = None, None
+        if not RATES: f.append("no ranked rows")
+    ev.update(feed_updated_at=FEED["feed_updated_at"], newest_verified=None if mx is None else mx.isoformat(),
+              oldest_row_age_h=oldest_h, oldest_row=oldest_id, next_refresh_utc=out.get("next_refresh_utc"),
+              freshness={k: out.get(k) for k in out if "fresh" in k or "checked" in k})
 
 
 @case("T41-13")

@@ -16,7 +16,8 @@ def _rec(vendor, gpu, tier=None):
 def test_all_specs_verified_against_feed():
     from core.gpu import _price_too_old
     r = build_rates(FEED)
-    live = [d for d in load_vendor_files() if not d.get("stale")]
+    from core.owner_hold import is_held
+    live = [d for d in load_vendor_files() if not d.get("stale") and not is_held(d.get("vendor"))]
     publishable = sum(1 for d in live for x in d["records"]
                       if not x.get("stale") and not x.get("no_capacity") and not _price_too_old(x, d))
     assert r["problems"] == [] and len(r["rates"]) == publishable
@@ -132,7 +133,8 @@ def test_published_api_matches_records(pinned_build_clock):
     api = pinned_build_clock
     built = build_rates(FEED)
     assert api["rates"] == built["rates"]
-    assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale")}
+    from core.owner_hold import is_held
+    assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale") and not is_held(d.get("vendor"))}
     # Age holds (past STALE_DAYS / the 48h batch window) are part of held_stale even when the source row has no stale flag.
     assert {h["vendor"] for h in api["held_stale"]} == {h["vendor"] for h in built["held_stale"]}
 
@@ -422,10 +424,17 @@ def test_t77_calculator_models_all_in_comparison_summary_with_interruptible_labe
     names = {_re.sub(r"<[^>]+>|\(few verified offers\)", "", _re.findall(r"<td>(.*?)</td>", tr, _re.S)[0]).strip() for tr in rows}
     for r in rates:  # every GPU the calculator can price (it embeds the full feed) has a summary row
         assert (FAMILIES.get(family_of(r["gpu"])) or r["gpu"]) in names, r["gpu"]
+    # The summary names the family or the full GPU. A model with no ranked rate (owner-held only) has no row.
     for m in ("B200", "B300", "GB300"):
-        tr = next(tr for tr in rows if _re.search(rf">{m}(<| <em)", tr))
-        if "Spot" in tr:
-            assert "interruptible" in tr, tr
+        found = [tr for tr in rows if _re.search(rf"\b{m}\b", _re.sub(r"<[^>]+>", " ", tr))]
+        ranked = [r for r in rates if m in r["gpu"].split() or r["gpu"].startswith(m)]
+        if not ranked:
+            assert not found, m
+            continue
+        assert found, m
+        for tr in found:
+            if "Spot" in tr:
+                assert "interruptible" in tr, tr
 
 
 def test_availability_coverage_on_gpu_hub():
@@ -476,8 +485,11 @@ def test_t75_compare_rows_carry_canonical_model_and_form_factor_and_vendor_id_fo
     assert out["results"]
     for x in out["results"]:
         assert x["canonical_model"] == "B300" and x["form_factor"], x
+    # RunPod B300 is SXM6 when it is ranked. A held or unreadable row is not in the feed and must not be required here.
     rp = [x for x in out["results"] if x["advertiser"] == "RunPod"]
-    assert rp and all(x["form_factor"] == "SXM6" for x in rp)
+    in_feed = [r for r in feed["rates"] if r.get("advertiser") == "RunPod" and r.get("canonical_model") == "B300"]
+    assert len(rp) == len(in_feed)
+    assert all(x["form_factor"] == "SXM6" for x in rp)
 
 
 def test_coverage_shows_headline_and_all_rows_share():

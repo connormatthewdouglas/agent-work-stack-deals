@@ -538,7 +538,18 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             if isinstance(r, dict) and isinstance(r.get("hourly_equiv_usd"), (int, float))
             and set(q) <= set(_tokens(r.get("gpu", "")))
             and (want_vram is None or r.get("vram_gb") == want_vram)]
+    from .owner_hold import is_held
+    held_owner = [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"),
+                   "source_url": r.get("source_url"), "checked_at": r.get("verified_at") or r.get("checked_at"),
+                   "reason": "owner_hold"} for r in rows if is_held(r.get("advertiser"))]
+    rows = [r for r in rows if not is_held(r.get("advertiser"))]
     if not rows:
+        if held_owner:
+            return {"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
+                    "summary": (f"No current price for '{gpu}': {len(held_owner)} tracked rate(s) are temporarily held "
+                                "(owner_hold) and are not ranked."),
+                    "held_owner": held_owner, "data_source": GPU_PRICES_URL,
+                    "feed_updated_at": data.get("feed_updated_at"), "scope": "cheapest among tracked providers"}
         raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
     from . import data_age
     try:
@@ -723,6 +734,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
         "excluded_serverless": len(held_serverless), "held_serverless": [{k: v for k, v in h.items() if k != "_row"} for h in held_serverless],
+        "held_owner": held_owner,
         "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
         "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old,
         "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,

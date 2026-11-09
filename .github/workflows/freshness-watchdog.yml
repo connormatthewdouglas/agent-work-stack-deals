@@ -1,0 +1,36 @@
+name: Freshness watchdog
+
+# A4: an outside check every 4 hours. Fails the run and opens or updates the issue
+# labeled freshness-watchdog when the live feed, a ranked row, availability, the hosted
+# build, or a collector run is stale. 26h and 4h bars are not loosened.
+on:
+  schedule:
+    - cron: "11 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+concurrency:
+  group: freshness-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Check the live feed, availability, hosted build, and collector runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 scripts/freshness_watchdog.py

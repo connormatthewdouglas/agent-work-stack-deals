@@ -173,7 +173,10 @@ def oos_caveat(opts: list[dict]) -> str | None:
 def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, gpus: int = 1) -> list[dict]:
     hpm = gpu_data.get("hours_per_month") or 730
     out = []
+    from .owner_hold import is_held
     for r in gpu_data.get("rates") or []:
+        if is_held(r.get("advertiser") or r.get("vendor")):
+            continue  # owner_hold: not a ranked option
         if model and not (r.get("gpu") == model or str(r.get("gpu", "")).startswith(model + " ")
                           or model.lower() in str(r.get("gpu", "")).lower().split()):
             continue

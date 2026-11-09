@@ -16,13 +16,12 @@
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-05T02:46:23+00:00",
-  "row_count": 8,
+  "row_count": 6,
   "providers": [
     "Lambda",
     "Lium",
     "RunPod",
-    "Thunder Compute",
-    "Verda (formerly DataCrunch)"
+    "Thunder Compute"
   ],
   "cheapest": {
     "on-demand": [
@@ -90,21 +89,21 @@
       },
       {
         "vram_gb": 48,
-        "provider": "Verda (formerly DataCrunch)",
+        "provider": "Lambda",
         "gpu": "RTX A6000",
         "tier": "On-demand instance (1x GPU)",
         "tier_class": "on-demand",
         "bucket": "on-demand",
         "interruptible": false,
-        "hourly_usd_per_gpu": 0.844,
+        "hourly_usd_per_gpu": 1.09,
         "unit": "hour",
-        "price_usd": 0.844,
+        "price_usd": 1.09,
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-05T01:37:35+00:00",
-        "source_url": "https://verda.com/pricing",
-        "quote": "1x RTX A6000 48GB 10 60 GB 48 GB $0.8440/h",
+        "verified_at": "2026-11-05T01:34:50+00:00",
+        "source_url": "https://lambda.ai/pricing",
+        "quote": "NVIDIA A6000 48 GB 14 100 GiB 512 GiB SSD $1.09",
         "availability": {
           "status": "unknown",
           "in_stock": null,
@@ -229,37 +228,6 @@
         "group": {
           "form_factor": "unknown",
           "tier": "Marketplace spot node (interruptible)",
-          "vram_gb": 48
-        }
-      },
-      {
-        "vram_gb": 48,
-        "provider": "Verda (formerly DataCrunch)",
-        "gpu": "RTX A6000",
-        "tier": "Spot instance (1x GPU)",
-        "tier_class": "interruptible",
-        "bucket": "spot-community",
-        "interruptible": true,
-        "hourly_usd_per_gpu": 0.422,
-        "unit": "hour",
-        "price_usd": 0.422,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-05T01:37:35+00:00",
-        "source_url": "https://verda.com/pricing",
-        "quote": "1x RTX A6000 48GB 10 60 GB 48 GB $0.8440/h $0.4220/h",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Spot instance (1x GPU)",
           "vram_gb": 48
         }
       }
@@ -389,32 +357,6 @@
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
-      "provider": "Verda (formerly DataCrunch)",
-      "gpu": "RTX A6000",
-      "vram_gb": 48,
-      "tier": "Spot instance (1x GPU)",
-      "tier_class": "interruptible",
-      "bucket": "spot-community",
-      "interruptible": true,
-      "hourly_usd_per_gpu": 0.422,
-      "unit": "hour",
-      "price_usd": 0.422,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-05T01:37:35+00:00",
-      "source_url": "https://verda.com/pricing",
-      "quote": "1x RTX A6000 48GB 10 60 GB 48 GB $0.8440/h $0.4220/h",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
       "provider": "RunPod",
       "gpu": "RTX A6000",
       "vram_gb": 48,
@@ -431,32 +373,6 @@
       "verified_at": "2026-11-05T01:35:40+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX A6000 cloud GPU rental on Runpod. Community Cloud $0.33/hr, Secure Cloud $0.59/hr.",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Verda (formerly DataCrunch)",
-      "gpu": "RTX A6000",
-      "vram_gb": 48,
-      "tier": "On-demand instance (1x GPU)",
-      "tier_class": "on-demand",
-      "bucket": "on-demand",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 0.844,
-      "unit": "hour",
-      "price_usd": 0.844,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-05T01:37:35+00:00",
-      "source_url": "https://verda.com/pricing",
-      "quote": "1x RTX A6000 48GB 10 60 GB 48 GB $0.8440/h",
       "availability": {
         "status": "unknown",
         "in_stock": null,
