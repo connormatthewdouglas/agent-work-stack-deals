@@ -49,10 +49,11 @@ def test_restamp_then_regenerate_still_matches(tmp_path):
     _worktree(dest)
     try:
         pricing = dest / "data" / "gpu_pricing" / "civo.json"
-        text = pricing.read_text(encoding="utf-8")
-        old = "2026-11-09T06:02:13+00:00"
-        assert old in text
-        pricing.write_text(text.replace(old, "2026-11-09T06:02:14+00:00", 1), encoding="utf-8")
+        doc = json.loads(pricing.read_text(encoding="utf-8"))
+        old = doc["checked_at"]
+        doc["checked_at"] = old[:-1] + "1" if old.endswith("0") else old[:-1] + "0"
+        assert doc["checked_at"] != old
+        pricing.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
         _regenerate(dest)
         assert chk.check(dest) == 0
     finally:
