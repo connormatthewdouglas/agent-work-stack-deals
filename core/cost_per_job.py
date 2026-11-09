@@ -4,7 +4,8 @@ Pricing is NOT reimplemented: every candidate is priced by gpu.estimate() (the s
 calculation: instances = ceil(max(gpus, min_gpus) / gpus_per_instance), all allocated GPUs billed).
 No throughput/benchmark numbers ship with this module (spec t20-t24 §2: no cited throughput library exists yet),
 so a request naming a workload/model without user throughput returns missing: throughput, never a guess.
-Only hourly-billed, non-reserved rates from the published feed (held_stale is never in `rates`) are ranked.
+Only hourly-billed, non-reserved rates from the published feed (held_stale is never in `rates`) are ranked; serverless /
+per-second rates are held (core/serverless.py, same rule as compare_gpu_prices) and listed in held_serverless.
 """
 from __future__ import annotations
 
@@ -14,6 +15,7 @@ from . import data_age
 from .gpu import estimate
 from .ids import rate_id
 from . import throughput as _tp
+from . import serverless as _sl
 
 MAX_TOP = 25
 LABEL = "compute subtotal only; excludes storage, egress, vCPU/RAM add-ons and tax"
@@ -23,6 +25,13 @@ class JobCostError(ValueError):
     def __init__(self, code: str, message: str):
         super().__init__(message)
         self.code, self.message = code, message
+
+
+def _held_view(r: dict, why: str) -> dict:
+    """Same fields compare_gpu_prices lists in held_serverless."""
+    return {"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"), "billing_unit": r.get("billing_unit"),
+            "price_per_second_usd": r.get("price_per_second_usd"), "source_url": r.get("source_url"),
+            "checked_at": r.get("verified_at") or r.get("checked_at"), "reason": why}
 
 
 def _num(name, v, positive=True):
@@ -106,11 +115,18 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
     vm = re.search(r"\b(\d{2,3})\s*gb\b", gpu_l, re.I)
     want_vram = int(vm.group(1)) if vm else None
     q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu_l, flags=re.I))
-    rows, too_old, stale = [], 0, []
+    rows, too_old, stale, held, matched = [], 0, [], [], 0
     for r in data.get("rates") or []:
         if not isinstance(r, dict) or r.get("unit") != "hour" or not isinstance(r.get("price_usd"), (int, float)):
             continue
         if not q <= _tokens(r.get("gpu", "")) or (want_vram and r.get("vram_gb") != want_vram):
+            continue
+        matched += 1
+        # Same rule as compare_gpu_prices (core/serverless.py): serverless / per-second prices are not dedicated
+        # instance rates, so they are held out of cost ranking in every mode and listed with the reason.
+        why = _sl.rate_reason(r)
+        if why:
+            held.append(_held_view(r, why))
             continue
         if r.get("tier_class") == "reserved" or (r.get("interruptible") and not allow_interruptible):
             continue
@@ -134,6 +150,12 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
         keep = [r for r in rows if not any(u["constraint"] == "region" for u in elig[id(r)]["unmet"])]
         other_region = len(rows) - len(keep)
         rows = keep
+    held_extra = {"excluded_serverless": len(held), "held_serverless": held}
+    if matched and len(held) == matched:
+        raise JobCostError("not_found", f"Only serverless/per-second prices are tracked for '{gpu_l}' ({len(held)}: "
+                                        + ", ".join(sorted({f"{h['vendor']} {h['gpu']}" for h in held}))
+                                        + "); they are held, never ranked as a dedicated hourly rate, so no job cost is estimated")
+    held_note = (f" {len(held)} serverless/per-second rate(s) held, not ranked (see held_serverless)." if held else "")
     stale_view = sorted((data_age.stale_view(r, now, "price_usd") for r in stale), key=lambda x: (x["price"], x["vendor"] or ""))
     stale_extra = {"stale_prices": stale_view, "excluded_stale": len(stale_view),
                    "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h}
@@ -142,11 +164,11 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
                 "results": [], "label": LABEL, "ok_current": False,
                 "summary": (f"No current price for '{gpu_l}': all {len(stale)} matching tracked rates are older than "
                             f"{data_age.CURRENT_MAX_HOURS} h (stale), so no current cheapest is named. See stale_prices, or pass "
-                            "max_data_age_hours to rank them anyway."),
+                            "max_data_age_hours to rank them anyway.") + held_note,
                 "assumptions": assumptions, "citations": [source["url"]] if source else [],
                 "throughput_basis": basis, "throughput_source": source,
                 "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
-                "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra}
+                "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra, **held_extra}
     if not rows:
         raise JobCostError("not_found", f"No rankable hourly rate tracked for '{gpu_l}'"
                                         + (f" ({too_old} older rates excluded by max_data_age_hours)" if too_old else ""))
@@ -191,10 +213,11 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
             "results": out_rows, "label": LABEL,
             "summary": region_note + (f"Cheapest{'' if best_ok else ' regardless of region'} among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
                         f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}." + oos_msg
-                        + (f" {len(stale)} rate(s) older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale else "")),
+                        + (f" {len(stale)} rate(s) older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale else "")
+                        + held_note),
             "assumptions": assumptions, "citations": [source["url"]] if source else [],
             "throughput_basis": basis, "throughput_source": source,
             "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
-            "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra,
+            "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra, **held_extra,
             "region": cons.get("region"), "excluded_other_region": other_region,
             "constraints": {"applied": cons, "eligible_rate_ids": sorted({rate_id(r) for r in priced if EL.evaluate(r, cons, now)["eligible"]})}}

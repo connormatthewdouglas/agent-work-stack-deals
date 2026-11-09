@@ -67,7 +67,9 @@ SPEC = {
                            "missing_costs", "budget_verdict", "quote_id", "issued_at"], "results",
                           ["rank", "rate_id", "vendor", "allocated_gpus", "instances", "compute_subtotal_usd", "source_url"],
                           ["summary", "job_hours", "count", "results", "assumptions", "missing_costs", "budget_verdict",
-                           "quote_id", "issued_at"],
+                           "quote_id", "issued_at",
+                           # (additive) serverless/per-second rows are held out of cost ranking; count and reasons stay in brief
+                           "excluded_serverless", "held_serverless"],
                           ["rank", "rate_id", "vendor", "gpu", "allocated_gpus", "instances", "compute_subtotal_usd",
                            "source_url", "verified_at", "stale"]),
     "rebuild_quote": (["quote_id", "receipt_intact", "reproduced", "lines", "revalidation"], "lines",
