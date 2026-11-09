@@ -1,17 +1,24 @@
-"""Import a Clore.ai manual marketplace snapshot (Gauge/Scout JSON from GET https://api.clore.ai/v1/marketplace) into
+"""Import a Clore.ai manual marketplace snapshot (JSON built from GET https://api.clore.ai/v1/marketplace) into
 data/gpu_pricing/clore.json. Same method as the 2026-10-29 / 2026-11-01 snapshots: available on-demand host listings
 priced in USD, per GPU-hr = USD/day / 24 / gpu_count, spot/bid excluded; the published price is the median, with
 min/max and listing count. Fewer than MIN_MACHINES available USD listings -> price withheld (null) and the row held
 (stale) with N and the snapshot time. Only existing Clore records are updated; values come from the snapshot file,
 never typed by hand. Clore never reaches /cost/ (core/compliance + cost page rules are unchanged).
 Usage: import_clore_snapshot.py <snapshot.json> [--dry-run]"""
+import copy
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = ROOT / "data" / "gpu_pricing" / "clore.json"
 MIN_MACHINES = 5
+TWO_READ_MIN_S = 60  # same two-read rule as core.gpu_availability: a stock claim needs two reads >= 60 s apart
+METHOD = ("available on-demand host listings priced in USD, per GPU-hr = USD/day / 24 / gpu_count, spot/bid excluded; "
+          "published price is the median with min/max and listing count")
+# Fields that carry the snapshot time only; a re-import that changes nothing else is a no-op (timestamps not bumped).
+TIME_ONLY = ("checked_at", "verified_at", "quote", "evidence", "source_url")
 # record gpu -> (snapshot summary key, listing gpu, accepted per-GPU VRAM values, label vram)
 MAP = {"RTX 4090": ("RTX 4090", "RTX 4090", None), "RTX 5090": ("RTX 5090", "RTX 5090", None),
        "A100 SXM": ("A100", "A100", {40}), "H100 NVL": ("H100", "H100", {94}), "L40S": ("L40S", "L40S", None)}
@@ -53,28 +60,86 @@ def apply(doc: dict, snap: dict) -> list[str]:
             if n:  # lowest seen is kept as evidence context only (never published while held)
                 q += f"; lowest ${s['lowest_available_on_demand_usd_gpu_hr']}/hr"
         la = s.get("listings_available")
-        if la is not None:  # Gauge rel053: stock from the same snapshot as the price (available listings, any currency)
-            r["availability"] = {"in_stock": la > 0, "checked_at": at, "source": src, "same_capture_as_price": True,
-                                 "stock_level": f"{la} available listings",
-                                 "note": f"Clore.ai API snapshot: {la} available {name} listings (status available, any currency)"}
+        if la is not None:
+            r["availability"] = _availability(snap, s, la, name, at, src, held="stale" in r)
         r.update(quote=q, source_url=src, checked_at=at, verified_at=at,
                  evidence={"source_url": src, "quote": q, "checked_at": at})
         log.append(f"{r['gpu']}: N={n} " + (f"median ${r['price_usd']} low ${r['lowest_offer_usd']}" if r["price_usd"] else "held"))
     doc["checked_at"] = at
     for x in doc["extras"].values():
         x["checked_at"] = at
-    doc["source_note"] = (f"Clore.ai marketplace snapshot {at} (public no-auth GET {src}; Gauge file; method identical to "
-                          f"Gauge 2026-10-29 snapshot).")
+    method = snap.get("method") or METHOD  # the snapshot's own method statement when it carries one
+    doc["source_note"] = f"Clore.ai marketplace snapshot {at} (public no-auth GET {src}). Method: {method}."
     doc["manual_snapshot"] = {"reason": f"Clore.ai marketplace API returns 401 to CI runners; prices are a manual snapshot "
-                                        f"(Gauge, {at}) and auto-hold after 7 days unless re-snapshotted."}
+                                        f"taken {at} and auto-hold after 7 days unless re-snapshotted."}
     return log
+
+
+def _gap_s(a, b):
+    try:
+        return round((datetime.fromisoformat(_ts(b)) - datetime.fromisoformat(_ts(a))).total_seconds())
+    except (TypeError, ValueError):
+        return None
+
+
+def _availability(snap, s, la, name, at, src, held):
+    """Stock claim from the snapshot. in_stock is set only when a SECOND read >= TWO_READ_MIN_S after the first agrees
+    (snapshot second_read_at + summary second_read_listings_available); otherwise it stays null (unknown). Held rows
+    never carry a stock claim."""
+    note = f"Clore.ai API snapshot: {la} available {name} listings (status available, any currency)"
+    out = {"in_stock": None, "checked_at": at, "source": src, "same_capture_as_price": True,
+           "stock_level": f"{la} available listings", "first_read_at": at, "second_read_at": None, "second_read_gap_s": None}
+    if held:
+        out["note"] = note + "; row held, so no stock claim"
+        return out
+    sat, la2 = snap.get("second_read_at"), s.get("second_read_listings_available")
+    gap = _gap_s(snap["checked_at"], sat) if sat else None
+    out.update(second_read_at=_ts(sat) if sat else None, second_read_gap_s=gap)
+    if gap is None or la2 is None:
+        out["note"] = note + "; single read, so in_stock is unknown (needs a second read >= 60 s later)"
+    elif gap < TWO_READ_MIN_S:
+        out["note"] = note + f"; second read only {gap} s later (< {TWO_READ_MIN_S} s), so in_stock is unknown"
+    elif (la > 0) != (la2 > 0):
+        out["note"] = note + f"; second read disagrees ({la2} available), so in_stock is unknown"
+    else:
+        out["in_stock"] = la > 0
+        out["note"] = note + f"; confirmed by a second read {gap} s later ({la2} available)"
+    return out
+
+
+def _content(doc: dict) -> str:
+    """Everything the import can change except the snapshot time itself (and text that only restates it)."""
+    d = copy.deepcopy(doc)
+    for k in ("checked_at", "source_note", "manual_snapshot"):
+        d.pop(k, None)
+    for x in (d.get("extras") or {}).values():
+        x.pop("checked_at", None)
+    for r in d.get("records") or []:
+        for k in TIME_ONLY:
+            r.pop(k, None)
+        a = r.get("availability") or {}
+        for k in ("checked_at", "first_read_at", "second_read_at", "second_read_gap_s", "note"):
+            a.pop(k, None)
+        if isinstance(r.get("stale"), dict):
+            r["stale"] = {k: v for k, v in r["stale"].items() if k != "reason"} | {"n": r.get("offer_count")}
+    return json.dumps(d, sort_keys=True)
+
+
+def apply_if_changed(doc: dict, snap: dict) -> tuple[dict, list[str], bool]:
+    """Apply the snapshot to a copy; when no price, count, hold or stock value changed, keep the original document so
+    checked_at/verified_at (and so the feed's feed_updated_at) are not bumped."""
+    new = copy.deepcopy(doc)
+    log = apply(new, snap)
+    changed = _content(new) != _content(doc)
+    return (new if changed else doc), log + ([] if changed else ["no row changed: timestamps kept, nothing written"]), changed
 
 
 def main() -> int:
     snap = json.loads(Path(sys.argv[1]).read_text())
     doc = json.loads(PATH.read_text())
-    print("\n".join(apply(doc, snap)))
-    if "--dry-run" not in sys.argv:
+    doc, log, changed = apply_if_changed(doc, snap)
+    print("\n".join(log))
+    if changed and "--dry-run" not in sys.argv:
         PATH.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return 0
 

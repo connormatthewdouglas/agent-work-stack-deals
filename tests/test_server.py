@@ -71,11 +71,18 @@ def test_no_commission_text_anywhere(srv):
 def test_compare_gpu_prices_same_data_sorted_sourced(srv):
     data = json.loads(GPU.read_text())
     r = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H100", "limit": 25, "on_demand_only": False})
-    expected = [x for x in data["rates"] if "h100" in x["gpu"].lower().split() and x["tier_class"] != "reserved"]
-    assert r["excluded_reserved"] == sum(1 for x in data["rates"] if "h100" in x["gpu"].lower().split()) - len(expected) >= 1
-    rr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "include_reserved": True, "limit": 25, "on_demand_only": False})
+    from core.serverless import rate_reason  # T63: serverless/per-second rows are held, never ranked (any mode)
+    h100 = [x for x in data["rates"] if "h100" in x["gpu"].lower().split() and not rate_reason(x)]
+    expected = [x for x in h100 if x["tier_class"] != "reserved"]
+    assert r["excluded_reserved"] == len(h100) - len(expected)
+    assert r["excluded_serverless"] == sum(1 for x in data["rates"] if "h100" in x["gpu"].lower().split() and rate_reason(x))
+    rr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "L40S", "include_reserved": True, "limit": 25, "on_demand_only": False})
     assert rr["results"][0]["tier_class"] != "reserved" and rr["results"][-1]["tier_class"] == "reserved"
     assert "Hyperstack" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"] or "Reservation" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"]
+    # Bjorn 1109: no GPU count = 1 GPU; rows with min_gpus > 1 are not ranked, they are listed in excluded_min_gpus
+    unfit = [x for x in expected if (x.get("min_gpus") or 1) > 1]
+    expected = [x for x in expected if (x.get("min_gpus") or 1) <= 1]
+    assert r["min_gpus_unmet"] == len(r["excluded_min_gpus"]) == len(unfit)
     assert r["total"] == len(expected) and r["count"] == min(25, len(expected)) >= 2
     hourly = [(x["in_stock"] is False, x["hourly_usd"]) for x in r["results"]]  # E5: out-of-stock rows sort last
     oos = lambda x: (x.get("availability") or {}).get("in_stock") is False

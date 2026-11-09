@@ -18,6 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core.gpu import load_vendor_files  # noqa: E402
 from core.gpu_history import SNAPSHOT_DIR  # noqa: E402
+from core.owner_hold import is_held  # noqa: E402
 
 
 def status(now: datetime, fail_hours: float = 26.0) -> tuple[int, list[str]]:
@@ -25,7 +26,10 @@ def status(now: datetime, fail_hours: float = 26.0) -> tuple[int, list[str]]:
     # every such record, readable or not, so a hand-added vendor with a fresh stamp can't mask a missed run.
     # Since Gauge strat2 the refresh keeps checked_at on a failed read and records last_failed_check_at instead, and
     # row-level holds are never re-stamped: a touch is the later of the two, and held rows are skipped.
-    stamps = [max(datetime.fromisoformat(t) for t in (r["checked_at"], r.get("last_failed_check_at")) if t) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"] if not r.get("stale")]  # manual snapshots (Clore) are never auto-refreshed; their own 7-day hold applies
+    # Owner-held vendors are frozen on purpose (same as a stale hold): their old checked_at must not fail this gate.
+    stamps = [max(datetime.fromisoformat(t) for t in (r["checked_at"], r.get("last_failed_check_at")) if t)
+              for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") and not is_held(d.get("vendor"))
+              for r in d["records"] if not r.get("stale") and not is_held(r.get("vendor"))]  # manual snapshots (Clore) are never auto-refreshed; their own 7-day hold applies
     last = min(stamps)
     age_h = (now - last).total_seconds() / 3600
     snaps = sorted(p.stem for p in Path(SNAPSHOT_DIR).glob("????-??-??.json"))

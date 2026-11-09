@@ -1,10 +1,14 @@
 """T121: sitemap lastmod must be honest per URL (no global stale stamp)."""
 from __future__ import annotations
 
+import json
+import os
 import re
+import subprocess
 import sys
+import time
 from collections import Counter
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -72,10 +76,54 @@ def test_sitemap_write_path_does_not_use_lastmod_constant():
     assert "sitemap_lastmod_for_loc" in src
 
 
+def test_changes_lastmod_follows_data_date_not_the_commit(monkeypatch):
+    """A refresh dates the changes feed today, then the gate runs before that data is committed.
+
+    The last commit of the generator stays on the previous day. Lastmod for the changes JSON and
+    gpu/changes.xml must follow the feed date that was just written, not that commit.
+    """
+    monkeypatch.setattr(gen, "_git_commit_date", lambda *_a, **_k: "2026-11-06")
+    gen._SITEMAP_GIT_DATE_CACHE.clear()
+    changes = ROOT / "api" / "v1" / "gpu-price-changes.json"
+    sitemap = ROOT / "sitemap.xml"
+    original_changes = changes.read_text(encoding="utf-8")
+    original_sitemap = sitemap.read_text(encoding="utf-8")
+    doc = json.loads(original_changes)
+    doc["date"] = "2026-11-09"
+    changes.write_text(json.dumps(doc), encoding="utf-8")
+    try:
+        for loc in (
+            "https://thelanternworks.com/api/v1/gpu-price-changes.json",
+            "https://thelanternworks.com/api/v1/gpu-price-changes.xml",
+            "https://thelanternworks.com/gpu/changes.xml",
+            "https://thelanternworks.com/gpu/changes/",
+        ):
+            assert gen.sitemap_lastmod_for_loc(loc) == "2026-11-09", loc
+        gen.rewrite_sitemap_lastmods()
+        text = sitemap.read_text(encoding="utf-8")
+        for loc in (
+            "https://thelanternworks.com/api/v1/gpu-price-changes.json",
+            "https://thelanternworks.com/gpu/changes.xml",
+        ):
+            block = text.split(f"<loc>{loc}</loc>", 1)[1].split("</url>", 1)[0]
+            assert "<lastmod>2026-11-09</lastmod>" in block, loc
+            assert gen.sitemap_lastmod_for_loc(loc) == "2026-11-09"
+    finally:
+        changes.write_text(original_changes, encoding="utf-8")
+        sitemap.write_text(original_sitemap, encoding="utf-8")
+        gen._SITEMAP_GIT_DATE_CACHE.clear()
+
+
+def test_changes_feed_is_written_before_the_sitemap():
+    src = (ROOT / "scripts" / "generate_seo_pages.py").read_text(encoding="utf-8")
+    main = src.split("def main", 1)[1]
+    assert main.index("gpu_changes_feed.write") < main.index("write_sitemap(")
+
+
 def test_sitemap_lastmod_helper_varies_and_skips_future():
     entries = _entries()
     assert entries, "sitemap.xml missing entries"
-    today = date.today().isoformat()
+    today = datetime.now(timezone.utc).date().isoformat()
     for loc, lm in entries:
         if lm is None:
             continue
@@ -85,6 +133,27 @@ def test_sitemap_lastmod_helper_varies_and_skips_future():
     for loc, lm in entries[:20]:
         got = gen.sitemap_lastmod_for_loc(loc)
         assert got == lm, (loc, lm, got)
+
+
+def test_iso_date_and_git_lastmod_are_utc():
+    assert gen._iso_date("2026-11-08T22:30:00-05:00") == "2026-11-09"
+    assert gen._iso_date("2026-11-08T22:30:00Z") == "2026-11-08"
+    assert gen._iso_date("2026-11-08") == "2026-11-08"
+    gen._SITEMAP_GIT_DATE_CACHE.clear()
+    old = os.environ.get("TZ")
+    os.environ["TZ"] = "America/New_York"
+    time.tzset()
+    try:
+        got = gen._git_commit_date("README.md")
+    finally:
+        if old is None:
+            os.environ.pop("TZ", None)
+        else:
+            os.environ["TZ"] = old
+        time.tzset()
+        gen._SITEMAP_GIT_DATE_CACHE.clear()
+    ts = int(subprocess.check_output(["git", "log", "-1", "--format=%ct", "--", "README.md"], cwd=ROOT))
+    assert got == datetime.fromtimestamp(ts, timezone.utc).date().isoformat()
 
 
 def test_rewrite_sitemap_lastmods_keeps_url_count_and_fixes_coverage_slash():

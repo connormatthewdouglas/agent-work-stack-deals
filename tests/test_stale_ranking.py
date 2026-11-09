@@ -83,16 +83,22 @@ def test_agent_stack_aged():
     assert line["choice"] is None and "no current cheapest" in line["note"]
 
 
-def test_build_rates_holds_aged_record():
+def test_build_rates_holds_aged_record(monkeypatch):
+    """717 h is 30 days only when the build clock is the same instant the stamp was taken from.
+    Pin that clock. A pre-set LW_AVAIL_NOW or a later wall clock must not change the label."""
+    frozen = datetime(2026, 11, 9, 12, tzinfo=timezone.utc)
+    monkeypatch.setenv("LW_AVAIL_NOW", frozen.isoformat())
     docs = copy.deepcopy(load_vendor_files())
-    doc = next(d for d in docs if not d.get("stale") and not d.get("manual_snapshot") and d["records"]
+    from core.owner_hold import is_held
+    doc = next(d for d in docs if not d.get("stale") and not d.get("manual_snapshot") and not is_held(d.get("vendor")) and d["records"]
                and not any(r.get("stale") for r in d["records"]))
     rec = doc["records"][0]
-    rec["verified_at"] = rec["checked_at"] = _iso(717)
+    rec["verified_at"] = rec["checked_at"] = (frozen - timedelta(hours=717)).isoformat()
     out = build_rates(DEALS, docs)
     assert not any(r["advertiser"] == rec["vendor"] and r["gpu"] == rec["gpu"] and r.get("tier") and r["verified_at"] == rec["verified_at"]
                    for r in out["rates"])
-    assert any(h["reason"] == "stale price (30 days old)" for h in out["held_stale"])
+    assert any(h["vendor"] == rec["vendor"] and h["reason"] == "stale price (30 days old)"
+               and any(x.get("gpu") == rec["gpu"] for x in h.get("records") or []) for h in out["held_stale"])
 
 
 def test_default_is_168():

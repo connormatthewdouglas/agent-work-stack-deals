@@ -1,0 +1,14 @@
+{
+ "_source": "CloudRift head of marketing, email 2026-11-04; corroborated by https://www.cloudrift.ai/pricing (A100 SXM4: 'Upon request')",
+ "overrides": [
+  {"match": {"vendor": "CloudRift", "gpu": "A100 SXM", "vram_gb": 80, "tier": "On-demand"},
+   "null_price": true,
+   "set": {"price_status": "price_on_request", "feed_status": "held_price_on_request",
+           "vendor_confirmation": "CloudRift (head of marketing, email 2026-11-04): A100 SXM 80GB is price on request; prior $1.05/hr is out of date",
+           "vendor_confirmed_by": "CloudRift", "vendor_confirmed_at": "2026-11-04"}},
+  {"match": {"vendor": "CloudRift", "gpu": "L40S"},
+   "set": {"vendor_confirmed": "CloudRift, 2026-11-04", "vendor_confirmed_by": "CloudRift", "vendor_confirmed_at": "2026-11-04"}},
+  {"match": {"vendor": "CloudRift", "gpu": "RTX 5090"},
+   "set": {"vendor_confirmed": "CloudRift, 2026-11-04", "vendor_confirmed_by": "CloudRift", "vendor_confirmed_at": "2026-11-04"}}
+ ]
+}
