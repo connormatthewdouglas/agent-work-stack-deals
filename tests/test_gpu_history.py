@@ -54,6 +54,7 @@ def test_parsed_change_updates_price_and_evidence():
     rows = R.refresh([d], Fake(PAGE), NOW)
     r = d["records"][0]
     assert rows[0]["result"] == "changed" and r["price_usd"] == 1.89 and r["hourly_usd"] == 1.89
+    assert d["checked_at"] == "2026-11-03T12:00:00+00:00"
     assert r["verified_at"] == r["checked_at"] == r["evidence"]["checked_at"] == "2026-11-03T12:00:00+00:00"
     assert "$1.89" in r["evidence"]["quote"] and r["quote"] == "A100 $1.89/hr"
     assert not record_problems(d)
@@ -68,6 +69,7 @@ def test_unchanged_price_still_reverifies():
 def test_unreadable_keeps_old_price_and_verified_at():
     d = doc(rec())
     rows = R.refresh([d], Fake("<html>redesigned page $9.99</html>"), NOW)
+    assert d["checked_at"] == "2026-11-01T10:00:00+00:00"  # vendor stamp moves only when a price was re-read
     r = d["records"][0]
     assert r["price_usd"] == 1.99 and r["verified_at"] == "2026-11-01T10:00:00+00:00"
     assert r["checked_at"] == rec()["checked_at"] and r["last_failed_check_at"].startswith("2026-11-03") and rows[0]["result"].startswith("unreadable")  # strat2: no bump on failure

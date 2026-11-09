@@ -376,6 +376,7 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
             report += [{"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "result": "manual snapshot (not auto-refreshed)"}
                        for r in doc["records"]]
             continue
+        verified_any = False
         for r in doc["records"]:
             row = {"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "old": r["hourly_usd"]}
             r.setdefault("verified_at", r["evidence"]["checked_at"])
@@ -473,6 +474,7 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     if r.get("stale", {}).get("auto"):
                         del r["stale"]
                     row.update(result="changed" if abs(new - old) > 1e-9 else "unchanged", new=r["hourly_usd"])
+                    verified_any = True
             if new_s is None:
                 if not manual_hold:
                     # Gauge strat2: a row that failed re-verification keeps its checked_at (no bump); the failed attempt
@@ -486,7 +488,9 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                 if manual_hold:
                     row["result"] = msg
             report.append(row)
-        doc["checked_at"] = stamp
+        # A failed re-read must not move the vendor stamp. Record checked_at stays on the last successful parse.
+        if verified_any:
+            doc["checked_at"] = stamp
     return report
 
 
