@@ -2284,13 +2284,16 @@ def main() -> None:
     tool_paths.append(compare_pages.write_compare_index(sys.modules[__name__]))  # T93: after all compare/* pages exist
     import stale_js
     print(f"av_stale_js_pages={stale_js.inject(ROOT)}")
+    # Price-changes JSON is the lastmod source for gpu-price-changes.json and gpu/changes.xml.
+    # Write it before the sitemap so a refresh (gate runs before the commit) stamps today's data date,
+    # not the previous commit's date.
+    import gpu_changes_feed
+    gpu_changes_feed.write(sys.modules[__name__])
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)
     import home_page
     home_page.write(sys.modules[__name__], deals, feed_updated)
-    import gpu_changes_feed
-    gpu_changes_feed.write(sys.modules[__name__])
     write_about(deals)
     ensure_robots()
     write_404()
