@@ -84,9 +84,10 @@ cn = doc["meta"]["counts"]; assert cn["total_rows"] == len(doc["rows"]) == cn["p
 for x in doc["rows"]:
     assert x["source_url"].startswith("https://") and "?" not in x["source_url"] and x["source_detail"] and x["verified_at"].endswith("Z") and x["in_stock"] is None
     assert not (x.get("feed_status") and x["price_usd_hr"] is not None), "held row with price"
+assert w.VAST_READ_GAP_S >= 180
 va = doc["meta"]["vast_allocation"]
 _gap = (datetime.fromisoformat(va["read2_at"].replace("Z", "+00:00")) - datetime.fromisoformat(va["read1_at"].replace("Z", "+00:00"))).total_seconds()
-assert _gap >= w.VAST_READ_GAP_S and _vast_clk["t"] >= w.VAST_READ_GAP_S and _vast_slept and min(_vast_slept) >= w.VAST_READ_GAP_S, va
+assert _gap >= 180 and _gap >= w.VAST_READ_GAP_S and _vast_clk["t"] >= w.VAST_READ_GAP_S and _vast_slept and min(_vast_slept) >= w.VAST_READ_GAP_S, va
 assert va["min_machines"] >= w.VAST_ALLOC_MIN_MACHINES and va["sizes"] and all(
     s["status"].startswith("held:") and "fewer than" in s["status"] and s["machines1"] < va["min_machines"] and s["machines2"] < va["min_machines"] for s in va["sizes"]), va
 # A clock that does not move is still rejected: the second read must be >= VAST_READ_GAP_S later.
@@ -105,7 +106,8 @@ _vast_clk["t"], _prices[:] = 0.0, [10.0, 10.0]
 _stable = w.vast_alloc(); _smeta = dict(w.VAST_ALLOC_META)
 assert len(_stable) == 1 and _stable[0]["price_usd_hr"] == 10.0 and _stable[0]["gpu_count"] == 1 and _stable[0]["distinct_machines"] == 8
 assert _smeta["sizes"][0]["status"] == "published (read 2)"
-assert (datetime.fromisoformat(_smeta["read2_at"].replace("Z", "+00:00")) - datetime.fromisoformat(_smeta["read1_at"].replace("Z", "+00:00"))).total_seconds() >= w.VAST_READ_GAP_S
+_sgap = (datetime.fromisoformat(_smeta["read2_at"].replace("Z", "+00:00")) - datetime.fromisoformat(_smeta["read1_at"].replace("Z", "+00:00"))).total_seconds()
+assert _sgap >= 180 and _sgap >= w.VAST_READ_GAP_S
 _vast_clk["t"], _prices[:] = 0.0, [10.0, 12.0]
 assert w.vast_alloc() == [] and "medians differ" in w.VAST_ALLOC_META["sizes"][0]["status"]
 c.get, c.NOW = fake_get, _real_now
