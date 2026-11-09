@@ -25,11 +25,16 @@ def front_matter(md: str):
 _RENTAL_LINK = re.compile(r"\[([^\]]+)\]\((https://thelanternworks\.com)?(/gpu/[a-z0-9-]+-rental-price/?)\)")
 
 
-def guard_rental_links(md: str) -> str:
-    """A model page that was not built must not stay linked. The label remains as text."""
+def guard_rental_links(md: str, root: Path | None = None) -> str:
+    """A model page that was not built must not stay linked. The label remains as text.
+
+    `root` is the site root to check. Tests pass a temp tree; the generator uses the repo.
+    """
+    base = root or ROOT
+
     def repl(m):
         path = m.group(3).strip("/")
-        if (ROOT / path).is_dir():
+        if (base / path).is_dir():
             return m.group(0)
         return m.group(1)
     return _RENTAL_LINK.sub(repl, md)

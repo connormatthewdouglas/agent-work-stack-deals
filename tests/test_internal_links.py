@@ -23,14 +23,16 @@ def test_gpu_hub_exists_and_in_sitemap():
     assert "<loc>https://thelanternworks.com/gpu/</loc>" in (ROOT / "sitemap.xml").read_text(encoding="utf-8")
 
 
-def test_report_renderer_drops_links_to_missing_rental_pages():
+def test_report_renderer_drops_links_to_missing_rental_pages(tmp_path):
+    """Independent of the committed gpu/ tree: one rental dir exists, one does not."""
     import reports_page
-    md = ("[B200](https://thelanternworks.com/gpu/b200-rental-price/) and "
-          "[Nope](https://thelanternworks.com/gpu/not-a-real-model-rental-price/)")
-    out = reports_page.guard_rental_links(md)
-    assert "/gpu/b200-rental-price/" in out
-    assert "not-a-real-model-rental-price" not in out
-    assert "Nope" in out
+    kept = tmp_path / "gpu" / "kept-model-rental-price"
+    kept.mkdir(parents=True)
+    (kept / "index.html").write_text("page", encoding="utf-8")
+    md = ("[Kept](https://thelanternworks.com/gpu/kept-model-rental-price/) and "
+          "[Gone](https://thelanternworks.com/gpu/missing-model-rental-price/)")
+    out = reports_page.guard_rental_links(md, root=tmp_path)
+    assert out == ("[Kept](https://thelanternworks.com/gpu/kept-model-rental-price/) and Gone")
 
 
 def test_checker_flags_missing_target():
