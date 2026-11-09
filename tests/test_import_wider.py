@@ -60,6 +60,50 @@ def test_serverless_per_second_is_held():
         assert rec is None and "serverless" in why, r
 
 
+def _curated(name):
+    return json.loads((ROOT / "data/gpu_pricing" / f"{name}.json").read_text())
+
+
+def test_actual_curated_serverless_rows_are_held_whatever_the_field():
+    # T63 (Bjorn 1108): the feed's real serverless rows, Koyeb L40S ("Serverless GPU instance (per-second billing)",
+    # billing_unit hourly, $1.20) and Modal (billing_unit per-second), are exactly what must never enter as a dedicated
+    # hourly rate. Their own fields and text are used verbatim; no values are invented.
+    koyeb, modal = _curated("koyeb"), _curated("modal")
+    leaks = [{**x, "billing_granularity": d.get("billing_granularity")} for d in (koyeb, modal) for x in d["records"]]
+    assert len(leaks) == 5
+    for x in leaks:
+        r = row(vendor=x["vendor"], gpu_model=x["gpu"], vram_gb=x["vram_gb"], price_usd_hr=x["hourly_usd"], gpu_count=1,
+                **{k: v for k, v in x.items() if k not in ("vendor", "gpu", "vram_gb", "price_usd", "hourly_usd")})
+        rec, why = normalize_ex(r)
+        assert rec is None and why.startswith("serverless/per-second"), (x["vendor"], x["gpu"], why)
+    # each serverless signal alone, under whatever field name carries it, holds an otherwise importable RunPod row
+    k = koyeb["records"][0]
+    ok = row(vendor="RunPod", gpu_model="L40S 48GB", vram_gb=48, price_usd_hr=k["hourly_usd"], gpu_count=1)
+    assert normalize_ex(ok)[0] is not None  # control: imports without the signal
+    signals = {"billing_granularity": koyeb["billing_granularity"], "platform_fee_note": k["platform_fee_note"],
+               "quote_verbatim": k["quote"], "observation": k["tier"], "billing": "per-second",
+               "billing_unit": "per_second", "price_usd_sec": 0.000333, "price_per_second": 0.000333,
+               "usd_per_sec": 0.000333, "source_url": "https://www.runpod.io/serverless-gpu",
+               "gpu_model": "L40S 48GB (Serverless)", "tier": modal["records"][0]["tier"]}
+    for f, v in signals.items():
+        rec, why = normalize_ex({**ok, f: v})
+        assert rec is None and why.startswith("serverless/per-second"), (f, v, why)
+
+
+def test_serverless_rows_land_in_unresolved_not_records():
+    k = _curated("koyeb")["records"][0]
+    rows = [row(vendor="RunPod", gpu_model="L40S 48GB", vram_gb=48, price_usd_hr=k["hourly_usd"], gpu_count=1,
+                platform_fee_note=k["platform_fee_note"])]
+    out, unresolved, total = apply({"RunPod": _doc("RunPod", [])}, rows)
+    assert total == 0 and out["RunPod"]["records"] == []
+    assert unresolved and unresolved[0]["reason"].startswith("serverless/per-second")
+
+
+def test_no_false_serverless_hold_on_dedicated_rows():
+    for t in ("On-demand (Secure Cloud)", "On-demand (Community Cloud)", "Spot instance (1x GPU)", "Marketplace on-demand (verified)"):
+        assert normalize_ex(row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.39, tier=t, gpu_count=1))[0], t
+
+
 def test_community_and_marketplace_are_not_interruptible():
     # Gauge 1104 correction: only spot/preemptible tiers are interruptible; labels are not rewritten
     for tier in ("Community Cloud", "Marketplace on-demand"):
