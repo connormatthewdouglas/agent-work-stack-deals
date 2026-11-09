@@ -20,23 +20,32 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Build stats.json, commit, push (rebase-retry), dispatch deploy
+      - name: Build stats.json, commit, rebase, push, dispatch deploy
         env:
           GH_TOKEN: ${{ github.token }}
           # No Cloudflare token in CI: page views are filled box-side (scripts/rum_box_fill.py) and carried forward here.
+          # generated_at and receipts_funnel move only when hosted or telemetry stats were actually read.
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           python3 scripts/site_stats.py
-          if [ -z "$(git status --porcelain stats.json)" ]; then echo "No change." >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
+          if [ -z "$(git status --porcelain stats.json)" ]; then echo "No change (sources unavailable or identical)." >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
           git add stats.json && git commit -qm "data: weekly site stats $(date -u +%F)"
+          pushed=0
           for i in 1 2 3 4; do
-            git pull -q --rebase origin main && git push origin HEAD:main && pushed=1 && break
+            git fetch -q origin main
+            if git rebase origin/main && git push origin HEAD:main; then pushed=1; break; fi
+            git rebase --abort 2>/dev/null || true
+            git reset -q --hard origin/main
+            python3 scripts/site_stats.py
+            git add stats.json && git commit -qm "data: weekly site stats $(date -u +%F)" || true
             sleep $((i * 15))
           done
-          [ "${pushed:-0}" = 1 ]
+          [ "$pushed" = 1 ]
           gh workflow run validate-and-deploy.yml --ref main
