@@ -75,3 +75,23 @@ def test_tampered_page_fails(tmp_path):
         assert chk.check(dest) != 0
     finally:
         _remove(dest)
+
+
+def test_feed_commit_provenance_lag_passes_but_other_index_edits_fail(tmp_path):
+    """feed_commit_for_listing_counts lags on the commit that changes the feed; nothing else may drift."""
+    dest = tmp_path / "provenance"
+    _worktree(dest)
+    try:
+        index = dest / "api" / "v1" / "gpu-price-index.json"
+        text = index.read_text(encoding="utf-8")
+        doc = json.loads(text)
+        days = [d for d in doc.get("history", doc.get("days", [])) if isinstance(d, dict) and "feed_commit_for_listing_counts" in d]
+        if not days:
+            days = [doc]
+        days[-1]["feed_commit_for_listing_counts"] = "0" * 40
+        index.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+        assert chk.check(dest) == 0
+        index.write_text(text.replace('"median_usd_per_gpu_hour": ', '"median_usd_per_gpu_hour": 9', 1), encoding="utf-8")
+        assert chk.check(dest) != 0
+    finally:
+        _remove(dest)

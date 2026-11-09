@@ -60,6 +60,28 @@ def _overlay(src: Path, dest: Path) -> None:
             path.unlink()
 
 
+# Git provenance, not generated content: gpu_index.py records the last commit that touched the
+# feed. A commit that changes the feed can never contain its own sha, so this field always lags
+# one commit behind on the commit that changes the feed. Compare everything else in the file.
+_GIT_PROVENANCE_KEYS = {"feed_commit_for_listing_counts"}
+_PROVENANCE_FILES = {"api/v1/gpu-price-index.json"}
+
+
+def _strip(obj):
+    if isinstance(obj, dict):
+        return {k: _strip(v) for k, v in obj.items() if k not in _GIT_PROVENANCE_KEYS}
+    if isinstance(obj, list):
+        return [_strip(v) for v in obj]
+    return obj
+
+
+def _same_except_provenance(a: Path, b: Path) -> bool:
+    try:
+        return _strip(json.loads(a.read_text(encoding="utf-8"))) == _strip(json.loads(b.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return False
+
+
 def _diff_names(src: Path, dest: Path) -> list[str]:
     proc = subprocess.run(
         ["diff", "-rq", "--exclude=.git", "--exclude=__pycache__", "--exclude=.pytest_cache",
@@ -69,6 +91,9 @@ def _diff_names(src: Path, dest: Path) -> list[str]:
     names = []
     for line in proc.stdout.splitlines():
         if "scout/secrets" in line or line.endswith(": secrets"):
+            continue
+        rel = next((f for f in _PROVENANCE_FILES if line == f"Files {src / f} and {dest / f} differ"), None)
+        if rel and _same_except_provenance(src / rel, dest / rel):
             continue
         names.append(line)
     return names
