@@ -285,4 +285,4 @@ def test_scout_price_quote_is_kept_as_verbatim_evidence():
 
 def test_importer_comment_no_longer_says_community_is_interruptible():
     src = (ROOT / "scripts" / "import_scout_wider.py").read_text()
-    assert "community and marketplace tiers." not in src and "are NOT interruptible" in src
+    assert "community and marketplace tiers." not in src and "stay non-interruptible" in src  # main (#116) already fixed the wording

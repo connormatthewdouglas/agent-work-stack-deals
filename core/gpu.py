@@ -500,6 +500,16 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
             "problems": problems}
 
 
+def min_gpus_unmet(r: dict, gpus: int | None = 1) -> bool:
+    """Shared allocation rule (pages, compare_gpu_prices, stack/agent recommendations): a row sold only as an
+    N-GPU allocation (min_gpus = N) never ranks as cheapest for a request of fewer than N GPUs. No count = 1 GPU."""
+    return (r.get("min_gpus") or 1) > (gpus or 1)
+
+
+NO_GPU_COUNT_ASSUMPTION = ("No GPU count given; treated as 1 GPU. Rows sold only as multi-GPU allocations (min_gpus > 1) "
+                           "rank after single-GPU rows and are never named cheapest.")
+
+
 def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filter: str | None = None,
              min_vram_gb: int | None = None) -> list[dict]:
     """Monthly cost per option for N GPUs x hours. Flat monthly servers need ceil(hours/730) per GPU."""
@@ -533,7 +543,8 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
         out.append({**r, "monthly_cost_usd": round(cost, 2), "calc": basis,
                     "requested_gpus": gpus, "billed_gpus": g, "instances": servers})
     # Reservation / commitment prices are shown but never ranked as "cheapest": they sort after every pay-as-you-go row.
-    return sorted(out, key=lambda x: (_tier_class(x) == "reserved", x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
+    # A row whose minimum allocation exceeds the request sorts after every row that fits it (min_gpus_unmet).
+    return sorted(out, key=lambda x: (_tier_class(x) == "reserved", min_gpus_unmet(x, gpus), x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
 
 
 def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) -> int:

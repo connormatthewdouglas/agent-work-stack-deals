@@ -185,7 +185,8 @@ def apply(docs: dict, rows: list[dict], names: list[str] | None = None) -> tuple
         if why:
             unresolved.append({"vendor": r.get("vendor"), "gpu_model": r.get("gpu_model"), "tier": r.get("tier"), "reason": why})
         if rec:
-            key = (rec["vendor"], rec["gpu"], rec["tier"], rec["vram_gb"])
+            # allocation sizes stay separate rows: (tier, gpu_count) is part of the key (Scout publishes Vast per "(Nx GPU)")
+            key = (rec["vendor"], rec["gpu"], rec["tier"], rec["vram_gb"], rec.get("gpu_count") or 1)
             if key not in seen:
                 seen.add(key)
                 by_vendor.setdefault(rec["vendor"], []).append(rec)
@@ -201,8 +202,8 @@ def apply(docs: dict, rows: list[dict], names: list[str] | None = None) -> tuple
         for x in recs:  # records carry the vendor file's own name (e.g. "Verda (formerly DataCrunch)")
             x["vendor"] = doc.get("vendor") or x["vendor"]
         keep = [x for x in doc.get("records") or [] if x.get("batch") != "wider-gpu"]
-        have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb")) for x in keep}
-        new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"]) not in have]  # existing curated rows win
+        have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb"), x.get("gpu_count") or 1) for x in keep}
+        new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"], x.get("gpu_count") or 1) not in have]  # existing curated rows win
         doc["records"] = keep + new
         total += len(new)
         out[v] = doc
