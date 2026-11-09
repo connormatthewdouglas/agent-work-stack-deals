@@ -260,6 +260,9 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     held = [h for h in prices.get("held_stale", []) if any(family(x.get("gpu", "")) == fam for x in h.get("records", []))]
     for h in held:
         av = h.get("availability") or {}
+        if h.get("reason") == "owner_hold":
+            body.append(f"<p><small>{esc(h['vendor'])} is temporarily held (owner_hold) and is not counted as a live verified price.</small></p>")
+            continue
         if av.get("in_stock") is False:  # vendor page says no capacity now: out of stock, last sourced price kept, unranked
             g = (h.get("records") or [{}])[0]
             body.append(f"<p><small>{esc(h['vendor'])} {esc(g.get('gpu', ''))} not ranked: out of stock, {esc(av.get('reason', ''))} "
@@ -308,7 +311,8 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
     esc = gen.esc
     prices, changes = feeds["prices"], feeds["changes"]
     vend = {v["vendor"]: v for v in prices["vendors"]}
-    held = {h["vendor"] for h in prices.get("held_stale", [])}
+    # Record-level holds leave the vendor's other rows ranked. A vendor-level hold (owner_hold, stale page) removes the vendor.
+    held = {h["vendor"] for h in prices.get("held_stale", []) if h.get("scope") != "record"}
     if a not in vend or b not in vend or a in held or b in held:
         return None
     rates = rankable(prices)
@@ -426,6 +430,16 @@ def write_watch_doc(gen) -> str:
                  "Follow daily GPU rental price changes via RSS, the get_price_changes MCP tool, or JSON feeds.", f"{b}/docs/watch-gpu-prices/", body, [])
 
 
+def _drop_unpublished(root: Path, pattern: str, written: set[str]) -> None:
+    """Remove a generated page the last run no longer emits, so a held vendor cannot leave a ranked page behind."""
+    import shutil
+    base = Path(root)
+    for d in base.glob(pattern):
+        rel = str(d.relative_to(base))
+        if rel not in written and d.is_dir():
+            shutil.rmtree(d)
+
+
 def write_all(gen) -> list[str]:
     SPEC_PATHS.clear()
     feeds = load_feeds()
@@ -433,10 +447,29 @@ def write_all(gen) -> list[str]:
     quals = qualifying_families(rates)
     for fam, rows in sorted(quals.items()):
         write_gpu_page(gen, fam, rows, feeds, quals)
+    from core.owner_hold import is_held
     for a, b in PAIRS:
+        if is_held(a) or is_held(b):
+            # Keep the URL, but do not rank a held vendor's prices.
+            sa, sb = short_vendor(a), short_vendor(b)
+            path = f"compare/{slug(sa)}-vs-{slug(sb)}-gpu-prices"
+            held_name = a if is_held(a) else b
+            esc = gen.esc
+            body = (f"<h1>{esc(sa)} vs {esc(sb)} GPU prices</h1>"
+                    f"<p>{esc(held_name)} is temporarily held (owner_hold) and is not counted as a live verified price. "
+                    "This comparison is not ranked.</p>"
+                    '<script type="application/json" id="lw-price-block">'
+                    '{"schema":"lantern-works-price-block/1","mcp":"compare_gpu_prices (brief mode)","items":[],'
+                    '"note":"temporarily held (owner_hold); not a live verified price"}</script>')
+            write(gen, path, f"{sa} vs {sb}: temporarily held",
+                  f"{held_name} is temporarily held and is not a live verified price.",
+                  f"{gen.BASE}/{path}/", body, [])
+            continue
         write_pair(gen, a, b, feeds, quals)
     write_changes(gen, feeds)
     write_watch_doc(gen)
+    written = set(SPEC_PATHS)
+    _drop_unpublished(Path(gen.ROOT), "gpu/*-rental-price", written)
     dup = {f"gpu/{slug(f)}-rental-price" for f in CANONICAL_OVERRIDE}
     return [p for p in SPEC_PATHS if p not in dup]
 

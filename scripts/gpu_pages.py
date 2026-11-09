@@ -465,8 +465,8 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     tc = Counter(r.get("tier_class") or "on-demand" for r in rates)
     parts = ", ".join(f"{n} {k}" for k, n in sorted(tc.items(), key=lambda kv: (-kv[1], kv[0])))
     held = doc.get("held_stale") or []
-    held_n = sum(len(h.get("records") or []) for h in held)
-    held_v = sorted({h["vendor"] for h in held})
+    owner = [h for h in held if h.get("reason") == "owner_hold"]
+    rest = [h for h in held if h.get("reason") != "owner_hold"]
     unp = doc.get("unpriced") or []
     pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
     med = [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]  # Gauge G4
@@ -478,10 +478,16 @@ def rate_count_note(gen, deals: list[dict]) -> str:
                 f"(each summarises many listings from {gen.esc(', '.join(sorted({r['advertiser'] for r in med})))}, not one offer). ")
     if resv:
         out += f"{pl(resv, 'reserved or term-contract rate')} {'is' if resv == 1 else 'are'} included in the count but left out of the cheapest among tracked providers ranking. "
-    if held_n:
+    if owner:
+        names = ", ".join(sorted({h["vendor"] for h in owner}))
+        n = sum(len(h.get("records") or []) for h in owner)
+        out += f"Temporarily held, not a live verified price: {pl(n, 'price')} from {gen.esc(names)}. "
+    if rest:
+        held_n = sum(len(h.get("records") or []) for h in rest)
+        held_v = sorted({h["vendor"] for h in rest})
         out += f"Not counted: {pl(held_n, 'price')} from {pl(len(held_v), 'vendor')} we're holding back because the page was stale or the marketplace too thin. "
     if unp:
-        out += f"{'Also not counted' if held_n else 'Not counted'}: {pl(len(unp), 'vendor')} with no price we could verify."
+        out += f"{'Also not counted' if owner or rest else 'Not counted'}: {pl(len(unp), 'vendor')} with no price we could verify."
     return out
 
 
@@ -770,6 +776,8 @@ def write_all(gen, deals: list[dict]) -> list[str]:
     fams = families(rates)
     _LINKS[:] = page_links(deals)
     pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if _has_page(slug, f, rates)}
+    import spec_pages
+    spec_pages._drop_unpublished(Path(gen.ROOT), "gpu/cheapest-*-rental", set(pages.values()))
     cmps = [write_h100_vs(gen, rates), write_per_vram(gen, rates), write_runpod_tiers(gen, rates)]
     return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + cmps  # cheapest-* pages: canonical is the -rental-price page, so not in the sitemap
 

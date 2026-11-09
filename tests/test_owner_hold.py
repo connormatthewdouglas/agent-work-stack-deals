@@ -158,3 +158,63 @@ def test_refresh_does_not_touch_held_vendors_when_the_page_parses():
     assert control["records"][0]["price_usd"] == 1.89
     assert control["records"][0]["checked_at"].startswith("2026-11-09")
     assert {r["result"] for r in report if r["vendor"] != "RunPod"} == {"owner hold, untouched"}
+
+
+def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack():
+    from core.gpu import build_rates
+    from core.deals import compare_gpu_prices
+    from core import agent_stack
+    deals = json.loads((ROOT / "api/v1/deals.json").read_text())["deals"]
+    built = build_rates(deals)
+    assert not any(is_held(r["advertiser"]) for r in built["rates"])
+    assert not any(is_held(v["vendor"]) for v in built["vendors"])
+    owners = [h for h in built["held_stale"] if is_held(h["vendor"])]
+    assert owners and {h["reason"] for h in owners} == {"owner_hold"}
+    assert any(h["vendor"] == "Hyperstack" for h in owners)
+    assert any(str(h["vendor"]).startswith("Verda") for h in owners)
+    cheap = {"advertiser": "Hyperstack", "gpu": "H100 SXM", "vram_gb": 80, "hourly_equiv_usd": 0.01,
+             "price_usd": 0.01, "unit": "hour", "tier": "On-demand", "tier_class": "on-demand",
+             "interruptible": False, "billing_unit": "hourly", "source_url": "https://example.test/h",
+             "verified_at": "2026-11-09T00:00:00Z", "checked_at": "2026-11-09T00:00:00Z",
+             "availability": {"in_stock": None}, "gpu_count": 1, "min_gpus": 1}
+    other = {**cheap, "advertiser": "RunPod", "hourly_equiv_usd": 2.5, "price_usd": 2.5,
+             "source_url": "https://example.test/r"}
+    out = compare_gpu_prices({"rates": [cheap, other], "feed_updated_at": "2026-11-09T00:00:00Z"}, "H100", limit=5)
+    assert [r["advertiser"] for r in out["results"]] == ["RunPod"]
+    assert out["held_owner"][0]["reason"] == "owner_hold" and out["held_owner"][0]["vendor"] == "Hyperstack"
+    only = compare_gpu_prices({"rates": [cheap]}, "H100")
+    assert only["results"] == [] and only["held_owner"][0]["reason"] == "owner_hold"
+    plan = agent_stack.plan("100 GPU hours", deals, {"offers": []}, {"rates": [cheap, other]})
+    gpu_line = next(line for line in plan["lines"] if line["component"] == "gpu")
+    assert gpu_line["choice"]["vendor"] == "RunPod"
+    assert gpu_line["held"][0]["reason"] == "owner_hold" and gpu_line["held"][0]["vendor"] == "Hyperstack"
+
+
+def test_committed_feed_wall_clock_catches_stale_ranked_rows(monkeypatch):
+    """Outside T41-12, and without the pinned build clock. Owner-held rows are not ranked.
+    A non-held vendor-file row past its existing hold (7 days, or 48h for a batch row) is not ranked either.
+    Thresholds are unchanged. T41-12's 48h bar on the published feed stays in the release gate."""
+    monkeypatch.delenv("LW_AVAIL_NOW", raising=False)
+    from core.gpu import build_rates, load_vendor_files
+    from core.data_age import STALE_HOURS
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    assert not any(is_held(r.get("advertiser")) for r in feed["rates"])
+    assert any(h.get("reason") == "owner_hold" and is_held(h.get("vendor")) for h in feed.get("held_stale") or [])
+    deals = json.loads((ROOT / "api/v1/deals.json").read_text())["deals"]
+    built = build_rates(deals)  # wall clock: LW_AVAIL_NOW is unset
+    assert not any(is_held(r["advertiser"]) for r in built["rates"])
+    assert {h["reason"] for h in built["held_stale"] if is_held(h["vendor"])} == {"owner_hold"}
+    now = datetime.now(timezone.utc)
+    for doc in load_vendor_files():
+        if doc.get("stale") or doc.get("manual_snapshot") or is_held(doc.get("vendor")):
+            continue
+        for rec in doc["records"]:
+            if rec.get("stale") or rec.get("no_capacity"):
+                continue
+            stamp = datetime.fromisoformat(str(rec.get("verified_at") or rec["checked_at"]).replace("Z", "+00:00"))
+            limit = 48 if rec.get("price_check") == "batch" or rec.get("batch") else STALE_HOURS
+            if (now - stamp).total_seconds() / 3600 <= limit:
+                continue
+            assert not any(r["advertiser"] == rec.get("vendor") and r["gpu"] == rec.get("gpu") and r.get("tier") == rec.get("tier")
+                           and r.get("verified_at") == (rec.get("verified_at") or rec.get("checked_at"))
+                           for r in built["rates"]), (rec.get("vendor"), rec.get("gpu"))

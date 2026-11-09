@@ -14,8 +14,11 @@ def test_referral_label_on_every_code_carrying_row():
             assert r["referral_url"] == REFERRALS[r["advertiser"]] and r["referral_label"] == REFERRAL_LABEL
         if r.get("affiliate") or has_ref_code(r.get("redeem_url")) or has_ref_code(r.get("referral_url")):
             assert r.get("referral_label") == REFERRAL_LABEL, (r["advertiser"], r.get("redeem_url"))
-        if r["advertiser"] in ("Lambda", "Hyperstack") or r["advertiser"].startswith("Verda"):
+        if r["advertiser"] == "Lambda":
             assert "referral_url" not in r and "referral_label" not in r, r["advertiser"]
+    owners = {h["vendor"] for h in FEED["held_stale"] if h.get("reason") == "owner_hold"}
+    assert "Hyperstack" in owners and any(str(v).startswith("Verda") for v in owners)
+    assert not any(r["advertiser"] == "Hyperstack" or str(r["advertiser"]).startswith("Verda") for r in FEED["rates"])
     labelled = {r["advertiser"] for r in FEED["rates"] if r.get("referral_label")}
     assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "99Stack Cloud", "RunPod", "Thunder Compute"} <= labelled
 

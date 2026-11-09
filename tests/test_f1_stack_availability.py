@@ -21,8 +21,8 @@ def _r(adv, price, avail=None, tier="On-demand", interruptible=False):
     return r
 
 
-VERDA = _r("Verda (formerly DataCrunch)", 0.7965, OOS, "Spot instance (1x GPU)", True)
-GPU = {"rates": [VERDA, _r("Hyperstack", 1.08), _r("Lambda", 1.99, UNK)]}
+VERDA = _r("Oblivus", 0.7965, OOS, "Spot instance (1x GPU)", True)
+GPU = {"rates": [VERDA, _r("CoreWeave", 1.08), _r("Lambda", 1.99, UNK)]}
 STACK = {"offers": []}
 
 
@@ -32,33 +32,33 @@ def _line(r):
 
 def test_optimize_stack_skips_oos_verda():
     l = stack.optimize(STACK, {"gpu_hours": 100}, GPU, gpu_model="A100")["lines"][0]
-    assert l["choice"]["vendor"] == "Hyperstack" and l["monthly_cost_usd"] == 108
+    assert l["choice"]["vendor"] == "CoreWeave" and l["monthly_cost_usd"] == 108
     assert l["choice"]["in_stock"] is None and l["choice"]["availability"] is None
-    assert "Verda" in l["availability_note"] and TS in l["availability_note"] and "79.65" in l["availability_note"]
-    v = [a for a in l["alternatives"] if a["vendor"].startswith("Verda")][0]
+    assert "Oblivus" in l["availability_note"] and TS in l["availability_note"] and "79.65" in l["availability_note"]
+    v = [a for a in l["alternatives"] if a["vendor"] == "Oblivus"][0]
     assert v["in_stock"] is False and v["availability"] == OOS
 
 
 def test_optimize_stack_all_oos_flagged():
     l = stack.optimize(STACK, {"gpu_hours": 100}, {"rates": [VERDA]}, gpu_model="A100")["lines"][0]
-    assert l["choice"]["vendor"].startswith("Verda") and "no in-stock" in l["availability_note"] and TS in l["availability_note"]
+    assert l["choice"]["vendor"] == "Oblivus" and "no in-stock" in l["availability_note"] and TS in l["availability_note"]
 
 
 def test_agent_stack_skips_oos_verda():
     l = _line(agent_stack.plan("100 GPU hours on an A100", [], STACK, GPU, gpu_hours=100, gpu_model="A100"))
-    assert l["choice"]["vendor"] == "Hyperstack" and l["monthly_cost_usd"] == 108
-    assert "Verda" in l["availability_note"] and TS in l["availability_note"]
+    assert l["choice"]["vendor"] == "CoreWeave" and l["monthly_cost_usd"] == 108
+    assert "Oblivus" in l["availability_note"] and TS in l["availability_note"]
 
 
 def test_agent_stack_all_oos_flagged():
     l = _line(agent_stack.plan("100 GPU hours on an A100", [], STACK, {"rates": [VERDA]}, gpu_hours=100, gpu_model="A100"))
-    assert l["choice"]["vendor"].startswith("Verda") and "no in-stock" in l["availability_note"]
+    assert l["choice"]["vendor"] == "Oblivus" and "no in-stock" in l["availability_note"]
 
 
 def test_job_cost_skips_oos():
     r = estimate_job_cost(GPU, "A100", 1, job_hours=100, allow_interruptible=True)
-    assert r["results"][0]["vendor"] == "Hyperstack" and r["results"][-1]["in_stock"] is False
-    assert "Cheaper but out of stock when checked at " + TS in r["summary"] and "Verda" in r["summary"]
+    assert r["results"][0]["vendor"] == "CoreWeave" and r["results"][-1]["in_stock"] is False
+    assert "Cheaper but out of stock when checked at " + TS in r["summary"] and "Oblivus" in r["summary"]
 
 
 def test_job_cost_all_oos_flagged():
