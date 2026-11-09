@@ -221,7 +221,8 @@ def test_new_vendor_flags():
     assert len(td) == 1 and td[0]["page_last_updated"] == "2024-07-24"
     assert not any(r["advertiser"] == "TensorDock" for r in rates)
     for g in ("RTX 4090", "A100", "H100", "V100"):
-        assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25)["results"])
+        # gpus=1024: every allocation size ranks (Bjorn 1109 excludes min_gpus > gpus), so no TensorDock row can hide
+        assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25, gpus=1024)["results"])
     assert all(o["vendor"] != "TensorDock" for o in _gpu_options(api, 100, None, set()))
     for page in ("gpu/price-comparison/index.html", "gpu/cheapest-rtx-4090-rental/index.html"):
         f = root / page
