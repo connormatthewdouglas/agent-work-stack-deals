@@ -55,7 +55,13 @@ def test_restamp_then_regenerate_still_matches(tmp_path):
         assert doc["checked_at"] != old
         pricing.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
         _regenerate(dest)
-        assert chk.check(dest) == 0
+        # Parent LW_AVAIL_NOW (e.g. check_latest_scout_import) must not override dest's feed stamp.
+        saved = os.environ.pop("LW_AVAIL_NOW", None)
+        try:
+            assert chk.check(dest) == 0
+        finally:
+            if saved is not None:
+                os.environ["LW_AVAIL_NOW"] = saved
     finally:
         _remove(dest)
 
