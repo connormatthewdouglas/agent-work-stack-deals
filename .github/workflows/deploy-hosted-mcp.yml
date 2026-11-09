@@ -21,8 +21,10 @@ concurrency:
 
 jobs:
   deploy:
+    # Manual runs only from main. Releases and v* tags still deploy from the ref that was published.
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -45,5 +47,4 @@ jobs:
             echo "::error::Missing repository secret CLOUDFLARE_ACCOUNT_ID. Set it to the Cloudflare account id that owns the lantern-works-mcp Worker."
             exit 1
           fi
-          sh hosted/build.sh
-          (cd hosted && npx --yes wrangler deploy)
+          sh hosted/deploy.sh
