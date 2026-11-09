@@ -178,7 +178,7 @@ def _run(fn, *a, **kw) -> dict:
 @_contract
 def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = True, include_reserved: bool = False,
                        max_data_age_hours: float | None = None, region: str | None = None,
-                       min_usable_memory_gb: float | None = None) -> dict:
+                       min_usable_memory_gb: float | None = None, gpus: int | None = None) -> dict:
     """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
@@ -217,7 +217,8 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
                 hist = history_loader.load()
             except DealError as e:
                 hist = {"series": [], "changes": [], "error": e.message}
-        kw = dict(history=hist, include_reserved=include_reserved, max_data_age_hours=max_data_age_hours, region=region or None)
+        kw = dict(history=hist, include_reserved=include_reserved, max_data_age_hours=max_data_age_hours, region=region or None,
+                  gpus=gpus)
         if min_usable_memory_gb is not None:  # T61: filter before limit, so count/total/cheapest_by_form_factor match
             kw["usable_filter"] = lambda rows: gpu_identity.filter_usable(rows, min_usable_memory_gb)
         try:

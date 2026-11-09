@@ -324,7 +324,10 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             opts = stack._gpu_options(gdata, per_gpu or 1, gpu_model, manual, gpus=gpus)
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
-            opts.sort(key=lambda x: (x.get("in_stock") is False, x["monthly_cost_usd"], x["vendor"] or ""))
+            opts.sort(key=lambda x: (x.get("in_stock") is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or ""))
+            if p["gpu_count"] is None:  # no GPU count in the request: 1 GPU, said out loud
+                from .gpu import NO_GPU_COUNT_ASSUMPTION
+                assumptions.append(NO_GPU_COUNT_ASSUMPTION)
             if max_data_age_hours is None and opts:  # Gauge re28: > 168 h prices never rank by default
                 from . import data_age as _da
                 opts, old = _da.split_current(opts, None, now)

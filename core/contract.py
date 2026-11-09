@@ -32,7 +32,9 @@ SPEC = {
                             # T63 (additive): serverless/per-second rows are held in every mode; the count stays visible in brief
                             "excluded_serverless",
                             # T61 (additive): the usable-memory filter outcome when min_usable_memory_gb is given
-                            "usable_memory_filter", "model_identity_note"],
+                            "usable_memory_filter", "model_identity_note",
+                            # #122 (additive): GPU count ranked for (no count = 1, stated in assumptions)
+                            "gpus", "assumptions", "min_gpus_unmet"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "interruptible", "canonical_model", "form_factor", "source_url", "checked_at",
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link
@@ -40,7 +42,9 @@ SPEC = {
                             # T116: observed stock share; legacy expected_cost_usd is deprecated/null.
                             "availability_rate_7d", "expected_cost_usd",
                             # Scout schema 3.2 (additive): Scout's own status (in_stock|out_of_stock|unknown) and reason
-                            "availability_status", "availability_reason", "availability_reason_detail"]),
+                            "availability_status", "availability_reason", "availability_reason_detail",
+                            # #122 (additive): allocation minimum and whether it exceeds the requested GPU count
+                            "min_gpus", "min_gpus_unmet", "allocation_note"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],

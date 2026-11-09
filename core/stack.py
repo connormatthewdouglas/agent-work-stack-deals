@@ -206,9 +206,11 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, g
                     "signup": "manual_only" if r.get("deal_id") in manual else None,
                     "manual_signup_only": r.get("deal_id") in manual, "signup_note": None,
                     "affiliate": bool(r.get("affiliate")), "redeem_url": r.get("redeem_url"),
-                    "deal_url": deal_page_url(r.get("deal_id")), **avail_fields(r)})
+                    "deal_url": deal_page_url(r.get("deal_id")), **avail_fields(r),
+                    **({"min_gpus_unmet": True} if (r.get("min_gpus") or 1) > gpus else {})})
     # F1: explicit out-of-stock rows (in_stock False) never outrank in-stock/unknown rows
-    return sorted(out, key=lambda x: (x["in_stock"] is False, x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
+    # min_gpus: an allocation larger than the request (gpus_billed > gpus_requested because of min_gpus) never ranks first
+    return sorted(out, key=lambda x: (x["in_stock"] is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
 
 
 class StackError(ValueError):

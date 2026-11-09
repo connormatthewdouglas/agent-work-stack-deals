@@ -80,9 +80,10 @@ def test_compare_gpu_prices_same_data_sorted_sourced(srv):
     assert rr["results"][0]["tier_class"] != "reserved" and rr["results"][-1]["tier_class"] == "reserved"
     assert "Hyperstack" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"] or "Reservation" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"]
     assert r["total"] == len(expected) and r["count"] == min(25, len(expected)) >= 2
-    hourly = [(x["in_stock"] is False, x["hourly_usd"]) for x in r["results"]]  # E5: out-of-stock rows sort last
+    hourly = [(bool(x.get("min_gpus_unmet")), x["in_stock"] is False, x["hourly_usd"]) for x in r["results"]]  # E5: out-of-stock rows sort last
     oos = lambda x: (x.get("availability") or {}).get("in_stock") is False
-    assert hourly == sorted(hourly) and hourly[0][1] == min(x["hourly_equiv_usd"] for x in expected if not oos(x))
+    fits = lambda x: (x.get("min_gpus") or 1) <= 1  # #122: no GPU count = 1 GPU; multi-GPU-only rows never cheapest
+    assert hourly == sorted(hourly) and hourly[0][2] == min(x["hourly_equiv_usd"] for x in expected if not oos(x) and fits(x))
     for x in r["results"]:
         assert x["source_url"].startswith("https://") and x["checked_at"]
         src = next(y for y in expected if y["deal_id"] == x["deal_id"] and y["basis"] == x["basis"])

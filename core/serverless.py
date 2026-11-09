@@ -3,10 +3,17 @@ imported as an hourly rate (scripts/import_scout_wider.py) and never ranked by c
 (on-demand only, all tiers, reserved included). Held rows stay visible with a reason; nothing is hidden or invented."""
 import re
 
-# Text signals, whatever field carries them (tier, price_basis, billing_granularity, billing, notes, gpu_model, URL path...).
+# Serverless / per-second text signals (feed side checks these in structured fields only, see RATE_FIELDS).
 SERVERLESS_RE = re.compile(r"serverless|\bflex\b|active[-_ ]worker|per[-_ ]?sec(?:ond)?s?\b|/\s*sec(?:ond)?\b|scale[-_ ]to[-_ ]zero", re.I)
-# Per-second price keys (price_usd_sec, price_per_second, usd_per_sec, ...).
-PER_SECOND_KEY_RE = re.compile(r"(?:^|_)(?:per_?)?sec(?:ond)?s?$|_per_?sec(?:ond)?_|_sec_", re.I)
+# Import side, any field: serverless product words only. "per second" text is NOT a hold signal anywhere in a row,
+# because dedicated pods are billed per second too (quotes like "$0.42 /hr $0.00012 /sec", billing_granularity).
+SERVERLESS_WORD_RE = re.compile(r"serverless|\bflex\b|active[-_ ]worker|scale[-_ ]to[-_ ]zero", re.I)
+# Per-second PRICE keys only (Gauge 1108 #102 a): a price/usd/cost/rate key priced per second, e.g. price_usd_sec,
+# price_per_second, usd_per_sec, cost_per_second. Non-price keys (two_read_gap_seconds, min_billing_seconds) never match.
+PER_SECOND_KEY_RE = re.compile(r"^(?=.*(?:price|usd|cost|rate))(?:.*_)?(?:per_?)?sec(?:ond)?s?(?:_|$)", re.I)
+# The billing unit itself (not text about billing granularity) saying per-second.
+PER_SECOND_UNIT_RE = re.compile(r"^\s*(?:per[-_ ]?)?sec(?:ond)?s?\s*$", re.I)
+UNIT_FIELDS = ("billing_unit", "billing", "unit", "price_unit")
 REASON = "serverless/per-second price: not a dedicated instance rate"
 
 
@@ -26,13 +33,16 @@ def per_second_keys(r: dict) -> list[str]:
 
 
 def row_reason(r: dict) -> str | None:
-    """Import side (untrusted batch rows, field names vary): any per-second price key or any string value anywhere in
-    the row that says serverless/flex/active-worker/per-second holds the row. Conservative by design."""
+    """Import side (untrusted batch rows, field names vary): a per-second PRICE key, a per-second billing unit, or a
+    serverless/flex/active-worker/scale-to-zero word in any string value holds the row."""
     keys = per_second_keys(r)
     if keys:
-        return f"{REASON} (per-second field {keys[0]})"
+        return f"{REASON} (per-second price field {keys[0]})"
+    for k in UNIT_FIELDS:
+        if isinstance(r.get(k), str) and PER_SECOND_UNIT_RE.match(r[k]):
+            return f"{REASON} ({k}: {r[k]!r})"
     for txt in _strings(r):
-        m = SERVERLESS_RE.search(txt)
+        m = SERVERLESS_WORD_RE.search(txt)
         if m:
             return f"{REASON} ({m.group(0)!r} in row)"
     return None
