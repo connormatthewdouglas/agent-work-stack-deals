@@ -14,9 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core.compliance import is_pulled  # noqa: E402
-from core.gpu import INTERRUPTIBLE_TIER_RE, family_of  # noqa: E402
+from core.gpu import INTERRUPTIBLE_TIER_RE, family_of, form_factor_of  # noqa: E402
 from core.owner_hold import hold_names, is_held  # noqa: E402
-from core.source_urls import valid_source_url  # noqa: E402
+from core.source_urls import split_source, valid_source_url  # noqa: E402
 from core import serverless  # noqa: E402  (T63: one shared serverless/per-second rule)
 
 PRICING = ROOT / "data" / "gpu_pricing"
@@ -35,6 +35,9 @@ ONE_GPU_RE = re.compile(r"\b1 GPU\b")
 # marketplace labels stay non-interruptible. The tier text itself is not rewritten.
 # Vendor text Scout copied from the page; price_quote is Scout's own field name for it (Gauge 1108 #102 c).
 VERBATIM_KEYS = ("quote_verbatim", "verbatim_text", "price_quote")
+# Scout's region "all" is an aggregate row, not a place. Blank and missing are the same: unknown.
+# A stated location is copied as published. Nothing else is filled in.
+_UNSTATED_REGION = {"", "all", "unknown"}
 
 
 def _ts(s):
@@ -43,6 +46,42 @@ def _ts(s):
 
 def _int(x):
     return x if isinstance(x, int) and not isinstance(x, bool) and x >= 1 else None
+
+
+def region_of(raw) -> str:
+    """Stated location, or 'unknown'. Never a guessed city, zone, or fresh timestamp."""
+    if isinstance(raw, str):
+        s = raw.strip()
+        if s.lower() not in _UNSTATED_REGION:
+            return s
+    return "unknown"
+
+
+def request_evidence(detail: str) -> dict:
+    """Pull method, operation and record_id out of a known API citation suffix.
+
+    Scout puts that suffix on source_detail. Only the two formats split_source already
+    accepts are read. Any other detail is left as text and is not turned into a URL.
+    """
+    if not isinstance(detail, str) or not detail.strip():
+        return {}
+    try:
+        _endpoint, ev = split_source(detail.strip())
+    except ValueError:
+        return {}
+    return ev
+
+
+def _place_new(keep: list[dict], new: list[dict]) -> list[dict]:
+    """Curated rows stay first. A new row with no stated region is inserted before the last
+    curated row that cites a location, so that citation is still the vendor's region of record."""
+    stated = [i for i, x in enumerate(keep) if region_of(x.get("region")) != "unknown" and x.get("region")]
+    if not stated:
+        return keep + new
+    at = stated[-1]
+    unstated = [x for x in new if region_of(x.get("region")) == "unknown"]
+    stated_new = [x for x in new if region_of(x.get("region")) != "unknown"]
+    return keep[:at] + unstated + keep[at:] + stated_new
 
 
 def serverless_reason(r: dict) -> str | None:
@@ -77,8 +116,9 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     raw = r.get("price_usd_sec") if unit == "per-second" else r.get("price_usd_hr")
     if not isinstance(raw, (int, float)) or isinstance(raw, bool) or raw <= 0:
         return None, f"unsupported price {raw!r}"
-    # source_url is the citation. source_detail is evidence text only and is never promoted to the URL
-    # (Oblivus rows append ' ("RTX 4090" card)' and that string is not a canonical https URL).
+    # source_url is the citation. A known API suffix on source_detail (RunPod graphql, Verda instance-types)
+    # is the canonical endpoint plus its request evidence. Any other source_detail stays text and is not
+    # the URL (Oblivus rows append ' ("RTX 4090" card)', which is not a canonical https URL).
     page = r.get("source_url") or ""
     detail = r.get("source_detail") if isinstance(r.get("source_detail"), str) else ""
     when = r.get("verified_at") or r.get("checked_at") or r.get("collected_at")
@@ -110,6 +150,13 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     hourly = round(price * factor / n, 4)
     base = re.sub(r"\s+(SXM\d*|PCIe)$", "", gpu)
     form = (re.search(r"\b(SXM\d*|PCIe)\b", gpu) or [None])[0]
+    req = request_evidence(detail)
+    # The name did not state a form. The vendor record id can ("NVIDIA B300 SXM6 AC" -> SXM6).
+    # "not stated" is left as null so a later reader does not treat it as the vendor's own value.
+    if not form and req.get("record_id"):
+        derived = form_factor_of(gpu, None, "", req["record_id"])
+        if derived and derived != "not stated":
+            form = derived
     vram = r.get("vram_gb")
     note = r.get("vram_note")
     fix = VRAM_FIX.get((base, None)) or VRAM_FIX.get((base, v))
@@ -132,9 +179,13 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     quote = quote[:200]
     tier = r.get("tier")
     intr = bool(INTERRUPTIBLE_TIER_RE.search(tier or ""))
-    evidence = {"source_url": page, "quote": quote, "checked_at": when}
+    # A known API citation suffix is the canonical source. The human pricing page is not a substitute
+    # for the endpoint, method, operation and record id Scout put on source_detail.
+    if req:
+        page = split_source(detail.strip())[0]
+    evidence = {"source_url": page, "quote": quote, "checked_at": when, **req}
     rec = {"vendor": v, "gpu": gpu, "vram_gb": vram, "price_usd": price, "billing_unit": unit, "hourly_usd": hourly,
-           "interruptible": intr, "tier": tier, "form_factor": form,
+           "interruptible": intr, "tier": tier, "region": region_of(r.get("region")), "form_factor": form,
            "quote": quote, "source_url": page,
            "checked_at": when, "evidence": evidence,
            "evidence_kind": kind, "normalized_summary": summary, "verified_at": when,
@@ -204,7 +255,7 @@ def apply(docs: dict, rows: list[dict], names: list[str] | None = None) -> tuple
         keep = [x for x in doc.get("records") or [] if x.get("batch") != "wider-gpu"]
         have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb"), x.get("gpu_count") or 1) for x in keep}
         new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"], x.get("gpu_count") or 1) not in have]  # existing curated rows win
-        doc["records"] = keep + new
+        doc["records"] = _place_new(keep, new)
         total += len(new)
         out[v] = doc
     return out, unresolved, total
