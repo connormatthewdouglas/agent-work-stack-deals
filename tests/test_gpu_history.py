@@ -55,6 +55,7 @@ def test_parsed_change_updates_price_and_evidence():
     r = d["records"][0]
     assert rows[0]["result"] == "changed" and r["price_usd"] == 1.89 and r["hourly_usd"] == 1.89
     assert r["verified_at"] == r["checked_at"] == r["evidence"]["checked_at"] == "2026-11-03T12:00:00+00:00"
+    assert d["checked_at"] == "2026-11-03T12:00:00+00:00"  # every attempted row was re-verified
     assert "$1.89" in r["evidence"]["quote"] and r["quote"] == "A100 $1.89/hr"
     assert not record_problems(d)
 
@@ -71,6 +72,7 @@ def test_unreadable_keeps_old_price_and_verified_at():
     r = d["records"][0]
     assert r["price_usd"] == 1.99 and r["verified_at"] == "2026-11-01T10:00:00+00:00"
     assert r["checked_at"] == rec()["checked_at"] and r["last_failed_check_at"].startswith("2026-11-03") and rows[0]["result"].startswith("unreadable")  # strat2: no bump on failure
+    assert d["checked_at"] == "2026-11-01T10:00:00+00:00"
     assert "stale" not in r  # only 2 days old
 
 
@@ -190,17 +192,60 @@ def test_mcp_compare_include_history():
     assert "history" not in core.compare_gpu_prices(data, "A100", 5)
 
 
+def test_unreachable_hold_cap_and_partial_read_do_not_move_vendor_checked_at():
+    """Vendor checked_at stays put unless every attempted row was re-verified."""
+    d = doc(rec())
+    R.refresh([d], Fake("", status=503), NOW)
+    assert d["checked_at"] == "2026-11-01T10:00:00+00:00" and d["records"][0]["price_usd"] == 1.99
+    held = doc(rec())
+    held["records"][0]["stale"] = {"reason": "manual re-check", "auto": False}
+    R.refresh([held], Fake(PAGE), NOW)
+    assert held["checked_at"] == "2026-11-01T10:00:00+00:00" and held["records"][0]["price_usd"] == 1.99
+    assert "last_failed_check_at" not in held["records"][0]
+    cap_page = PAGE.replace("$1.89", "$4.00")  # (4.00-1.99)/1.99 > 50% auto-change cap
+    capped = doc(rec())
+    rows = R.refresh([capped], Fake(cap_page), NOW)
+    assert capped["records"][0]["price_usd"] == 1.99 and "NOT applied" in rows[0]["result"]
+    assert capped["checked_at"] == "2026-11-01T10:00:00+00:00"
+    ok, bad = rec(), rec(gpu="H100 SXM")
+    ok["source_url"] = ok["evidence"]["source_url"] = "https://example.com/a"
+    bad["source_url"] = bad["evidence"]["source_url"] = "https://example.com/b"
+    partial = doc(ok, bad)
+    class Pages:
+        def get(self, url):
+            if url.endswith("/b"):
+                return 503, ""
+            return 200, PAGE
+    R.refresh([partial], Pages(), NOW)
+    assert partial["records"][0]["price_usd"] == 1.89  # the parsed row still updates
+    assert partial["records"][1]["price_usd"] == 1.99
+    assert partial["checked_at"] == "2026-11-01T10:00:00+00:00"  # partial read: vendor stamp stays
+
+
 def test_freshness_check_warns_then_fails():
     import importlib.util
     from datetime import timedelta
     spec = importlib.util.spec_from_file_location("fresh", Path(__file__).resolve().parents[1] / "scripts" / "check_gpu_freshness.py")
     F = importlib.util.module_from_spec(spec); spec.loader.exec_module(F)
     from core.gpu import load_vendor_files
-    last = min(max(datetime.fromisoformat(t) for t in (r["checked_at"], r.get("last_failed_check_at")) if t) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"] if not r.get("stale"))
+    last = min(datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"] if not r.get("stale") and r.get("checked_at"))
     assert F.status(last + timedelta(hours=1))[0] == 0
     code, msgs = F.status(last + timedelta(hours=25))
     assert code == 0 and any("::warning::" in m for m in msgs)
     assert F.status(last + timedelta(hours=27))[0] == 1
+    # A failed attempt must not make a stale successful check look fresh. The fail bar stays 26 h.
+    import check_gpu_freshness as gate
+    stale = "2026-11-01T00:00:00+00:00"
+    failed = "2026-11-09T12:00:00+00:00"
+    monkey_docs = [{"vendor": "V", "records": [{"checked_at": stale, "last_failed_check_at": failed}]}]
+    orig = gate.load_vendor_files
+    gate.load_vendor_files = lambda: monkey_docs
+    try:
+        assert gate.status(datetime.fromisoformat(failed) + timedelta(hours=1), 26)[0] == 1
+        monkey_docs[0]["records"][0]["checked_at"] = failed
+        assert gate.status(datetime.fromisoformat(failed) + timedelta(hours=1), 26)[0] == 0
+    finally:
+        gate.load_vendor_files = orig
 
 
 def test_marketplace_filter_units_and_variants():

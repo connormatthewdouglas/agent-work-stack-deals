@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """GPU refresh freshness: warn when the daily refresh looks late, fail when it is clearly missed.
 
-The last refresh time is the oldest `checked_at` among records the refresh job touches (it stamps every
-record it reads, parsed or not; vendor-level holds are skipped). The latest dated snapshot in data/gpu_pricing/snapshots/ is reported too.
+The last refresh time is the oldest successful `checked_at` among records the refresh job re-verified.
+`last_failed_check_at` is a failed attempt and does not count. Vendor-level holds and manual snapshots are skipped.
+The latest dated snapshot in data/gpu_pricing/snapshots/ is reported too. The fail bar stays 26 h.
   * WARN  (exit 0, GitHub ::warning::) if there is no snapshot for today (UTC) or the last refresh is > 24 h old.
   * FAIL  (exit 1) if the last refresh is more than --fail-hours (default 26) old.
 GitHub cron is best-effort (runs can be hours late or dropped), so gpu-refresh.yml has a primary and a
@@ -21,11 +22,11 @@ from core.gpu_history import SNAPSHOT_DIR  # noqa: E402
 
 
 def status(now: datetime, fail_hours: float = 26.0) -> tuple[int, list[str]]:
-    # Oldest checked_at among records the refresh touches (vendor-level holds are skipped). The refresh stamps
-    # every such record, readable or not, so a hand-added vendor with a fresh stamp can't mask a missed run.
-    # Since Gauge strat2 the refresh keeps checked_at on a failed read and records last_failed_check_at instead, and
-    # row-level holds are never re-stamped: a touch is the later of the two, and held rows are skipped.
-    stamps = [max(datetime.fromisoformat(t) for t in (r["checked_at"], r.get("last_failed_check_at")) if t) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"] if not r.get("stale")]  # manual snapshots (Clore) are never auto-refreshed; their own 7-day hold applies
+    # Successful re-verification only. A failed run writes last_failed_check_at and must not make the gate look fresh.
+    # Vendor-level holds and manual snapshots are not auto-refreshed; row-level holds are not re-stamped.
+    stamps = [datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files()
+              if not d.get("stale") and not d.get("manual_snapshot")
+              for r in d["records"] if not r.get("stale") and r.get("checked_at")]
     last = min(stamps)
     age_h = (now - last).total_seconds() / 3600
     snaps = sorted(p.stem for p in Path(SNAPSHOT_DIR).glob("????-??-??.json"))

@@ -43,7 +43,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     data = build_rates(deals)
     if data["problems"]:  # invalid pricing records fail the build instead of silently dropping rates
         raise SystemExit("gpu pricing records invalid:\n  " + "\n  ".join(data["problems"]))
-    try:  # Gauge re32: carry Scout's generation and bump feed_updated_at on every availability import
+    try:  # availability generation is carried, but an availability-only import must not move feed_updated_at
         _av = json.loads((Path(gen.ROOT) / "data" / "gpu_availability" / "latest.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         _av = {}
@@ -52,8 +52,8 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "license": DATA_LICENSE,
         "report_issue": REPORT_ISSUE,
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
-        # Derived from the data, never build time (audit T8/M5): the newest of the deal feed's updated_at and every rate's verified_at.
-        "feed_updated_at": latest_checked_at([feed_updated, _av.get("collected_at")] + [r.get("verified_at") for r in data["rates"]]),
+        # Derived from price checks only (audit T8/M5). availability collected_at is reported separately.
+        "feed_updated_at": latest_checked_at([feed_updated] + [r.get("verified_at") for r in data["rates"]]),
         "generation_id": _av.get("generation_id"),
         # Scout wider-GPU batch (scripts/import_scout_wider.py): its own generation, carried alongside the availability one
         "wider_generation_id": (json.loads(_WM.read_text()) if _WM.is_file() else {}).get("wider_generation_id"),
