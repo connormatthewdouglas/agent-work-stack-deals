@@ -90,9 +90,26 @@ def parse(description: str) -> dict:
             if need == "gpu_hours":
                 gpu_h_total = bool(re.search(_GPU_H, m.group(0)) or re.match(r"\S+\s*x", m.group(0)))
     # "2 days" on a GPU job = 48 wall-clock hours (only when no hours were given and a GPU is mentioned).
-    md = re.search(_NUM + r"\s*(?:full\s+)?days?\b", text)
-    if md and "gpu_hours" not in qty and ("gpu" in comps or re.search(GPU_MODEL_RE, text)):
-        qty["gpu_hours"] = _n(md.group(1), md.group(2)) * 24
+    hours_conv = None
+    gpu_ctx = "gpu" in comps or re.search(GPU_MODEL_RE, text)
+    # "10 hours/day for 30 days" = 10 x 30 = 300 h (Gauge #61 N2: never drop the days silently).
+    mr = re.search(_NUM + r"\s*(?:gpu[-\s]*)?(?:hours?|hrs?|h)\s*(?:/\s*day|per\s+day|a\s+day|each\s+day|daily)\b", text)
+    md = re.search(_NUM + r"\s*(?:full\s+)?days?\b(?!\s*(?:/|per\b))", text)
+    if mr and gpu_ctx:
+        rate = _n(mr.group(1), mr.group(2))
+        md2 = re.search(_NUM + r"\s*(?:full\s+)?days?\b", text[mr.end():])
+        if md2:
+            days = _n(md2.group(1), md2.group(2))
+            qty["gpu_hours"] = rate * days
+            gpu_h_total = bool(re.search(_GPU_H, mr.group(0)))
+            hours_conv = f"{rate:g} hours/day x {days:g} days = {rate * days:,g} hours"
+        else:
+            qty.pop("gpu_hours", None)
+            hours_conv = f"'{mr.group(0).strip()}' is a per-day rate with no number of days; give the days (e.g. 'for 30 days') or total hours"
+    elif md and "gpu_hours" not in qty and gpu_ctx:
+        days = _n(md.group(1), md.group(2))
+        qty["gpu_hours"] = days * 24
+        hours_conv = f"{days:g} days = {days * 24:,g} wall-clock hours"
     # "100 GB" alone is only proxy traffic when proxies are mentioned; GB of VRAM etc. is not traffic.
     if "proxy_gb" in qty and "proxy" not in comps:
         qty.pop("proxy_gb")
@@ -135,7 +152,7 @@ def parse(description: str) -> dict:
         if need in qty and c not in comps and c not in excluded:
             comps.append(c); matched.setdefault(c, f"quantity: {qty[need]:g}")
     return {"components": comps, "quantities": qty, "model_size_b": size, "gpu_model": gm, "gpu_count": gc, "gpu_count_text": gc_text, "gpu_count_error": gc_err,
-            "gpu_hours_are_total": gpu_h_total, "js_rendering": js,
+            "gpu_hours_are_total": gpu_h_total, "hours_conversion": hours_conv, "js_rendering": js,
             "monthly_budget_usd": budget, "matched": matched, "excluded": excluded}
 
 
@@ -239,6 +256,9 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
     if p["gpu_count_error"]:
         raise stack.StackError(p["gpu_count_error"])
     gpus = p["gpu_count"] or 1
+    if gpu_hours is None and (q.get("gpu_hours") or 0) > stack.MAX_GPU_HOURS_MONTH:
+        raise stack.StackError(f"parsed {q['gpu_hours']:,g} hours from the description; hours must be 0-{stack.MAX_GPU_HOURS_MONTH:,} "
+                               "(the same cap as the structured gpu_hours field)")
     # "N gpu hours" is the total across GPUs; plain "N hours" is wall-clock per GPU. A structured gpu_hours is GPU-hours.
     gpu_h_total = p["gpu_hours_are_total"] or gpu_hours is not None
     js = p["js_rendering"] if js_rendering is None else js_rendering
@@ -255,7 +275,13 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
     excluded = before - len(sdata["offers"])
     gdata = copy.deepcopy(gpu_data) if gpu_data else None
     assumptions = []
+    owner_rates: list[dict] = []
     if gdata:
+        from .owner_hold import is_held
+        def _who(r):
+            return r.get("advertiser") or r.get("vendor")
+        owner_rates = [r for r in gdata.get("rates") or [] if is_held(_who(r))]
+        gdata["rates"] = [r for r in gdata.get("rates") or [] if not is_held(_who(r))]
         n0 = len(gdata.get("rates") or [])
         gdata["rates"] = [r for r in gdata.get("rates") or [] if not r.get("deal_id") or r["deal_id"] in allowed]
         excluded += n0 - len(gdata["rates"])
@@ -274,6 +300,9 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             line["gpu_count"] = gpus
             if p["gpu_count_text"]:
                 line["gpu_count_note"] = f"{gpus} GPU(s) parsed from '{p['gpu_count_text']}'"
+            if owner_rates:
+                line["held"] = [{"vendor": r.get("advertiser") or r.get("vendor"), "gpu": r.get("gpu"),
+                                 "reason": "owner_hold"} for r in owner_rates]
             if not gdata:
                 lines.append({**line, "status": "no_data", "note": NO_DATA, "choice": None, "monthly_cost_usd": None}); continue
             if size:
@@ -284,14 +313,23 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                                    "quantized models need less, full fine-tuning needs several times more.")
             hours = q.get("gpu_hours")
             per_gpu = (hours / gpus if gpu_h_total else hours) if hours else None
+            if p.get("hours_conversion") and gpu_hours is None:
+                assumptions.append(p["hours_conversion"])
+            if per_gpu and per_gpu > 730:
+                assumptions.append(f"{per_gpu:,g} hours per GPU is more than one month (730 h); the cost shown is for the whole run, not per month")
             if p["gpu_count_text"]:
                 assumptions.append(f"{gpus} GPU(s) (parsed from '{p['gpu_count_text']}')"
                                    + (f"; {hours:,g} GPU-hours total = {per_gpu:,g} h per GPU" if hours and gpu_h_total
                                       else f"; {hours:,g} wall-clock hours x {gpus} GPU(s)" if hours else ""))
             opts = stack._gpu_options(gdata, per_gpu or 1, gpu_model, manual, gpus=gpus)
+            if held := stack.held_serverless(gdata, gpu_model):  # shared serverless rule: listed with reason, never priced
+                line["held_serverless"], line["excluded_serverless"] = held, len(held)
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
-            opts.sort(key=lambda x: (x.get("in_stock") is False, x["monthly_cost_usd"], x["vendor"] or ""))
+            opts.sort(key=lambda x: (x.get("in_stock") is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or ""))
+            if p["gpu_count"] is None:  # no GPU count in the request: 1 GPU, said out loud
+                from .gpu import NO_GPU_COUNT_ASSUMPTION
+                assumptions.append(NO_GPU_COUNT_ASSUMPTION)
             if max_data_age_hours is None and opts:  # Gauge re28: > 168 h prices never rank by default
                 from . import data_age as _da
                 opts, old = _da.split_current(opts, None, now)

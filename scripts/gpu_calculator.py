@@ -39,21 +39,42 @@ def write_history(gen) -> dict:
 from core.deals import latest_checked_at  # noqa: E402
 
 
+def _held_paragraph(esc, held: list[dict]) -> str:
+    """Owner holds are temporarily held. Other holds stay the stale/thin list."""
+    owner, rest, seen = [], [], set()
+    for h in held or []:
+        if h.get("reason") == "owner_hold":
+            if h.get("vendor") not in seen:
+                seen.add(h.get("vendor"))
+                owner.append(h)
+        else:
+            rest.append(h)
+    bits = []
+    if owner:
+        links = ", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a>' for h in owner)
+        bits.append(f"Temporarily held, not a live verified price (never ranked): {links}.")
+    stale = ", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a> (vendor page last updated {esc(h.get("page_last_updated") or "not stated")})' for h in rest)
+    bits.append(f"Held out as stale (published prices not current, never ranked): {stale or 'none'}.")
+    return " ".join(bits)
+
+
 def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     data = build_rates(deals)
     if data["problems"]:  # invalid pricing records fail the build instead of silently dropping rates
         raise SystemExit("gpu pricing records invalid:\n  " + "\n  ".join(data["problems"]))
-    try:  # Gauge re32: carry Scout's generation and bump feed_updated_at on every availability import
+    try:  # availability has its own stamp; it must not move feed_updated_at
         _av = json.loads((Path(gen.ROOT) / "data" / "gpu_availability" / "latest.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         _av = {}
+    # Ranked rows only. Held vendors are not a live verification, so they cannot bump the price stamp.
+    price_stamp = latest_checked_at([feed_updated] + [r.get("verified_at") for r in data["rates"]])
     payload = {
         "schema": "lantern-works-gpu-prices/1",
         "license": DATA_LICENSE,
         "report_issue": REPORT_ISSUE,
         "source_feed": f"{gen.BASE}/api/v1/deals.json",
-        # Derived from the data, never build time (audit T8/M5): the newest of the deal feed's updated_at and every rate's verified_at.
-        "feed_updated_at": latest_checked_at([feed_updated, _av.get("collected_at")] + [r.get("verified_at") for r in data["rates"]]),
+        # Newest ranked verified_at (or the deal feed time). Not wall-clock, not availability_collected_at, not a held row.
+        "feed_updated_at": price_stamp,
         "generation_id": _av.get("generation_id"),
         # Scout wider-GPU batch (scripts/import_scout_wider.py): its own generation, carried alongside the availability one
         "wider_generation_id": (json.loads(_WM.read_text()) if _WM.is_file() else {}).get("wider_generation_id"),
@@ -69,7 +90,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
             "A daily job re-reads every source_url (robots.txt respected) and updates a price only where it parsed it from the vendor's own page or API; verified_at is when the price was last parsed, checked_at the last attempt. A rate not re-verified for 7 days is held (held_stale) and never ranked. Price history: /api/v1/gpu-prices/history.json.",
             "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
-            "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
+            "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. An owner_hold entry is temporarily held: the data file is unchanged, and the price is not a live verified rate. price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
             "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
             "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"not published\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
             REPORT_ISSUE_NOTE,
@@ -85,8 +106,22 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     return payload
 
 
+def _prices_unchanged(prev: dict, payload: dict) -> bool:
+    """True when ranked rates and holds are the same. A regen then keeps feed_updated_at."""
+    return all(prev.get(k) == payload.get(k) for k in ("rates", "held_stale", "vendors", "unpriced"))
+
+
 def write(gen, deals: list[dict], feed_updated: str) -> str:
     payload = build_payload(gen, deals, feed_updated)
+    if API_PATH.is_file():
+        try:
+            prev = json.loads(API_PATH.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            prev = None
+        if isinstance(prev, dict) and _prices_unchanged(prev, payload) and prev.get("feed_updated_at"):
+            payload["feed_updated_at"] = prev["feed_updated_at"]
+            if prev.get("prices_verified_through"):
+                payload["prices_verified_through"] = prev["prices_verified_through"]
     write_history(gen)
     API_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     esc = gen.esc
@@ -101,7 +136,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     api = f"{gen.BASE}/api/v1/gpu-prices.json"
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU cost calculator</nav>
   <h1>GPU cost calculator</h1>
-  <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost, cheapest among tracked providers first (vendors we don't track may cost less); referral links don't change the order.</p>
+  <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost, cheapest among tracked providers first (vendors we don't track may cost less). The named rate is a single-GPU instance; serverless and multi-GPU minimum rows stay in the table and are not named. Referral links don't change the order.</p>
   <form id="calc" onsubmit="return false" aria-label="GPU cost inputs">
     <label>GPU hours per month <input id="hours" type="number" min="0.01" max="{MAX_GPU_HOURS_MONTH}" step="1" value="100" inputmode="numeric"></label>
     <label>GPUs <input id="gpus" type="number" min="1" max="64" step="1" value="1" inputmode="numeric"></label>
@@ -124,11 +159,12 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <ul>{credits}</ul>
   <h2>Not priced yet</h2>
   <p>These GPU deals have no verified, structured GPU price in the feed, so they're left out instead of guessed: {unpriced}.</p>
-  <p>Held out as stale (published prices not current, never ranked): {", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a> (vendor page last updated {esc(h.get("page_last_updated") or "not stated")})' for h in payload["held_stale"]) or "none"}.</p>
+  <p>{_held_paragraph(esc, payload["held_stale"])}</p>
   <h2>For agents</h2>
   <p>Machine-readable rates: <a href="{api}">{api}</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). Inputs can be preset in the URL, e.g. <code>?hours=300&amp;gpu=A100</code>.</p>
   <script>
   const R={data_js}, H={HOURS_PER_MONTH};
+  __ELIG__
   const $=id=>document.getElementById(id), fmt=n=>"$"+n.toLocaleString("en-US",{{minimumFractionDigits:2,maximumFractionDigits:2}});
   const q=new URLSearchParams(location.search);
   for (const k of ["hours","gpus","gpu","vram"]) if (q.get(k)!==null) $(k).value=q.get(k);
@@ -170,8 +206,9 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     }}).sort((a,b)=>(a.old-b.old)||((a.tier_class==="reserved")-(b.tier_class==="reserved"))||((a.stock===false)-(b.stock===false))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
     // re28: a price older than {CURRENT_MAX_H} h never ranks or heads the summary; listed separately
     const cur=rows.filter(r=>!r.old&&r.tier_class!=="reserved"), curIn=cur.filter(r=>r.stock!==false), nOld=rows.filter(r=>r.old).length;
-    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}${{r.stock===false?' <small class="oos">(out of stock when checked; ranked after available/unknown rows)</small>':r.stock===true?' <small>(in stock when checked)</small>':' <small>(stock unknown)</small>'}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
-    $("summary").textContent=!rows.length?"No priced option matches these filters.":cur.length?`${{rows.length}} options. Cheapest among tracked providers${{curIn.length?"":" (all matching rows out of stock when checked)"}}: ${{cur[0].advertiser}} ${{cur[0].gpu}} at ${{fmt(cur[0].cost)}}/month.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
+    const named=cur.filter(r=>headlineEligible(r, g)), pick=named[0];
+    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}${{r.stock===false?' <small class="oos">(out of stock when checked; ranked after available/unknown rows)</small>':r.stock===true?' <small>(in stock when checked)</small>':' <small>(stock unknown)</small>'}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}${{isServerlessRate(r)&&String(r.tier||"").toLowerCase().indexOf("serverless")<0?" [serverless]":""}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("summary").textContent=!rows.length?"No priced option matches these filters.":pick?`${{rows.length}} options. Cheapest among tracked providers${{curIn.length?"":" (all matching rows out of stock when checked)"}}: ${{pick.advertiser}} ${{pick.gpu}} at ${{fmt(pick.cost)}}/month.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):cur.length?`${{rows.length}} options. No rate with a GPU minimum of ${{g}} or fewer to name; serverless rows stay in the table.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
     const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
     $("permalink").href="?"+p;
   }}
@@ -179,6 +216,9 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   $("calc").addEventListener("input",()=>document.dispatchEvent(new CustomEvent("lw:event",{{detail:"calculator"}})),{{once:true}});
   </script>
 """
+    sys.path.insert(0, str(ROOT / "scripts")) if str(ROOT / "scripts") not in sys.path else None
+    from embed_page import eligibility_js  # noqa: E402
+    body = body.replace("__ELIG__", eligibility_js().rstrip())
     out = ROOT / PAGE_PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(gen.page_shell("GPU cost calculator — Lantern Works",

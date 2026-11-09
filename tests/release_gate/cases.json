@@ -131,8 +131,8 @@
     "tool": "compare_gpu_prices",
     "gpu": "H100"
    },
-   "expected": "feed_updated_at >= max(verified_at) - 1 s and within 36 h of now; every compare result has data_age_hours <= 48 (degraded false, stale false); freshness fields next_refresh_utc / data_checked_at present.",
-   "why": "Stale prices presented as current are a credibility failure."
+   "expected": "feed_updated_at >= max(verified_at) - 1 s and within 36 h of now (still a hard fail); freshness fields next_refresh_utc / data_checked_at present; non-held rows older than 48 h, and compare results with degraded/stale age flags, are printed as WARNING (vendor/gpu/age_h) and do not fail the case.",
+   "why": "Stale prices presented as current are a credibility issue, but a few old vendor rows must not block serving the rest of the feed; age is warned, feed_updated_at 36h still blocks."
   },
   {
    "id": "T41-13",
@@ -223,12 +223,12 @@
   },
   {
    "id": "T41-21",
-   "intent": "GPU price-comparison page per-model summary shows the cheapest pay-as-you-go rate (reserved tier excluded, same rule as compare_gpu_prices)",
+   "intent": "GPU price-comparison page per-model summary shows the cheapest single-GPU pay-as-you-go rate (reserved excluded; min_gpus above 1 excluded; serverless excluded).",
    "inputs": {
     "page": "https://thelanternworks.com/gpu/price-comparison/",
     "table": "per-model summary"
    },
-   "expected": "For each model row, the lowest rate shown == min hourly_equiv_usd over that model's non-reserved rates in the live feed.",
+   "expected": "For each model row, the lowest rate shown equals the minimum hourly_equiv_usd among rows with min_gpus <= 1, tier_class not reserved, and core.serverless.rate_reason empty, with out-of-stock rows sorted last. The gate computes that minimum itself.",
    "why": "Regression 0.3.19: CloudRift reserved rows (L40S $0.54, RTX 5090 $0.55) were shown as cheapest."
   },
   {

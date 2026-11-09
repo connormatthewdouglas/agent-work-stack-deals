@@ -91,8 +91,12 @@ def test_unlabelled_and_nvlink_variants_named_not_mixed():
     s = _page("a100", 100)
     # 0.3.27: unlabelled A100 80GB now has 4+ vendors (Thunder, Jarvislabs, Civo, E2E) so it is its own compared table, never mixed with SXM/PCIe
     sec = s.split("<h2>A100 80GB</h2>")[1].split("</table>")[0]
-    assert "Thunder Compute" in sec and "Civo" in sec and "SXM" not in sec and "Hyperstack A100 NVLink 80GB" in s
-    assert "Hyperstack H100 NVLink 80GB" in _page("h100", 100)
+    assert "Thunder Compute" in sec and "Civo" in sec and "SXM" not in sec
+    assert "Hyperstack A100 NVLink 80GB" not in s
+    assert "Temporarily held, not a live verified price: Hyperstack, Verda (formerly DataCrunch)." in s
+    h100 = _page("h100", 100)
+    assert "Hyperstack H100 NVLink 80GB" not in h100
+    assert "Temporarily held, not a live verified price: Hyperstack, Verda (formerly DataCrunch)." in h100
 
 
 def test_ovh_marked_ex_tax_and_index_page_linked():
@@ -419,6 +423,8 @@ def test_0330_mcp_stale_rows_unknown_not_ranked_last():
     assert "stale availability" not in fresh["summary"]
     assert "available when checked" not in stale["summary"] and "out of stock when checked" not in stale["summary"]
     # stale rows are not ranked out-of-stock-last: pure price order among non-reserved rows
+    # (#130: rows sold only as multi-GPU allocations are excluded for the 1-GPU default, never ranked)
+    assert all((r.get("min_gpus") or 1) <= 1 for r in stale["results"])
     p = [r["hourly_usd"] for r in stale["results"] if r["tier_class"] != "reserved"]
     assert p == sorted(p)
     if fresh["results"][0]["in_stock"] is True:

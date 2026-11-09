@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = Path(sys.argv[1] if len(sys.argv) > 1 else "/workspace/lantern-scout/out/feed_enriched_v2_latest.json")
 sys.path.insert(0, str(ROOT))
 from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours  # noqa: E402
+from core.owner_hold import hold_names, is_held  # noqa: E402
 
 OUT = ROOT / "data" / "gpu_availability" / "latest.json"
 KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_stock", "offer_count", "unrented_servers",
@@ -95,7 +96,17 @@ def _carry_reads(row: dict, ov: dict | None, regions: dict) -> None:
     row.update(rd)
 
 
+def _carried_held_rows(names: list[str]) -> list[dict]:
+    """Rows already on main for held vendors, unchanged. Loaded before the snapshot is hashed or parsed."""
+    if not OUT.is_file():
+        return []
+    rows = json.loads(OUT.read_text(encoding="utf-8")).get("rows") or []
+    return [r for r in rows if is_held(r.get("vendor"), names)]
+
+
 def main() -> None:
+    names = hold_names()
+    carried = _carried_held_rows(names)
     raw = SRC.read_bytes()
     checked = verify_manifests(raw)
     d = json.loads(raw.decode("utf-8"))
@@ -103,6 +114,8 @@ def main() -> None:
         raise SystemExit(f"Scout v{d.get('version')} snapshot refused: no manifest sha256 to verify it (set LW_SCOUT_MANIFESTS)")
     if str(d.get("version")) not in ("2", "2.5", "2.7", "2.9", "3.0", "3.1", "3.2"):  # v2.6 held: failed Gauge QA re18; v2.7, v2.9, v3.0 passed; v3.1 = v3.0 + generation_id; v3.2 = + feed_status/derived_from_regions
         raise SystemExit(f"expected Scout enrichment v2, got {d.get('version')}")
+    # Drop held vendors before the age check and before any row is rebuilt, so their new timestamps never land.
+    d["rows"] = [r for r in (d.get("rows") or []) if not is_held(r.get("vendor"), names)]
     snap = max((r.get("availability_checked_at") or "" for r in d.get("rows") or []), default="")
     age = age_hours(snap)
     if age is None or age > AVAIL_MAX_AGE_H:  # same refusal as Scout's enrich_feed_v2
@@ -114,6 +127,8 @@ def main() -> None:
         araw = ap.read_bytes()
         verify_manifests(araw, "availability_v2_latest.json")
         for a in json.loads(araw.decode("utf-8")).get("rows") or []:
+            if is_held(a.get("vendor"), names):
+                continue
             if a.get("region") == "all":
                 overall[(str(a.get("vendor")).lower(), a.get("gpu_model"), a.get("tier"))] = a
             raw_rows.append(a)
@@ -149,13 +164,19 @@ def main() -> None:
             raise SystemExit("Clore availability must be unrented_servers, never offer_count")
         if any(row[k] is not None for k in ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note")):
             rows.append(row)
+    rows.extend(carried)  # previous Hyperstack/Verda rows, same objects, no new timestamps
     doc = {"schema": "lantern-works-gpu-availability/1", "source": f"Lantern Scout availability collector v{d.get('version')} (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",
            "generation_id": d.get("generation_id") or (json.loads(araw.decode("utf-8")).get("generation_id") if ap.is_file() else None),
            "collected_at": max((r["availability_checked_at"] or "" for r in rows), default=None),
-           "imported_rows": len(rows), "rows": sorted(rows, key=lambda r: (r["vendor"], r["gpu"], r["tier"]))}
+           "imported_rows": len(rows), "owner_hold_carried": len(carried),
+           "rows": sorted(rows, key=lambda r: (r["vendor"], r["gpu"], r["tier"]))}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(f"availability rows={len(rows)} -> {OUT.relative_to(ROOT)}")
+    try:
+        dest = OUT.relative_to(ROOT)
+    except ValueError:
+        dest = OUT
+    print(f"availability rows={len(rows)} held_carried={len(carried)} -> {dest}")
 
 
 if __name__ == "__main__":

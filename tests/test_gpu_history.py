@@ -180,9 +180,11 @@ def test_committed_data_snapshots_and_history():
 
 
 def test_mcp_compare_include_history():
-    data = {"rates": build_rates([], [doc(rec())])["rates"]}
+    # The synthetic row has to be inside the 7-day price hold. A fixed 2026-11-01 stamp ages out and build_rates drops it.
+    fresh = (datetime.now(timezone.utc) - timedelta(hours=6)).replace(microsecond=0).isoformat()
+    row = rec(price=1.89, quote="$1.89", checked_at=fresh, verified_at=fresh)
     h = H.build_history([_snap("2026-11-01", 1.99), _snap("2026-11-03", 1.89)])
-    data = {"rates": build_rates([], [doc(rec(price=1.89, quote="$1.89"))])["rates"]}
+    data = {"rates": build_rates([], [doc(row)])["rates"]}
     out = core.compare_gpu_prices(data, "A100", 5, history=h)
     assert out["results"][0]["price_history"] == [{"date": "2026-11-01", "hourly_usd": 1.99, "status": "ranked"},
                                                   {"date": "2026-11-03", "hourly_usd": 1.89, "status": "ranked"}]
@@ -196,7 +198,8 @@ def test_freshness_check_warns_then_fails():
     spec = importlib.util.spec_from_file_location("fresh", Path(__file__).resolve().parents[1] / "scripts" / "check_gpu_freshness.py")
     F = importlib.util.module_from_spec(spec); spec.loader.exec_module(F)
     from core.gpu import load_vendor_files
-    last = min(max(datetime.fromisoformat(t) for t in (r["checked_at"], r.get("last_failed_check_at")) if t) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") for r in d["records"] if not r.get("stale"))
+    from core.owner_hold import is_held
+    last = min(max(datetime.fromisoformat(t) for t in (r["checked_at"], r.get("last_failed_check_at")) if t) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") and not is_held(d.get("vendor")) for r in d["records"] if not r.get("stale") and not is_held(r.get("vendor")))
     assert F.status(last + timedelta(hours=1))[0] == 0
     code, msgs = F.status(last + timedelta(hours=25))
     assert code == 0 and any("::warning::" in m for m in msgs)

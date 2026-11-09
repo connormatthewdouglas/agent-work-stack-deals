@@ -34,14 +34,30 @@ def test_pair_pages_pair_within_form_factor():
 
 
 def test_page_and_mcp_share_one_form_factor_rule():
-    """Gauge strat2: the page and MCP pick the same row per form factor (one out-of-stock rule), with interruptible marked."""
+    """Per-form lines match cheapest_by_form_factor(rows, gpus=1).
+
+    The engine skips min_gpus above 1 and serverless rows. Each list item must name a
+    price or say there is no single-GPU rate. The boilerplate paragraph is not enough.
+    """
     out = core.compare_gpu_prices(FEED, "H100", limit=25)
     picks = out["cheapest_by_form_factor"]
     assert all({"tier_class", "interruptible", "in_stock"} <= set(p) for p in picks)
     assert all(p["interruptible"] == (p["tier_class"] == "interruptible") for p in picks)
     assert "NVLink" in out["cheapest_by_form_factor_note"]
-    page = re.sub(r"<[^>]+>", " ", (ROOT / "gpu/h100-rental-price/index.html").read_text())
+    raw = (ROOT / "gpu/h100-rental-price/index.html").read_text()
+    block = raw[raw.index("by form factor"):raw.index("</ul>", raw.index("by form factor"))]
+    items = re.findall(r"<li>(.*?)</li>", block, re.S)
+    assert items
+    for item in items:
+        text = re.sub(r"<[^>]+>", " ", item)
+        assert "no single-GPU rate" in text or re.search(r"\$\d", text), text
+    page = re.sub(r"<[^>]+>", " ", raw)
     sec = page[page.index("by form factor"):][:3000]
-    for p in picks:
-        assert p["advertiser"] in sec and str(p["hourly_usd"]) in sec, p
     assert "NVLink names the" in sec
+    for p in picks:
+        row = next(r for r in FEED["rates"] if r["advertiser"] == p["advertiser"] and r["gpu"] == p["gpu"]
+                   and r.get("tier") == p.get("tier") and r["hourly_equiv_usd"] == p["hourly_usd"])
+        if (row.get("min_gpus") or 1) > 1:
+            assert str(p["hourly_usd"]) not in sec, p
+        else:
+            assert p["advertiser"] in sec and str(p["hourly_usd"]) in sec, p

@@ -20,11 +20,24 @@ def _live():
     return live_rate_count(_deals())
 
 
-def test_live_count_matches_api():
+def _pin_feed_clock(monkeypatch):
+    """Match the committed feed to the clock it was built with. The live 26h/36h gates do not use this.
+    A caller that already set LW_AVAIL_NOW (the scout-import rebuild) keeps that clock, so the count
+    includes the same held rows the pages were just built with."""
+    import os
+    if os.environ.get("LW_AVAIL_NOW"):
+        return
+    stamp = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["feed_updated_at"]
+    monkeypatch.setenv("LW_AVAIL_NOW", stamp)
+
+
+def test_live_count_matches_api(monkeypatch):
+    _pin_feed_clock(monkeypatch)
     assert _live() == len(json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["rates"])
 
 
-def test_homepage_leads_with_gpu_spread_and_install():
+def test_homepage_leads_with_gpu_spread_and_install(monkeypatch):
+    _pin_feed_clock(monkeypatch)
     t = (ROOT / "index.html").read_text()
     h1 = re.search(r"<h1>(.*?)</h1>", t).group(1)
     assert h1 == "GPU price comparison for agents, checked daily"
@@ -95,7 +108,8 @@ def test_no_hardcoded_rate_count_in_sources_or_docs():
     assert not bad, bad
 
 
-def test_rendered_rate_counts_all_equal_live_count():
+def test_rendered_rate_counts_all_equal_live_count(monkeypatch):
+    _pin_feed_clock(monkeypatch)
     live = _live()
     seen = 0
     for p in ROOT.rglob("*.html"):
