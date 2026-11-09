@@ -14,7 +14,7 @@
   "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
-  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
   "last_checked": "2026-11-09T20:52:02+00:00",
   "row_count": 4,
   "providers": [
@@ -56,47 +56,6 @@
       }
     ],
     "spot-community": [
-      {
-        "vram_gb": 24,
-        "provider": "Lium",
-        "gpu": "RTX 3090",
-        "tier": "Marketplace secure node",
-        "tier_class": "marketplace",
-        "bucket": "spot-community",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 0.16,
-        "unit": "hour",
-        "price_usd": 0.16,
-        "gpu_count": 8,
-        "server_hourly_usd": 1.28,
-        "min_gpus": 8,
-        "price_status": "listed",
-        "verified_at": "2026-11-05T02:46:23+00:00",
-        "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-05T02:46:23+00:00: 11 available RTX 3090 secure nodes, 34 GPUs free; lowest price_per_gpu_hour $0.16 (min rental 8 GPUs, Chiyoda City, Japan)",
-        "availability": {
-          "status": "unknown (stale availability, last checked 2026-11-04 21:46 ET)",
-          "in_stock": null,
-          "availability_stale": true,
-          "checked_at": "2026-11-05T02:46:23+00:00",
-          "max_age_hours": 8.0,
-          "origin": "record",
-          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
-          "source": "https://lium.io/api/public/v1/nodes",
-          "availability_expires_at": "2026-11-05T10:46:23Z",
-          "stock_read_at": "2026-11-05T02:46:23+00:00",
-          "price_read_at": "2026-11-05T02:46:23+00:00",
-          "price_at_claim_usd": 0.16,
-          "gpu_count": 8
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Marketplace secure node",
-          "vram_gb": 24
-        }
-      },
       {
         "vram_gb": 24,
         "provider": "Lium",

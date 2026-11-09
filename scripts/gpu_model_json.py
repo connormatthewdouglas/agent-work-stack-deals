@@ -63,22 +63,19 @@ def _group(r: dict) -> tuple:
     return (r.get("vram_gb") or 0, _ff(r), r.get("tier") or "unknown")
 
 
-def _key(r):
-    return (r.get("hourly_equiv_usd") or 0, r["advertiser"], r["gpu"], r["tier"])
-
-
 def build(slug: str, fam: dict, base: str) -> dict:
-    rates = sorted(fam["rates"], key=lambda r: (bucket(r) == "reserved",) + _key(r))
+    from gpu_pages import headline_eligible, site_rank_key
+    rates = sorted(fam["rates"], key=site_rank_key)
     cheapest = {}
     for b in BUCKETS:
-        if b == "reserved":
+        if b in ("reserved", "serverless"):
             continue
-        for v in sorted({r.get("vram_gb") for r in rates if bucket(r) == b}, key=lambda x: x or 0):
-            rs = [r for r in rates if bucket(r) == b and r.get("vram_gb") == v]
+        for v in sorted({r.get("vram_gb") for r in rates if bucket(r) == b and headline_eligible(r)}, key=lambda x: x or 0):
+            rs = [r for r in rates if bucket(r) == b and r.get("vram_gb") == v and headline_eligible(r)]
             groups = {}
             for r in rs:
                 groups.setdefault(_group(r), []).append(r)
-            best = sorted((min(g, key=_key) for g in groups.values()), key=_key)
+            best = sorted((min(g, key=site_rank_key) for g in groups.values()), key=site_rank_key)
             for r in best:
                 row = {"vram_gb": v, **_row(r)}
                 row["tier"] = r.get("tier") or "unknown"
@@ -95,7 +92,10 @@ def build(slug: str, fam: dict, base: str) -> dict:
                                   "SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. "
                                   "form_factor is 'unknown' when the source does not say."),
             "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
-            "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+            "reserved_policy": ("reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/"
+                                "active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. "
+                                "A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule "
+                                "(including min_gpus above 1). Those rows stay under rows."),
             "last_checked": max(ver) if ver else None, "row_count": len(rates),
             "providers": sorted({r["advertiser"] for r in rates}),
             "cheapest": cheapest, "rows": [_row(r) for r in rates],
@@ -124,7 +124,9 @@ def write(gen, rates: list[dict]) -> list[Path]:
         idx.append({"model": doc["model"], "slug": slug, "url": doc["url"], "row_count": doc["row_count"],
                     "providers": len(doc["providers"]), "last_checked": doc["last_checked"]})
     index = {"schema": "lantern-works-gpu-model-index/1", "license": DATA_LICENSE,
-             "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json; reserved rows excluded from cheapest.",
+             "description": ("Per-model GPU price views (small JSON). Same data as gpu-prices.json. "
+                             "cheapest omits reserved and serverless buckets, and omits a bucket when no headline-eligible row remains "
+                             "(min_gpus above 1). Those rows stay under rows."),
              **gen_fields, "models": idx}
     gen.assert_public_clean(index)
     (OUT / "index.json").write_text(json.dumps(index, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

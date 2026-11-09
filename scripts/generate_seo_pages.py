@@ -1547,7 +1547,7 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("coverage", ("scripts/coverage_page.py",)),
     ("reports", ("scripts/reports_page.py",)),
     ("install", ("scripts/install_page.py",)),
-    ("embed", ("scripts/embed_page.py",)),
+    ("embed", ("scripts/embed_page.py", "embed/rank.js")),
     ("stack", ("scripts/stack_page.py",)),
     ("cost/", ("scripts/cost_pages.py",)),
     ("cost", ("scripts/cost_pages.py",)),
@@ -1705,6 +1705,15 @@ def _depends_on_deals_feed(url_path: str) -> bool:
 
 def _source_paths_for(url_path: str) -> list[str]:
     p = url_path.strip("/")
+    # Vendor-vs GPU pages and the three gpu_pages comparisons live under compare/ but are not built by compare_pages.py.
+    if p.endswith("-gpu-prices"):
+        return ["scripts/spec_pages.py", "scripts/gpu_pages.py"]
+    if p in {
+        "compare/runpod-vs-thunder-compute-vs-modal-h100",
+        "compare/cheapest-gpu-per-gb-vram",
+        "compare/runpod-community-vs-secure-cloud-prices",
+    }:
+        return ["scripts/gpu_pages.py"]
     if not p:
         return ["scripts/home_page.py", "scripts/generate_seo_pages.py", "deals.json"]
     for prefix, sources in _SITEMAP_SOURCE_SCRIPTS:

@@ -14,7 +14,7 @@
   "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
-  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
   "last_checked": "2026-11-09T20:53:38+00:00",
   "row_count": 18,
   "providers": [
@@ -303,38 +303,6 @@
           "tier": "On-demand (Secure Cloud)",
           "vram_gb": 80
         }
-      },
-      {
-        "vram_gb": 80,
-        "provider": "CoreWeave",
-        "gpu": "A100",
-        "tier": "On-demand, 8-GPU instance",
-        "tier_class": "on-demand",
-        "bucket": "on-demand",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 2.7,
-        "unit": "hour",
-        "price_usd": 2.7,
-        "gpu_count": 8,
-        "server_hourly_usd": 21.6,
-        "min_gpus": 8,
-        "price_status": "listed",
-        "verified_at": "2026-11-09T20:50:37+00:00",
-        "source_url": "https://www.coreweave.com/pricing",
-        "quote": "NVIDIA A100 On-Demand Price: $21.60 / Hour",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "On-demand, 8-GPU instance",
-          "vram_gb": 80
-        }
       }
     ],
     "spot-community": [
@@ -447,74 +415,6 @@
         "group": {
           "form_factor": "SXM",
           "tier": "On-demand (Community Cloud)",
-          "vram_gb": 80
-        }
-      }
-    ],
-    "serverless": [
-      {
-        "vram_gb": 80,
-        "provider": "Modal",
-        "gpu": "A100",
-        "tier": "Serverless, preemptible (per second)",
-        "tier_class": "interruptible",
-        "bucket": "serverless",
-        "interruptible": true,
-        "hourly_usd_per_gpu": 2.4984,
-        "unit": "hour",
-        "price_usd": 2.4984,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-09T20:51:19+00:00",
-        "source_url": "https://modal.com/pricing",
-        "quote": "Nvidia A100, 80 GB $ 0.000694 / sec",
-        "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Serverless, preemptible (per second)",
-          "vram_gb": 80
-        }
-      }
-    ],
-    "monthly": [
-      {
-        "vram_gb": 80,
-        "provider": "Ucartz",
-        "gpu": "A100",
-        "tier": "Dedicated server (monthly)",
-        "tier_class": "dedicated-monthly",
-        "bucket": "monthly",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 2.1427,
-        "unit": "month",
-        "price_usd": 1564.16,
-        "gpu_count": 2,
-        "server_hourly_usd": 4.2854,
-        "min_gpus": 2,
-        "price_status": "listed",
-        "verified_at": "2026-11-05T01:37:17+00:00",
-        "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
-        "quote": "EPYC 7443P + 2 x A100 80GB HIGH PERFORMANCE United States Details and locations 24 cores / 48 threads 2 x A100 80GB GPU 512 GB 2 x 3.84 TB NVMe 100 TB 10 Gbps 5 IPv4 $ 3,128.32 /mo",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Dedicated server (monthly)",
           "vram_gb": 80
         }
       }

@@ -119,8 +119,11 @@ def price_cell(gen, r) -> str:
     s = m(r["hourly_equiv_usd"])
     if r.get("price_status") == "marketplace":
         s += f" (median of {r['offer_count']} offers; lowest ${r['lowest_offer_usd']:g})"
-    if (r.get("min_gpus") or 1) > 1:
-        s += f" (sold as {r['min_gpus']}-GPU only; server {m(r['server_hourly_usd'])}/hr)" if r.get("server_hourly_usd") else f" (sold as {r['min_gpus']}-GPU only)"
+    phrase = gp.min_gpus_phrase(r)
+    if phrase:
+        n = gp.min_gpus_count(r)
+        extra = f"; server {m(r['server_hourly_usd'])}/hr" if r.get("server_hourly_usd") else ""
+        s += f" ({phrase}; sold only as {n}-GPU instances{extra})"
     if r.get("billing_unit") == "monthly":
         s = f"{m(r['price_usd'])}/mo monthly flat"
     if r.get("interruptible"):
@@ -194,36 +197,53 @@ def gpu_url(gen, fam: str) -> str:
     return f"{gen.BASE}/gpu/{slug(fam)}-rental-price/"
 
 
+def _single(rows):
+    """Headline rows only: single GPU, not reserved, not serverless. Core rank does not do this."""
+    return [r for r in rows if gp.headline_eligible(r)]
+
+
+def on_demand_head(rows) -> dict | None:
+    """Cheapest on-demand hourly headline row, in core price rank. Serverless and per-second never qualify."""
+    rs = _single(r for r in gp.rank_rates(rows) if bucket(r) == "On-demand" and r.get("billing_unit") == "hourly")
+    return rs[0] if rs else None
+
+
+def spot_head(rows) -> dict | None:
+    """Cheapest single-GPU spot/community/marketplace row, in core price rank."""
+    rs = _single(r for r in gp.rank_rates(rows) if bucket(r) == "Spot & community")
+    return rs[0] if rs else None
+
+
 def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     esc = gen.esc
     prices, changes, history = feeds["prices"], feeds["changes"], feeds["history"]
     ch = {c["key"]: c for c in changes["changes"]}
     prev = changes["previous_date"]
     vend = {v["vendor"]: v for v in prices["vendors"]}
-    by_b = {b: sorted([r for r in rows if bucket(r) == b], key=lambda r: r["hourly_equiv_usd"]) for b in BUCKETS}
-    od = [r for r in by_b["On-demand"] if r["billing_unit"] in ("hourly", "per-second")]
-    sp = by_b["Spot & community"]
+    by_b = {b: gp.rank_rates([r for r in rows if bucket(r) == b]) for b in BUCKETS}
+    od_row = on_demand_head(rows)
+    sp_row = spot_head(rows)
     nv = len({r["advertiser"] for r in rows if bucket(r) != "Reserved"})
     mv = max_verified(rows); day = mv[:10]
     canon = CANONICAL_OVERRIDE.get(fam, gpu_url(gen, fam))
     title = f"Rent {fam}: price today | Lantern Works"
-    desc = (f"{fam} rental from {m(od[0]['hourly_equiv_usd'])}/GPU-hr on-demand ({od[0]['advertiser']}) across {nv} tracked providers."
-            if od else f"{fam} rental prices across {nv} tracked providers.")
-    if sp:
-        desc += f" Spot/community from {m(sp[0]['hourly_equiv_usd'])}."
+    desc = (f"{fam} rental from {m(od_row['hourly_equiv_usd'])}/GPU-hr on-demand ({od_row['advertiser']}) across {nv} tracked providers."
+            if od_row else f"{fam} rental prices across {nv} tracked providers.")
+    if sp_row:
+        desc += f" Spot/community from {m(sp_row['hourly_equiv_usd'])}."
     desc += f" Checked {day}."
     body = [f'<nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/">GPU prices</a> › {esc(fam)}</nav>',
             f"<h1>Rent {esc(fam)}: price today</h1>",
             f'<p class="meta">Prices verified {ts(mv)} · {len(rows)} offers from {len({r["advertiser"] for r in rows})} vendors. Per GPU-hour, among tracked providers only.</p>']
-    ranked = sorted(gp.estimate(rows, gp.DEFAULT_HOURS), key=lambda r: ((r.get("tier_class") == "reserved"), r["hourly_equiv_usd"], r["advertiser"]))
+    ranked = gp.rank_rates(gp.estimate(rows, gp.DEFAULT_HOURS))
     split = gp._form_split(gen, ranked)  # Gauge Nov 1: same per-form lines (incl. H100 NVL) as /gpu/cheapest-<model>-rental/
     cards = []
-    if od:
-        r = od[0]
+    if od_row:
+        r = od_row
         extra = f" Sold as {r['min_gpus']}-GPU only ({m(r['server_hourly_usd'])}/hr per server)." if (r.get("min_gpus") or 1) > 1 and r.get("server_hourly_usd") else ""
         cards.append(f"<div class=\"card\"><h2>Cheapest on-demand among tracked providers</h2><p><strong>{m(r['hourly_equiv_usd'])}/GPU-hr</strong> verified {verified_html(r)} · {vendor_link(gen, r)} · {esc(r['gpu'])} · {esc(r['tier'])}.{extra}</p></div>")
-    if sp:
-        r = sp[0]
+    if sp_row:
+        r = sp_row
         note = " May be preempted." if r.get("interruptible") else ""
         if r.get("price_status") == "marketplace":
             note += f" Median of {r['offer_count']} offers; lowest ${r['lowest_offer_usd']:g}."
@@ -251,7 +271,8 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         for r in rs:
             ex = (vend.get(r["advertiser"]) or {}).get("extras") or {}
             ext = "; ".join(f"{k}: {esc(ex[k]['text'])}" if ex.get(k, {}).get("status") == "published" else f"{k}: not published / not verified" for k in ("egress", "storage"))
-            trs.append(f"<tr><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
+            srv = f" <strong>[serverless]</strong>" if gp.is_serverless(r) and "serverless" not in (r.get("tier") or "").lower() else ""
+            trs.append(f"<tr><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}{srv}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
                        f"<td data-label=\"Since {esc(prev)}\">{change_text(gen, ch, key(r), prev)}</td><td data-label=\"Egress / storage\"><small>{ext}</small></td><td data-label=\"Vendor quote\">{gp._quote_html(esc, r)}</td>"
                        f"<td data-label=\"Verified\">{verified_html(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
                        + f"<td data-label=\"Link\">{link_cell(gen, r)}</td></tr>")
@@ -275,10 +296,10 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
             continue
         body.append(f"<p><small>{esc(h['vendor'])} not shown: held until re-verified (vendor pricing page last updated {esc(h.get('page_last_updated') or 'unknown')}).</small></p>")
     faqs = []
-    if od:
-        faqs.append((f"What is the cheapest {fam} among tracked providers per hour?", f"Among tracked providers, {od[0]['advertiser']} at {m(od[0]['hourly_equiv_usd'])} per GPU-hour on-demand ({od[0]['tier']}), verified {od[0]['verified_at'][:10]}."))
-    if od and sp:
-        faqs.append((f"Is spot cheaper for {fam}?", f"The cheapest spot/community rate among tracked providers is {m(sp[0]['hourly_equiv_usd'])} ({sp[0]['advertiser']}) vs {m(od[0]['hourly_equiv_usd'])} on-demand. Spot or interruptible capacity may be preempted."))
+    if od_row:
+        faqs.append((f"What is the cheapest {fam} among tracked providers per hour?", f"Among tracked providers, {od_row['advertiser']} at {m(od_row['hourly_equiv_usd'])} per GPU-hour on-demand ({od_row['tier']}), verified {od_row['verified_at'][:10]}."))
+    if od_row and sp_row:
+        faqs.append((f"Is spot cheaper for {fam}?", f"The cheapest spot/community rate among tracked providers is {m(sp_row['hourly_equiv_usd'])} ({sp_row['advertiser']}) vs {m(od_row['hourly_equiv_usd'])} on-demand. Spot or interruptible capacity may be preempted."))
     faqs.append(("Are egress and storage included?", "No. Totals exclude storage, egress, extra vCPU and taxes; each vendor's published terms (or 'not published') are shown in the table."))
     faqs.append(("How often are prices checked?", "A daily job re-reads every vendor pricing page; a rate not re-verified for 7 days is held and never ranked."))
     fh, fld = faq_block(gen, faqs)
@@ -288,11 +309,15 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     sib = " · ".join(f'<a href="{gpu_url(gen, f)}">{esc(f)}</a>' for f in sorted(quals) if f != fam)
     body.append(f"<h2>More</h2><p>Other GPUs: {sib}</p><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data source: {feed_links(gen)}</p>")
     hourly = [r for r in rows if bucket(r) not in ("Monthly", "Reserved")]
+    # lowPrice is a headline. Multi-GPU minimums stay in the HTML table, not in this offer.
+    single_hr = [r for r in hourly if gp.headline_eligible(r)]
     ld = [{"@type": "Product", "name": f"NVIDIA {fam} GPU rental (per GPU-hour)",
-           "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": min(r["hourly_equiv_usd"] for r in hourly),
-                      "highPrice": max(r["hourly_equiv_usd"] for r in hourly), "offerCount": len(hourly),
+           "offers": {"@type": "AggregateOffer", "priceCurrency": "USD",
+                      **({"lowPrice": min(r["hourly_equiv_usd"] for r in single_hr),
+                          "highPrice": max(r["hourly_equiv_usd"] for r in single_hr)} if single_hr else {}),
+                      "offerCount": len(single_hr),
                       "offers": [{"@type": "Offer", "seller": {"@type": "Organization", "name": r["advertiser"]}, "price": r["hourly_equiv_usd"],
-                                  "priceCurrency": "USD", "url": r["source_url"], "description": r["tier"]} for r in hourly]}},
+                                  "priceCurrency": "USD", "url": r["source_url"], "description": r["tier"]} for r in single_hr]}},
           {"@type": "Dataset", "name": f"{fam} rental prices", "url": canon, "dateModified": mv,
            "distribution": [{"@type": "DataDownload", "contentUrl": f"{gen.BASE}/api/v1/gpu-prices.json", "encodingFormat": "application/json"}]}, fld]
     return write(gen, f"gpu/{slug(fam)}-rental-price", title, desc, canon, "\n".join(body), ld)
@@ -300,16 +325,35 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
 
 # ---------- vendor vs vendor ----------
 def cells(rates, vendor):
-    out = {}
+    grouped = {}
+    from core.gpu import split_by_form, form_of
     for r in rates:
         if r["advertiser"] != vendor or bucket(r) == "Reserved":
             continue
-        from core.gpu import split_by_form, form_of
         # gpu_poor #18: H100/A100 rows pair by form_factor (SXM with SXM, PCIe with PCIe), never across forms
         k = (bucket(r), f"{r.get('canonical_model') or r['gpu']} {form_of(r).replace('not stated', '(form not stated)')}" if split_by_form(r["gpu"]) else r["gpu"], r["vram_gb"])
-        if k not in out or r["hourly_equiv_usd"] < out[k]["hourly_equiv_usd"]:
-            out[k] = r
+        grouped.setdefault(k, []).append(r)
+    out = {}
+    for k, rs in grouped.items():
+        ranked = gp.rank_rates(rs)
+        eligible = [r for r in ranked if gp.headline_eligible(r)]
+        # Prefer a single-GPU instance. If the vendor only publishes an N-GPU row for this key, keep it and label it.
+        out[k] = (eligible or ranked)[0]
     return out
+
+
+def cheaper_line(sa: str, sb: str, ra: dict, rb: dict) -> str:
+    """FAQ sentence. A multi-GPU row carries its Nx GPU minimum label."""
+    def side(name, r):
+        phrase = gp.min_gpus_phrase(r)
+        extra = f" ({phrase})" if phrase else ""
+        return f"{name} {m(r['hourly_equiv_usd'])}{extra}"
+    if ra["hourly_equiv_usd"] == rb["hourly_equiv_usd"]:
+        lead = f"Tie at {m(ra['hourly_equiv_usd'])}"
+    else:
+        winner = sa if ra["hourly_equiv_usd"] < rb["hourly_equiv_usd"] else sb
+        lead = f"{winner} is cheaper in our tracked rates"
+    return f"{lead}: {side(sa, ra)} vs {side(sb, rb)} per GPU-hour."
 
 
 def write_pair(gen, a, b, feeds, quals) -> str | None:
@@ -372,10 +416,7 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
             lines.append(f"{k}: " + (f"{esc(e['text'])} (<a href=\"{esc(e['source_url'])}\">source</a>)" if e.get("status") == "published" else "not published / not verified"))
         return f"<div class=\"card\"><h3>{esc(short_vendor(v))}</h3><p>" + "<br>".join(lines) + "</p></div>"
     body.append("<h2>Billing &amp; extras</h2>" + bill(a) + bill(b))
-    faqs = [(f"Is {sa} or {sb} cheaper for {k[1]} ({k[0]})?",
-             (f"Tie at {m(ca[k]['hourly_equiv_usd'])}" if ca[k]["hourly_equiv_usd"] == cb[k]["hourly_equiv_usd"] else
-              f"{sa if ca[k]['hourly_equiv_usd'] < cb[k]['hourly_equiv_usd'] else sb} is cheaper in our tracked rates") +
-             f": {sa} {m(ca[k]['hourly_equiv_usd'])} vs {sb} {m(cb[k]['hourly_equiv_usd'])} per GPU-hour.") for k in shared[:3]]
+    faqs = [(f"Is {sa} or {sb} cheaper for {k[1]} ({k[0]})?", cheaper_line(sa, sb, ca[k], cb[k])) for k in shared[:3]]
     faqs.append(("Are egress and storage included?", "No. Comparisons are compute-only; totals exclude storage, egress, extra vCPU and taxes. See Billing & extras."))
     fh, fld = faq_block(gen, faqs)
     body.append(__import__("gpu_pages").accuracy_html(gen, [ca[k] for k in shared] + [cb[k] for k in shared]))
@@ -383,9 +424,15 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
     body.append("<h2>FAQ</h2>" + fh + f"<h2>More</h2><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data: {feed_links(gen)}</p>")
     def prod(v, c):
         hr = [c[k] for k in shared if k[0] not in ("Monthly",)]
-        return {"@type": "Product", "name": f"{short_vendor(v)} GPU rental (per GPU-hour)",
-                "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": min(r["hourly_equiv_usd"] for r in hr), "highPrice": max(r["hourly_equiv_usd"] for r in hr),
-                           "offerCount": len(hr), "offers": [{"@type": "Offer", "price": r["hourly_equiv_usd"], "priceCurrency": "USD", "url": r["source_url"], "description": f"{r['gpu']} {r['vram_gb']}GB {r['tier']}"} for r in hr]}}
+        single_hr = [r for r in hr if gp.headline_eligible(r)]
+        agg = {"@type": "AggregateOffer", "priceCurrency": "USD"}
+        if single_hr:
+            agg["lowPrice"] = min(r["hourly_equiv_usd"] for r in single_hr)
+            agg["highPrice"] = max(r["hourly_equiv_usd"] for r in single_hr)
+        agg["offerCount"] = len(single_hr)
+        agg["offers"] = [{"@type": "Offer", "price": r["hourly_equiv_usd"], "priceCurrency": "USD", "url": r["source_url"],
+                          "description": f"{r['gpu']} {r['vram_gb']}GB {r['tier']}"} for r in single_hr]
+        return {"@type": "Product", "name": f"{short_vendor(v)} GPU rental (per GPU-hour)", "offers": agg}
     ld = [{"@type": "ItemList", "itemListElement": [{"@type": "ListItem", "position": i + 1, "item": {"@type": "Organization", "name": v, "url": vend[v]["source_url"]}} for i, v in enumerate((a, b))]},
           prod(a, ca), prod(b, cb),
           {"@type": "Dataset", "name": f"{sa} vs {sb} GPU prices", "url": canon, "dateModified": mv,

@@ -19,6 +19,11 @@ Every rate in `api/v1/gpu-prices.json` carries these fields (since 0.5.0, T75):
 - `cheapest[bucket]` in model views has one row per (`vram_gb`, `form_factor`, `tier`) group, sorted by `vram_gb` then price,
   so SXM vs PCIe and Community vs Secure are never mixed in one cheapest row. Each cheapest row carries `group`, `verified_at` and `source_url`.
   Compare headline $/GPU-hour only within a group.
+- `cheapest` omits the `reserved` and `serverless` buckets. A row is serverless when `core.serverless.rate_reason` matches
+  (a `price_per_second_usd`, or serverless / flex / active-worker / per-second / scale-to-zero text on the tier, billing, or price basis).
+  Other bucket keys (`on-demand`, `spot-community`, `monthly`) are omitted when every row in that bucket fails the headline rule,
+  including `min_gpus` above 1. That is why `a100.json` has no `cheapest.monthly` and `l40.json` has no `cheapest.spot-community`.
+  The rows themselves stay in `rows`. Schema id remains `lantern-works-gpu-model-view/1`.
 
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
