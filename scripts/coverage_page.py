@@ -45,7 +45,8 @@ def _in_stock(r, now):
 
 
 def is_serverless(r: dict) -> bool:
-    return "serverless" in str(r.get("tier") or "").lower()
+    from core.serverless import rate_reason
+    return rate_reason(r) is not None
 
 
 def build(doc: dict, now: datetime | None = None, survey: dict | None = None) -> dict:

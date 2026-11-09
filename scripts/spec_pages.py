@@ -324,7 +324,27 @@ def cells(rates, vendor):
         # gpu_poor #18: H100/A100 rows pair by form_factor (SXM with SXM, PCIe with PCIe), never across forms
         k = (bucket(r), f"{r.get('canonical_model') or r['gpu']} {form_of(r).replace('not stated', '(form not stated)')}" if split_by_form(r["gpu"]) else r["gpu"], r["vram_gb"])
         grouped.setdefault(k, []).append(r)
-    return {k: gp.rank_rates(rs)[0] for k, rs in grouped.items()}
+    out = {}
+    for k, rs in grouped.items():
+        ranked = gp.rank_rates(rs)
+        eligible = [r for r in ranked if gp.headline_eligible(r)]
+        # Prefer a single-GPU instance. If the vendor only publishes an N-GPU row for this key, keep it and label it.
+        out[k] = (eligible or ranked)[0]
+    return out
+
+
+def cheaper_line(sa: str, sb: str, ra: dict, rb: dict) -> str:
+    """FAQ sentence. A multi-GPU row carries its Nx GPU minimum label."""
+    def side(name, r):
+        phrase = gp.min_gpus_phrase(r)
+        extra = f" ({phrase})" if phrase else ""
+        return f"{name} {m(r['hourly_equiv_usd'])}{extra}"
+    if ra["hourly_equiv_usd"] == rb["hourly_equiv_usd"]:
+        lead = f"Tie at {m(ra['hourly_equiv_usd'])}"
+    else:
+        winner = sa if ra["hourly_equiv_usd"] < rb["hourly_equiv_usd"] else sb
+        lead = f"{winner} is cheaper in our tracked rates"
+    return f"{lead}: {side(sa, ra)} vs {side(sb, rb)} per GPU-hour."
 
 
 def write_pair(gen, a, b, feeds, quals) -> str | None:
@@ -386,10 +406,7 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
             lines.append(f"{k}: " + (f"{esc(e['text'])} (<a href=\"{esc(e['source_url'])}\">source</a>)" if e.get("status") == "published" else "not published / not verified"))
         return f"<div class=\"card\"><h3>{esc(short_vendor(v))}</h3><p>" + "<br>".join(lines) + "</p></div>"
     body.append("<h2>Billing &amp; extras</h2>" + bill(a) + bill(b))
-    faqs = [(f"Is {sa} or {sb} cheaper for {k[1]} ({k[0]})?",
-             (f"Tie at {m(ca[k]['hourly_equiv_usd'])}" if ca[k]["hourly_equiv_usd"] == cb[k]["hourly_equiv_usd"] else
-              f"{sa if ca[k]['hourly_equiv_usd'] < cb[k]['hourly_equiv_usd'] else sb} is cheaper in our tracked rates") +
-             f": {sa} {m(ca[k]['hourly_equiv_usd'])} vs {sb} {m(cb[k]['hourly_equiv_usd'])} per GPU-hour.") for k in shared[:3]]
+    faqs = [(f"Is {sa} or {sb} cheaper for {k[1]} ({k[0]})?", cheaper_line(sa, sb, ca[k], cb[k])) for k in shared[:3]]
     faqs.append(("Are egress and storage included?", "No. Comparisons are compute-only; totals exclude storage, egress, extra vCPU and taxes. See Billing & extras."))
     fh, fld = faq_block(gen, faqs)
     body.append(__import__("gpu_pages").accuracy_html(gen, [ca[k] for k in shared] + [cb[k] for k in shared]))

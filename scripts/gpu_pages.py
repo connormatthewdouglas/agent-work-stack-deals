@@ -50,27 +50,28 @@ def min_gpus_phrase(r: dict) -> str:
 
 
 def is_serverless(r: dict) -> bool:
-    """True when the feed marks the row serverless or per-second/function pricing.
+    """True when core.serverless.rate_reason holds the row.
 
-    core.gpu.price_bucket returns 'serverless' when the tier says serverless (Modal's
-    'Serverless, preemptible (per second)', Koyeb's 'Serverless GPU instance (per-second
-    billing)' even though Koyeb's billing_unit is hourly). billing_unit 'per-second' is the
-    feed's own per-second flag. A billing or tier line that says per-second or function is
-    the same class.
+    That is the same rule compare_gpu_prices uses: price_per_second_usd, or SERVERLESS_RE
+    on tier, billing_unit, billing, price_basis_label, price_basis, or tier_class.
+    The word "function" alone is not a signal. embed/rank.js isServerlessRate ports this.
     """
-    from core.gpu import price_bucket
-    if price_bucket(r) == "serverless" or r.get("billing_unit") == "per-second":
-        return True
-    blob = f"{r.get('billing') or ''} {r.get('tier') or ''}".lower()
-    return "per-second" in blob or "per second" in blob or "function" in blob
+    from core.serverless import rate_reason
+    return rate_reason(r) is not None
 
 
-def headline_eligible(r: dict) -> bool:
-    """Row may be a cheapest/lowest/per-form/JSON-LD/embed/calculator headline.
+def headline_eligible(r: dict, gpus: int = 1) -> bool:
+    """Row may be named at a requested GPU count.
 
-    Single GPU, not reserved, not serverless. Core's rank does not apply this filter.
+    Static headlines pass gpus=1 (the default): min_gpus above 1 is out. The calculator
+    passes the selected count, so a row ranks when min_gpus <= that count. Reserved rows
+    and core.serverless.rate_reason rows are out at every count.
+
+    When core PR #130 is on main, compare_gpu_prices(..., gpus=) applies this inside the
+    engine. Until then the pages call this helper and keep their own price order.
     """
-    if min_gpus_count(r) > 1:
+    n = gpus if isinstance(gpus, int) and not isinstance(gpus, bool) and gpus >= 1 else 1
+    if min_gpus_count(r) > n:
         return False
     if (r.get("tier_class") or "on-demand") == "reserved":
         return False
@@ -220,13 +221,31 @@ def _tied_names(gen, rows, best) -> str:
     return gen.esc(tie_label(rows, best))
 
 
-def rank_rates(rows: list[dict]) -> list[dict]:
-    """core.deals.gpu_rate_rank_key. Price only: reserved last, out-of-stock last, then hourly price.
+def site_rank_key(r: dict) -> tuple:
+    """Price order for page generators. Same tuple compare_gpu_prices sorts by on this branch.
 
-    The key does not read min_gpus or affiliate. A cheaper N-GPU row stays ahead of a single-GPU row.
+    Reserved last, then the region-unresolved flag (pages do not set it, so it stays false),
+    then out of stock, then hourly price, advertiser, gpu. Affiliate is not an input.
+    min_gpus and serverless are not inputs either; headline_eligible applies those.
+
+    Core PR #130 ranks through compare_gpu_prices(data, gpu, gpus=N) and
+    cheapest_by_form_factor(rows, gpus). Switch call sites to that API once it is on main;
+    do not grow a second copy of the engine here.
     """
-    from core.deals import gpu_rate_rank_key
-    return sorted(rows, key=gpu_rate_rank_key)
+    from core.deals import out_of_stock, tier_class
+    return (
+        tier_class(r) == "reserved",
+        False,
+        out_of_stock(r),
+        r.get("hourly_equiv_usd"),
+        r.get("advertiser") or "",
+        r.get("gpu") or "",
+    )
+
+
+def rank_rates(rows: list[dict]) -> list[dict]:
+    """site_rank_key order. A cheaper N-GPU or serverless row stays ahead until a headline filter."""
+    return sorted(rows, key=site_rank_key)
 
 
 def first_single(rows: list[dict], *, payg_only: bool = True) -> dict | None:
@@ -241,9 +260,9 @@ def first_single(rows: list[dict], *, payg_only: bool = True) -> dict | None:
 def _pick_cheapest(rs: list[dict]) -> dict | None:
     """Single-GPU pay-as-you-go headline.
 
-    Order is core.deals.gpu_rate_rank_key. That key does not look at min_gpus or
-    serverless, so a cheaper N-GPU or serverless row would otherwise win. This pick
-    skips min_gpus > 1, reserved rows, and serverless or per-second rows.
+    Order is site_rank_key, the same price order as compare_gpu_prices on this branch.
+    The key does not look at min_gpus or serverless, so this pick keeps only
+    headline_eligible rows (min_gpus <= 1, not reserved, not core.serverless.rate_reason).
     """
     return first_single(rank_rates(rs), payg_only=True)
 
@@ -290,8 +309,10 @@ def form_factor_heads(rows: list[dict]) -> list[tuple[str, dict | None]]:
     """Per form, the single-GPU non-reserved row, or None when that form has only multi-GPU rows.
 
     Order for the rows that qualify is core.deals.cheapest_by_form_factor (out of stock last, then
-    hourly price). That helper does not look at min_gpus and returns nothing unless two forms remain,
-    so this passes it only single-GPU rows and, when one form is left, uses the same gpu_rate_rank_key.
+    hourly price). On this branch that helper does not look at min_gpus or serverless and returns
+    nothing unless two forms remain, so this passes it only headline_eligible rows and, when one
+    form is left, uses site_rank_key. #130's cheapest_by_form_factor(rows, gpus) will do the
+    filter in core; keep this site filter until that API is on main.
     A form that exists only as min_gpus > 1 is still listed, with no row.
     """
     from core.gpu import FORM_FACTOR_ORDER, form_of, split_by_form

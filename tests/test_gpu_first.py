@@ -31,7 +31,8 @@ def test_live_count_matches_api(monkeypatch):
     assert _live() == len(json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["rates"])
 
 
-def test_homepage_leads_with_gpu_spread_and_install():
+def test_homepage_leads_with_gpu_spread_and_install(monkeypatch):
+    _pin_feed_clock(monkeypatch)
     t = (ROOT / "index.html").read_text()
     h1 = re.search(r"<h1>(.*?)</h1>", t).group(1)
     assert h1 == "GPU price comparison for agents, checked daily"

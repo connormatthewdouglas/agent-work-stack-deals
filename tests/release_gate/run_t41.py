@@ -472,8 +472,7 @@ def _(f, ev):
 
 @case("T41-21")
 def _(f, ev):
-    # /gpu/price-comparison/ per-model summary: single-GPU pay-as-you-go headline.
-    # core rank does not skip min_gpus > 1; the page does. Reserved rates never win.
+    # /gpu/price-comparison/ per-model summary. Expected price is computed here, not via _pick_cheapest.
     tbl = cmp_txt.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
     rows = re.findall(r"<tr><td>(.*?)</td><td>(\d+)</td><td>.*?</td><td>(.*?)</td></tr>", tbl)
     if not rows: f.append("summary table not found"); return
@@ -481,21 +480,27 @@ def _(f, ev):
     for model_cell, _n, low in rows:
         name = html.unescape(re.sub(r"<[^>]+>", "", model_cell)).replace("(few verified offers)", "").strip()
         rs = [r for r in RATES if r["gpu"] == name or r["gpu"].startswith(name + " ")] if G.family_of(name) else [r for r in RATES if r["gpu"] == name]
-        # Page headlines use core price rank, then skip min_gpus > 1. The engine rank itself does not skip them.
-        sys.path.insert(0, str(REPO / "scripts"))
-        import gpu_pages as GP
-        picked = GP._pick_cheapest(rs)
+        # Independent of the page helper: min hourly among min_gpus <= 1, not reserved, not serverless, out of stock last.
+        from core.serverless import rate_reason
+        def _n(r):
+            n = r.get("min_gpus") or 1
+            return 1 if isinstance(n, bool) or not isinstance(n, int) or n < 1 else n
+        eligible = [r for r in rs if _n(r) <= 1 and D.tier_class(r) != "reserved" and not rate_reason(r) and r.get("hourly_equiv_usd") is not None]
+        eligible.sort(key=lambda r: (D.out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+        picked = eligible[0] if eligible else None
         low_txt = html.unescape(low)
         if picked is None:
             if "no single-GPU" not in low_txt:
                 f.append(f"{name}: no single-GPU pay-as-you-go rate, page shows {low_txt!r}")
             seen.append(f"{name}: no single-GPU rate")
             continue
+        if rate_reason(picked) or _n(picked) > 1 or D.tier_class(picked) == "reserved":
+            f.append(f"{name}: expected row failed eligibility {picked.get('advertiser')}")
         m = re.search(r"\$([\d,.]+)/(hr|mo|GPU-mo)", low_txt)
         got = float(m.group(1).replace(",", "")) if m else None
-        exp = picked["price_usd"]
-        if got is None or abs(got - exp) > 0.005 or (picked.get("min_gpus") or 1) > 1 or D.tier_class(picked) == "reserved":
-            f.append(f"{name}: page lowest {low_txt!r} != single-GPU {picked['advertiser']} ${exp}")
+        exp = picked["hourly_equiv_usd"]
+        if got is None or abs(got - exp) > 0.005:
+            f.append(f"{name}: page lowest {low_txt!r} != eligible min {picked['advertiser']} ${exp}")
         seen.append(f"{name}: {html.unescape(low)[:60]}")
     ev.update(rows=seen, page_fetched_at=cmp_at)
 

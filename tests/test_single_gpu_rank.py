@@ -1,9 +1,8 @@
-"""Single-GPU headlines go through core price rank and skip min_gpus above 1.
+"""Single-GPU headlines use the site price order and skip min_gpus above 1 and serverless rows.
 
-core.deals.gpu_rate_rank_key is price-only. It does not read min_gpus, so
-compare_gpu_prices still ranks a cheaper N-GPU row first. The site skips those
-rows when it names a single-GPU price. Affiliate status is not a rank input.
-Reserved rates are never the headline.
+site_rank_key matches compare_gpu_prices' tuple on this branch. It does not read
+min_gpus or serverless. headline_eligible does, via core.serverless.rate_reason.
+Affiliate status is not a rank input. Reserved rates are never the headline.
 """
 from __future__ import annotations
 
@@ -19,7 +18,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from core.deals import compare_gpu_prices, gpu_rate_rank_key  # noqa: E402
+from core.deals import compare_gpu_prices  # noqa: E402
+from core.serverless import rate_reason  # noqa: E402
 import gpu_pages  # noqa: E402
 import spec_pages  # noqa: E402
 from gpu_model_json import build  # noqa: E402
@@ -50,21 +50,18 @@ SPOT_MULTI = _row("Lium", 0.20, min_gpus=2, tier="Spot", tier_class="interruptib
 SPOT_SINGLE = _row("Hyperstack", 0.90, tier="Spot", tier_class="interruptible")
 
 
-def test_engine_rank_does_not_skip_min_gpus():
-    """The engine was not changed to exclude multi-GPU rows. A cheaper 8-GPU row still ranks first."""
-    data = {"rates": [SINGLE, MULTI, RESERVED], "feed_updated_at": NOW.isoformat()}
-    out = compare_gpu_prices(data, "H100", now=NOW, on_demand_only=False, include_reserved=True)
-    assert out["results"][0]["advertiser"] == "Vast"
-    assert out["results"][0]["min_gpus"] == 8
-    assert gpu_rate_rank_key(MULTI) < gpu_rate_rank_key(SINGLE)
-
-
 def test_rank_key_ignores_affiliate_and_min_gpus_value():
+    """Site price order matches the engine tuple and does not read affiliate or min_gpus."""
     a = _row("A", 1.0, affiliate=False)
     b = _row("A", 1.0, affiliate=True)
-    assert gpu_rate_rank_key(a) == gpu_rate_rank_key(b)
+    assert gpu_pages.site_rank_key(a) == gpu_pages.site_rank_key(b)
     hi = _row("A", 1.0, min_gpus=8)
-    assert gpu_rate_rank_key(a) == gpu_rate_rank_key(hi)
+    assert gpu_pages.site_rank_key(a) == gpu_pages.site_rank_key(hi)
+    data = {"rates": [SINGLE, MULTI, RESERVED], "feed_updated_at": NOW.isoformat()}
+    out = compare_gpu_prices(data, "H100", now=NOW, on_demand_only=False, include_reserved=True)
+    engine = [(r["advertiser"], r["gpu"]) for r in out["results"]]
+    site = [(r["advertiser"], r["gpu"]) for r in gpu_pages.rank_rates([SINGLE, MULTI, RESERVED])]
+    assert engine == site
 
 
 def test_gpu_pages_headline_skips_cheaper_multi_reserved_and_oos():
@@ -256,7 +253,7 @@ def test_calculator_and_home_js_share_rank_eligibility():
     for page in pages:
         assert slice_js in page.read_text(encoding="utf-8"), page
     calc = (ROOT / "tools" / "gpu-cost-calculator" / "index.html").read_text(encoding="utf-8")
-    assert "cur.filter(headlineEligible)" in calc
+    assert "headlineEligible(r, g)" in calc
     home = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "headlineEligible(r)" in home
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text(encoding="utf-8"))["rates"]
@@ -276,16 +273,17 @@ const rank = require(process.argv[1]);
 const cases = JSON.parse(process.argv[3]);
 const feed = JSON.parse(process.argv[4]);
 eval(process.argv[2]);
-const picks = cases.filter(headlineEligible).map(r => r.advertiser);
+const one = function(r){ return headlineEligible(r); };
+const picks = cases.filter(one).map(r => r.advertiser);
 const agree = function(rows){
   return rows.every(function(r){
-    return headlineEligible(r) === rank.headlineEligible(r) && isServerlessRate(r) === rank.isServerlessRate(r);
+    return one(r) === rank.headlineEligible(r) && isServerlessRate(r) === rank.isServerlessRate(r);
   });
 };
 process.stdout.write(JSON.stringify({
   picks: picks,
-  caseFlags: cases.map(headlineEligible),
-  feedFlags: feed.map(headlineEligible),
+  caseFlags: cases.map(one),
+  feedFlags: feed.map(one),
   agree: agree(cases) && agree(feed),
   head: rank.singleGpuHeadline(cases) && rank.singleGpuHeadline(cases).advertiser
 }));
@@ -320,8 +318,8 @@ def test_calculator_default_pick_skips_multi_gpu_and_serverless():
     """The generator and the published page name a single-GPU instance, not a cheaper serverless or min_gpus row."""
     py = (ROOT / "scripts" / "gpu_calculator.py").read_text(encoding="utf-8")
     page = (ROOT / "tools" / "gpu-cost-calculator" / "index.html").read_text(encoding="utf-8")
-    assert "cur.filter(headlineEligible)" in py
-    assert "cur.filter(headlineEligible)" in page
+    assert "headlineEligible(r, g)" in py
+    assert "headlineEligible(r, g)" in page
     src = re_search_script(page)
     i = src.index("const R=")
     _obj, end = json.JSONDecoder().raw_decode(src, i + len("const R="))
@@ -422,3 +420,184 @@ def test_embed_page_lowest_tracked_skips_multi_gpu_and_serverless():
 def re_search_script(page: str) -> str:
     import re
     return re.search(r"<script>\s*(const R=.*?)</script>", page, re.S).group(1)
+
+
+def _synth_serverless():
+    """QA's 13 synthetic rows: 10 used to disagree with rate_reason, 3 already agreed."""
+    base = dict(tier="On-demand", tier_class="on-demand", billing_unit="hourly", billing="billed per hour",
+                price_basis="on-demand list", price_basis_label="on-demand list price per GPU-hour")
+    def row(**kw):
+        r = dict(base)
+        r.update(kw)
+        return r
+    return [
+        ("price_per_second_usd", row(price_per_second_usd=0.001), True),
+        ("price_basis", row(price_basis="Serverless GPU"), True),
+        ("price_basis_label", row(price_basis_label="Serverless, preemptible"), True),
+        ("flex", row(tier="Flex workers"), True),
+        ("active_worker", row(tier="Active worker"), True),
+        ("scale_to_zero", row(billing="scale-to-zero"), True),
+        ("slash_sec", row(billing="$0.001/sec"), True),
+        ("per_sec", row(billing="per-sec"), True),
+        ("cloud_functions", row(billing="Cloud Functions pricing"), False),
+        ("function_calling", row(billing="function-calling ready"), False),
+        ("plain", row(), False),
+        ("modal", row(tier="Serverless, preemptible (per second)", tier_class="interruptible", billing_unit="per-second"), True),
+        ("koyeb", row(tier="Serverless GPU instance (per-second billing)"), True),
+    ]
+
+
+@pytest.mark.skipif(not shutil.which("node"), reason="node not installed")
+def test_serverless_parity_engine_python_and_js():
+    """core.serverless.rate_reason, gpu_pages.is_serverless, and rank.js isServerlessRate agree."""
+    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text(encoding="utf-8"))["rates"]
+    synth = [r for _name, r, _want in _synth_serverless()]
+    rows = feed + synth
+    node = r"""
+const fs = require("fs");
+const rank = require(process.argv[1]);
+const rows = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+process.stdout.write(JSON.stringify(rows.map(r => rank.isServerlessRate(r))));
+"""
+    path = ROOT / "tests" / ".serverless_parity.json"
+    path.write_text(json.dumps(rows), encoding="utf-8")
+    try:
+        proc = subprocess.run(
+            ["node", "-e", node, str(ROOT / "embed" / "rank.js"), str(path)],
+            capture_output=True, text=True,
+        )
+    finally:
+        path.unlink(missing_ok=True)
+    assert proc.returncode == 0, proc.stderr
+    js = json.loads(proc.stdout)
+    assert len(js) == len(rows)
+    mismatches = []
+    for i, (r, flag) in enumerate(zip(rows, js)):
+        engine = rate_reason(r) is not None
+        py = gpu_pages.is_serverless(r)
+        if engine != py or engine != flag:
+            label = r.get("advertiser") or r.get("tier") or r.get("billing") or i
+            mismatches.append((label, engine, py, flag))
+    assert not mismatches, mismatches[:12]
+    for name, r, want in _synth_serverless():
+        assert (rate_reason(r) is not None) is want, name
+        assert gpu_pages.is_serverless(r) is want, name
+
+
+def test_calculator_eligibility_follows_requested_gpu_count():
+    """min_gpus <= selected gpus. Serverless stays out at every count."""
+    py = (ROOT / "scripts" / "gpu_calculator.py").read_text(encoding="utf-8")
+    page = (ROOT / "tools" / "gpu-cost-calculator" / "index.html").read_text(encoding="utf-8")
+    src = re_search_script(page)
+    i = src.index("const R=")
+    _obj, end = json.JSONDecoder().raw_decode(src, i + len("const R="))
+    fresh = datetime.now(timezone.utc).isoformat()
+    multi = _row("Vast", 0.02, min_gpus=8, gpu="H100 SXM")
+    multi["gpu_count"] = 1
+    pair = _row("Thunder", 0.40, min_gpus=2, gpu="H100 SXM")
+    pair["gpu_count"] = 1
+    koyeb = _row("Koyeb", 0.01, gpu="H100 SXM", tier="Serverless GPU instance (per-second billing)")
+    single = _row("RunPod", 1.99, gpu="H100 SXM")
+    for r in (multi, pair, koyeb, single):
+        r["verified_at"] = fresh
+        r["redeem_url"] = r["source_url"]
+        r["deal_id"] = r["advertiser"]
+        r["basis"] = "listed"
+        r["billing"] = r.get("billing") or r["tier"]
+        r["affiliate"] = False
+    src = "const R=" + json.dumps([multi, pair, koyeb, single]) + src[end:]
+    stub = r"""
+const els={}; function el(id){ if(!els[id]) els[id]={id,value:"",checked:true,href:"",textContent:"",tBodies:[{innerHTML:""}],addEventListener(){}}; return els[id]; }
+globalThis.document={getElementById:el,dispatchEvent(){},addEventListener(){}};
+globalThis.CustomEvent=function(){}; globalThis.location={search:process.argv[process.argv.length-1]};
+"""
+    def run(q):
+        proc = subprocess.run(
+            ["node", "-", q],
+            input=stub + src + "\nconsole.log(JSON.stringify({summary:els.summary.textContent}));",
+            capture_output=True, text=True,
+        )
+        assert proc.returncode == 0, proc.stderr
+        return json.loads(proc.stdout)["summary"]
+    one = run("?hours=100&gpus=1&gpu=H100")
+    assert "RunPod" in one and "Koyeb" not in one and "Vast" not in one and "Thunder" not in one
+    two = run("?hours=100&gpus=2&gpu=H100")
+    assert "Thunder" in two and "Vast" not in two and "Koyeb" not in two
+    eight = run("?hours=100&gpus=8&gpu=H100")
+    assert "Vast" in eight and "Koyeb" not in eight
+    assert "headlineEligible(r, g)" in py
+
+
+@pytest.mark.skipif(not shutil.which("node"), reason="node not installed")
+def test_published_calculator_names_lium_when_gpu_count_covers_the_minimum():
+    """QA: 8x H100 names Lium $1,240, not RunPod $1,592. 2x L40S names Lium $76, not CloudRift $138."""
+    page = (ROOT / "tools" / "gpu-cost-calculator" / "index.html").read_text(encoding="utf-8")
+    src = re_search_script(page)
+    stub = r"""
+const els={}; function el(id){ if(!els[id]) els[id]={id,value:"",checked:true,href:"",textContent:"",tBodies:[{innerHTML:""}],addEventListener(){}}; return els[id]; }
+globalThis.document={getElementById:el,dispatchEvent(){},addEventListener(){}};
+globalThis.CustomEvent=function(){}; globalThis.location={search:process.argv[process.argv.length-1]};
+"""
+    def run(q):
+        proc = subprocess.run(["node", "-", q], input=stub + src + "\nconsole.log(els.summary.textContent);",
+                              capture_output=True, text=True)
+        assert proc.returncode == 0, proc.stderr
+        return proc.stdout.strip()
+    h1 = run("?hours=100&gpus=1&gpu=H100&flat=0")
+    assert "RunPod" in h1 and "199.00" in h1
+    h8 = run("?hours=100&gpus=8&gpu=H100&flat=0")
+    assert "Lium" in h8 and "1,240.00" in h8 and "RunPod" not in h8
+    l1 = run("?hours=100&gpus=1&gpu=L40S&flat=0")
+    assert "CloudRift" in l1 and "69.00" in l1
+    l2 = run("?hours=100&gpus=2&gpu=L40S&flat=0")
+    assert "Lium" in l2 and "76.00" in l2 and "CloudRift" not in l2
+
+
+def test_cheaper_faq_labels_multi_gpu_rows():
+    import spec_pages
+    cw = _row("CoreWeave", 6.155, min_gpus=8, gpu="H100 SXM")
+    nb = _row("Nebius", 4.50, gpu="H100 SXM")
+    line = spec_pages.cheaper_line("CoreWeave", "Nebius", cw, nb)
+    assert "Nebius is cheaper in our tracked rates" in line
+    assert "CoreWeave" in line and "8x GPU minimum" in line
+    plain = spec_pages.cheaper_line("RunPod", "Lambda", SINGLE, DEARER)
+    assert "GPU minimum" not in plain
+    page = (ROOT / "compare" / "coreweave-vs-nebius-gpu-prices" / "index.html").read_text(encoding="utf-8")
+    assert "8x GPU minimum" in page
+    assert "Is CoreWeave or Nebius cheaper" in page
+
+
+def test_rental_jsonld_offers_are_headline_eligible():
+    """Committed rental-page JSON-LD offers match headline-eligible hourly rows. Stale Modal/Koyeb offers fail."""
+    import re
+    import spec_pages
+    rates = json.loads((ROOT / "api/v1/gpu-prices.json").read_text(encoding="utf-8"))["rates"]
+    pages = sorted((ROOT / "gpu").glob("*-rental-price/index.html"))
+    assert pages
+    for page in pages:
+        fam = page.parent.name[: -len("-rental-price")]
+        raw = page.read_text(encoding="utf-8")
+        blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', raw, re.S)
+        offers = None
+        for block in blocks:
+            doc = json.loads(block)
+            graph = doc.get("@graph") or [doc]
+            for node in graph:
+                off = node.get("offers") if isinstance(node, dict) else None
+                if isinstance(off, dict) and off.get("@type") == "AggregateOffer" and "offers" in off:
+                    offers = off
+        assert offers is not None, page
+        own = [r for r in rates if spec_pages.slug(spec_pages.family(r.get("gpu") or "")) == fam]
+        eligible = [r for r in own if spec_pages.bucket(r) not in ("Monthly", "Reserved") and gpu_pages.headline_eligible(r)]
+        got = sorted(o["price"] for o in offers["offers"])
+        exp = sorted(r["hourly_equiv_usd"] for r in eligible)
+        assert offers["offerCount"] == len(eligible) == len(got), (fam, offers.get("offerCount"), len(eligible))
+        assert got == exp, fam
+        if eligible:
+            assert offers["highPrice"] == max(r["hourly_equiv_usd"] for r in eligible)
+            assert offers["lowPrice"] == min(r["hourly_equiv_usd"] for r in eligible)
+        for o in offers["offers"]:
+            seller = (o.get("seller") or {}).get("name")
+            match = [r for r in eligible if r["advertiser"] == seller and r["hourly_equiv_usd"] == o["price"]]
+            assert match, (fam, seller, o["price"])
+            assert all(not rate_reason(r) and gpu_pages.min_gpus_count(r) <= 1 for r in match)

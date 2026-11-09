@@ -30,14 +30,15 @@ def spread(rates: list[dict]) -> list[dict]:
     from gpu_pages import headline_eligible  # noqa: E402
     out = []
     for slug, name in SPREAD:
+        oos = lambda r: isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is False
+        # Out of stock sorts last, same order as compare_gpu_prices, then price.
         rs = sorted((r for r in rates if family_of(r["gpu"]) == slug and r.get("hourly_equiv_usd") is not None
                      and headline_eligible(r)),
-                    key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
+                    key=lambda r: (oos(r), r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
         if not rs:
             continue
         vals = [r["hourly_equiv_usd"] for r in rs]
         # E5: "cheapest" is the cheapest row not marked out of stock when checked (unknown counts as available).
-        oos = lambda r: isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is False
         lo = next((r for r in rs if not oos(r)), rs[0])
         skipped = next((r for r in rs if oos(r)), None)
         caveat = ""
@@ -64,11 +65,13 @@ JS = """  <script>
     if(!d||!Array.isArray(d.rates))return;
     const c=document.querySelectorAll("[data-live-count]");c.forEach(e=>e.textContent=d.rates.length);
     for(const k in FAM){
-      const rs=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&headlineEligible(r)&&!(r.availability&&r.availability.in_stock===false)).sort((a,b)=>a.hourly_equiv_usd-b.hourly_equiv_usd);
+      const oos=r=>r.availability&&r.availability.in_stock===false?1:0;
+      const allElig=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&headlineEligible(r)).sort((a,b)=>oos(a)-oos(b)||a.hourly_equiv_usd-b.hourly_equiv_usd);
+      const rs=allElig.filter(r=>!oos(r));
       const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!rs.length)continue;
       const v=rs.map(r=>r.hourly_equiv_usd),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
       (row.querySelector(".lo strong")||row.querySelector(".lo")).textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
-      const all=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&headlineEligible(r)).length,x=all-v.length;row.querySelector(".n").textContent=v.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
+      const x=allElig.length-v.length;row.querySelector(".n").textContent=v.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
     }
   }).catch(()=>{});
   })();

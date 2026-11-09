@@ -34,19 +34,27 @@ def test_pair_pages_pair_within_form_factor():
 
 
 def test_page_and_mcp_share_one_form_factor_rule():
-    """Per-form order matches cheapest_by_form_factor, then the page keeps only single-GPU rows.
+    """Per-form lines on the page stay single-GPU even when the engine names an N-GPU row.
 
-    The engine can still name an N-GPU row (it does not read min_gpus). The page must not.
+    On this branch cheapest_by_form_factor does not read min_gpus. #130 will.
+    The list items themselves must name a price or say there is no single-GPU rate.
+    The boilerplate paragraph is not enough: it always contains those words.
     """
     out = core.compare_gpu_prices(FEED, "H100", limit=25)
     picks = out["cheapest_by_form_factor"]
     assert all({"tier_class", "interruptible", "in_stock"} <= set(p) for p in picks)
     assert all(p["interruptible"] == (p["tier_class"] == "interruptible") for p in picks)
     assert "NVLink" in out["cheapest_by_form_factor_note"]
-    page = re.sub(r"<[^>]+>", " ", (ROOT / "gpu/h100-rental-price/index.html").read_text())
+    raw = (ROOT / "gpu/h100-rental-price/index.html").read_text()
+    block = raw[raw.index("by form factor"):raw.index("</ul>", raw.index("by form factor"))]
+    items = re.findall(r"<li>(.*?)</li>", block, re.S)
+    assert items
+    for item in items:
+        text = re.sub(r"<[^>]+>", " ", item)
+        assert "no single-GPU rate" in text or re.search(r"\$\d", text), text
+    page = re.sub(r"<[^>]+>", " ", raw)
     sec = page[page.index("by form factor"):][:3000]
     assert "NVLink names the" in sec
-    assert "no single-GPU rate" in sec or "single-GPU" in sec
     for p in picks:
         row = next(r for r in FEED["rates"] if r["advertiser"] == p["advertiser"] and r["gpu"] == p["gpu"]
                    and r.get("tier") == p.get("tier") and r["hourly_equiv_usd"] == p["hourly_usd"])

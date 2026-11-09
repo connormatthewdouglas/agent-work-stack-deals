@@ -223,12 +223,12 @@
   },
   {
    "id": "T41-21",
-   "intent": "GPU price-comparison page per-model summary shows the cheapest single-GPU pay-as-you-go rate (reserved excluded; min_gpus above 1 excluded). Order is core price rank, which itself does not look at min_gpus.",
+   "intent": "GPU price-comparison page per-model summary shows the cheapest single-GPU pay-as-you-go rate (reserved excluded; min_gpus above 1 excluded; serverless excluded).",
    "inputs": {
     "page": "https://thelanternworks.com/gpu/price-comparison/",
     "table": "per-model summary"
    },
-   "expected": "For each model row, the lowest rate shown is the core-ranked single-GPU pay-as-you-go row (min_gpus <= 1, reserved excluded), not the minimum per-GPU price if that row is an N-GPU minimum.",
+   "expected": "For each model row, the lowest rate shown equals the minimum hourly_equiv_usd among rows with min_gpus <= 1, tier_class not reserved, and core.serverless.rate_reason empty, with out-of-stock rows sorted last. The gate computes that minimum itself.",
    "why": "Regression 0.3.19: CloudRift reserved rows (L40S $0.54, RTX 5090 $0.55) were shown as cheapest."
   },
   {

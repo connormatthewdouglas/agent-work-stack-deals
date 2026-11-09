@@ -14,7 +14,6 @@ from core.gpu import SERVERLESS, families  # noqa: E402
 from core.data_license import DATA_LICENSE  # noqa: E402
 
 from core.gpu import PRICE_BASIS_LABELS, price_bucket  # noqa: E402
-from core.deals import gpu_rate_rank_key  # noqa: E402
 PRICE_BASIS_LABEL = PRICE_BASIS_LABELS["on-demand"]
 
 OUT = ROOT / "api" / "v1" / "gpu"
@@ -65,8 +64,8 @@ def _group(r: dict) -> tuple:
 
 
 def build(slug: str, fam: dict, base: str) -> dict:
-    from gpu_pages import headline_eligible
-    rates = sorted(fam["rates"], key=gpu_rate_rank_key)
+    from gpu_pages import headline_eligible, site_rank_key
+    rates = sorted(fam["rates"], key=site_rank_key)
     cheapest = {}
     for b in BUCKETS:
         if b in ("reserved", "serverless"):
@@ -76,7 +75,7 @@ def build(slug: str, fam: dict, base: str) -> dict:
             groups = {}
             for r in rs:
                 groups.setdefault(_group(r), []).append(r)
-            best = sorted((min(g, key=gpu_rate_rank_key) for g in groups.values()), key=gpu_rate_rank_key)
+            best = sorted((min(g, key=site_rank_key) for g in groups.values()), key=site_rank_key)
             for r in best:
                 row = {"vram_gb": v, **_row(r)}
                 row["tier"] = r.get("tier") or "unknown"
@@ -93,7 +92,10 @@ def build(slug: str, fam: dict, base: str) -> dict:
                                   "SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. "
                                   "form_factor is 'unknown' when the source does not say."),
             "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
-            "reserved_policy": "reserved (commitment) rows and serverless or per-second rows are listed under rows but excluded from cheapest",
+            "reserved_policy": ("reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/"
+                                "active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. "
+                                "A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule "
+                                "(including min_gpus above 1). Those rows stay under rows."),
             "last_checked": max(ver) if ver else None, "row_count": len(rates),
             "providers": sorted({r["advertiser"] for r in rates}),
             "cheapest": cheapest, "rows": [_row(r) for r in rates],
@@ -122,7 +124,9 @@ def write(gen, rates: list[dict]) -> list[Path]:
         idx.append({"model": doc["model"], "slug": slug, "url": doc["url"], "row_count": doc["row_count"],
                     "providers": len(doc["providers"]), "last_checked": doc["last_checked"]})
     index = {"schema": "lantern-works-gpu-model-index/1", "license": DATA_LICENSE,
-             "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json; reserved rows and serverless or per-second rows excluded from cheapest.",
+             "description": ("Per-model GPU price views (small JSON). Same data as gpu-prices.json. "
+                             "cheapest omits reserved and serverless buckets, and omits a bucket when no headline-eligible row remains "
+                             "(min_gpus above 1). Those rows stay under rows."),
              **gen_fields, "models": idx}
     gen.assert_public_clean(index)
     (OUT / "index.json").write_text(json.dumps(index, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
