@@ -80,8 +80,9 @@ def test_actual_curated_serverless_rows_are_held_whatever_the_field():
     k = koyeb["records"][0]
     ok = row(vendor="RunPod", gpu_model="L40S 48GB", vram_gb=48, price_usd_hr=k["hourly_usd"], gpu_count=1)
     assert normalize_ex(ok)[0] is not None  # control: imports without the signal
-    signals = {"billing_granularity": koyeb["billing_granularity"], "platform_fee_note": k["platform_fee_note"],
-               "quote_verbatim": k["quote"], "observation": k["tier"], "billing": "per-second",
+    # (follow-up, Gauge 1108 #102 a) billing_granularity and a quote's "/sec" are not hold signals on their own:
+    # dedicated pods are billed per second too. Those cases are in test_per_second_text_alone_does_not_hold_dedicated_rows.
+    signals = {"platform_fee_note": k["platform_fee_note"], "observation": k["tier"], "billing": "per-second",
                "billing_unit": "per_second", "price_usd_sec": 0.000333, "price_per_second": 0.000333,
                "usd_per_sec": 0.000333, "source_url": "https://www.runpod.io/serverless-gpu",
                "gpu_model": "L40S 48GB (Serverless)", "tier": modal["records"][0]["tier"]}
@@ -243,3 +244,45 @@ def test_modal_h100_per_second_never_ranked_in_any_pricing_mode():
         raise AssertionError("serverless-only model must not rank")
     except core.DealError as e:
         assert "serverless" in str(e)
+
+
+def test_per_second_text_alone_does_not_hold_dedicated_rows():
+    # Gauge 1108 #102 (a): only per-second PRICE keys (or a per-second billing unit) hold a row; "per second" billing
+    # text and non-price *_seconds keys on a dedicated on-demand row do not.
+    koyeb = _curated("koyeb")
+    ok = row(vendor="RunPod", gpu_model="H100 SXM 80GB", vram_gb=80, price_usd_hr=2.69, gpu_count=1, tier="On-demand (Secure Cloud)")
+    for f, v in {"billing_granularity": koyeb["billing_granularity"], "quote_verbatim": "H100 SXM $2.69/hr, billed per second",
+                 "availability_note": "$2.69 /hr $0.000747 /sec", "two_read_gap_seconds": 60, "stock_read_gap_sec": 30,
+                 "min_billing_seconds": 60}.items():
+        rec, why = normalize_ex({**ok, f: v})
+        assert rec is not None and why is None, (f, v, why)
+    for f, v in {"price_usd_sec": 0.000747, "price_per_second": 0.000747, "usd_per_sec": 0.000747, "cost_per_second": 0.000747,
+                 "billing_unit": "per-second"}.items():
+        rec, why = normalize_ex({**ok, f: v})
+        assert rec is None and why.startswith("serverless/per-second"), (f, v, why)
+
+
+def test_bid_tier_is_interruptible_whole_word_like_core():
+    # Gauge 1108 #102 (d): the importer uses #108's core.gpu.INTERRUPTIBLE_TIER_RE (whole-word bid, not/non- excluded)
+    for tier, want in (("Bid", True), ("Min bid", True), ("Spot", True), ("Forbidden zone", False),
+                       ("Bidirectional NVLink", False), ("Non-interruptible", False), ("Not interruptible", False),
+                       ("On-demand (Community Cloud)", False), ("Marketplace on-demand (verified)", False)):
+        r = normalize(row(vendor="RunPod", gpu_model="L4 24GB", vram_gb=24, price_usd_hr=0.39, tier=tier, gpu_count=1))
+        assert r["interruptible"] is want and r["tier"] == tier, tier
+        _valid("RunPod", r)  # record_problems agrees with the importer's flag
+
+
+def test_scout_price_quote_is_kept_as_verbatim_evidence():
+    # Gauge 1108 #102 (c): Scout's real Oblivus row carries the vendor text in price_quote; it is kept verbatim,
+    # separate from the importer summary, instead of being replaced by an api_field summary.
+    r = normalize(row(vendor="Oblivus", gpu_model="RTX 4090", vram_gb=24, price_usd_hr=0.64, gpu_count=1, tier="On-demand",
+                      price_quote="RTX 4090 ... On-Demand: $0.64/hr", source_url="https://oblivus.com/pricing/",
+                      source_detail='https://oblivus.com/pricing/ ("RTX 4090" card)', price_basis="per GPU-hour (listed on-demand)"))
+    assert r["evidence_kind"] == "verbatim" and r["quote"] == "RTX 4090 ... On-Demand: $0.64/hr"
+    assert r["evidence"]["quote"] == r["quote"] and "importer summary" in r["normalized_summary"]
+    assert r["source_url"] == "https://oblivus.com/pricing/"
+
+
+def test_importer_comment_no_longer_says_community_is_interruptible():
+    src = (ROOT / "scripts" / "import_scout_wider.py").read_text()
+    assert "community and marketplace tiers." not in src and "are NOT interruptible" in src

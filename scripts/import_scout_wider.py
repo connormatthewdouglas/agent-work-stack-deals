@@ -33,7 +33,8 @@ ONE_GPU_RE = re.compile(r"\b1 GPU\b")
 # Serverless / per-second / active-worker prices are not dedicated instance rates (Gauge 1104 #102): held, never imported.
 # Interruptible matches core.gpu.INTERRUPTIBLE_TIER_RE (spot, preemptible, interruptible, bid). Community and
 # marketplace labels stay non-interruptible. The tier text itself is not rewritten.
-VERBATIM_KEYS = ("quote_verbatim", "verbatim_text")
+# Vendor text Scout copied from the page; price_quote is Scout's own field name for it (Gauge 1108 #102 c).
+VERBATIM_KEYS = ("quote_verbatim", "verbatim_text", "price_quote")
 
 
 def _ts(s):
