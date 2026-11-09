@@ -52,12 +52,15 @@
       },
       "verified_at": "2026-11-09T03:51:49+00:00",
       "availability": {
-        "in_stock": true,
+        "in_stock": null,
         "checked_at": "2026-11-09T03:51:49+00:00",
         "source": "https://api.clore.ai/v1/marketplace",
         "same_capture_as_price": true,
         "stock_level": "102 available listings",
-        "note": "Clore.ai API snapshot: 102 available RTX 4090 24GB listings (status available, any currency)"
+        "first_read_at": "2026-11-09T03:51:49+00:00",
+        "second_read_at": null,
+        "second_read_gap_s": null,
+        "note": "Clore.ai API snapshot: 102 available RTX 4090 24GB listings (status available, any currency); single read, so in_stock is unknown (needs a second read >= 60 s later)"
       }
     },
     {
@@ -86,12 +89,15 @@
       },
       "verified_at": "2026-11-09T03:51:49+00:00",
       "availability": {
-        "in_stock": true,
+        "in_stock": null,
         "checked_at": "2026-11-09T03:51:49+00:00",
         "source": "https://api.clore.ai/v1/marketplace",
         "same_capture_as_price": true,
         "stock_level": "114 available listings",
-        "note": "Clore.ai API snapshot: 114 available RTX 5090 32GB listings (status available, any currency)"
+        "first_read_at": "2026-11-09T03:51:49+00:00",
+        "second_read_at": null,
+        "second_read_gap_s": null,
+        "note": "Clore.ai API snapshot: 114 available RTX 5090 32GB listings (status available, any currency); single read, so in_stock is unknown (needs a second read >= 60 s later)"
       }
     },
     {
@@ -124,12 +130,15 @@
         "page_last_updated": null
       },
       "availability": {
-        "in_stock": true,
+        "in_stock": null,
         "checked_at": "2026-11-09T03:51:49+00:00",
         "source": "https://api.clore.ai/v1/marketplace",
         "same_capture_as_price": true,
         "stock_level": "3 available listings",
-        "note": "Clore.ai API snapshot: 3 available A100 SXM 40GB listings (status available, any currency)"
+        "first_read_at": "2026-11-09T03:51:49+00:00",
+        "second_read_at": null,
+        "second_read_gap_s": null,
+        "note": "Clore.ai API snapshot: 3 available A100 SXM 40GB listings (status available, any currency); row held, so no stock claim"
       }
     },
     {
@@ -162,12 +171,15 @@
         "page_last_updated": null
       },
       "availability": {
-        "in_stock": true,
+        "in_stock": null,
         "checked_at": "2026-11-09T03:51:49+00:00",
         "source": "https://api.clore.ai/v1/marketplace",
         "same_capture_as_price": true,
         "stock_level": "1 available listings",
-        "note": "Clore.ai API snapshot: 1 available H100 NVL 94GB listings (status available, any currency)"
+        "first_read_at": "2026-11-09T03:51:49+00:00",
+        "second_read_at": null,
+        "second_read_gap_s": null,
+        "note": "Clore.ai API snapshot: 1 available H100 NVL 94GB listings (status available, any currency); row held, so no stock claim"
       }
     },
     {
@@ -201,17 +213,20 @@
       },
       "vram_note": "Clore specs.gpuram reports 45; published as 48 GB to match L40S 48GB elsewhere in the feed",
       "availability": {
-        "in_stock": true,
+        "in_stock": null,
         "checked_at": "2026-11-09T03:51:49+00:00",
         "source": "https://api.clore.ai/v1/marketplace",
         "same_capture_as_price": true,
         "stock_level": "1 available listings",
-        "note": "Clore.ai API snapshot: 1 available L40S 45GB listings (status available, any currency)"
+        "first_read_at": "2026-11-09T03:51:49+00:00",
+        "second_read_at": null,
+        "second_read_gap_s": null,
+        "note": "Clore.ai API snapshot: 1 available L40S 45GB listings (status available, any currency); row held, so no stock claim"
       }
     }
   ],
-  "source_note": "Clore.ai marketplace snapshot 2026-11-09T03:51:49+00:00 (public no-auth GET https://api.clore.ai/v1/marketplace; Gauge file; method identical to Gauge 2026-10-29 snapshot).",
+  "source_note": "Clore.ai marketplace snapshot 2026-11-09T03:51:49+00:00 (public no-auth GET https://api.clore.ai/v1/marketplace). Method: price.on_demand['USD-Blockchain'] per-day whole server / 24 / gpu_count; available = rented false; spot/bid excluded; homogeneous servers only.",
   "manual_snapshot": {
-    "reason": "Clore.ai marketplace API returns 401 to CI runners; prices are a manual snapshot (Gauge, 2026-11-09T03:51:49+00:00) and auto-hold after 7 days unless re-snapshotted."
+    "reason": "Clore.ai marketplace API returns 401 to CI runners; prices are a manual snapshot taken 2026-11-09T03:51:49+00:00 and auto-hold after 7 days unless re-snapshotted."
   }
 }
