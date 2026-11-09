@@ -10,8 +10,10 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from core.owner_hold import is_held  # noqa: E402
+from core import gpu_history  # noqa: E402
 import import_scout_availability as avail  # noqa: E402
 import import_scout_wider as wider  # noqa: E402
+import refresh_gpu_prices as refresh  # noqa: E402
 
 
 def test_scout_import_failure_fails_the_job_and_still_opens_the_issue():
@@ -112,3 +114,47 @@ def test_availability_hold_carries_rows_unchanged(tmp_path, monkeypatch):
     assert all(r["availability_checked_at"] == "2026-11-06T02:51:34Z" for r in held)
     assert any(r["vendor"] == "RunPod" and r["availability_checked_at"] == fresh for r in doc["rows"])
     assert doc["owner_hold_carried"] == 2
+
+
+def _priced(vendor, price="1.99"):
+    """A row whose evidence quote matches PAGE, so a refresh would reprice it if the vendor were not held."""
+    quote = "NVIDIA A100 SXM 40 GB 30 220 GiB 512 GiB SSD $1.99"
+    checked = "2026-11-01T10:00:00+00:00"
+    return {"vendor": vendor, "deal_id": None, "source_url": "https://example.test/pricing",
+            "checked_at": checked,
+            "extras": {k: {"status": "unknown", "text": "x", "source_url": "https://example.test/pricing"}
+                       for k in ("egress", "storage", "interruption")},
+            "records": [{
+                "vendor": vendor, "gpu": "A100 SXM", "vram_gb": 40, "price_usd": float(price), "billing_unit": "hourly",
+                "hourly_usd": float(price), "interruptible": False, "tier": "On-demand", "form_factor": "SXM",
+                "quote": f"A100 ${price}/hr", "source_url": "https://example.test/pricing", "checked_at": checked,
+                "evidence": {"source_url": "https://example.test/pricing", "quote": quote, "checked_at": checked},
+                "verified_at": checked,
+            }]}
+
+
+_PARSED_PAGE = ("<html><body><table><tr><td>NVIDIA A100 SXM</td><td>40 GB</td><td>30</td>"
+                "<td>220 GiB</td><td>512 GiB SSD</td><td>$1.89</td></tr></table></body></html>")
+
+
+def test_refresh_does_not_touch_held_vendors_when_the_page_parses():
+    now = datetime(2026, 11, 9, 12, tzinfo=timezone.utc)
+    held = [_priced("Hyperstack"), _priced("Verda (formerly DataCrunch)")]
+    before = [json.dumps(d, sort_keys=True) for d in held]
+    hist_before = gpu_history.snapshot_rows(held)
+    class Fetch:
+        def __init__(self):
+            self.calls = []
+        def get(self, url):
+            self.calls.append(url)
+            return 200, _PARSED_PAGE
+    fetch = Fetch()
+    # The same page reprices a vendor that is not on the hold, so the fixture really parses.
+    control = _priced("RunPod")
+    report = refresh.refresh(held + [control], fetch, now)
+    assert [json.dumps(d, sort_keys=True) for d in held] == before
+    assert gpu_history.snapshot_rows(held) == hist_before
+    assert fetch.calls == ["https://example.test/pricing"]  # only RunPod
+    assert control["records"][0]["price_usd"] == 1.89
+    assert control["records"][0]["checked_at"].startswith("2026-11-09")
+    assert {r["result"] for r in report if r["vendor"] != "RunPod"} == {"owner hold, untouched"}
