@@ -484,8 +484,10 @@ def test_t75_compare_rows_carry_canonical_model_and_form_factor_and_vendor_id_fo
     assert form_factor_of("B300", None, "", "NVIDIA B300 SXM6 AC") == "SXM6"
     assert {"canonical_model", "form_factor"} <= set(SPEC["compare_gpu_prices"][4])  # brief keeps them too
     feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text())
-    out = core.compare_gpu_prices(feed, "B300", 25)
-    assert out["results"]
+    # #130 (Bjorn 1109): rows rank only when min_gpus <= gpus. B300 is sold as 8-GPU nodes (Lium) as well as single GPUs
+    # (RunPod), so ask for 8: every fresh B300 row ranks and each one is checked for canonical_model/form_factor.
+    out = core.compare_gpu_prices(feed, "B300", 25, gpus=8)
+    assert out["results"] and out["min_gpus_unmet"] == 0
     for x in out["results"]:
         assert x["canonical_model"] == "B300" and x["form_factor"], x
     # RunPod B300 is SXM6 when it is ranked. A held or unreadable row is not in the feed and must not be required here.

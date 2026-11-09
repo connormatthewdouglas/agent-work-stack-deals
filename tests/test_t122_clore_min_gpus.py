@@ -178,7 +178,7 @@ def test_mcp_compare_accepts_gpus_and_keeps_assumption_in_brief():
         return json.loads(blocks[0].text)
     brief = asyncio.run(go({"gpu": "H100"}))
     assert brief["gpus"] == 1 and any("treated as 1 GPU" in a for a in brief["assumptions"])
-    assert all(r.get("min_gpus", 1) <= 1 or r.get("min_gpus_unmet") for r in brief["results"])
+    assert all((r.get("min_gpus") or 1) <= 1 for r in brief["results"])  # #130: larger allocations are excluded
     two = asyncio.run(go({"gpu": "H100", "gpus": 8}))
     assert two["gpus"] == 8 and two["assumptions"] == []
 
@@ -212,7 +212,7 @@ def test_two_gpu_request_ranks_qualifying_allocation_by_per_gpu_price():
     data = {**FEED, "rates": [one, two[0]]}
     when = datetime.fromisoformat(two[0]["verified_at"])
     r2 = deals.compare_gpu_prices(data, "L40S", now=when, gpus=2)["results"]
-    assert [x["min_gpus"] for x in r2] == [2, 1] and not any(x.get("min_gpus_unmet") for x in r2)
+    assert [x["min_gpus"] for x in r2] == [2, 1]  # both fit 2 GPUs, ranked on per-GPU price
     assert [x["hourly_usd"] for x in r2] == sorted(x["hourly_usd"] for x in r2)
     o1 = deals.compare_gpu_prices(data, "L40S", now=when)  # Bjorn 1109: for 1 GPU the 2x row is excluded, not ranked
     assert [x["min_gpus"] for x in o1["results"]] == [1] and [x["min_gpus"] for x in o1["excluded_min_gpus"]] == [2]

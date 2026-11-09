@@ -172,16 +172,14 @@ def _(f, ev):
     listed, reserved, serverless = _h100_buckets()
     # Ranked before the min_gpus hold: not reserved (include_reserved is not set), not serverless.
     before_min = [r for r in listed if r not in reserved and r not in serverless]
-    # #122 ranks rows sold only as larger allocations (min_gpus > 1) AFTER the rows that fit and counts them in
-    # min_gpus_unmet; they stay in total. (#130 excludes them and subtracts the count via ranked_after_min_gpus.)
     n_unmet = sum(1 for r in before_min if (r.get("min_gpus") or 1) > 1)
-    n_ranked = len(before_min)
-    ranked = before_min
+    # #130: rows sold only as larger allocations than the request (min_gpus > 1 here) are excluded, not ranked.
+    # The ranked total subtracts compare's min_gpus_unmet COUNT (brief mode keeps it; excluded_min_gpus is full-only).
+    n_ranked = ranked_after_min_gpus(len(before_min), out)
+    ranked = [r for r in before_min if (r.get("min_gpus") or 1) <= 1]
     # E5: rows the feed marks out of stock are ranked after in-stock/unknown rows, so they are never "cheapest"
     oos = lambda r: (r.get("availability") or {}).get("in_stock") is False
-    # #122: no GPU count = 1 GPU, so rows sold only as multi-GPU allocations (min_gpus > 1) are never "cheapest"
-    fit = [r for r in ranked if (r.get("min_gpus") or 1) <= 1] or ranked
-    pool = [r for r in fit if not oos(r)] or fit
+    pool = [r for r in ranked if not oos(r)] or ranked
     exp = min(r["hourly_equiv_usd"] for r in pool)
     ev.update(tool_cheapest=res[0] and {k: res[0][k] for k in ("advertiser", "gpu", "tier", "hourly_usd", "tier_class")}, feed_min=exp,
               listed=len(listed), reserved=len(reserved), serverless=len(serverless), ranked=n_ranked,
@@ -196,14 +194,21 @@ def _(f, ev):
     ranked_keys = {(r.get("advertiser"), r.get("gpu"), r.get("tier")) for r in RATES}
     held_keys -= ranked_keys  # same label also ranked (fresh) is fine; only a held-only row may not lead
     if res and (res[0].get("advertiser"), res[0].get("gpu"), res[0].get("tier")) in held_keys: f.append("held/thin row shown as cheapest")
-    if res and (res[0].get("min_gpus") or 1) > 1 and fit is not ranked: f.append("multi-GPU-only allocation shown as cheapest for 1 GPU")
-    hs = [(bool(x.get("min_gpus_unmet")), x.get("in_stock") is False, x["hourly_usd"]) for x in res]
+    # #130: rows whose min_gpus exceeds the request (1 here) are excluded, never ranked; each is listed with a reason
+    if any((x.get("min_gpus") or 1) > 1 for x in res): f.append("multi-GPU-only allocation ranked for 1 GPU")
+    full = tool(SRV.compare_gpu_prices, "H100", limit=25, on_demand_only=False, mode="full")  # the list is full-mode only
+    exm = full.get("excluded_min_gpus") or []
+    if out.get("min_gpus_unmet") != len(exm) or full.get("min_gpus_unmet") != len(exm) or any((x.get("min_gpus") or 1) <= 1 or not x.get("reason") for x in exm):
+        f.append(f"excluded_min_gpus inconsistent: count {out.get('min_gpus_unmet')} vs {len(exm)} listed")
+    hs = [(x.get("in_stock") is False, x["hourly_usd"]) for x in res]
     if hs != sorted(hs): f.append(f"not sorted ascending (out-of-stock last): {hs}")
-    # Always on. The old len>25 guard hid a serverless (and, once #130 lands, min_gpus) mismatch.
+    # Always on. The old len>25 guard hid a serverless and min_gpus mismatch.
     if out.get("excluded_serverless") != len(serverless):
         f.append(f"excluded_serverless {out.get('excluded_serverless')} != listed serverless {len(serverless)}")
     if (out.get("min_gpus_unmet") or 0) != n_unmet:
         f.append(f"min_gpus_unmet {out.get('min_gpus_unmet')} != {n_unmet} feed rows with min_gpus>1")
+    if len(ranked) != n_ranked:
+        f.append(f"ranked feed rows {len(ranked)} != {len(before_min)} - min_gpus_unmet {out.get('min_gpus_unmet') or 0}")
     if out.get("total") != n_ranked:
         f.append(f"total {out.get('total')} != ranked-eligible {n_ranked} (listed {len(listed)}, serverless {len(serverless)}, reserved {len(reserved)}, min_gpus_unmet {out.get('min_gpus_unmet') or 0})")
     if out.get("count") != min(25, n_ranked):

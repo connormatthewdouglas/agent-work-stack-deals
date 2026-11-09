@@ -96,3 +96,32 @@ def test_compare_l40s_holds_koyeb_in_held_serverless_not_results():
     assert not any(r["advertiser"] in ("Koyeb", "Modal") for r in out["results"])
     assert {h["vendor"] for h in out["held_serverless"]} >= {"Koyeb"} and out["excluded_serverless"] >= 1
     assert all(h["reason"].startswith("serverless/per-second") for h in out["held_serverless"])
+
+
+# ---- Gauge #130 N2: the on-demand fallback also fires when every on-demand row needs more GPUs -------------------
+
+def test_on_demand_rows_all_multi_gpu_fall_back_to_single_gpu_spot(tmp_path):
+    """Real Lium H100 SXM rows: the 8x row relabelled on-demand (the only on-demand row, 8-GPU minimum) plus the real
+    1-GPU Lium secure-node row as marketplace. MCP default (on_demand_only=true, 1 GPU) must fall back to all tiers,
+    rank the 1-GPU row, list the 8x row in excluded_min_gpus and say why in on_demand_fallback."""
+    from mcp_server import server
+    od8 = copy.deepcopy(LIUM8)
+    od8.update(tier="On-demand node (8x)", tier_class="on-demand", interruptible=False)
+    one = copy.deepcopy(next(r for r in FEED["rates"] if r["advertiser"] == "Lium" and r["gpu"] == "H100 SXM" and r.get("min_gpus") == 1))
+    data = {**FEED, "rates": [od8, one]}
+    with pytest.raises(deals.DealError) as e:
+        deals.compare_gpu_prices(data, "H100", now=NOW, on_demand_only=True)
+    assert e.value.reason == "min_gpus"
+
+    f = tmp_path / "gpu-prices.json"
+    f.write_text(json.dumps(data))
+    old_file, old_cache = server.gpu_loader.file, server.gpu_loader._cache
+    server.gpu_loader.file, server.gpu_loader._cache = str(f), None
+    try:
+        res = asyncio.run(server.mcp.call_tool("compare_gpu_prices", {"gpu": "H100", "mode": "full", "max_data_age_hours": 100000}))
+    finally:
+        server.gpu_loader.file, server.gpu_loader._cache = old_file, old_cache
+    out = json.loads((res[0] if isinstance(res, tuple) else res)[0].text)
+    assert out.get("ok", True) and [r["min_gpus"] for r in out["results"]] == [1]
+    assert "larger allocation than 1 GPU" in out["on_demand_fallback"]
+    assert [x["min_gpus"] for x in out["excluded_min_gpus"]] == [8] and out["min_gpus_unmet"] == 1

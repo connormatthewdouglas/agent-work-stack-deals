@@ -423,8 +423,9 @@ def test_0330_mcp_stale_rows_unknown_not_ranked_last():
     assert "stale availability" not in fresh["summary"]
     assert "available when checked" not in stale["summary"] and "out of stock when checked" not in stale["summary"]
     # stale rows are not ranked out-of-stock-last: pure price order among non-reserved rows
-    # (#122: rows sold only as multi-GPU allocations rank after rows that fit the 1-GPU default)
-    p = [(bool(r.get("min_gpus_unmet")), r["hourly_usd"]) for r in stale["results"] if r["tier_class"] != "reserved"]
+    # (#130: rows sold only as multi-GPU allocations are excluded for the 1-GPU default, never ranked)
+    assert all((r.get("min_gpus") or 1) <= 1 for r in stale["results"])
+    p = [r["hourly_usd"] for r in stale["results"] if r["tier_class"] != "reserved"]
     assert p == sorted(p)
     if fresh["results"][0]["in_stock"] is True:
         c = fresh["results"][0]["availability"]["checked_at"].replace("T", " ")[:16]

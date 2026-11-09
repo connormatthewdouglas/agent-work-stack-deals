@@ -79,9 +79,10 @@ CACHE_TTL_S = 300
 
 
 class DealError(Exception):
-    def __init__(self, code: str, message: str):
+    def __init__(self, code: str, message: str, reason: str | None = None):
         super().__init__(message)
         self.code, self.message = code, message
+        self.reason = reason  # machine-readable cause for callers (e.g. "min_gpus": every row needs more GPUs)
 
     def to_dict(self) -> dict:
         return {"error": {"code": self.code, "message": self.message}}
@@ -656,7 +657,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                                          "matching rates need more GPUs (" + "; ".join(
                                              f"{x['vendor']} {x['gpu']} min {x['min_gpus']}" for x in excluded_min[:8])
                                          + (" ..." if len(excluded_min) > 8 else "") + "). Pass gpus >= "
-                                         f"{min(x['min_gpus'] for x in excluded_min)} to rank them.")
+                                         f"{min(x['min_gpus'] for x in excluded_min)} to rank them.", reason="min_gpus")
     # T61: optional usable-memory filter (callable(rows) -> core.gpu_identity.filter_usable result). It runs on every
     # remaining row BEFORE sort/limit, so count, total, the summary and cheapest_by_form_factor describe filtered rows.
     ufilter = None
