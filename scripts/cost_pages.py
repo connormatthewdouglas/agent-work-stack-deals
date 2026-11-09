@@ -1,6 +1,6 @@
 """/cost/{gpu}-{hours}-hours/ (T24 part A, spec /workspace/pulse/specs/t24-workload-pages-ready.md): "Cost to rent
 {GPU} for N hours" on 1 GPU, pure feed math (rate x hours x 1). Fail closed: on-demand, non-interruptible, non-serverless,
-hourly/per-second billing, min_gpus == 1, vendor not held; reserved/thin/held/marketplace/monthly rows never appear.
+hourly billing (serverless/per-second rows held by core/serverless.rate_reason), min_gpus == 1, vendor not held; reserved/thin/held/marketplace/monthly rows never appear.
 Variants (exact gpu + vram) are never mixed; a variant needs >= 2 vendors, and "cheapest" needs >= 3.
 Replace the math with T35 quote() when it ships; do not grow a second pricing engine here."""
 from __future__ import annotations
@@ -10,6 +10,7 @@ import re
 from html import escape as esc_
 import json
 import statistics
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -22,6 +23,8 @@ LABEL = ("Compute subtotal only, excludes storage, egress, vCPU, tax. Among trac
 
 
 NEVER_ON_COST = {"TensorDock", "Clore.ai"}
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from core.serverless import rate_reason  # noqa: E402  one serverless/per-second rule for pages, compare and the stack
 
 
 def eligible(feed: dict, family: str) -> dict[tuple, list[dict]]:
@@ -33,8 +36,8 @@ def eligible(feed: dict, family: str) -> dict[tuple, list[dict]]:
         if not (g == family or g.startswith(family + " ")):
             continue
         if (r.get("advertiser") in held or r.get("hourly_equiv_usd") is None
-                or r.get("billing_unit") not in ("hourly", "per-second") or r.get("tier_class") != "on-demand"
-                or r.get("interruptible") or "serverless" in (r.get("tier") or "").lower()
+                or r.get("billing_unit") != "hourly" or r.get("tier_class") != "on-demand"
+                or r.get("interruptible") or rate_reason(r)  # shared serverless/per-second rule (core/serverless.py)
                 or (r.get("min_gpus") or 1) != 1 or r.get("price_status") not in (None, "listed")):
             continue
         out.setdefault((g, r.get("vram_gb")), []).append(r)

@@ -322,6 +322,8 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                                    + (f"; {hours:,g} GPU-hours total = {per_gpu:,g} h per GPU" if hours and gpu_h_total
                                       else f"; {hours:,g} wall-clock hours x {gpus} GPU(s)" if hours else ""))
             opts = stack._gpu_options(gdata, per_gpu or 1, gpu_model, manual, gpus=gpus)
+            if held := stack.held_serverless(gdata, gpu_model):  # shared serverless rule: listed with reason, never priced
+                line["held_serverless"], line["excluded_serverless"] = held, len(held)
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
             opts.sort(key=lambda x: (x.get("in_stock") is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or ""))
