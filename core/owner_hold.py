@@ -27,7 +27,12 @@ def is_held(vendor: str | None, names: list[str] | None = None) -> bool:
     v = " ".join(str(vendor or "").split()).casefold()
     if not v:
         return False
-    for raw in names if names is not None else hold_names():
+    if names is None:
+        try:
+            names = hold_names()
+        except FileNotFoundError:
+            return False  # a hosted bundle that does not ship the list ranks the feed it was given
+    for raw in names:
         key = " ".join(str(raw).split()).casefold()
         if not key:
             continue

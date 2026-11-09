@@ -275,7 +275,13 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
     excluded = before - len(sdata["offers"])
     gdata = copy.deepcopy(gpu_data) if gpu_data else None
     assumptions = []
+    owner_rates: list[dict] = []
     if gdata:
+        from .owner_hold import is_held
+        def _who(r):
+            return r.get("advertiser") or r.get("vendor")
+        owner_rates = [r for r in gdata.get("rates") or [] if is_held(_who(r))]
+        gdata["rates"] = [r for r in gdata.get("rates") or [] if not is_held(_who(r))]
         n0 = len(gdata.get("rates") or [])
         gdata["rates"] = [r for r in gdata.get("rates") or [] if not r.get("deal_id") or r["deal_id"] in allowed]
         excluded += n0 - len(gdata["rates"])
@@ -294,6 +300,9 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             line["gpu_count"] = gpus
             if p["gpu_count_text"]:
                 line["gpu_count_note"] = f"{gpus} GPU(s) parsed from '{p['gpu_count_text']}'"
+            if owner_rates:
+                line["held"] = [{"vendor": r.get("advertiser") or r.get("vendor"), "gpu": r.get("gpu"),
+                                 "reason": "owner_hold"} for r in owner_rates]
             if not gdata:
                 lines.append({**line, "status": "no_data", "note": NO_DATA, "choice": None, "monthly_cost_usd": None}); continue
             if size:

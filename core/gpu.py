@@ -391,6 +391,14 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
         if d is None:
             problems.append(f"{doc['deal_id']}: not in public feed")
             continue
+        from .owner_hold import is_held
+        if is_held(doc.get("vendor")):
+            # Frozen on purpose: the data file stays byte-identical, but the price is not a live verified rate.
+            held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
+                         "checked_at": doc["checked_at"], "reason": "owner_hold", "page_last_updated": None,
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}
+                                     for r in doc["records"]]})
+            continue
         if doc.get("stale"):
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                          "checked_at": doc["checked_at"], "reason": doc["stale"]["reason"],

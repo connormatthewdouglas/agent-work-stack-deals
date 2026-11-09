@@ -74,9 +74,9 @@ def test_compare_gpu_prices_same_data_sorted_sourced(srv):
     from core.serverless import rate_reason  # T63: serverless/per-second rows are held, never ranked (any mode)
     h100 = [x for x in data["rates"] if "h100" in x["gpu"].lower().split() and not rate_reason(x)]
     expected = [x for x in h100 if x["tier_class"] != "reserved"]
-    assert r["excluded_reserved"] == len(h100) - len(expected) >= 1
+    assert r["excluded_reserved"] == len(h100) - len(expected)
     assert r["excluded_serverless"] == sum(1 for x in data["rates"] if "h100" in x["gpu"].lower().split() and rate_reason(x))
-    rr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "include_reserved": True, "limit": 25, "on_demand_only": False})
+    rr = call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "L40S", "include_reserved": True, "limit": 25, "on_demand_only": False})
     assert rr["results"][0]["tier_class"] != "reserved" and rr["results"][-1]["tier_class"] == "reserved"
     assert "Hyperstack" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"] or "Reservation" not in call(srv, "compare_gpu_prices", {"mode": "full", "gpu": "H200", "limit": 1})["summary"]
     assert r["total"] == len(expected) and r["count"] == min(25, len(expected)) >= 2

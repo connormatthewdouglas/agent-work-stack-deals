@@ -154,7 +154,12 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         "<h2>What's not included</h2><p>Storage, egress, vCPU/RAM add-ons, region and tax. Availability is an automated check at the time shown: "
         "rows marked out of stock when checked are listed last and left out of lowest, median and cheapest; other rows are "
         "not an availability claim. Multi-GPU and 8-GPU-only offers are left out: multi-GPU quotes need whole-instance pricing, coming later. "
-        "Spot, community, marketplace, serverless, reserved and held or thin prices are never shown here.</p>"
+        "Spot, community, marketplace, serverless, reserved and held or thin prices are never shown here.</p>")
+    owners = sorted({h.get("vendor") for h in feed.get("held_stale") or [] if h.get("reason") == "owner_hold"
+                     and any(fam in str(rec.get("gpu") or "") for rec in h.get("records") or [])})
+    if owners:
+        parts.append(f"<p>Temporarily held, not a live verified price: {esc(', '.join(owners))}.</p>")
+    parts.append(
         f"<p>Other durations: {other}. Full price list: <a href=\"{base}/gpu/{slug}-rental-price/\">{esc(fam)} rental prices</a>. "
         f"For your own hours or throughput, use the MCP tool <code>estimate_job_cost</code>.</p>"
         "<p class=\"meta\">Order is by cost only; referral links are labelled and never change the order. "
