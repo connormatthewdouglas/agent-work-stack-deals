@@ -1,6 +1,6 @@
 """Lantern Scout wider-GPU price batch, rev 4 (STAGED, schema stays 3.2). Additive rows file: out/wider_gpu_prices_latest.json,
 registered in out/latest_manifest.json (scout_io.register_optional). Not called by the hourly refresh; run_cycle.sh calls it after enrich.
-One read-only pass per source: RunPod gpuTypes, Vast bundles (one query, one row per num_gpus allocation), Clore marketplace, Oblivus availability page, Verda
+One read-only pass per source: RunPod gpuTypes, Vast bundles (one query), Clore marketplace, Oblivus availability page, Verda
 /instance-types (authenticated GET), Lambda /instance-types (authenticated GET; all mapped Lambda rows are live-feed duplicates and
 are dropped by DROP_LIVE_DUPES, so the Lambda read is skipped unless that setting is off).
 Rules: unknown stays null; in_stock null on every row; source_url = public pricing page, API/query detail in source_detail;
@@ -75,7 +75,7 @@ def runpod():
                             f"{c.RPURL} gpuTypes.{pk} id={g['id']}", ts))
     return rows
 
-# ---- Vast: one query; one row per allocation (num_gpus); hold = distinct machine_id < MIN_MARKET_OFFERS; held rows carry no price ----
+# ---- Vast: one query; hold = distinct machine_id < MIN_MARKET_OFFERS; held rows carry no price ----
 VAST_NEW = {"B200": ("B200", None), "B300": ("B300", None), "RTX 6000Ada": ("RTX 6000 Ada", None), "RTX PRO 6000 S": ("RTX PRO 6000", "Server"),
             "RTX PRO 6000 WS": ("RTX PRO 6000", "Workstation"), "RTX PRO 6000 Max-Q": ("RTX PRO 6000", "Max-Q"), "A40": ("A40", None),
             "L4": ("L4", None), "Tesla T4": ("T4", None), "Tesla V100": ("V100", None), "A10": ("A10", None), "RTX A4000": ("RTX A4000", None),
@@ -90,23 +90,21 @@ def vast(min_machines=None):
         if o.get("gpu_name") not in VAST_NEW or not o.get("num_gpus") or not o.get("gpu_ram"): continue
         fam, form = VAST_NEW[o["gpu_name"]]; vr = round(o["gpu_ram"] / 1024)
         model, vram, _ = canon(fam, form, vr)
-        ng = int(o["num_gpus"])  # allocation size: 1x and 8x stay separate rows (per-GPU price is not mixed)
-        g = grp[(fam, form, vram, ng)]; g["p"].append(o["dph_total"] / ng); g["raw"][vr] += 1
+        g = grp[(fam, form, vram)]; g["p"].append(o["dph_total"] / o["num_gpus"]); g["raw"][vr] += 1
         if o.get("machine_id") is not None: g["m"].add(o["machine_id"])
         else: g["nomid"] += 1
     rows = []
-    for (fam, form, vram, ng), g in sorted(grp.items(), key=lambda kv: str(kv[0])):
+    for (fam, form, vram), g in sorted(grp.items(), key=lambda kv: str(kv[0])):
         n, m = len(g["p"]), len(g["m"])
         held = bool(min_machines) and m < min_machines
         figs = dict(g["raw"]); off = vram
         vn = None if set(figs) == {off} else "vendor reports " + ", ".join(f"{k}GB ({v} offers)" for k, v in sorted(figs.items())) + f"; {spec_label(fam)} {off}GB"
         cnt = f"{n} offers on {m} distinct machine_id" + (f" ({g['nomid']} offers without machine_id, not counted)" if g["nomid"] else "")
         med = statistics.median(g["p"])
-        r = row("Vast.ai", fam, form, vram, f"Marketplace on-demand (verified) ({ng}x GPU)", None if held else med,
+        r = row("Vast.ai", fam, form, vram, "Marketplace on-demand (verified)", None if held else med,
                 "median per-GPU dph_total, same snapshot as offer_count", url, ts, offer_count=n, distinct_machines=m, price_refresh="4h",
                 feed_status="held_below_min_offers" if held else None,
-                availability_note=f"{cnt}; " + (f"held: fewer than {min_machines} distinct machines, price withheld" if held else "in_stock not asserted (single read)"),
-                gpu_count=ng, min_gpus=ng)
+                availability_note=f"{cnt}; " + (f"held: fewer than {min_machines} distinct machines, price withheld" if held else "in_stock not asserted (single read)"))
         r["vram_note"] = "; ".join(x for x in (vn, VRAM_EXCEPTIONS.get(fam) if VRAM_MODE == "official" else None) if x) or None
         if held: r["feed_min_offers"] = min_machines
         rows.append(r)
@@ -258,7 +256,7 @@ def collect(secrets_dir="secrets"):
         if not r.get("source_url", "").startswith("https://") or "?" in r["source_url"] or not r.get("verified_at"): raise AssertionError(r)
     return {"version": "3.2", "batch": "wider-gpu", "collected_at": c.NOW(), "errors": errs, "family_scope": list(FAMILY_SCOPE),
             "settings": {"VRAM_MODE": VRAM_MODE, "NAME_MODE": NAME_MODE, "DROP_LIVE_DUPES": DROP_LIVE_DUPES},
-            "meta": {"feed_min_market_offers": mmo, "vast_hold_counts": "distinct machine_id", "vast_group": "num_gpus", "run_seconds": round(time.time() - t0, 1),
+            "meta": {"feed_min_market_offers": mmo, "vast_hold_counts": "distinct machine_id", "run_seconds": round(time.time() - t0, 1),
                      "dropped_live_dupes": len(dropped), "counts": counts(rows)}, "rows": rows}
 
 LATEST = "wider_gpu_prices_latest.json"
