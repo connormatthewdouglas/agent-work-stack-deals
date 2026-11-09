@@ -28,7 +28,9 @@ SPEC = {
                            ["gpu", "summary", "scope", "count", "total", "excluded_non_on_demand", "excluded_reserved",
                             "next_refresh_utc", "data_checked_at", "refresh_hint", "results", "cheapest_by_form_factor", "cheapest_by_form_factor_note",
                             # T115 (additive): a relaxed hard constraint must stay visible in brief mode
-                            "on_demand_only", "on_demand_fallback"],
+                            "on_demand_only", "on_demand_fallback",
+                            # T63 (additive): serverless/per-second rows are held in every mode; the count stays visible in brief
+                            "excluded_serverless"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "interruptible", "canonical_model", "form_factor", "source_url", "checked_at",
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link

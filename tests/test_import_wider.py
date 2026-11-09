@@ -198,3 +198,33 @@ def test_refuses_wrong_schema(tmp_path):
     f.write_text(json.dumps({"version": "3.1", "batch": "wider-gpu", "collected_at": datetime.now(timezone.utc).isoformat(), "rows": []}))
     p = subprocess.run([sys.executable, str(ROOT / "scripts/import_scout_wider.py"), str(f), "--dry-run"], capture_output=True, text=True)
     assert p.returncode != 0 and "refusing" in (p.stdout + p.stderr)
+
+
+def test_modal_h100_per_second_never_ranked_in_any_pricing_mode():
+    # Gauge 1108: Modal's serverless per-second H100 row (tier "Serverless, preemptible (per second)", billing_unit
+    # per-second, $0.001097/s) showed up in the non-on-demand compare results as an hourly rate. It is held in every mode.
+    from core import deals as core
+    from core.gpu import build_rates
+    feed = json.loads((ROOT / "deals.json").read_text())["deals"]
+    data = build_rates(feed)
+    modal = [r for r in data["rates"] if r["advertiser"] == "Modal" and r["gpu"] == "H100 SXM"]
+    assert modal and modal[0]["billing_unit"] == "per-second" and modal[0]["price_per_second_usd"] == 0.001097
+    now = datetime.fromisoformat(modal[0]["verified_at"])  # judge the tree as of the row's own check time (no staleness)
+    for kw in ({"on_demand_only": False}, {"on_demand_only": False, "include_reserved": True}, {"on_demand_only": True},
+               {"on_demand_only": False, "max_data_age_hours": 720}):
+        out = core.compare_gpu_prices(data, "H100", limit=25, now=now, **kw)
+        assert not [x for x in out["results"] if x["advertiser"] == "Modal" or x.get("billing_unit") == "per-second"], kw
+        held = [h for h in out["held_serverless"] if h["vendor"] == "Modal" and h["gpu"] == "H100 SXM"]
+        assert held and held[0]["reason"].startswith("serverless/per-second") and held[0]["price_per_second_usd"] == 0.001097, kw
+        assert out["excluded_serverless"] >= 1
+    # Koyeb's L40S "Serverless GPU instance (per-second billing)" is billed hourly in the feed but is serverless too
+    out = core.compare_gpu_prices(data, "L40S", limit=25, on_demand_only=False, now=now)
+    assert not [x for x in out["results"] if x["advertiser"] in ("Koyeb", "Modal")]
+    assert {h["vendor"] for h in out["held_serverless"]} >= {"Koyeb", "Modal"}
+    # only-serverless model: a clear not_found, never a serverless 'cheapest'
+    only = {"rates": [r for r in data["rates"] if r["advertiser"] == "Modal"]}
+    try:
+        core.compare_gpu_prices(only, "H100", on_demand_only=False, now=now)
+        raise AssertionError("serverless-only model must not rank")
+    except core.DealError as e:
+        assert "serverless" in str(e)

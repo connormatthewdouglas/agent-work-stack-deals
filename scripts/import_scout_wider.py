@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core.compliance import is_pulled  # noqa: E402
 from core.gpu import family_of  # noqa: E402
+from core import serverless  # noqa: E402  (T63: one shared serverless/per-second rule)
 
 PRICING = ROOT / "data" / "gpu_pricing"
 FILES = {"RunPod": "runpod.json", "Lambda": "lambda.json", "Vast.ai": "vast.json", "Verda": "verda.json", "Oblivus": "oblivus.json"}
@@ -27,10 +28,6 @@ UNITS = {"hourly": 1, "per-second": 3600}
 RESERVED_RE = re.compile(r"reserved|commit|\d+\s*-?\s*(?:month|year|yr)\b", re.I)
 ONE_GPU_RE = re.compile(r"\b1 GPU\b")
 # Serverless / per-second / active-worker prices are not dedicated instance rates (Gauge 1104 #102): held, never imported.
-# T63 (Bjorn 1108): checked against EVERY string value of the row, whatever the field is called (tier, price_basis,
-# billing_granularity, billing, quote, notes, gpu_model, source_url path, ...), and against per-second price KEYS.
-SERVERLESS_RE = re.compile(r"serverless|\bflex\b|active[-_ ]worker|per[-_ ]?sec(?:ond)?s?\b|/\s*sec(?:ond)?\b|scale[-_ ]to[-_ ]zero", re.I)
-PER_SECOND_KEY_RE = re.compile(r"(?:^|_)(?:per_?)?sec(?:ond)?s?$|_per_?sec(?:ond)?_|_sec_", re.I)
 # Interruptible / non-guaranteed capacity: spot, preemptible, community and marketplace tiers.
 INTERRUPTIBLE_RE = re.compile(r"spot|preempt|interrupt", re.I)
 VERBATIM_KEYS = ("quote_verbatim", "verbatim_text")
@@ -44,27 +41,8 @@ def _int(x):
     return x if isinstance(x, int) and not isinstance(x, bool) and x >= 1 else None
 
 
-def _strings(x):
-    if isinstance(x, str):
-        yield x
-    elif isinstance(x, dict):
-        for v in x.values():
-            yield from _strings(v)
-    elif isinstance(x, (list, tuple)):
-        for v in x:
-            yield from _strings(v)
-
-
 def serverless_reason(r: dict) -> str | None:
-    """Why a row is a serverless / per-second price (not a dedicated instance rate), or None. Field-name agnostic."""
-    keys = [k for k, val in r.items() if val not in (None, "", 0) and PER_SECOND_KEY_RE.search(str(k))]
-    if keys:
-        return f"serverless/per-second price: not a dedicated instance rate (per-second field {keys[0]})"
-    for txt in _strings(r):
-        m = SERVERLESS_RE.search(txt)
-        if m:
-            return f"serverless/per-second price: not a dedicated instance rate ({m.group(0)!r} in row)"
-    return None
+    return serverless.row_reason(r)
 
 
 def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
@@ -75,7 +53,7 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     v = r.get("vendor") or ""
     if any(n in v.lower() for n in NEVER):
         return None, None
-    priced = r.get("price_usd_hr") is not None or any(PER_SECOND_KEY_RE.search(str(k)) and r[k] not in (None, "") for k in r)
+    priced = r.get("price_usd_hr") is not None or bool(serverless.per_second_keys(r))
     why = serverless_reason(r) if priced else None  # before vendor/GPU checks: a serverless row is always reported as one
     if why:
         return None, why
