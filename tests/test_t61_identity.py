@@ -66,3 +66,21 @@ def test_mcp_usable_filter_and_identity():
     plain = s.compare_gpu_prices("H100")
     assert plain["results"] and "usable_memory_filter" not in plain
     assert s.compare_gpu_prices("H100", min_usable_memory_gb=-1)["error"]
+
+
+def test_brief_keeps_t115_fields_and_t61_filter_together():
+    # #103 rebased onto #112: brief compare_gpu_prices keeps both the T115 constraint fields and the T61 filter outcome
+    from core import contract
+    full = {"gpu": "MI355X", "summary": "s", "count": 0, "total": 1, "on_demand_only": True,
+            "on_demand_fallback": "No on-demand rate is tracked for this model, so these results include spot/community/marketplace rates.",
+            "usable_memory_filter": {"min_usable_memory_gb": 200, "matched": 0, "below": 0, "unknown": 1, "note": "n"},
+            "model_identity": {"usable_memory": {"value": "unknown"}},
+            "results": [{"rank": 1, "rate_id": "r_x", "advertiser": "a", "gpu": "MI355X", "hourly_usd": 4.5,
+                         "source_url": "https://example.invalid/", "tier_class": "interruptible", "interruptible": True}]}
+    b = contract.finalize("compare_gpu_prices", full, "brief")
+    assert b["on_demand_only"] is True and b["on_demand_fallback"] == full["on_demand_fallback"]
+    assert b["usable_memory_filter"] == full["usable_memory_filter"]
+    assert b["results"][0]["interruptible"] is True
+    live = s.compare_gpu_prices("MI355X", on_demand_only=True, min_usable_memory_gb=200)
+    assert live["ok"] and live["mode"] == "brief" and "usable_memory_filter" in live and live["results"] == []
+    assert s.BUILD_SHA  # #112 serverInfo build still wired
