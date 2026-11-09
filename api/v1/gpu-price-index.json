@@ -3769,8 +3769,8 @@
   {
    "date": "2026-11-09",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-09.json",
-   "snapshot_sha256": "10cc7e6c78dbc89071d4fa0dd348ff642203a5024021e0714b8c93b5e1a7c400",
-   "feed_commit_for_listing_counts": "ff98c1764eceb3952bec77d403084cbf7aca3162",
+   "snapshot_sha256": "0c1c46d4e5e0ad5aeb0198735a04aaa2b9d6376fe0bd595868992b7a40304e61",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.5,
@@ -3808,7 +3808,7 @@
       "Oblivus": 1.47,
       "RunPod": 1.19,
       "Thunder Compute": 1.09,
-      "Vast.ai": 1.3046,
+      "Vast.ai": 1.2724,
       "Verda (formerly DataCrunch)": 2.293
      },
      "low_coverage": false
@@ -3845,17 +3845,18 @@
      "low_coverage": false
     },
     "RTX 4090": {
-     "median_usd_per_gpu_hour": 0.4384,
-     "monthly_basis_usd": 320.03,
+     "median_usd_per_gpu_hour": 0.5078,
+     "monthly_basis_usd": 370.69,
      "min_usd_per_gpu_hour": 0.34,
-     "vendors": 6,
+     "vendors": 7,
      "vendor_prices": {
-      "Clore.ai": 0.5154,
+      "Clore.ai": 0.5104,
       "Nova Cloud": 0.42,
       "Novita AI": 0.67,
+      "Oblivus": 0.64,
       "RunC.AI": 0.42,
       "RunPod": 0.34,
-      "Vast.ai": 0.4567
+      "Vast.ai": 0.5078
      },
      "low_coverage": false
     },
@@ -3865,7 +3866,7 @@
      "min_usd_per_gpu_hour": 0.65,
      "vendors": 3,
      "vendor_prices": {
-      "Clore.ai": 0.7137,
+      "Clore.ai": 0.7104,
       "CloudRift": 0.65,
       "RunPod": 0.69
      },
@@ -3908,6 +3909,7 @@
     "OVHcloud (US)|L40S|Public Cloud GPU instance, hourly (\"Price ( excl. taxes / hour)\")|48|1",
     "Oblivus|A100 PCIe|On-demand|80|1",
     "Oblivus|H100 PCIe|On-demand|80|1",
+    "Oblivus|RTX 4090|On-demand|24|1",
     "RunC.AI|RTX 4090|On-demand|24|1",
     "RunPod|A100 PCIe|On-demand (Community Cloud)|80|1",
     "RunPod|A100 PCIe|On-demand (Secure Cloud)|80|1",
@@ -4152,9 +4154,11 @@
     "RTX 4090": {
      "matched_vendors": 6,
      "matched_median_prev": 0.4448,
-     "matched_median_cur": 0.4384,
-     "matched_change_pct": -1.45,
-     "vendors_added": [],
+     "matched_median_cur": 0.4639,
+     "matched_change_pct": 4.29,
+     "vendors_added": [
+      "Oblivus"
+     ],
      "vendors_dropped": []
     },
     "RTX 5090": {

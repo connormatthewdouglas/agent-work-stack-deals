@@ -23,9 +23,9 @@
     "2026-11-04.3a52b8e9",
     "2026-11-05.fa3177d1",
     "2026-11-06.8742e7f6",
-    "2026-11-09.1c074dfb"
+    "2026-11-09.4a860083"
   ],
-  "last_seq": 120,
+  "last_seq": 122,
   "note": "points are change points: each point is the first snapshot date at that price/status; status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors).",
   "series": [
     {
@@ -283,6 +283,13 @@
           "hourly_usd": 0.5154,
           "status": "ranked",
           "verified_at": "2026-11-04T15:24:01+00:00"
+        },
+        {
+          "date": "2026-11-09",
+          "price_usd": 0.5104,
+          "hourly_usd": 0.5104,
+          "status": "ranked",
+          "verified_at": "2026-11-09T03:51:49+00:00"
         }
       ],
       "last_seen": "2026-11-09"
@@ -325,6 +332,13 @@
           "hourly_usd": 0.7137,
           "status": "ranked",
           "verified_at": "2026-11-04T15:24:01+00:00"
+        },
+        {
+          "date": "2026-11-09",
+          "price_usd": 0.7104,
+          "hourly_usd": 0.7104,
+          "status": "ranked",
+          "verified_at": "2026-11-09T03:51:49+00:00"
         }
       ],
       "last_seen": "2026-11-09"
@@ -2654,6 +2668,27 @@
       "last_seen": "2026-11-09"
     },
     {
+      "key": "Oblivus|RTX 4090|On-demand|24|1",
+      "rate_id": "r_840ac2f91187",
+      "vendor": "Oblivus",
+      "gpu": "RTX 4090",
+      "tier": "On-demand",
+      "vram_gb": 24,
+      "gpu_count": 1,
+      "billing_unit": "hourly",
+      "first_seen": "2026-11-09",
+      "points": [
+        {
+          "date": "2026-11-09",
+          "price_usd": 0.64,
+          "hourly_usd": 0.64,
+          "status": "ranked",
+          "verified_at": "2026-11-09T20:51:44+00:00"
+        }
+      ],
+      "last_seen": "2026-11-09"
+    },
+    {
       "key": "RunC.AI|RTX 4090|On-demand|24|1",
       "rate_id": "r_5d24abfa2b18",
       "vendor": "RunC.AI",
@@ -3810,7 +3845,7 @@
           "price_usd": 0.78,
           "hourly_usd": 0.78,
           "status": "ranked",
-          "verified_at": "2026-11-09T06:04:14+00:00"
+          "verified_at": "2026-11-09T20:52:19+00:00"
         }
       ],
       "last_seen": "2026-11-09"
@@ -4174,7 +4209,7 @@
           "price_usd": 1019.99,
           "hourly_usd": 1.3972,
           "status": "ranked",
-          "verified_at": "2026-11-09T06:04:29+00:00"
+          "verified_at": "2026-11-09T20:53:31+00:00"
         }
       ],
       "last_seen": "2026-11-09"
@@ -4311,10 +4346,10 @@
         },
         {
           "date": "2026-11-09",
-          "price_usd": 1.3046,
-          "hourly_usd": 1.3046,
+          "price_usd": 1.2724,
+          "hourly_usd": 1.2724,
           "status": "ranked",
-          "verified_at": "2026-11-09T06:04:35+00:00"
+          "verified_at": "2026-11-09T20:53:38+00:00"
         }
       ],
       "last_seen": "2026-11-09"
@@ -4437,10 +4472,10 @@
         },
         {
           "date": "2026-11-09",
-          "price_usd": 0.4567,
-          "hourly_usd": 0.4567,
+          "price_usd": 0.5078,
+          "hourly_usd": 0.5078,
           "status": "ranked",
-          "verified_at": "2026-11-09T06:04:41+00:00"
+          "verified_at": "2026-11-09T20:53:43+00:00"
         }
       ],
       "last_seen": "2026-11-09"
@@ -4469,9 +4504,16 @@
           "hourly_usd": 0.0914,
           "status": "ranked",
           "verified_at": "2026-11-04T15:34:53Z"
+        },
+        {
+          "date": "2026-11-09",
+          "price_usd": 0.0914,
+          "hourly_usd": 0.0914,
+          "status": "removed",
+          "verified_at": "2026-11-04T15:34:53Z"
         }
       ],
-      "last_seen": "2026-11-09"
+      "last_seen": "2026-11-06"
     },
     {
       "key": "Vast.ai|RTX PRO 6000 Max-Q|Marketplace on-demand (verified)|96|1",
@@ -4539,9 +4581,16 @@
           "hourly_usd": 1.7337,
           "status": "ranked",
           "verified_at": "2026-11-04T15:34:53Z"
+        },
+        {
+          "date": "2026-11-09",
+          "price_usd": 1.7337,
+          "hourly_usd": 1.7337,
+          "status": "removed",
+          "verified_at": "2026-11-04T15:34:53Z"
         }
       ],
-      "last_seen": "2026-11-09"
+      "last_seen": "2026-11-06"
     },
     {
       "key": "Vast.ai|RTX PRO 6000 Workstation|Marketplace on-demand (verified)|96|1",
@@ -5614,24 +5663,24 @@
       "key": "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
       "rate_id": "r_d92acb858f8f",
       "event_id": "2026-11-09:r_d92acb858f8f:down",
-      "snapshot_id": "2026-11-09.1c074dfb",
+      "snapshot_id": "2026-11-09.4a860083",
       "vendor": "Vast.ai",
       "gpu": "A100 SXM",
       "tier": "Marketplace on-demand (verified; median per GPU)",
       "vram_gb": 80,
       "from_hourly_usd": 1.4565,
-      "to_hourly_usd": 1.3046,
-      "change_pct": -10.4,
+      "to_hourly_usd": 1.2724,
+      "change_pct": -12.6,
       "status": "ranked",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "seq": 120
+      "seq": 122
     },
     {
       "date": "2026-11-09",
       "key": "Ucartz|RTX 5090|Dedicated server (monthly)|32|1",
       "rate_id": "r_ce156ab11895",
       "event_id": "2026-11-09:r_ce156ab11895:down",
-      "snapshot_id": "2026-11-09.1c074dfb",
+      "snapshot_id": "2026-11-09.4a860083",
       "vendor": "Ucartz",
       "gpu": "RTX 5090",
       "tier": "Dedicated server (monthly)",
@@ -5641,14 +5690,31 @@
       "change_pct": -18.8,
       "status": "ranked",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
-      "seq": 119
+      "seq": 121
+    },
+    {
+      "date": "2026-11-09",
+      "key": "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
+      "rate_id": "r_7c488113e439",
+      "event_id": "2026-11-09:r_7c488113e439:down",
+      "snapshot_id": "2026-11-09.4a860083",
+      "vendor": "Clore.ai",
+      "gpu": "RTX 4090",
+      "tier": "Marketplace on-demand (host USD listings; median per GPU)",
+      "vram_gb": 24,
+      "from_hourly_usd": 0.5154,
+      "to_hourly_usd": 0.5104,
+      "change_pct": -1.0,
+      "status": "ranked",
+      "source_url": "https://api.clore.ai/v1/marketplace",
+      "seq": 120
     },
     {
       "date": "2026-11-09",
       "key": "Spheron|RTX 5090|Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)|32|1",
       "rate_id": "r_6928b54f3d7a",
       "event_id": "2026-11-09:r_6928b54f3d7a:down",
-      "snapshot_id": "2026-11-09.1c074dfb",
+      "snapshot_id": "2026-11-09.4a860083",
       "vendor": "Spheron",
       "gpu": "RTX 5090",
       "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
@@ -5658,23 +5724,40 @@
       "change_pct": -50.0,
       "status": "ranked",
       "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
-      "seq": 118
+      "seq": 119
     },
     {
       "date": "2026-11-09",
       "key": "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
       "rate_id": "r_67f379013921",
-      "event_id": "2026-11-09:r_67f379013921:down",
-      "snapshot_id": "2026-11-09.1c074dfb",
+      "event_id": "2026-11-09:r_67f379013921:up",
+      "snapshot_id": "2026-11-09.4a860083",
       "vendor": "Vast.ai",
       "gpu": "RTX 4090",
       "tier": "Marketplace on-demand (verified; median per GPU)",
       "vram_gb": 24,
       "from_hourly_usd": 0.4696,
-      "to_hourly_usd": 0.4567,
-      "change_pct": -2.7,
+      "to_hourly_usd": 0.5078,
+      "change_pct": 8.1,
       "status": "ranked",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "seq": 118
+    },
+    {
+      "date": "2026-11-09",
+      "key": "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
+      "rate_id": "r_54f7ee9cf382",
+      "event_id": "2026-11-09:r_54f7ee9cf382:down",
+      "snapshot_id": "2026-11-09.4a860083",
+      "vendor": "Clore.ai",
+      "gpu": "RTX 5090",
+      "tier": "Marketplace on-demand (host USD listings; median per GPU)",
+      "vram_gb": 32,
+      "from_hourly_usd": 0.7137,
+      "to_hourly_usd": 0.7104,
+      "change_pct": -0.5,
+      "status": "ranked",
+      "source_url": "https://api.clore.ai/v1/marketplace",
       "seq": 117
     },
     {

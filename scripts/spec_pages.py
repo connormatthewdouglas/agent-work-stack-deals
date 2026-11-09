@@ -159,6 +159,11 @@ def recheck_flag(r) -> str:
     return " <small>last re-check failed to parse</small>" if r["verified_at"] < r["checked_at"] else ""
 
 
+def verified_html(r) -> str:
+    """Age of this row's price: its own verified_at, same stamp the rate table uses."""
+    return f"<small>{ts(r['verified_at'])}</small>{recheck_flag(r)}"
+
+
 def faq_block(gen, faqs):
     html = "".join(f"<h3>{gen.esc(q)}</h3><p>{gen.esc(a)}</p>" for q, a in faqs)
     ld = {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs]}
@@ -235,13 +240,14 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     cards = []
     if od_row:
         r = od_row
-        cards.append(f"<div class=\"card\"><h2>Cheapest on-demand among tracked providers</h2><p><strong>{m(r['hourly_equiv_usd'])}/GPU-hr</strong> · {vendor_link(gen, r)} · {esc(r['gpu'])} · {esc(r['tier'])}.</p></div>")
+        extra = f" Sold as {r['min_gpus']}-GPU only ({m(r['server_hourly_usd'])}/hr per server)." if (r.get("min_gpus") or 1) > 1 and r.get("server_hourly_usd") else ""
+        cards.append(f"<div class=\"card\"><h2>Cheapest on-demand among tracked providers</h2><p><strong>{m(r['hourly_equiv_usd'])}/GPU-hr</strong> verified {verified_html(r)} · {vendor_link(gen, r)} · {esc(r['gpu'])} · {esc(r['tier'])}.{extra}</p></div>")
     if sp_row:
         r = sp_row
         note = " May be preempted." if r.get("interruptible") else ""
         if r.get("price_status") == "marketplace":
             note += f" Median of {r['offer_count']} offers; lowest ${r['lowest_offer_usd']:g}."
-        cards.append(f"<div class=\"card\"><h2>Cheapest spot / community among tracked providers</h2><p><strong>{m(r['hourly_equiv_usd'])}/GPU-hr</strong> · {vendor_link(gen, r)} · {esc(r['gpu'])} · {esc(r['tier'])}.{note}</p></div>")
+        cards.append(f"<div class=\"card\"><h2>Cheapest spot / community among tracked providers</h2><p><strong>{m(r['hourly_equiv_usd'])}/GPU-hr</strong> verified {verified_html(r)} · {vendor_link(gen, r)} · {esc(r['gpu'])} · {esc(r['tier'])}.{note}</p></div>")
     body += cards
     if split:
         body.append(split)
@@ -268,7 +274,7 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
             srv = f" <strong>[serverless]</strong>" if gp.is_serverless(r) and "serverless" not in (r.get("tier") or "").lower() else ""
             trs.append(f"<tr><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}{srv}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
                        f"<td data-label=\"Since {esc(prev)}\">{change_text(gen, ch, key(r), prev)}</td><td data-label=\"Egress / storage\"><small>{ext}</small></td><td data-label=\"Vendor quote\">{gp._quote_html(esc, r)}</td>"
-                       f"<td data-label=\"Verified\"><small>{ts(r['verified_at'])}</small>{recheck_flag(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
+                       f"<td data-label=\"Verified\">{verified_html(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
                        + f"<td data-label=\"Link\">{link_cell(gen, r)}</td></tr>")
         label = glabel + (" (reservation / term contract; excluded from the cheapest among tracked providers ranking)" if b == "Reserved" else "")
         av_note = ("<strong>Availability:</strong> " + gp.STOCK_EXPLAINER + " " + gp.REGIONS_NOTE
@@ -393,8 +399,8 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
             diff = abs(x - y); pct = diff / max(x, y) * 100 if max(x, y) else 0
             win = "tie" if x == y else (sa if x < y else sb)
             fam = family(k[1]); g = f'<a href="{gpu_url(gen, fam)}">{esc(k[1])}</a>' if fam in quals else esc(k[1])
-            trs.append(f"<tr><td data-label=\"GPU\">{g}</td><td data-label=\"VRAM\">{k[2] or ''} GB</td><td data-label=\"{esc(sa)} $/GPU-hr\">{esc(price_cell(gen, ra))} <small>({esc(ra['tier'])})</small> · {link_cell(gen, ra)}<br>{gp._quote_html(esc, ra)}</td>"
-                       f"<td data-label=\"{esc(sb)} $/GPU-hr\">{esc(price_cell(gen, rb))} <small>({esc(rb['tier'])})</small> · {link_cell(gen, rb)}<br>{gp._quote_html(esc, rb)}</td><td data-label=\"Diff (vs dearer)\">{m(diff)} ({pct:.0f}%)</td>"
+            trs.append(f"<tr><td data-label=\"GPU\">{g}</td><td data-label=\"VRAM\">{k[2] or ''} GB</td><td data-label=\"{esc(sa)} $/GPU-hr\">{esc(price_cell(gen, ra))} <small>({esc(ra['tier'])})</small> verified {verified_html(ra)} · {link_cell(gen, ra)}<br>{gp._quote_html(esc, ra)}</td>"
+                       f"<td data-label=\"{esc(sb)} $/GPU-hr\">{esc(price_cell(gen, rb))} <small>({esc(rb['tier'])})</small> verified {verified_html(rb)} · {link_cell(gen, rb)}<br>{gp._quote_html(esc, rb)}</td><td data-label=\"Diff (vs dearer)\">{m(diff)} ({pct:.0f}%)</td>"
                        f"<td data-label=\"Since {esc(prev)}\">{esc(sa)}: {change_text(gen, ch, key(ra), prev)}<br>{esc(sb)}: {change_text(gen, ch, key(rb), prev)}</td><td data-label=\"Cheaper\"><strong>{esc(win)}</strong></td></tr>")
         body.append(f"<h2>{esc(bk)}</h2><div class=\"tscroll rates-cards\"><table class=\"howto\"><thead><tr><th>GPU</th><th>VRAM</th><th>{vendor_link(gen, ca[ks[0]]).split('</a>')[0]}</a> $/GPU-hr</th>"
                     f"<th>{esc(sb)} $/GPU-hr</th><th>Diff (vs dearer)</th><th>Since {esc(prev)}</th><th>Cheaper</th></tr></thead><tbody>{''.join(trs)}</tbody></table></div>"

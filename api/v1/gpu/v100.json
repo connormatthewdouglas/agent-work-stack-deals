@@ -15,13 +15,151 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-09T06:03:08+00:00",
-  "row_count": 1,
+  "last_checked": "2026-11-09T20:51:13+00:00",
+  "row_count": 3,
   "providers": [
-    "Lambda"
+    "Lambda",
+    "RunPod"
   ],
-  "cheapest": {},
+  "cheapest": {
+    "spot-community": [
+      {
+        "vram_gb": 16,
+        "provider": "RunPod",
+        "gpu": "V100 PCIe",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.19,
+        "unit": "hour",
+        "price_usd": 0.19,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-09T19:00:30Z",
+        "source_url": "https://api.runpod.io/graphql",
+        "quote": "gpuTypes.communityPrice (list price, 1 GPU): 0.19",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "evidence": {
+          "request_method": "POST",
+          "operation": "gpuTypes.communityPrice",
+          "record_id": "Tesla V100-PCIE-16GB"
+        },
+        "form_factor": "PCIe",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "PCIe",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 16
+        }
+      },
+      {
+        "vram_gb": 16,
+        "provider": "RunPod",
+        "gpu": "V100 SXM2",
+        "tier": "On-demand (Community Cloud)",
+        "tier_class": "community",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 0.23,
+        "unit": "hour",
+        "price_usd": 0.23,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-09T19:00:30Z",
+        "source_url": "https://api.runpod.io/graphql",
+        "quote": "gpuTypes.communityPrice (list price, 1 GPU): 0.23",
+        "availability": {
+          "status": "unknown",
+          "in_stock": null,
+          "checked_at": null,
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        },
+        "evidence": {
+          "request_method": "POST",
+          "operation": "gpuTypes.communityPrice",
+          "record_id": "Tesla V100-SXM2-16GB"
+        },
+        "form_factor": "SXM2",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM2",
+          "tier": "On-demand (Community Cloud)",
+          "vram_gb": 16
+        }
+      }
+    ]
+  },
   "rows": [
+    {
+      "provider": "RunPod",
+      "gpu": "V100 PCIe",
+      "vram_gb": 16,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.19,
+      "unit": "hour",
+      "price_usd": 0.19,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-09T19:00:30Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.communityPrice (list price, 1 GPU): 0.19",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.communityPrice",
+        "record_id": "Tesla V100-PCIE-16GB"
+      },
+      "form_factor": "PCIe",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "V100 SXM2",
+      "vram_gb": 16,
+      "tier": "On-demand (Community Cloud)",
+      "tier_class": "community",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 0.23,
+      "unit": "hour",
+      "price_usd": 0.23,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-09T19:00:30Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.communityPrice (list price, 1 GPU): 0.23",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.communityPrice",
+        "record_id": "Tesla V100-SXM2-16GB"
+      },
+      "form_factor": "SXM2",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
     {
       "provider": "Lambda",
       "gpu": "V100",
@@ -37,7 +175,7 @@
       "server_hourly_usd": 6.32,
       "min_gpus": 8,
       "price_status": "listed",
-      "verified_at": "2026-11-09T06:03:08+00:00",
+      "verified_at": "2026-11-09T20:51:13+00:00",
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA Tesla V100 16 GB 88 448 GiB 5.8 TiB SSD $0.79",
       "availability": {
@@ -52,6 +190,6 @@
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261106T025255Z-beb5802e",
-  "feed_updated_at": "2026-11-09T06:04:41Z"
+  "generation_id": "20261109T190038Z-6452d01a",
+  "feed_updated_at": "2026-11-09T20:53:43Z"
 }

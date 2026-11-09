@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-09T06:03:57+00:00",
+  "last_checked": "2026-11-09T20:52:02+00:00",
   "row_count": 7,
   "providers": [
     "CoreWeave",
@@ -41,7 +41,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-09T06:02:38+00:00",
+        "verified_at": "2026-11-09T20:50:43+00:00",
         "source_url": "https://www.digitalocean.com/pricing/gpu-droplets",
         "quote": "NVIDIA HGX H200 $4.47 /GPU/hour On-Demand Price",
         "availability": {
@@ -72,7 +72,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-09T06:03:57+00:00",
+        "verified_at": "2026-11-09T20:52:02+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H200 cloud GPU rental on Runpod. Community Cloud $3.59/hr, Secure Cloud $5.29/hr.",
         "availability": {
@@ -105,7 +105,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-09T06:03:57+00:00",
+        "verified_at": "2026-11-09T20:52:02+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H200 cloud GPU rental on Runpod. Community Cloud $3.59/hr, Secure Cloud $5.29/hr.",
         "availability": {
@@ -179,7 +179,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-09T06:03:57+00:00",
+      "verified_at": "2026-11-09T20:52:02+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H200 cloud GPU rental on Runpod. Community Cloud $3.59/hr, Secure Cloud $5.29/hr.",
       "availability": {
@@ -240,7 +240,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-09T06:02:38+00:00",
+      "verified_at": "2026-11-09T20:50:43+00:00",
       "source_url": "https://www.digitalocean.com/pricing/gpu-droplets",
       "quote": "NVIDIA HGX H200 $4.47 /GPU/hour On-Demand Price",
       "availability": {
@@ -266,7 +266,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-09T06:03:14+00:00",
+      "verified_at": "2026-11-09T20:51:19+00:00",
       "source_url": "https://modal.com/pricing",
       "quote": "Nvidia H200 SXM $ 0.001261 / sec",
       "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
@@ -293,7 +293,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-09T06:03:57+00:00",
+      "verified_at": "2026-11-09T20:52:02+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H200 cloud GPU rental on Runpod. Community Cloud $3.59/hr, Secure Cloud $5.29/hr.",
       "availability": {
@@ -319,7 +319,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-09T06:03:20+00:00",
+      "verified_at": "2026-11-09T20:51:25+00:00",
       "source_url": "https://nebius.com/prices",
       "quote": "NVIDIA HGX H200 16 200 from $0.79 $5.40",
       "availability": {
@@ -346,7 +346,7 @@
       "server_hourly_usd": 50.44,
       "min_gpus": 8,
       "price_status": "listed",
-      "verified_at": "2026-11-09T06:02:32+00:00",
+      "verified_at": "2026-11-09T20:50:37+00:00",
       "source_url": "https://www.coreweave.com/pricing",
       "quote": "NVIDIA HGX H200 On-Demand Price: $50.44 / Hour",
       "availability": {
@@ -361,6 +361,6 @@
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261106T025255Z-beb5802e",
-  "feed_updated_at": "2026-11-09T06:04:41Z"
+  "generation_id": "20261109T190038Z-6452d01a",
+  "feed_updated_at": "2026-11-09T20:53:43Z"
 }
