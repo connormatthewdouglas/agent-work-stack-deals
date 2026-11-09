@@ -632,7 +632,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old, "excluded_stale": len(stale_rows),
                     "region": cons.get("region"), "excluded_other_region": excluded_region,
                     "scope": "cheapest among tracked providers", "total": 0, "count": 0, "results": [],
-                    "usable_memory_filter": ufilter,
+                    "usable_memory_filter": ufilter, "excluded_serverless": len(held_serverless),
+                    "held_serverless": [{k: v for k, v in h.items() if k != "_row"} for h in held_serverless],
                     "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at")}
     unresolved = lambda r: any(u["constraint"] == "region" for u in elig[id(r)]["unknown"])
     # Reserved rows (only with include_reserved) sort after pay-as-you-go rows: never reported as "cheapest".

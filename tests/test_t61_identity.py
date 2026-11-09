@@ -125,3 +125,14 @@ def test_identity_failure_is_never_fatal(monkeypatch):
     assert b["ok"] and b["results"] and "model_identity_note" in b
     f = s.compare_gpu_prices("H100", min_usable_memory_gb=40)
     assert f["ok"] and f["results"] == [] and f["usable_memory_filter"]["identity_unavailable"] is True
+
+
+def test_brief_keeps_all_four_keys_after_102_and_103():
+    # #103 rebased on #102: brief compare keeps on_demand_only, on_demand_fallback, excluded_serverless and usable_memory_filter
+    from core import contract
+    keys = {"on_demand_only", "on_demand_fallback", "excluded_serverless", "usable_memory_filter"}
+    full = {"gpu": "L40S", "summary": "s", "count": 0, "total": 0, "results": [], "on_demand_only": False,
+            "on_demand_fallback": "f", "excluded_serverless": 2, "usable_memory_filter": {"matched": 0}}
+    assert keys <= set(contract.finalize("compare_gpu_prices", full, "brief"))
+    o = s.compare_gpu_prices("L40S", on_demand_only=False, min_usable_memory_gb=40)
+    assert o["ok"] and o["excluded_serverless"] >= 1 and "usable_memory_filter" in o and "on_demand_only" in o
