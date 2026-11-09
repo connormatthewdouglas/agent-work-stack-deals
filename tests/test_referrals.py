@@ -17,7 +17,15 @@ def test_referral_label_on_every_code_carrying_row():
         if r["advertiser"] in ("Lambda", "Hyperstack") or r["advertiser"].startswith("Verda"):
             assert "referral_url" not in r and "referral_label" not in r, r["advertiser"]
     labelled = {r["advertiser"] for r in FEED["rates"] if r.get("referral_label")}
-    assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "99Stack Cloud", "RunPod", "Thunder Compute"} <= labelled
+    assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "RunPod", "Thunder Compute"} <= labelled
+    # 99Stack's /a/<uuid> referral drops the token on redirect. Price rows stay; the link is the vendor page.
+    rows_99 = [r for r in FEED["rates"] if r["advertiser"] == "99Stack Cloud"]
+    assert rows_99 and all(
+        r.get("affiliate") is False and "referral_url" not in r and "referral_label" not in r
+        and r["redeem_url"] == "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100"
+        and r["hourly_equiv_usd"] == 2.8767
+        for r in rows_99
+    )
 
 
 def test_codes_are_never_stripped():
