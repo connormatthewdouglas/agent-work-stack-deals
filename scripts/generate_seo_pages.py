@@ -331,10 +331,6 @@ GUIDES = [
                 "why": "Email finder, verifier, and outreach in one stack — practical when an agent needs leads plus deliverability checks before send.",
             },
             {
-                "id": "deal-clearbounce-001",
-                "why": "Email verification API to keep agent lists clean — reduces bounces before you burn transactional quota.",
-            },
-            {
                 "id": "deal-postmark-001",
                 "why": "Transactional email API with strong deliverability — a solid send layer for agent receipts, alerts, and sequenced outreach.",
             },

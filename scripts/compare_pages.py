@@ -189,7 +189,7 @@ PAGES = [
         "h1": "Email verification APIs compared",
         "desc": "Email verification and list-cleaning APIs compared on verified per-credit pricing, free credits and billing model.",
         "intro": "Verification checks whether an address can receive mail before you send, which protects sender reputation and cuts bounces. Vendors sell pay-as-you-go credit packs or monthly plans. The table quotes the pricing we saw on each vendor's page.",
-        "ids": ["deal-mailveri-001", "deal-sealch-001", "deal-mailfloss-001", "deal-emaillistverify-001", "deal-clearbounce-001", "deal-snovio-001", "deal-prospeo-001", "deal-leadmagic-001"],
+        "ids": ["deal-mailveri-001", "deal-sealch-001", "deal-mailfloss-001", "deal-emaillistverify-001", "deal-snovio-001", "deal-prospeo-001", "deal-leadmagic-001"],
         "choose": [
             "Estimate monthly volume. Occasional list cleans suit non-expiring credit packs; continuous signup validation suits a subscription with an API.",
             "Ask how catch-all and unknown results are billed; some vendors charge only for definitive results.",
@@ -209,7 +209,7 @@ PAGES = [
         "h1": "Cold email deliverability and inbox warmup tools",
         "desc": "Warmup, mailbox providers, placement testing and DMARC tools compared on verified pricing. Honest pros and cons; no guessed prices.",
         "intro": "Deliverability depends on authenticated domains (SPF, DKIM, DMARC), mailbox reputation, sending volume and content people want. Tools here cover parts of that: buying sending mailboxes, warming them, testing inbox placement and monitoring DMARC. None of them fixes unwanted email.",
-        "ids": ["deal-mailreach-001", "deal-folderly-001", "deal-inboxkit-001", "deal-zapmail-001", "deal-premiuminboxes-001", "deal-relay-mailboxes-001", "deal-dmarcly-001", "deal-heyo-001", "deal-reachinbox-001", "deal-salesforge-001"],
+        "ids": ["deal-mailreach-001", "deal-folderly-001", "deal-inboxkit-001", "deal-zapmail-001", "deal-premiuminboxes-001", "deal-dmarcly-001", "deal-heyo-001", "deal-reachinbox-001", "deal-salesforge-001"],
         "choose": [
             "Fix authentication first: SPF, DKIM and a DMARC policy. A DMARC monitor shows what is failing.",
             "Price mailboxes per mailbox per month, including domain costs and any warmup add-on.",
@@ -249,7 +249,7 @@ PAGES = [
         "h1": "SERP and search APIs compared",
         "desc": "Google SERP scrapers and AI search APIs compared on verified free tiers and per-request pricing.",
         "intro": "Agents need search results either as raw SERP data (titles, links, positions) or as AI-ready search with extracted content. SERP APIs suit rank tracking and SEO; AI search APIs suit retrieval for agents. Both are compared here using verified free-tier limits and prices.",
-        "ids": ["deal-serpapi-free-001", "deal-tavily-free-001", "deal-exa-001", "deal-brightdata-api-free-001", "deal-apilayer-001", "deal-scrapingdog-001", "deal-serptool-001"],
+        "ids": ["deal-serpapi-free-001", "deal-tavily-free-001", "deal-brightdata-api-free-001", "deal-apilayer-001", "deal-scrapingdog-001", "deal-serptool-001"],
         "choose": [
             "Need exact Google positions and features? Use a SERP API. Need relevant pages with content for an LLM? Use an AI search API.",
             "Count successful requests: some vendors bill only for successful searches.",
