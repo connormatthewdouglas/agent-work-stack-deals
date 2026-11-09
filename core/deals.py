@@ -576,7 +576,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     from . import serverless as _sl
     held_serverless = [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"), "billing_unit": r.get("billing_unit"),
                         "price_per_second_usd": r.get("price_per_second_usd"), "source_url": r.get("source_url"),
-                        "checked_at": r.get("verified_at") or r.get("checked_at"), "reason": _sl.rate_reason(r)}
+                        "checked_at": r.get("verified_at") or r.get("checked_at"), "reason": _sl.rate_reason(r), "_row": r}
                        for r in rows if _sl.rate_reason(r)]
     if held_serverless:
         rows = [r for r in rows if not _sl.rate_reason(r)]
@@ -586,7 +586,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     excluded = 0
     if on_demand_only:
         keep = [r for r in rows if tier_class(r) == "on-demand"]
-        excluded = len(rows) - len(keep)
+        # held serverless rows that are not on-demand still count here (same count as before the T63 hold)
+        excluded = len(rows) - len(keep) + sum(1 for h in held_serverless if tier_class(h["_row"]) != "on-demand")
         if not keep:
             raise DealError("not_found", f"No on-demand tracked price for GPU '{gpu}' ({excluded} spot/community/marketplace/monthly rates exist; retry without on_demand_only)")
         rows = keep
@@ -700,7 +701,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     + ". This is the cheapest among tracked providers only, not the whole market. "
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
-        "excluded_serverless": len(held_serverless), "held_serverless": held_serverless,
+        "excluded_serverless": len(held_serverless), "held_serverless": [{k: v for k, v in h.items() if k != "_row"} for h in held_serverless],
         "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
         "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old,
         "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,
