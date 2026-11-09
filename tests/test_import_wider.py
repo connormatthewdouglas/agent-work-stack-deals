@@ -168,7 +168,7 @@ def test_verbatim_and_summary_separate():
     assert v["evidence_kind"] == "verbatim" and v["evidence"]["quote"] == "H100 SXM $2.39/hr"
     assert "importer summary" in v["normalized_summary"] and v["normalized_summary"] != v["evidence"]["quote"]
     a = normalize(row(vendor="RunPod", gpu_model="H100", vram_gb=80, price_usd_hr=2.39))
-    assert a["evidence_kind"] == "api_field" and a["evidence"]["quote"].startswith("api.price_per_hour (list price, 1 GPU): 2.39")
+    assert a["evidence_kind"] == "api_field" and a["evidence"]["quote"].startswith("api.price_per_hour (list price, 1 GPU): $2.39")
     assert "importer summary" not in a["evidence"]["quote"] and a["evidence_method"]
 
 
