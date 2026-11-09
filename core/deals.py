@@ -438,8 +438,11 @@ def cheapest_by_form_factor(rows: list[dict], gpus: int | None = 1) -> list[dict
         if tier_class(r) == "reserved" or r.get("hourly_equiv_usd") is None:
             continue
         from .gpu import min_gpus_unmet
+        from .serverless import rate_reason
         if min_gpus_unmet(r, gpus):
             continue  # Bjorn 1109: an allocation larger than the request is never a form-factor pick
+        if rate_reason(r):
+            continue  # same serverless/per-second hold as compare (#102/#125), also for callers passing unfiltered rows
         k = (out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or "")
         f = form_of(r)
         if f not in byf or k < byf[f][0]:

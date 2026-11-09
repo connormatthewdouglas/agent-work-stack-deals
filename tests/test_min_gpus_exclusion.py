@@ -64,3 +64,35 @@ def test_brief_mode_keeps_the_count():
     out = json.loads((res[0] if isinstance(res, tuple) else res)[0].text)
     assert out["mode"] == "brief" and out["min_gpus_unmet"] >= 1 and out["gpus"] == 1
     assert all((r.get("min_gpus") or 1) <= 1 for r in out["results"])
+
+
+# ---- Bjorn 1109 (2): serverless/per-second rows never rank in compare or cheapest_by_form_factor -----------------
+
+KOYEB = next(r for r in FEED["rates"] if r["advertiser"] == "Koyeb" and r["gpu"] == "L40S")
+
+
+def test_real_koyeb_l40s_row_is_serverless():
+    from core.serverless import rate_reason
+    assert KOYEB["hourly_equiv_usd"] == 1.2 and KOYEB["tier_class"] == "on-demand" and not KOYEB["interruptible"]
+    assert rate_reason(KOYEB)
+
+
+def test_unfiltered_cheapest_by_form_factor_never_picks_koyeb():
+    """Pages call cheapest_by_form_factor with unfiltered rows (scripts/gpu_pages._form_split). Real L40S rows; Koyeb and
+    a pricier real row share a form so Koyeb would win that form on price alone."""
+    rows = [copy.deepcopy(r) for r in FEED["rates"] if r["gpu"] == "L40S"]
+    other = min((r for r in rows if r["advertiser"] not in ("Koyeb", "Modal") and r["hourly_equiv_usd"] > KOYEB["hourly_equiv_usd"]
+                 and r.get("tier_class") != "reserved"), key=lambda r: r["hourly_equiv_usd"])
+    for r in rows:
+        if r["advertiser"] == "Koyeb" or r is other:
+            r["form_factor"] = "PCIe"
+    picks = {p["form_factor"]: p for p in deals.cheapest_by_form_factor(rows)}
+    assert picks["PCIe"]["advertiser"] == other["advertiser"] and picks["PCIe"]["hourly_usd"] == other["hourly_equiv_usd"]
+    assert not any(p["advertiser"] in ("Koyeb", "Modal") for p in picks.values())
+
+
+def test_compare_l40s_holds_koyeb_in_held_serverless_not_results():
+    out = deals.compare_gpu_prices(FEED, "L40S", limit=25, now=datetime.fromisoformat(KOYEB["verified_at"]) + timedelta(hours=1))
+    assert not any(r["advertiser"] in ("Koyeb", "Modal") for r in out["results"])
+    assert {h["vendor"] for h in out["held_serverless"]} >= {"Koyeb"} and out["excluded_serverless"] >= 1
+    assert all(h["reason"].startswith("serverless/per-second") for h in out["held_serverless"])
