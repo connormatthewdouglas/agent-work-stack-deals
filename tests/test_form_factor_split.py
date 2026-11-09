@@ -34,7 +34,10 @@ def test_pair_pages_pair_within_form_factor():
 
 
 def test_page_and_mcp_share_one_form_factor_rule():
-    """Gauge strat2: the page and MCP pick the same row per form factor (one out-of-stock rule), with interruptible marked."""
+    """Per-form order matches cheapest_by_form_factor, then the page keeps only single-GPU rows.
+
+    The engine can still name an N-GPU row (it does not read min_gpus). The page must not.
+    """
     out = core.compare_gpu_prices(FEED, "H100", limit=25)
     picks = out["cheapest_by_form_factor"]
     assert all({"tier_class", "interruptible", "in_stock"} <= set(p) for p in picks)
@@ -42,6 +45,12 @@ def test_page_and_mcp_share_one_form_factor_rule():
     assert "NVLink" in out["cheapest_by_form_factor_note"]
     page = re.sub(r"<[^>]+>", " ", (ROOT / "gpu/h100-rental-price/index.html").read_text())
     sec = page[page.index("by form factor"):][:3000]
-    for p in picks:
-        assert p["advertiser"] in sec and str(p["hourly_usd"]) in sec, p
     assert "NVLink names the" in sec
+    assert "no single-GPU rate" in sec or "single-GPU" in sec
+    for p in picks:
+        row = next(r for r in FEED["rates"] if r["advertiser"] == p["advertiser"] and r["gpu"] == p["gpu"]
+                   and r.get("tier") == p.get("tier") and r["hourly_equiv_usd"] == p["hourly_usd"])
+        if (row.get("min_gpus") or 1) > 1:
+            assert str(p["hourly_usd"]) not in sec, p
+        else:
+            assert p["advertiser"] in sec and str(p["hourly_usd"]) in sec, p

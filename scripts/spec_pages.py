@@ -299,11 +299,15 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     sib = " · ".join(f'<a href="{gpu_url(gen, f)}">{esc(f)}</a>' for f in sorted(quals) if f != fam)
     body.append(f"<h2>More</h2><p>Other GPUs: {sib}</p><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data source: {feed_links(gen)}</p>")
     hourly = [r for r in rows if bucket(r) not in ("Monthly", "Reserved")]
+    # lowPrice is a headline. Multi-GPU minimums stay in the HTML table, not in this offer.
+    single_hr = [r for r in hourly if gp.min_gpus_count(r) <= 1]
     ld = [{"@type": "Product", "name": f"NVIDIA {fam} GPU rental (per GPU-hour)",
-           "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": min(r["hourly_equiv_usd"] for r in hourly),
-                      "highPrice": max(r["hourly_equiv_usd"] for r in hourly), "offerCount": len(hourly),
+           "offers": {"@type": "AggregateOffer", "priceCurrency": "USD",
+                      **({"lowPrice": min(r["hourly_equiv_usd"] for r in single_hr),
+                          "highPrice": max(r["hourly_equiv_usd"] for r in single_hr)} if single_hr else {}),
+                      "offerCount": len(single_hr),
                       "offers": [{"@type": "Offer", "seller": {"@type": "Organization", "name": r["advertiser"]}, "price": r["hourly_equiv_usd"],
-                                  "priceCurrency": "USD", "url": r["source_url"], "description": r["tier"]} for r in hourly]}},
+                                  "priceCurrency": "USD", "url": r["source_url"], "description": r["tier"]} for r in single_hr]}},
           {"@type": "Dataset", "name": f"{fam} rental prices", "url": canon, "dateModified": mv,
            "distribution": [{"@type": "DataDownload", "contentUrl": f"{gen.BASE}/api/v1/gpu-prices.json", "encodingFormat": "application/json"}]}, fld]
     return write(gen, f"gpu/{slug(fam)}-rental-price", title, desc, canon, "\n".join(body), ld)
@@ -392,9 +396,15 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
     body.append("<h2>FAQ</h2>" + fh + f"<h2>More</h2><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data: {feed_links(gen)}</p>")
     def prod(v, c):
         hr = [c[k] for k in shared if k[0] not in ("Monthly",)]
-        return {"@type": "Product", "name": f"{short_vendor(v)} GPU rental (per GPU-hour)",
-                "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": min(r["hourly_equiv_usd"] for r in hr), "highPrice": max(r["hourly_equiv_usd"] for r in hr),
-                           "offerCount": len(hr), "offers": [{"@type": "Offer", "price": r["hourly_equiv_usd"], "priceCurrency": "USD", "url": r["source_url"], "description": f"{r['gpu']} {r['vram_gb']}GB {r['tier']}"} for r in hr]}}
+        single_hr = [r for r in hr if gp.min_gpus_count(r) <= 1]
+        agg = {"@type": "AggregateOffer", "priceCurrency": "USD"}
+        if single_hr:
+            agg["lowPrice"] = min(r["hourly_equiv_usd"] for r in single_hr)
+            agg["highPrice"] = max(r["hourly_equiv_usd"] for r in single_hr)
+        agg["offerCount"] = len(single_hr)
+        agg["offers"] = [{"@type": "Offer", "price": r["hourly_equiv_usd"], "priceCurrency": "USD", "url": r["source_url"],
+                          "description": f"{r['gpu']} {r['vram_gb']}GB {r['tier']}"} for r in single_hr]
+        return {"@type": "Product", "name": f"{short_vendor(v)} GPU rental (per GPU-hour)", "offers": agg}
     ld = [{"@type": "ItemList", "itemListElement": [{"@type": "ListItem", "position": i + 1, "item": {"@type": "Organization", "name": v, "url": vend[v]["source_url"]}} for i, v in enumerate((a, b))]},
           prod(a, ca), prod(b, cb),
           {"@type": "Dataset", "name": f"{sa} vs {sb} GPU prices", "url": canon, "dateModified": mv,

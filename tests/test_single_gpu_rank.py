@@ -102,6 +102,40 @@ def test_model_json_cheapest_skips_multi_gpu_rows():
     assert "commission" not in json.dumps(doc).lower()
 
 
+def _h100(vendor, price, form, **kw):
+    r = _row(vendor, price, gpu=f"H100 {form}" if form != "not stated" else "H100", **kw)
+    r["form_factor"] = form
+    return r
+
+
+def test_form_factor_headline_skips_cheaper_eight_gpu_row():
+    """An 8-GPU row can be the engine's cheapest SXM and still must not be the page line."""
+    rows = [
+        _h100("Vast", 0.40, "SXM", min_gpus=8),
+        _h100("RunPod", 1.99, "SXM"),
+        _h100("Lambda", 3.50, "PCIe"),
+    ]
+    heads = dict(gpu_pages.form_factor_heads(rows))
+    assert heads["SXM"]["advertiser"] == "RunPod" and heads["SXM"]["min_gpus"] == 1
+    assert heads["PCIe"]["advertiser"] == "Lambda"
+    html = gpu_pages._form_split(type("G", (), {"esc": staticmethod(lambda s: s)})(), rows)
+    assert "Vast" not in html and "0.40" not in html and "0.4" not in html
+    assert "RunPod" in html and "1.99" in html
+
+
+def test_form_factor_only_multi_gpu_says_no_single_gpu_rate():
+    rows = [
+        _h100("Vast", 0.40, "SXM", min_gpus=8),
+        _h100("RunPod", 2.10, "PCIe"),
+    ]
+    heads = dict(gpu_pages.form_factor_heads(rows))
+    assert heads["SXM"] is None
+    assert heads["PCIe"]["advertiser"] == "RunPod"
+    html = gpu_pages._form_split(type("G", (), {"esc": staticmethod(lambda s: s)})(), rows)
+    assert "H100 SXM" in html and "no single-GPU rate" in html
+    assert "Vast" not in html and "0.40" not in html
+
+
 @pytest.mark.skipif(not shutil.which("node"), reason="node not installed")
 def test_embed_rank_matches_core_and_skips_multi_gpu():
     node = r"""

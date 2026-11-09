@@ -250,31 +250,58 @@ def display_gpu(r: dict) -> str:
 FORM_ORDER = ("SXM", "PCIe", "NVL", "form not stated")
 
 
-def _form_split(gen, rows) -> str:
-    """gpu_poor #18: never rank SXM against PCIe as one 'cheapest' (H100, A100). Uses core.deals.cheapest_by_form_factor,
-    the same rule (and same out-of-stock handling) as compare_gpu_prices' cheapest_by_form_factor."""
-    from core.gpu import split_by_form
-    from core.deals import cheapest_by_form_factor, NVLINK_FORM_NOTE
-    # Same rows the MCP form-factor rule sees, including min_gpus > 1. gpu_rate_rank_key does not
-    # skip those rows; the line's rate text says "Nx GPU minimum" when it is one.
-    rows = [r for r in rows if split_by_form(r.get("gpu"))]
-    picks = cheapest_by_form_factor(rows)
-    if not picks:
-        return ""
-    model = (rows[0].get("canonical_model") or rows[0]["gpu"]).split()[0]
-    by_id = {}
+def form_factor_heads(rows: list[dict]) -> list[tuple[str, dict | None]]:
+    """Per form, the single-GPU non-reserved row, or None when that form has only multi-GPU rows.
+
+    Order for the rows that qualify is core.deals.cheapest_by_form_factor (out of stock last, then
+    hourly price). That helper does not look at min_gpus and returns nothing unless two forms remain,
+    so this passes it only single-GPU rows and, when one form is left, uses the same gpu_rate_rank_key.
+    A form that exists only as min_gpus > 1 is still listed, with no row.
+    """
+    from core.gpu import FORM_FACTOR_ORDER, form_of, split_by_form
+    from core.deals import cheapest_by_form_factor
     from core.ids import rate_id
-    for r in rows:
+    scoped = [r for r in rows if split_by_form(r.get("gpu"))]
+    payg = [r for r in scoped if (r.get("tier_class") or "on-demand") != "reserved"]
+    single = [r for r in payg if min_gpus_count(r) <= 1]
+    by_id: dict = {}
+    for r in single:
         by_id.setdefault(rate_id(r), r)
+    picked: dict[str, dict] = {}
+    for p in cheapest_by_form_factor(single):
+        picked[p["form_factor"]] = by_id[p["rate_id"]]
+    if len({form_of(r) for r in single}) < 2:
+        for r in rank_rates(single):
+            picked.setdefault(form_of(r), r)
+    forms = sorted({form_of(r) for r in payg}, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99)
+    return [(f, picked.get(f)) for f in forms]
+
+
+def _form_split(gen, rows) -> str:
+    """gpu_poor #18: never rank SXM against PCIe as one 'cheapest' (H100, A100). The qualifying row is
+    cheapest_by_form_factor's pick among single-GPU rows. min_gpus > 1 never fills the line."""
+    from core.deals import NVLINK_FORM_NOTE
+    from core.gpu import split_by_form
+    lines = form_factor_heads(rows)
+    if not lines:
+        return ""
+    scoped = [r for r in rows if split_by_form(r.get("gpu"))]
+    model = (scoped[0].get("canonical_model") or scoped[0]["gpu"]).split()[0]
     items = ""
-    for p in picks:
-        r = by_id[p["rate_id"]]
-        tags = (" <em>(spot/interruptible)</em>" if p["interruptible"] else "") + (" <em>(out of stock when checked)</em>" if p["in_stock"] is False else "")
+    for form, r in lines:
+        label = "form not stated" if form == "not stated" else form
+        if r is None:
+            items += (f"<li><strong>{gen.esc(model)} {gen.esc(label)}</strong>: no single-GPU rate among tracked providers.</li>")
+            continue
+        tc = r.get("tier_class") or "on-demand"
+        tags = (" <em>(spot/interruptible)</em>" if tc == "interruptible" or r.get("interruptible") else "")
+        tags += " <em>(out of stock when checked)</em>" if out_of_stock(r) else ""
         cost = f", {_money(r['monthly_cost_usd'])} for {DEFAULT_HOURS} h" if r.get("monthly_cost_usd") is not None else ""
-        items += (f"<li><strong>{gen.esc(model)} {gen.esc('form not stated' if p['form_factor'] == 'not stated' else p['form_factor'])}</strong>: "
-                  f"{gen.esc(p['advertiser'])} ({gen.esc(p['tier'])}) at {gen.esc(_rate_str(r))}{cost}{tags}</li>")
+        items += (f"<li><strong>{gen.esc(model)} {gen.esc(label)}</strong>: "
+                  f"{gen.esc(r['advertiser'])} ({gen.esc(r.get('tier') or '')}) at {gen.esc(_rate_str(r))}{cost}{tags}</li>")
     return (f"  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL {gen.esc(model)}s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
-            "Each line is the cheapest non-reserved offer among tracked providers for that form, preferring offers not marked out of stock. "
+            "Each line is the cheapest single-GPU, non-reserved offer among tracked providers for that form, preferring offers not marked out of stock. "
+            "A form with only multi-GPU minimums says no single-GPU rate. "
             "\u201cForm not stated\u201d means the vendor page doesn't say which. " + gen.esc(NVLINK_FORM_NOTE) + "</p>\n  <ul>" + items + "</ul>\n")
 
 
