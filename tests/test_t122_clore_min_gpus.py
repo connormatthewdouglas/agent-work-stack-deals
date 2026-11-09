@@ -180,3 +180,39 @@ def test_mcp_compare_accepts_gpus_and_keeps_assumption_in_brief():
     assert all(r.get("min_gpus", 1) <= 1 or r.get("min_gpus_unmet") for r in brief["results"])
     two = asyncio.run(go({"gpu": "H100", "gpus": 8}))
     assert two["gpus"] == 8 and two["assumptions"] == []
+
+
+# ---- #122 (Bjorn 1109): RTX 5090 D identity; N-GPU requests -------------------------------------------------------
+
+def test_rtx_5090_d_is_its_own_identity_and_never_aliases():
+    from core import gpu_identity
+    d, std = gpu_identity.identity("RTX 5090 D"), gpu_identity.identity("RTX 5090")
+    assert d["model"] == "RTX 5090 D" and std["model"] == "RTX 5090"
+    assert d["nominal_memory"]["gb"] == 32 and "32 GB GDDR7" in d["nominal_memory"]["quote"]
+    assert d["nominal_memory"]["source_url"].startswith("https://www.nvidia.cn/") and d["usable_memory"]["gb"] is None
+    assert gpu_identity.identity("RTX 5090 D v2") is None  # the 24 GB v2 is a different SKU, not this entry
+    assert G.canonical_model("RTX 5090 D") == "RTX 5090 D" and G.family_of("RTX 5090 D") is None
+    assert G.canonical_model("RTX 5090 D v2") != "RTX 5090"
+    assert G.canonical_model("RTX 5090") == "RTX 5090" and G.family_of("RTX 5090") == "rtx-5090"
+
+
+def test_two_gpu_request_ranks_qualifying_allocation_by_per_gpu_price():
+    """Bjorn 1109 (1): for N GPUs, rows with min_gpus <= N rank on per-GPU price as usual. Real Lium L40S rows:
+    the 2x-minimum secure node qualifies for N=2 and leads on per-GPU price; for N=1 it ranks after rows that fit."""
+    rates = [copy.deepcopy(r) for r in FEED["rates"] if r["advertiser"] == "Lium" and r["gpu"] == "L40S"]
+    two = [r for r in rates if r.get("min_gpus") == 2]
+    assert two, "real Lium L40S 2x row expected in the feed"
+    one = copy.deepcopy(two[0])
+    one.update(price_usd=two[0]["hourly_equiv_usd"] + 0.4, hourly_equiv_usd=round(two[0]["hourly_equiv_usd"] + 0.4, 4),
+               min_gpus=1, gpu_count=1, server_price_usd=None, server_hourly_usd=None, tier="Marketplace secure node (1x)")
+    data = {**FEED, "rates": [one, two[0]]}
+    when = datetime.fromisoformat(two[0]["verified_at"])
+    r2 = deals.compare_gpu_prices(data, "L40S", now=when, gpus=2)["results"]
+    assert [x["min_gpus"] for x in r2] == [2, 1] and not any(x.get("min_gpus_unmet") for x in r2)
+    assert [x["hourly_usd"] for x in r2] == sorted(x["hourly_usd"] for x in r2)
+    r1 = deals.compare_gpu_prices(data, "L40S", now=when)["results"]
+    assert [x["min_gpus"] for x in r1] == [1, 2] and r1[1]["min_gpus_unmet"] is True
+    assert G.estimate(data["rates"], 100, gpus=2, gpu_filter="L40S")[0]["min_gpus"] == 2
+    opts = stack._gpu_options(data, 100, "L40S", set(), gpus=2)
+    assert not any(o.get("min_gpus_unmet") for o in opts) and opts[0]["monthly_cost_usd"] < opts[1]["monthly_cost_usd"]
+    assert stack._gpu_options(data, 100, "L40S", set())[0].get("min_gpus_unmet") is not True

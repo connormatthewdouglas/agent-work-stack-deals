@@ -213,9 +213,16 @@ PAGE_ALSO = {"h100-nvl": "h100"}  # H100 NVL rows also list (labelled by form) o
 MIN_OFFERS, MIN_VENDORS = 3, 2  # below this a model gets no standalone page (avoid thin pages)
 
 
+# Distinct models whose names start with a tracked family name: they never fall into that family (RTX 5090 D and its
+# 24 GB "v2" are not RTX 5090s). They map to no family, so canonical_model() keeps them as themselves.
+SEPARATE_MODELS = ("RTX 5090 D",)
+
+
 def family_of(gpu: str) -> str | None:
     """Longest family name that equals the model or prefixes it at a word boundary: 'L4' never takes
-    'L40'/'L40S', 'A10' never takes 'A100'/'A10G', and 'H100 NVL' wins over 'H100'."""
+    'L40'/'L40S', 'A10' never takes 'A100'/'A10G', and 'H100 NVL' wins over 'H100'. SEPARATE_MODELS never match."""
+    if any(gpu == m or gpu.startswith(m + " ") for m in SEPARATE_MODELS):
+        return None
     best = None
     for slug, name in FAMILIES.items():
         if (gpu == name or gpu.startswith(name + " ")) and (best is None or len(name) > len(FAMILIES[best])):
