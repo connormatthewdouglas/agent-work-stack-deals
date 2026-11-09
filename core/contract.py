@@ -32,7 +32,7 @@ SPEC = {
                             # T63 (additive): serverless/per-second rows are held in every mode; the count stays visible in brief
                             "excluded_serverless",
                             # T61 (additive): the usable-memory filter outcome when min_usable_memory_gb is given
-                            "usable_memory_filter"],
+                            "usable_memory_filter", "model_identity_note"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "interruptible", "canonical_model", "form_factor", "source_url", "checked_at",
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link

@@ -84,3 +84,44 @@ def test_brief_keeps_t115_fields_and_t61_filter_together():
     live = s.compare_gpu_prices("MI355X", on_demand_only=True, min_usable_memory_gb=200)
     assert live["ok"] and live["mode"] == "brief" and "usable_memory_filter" in live and live["results"] == []
     assert s.BUILD_SHA  # #112 serverInfo build still wired
+
+
+def test_usable_filter_runs_before_limit_and_counts_describe_filtered_rows(monkeypatch):
+    # Gauge 1108 (a): count/total/cheapest_by_form_factor describe the FILTERED rows, and the filter sees every row
+    # before limit. A test-only identity stub gives some H100 forms a usable figure; real data stays unknown.
+    from core import deals as core
+    data = s.gpu_loader.load()
+    base = s.compare_gpu_prices("H100", mode="full", limit=25, on_demand_only=False)
+    n_all = base["total"]
+    assert n_all > 3
+    real = gi.identity
+
+    def fake(model):
+        if model == "H100 SXM":
+            return {"usable_memory": {"gb": 79.0}}
+        return real(model)
+    monkeypatch.setattr(gi, "identity", fake)
+    want = [r for r in data["rates"] if r["gpu"] == "H100 SXM"]
+    o = s.compare_gpu_prices("H100", mode="full", limit=1, on_demand_only=False, min_usable_memory_gb=40)
+    u = o["usable_memory_filter"]
+    assert u["matched"] + u["below"] + u["unknown"] == n_all  # every row seen, not just the first `limit`
+    assert o["total"] == u["matched"] and o["count"] == min(1, u["matched"])
+    assert all(r["gpu"] == "H100 SXM" for r in o["results"])
+    for c in (o.get("cheapest_by_form_factor") or {}).values() if isinstance(o.get("cheapest_by_form_factor"), dict) else (o.get("cheapest_by_form_factor") or []):
+        assert "SXM" in json.dumps(c)
+    assert want  # the feed really has H100 SXM rows
+    none = s.compare_gpu_prices("H100", mode="full", limit=1, on_demand_only=False, min_usable_memory_gb=100)
+    assert none["ok"] and none["results"] == [] and none["count"] == 0 and none["total"] == 0
+    assert none["usable_memory_filter"]["below"] >= 1 and "cheapest_by_form_factor" not in none
+
+
+def test_identity_failure_is_never_fatal(monkeypatch):
+    def boom():
+        raise gi.IdentityUnavailable("GPU identity data unavailable: FileNotFoundError")
+    monkeypatch.setattr(gi, "_data", boom)
+    o = s.compare_gpu_prices("H100", mode="full")
+    assert o["ok"] and o["results"] and o["model_identity"] is None and "unavailable" in o["model_identity_note"]
+    b = s.compare_gpu_prices("H100")
+    assert b["ok"] and b["results"] and "model_identity_note" in b
+    f = s.compare_gpu_prices("H100", min_usable_memory_gb=40)
+    assert f["ok"] and f["results"] == [] and f["usable_memory_filter"]["identity_unavailable"] is True

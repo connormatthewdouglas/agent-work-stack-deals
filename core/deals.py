@@ -522,7 +522,8 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
 
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
                        on_demand_only: bool = False, include_reserved: bool = False,
-                       max_data_age_hours: float | None = None, now: datetime | None = None, region: str | None = None) -> dict:
+                       max_data_age_hours: float | None = None, now: datetime | None = None, region: str | None = None,
+                       usable_filter=None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     from .ids import rate_id
@@ -614,6 +615,25 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         if not keep:
             raise DealError("not_found", f"No tracked '{gpu}' rate publishes region {cons['region']} ({excluded_region} rates publish other regions)")
         rows = keep
+    # T61: optional usable-memory filter (callable(rows) -> core.gpu_identity.filter_usable result). It runs on every
+    # remaining row BEFORE sort/limit, so count, total, the summary and cheapest_by_form_factor describe filtered rows.
+    ufilter = None
+    if usable_filter is not None:
+        f = usable_filter(rows)
+        ufilter = {"matched": len(f["matched"]), "below": len(f["below"]), "unknown": len(f["unknown"]), "note": f.get("note")}
+        if f.get("identity_unavailable"):
+            ufilter["identity_unavailable"] = True
+        rows = f["matched"]
+        if not rows:
+            return {"gpu": gpu, "summary": (f"No tracked '{gpu}' rate has a sourced usable memory meeting the filter "
+                                            f"({ufilter['unknown']} unknown, {ufilter['below']} below). Nominal memory is not used as usable memory."),
+                    "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
+                    "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
+                    "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old, "excluded_stale": len(stale_rows),
+                    "region": cons.get("region"), "excluded_other_region": excluded_region,
+                    "scope": "cheapest among tracked providers", "total": 0, "count": 0, "results": [],
+                    "usable_memory_filter": ufilter,
+                    "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at")}
     unresolved = lambda r: any(u["constraint"] == "region" for u in elig[id(r)]["unknown"])
     # Reserved rows (only with include_reserved) sort after pay-as-you-go rows: never reported as "cheapest".
     # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
@@ -724,6 +744,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         "note": "Each result's source_url is the vendor page the price was checked on (checked_at). "
                 "Excludes storage, egress and taxes; confirm on the vendor page before spending.",
         **extra,
+        **({"usable_memory_filter": ufilter} if ufilter is not None else {}),
     }
 
 

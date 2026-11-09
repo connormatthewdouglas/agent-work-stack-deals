@@ -218,6 +218,8 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
             except DealError as e:
                 hist = {"series": [], "changes": [], "error": e.message}
         kw = dict(history=hist, include_reserved=include_reserved, max_data_age_hours=max_data_age_hours, region=region or None)
+        if min_usable_memory_gb is not None:  # T61: filter before limit, so count/total/cheapest_by_form_factor match
+            kw["usable_filter"] = lambda rows: gpu_identity.filter_usable(rows, min_usable_memory_gb)
         try:
             out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, on_demand_only=on_demand_only, **kw)
         except DealError as e:
@@ -229,15 +231,17 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
         if hist and hist.get("error"):
             out["history"]["error"] = hist["error"]
         out.update(core.freshness(_gpu_checked_at()))
-        out["model_identity"] = gpu_identity.identity(gpu)
+        try:  # T61: identity is enrichment only; a missing/broken asset never costs the caller the prices
+            out["model_identity"] = gpu_identity.identity(gpu)
+        except gpu_identity.IdentityUnavailable as e:
+            out["model_identity"] = None
+            out["model_identity_note"] = f"{e}; prices are unaffected, identity enrichment omitted."
         if min_usable_memory_gb is not None:
-            f = gpu_identity.filter_usable(out.get("results") or [], min_usable_memory_gb)
-            out["results"] = f["matched"]
-            out["usable_memory_filter"] = {"min_usable_memory_gb": min_usable_memory_gb, "matched": len(f["matched"]),
-                                           "below": len(f["below"]), "unknown": len(f["unknown"]), "note": f["note"]}
-            if not f["matched"]:
+            uf = out.get("usable_memory_filter") or {"matched": 0, "below": 0, "unknown": 0, "note": None}
+            out["usable_memory_filter"] = {"min_usable_memory_gb": min_usable_memory_gb, **uf}
+            if not out.get("results"):
                 out["summary"] = (f"No tracked {gpu} rate has a sourced usable memory >= {min_usable_memory_gb:g} GB "
-                                  f"({len(f['unknown'])} unknown). Nominal memory is not used as usable memory.")
+                                  f"({uf['unknown']} unknown). Nominal memory is not used as usable memory.")
         return out
     except DealError as e:
         return e.to_dict()

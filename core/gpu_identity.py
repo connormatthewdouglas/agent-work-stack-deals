@@ -14,9 +14,34 @@ ASSET = Path(__file__).resolve().parent / "assets" / "gpu_identity.json"
 _GB = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*GB\b(?!.*\bor\b)(?!.*/)", re.I)
 
 
+class IdentityUnavailable(Exception):
+    """The identity asset could not be loaded. Callers keep prices and drop only the identity enrichment."""
+
+
+def _read() -> str:
+    """Packaged asset first (wheel), then the hosted bundle's embedded copy (Python Workers ship .py modules only,
+    so hosted/build.sh embeds the same bytes as core/_asset_gpu_identity.py), then the checkout path."""
+    try:
+        from importlib import resources
+        return resources.files(__package__).joinpath("assets", "gpu_identity.json").read_text(encoding="utf-8")
+    except Exception:
+        pass
+    try:
+        from . import _asset_gpu_identity
+        return _asset_gpu_identity.TEXT
+    except ImportError:
+        return ASSET.read_text(encoding="utf-8")
+
+
 @lru_cache(maxsize=1)
 def _data() -> dict:
-    return json.loads(ASSET.read_text(encoding="utf-8"))
+    try:
+        d = json.loads(_read())
+    except (OSError, ValueError, TypeError) as e:
+        raise IdentityUnavailable(f"GPU identity data unavailable: {type(e).__name__}") from None
+    if not isinstance(d, dict) or not isinstance(d.get("models"), list):
+        raise IdentityUnavailable("GPU identity data unavailable: unexpected schema")
+    return d
 
 
 def _gb(spec: dict | None) -> float | None:
@@ -63,6 +88,11 @@ def filter_usable(rows: list[dict], min_gb: float, model_key: str = "gpu") -> di
     """Rows whose sourced USABLE memory is >= min_gb. Rows with unknown usable memory go to `unknown`, never matched
     on nominal memory or on a row's vram_gb."""
     ok, below, unknown = [], [], []
+    try:
+        _data()
+    except IdentityUnavailable as e:  # never fatal: every row is unknown, nothing is matched on nominal memory
+        return {"matched": [], "below": [], "unknown": list(rows), "identity_unavailable": True,
+                "note": f"{e}; usable memory is unknown for all {len(rows)} row(s), so none is matched. Prices are unaffected."}
     for r in rows:
         ident = identity(r.get(model_key) or "")
         gb = (ident or {}).get("usable_memory", {}).get("gb")
