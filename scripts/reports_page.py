@@ -22,6 +22,19 @@ def front_matter(md: str):
     return meta, md
 
 
+_RENTAL_LINK = re.compile(r"\[([^\]]+)\]\((https://thelanternworks\.com)?(/gpu/[a-z0-9-]+-rental-price/?)\)")
+
+
+def guard_rental_links(md: str) -> str:
+    """A model page that was not built must not stay linked. The label remains as text."""
+    def repl(m):
+        path = m.group(3).strip("/")
+        if (ROOT / path).is_dir():
+            return m.group(0)
+        return m.group(1)
+    return _RENTAL_LINK.sub(repl, md)
+
+
 def link_rows(gen, md: str) -> str:
     out = []
     for line in md.splitlines():
@@ -102,7 +115,7 @@ def write_all(gen) -> list[str]:
     for p in reports():
         slug = p.stem
         meta, md = front_matter(p.read_text())
-        md = link_rows(gen, md)
+        md = guard_rental_links(link_rows(gen, md))
         title = meta.get("title") or slug
         url = f"{gen.BASE}/reports/{slug}/"
         html = render(gen, md)

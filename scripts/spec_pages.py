@@ -311,7 +311,8 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
     esc = gen.esc
     prices, changes = feeds["prices"], feeds["changes"]
     vend = {v["vendor"]: v for v in prices["vendors"]}
-    held = {h["vendor"] for h in prices.get("held_stale", [])}
+    # Record-level holds leave the vendor's other rows ranked. A vendor-level hold (owner_hold, stale page) removes the vendor.
+    held = {h["vendor"] for h in prices.get("held_stale", []) if h.get("scope") != "record"}
     if a not in vend or b not in vend or a in held or b in held:
         return None
     rates = rankable(prices)
