@@ -2,8 +2,8 @@
 
 Nothing in the source tree is written. The comparison is the current files, not git HEAD,
 so a workflow that has already regenerated from this same feed still passes. On a clean
-checkout those files are the committed pages. The clock is the feed's own feed_updated_at,
-the same pin the committed pages were built with. A hand-edited page still fails.
+checkout those files are the committed pages. The clock is LW_AVAIL_NOW when set (one build clock for scout-import checks),
+otherwise the feed's own feed_updated_at. A hand-edited page still fails.
 """
 from __future__ import annotations
 
@@ -22,6 +22,11 @@ _SKIP_PARTS = {".git", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cac
 
 
 def _stamp(root: Path) -> str:
+    # Prefer LW_AVAIL_NOW when the caller pinned one build clock (check_latest_scout_import.sh).
+    # Otherwise fall back to the feed's own stamp so a clean checkout still matches itself.
+    env_stamp = (os.environ.get("LW_AVAIL_NOW") or "").strip()
+    if env_stamp:
+        return env_stamp
     feed = json.loads((root / "api" / "v1" / "gpu-prices.json").read_text(encoding="utf-8"))
     stamp = feed.get("feed_updated_at")
     if not stamp:
