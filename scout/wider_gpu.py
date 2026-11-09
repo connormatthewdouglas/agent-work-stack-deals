@@ -159,6 +159,17 @@ def parse_obl_pricing(page):
             m = re.fullmatch(r"On-Demand: \$(\d+(?:\.\d+)?)/hr", L[i + 2])
             if m: out[x] = (float(m.group(1)), L[i + 2])
     return out
+def parse_obl_configs(page):
+    """{card name: [(config code, 'Nx GPU - ...' line, N), ...]} from the pricing page's Configurations lists; only the vendor's own text."""
+    import re, html as H
+    L = [x.strip() for x in H.unescape(re.sub(r"<[^>]+>", "\n", page)).split("\n") if x.strip()]
+    out = {}
+    for i, x in enumerate(L[:-1]):
+        for name in OBL_PRICED:
+            m = re.fullmatch(re.escape(name.replace(" ", "_")) + r"_x(\d+)", x)
+            g = m and re.fullmatch(r"(\d+)x GPU - .+", L[i + 1])
+            if g and g.group(1) == m.group(1): out.setdefault(name, []).append((x, L[i + 1], int(g.group(1))))
+    return out
 def obl_availability():
     """{gpu name: [(location, count), ...]} from the availability table; raises if unreadable."""
     import re, html as H
@@ -176,7 +187,7 @@ def oblivus_listed(avail=None, ts=None):
     """T65 (Mart GO): listed on-demand price rows; written whenever the price text is on the pricing page. Stock comes from the
     availability page and never gates the row."""
     ts = ts or c.NOW()
-    prices = parse_obl_pricing(c._get_text(OBL_PRICING_URL))
+    page = c._get_text(OBL_PRICING_URL); prices = parse_obl_pricing(page); configs = parse_obl_configs(page)
     if avail is None:
         try: avail = obl_availability()
         except Exception: avail = {}
@@ -185,11 +196,14 @@ def oblivus_listed(avail=None, ts=None):
         if name not in prices: continue  # price gone -> skip row
         p, quote = prices[name]; counts = avail.get(name)
         st, rs, det = obl_status(counts)
-        r = row("Oblivus", fam, form, vv, "On-demand", p, "per GPU-hour (listed on-demand)", OBL_PRICING_URL + f' ("{name}" card)', ts, src="public vendor web page",
+        r = row("Oblivus", fam, form, vv, "On-demand", p, "per GPU-hour (listed on-demand)", OBL_PRICING_URL, ts, src="public vendor web page",
                 observation="listed price, not a stock claim (Mart GO T65)")
         r.update(source_url=OBL_PRICING_URL, price_quote=f"{name} ... {quote}", in_stock={"in_stock": True, "out_of_stock": False}.get(st),
                  available_gpus=sum(n for _, n in counts) if counts else None, availability_status=st, availability_reason=rs,
                  availability_reason_detail=det + f" [{c.OBL_URL}]")
+        one = [cf for cf in configs.get(name, []) if cf[2] == 1]
+        if one:  # allocation only when the vendor lists a 1x GPU configuration for this card; otherwise left unset (unknown)
+            r.update(gpu_count=1, min_gpus=1, allocation_quote=f"{one[0][0]}: {one[0][1]}")
         rows.append(r)
     return rows
 
