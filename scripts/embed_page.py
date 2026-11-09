@@ -8,6 +8,9 @@ import html
 import json
 from pathlib import Path
 
+_RANK_JS = (Path(__file__).resolve().parents[1] / "embed" / "rank.js").read_text(encoding="utf-8")
+_RANK_JS = _RANK_JS.split("if (typeof module", 1)[0].rstrip() + "\n"
+
 PATH = "embed"
 FAMILIES = {"H100": "h100", "A100": "a100", "H200": "h200", "L40S": "l40s", "RTX 4090": "rtx-4090",
             "RTX 5090": "rtx-5090", "RTX A6000": "rtx-a6000"}
@@ -17,15 +20,17 @@ BADGE_JS = r"""/* Lantern Works live GPU price badge. Data: Lantern Works, CC BY
 var BASE="__BASE__", FAM=__FAM__;
 var BUCKETS={"on-demand":["on-demand"],"spot":["interruptible","community","marketplace"]};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+__RANK__
 function pickRow(d,gpu,match,bucket){
   var held={};(d.held_stale||[]).forEach(function(h){if(h.scope!=="record")held[h.vendor]=1});
   var ok=BUCKETS[bucket]||BUCKETS["on-demand"];
   var rs=(d.rates||[]).filter(function(r){
     if(r.hourly_equiv_usd==null||held[r.advertiser]||r.billing_unit!=="hourly")return false;
     if(ok.indexOf(r.tier_class)<0)return false; /* reserved / monthly never used */
+    if(!isSingleGpuRate(r))return false; /* min_gpus above 1 is not a single-GPU rate */
     return match==="exact"?r.gpu===gpu:(r.gpu===gpu||r.gpu.indexOf(gpu+" ")===0);
   });
-  rs.sort(function(a,b){return a.hourly_equiv_usd-b.hourly_equiv_usd});
+  rs.sort(cmpGpuRank);
   return {row:rs[0],n:rs.length,vendors:rs.map(function(r){return r.advertiser}).filter(function(v,i,a){return a.indexOf(v)===i}).length};
 }
 /* T54: optional data-ref="your-tag" (or ?ref= on badge.html) is appended to the outbound link; [a-z0-9-_], max 64 chars */
@@ -39,9 +44,9 @@ function render(el,d){
   var css="display:inline-block;max-width:100%;box-sizing:border-box;font:13px/1.35 system-ui,sans-serif;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;background:#fff;color:#0f172a;text-decoration:none;overflow-wrap:anywhere";
   if(!p.row){el.innerHTML='<a style="'+css+'" href="'+link+'" target="_blank" rel="noopener">'+esc(gpu)+' GPU prices · Lantern Works</a>';return;}
   var r=p.row,day=(r.verified_at||d.feed_updated_at||"").slice(0,10);
-  el.innerHTML='<a style="'+css+'" href="'+link+'" target="_blank" rel="noopener" title="Lowest per-GPU-hour '+label+' rate among '+p.n+' tracked rates from '+p.vendors+' providers. Reserved and monthly rates excluded. Confirm on the vendor page before spending.">'+
+  el.innerHTML='<a style="'+css+'" href="'+link+'" target="_blank" rel="noopener" title="Lowest per-GPU-hour '+label+' single-GPU rate among '+p.n+' tracked rates from '+p.vendors+' providers. Reserved, monthly and multi-GPU minimums excluded. Confirm on the vendor page before spending.">'+
     '<strong>'+esc(r.gpu)+(r.vram_gb?' '+esc(r.vram_gb)+' GB':'')+'</strong> from <strong>$'+Number(r.hourly_equiv_usd).toFixed(2)+'/GPU-hr</strong> '+
-    '<span style="color:#475569">lowest tracked '+label+' rate · '+esc(r.advertiser)+(r.min_gpus>1?' (sold as '+esc(r.min_gpus)+'-GPU only)':'')+' · checked '+esc(day)+'</span>'+
+    '<span style="color:#475569">lowest tracked '+label+' rate · '+esc(r.advertiser)+(minGpusLabel(r)?' ('+esc(minGpusLabel(r))+')':'')+' · checked '+esc(day)+'</span>'+
     '<br><span style="color:#64748b;font-size:11px">GPU price data: Lantern Works, CC BY 4.0</span></a>';
 }
 var els=document.querySelectorAll(".lantern-gpu-badge:not([data-lw-done])");
@@ -66,7 +71,7 @@ def write(g) -> str:
     base = g.BASE
     d = Path(g.ROOT) / PATH
     d.mkdir(parents=True, exist_ok=True)
-    (d / "badge.js").write_text(BADGE_JS.replace("__BASE__", base).replace("__FAM__", json.dumps(FAMILIES)), encoding="utf-8")
+    (d / "badge.js").write_text(BADGE_JS.replace("__BASE__", base).replace("__FAM__", json.dumps(FAMILIES)).replace("__RANK__\n", _RANK_JS), encoding="utf-8")
     (d / "badge.html").write_text(FRAME, encoding="utf-8")
     js_snip = f'<span class="lantern-gpu-badge" data-gpu="H100"></span>\n<script async src="{base}/embed/badge.js"></script>'
     if_snip = f'<iframe src="{base}/embed/badge.html?gpu=H100" title="H100 GPU price (Lantern Works)"\n  width="340" height="64" style="border:0;max-width:100%" loading="lazy"></iframe>'
@@ -90,9 +95,9 @@ def write(g) -> str:
   </ul>
   <h2 id="rules">What the badge shows</h2>
   <ul>
-    <li>The lowest per-GPU-hour rate among tracked providers in the chosen bucket, with the vendor, VRAM and the date it was last verified. It never claims to be the cheapest anywhere, only among the providers Lantern Works tracks.</li>
-    <li>Reserved, contract and monthly rates are never used. Vendors whose prices are on hold (see <a href="{base}/methodology/#held">methodology</a>) are skipped.</li>
-    <li>If a rate is only sold as a multi-GPU server, the badge says so. Some vendor links on Lantern Works are referral links; affiliate status does not affect which rate is shown.</li>
+    <li>The lowest per-GPU-hour single-GPU rate among tracked providers in the chosen bucket, with the vendor, VRAM and the date it was last verified. It never claims to be the cheapest anywhere, only among the providers Lantern Works tracks.</li>
+    <li>Reserved, contract and monthly rates are never used. A row with a GPU minimum above 1 is not used as that single-GPU rate. Vendors whose prices are on hold (see <a href="{base}/methodology/#held">methodology</a>) are skipped.</li>
+    <li>Some vendor links on Lantern Works are referral links; affiliate status does not affect which rate is shown.</li>
     <li>If the feed can't be loaded, the badge falls back to a plain link and shows no number.</li>
   </ul>
   <h2 id="license">License and credit</h2>

@@ -419,6 +419,27 @@ def out_of_stock(r: dict) -> bool:
     return isinstance(a, dict) and a.get("in_stock") is False
 
 
+def gpu_rate_rank_key(r: dict, unresolved: bool = False) -> tuple:
+    """Price-only order shared by compare_gpu_prices and the site.
+
+    Reserved rates sort last, so they are never the default first row. Region-unresolved
+    rows sort after region-confirmed rows. Out-of-stock rows sort after in-stock and unknown.
+    Then hourly_equiv_usd, advertiser, gpu.
+
+    Affiliate status is not an input. min_gpus is not an input either: a row sold only as
+    N GPUs can rank ahead of a single-GPU row with a higher per-GPU price. Callers that
+    name a single-GPU price have to skip min_gpus > 1 themselves.
+    """
+    return (
+        tier_class(r) == "reserved",
+        bool(unresolved),
+        out_of_stock(r),
+        r["hourly_equiv_usd"],
+        r.get("advertiser") or "",
+        r.get("gpu") or "",
+    )
+
+
 NVLINK_FORM_NOTE = ("Rows named 'NVLink' (e.g. Hyperstack 'H100 NVLink', 'A100 NVLink') count as form 'not stated': NVLink names the "
                     "GPU-to-GPU bridge, and the vendor page does not say SXM or PCIe. A row maps to SXM only where the vendor says SXM or HGX.")
 
@@ -433,7 +454,7 @@ def cheapest_by_form_factor(rows: list[dict]) -> list[dict]:
     for r in rows:
         if tier_class(r) == "reserved" or r.get("hourly_equiv_usd") is None:
             continue
-        k = (out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or "")
+        k = gpu_rate_rank_key(r)
         f = form_of(r)
         if f not in byf or k < byf[f][0]:
             byf[f] = (k, r)
@@ -640,7 +661,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
     oos_cheaper = min((r for r in rows if out_of_stock(r) and tier_class(r) != "reserved"),
                       key=lambda r: r["hourly_equiv_usd"], default=None)
-    rows.sort(key=lambda r: (tier_class(r) == "reserved", unresolved(r), out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    rows.sort(key=lambda r: gpu_rate_rank_key(r, unresolved(r)))
     od = next((r for r in rows if tier_class(r) == "on-demand"), None)
     # Different memory sizes are different products (an A100 40GB is not an A100 80GB): name the cheapest per size.
     by_vram = {}

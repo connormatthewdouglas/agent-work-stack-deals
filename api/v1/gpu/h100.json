@@ -327,38 +327,6 @@
         }
       },
       {
-        "vram_gb": 80,
-        "provider": "CoreWeave",
-        "gpu": "H100",
-        "tier": "On-demand, 8-GPU instance",
-        "tier_class": "on-demand",
-        "bucket": "on-demand",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 6.155,
-        "unit": "hour",
-        "price_usd": 6.155,
-        "gpu_count": 8,
-        "server_hourly_usd": 49.24,
-        "min_gpus": 8,
-        "price_status": "listed",
-        "verified_at": "2026-11-05T01:34:08+00:00",
-        "source_url": "https://www.coreweave.com/pricing",
-        "quote": "NVIDIA HGX H100 On-Demand Price: $49.24 / Hour",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "SXM",
-        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "SXM",
-          "tier": "On-demand, 8-GPU instance",
-          "vram_gb": 80
-        }
-      },
-      {
         "vram_gb": 94,
         "provider": "RunPod",
         "gpu": "H100 NVL",
@@ -396,50 +364,6 @@
       }
     ],
     "spot-community": [
-      {
-        "vram_gb": 80,
-        "provider": "Lium",
-        "gpu": "H100 SXM",
-        "tier": "Marketplace spot node (interruptible)",
-        "tier_class": "interruptible",
-        "bucket": "spot-community",
-        "interruptible": true,
-        "hourly_usd_per_gpu": 1.55,
-        "unit": "hour",
-        "price_usd": 1.55,
-        "gpu_count": 8,
-        "server_hourly_usd": 12.4,
-        "min_gpus": 8,
-        "price_status": "listed",
-        "verified_at": "2026-11-06T06:49:42+00:00",
-        "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-06T06:49:42+00:00: 4 available H100 80GB HBM3 spot nodes, 25 GPUs free; lowest price_per_gpu_hour $1.55 (min rental 8 GPUs, Helsinki, Finland)",
-        "availability": {
-          "status": "available when checked",
-          "in_stock": true,
-          "checked_at": "2026-11-06T06:49:42+00:00",
-          "refresh": "automated check, time shown (prices checked daily)",
-          "source": "https://lium.io/api/public/v1/nodes",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-          "origin": "record",
-          "max_age_hours": 8,
-          "availability_expires_at": "2026-11-06T14:49:42Z",
-          "stock_level": "25 GPUs free on 4 nodes",
-          "same_capture_as_price": true,
-          "detail": "Lium public nodes API: 25 available GPUs (spot tier)",
-          "stock_read_at": "2026-11-06T06:49:42+00:00",
-          "price_read_at": "2026-11-06T06:49:42+00:00",
-          "price_at_claim_usd": 1.55,
-          "gpu_count": 8
-        },
-        "form_factor": "SXM",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "SXM",
-          "tier": "Marketplace spot node (interruptible)",
-          "vram_gb": 80
-        }
-      },
       {
         "vram_gb": 80,
         "provider": "RunPod",

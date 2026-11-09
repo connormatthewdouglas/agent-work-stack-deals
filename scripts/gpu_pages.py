@@ -35,16 +35,32 @@ def _vendor_link(gen, r: dict) -> str:
     return f"<a href=\"{gen.esc(_vendor_url(gen, r))}\"{rel}>{gen.esc(r['advertiser'])}</a>"
 
 
+def min_gpus_count(r: dict) -> int:
+    """GPUs the row is sold as. Missing or non-integer counts as 1."""
+    n = r.get("min_gpus") or 1
+    if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+        return 1
+    return n
+
+
+def min_gpus_phrase(r: dict) -> str:
+    """Label for a multi-GPU minimum, empty when the row is a single GPU."""
+    n = min_gpus_count(r)
+    return f"{n}x GPU minimum" if n > 1 else ""
+
+
 def _rate_str(r: dict) -> str:
+    phrase = min_gpus_phrase(r)
     if r["unit"] == "hour":
         s = f"{usd(r['price_usd'])}/hr"
         if r.get("price_status") == "marketplace":
             s += f" (variable marketplace median; lowest offer {usd(r['lowest_offer_usd'])}/hr, {r['offer_count']} offers)"
-        if (r.get("min_gpus") or 1) > 1:
-            s += f" (sold only as {r['min_gpus']}-GPU instances)"
+        if phrase:
+            s += f" ({phrase}; sold only as {min_gpus_count(r)}-GPU instances)"
         return s
-    if (r.get("gpu_count") or 1) > 1:
-        return f"{_money(r['price_usd'])}/GPU-mo ({r['gpu_count']}-GPU server {_money(r['server_price_usd'])}/mo)"
+    n = min_gpus_count(r) if phrase else (r.get("gpu_count") or 1)
+    if phrase or n > 1:
+        return f"{_money(r['price_usd'])}/GPU-mo ({n}x GPU minimum, {n}-GPU server {_money(r['server_price_usd'])}/mo)"
     return f"{_money(r['price_usd'])}/mo"
 
 
@@ -165,16 +181,46 @@ def _tied_names(gen, rows, best) -> str:
     return gen.esc(tie_label(rows, best))
 
 
-def _pick_cheapest(rs: list[dict]) -> dict:
-    """Headline cheapest per model: pay-as-you-go only, like compare_gpu_prices (reserved/commitment rows never win)."""
-    payg = [r for r in rs if r.get("tier_class") != "reserved"] or rs
-    return min(payg, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"]))
+def rank_rates(rows: list[dict]) -> list[dict]:
+    """core.deals.gpu_rate_rank_key. Price only: reserved last, out-of-stock last, then hourly price.
+
+    The key does not read min_gpus or affiliate. A cheaper N-GPU row stays ahead of a single-GPU row.
+    """
+    from core.deals import gpu_rate_rank_key
+    return sorted(rows, key=gpu_rate_rank_key)
+
+
+def first_single(rows: list[dict], *, payg_only: bool = True) -> dict | None:
+    """First row of an already ordered list that is a single GPU. Reserved rows are skipped when payg_only."""
+    for r in rows:
+        if min_gpus_count(r) > 1:
+            continue
+        if payg_only and (r.get("tier_class") or "on-demand") == "reserved":
+            continue
+        return r
+    return None
+
+
+def _pick_cheapest(rs: list[dict]) -> dict | None:
+    """Single-GPU pay-as-you-go headline.
+
+    Order is core.deals.gpu_rate_rank_key. That key does not look at min_gpus, so the
+    cheaper N-GPU row would otherwise win. This pick skips min_gpus > 1 and never
+    returns a reserved row.
+    """
+    return first_single(rank_rates(rs), payg_only=True)
+
+
+def hourly_single(rows: list[dict]) -> list[dict]:
+    """Hourly single-GPU pay-as-you-go rows in core rank order, for per-hour headlines."""
+    return rank_rates([r for r in rows if r.get("unit") == "hour" and min_gpus_count(r) <= 1
+                       and (r.get("tier_class") or "on-demand") != "reserved"])
 
 
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
     """H5: reserved/term-commitment rows get their own section, sorted by effective hourly rate with the term shown."""
     payg = [r for r in rows if r.get("tier_class") != "reserved"]
-    res = sorted((r for r in rows if r.get("tier_class") == "reserved"), key=lambda r: (out_of_stock(r), r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
+    res = rank_rates([r for r in rows if r.get("tier_class") == "reserved"])
     out = _table_one(gen, payg, full) if payg else ""
     if res:
         out += ("\n<h3 id=\"reserved-rates\">Reserved and term-commitment prices</h3>\n<p class=\"meta\">These need a reservation or minimum term "
@@ -209,6 +255,8 @@ def _form_split(gen, rows) -> str:
     the same rule (and same out-of-stock handling) as compare_gpu_prices' cheapest_by_form_factor."""
     from core.gpu import split_by_form
     from core.deals import cheapest_by_form_factor, NVLINK_FORM_NOTE
+    # Same rows the MCP form-factor rule sees, including min_gpus > 1. gpu_rate_rank_key does not
+    # skip those rows; the line's rate text says "Nx GPU minimum" when it is one.
     rows = [r for r in rows if split_by_form(r.get("gpu"))]
     picks = cheapest_by_form_factor(rows)
     if not picks:
@@ -293,10 +341,14 @@ def price_block(gen, rows: list[dict], deals: list[dict] | None = None) -> str:
     checked_at from gpu-prices.json rows, sorted by cost (never by referral). Non-GPU pages: the deal's cited price_usd and
     unit; usd_per_hr is null with a reason unless the cited price is per hour."""
     from core.referrals import referral_fields_for
-    items = [{"model": r["gpu"], "vendor": r["advertiser"], "tier": r.get("tier"), "form_factor": r.get("form_factor"),
+    items = []
+    for r in sorted(rows, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"])):
+        it = {"model": r["gpu"], "vendor": r["advertiser"], "tier": r.get("tier"), "form_factor": r.get("form_factor"),
               "usd_per_hr": r["hourly_equiv_usd"], "quote_currency": "USD", "checked_at": r.get("verified_at"),
               "source_url": r.get("source_url"), **referral_fields_for(r)}
-             for r in sorted(rows, key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))]
+        if min_gpus_count(r) > 1:
+            it["min_gpus"] = min_gpus_count(r)
+        items.append(it)
     for d in deals or []:
         if not d.get("source_url") or not d.get("verified_at"):
             continue  # Gauge strat2 re1: a block row needs a source and a check date (e.g. DataImpulse has neither)
@@ -348,7 +400,8 @@ def _mem_note(gen, rows, od) -> str:
         return ""
     base = od["gpu"].split()[0]  # every variant (SXM, PCIe, unlabelled) of the same model at the largest size
     big = [x for x in rows if x["gpu"].split()[0] == base and x.get("vram_gb") == max(sizes)
-           and (x.get("tier_class") or "on-demand") == "on-demand" and not out_of_stock(x)]
+           and (x.get("tier_class") or "on-demand") == "on-demand" and not out_of_stock(x)
+           and min_gpus_count(x) <= 1]
     if not big:
         return ""
     b = min(big, key=lambda x: (x["monthly_cost_usd"], x["advertiser"]))
@@ -373,7 +426,7 @@ def _od_note(gen, rows, cheapest) -> str:
     tc = cheapest.get("tier_class") or "on-demand"
     if tc == "on-demand":
         return " (on-demand)" + _mem_note(gen, rows, cheapest)
-    od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand"), None)
+    od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand" and min_gpus_count(r) <= 1), None)
     tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {_tied_names(gen, rows, od)} {gen.esc(_mem_label(rows, od))} ({gen.esc(od['tier'])}) at "
             f"{_money(od['monthly_cost_usd'])}{_mem_note(gen, rows, od)}") if od else "; no on-demand rate is tracked for this model"
     return f" — note: that rate is <strong>{gen.esc(tc)}</strong>{tail}"
@@ -400,26 +453,30 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     # K1: rows not marked out of stock first, out-of-stock after, each group by price (same rule as /cost/ and MCP)
     rows = sorted(estimate(fam["rates"], DEFAULT_HOURS), key=out_of_stock)
     full = _full_map(fam["rates"])
-    hourly = sorted((r for r in rows if r["unit"] == "hour"), key=lambda r: (out_of_stock(r), r["price_usd"]))
+    hourly = hourly_single(rows)
     by_full = sorted(rows, key=lambda r: (out_of_stock(r), full[_key(r)]))
     fresh = _freshness(rows)
     path = f"gpu/cheapest-{slug}-rental"
     url = f"{gen.BASE}/{path}/"
     calc = f"{gen.BASE}/{CALC}/?" + urlencode({"hours": DEFAULT_HOURS, "gpus": 1, "gpu": name})
-    cheapest = rows[0]
+    cheapest = first_single(rows)
     title = f"{name} rental, cheapest among tracked providers: {len(rows)} verified prices ({fresh})"
-    desc = (f"{name} cloud rental among tracked providers from {_rate_str(hourly[0]) if hourly else _rate_str(cheapest)}: {len(rows)} verified offers from "
-            f"{', '.join(fam['vendors'])}, sorted by monthly cost, with vendor quotes and dates.")
+    shown = hourly[0] if hourly else cheapest
+    desc = (f"{name} cloud rental among tracked providers from {_rate_str(shown)}: {len(rows)} verified offers from "
+            f"{', '.join(fam['vendors'])}, sorted by monthly cost, with vendor quotes and dates.") if shown else (
+            f"{name} cloud rental: {len(rows)} verified offers from {', '.join(fam['vendors'])}. "
+            "No single-GPU pay-as-you-go rate is tracked.")
     faqs = []
     if hourly:
         h = hourly[0]
         faqs.append((f"What is the cheapest {name} per hour among tracked providers?",
                      f"{h['advertiser']} {h['gpu']} ({h['tier']}) at {_rate_str(h)}, per the vendor's pricing page checked {h['verified_at'][:10]}. "
                      f"That's {_money(h['price_usd'] * DEFAULT_HOURS)} for {DEFAULT_HOURS} GPU hours."))
-    f0 = by_full[0]
-    faqs.append((f"What does a full month of {name} cost?",
-                 f"Running one GPU all month ({HOURS_PER_MONTH} h), the lowest verified option among tracked providers is {f0['advertiser']} {f0['gpu']} "
-                 f"({f0['tier']}) at about {_money(full[_key(f0)])}."))
+    f0 = first_single(by_full)
+    if f0 is not None:
+        faqs.append((f"What does a full month of {name} cost?",
+                     f"Running one GPU all month ({HOURS_PER_MONTH} h), the lowest verified option among tracked providers is {f0['advertiser']} {f0['gpu']} "
+                     f"({f0['tier']}) at about {_money(full[_key(f0)])}."))
     if any(r["tier"] == "On-demand (Community Cloud)" for r in rows):
         faqs.append(("What is the difference between RunPod Community Cloud and Secure Cloud?",
                      "Both are per-hour pods. Community Cloud runs on vetted third-party hosts and costs less; Secure Cloud runs in "
@@ -437,10 +494,17 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     faqs.append(("How are these prices verified?",
                  "Each row quotes the vendor's own pricing page and shows the date it was checked. Offers without a verified price aren't listed, "
                  "and referral links don't change the order."))
+    if cheapest is None:
+        lead = "No single-GPU pay-as-you-go rate is tracked for this model. Multi-GPU minimums are listed in the table and are not named as the single-GPU price."
+    else:
+        singles = [r for r in rows if min_gpus_count(r) <= 1]
+        lead = (f"Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, singles, cheapest)} "
+                f"{gen.esc(_mem_label(singles, cheapest))} ({gen.esc(cheapest['tier'])})</strong>{_stock_tag(gen, cheapest)} at "
+                f"{_money(cheapest['monthly_cost_usd'])}{_od_note(gen, singles, cheapest)}.")
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/price-comparison/">GPU prices</a> › {gen.esc(name)}</nav>
   <h1>{gen.esc(name)} rental: cheapest among tracked providers</h1>
   <p class="meta">Prices verified through {fresh} · {len(rows)} offers from {len(fam['vendors'])} vendors · sorted by cost for {DEFAULT_HOURS} GPU hours/month</p>
-  <p>Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, rows, cheapest)} {gen.esc(_mem_label(rows, cheapest))} ({gen.esc(cheapest['tier'])})</strong>{_stock_tag(gen, cheapest)} at {_money(cheapest['monthly_cost_usd'])}{_od_note(gen, rows, cheapest)}. <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
+  <p>{lead} <a href="{calc}">Change hours or GPU count in the calculator</a>.</p>
 {_form_split(gen, rows)}{_table(gen, rows, full)}
   <p>Basis: hourly rate × hours; dedicated servers are a flat monthly price. One GPU. Excludes storage, egress and tax.</p>
 {accuracy_html(gen, fam['rates'])}{changes_html(gen, slug)}  <h2>FAQ</h2>
@@ -485,10 +549,16 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     return out
 
 
+def _low_cell(gen, lo: dict | None) -> str:
+    if lo is None:
+        return "no single-GPU pay-as-you-go rate"
+    return f"{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}{_lo_kind(lo)}"
+
+
 def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) -> str:
     path = "gpu/price-comparison"
     url = f"{gen.BASE}/{path}/"
-    rows = sorted(estimate(rates, DEFAULT_HOURS), key=lambda r: ((r.get("tier_class") == "reserved"), r["hourly_equiv_usd"], r["advertiser"]))  # reserved after all pay-as-you-go
+    rows = rank_rates(estimate(rates, DEFAULT_HOURS))  # core price rank: reserved last, out of stock last
     full = _full_map(rates)
     fresh = _freshness(rows)
     vendors = sorted({r["advertiser"] for r in rates})
@@ -501,7 +571,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         link = f'<a href="{gen.BASE}/{pages[slug]}/">{gen.esc(f["name"])}</a>' if slug in pages else gen.esc(f["name"])
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(own)}</td><td>{gen.esc(', '.join(sorted({r['advertiser'] for r in own})))}</td>"
-                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}{_lo_kind(lo)}</td></tr>")
+                       f"<td>{_low_cell(gen, lo)}</td></tr>")
     # Every ranked rate is counted exactly once in the model table (audit T6/M3): families first, then each other model.
     others = {}
     for r in rates:
@@ -512,7 +582,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         lo = _pick_cheapest(rs)
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
-                       f"<td>{gen.esc(lo['advertiser'])} {gen.esc(_rate_str(lo))}{_lo_kind(lo)}</td></tr>")
+                       f"<td>{_low_cell(gen, lo)}</td></tr>")
     also = [(slug, src) for src, slug in PAGE_ALSO.items() if fams.get(slug, {}).get("rates")]
     also_note = "".join(f"<p class=\"meta\">{gen.esc(fams[slug]['name'])} ({sum(family_of(r['gpu']) == slug for r in fams[slug]['rates'])}) excludes the "
                         f"{gen.esc(fams[src]['name'])}, listed separately ({sum(family_of(r['gpu']) == src for r in rates)}); "
@@ -521,9 +591,10 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
     assert counted == len(rates) == gen.live_rate_count(), (counted, len(rates), gen.live_rate_count())
     title = f"GPU rental price comparison: {gen.live_rate_count()} verified rates (H100, H200, A100, L40S, RTX 4090) — {fresh}"
     desc = f"Compare verified cloud GPU rental prices from {', '.join(vendors)}: per-hour and monthly, sorted by cost, with vendor quotes and dates."
+    head = _pick_cheapest(rows)
+    head_a = (f"Among verified offers, {head['advertiser']} {head['gpu']} ({head['tier']}) at {_rate_str(head)}. The lowest hourly rate isn't always the lowest cost per job; compare VRAM and speed for your model.") if head else "No single-GPU pay-as-you-go rate is tracked."
     faqs = [
-        ("Which GPU rental is cheapest per hour among tracked providers?",
-         f"Among verified offers, {rows[0]['advertiser']} {rows[0]['gpu']} ({rows[0]['tier']}) at {_rate_str(rows[0])}. The lowest hourly rate isn't always the lowest cost per job; compare VRAM and speed for your model."),
+        ("Which GPU rental is cheapest per hour among tracked providers?", head_a),
         ("How often are prices checked?", f"Each rate shows the date it was verified against the vendor's pricing page. The newest check on this page is {fresh}."),
         ("Why is my provider missing?", "Only offers with a price we could verify on the vendor's own page are listed. Marketplace providers with live, per-host prices (such as Vast.ai) aren't given a fixed rate."),
         ("Do referral links affect the ranking?", "No. Order is by estimated cost only; referral links are labelled."),
@@ -653,7 +724,9 @@ def write_h100_vs(gen, rates):
     full = _full_map(rows)
     best = {}
     for r in rows:
-        best.setdefault(r["advertiser"], r)
+        cur = best.get(r["advertiser"])
+        if cur is None or (min_gpus_count(cur) > 1 and min_gpus_count(r) <= 1):
+            best[r["advertiser"]] = r
     from core.gpu import form_of, FORM_FACTOR_ORDER
     t1 = ""  # gpu_poor #18: one ranked table per form_factor; SXM and PCIe are never ranked together
     for ff in sorted({form_of(r) for r in rows}, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99):
@@ -666,11 +739,12 @@ def write_h100_vs(gen, rates):
     t2 = _simple_table(["Vendor", "Lowest-priced H100 (tracked)", "Billing and extras"],
                        [[_vendor_cell(gen, r), f"{gen.esc(r['gpu'])} ({gen.esc(r['tier'])}) {gen.esc(_rate_str(r))}", gen.esc(_VENDOR_FACTS[v])]
                         for v, r in best.items()])
-    c = rows[0]
-    secure = [r for r in rows if r["tier"] != "On-demand (Community Cloud)"]
+    c = first_single(rows)
+    secure = [r for r in rows if r["tier"] != "On-demand (Community Cloud)" and min_gpus_count(r) <= 1
+              and (r.get("tier_class") or "on-demand") != "reserved"]
     faqs = [("Which of RunPod, Thunder Compute and Modal is cheapest among tracked providers for an H100?",
-             f"As of {day}, the lowest listed H100 rate of the three was {c['advertiser']} {c['gpu']} ({c['tier']}) at {_rate_str(c)}, "
-             f"or {_money(c['monthly_cost_usd'])} for {DEFAULT_HOURS} GPU hours."),
+             (f"As of {day}, the lowest listed H100 rate of the three was {c['advertiser']} {c['gpu']} ({c['tier']}) at {_rate_str(c)}, "
+              f"or {_money(c['monthly_cost_usd'])} for {DEFAULT_HOURS} GPU hours.") if c else "No single-GPU H100 rate is tracked for these three."),
             ("What is the cheapest tracked H100 outside a community marketplace?",
              f"{secure[0]['advertiser']} {secure[0]['gpu']} ({secure[0]['tier']}) at {_rate_str(secure[0])}." if secure else "None listed."),
             ("When does Modal cost less than an hourly H100?",
@@ -690,10 +764,10 @@ def write_per_vram(gen, rates):
     t = _simple_table(["#", "GPU", "Vendor", "Type", "Rate", "$ per GB VRAM-hour", "Vendor quote"],
                       [[i, f"{gen.esc(r['gpu'])} {r['vram_gb']} GB", _vendor_cell(gen, r), gen.esc(r["tier"]), gen.esc(_rate_str(r)),
                         f"<strong>${r['price_usd'] / r['vram_gb']:.4f}</strong>", _quote_cell(gen, r)] for i, r in enumerate(rows, 1)])
-    c = rows[0]
-    big = [r for r in rows if r["vram_gb"] >= 80]
+    c = first_single(rows)
+    big = [r for r in rows if r["vram_gb"] >= 80 and min_gpus_count(r) <= 1 and (r.get("tier_class") or "on-demand") != "reserved"]
     faqs = [("Which cloud GPU is cheapest per GB of VRAM among tracked providers?",
-             f"On {day}: {c['advertiser']} {c['gpu']} {c['vram_gb']} GB ({c['tier']}) at ${c['price_usd'] / c['vram_gb']:.4f} per GB-hour ({_rate_str(c)})."),
+             (f"On {day}: {c['advertiser']} {c['gpu']} {c['vram_gb']} GB ({c['tier']}) at ${c['price_usd'] / c['vram_gb']:.4f} per GB-hour ({_rate_str(c)}).") if c else "No single-GPU rate with a published memory size is tracked."),
             ("Which 80 GB+ GPU is cheapest per GB among tracked providers?",
              f"{big[0]['advertiser']} {big[0]['gpu']} {big[0]['vram_gb']} GB ({big[0]['tier']}) at ${big[0]['price_usd'] / big[0]['vram_gb']:.4f} per GB-hour." if big else "None listed."),
             ("Why rank by VRAM?", "Model size usually decides which GPU you can use at all. Price per GB of VRAM shows the lowest-cost way among tracked providers to fit a "
