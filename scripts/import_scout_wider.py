@@ -173,9 +173,10 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
         quote, kind = str(verbatim), "verbatim"
     elif v == "Vast.ai" and offers:
         quote, kind = (f"Vast offers API: median per-GPU dph_total over {offers} offers"
-                       + (f" on {r['distinct_machines']} machines" if r.get("distinct_machines") else "") + f" = {raw}"), "api_field"
+                       + (f" on {r['distinct_machines']} machines" if r.get("distinct_machines") else "") + f" = ${raw}"), "api_field"
     else:
-        quote, kind = f"{basis}: {raw}", "api_field"
+        # T41-01 / credibility: published price must appear as a $ amount in evidence.quote
+        quote, kind = f"{basis}: ${raw}", "api_field"
     quote = quote[:200]
     tier = r.get("tier")
     intr = bool(INTERRUPTIBLE_TIER_RE.search(tier or ""))
