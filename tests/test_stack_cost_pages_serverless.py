@@ -70,3 +70,15 @@ def test_cost_pages_use_the_shared_rule_not_the_tier_word():
 def test_cost_pages_real_feed_has_no_serverless_rows():
     for fam in cost_pages.GPUS.values():
         assert not any(rate_reason(r) for v in cost_pages.eligible(FEED, fam).values() for r in v), fam
+
+
+def test_owner_held_vendor_is_neither_an_option_nor_listed_as_held_serverless(monkeypatch):
+    """Rebase onto #128: owner_hold (is_held) runs before the serverless rule. If Koyeb were owner-held, its real
+    L40S row would be neither a GPU option nor listed in held_serverless (it belongs to held_owner, not to us)."""
+    from core import owner_hold
+    data = _cheap_serverless("L40S")
+    assert any(h["vendor"] == "Koyeb" for h in stack.held_serverless(data, "L40S"))
+    monkeypatch.setattr(owner_hold, "hold_names", lambda path=None: ["Koyeb"])
+    assert not any(h["vendor"] == "Koyeb" for h in stack.held_serverless(data, "L40S"))
+    assert not any(o.get("vendor") == "Koyeb" or o.get("advertiser") == "Koyeb" for o in stack._gpu_options(data, 100, "L40S", set()))
+    assert any(h["vendor"] == "Modal" for h in stack.held_serverless(data, "L40S"))
