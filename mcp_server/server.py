@@ -190,8 +190,13 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     include_reserved=true, and even then they are never reported as cheapest. DEFAULT on_demand_only=true: results[0] is the cheapest
     on-demand rate. Pass on_demand_only=false to include spot/interruptible, community and marketplace capacity (each
     such row is labelled by tier_class and interruptible); the summary then names the cheapest on-demand rate when the
-    overall cheapest isn't. If a model has no on-demand rate, the default falls back to all rates and says so in
-    on_demand_fallback.
+    overall cheapest isn't. If a model has no on-demand rate, or every on-demand rate needs more GPUs than requested,
+    the default falls back to all rates and says so in on_demand_fallback.
+    gpus (optional, 1-1024; default 1, stated in assumptions): the GPU count you need. A rate ranks only when its
+    min_gpus (smallest allocation sold) is <= gpus; rates sold only as larger allocations (e.g. 8-GPU nodes) are NOT
+    ranked and are listed in excluded_min_gpus (vendor, gpu, tier, min_gpus, gpu_count, hourly_usd, rate_id, source_url,
+    checked_at, reason); min_gpus_unmet counts them (also in brief). Pass gpus=8 to compare 8-GPU nodes. If every
+    rate needs more GPUs, the error says which gpus value ranks them.
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
@@ -224,11 +229,16 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
         try:
             out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, on_demand_only=on_demand_only, **kw)
         except DealError as e:
-            if not on_demand_only or "No on-demand tracked price" not in e.message:
+            no_od = "No on-demand tracked price" in e.message
+            od_too_big = getattr(e, "reason", None) == "min_gpus"  # Gauge #130 N2: every on-demand row needs more GPUs
+            if not on_demand_only or not (no_od or od_too_big):
                 raise
             out = core.compare_gpu_prices(gpu_loader.load(), gpu, limit, on_demand_only=False, **kw)
-            out["on_demand_fallback"] = ("No on-demand rate is tracked for this model, so these results include "
-                                         "spot/community/marketplace rates (see each row's tier_class).")
+            out["on_demand_fallback"] = (
+                ("No on-demand rate is tracked for this model, so these results include " if no_od else
+                 f"Every on-demand rate for this model is sold only as a larger allocation than {gpus or 1} GPU(s) "
+                 "(see excluded_min_gpus), so these results include ")
+                + "rates from other tiers (see each row's tier_class).")
         if hist and hist.get("error"):
             out["history"]["error"] = hist["error"]
         out.update(core.freshness(_gpu_checked_at()))

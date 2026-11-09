@@ -35,8 +35,8 @@ def test_live_h100_total_matches_ranked_rows_with_or_without_min_gpus_hold():
     before = [r for r in listed if r not in reserved and r not in serverless]
     n = out.get("min_gpus_unmet") or 0
     assert out["excluded_serverless"] == len(serverless)
-    # #122: rows needing more GPUs are ranked after the rows that fit (counted, not excluded), so total keeps them.
-    # #130 excludes them; there total == ranked_after_min_gpus(len(before), out).
-    assert n == sum(1 for r in before if (r.get("min_gpus") or 1) > 1)
-    assert out["total"] == len(before)
+    assert out["total"] == ranked_after_min_gpus(len(before), out)
     assert out["count"] == min(25, out["total"])
+    brief = {k: v for k, v in out.items() if k != "excluded_min_gpus"}
+    assert ranked_after_min_gpus(len(before), brief) == out["total"]
+    assert n == brief.get("min_gpus_unmet", 0)

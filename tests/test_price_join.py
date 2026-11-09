@@ -51,8 +51,8 @@ def test_mcp_compare_output_carries_claim_audit_fields():
     # every GPU with a live claim (data-dependent: when all H100 claims have expired, H100 alone has none)
     rs = []
     for g in sorted({x["gpu"] for x in feed["rates"]}):
-        try:
-            rs.extend(deals.compare_gpu_prices(feed, g, limit=25, include_reserved=True)["results"])  # T59: MI250 is reserved-only
+        try:  # T59: MI250 is reserved-only; gpus=1024 so multi-GPU-only rows rank too (#130)
+            rs.extend(deals.compare_gpu_prices(feed, g, limit=25, include_reserved=True, gpus=1024)["results"])
         except deals.DealError:
             continue  # only held or serverless prices: nothing ranked to audit
     claims = [r["availability"] for r in rs if (r.get("availability") or {}).get("in_stock") is not None]

@@ -34,6 +34,7 @@ SPEC = {
                             # T61 (additive): the usable-memory filter outcome when min_usable_memory_gb is given
                             "usable_memory_filter", "model_identity_note",
                             # #122 (additive): GPU count ranked for (no count = 1, stated in assumptions)
+                            # Bjorn 1109: min_gpus_unmet = count of rows excluded because min_gpus > gpus (list in full mode: excluded_min_gpus)
                             "gpus", "assumptions", "min_gpus_unmet"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "interruptible", "canonical_model", "form_factor", "source_url", "checked_at",
@@ -43,8 +44,8 @@ SPEC = {
                             "availability_rate_7d", "expected_cost_usd",
                             # Scout schema 3.2 (additive): Scout's own status (in_stock|out_of_stock|unknown) and reason
                             "availability_status", "availability_reason", "availability_reason_detail",
-                            # #122 (additive): allocation minimum and whether it exceeds the requested GPU count
-                            "min_gpus", "min_gpus_unmet", "allocation_note"]),
+                            # #122 (additive): the row's allocation minimum (rows above the requested gpus are excluded, #130)
+                            "min_gpus"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
@@ -109,7 +110,15 @@ _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": 
                                                                      "alternatives": {"type": "array", "items": _OPTION}}}}
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"canonical_model": _str, "form_factor": _str, "rate_id": _RATE_ID, "report_issue_url": _str,
-                                                                          "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}}}}}
+                                                                          "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]},
+                                                                          "min_gpus": {"type": ["integer", "null"]}}}},
+    # #130: GPU count ranked for; rows whose min_gpus exceeds it are excluded (count + full-mode list with reasons)
+    "gpus": {"type": "integer", "minimum": 1}, "assumptions": {"type": "array", "items": {"type": "string"}},
+    "min_gpus_unmet": {"type": "integer", "minimum": 0},
+    "excluded_min_gpus": {"type": "array", "items": {"type": "object", "required": ["vendor", "gpu", "min_gpus", "reason"],
+                          "properties": {"vendor": _str, "gpu": _str, "tier": _str, "min_gpus": {"type": "integer"},
+                                         "gpu_count": {"type": ["integer", "null"]}, "hourly_usd": {"type": ["number", "null"]},
+                                         "rate_id": _str, "source_url": _str, "checked_at": _str, "reason": _str}}}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {

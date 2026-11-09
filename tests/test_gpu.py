@@ -196,12 +196,13 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
     from core.deals import compare_gpu_prices
     from core.stack import _gpu_options
     data = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
-    res = compare_gpu_prices(data, "A100", limit=25)["results"]
+    res = compare_gpu_prices(data, "A100", limit=25, gpus=2)["results"]  # Bjorn 1109: Ucartz sells 2-GPU servers; ranks for gpus >= 2
     uc = next(r for r in res if r["advertiser"] == "Ucartz")
     a100 = _rec("Ucartz", "A100")
     assert uc["hourly_usd"] == a100["hourly_usd"] and uc["gpu_count"] == 2 and uc["server_hourly_usd"] == a100["server_hourly_usd"]
-    k = [(bool(r.get("min_gpus_unmet")), r["in_stock"] is False, r["hourly_usd"]) for r in res]
-    assert k == sorted(k)  # E5: out-of-stock last; #122: multi-GPU-only allocations after rows that fit 1 GPU
+    k = [(r["in_stock"] is False, r["hourly_usd"]) for r in res]
+    assert k == sorted(k)  # E5: out-of-stock last
+    assert all(r["advertiser"] != "Ucartz" for r in compare_gpu_prices(data, "A100", limit=25)["results"])  # 1 GPU: excluded
     opts = _gpu_options(data, 730, "A100", set())
     o = next(x for x in opts if x["vendor"] == "Ucartz")
     # T35: whole servers only. The optimizer bills the full 2x A100 server for 1 GPU.
@@ -220,7 +221,8 @@ def test_new_vendor_flags():
     assert len(td) == 1 and td[0]["page_last_updated"] == "2024-07-24"
     assert not any(r["advertiser"] == "TensorDock" for r in rates)
     for g in ("RTX 4090", "A100", "H100", "V100"):
-        assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25)["results"])
+        # gpus=1024: every allocation size ranks (Bjorn 1109 excludes min_gpus > gpus), so no TensorDock row can hide
+        assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25, gpus=1024)["results"])
     assert all(o["vendor"] != "TensorDock" for o in _gpu_options(api, 100, None, set()))
     for page in ("gpu/price-comparison/index.html", "gpu/cheapest-rtx-4090-rental/index.html"):
         f = root / page
@@ -482,8 +484,10 @@ def test_t75_compare_rows_carry_canonical_model_and_form_factor_and_vendor_id_fo
     assert form_factor_of("B300", None, "", "NVIDIA B300 SXM6 AC") == "SXM6"
     assert {"canonical_model", "form_factor"} <= set(SPEC["compare_gpu_prices"][4])  # brief keeps them too
     feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text())
-    out = core.compare_gpu_prices(feed, "B300", 25)
-    assert out["results"]
+    # #130 (Bjorn 1109): rows rank only when min_gpus <= gpus. B300 is sold as 8-GPU nodes (Lium) as well as single GPUs
+    # (RunPod), so ask for 8: every fresh B300 row ranks and each one is checked for canonical_model/form_factor.
+    out = core.compare_gpu_prices(feed, "B300", 25, gpus=8)
+    assert out["results"] and out["min_gpus_unmet"] == 0
     for x in out["results"]:
         assert x["canonical_model"] == "B300" and x["form_factor"], x
     # RunPod B300 is SXM6 when it is ranked. A held or unreadable row is not in the feed and must not be required here.
