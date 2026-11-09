@@ -34,6 +34,7 @@ SPEC = {
                             # T61 (additive): the usable-memory filter outcome when min_usable_memory_gb is given
                             "usable_memory_filter", "model_identity_note",
                             # #122 (additive): GPU count ranked for (no count = 1, stated in assumptions)
+                            # Bjorn 1109: min_gpus_unmet = count of rows excluded because min_gpus > gpus (list in full mode: excluded_min_gpus)
                             "gpus", "assumptions", "min_gpus_unmet"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
                             "in_stock", "interruptible", "canonical_model", "form_factor", "source_url", "checked_at",

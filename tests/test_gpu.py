@@ -196,12 +196,13 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
     from core.deals import compare_gpu_prices
     from core.stack import _gpu_options
     data = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
-    res = compare_gpu_prices(data, "A100", limit=25)["results"]
+    res = compare_gpu_prices(data, "A100", limit=25, gpus=2)["results"]  # Bjorn 1109: Ucartz sells 2-GPU servers; ranks for gpus >= 2
     uc = next(r for r in res if r["advertiser"] == "Ucartz")
     a100 = _rec("Ucartz", "A100")
     assert uc["hourly_usd"] == a100["hourly_usd"] and uc["gpu_count"] == 2 and uc["server_hourly_usd"] == a100["server_hourly_usd"]
-    k = [(bool(r.get("min_gpus_unmet")), r["in_stock"] is False, r["hourly_usd"]) for r in res]
-    assert k == sorted(k)  # E5: out-of-stock last; #122: multi-GPU-only allocations after rows that fit 1 GPU
+    k = [(r["in_stock"] is False, r["hourly_usd"]) for r in res]
+    assert k == sorted(k)  # E5: out-of-stock last
+    assert all(r["advertiser"] != "Ucartz" for r in compare_gpu_prices(data, "A100", limit=25)["results"])  # 1 GPU: excluded
     opts = _gpu_options(data, 730, "A100", set())
     o = next(x for x in opts if x["vendor"] == "Ucartz")
     # T35: whole servers only. The optimizer bills the full 2x A100 server for 1 GPU.

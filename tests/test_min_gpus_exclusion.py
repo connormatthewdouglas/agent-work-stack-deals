@@ -1,0 +1,66 @@
+"""Bjorn 1109: compare_gpu_prices ranks a row only when min_gpus <= the requested GPU count (1 when none is given,
+stated in assumptions). Rows sold only as larger allocations are excluded and listed in excluded_min_gpus with the
+reason; the count (min_gpus_unmet) is in brief mode too. cheapest_by_form_factor never returns an unmet row. When
+every row is unmet the answer is a clear not_found (same handling as serverless-only)."""
+import asyncio
+import copy
+import json
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from core import deals  # noqa: E402
+
+FEED = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
+LIUM8 = next(r for r in FEED["rates"] if r["advertiser"] == "Lium" and r["gpu"] == "H100 SXM" and r.get("min_gpus") == 8)
+NOW = datetime.fromisoformat(LIUM8["verified_at"]) + timedelta(hours=1)  # inside the freshness window
+
+
+def test_real_lium_h100_8x_row_is_in_the_feed():
+    assert LIUM8["hourly_equiv_usd"] == 1.55 and LIUM8["gpu_count"] == 8
+
+
+def test_lium_8x_not_ranked_for_one_gpu_and_listed_with_reason():
+    out = deals.compare_gpu_prices(FEED, "H100", limit=25, now=NOW)
+    assert all((r.get("min_gpus") or 1) <= 1 for r in out["results"])
+    assert not any(r["advertiser"] == "Lium" and r["hourly_usd"] == 1.55 for r in out["results"])
+    ex = next(x for x in out["excluded_min_gpus"] if x["vendor"] == "Lium" and x["hourly_usd"] == 1.55)
+    assert ex["min_gpus"] == 8 and ex["reason"] == "sold only as 8-GPU allocations; 1 GPU(s) requested"
+    assert out["min_gpus_unmet"] == len(out["excluded_min_gpus"]) >= 1 and out["gpus"] == 1
+    assert any("treated as 1 GPU" in a and "excluded_min_gpus" in a for a in out["assumptions"])
+    assert "$1.55" not in out["summary"].split(" Cheapest on-demand")[0] and "see excluded_min_gpus" in out["summary"]
+
+
+def test_lium_8x_ranks_on_per_gpu_price_for_eight_gpus():
+    out = deals.compare_gpu_prices(FEED, "H100", limit=25, now=NOW, gpus=8)
+    assert any(r["advertiser"] == "Lium" and r["hourly_usd"] == 1.55 for r in out["results"])
+    assert out["assumptions"] == [] and all((x["min_gpus"] or 1) > 8 for x in out["excluded_min_gpus"])
+
+
+def test_cheapest_by_form_factor_never_returns_an_unmet_row():
+    out = deals.compare_gpu_prices(FEED, "H100", limit=25, now=NOW)
+    assert all(p["hourly_usd"] != 1.55 or p["advertiser"] != "Lium" for p in out.get("cheapest_by_form_factor") or [])
+    picks = deals.cheapest_by_form_factor([r for r in FEED["rates"] if r["gpu"].startswith("H100")])
+    from core.ids import rate_id
+    rows = {rate_id(r): r for r in FEED["rates"] if r["gpu"].startswith("H100")}
+    assert picks and all((rows[p["rate_id"]].get("min_gpus") or 1) <= 1 for p in picks)
+
+
+def test_all_unmet_is_a_clear_not_found():
+    data = {**FEED, "rates": [copy.deepcopy(LIUM8)]}
+    with pytest.raises(deals.DealError) as e:
+        deals.compare_gpu_prices(data, "H100", now=NOW)
+    assert e.value.code == "not_found" and "Lium H100 SXM min 8" in e.value.message and "gpus >= 8" in e.value.message
+    assert deals.compare_gpu_prices(data, "H100", now=NOW, gpus=8)["results"][0]["hourly_usd"] == 1.55
+
+
+def test_brief_mode_keeps_the_count():
+    from mcp_server import server
+    res = asyncio.run(server.mcp.call_tool("compare_gpu_prices", {"gpu": "H100", "mode": "brief", "max_data_age_hours": 100000}))
+    out = json.loads((res[0] if isinstance(res, tuple) else res)[0].text)
+    assert out["mode"] == "brief" and out["min_gpus_unmet"] >= 1 and out["gpus"] == 1
+    assert all((r.get("min_gpus") or 1) <= 1 for r in out["results"])

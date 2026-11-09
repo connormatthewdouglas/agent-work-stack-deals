@@ -119,8 +119,9 @@ def _data():
 def test_compare_never_names_a_multi_gpu_minimum_cheapest_for_one_gpu():
     out = deals.compare_gpu_prices(_data(), "H100", now=NOW)
     assert out["results"][0]["min_gpus"] == 1 and out["results"][0]["hourly_usd"] == 2.05
-    two = next(r for r in out["results"] if r["min_gpus"] == 2)
-    assert two["min_gpus_unmet"] is True and "$0.5" not in out["summary"].split(".")[0]
+    # Bjorn 1109: the 2-GPU-minimum row is not ranked at all for 1 GPU; it is listed in excluded_min_gpus
+    assert all(r["min_gpus"] == 1 for r in out["results"]) and "$0.5" not in out["summary"].split(".")[0]
+    assert out["min_gpus_unmet"] == 1 and out["excluded_min_gpus"][0]["min_gpus"] == 2
     sxm = next(p for p in out["cheapest_by_form_factor"] if p["form_factor"] == "SXM")
     assert sxm["hourly_usd"] == 2.05
 
@@ -213,8 +214,8 @@ def test_two_gpu_request_ranks_qualifying_allocation_by_per_gpu_price():
     r2 = deals.compare_gpu_prices(data, "L40S", now=when, gpus=2)["results"]
     assert [x["min_gpus"] for x in r2] == [2, 1] and not any(x.get("min_gpus_unmet") for x in r2)
     assert [x["hourly_usd"] for x in r2] == sorted(x["hourly_usd"] for x in r2)
-    r1 = deals.compare_gpu_prices(data, "L40S", now=when)["results"]
-    assert [x["min_gpus"] for x in r1] == [1, 2] and r1[1]["min_gpus_unmet"] is True
+    o1 = deals.compare_gpu_prices(data, "L40S", now=when)  # Bjorn 1109: for 1 GPU the 2x row is excluded, not ranked
+    assert [x["min_gpus"] for x in o1["results"]] == [1] and [x["min_gpus"] for x in o1["excluded_min_gpus"]] == [2]
     assert G.estimate(data["rates"], 100, gpus=2, gpu_filter="L40S")[0]["min_gpus"] == 2
     opts = stack._gpu_options(data, 100, "L40S", set(), gpus=2)
     assert not any(o.get("min_gpus_unmet") for o in opts) and opts[0]["monthly_cost_usd"] < opts[1]["monthly_cost_usd"]

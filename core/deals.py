@@ -423,6 +423,10 @@ NVLINK_FORM_NOTE = ("Rows named 'NVLink' (e.g. Hyperstack 'H100 NVLink', 'A100 N
                     "GPU-to-GPU bridge, and the vendor page does not say SXM or PCIe. A row maps to SXM only where the vendor says SXM or HGX.")
 
 
+COMPARE_NO_GPU_COUNT = ("No GPU count given; treated as 1 GPU. Rows sold only as multi-GPU allocations (min_gpus > 1) "
+                        "are not ranked; they are listed in excluded_min_gpus with the reason.")
+
+
 def cheapest_by_form_factor(rows: list[dict], gpus: int | None = 1) -> list[dict]:
     """gpu_poor #18, one rule for pages and MCP: per form_factor, the cheapest non-reserved row, preferring rows not marked
     out of stock (in stock or unknown); an out-of-stock row is named only when nothing else exists for that form. Each entry
@@ -434,7 +438,9 @@ def cheapest_by_form_factor(rows: list[dict], gpus: int | None = 1) -> list[dict
         if tier_class(r) == "reserved" or r.get("hourly_equiv_usd") is None:
             continue
         from .gpu import min_gpus_unmet
-        k = (min_gpus_unmet(r, gpus), out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or "")
+        if min_gpus_unmet(r, gpus):
+            continue  # Bjorn 1109: an allocation larger than the request is never a form-factor pick
+        k = (out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or "")
         f = form_of(r)
         if f not in byf or k < byf[f][0]:
             byf[f] = (k, r)
@@ -537,8 +543,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         raise DealError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
     if gpus is not None and (not isinstance(gpus, int) or isinstance(gpus, bool) or not 1 <= gpus <= 1024):
         raise DealError("invalid_argument", "gpus must be an integer 1-1024")
-    from .gpu import min_gpus_unmet, NO_GPU_COUNT_ASSUMPTION
-    assumptions = [] if gpus is not None else [NO_GPU_COUNT_ASSUMPTION]
+    from .gpu import min_gpus_unmet
+    assumptions = [] if gpus is not None else [COMPARE_NO_GPU_COUNT]
     n_gpus = gpus or 1
     rows = [r for r in data.get("rates") or []
             if isinstance(r, dict) and isinstance(r.get("hourly_equiv_usd"), (int, float))
@@ -632,6 +638,22 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         if not keep:
             raise DealError("not_found", f"No tracked '{gpu}' rate publishes region {cons['region']} ({excluded_region} rates publish other regions)")
         rows = keep
+    # Bjorn 1109: a row ranks only when min_gpus <= the requested GPU count (1 when none given). Rows sold only as
+    # larger allocations are NOT ranked; they are listed in excluded_min_gpus with the reason (never dropped silently).
+    excluded_min = [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"), "min_gpus": r.get("min_gpus"),
+                     "gpu_count": r.get("gpu_count"), "hourly_usd": r.get("hourly_equiv_usd"), "rate_id": rate_id(r),
+                     "source_url": r.get("source_url"), "checked_at": r.get("verified_at") or r.get("checked_at"),
+                     "reason": f"sold only as {r.get('min_gpus')}-GPU allocations; {n_gpus} GPU(s) requested"}
+                    for r in rows if min_gpus_unmet(r, n_gpus)]
+    excluded_min.sort(key=lambda x: (x["min_gpus"] or 1, x["hourly_usd"], x["vendor"] or ""))
+    if excluded_min:
+        rows = [r for r in rows if not min_gpus_unmet(r, n_gpus)]
+        if not rows:
+            raise DealError("not_found", f"No tracked '{gpu}' rate sells a {n_gpus}-GPU allocation: all {len(excluded_min)} "
+                                         "matching rates need more GPUs (" + "; ".join(
+                                             f"{x['vendor']} {x['gpu']} min {x['min_gpus']}" for x in excluded_min[:8])
+                                         + (" ..." if len(excluded_min) > 8 else "") + "). Pass gpus >= "
+                                         f"{min(x['min_gpus'] for x in excluded_min)} to rank them.")
     # T61: optional usable-memory filter (callable(rows) -> core.gpu_identity.filter_usable result). It runs on every
     # remaining row BEFORE sort/limit, so count, total, the summary and cheapest_by_form_factor describe filtered rows.
     ufilter = None
@@ -657,9 +679,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
     oos_cheaper = min((r for r in rows if out_of_stock(r) and tier_class(r) != "reserved"),
                       key=lambda r: r["hourly_equiv_usd"], default=None)
-    unmet = lambda r: min_gpus_unmet(r, n_gpus)  # allocation larger than the request: listed, never "cheapest"
-    rows.sort(key=lambda r: (tier_class(r) == "reserved", unmet(r), unresolved(r), out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
-    od = next((r for r in rows if tier_class(r) == "on-demand" and not unmet(r)), None)
+    rows.sort(key=lambda r: (tier_class(r) == "reserved", unresolved(r), out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    od = next((r for r in rows if tier_class(r) == "on-demand"), None)
     # Different memory sizes are different products (an A100 40GB is not an A100 80GB): name the cheapest per size.
     by_vram = {}
     for r in rows:
@@ -693,16 +714,13 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             out["availability_note"] = oos_note(r) + "; ranked after in-stock/unknown rows"
         out["eligibility"] = elig[id(r)]  # T47: applied / unmet / unknown constraints for this row
         out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
-        if unmet(r):
-            out["min_gpus_unmet"] = True
-            out["allocation_note"] = f"sold only as {r.get('min_gpus')}-GPU allocations; {n_gpus} GPU(s) requested, ranked after rows that fit"
         out.update(data_age.age_fields(r, now))
         from .report_issue import report_issue_url
         out["report_issue_url"] = report_issue_url(out)  # T40: give this to the user if the row looks wrong
         results.append(out)
     c = results[0]
     # I5: name every row tied with the cheapest (same price, tier class and stock state)
-    c_who = tie_label([x for x in rows if unresolved(x) == unresolved(rows[0]) and unmet(x) == unmet(rows[0])], rows[0])  # re30: a tie never mixes region-confirmed and unresolved rows
+    c_who = tie_label([x for x in rows if unresolved(x) == unresolved(rows[0])], rows[0])  # re30: a tie never mixes region-confirmed and unresolved rows
     od_who = tie_label([x for x in rows if tier_class(x) == "on-demand"], od) if od is not None else None
     oos_msg = ""
     if oos_cheaper is not None and not out_of_stock(c) and oos_cheaper["hourly_equiv_usd"] < c["hourly_usd"]:
@@ -728,8 +746,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                           if n_ok == 0 and n_un else "") + " ")
     return {
         "gpu": gpu,
-        "summary": (f"No tracked '{gpu}' rate sells a {n_gpus}-GPU allocation (smallest is {rows[0].get('min_gpus')} GPUs), so no cheapest is named for {n_gpus} GPU(s); "
-                    f"rows are listed by price with their minimum. " if unmet(rows[0]) else "") + region_note + (f"Cheapest{' regardless of region' if region_note and not elig[id(rows[0])]['eligible'] else ''}{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
+        "summary": region_note + (f"Cheapest{' regardless of region' if region_note and not elig[id(rows[0])]['eligible'] else ''}{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
                     + (f" {c['vram_gb']}GB" if c.get("vram_gb") and f"{c['vram_gb']}GB" not in (c.get("gpu") or "") else "")
                     + f" at ${c['hourly_usd']:g}/hr ({c['tier']}" + (", interruptible" if c.get("interruptible") else "")
                     + f", {stock_phrase(c.get('availability'))}; price checked {(c['checked_at'] or '')[:10]})"
@@ -741,9 +758,10 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                        f" Cheapest on-demand: {od_who} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
                     + oos_msg
                     + (f" {len(stale_rows)} rate(s) with a price older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale_rows else "")
+                    + (f" {len(excluded_min)} rate(s) sold only as allocations larger than {n_gpus} GPU(s) are not ranked (see excluded_min_gpus)." if excluded_min else "")
                     + ". This is the cheapest among tracked providers only, not the whole market. "
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
-        "gpus": n_gpus, "assumptions": assumptions, "min_gpus_unmet": sum(1 for r in rows if unmet(r)),
+        "gpus": n_gpus, "assumptions": assumptions, "min_gpus_unmet": len(excluded_min), "excluded_min_gpus": excluded_min,
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
         "excluded_serverless": len(held_serverless), "held_serverless": [{k: v for k, v in h.items() if k != "_row"} for h in held_serverless],
         "held_owner": held_owner,
