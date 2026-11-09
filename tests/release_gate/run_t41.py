@@ -347,27 +347,54 @@ def _(f, ev):
 def _(f, ev):
     from core.owner_hold import is_held
     fu = ts(FEED["feed_updated_at"])
-    # Owner-held prices are held, not ranked. They must not be the row that fails the 48h bar.
+    # Owner-held prices are held, not ranked. They must not set the row-age warning.
+    # Frosty/Bjorn 2026-11-09: row-age (48h oldest verified / degraded|stale on compare) is a
+    # printed WARNING, not a deploy blocker. feed_updated_at 36h stays a hard fail.
     pool = [r for r in RATES if not is_held(r.get("advertiser"))]
     mx = max((ts(r["verified_at"]) for r in pool), default=None)
     if mx is not None and fu + timedelta(seconds=1) < mx: f.append(f"feed_updated_at {fu} < newest verified_at {mx}")
     if NOW - fu > timedelta(hours=36): f.append(f"feed_updated_at {fu} older than 36h")
     out = tool(SRV.compare_gpu_prices, "H100", limit=25, on_demand_only=False)
+    warnings = []
     for x in out["results"]:
         if is_held(x.get("advertiser")): f.append(f"{rid(x)}: owner_hold row ranked")
-        elif x.get("degraded") or x.get("stale"): f.append(f"{rid(x)}: data_age_hours={x.get('data_age_hours')} degraded/stale")
+        elif x.get("degraded") or x.get("stale"):
+            warnings.append(
+                f"WARNING: ranked row {rid(x)} data_age_hours={x.get('data_age_hours')} "
+                f"degraded={bool(x.get('degraded'))} stale={bool(x.get('stale'))}"
+            )
     for k in ("next_refresh_utc",):
         if not out.get(k): f.append(f"compare output missing {k}")
+    stale_rows = []
     if pool:
-        old = sorted(((NOW - ts(r["verified_at"])).total_seconds() / 3600, rid(r)) for r in pool)[-1]
-        if old[0] > 48: f.append(f"oldest verified row {old[1]} is {old[0]:.1f} h old")
-        oldest_h, oldest_id = round(old[0], 1), old[1]
+        aged = sorted(
+            ((NOW - ts(r["verified_at"])).total_seconds() / 3600, rid(r), i)
+            for i, r in enumerate(pool)
+        )
+        old_h, oldest_id, old_i = aged[-1]
+        oldest_h = round(old_h, 1)
+        for age_h, _rid, i in aged:
+            if age_h > 48:
+                r = pool[i]
+                stale_rows.append({
+                    "vendor": r.get("advertiser"), "gpu": r.get("gpu"),
+                    "tier": r.get("tier"), "age_h": round(age_h, 1),
+                })
+        if stale_rows:
+            detail = "; ".join(f"{s['vendor']}/{s['gpu']} {s['age_h']}h" for s in stale_rows)
+            warnings.append(
+                f"WARNING: {len(stale_rows)} non-held verified row(s) older than 48h "
+                f"(oldest {oldest_id} is {oldest_h} h): {detail}"
+            )
     else:
         oldest_h, oldest_id = None, None
         if not RATES: f.append("no ranked rows")
+    for w in warnings:
+        print(w)
     ev.update(feed_updated_at=FEED["feed_updated_at"], newest_verified=None if mx is None else mx.isoformat(),
               oldest_row_age_h=oldest_h, oldest_row=oldest_id, next_refresh_utc=out.get("next_refresh_utc"),
-              freshness={k: out.get(k) for k in out if "fresh" in k or "checked" in k})
+              freshness={k: out.get(k) for k in out if "fresh" in k or "checked" in k},
+              warnings=warnings, stale_rows_over_48h=stale_rows)
 
 
 @case("T41-13")
