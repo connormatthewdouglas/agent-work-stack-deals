@@ -39,6 +39,7 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core.gpu import HOURS_PER_MONTH, MAX_QUOTE, MIN_MARKET_OFFERS, PRICING_DIR, STALE_DAYS  # noqa: E402
+from core.owner_hold import is_held  # noqa: E402
 from core import gpu_history  # noqa: E402
 
 UA = "LanternWorksPriceCheck/1.1 (+https://github.com/connormatthewdouglas/agent-work-stack-deals)"
@@ -363,6 +364,11 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
     """Mutates docs in place. Returns one result row per record (for the run report)."""
     stamp, report = _iso(now), []
     for doc in docs:
+        if is_held(doc.get("vendor")):
+            # Owner hold: do not fetch, reprice, restamp, or record a new history point.
+            report += [{"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "result": "owner hold, untouched"}
+                       for r in doc.get("records") or []]
+            continue
         if doc.get("stale"):
             report += [{"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "result": "held (vendor-level, untouched)"}
                        for r in doc["records"]]

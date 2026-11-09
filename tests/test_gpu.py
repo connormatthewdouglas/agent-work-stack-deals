@@ -14,9 +14,12 @@ def _rec(vendor, gpu, tier=None):
 
 
 def test_all_specs_verified_against_feed():
+    from core.gpu import _price_too_old
     r = build_rates(FEED)
     live = [d for d in load_vendor_files() if not d.get("stale")]
-    assert r["problems"] == [] and len(r["rates"]) == sum(1 for d in live for x in d["records"] if not x.get("stale") and not x.get("no_capacity"))
+    publishable = sum(1 for d in live for x in d["records"]
+                      if not x.get("stale") and not x.get("no_capacity") and not _price_too_old(x, d))
+    assert r["problems"] == [] and len(r["rates"]) == publishable
 
 
 def test_estimate_hourly_vs_flat_and_rank():
@@ -127,10 +130,11 @@ def pinned_build_clock(monkeypatch):
 
 def test_published_api_matches_records(pinned_build_clock):
     api = pinned_build_clock
-    assert api["rates"] == build_rates(FEED)["rates"]
+    built = build_rates(FEED)
+    assert api["rates"] == built["rates"]
     assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale")}
-    held = {d["vendor"] for d in load_vendor_files() if d.get("stale") or any(r.get("stale") or r.get("no_capacity") for r in d["records"])}
-    assert {h["vendor"] for h in api["held_stale"]} == held
+    # Age holds (past STALE_DAYS / the 48h batch window) are part of held_stale even when the source row has no stale flag.
+    assert {h["vendor"] for h in api["held_stale"]} == {h["vendor"] for h in built["held_stale"]}
 
 
 def test_gpu_pages_carry_accuracy_notes_and_tracked_wording():

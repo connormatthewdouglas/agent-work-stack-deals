@@ -70,22 +70,53 @@ def test_budget_needs_complete_estimate():
     assert r["budget"]["monthly_budget_usd"] == 300
 
 
+def _gpu_rate(advertiser, price, deal_id=None):
+    """A ranked H100 row. Fresh checked_at so the age hold does not drop it. deal_id may be absent (Lium)."""
+    from datetime import datetime, timedelta, timezone
+    fresh = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return {"advertiser": advertiser, "gpu": "H100 SXM", "vram_gb": 80, "price_usd": price, "hourly_equiv_usd": price,
+            "unit": "hour", "tier": "On-demand", "tier_class": "on-demand", "interruptible": False, "deal_id": deal_id,
+            "source_url": "https://example.test/prices", "verified_at": fresh, "checked_at": fresh, "affiliate": False,
+            "gpu_count": 1, "min_gpus": 1, "availability": {"in_stock": None}}
+
+
+def _option_ids(line):
+    opts = ([line["choice"]] if line.get("choice") else []) + list(line.get("alternatives") or [])
+    return opts
+
+
 def test_pulled_and_blocked_vendors_excluded(monkeypatch):
-    # cheapest GPU row's deal becomes pulled: it must disappear from every option
-    r0 = a.plan("100 GPU hours", DEALS, STACK, GPU)
-    l0 = r0["lines"][0]
-    # cheapest row that is backed by a feed deal (rows from vendors without a deal id can't be pulled)
-    top = next(x["deal_id"] for x in [l0["choice"]] + l0["alternatives"] if x.get("deal_id"))
-    monkeypatch.setattr(compliance, "PULLED_ID_SHA256", compliance.PULLED_ID_SHA256 | {hashlib.sha256(top.encode()).hexdigest()})
-    r = a.plan("100 GPU hours", DEALS, STACK, GPU)
-    ids = [r["lines"][0]["choice"]["deal_id"]] + [x["deal_id"] for x in r["lines"][0]["alternatives"]]
-    assert top not in ids and r["excluded_for_compliance"] >= 1
-    # do_not_relist status in the feed, and deals missing from the public feed, are excluded too
-    off = STACK["offers"][0]
-    deals = [{**d, "compliance_status": "do_not_relist"} if d["id"] == off["deal_id"] else d for d in DEALS]
-    r = a.plan("x", deals, STACK, GPU, scrape_pages=1, proxy_gb=1, emails_sent=1, search_queries=1)
-    used = {(l.get("choice") or {}).get("deal_id") for l in r["lines"]} | {x["deal_id"] for l in r["lines"] for x in l.get("alternatives", [])}
-    assert off["deal_id"] not in used
+    """Pulled and blocked vendors never appear. The cheapest rows may have no deal_id (Lium, Hyperstack, SaladCloud)."""
+    pulled_id, kept_id, blocked_id = "deal-fixture-pulled", "deal-fixture-kept", "deal-fixture-blocked"
+    monkeypatch.setattr(compliance, "PULLED_ID_SHA256", compliance.PULLED_ID_SHA256 | {hashlib.sha256(pulled_id.encode()).hexdigest()})
+    gpu = {"rates": [
+        _gpu_rate("Pulled Vendor", 0.30, pulled_id),  # cheapest, so it would win if the hold were ignored
+        _gpu_rate("Kept Vendor", 0.35, kept_id),
+        _gpu_rate("Lium", 0.40),
+        _gpu_rate("Lium", 0.45),
+        _gpu_rate("Hyperstack", 0.50),
+        _gpu_rate("SaladCloud", 0.55),
+    ]}
+    deals = [{"id": pulled_id, "advertiser": "Pulled Vendor"}, {"id": kept_id, "advertiser": "Kept Vendor"},
+             {"id": blocked_id, "advertiser": "Blocked Co", "compliance_status": "do_not_relist"}]
+    fresh = _gpu_rate("x", 1)["checked_at"]
+    offer = lambda deal, vendor, price: {"vendor": vendor, "deal_id": deal, "need": "scrape_pages", "plan": "plan",
+                                          "monthly_usd": price, "included": 100000, "overage_usd": None, "overage_per": None,
+                                          "units_per_item": 1, "quote": "plan", "assumptions": [], "source_url": "https://example.test/s",
+                                          "checked_at": fresh, "affiliate": False}
+    stack_data = {"offers": [offer(blocked_id, "Blocked Co", 1), offer("deal-ok-scrape", "Ok Scrape", 9)]}
+    deals += [{"id": "deal-ok-scrape", "advertiser": "Ok Scrape"}]
+    r = a.plan("100 GPU hours", deals, stack_data, gpu, scrape_pages=1000)
+    gpu_line = next(l for l in r["lines"] if l["component"] == "gpu")
+    scrape_line = next(l for l in r["lines"] if l["component"] == "scraping")
+    gpu_opts = _option_ids(gpu_line)
+    assert r["excluded_for_compliance"] >= 1
+    assert all(o.get("deal_id") != pulled_id and o.get("vendor") != "Pulled Vendor" for o in gpu_opts)
+    assert any(o.get("deal_id") == kept_id for o in gpu_opts)
+    assert any(o.get("deal_id") is None for o in gpu_opts)  # no-deal rows may be the cheapest; that is not a failure
+    scrape_opts = _option_ids(scrape_line)
+    assert all(o.get("deal_id") != blocked_id and o.get("vendor") != "Blocked Co" for o in scrape_opts)
+    assert any(o.get("deal_id") == "deal-ok-scrape" for o in scrape_opts)
     assert compliance.allowed_deal_ids([{"id": "deal-x-001", "compliance_status": "pulled"}]) == set()
 
 

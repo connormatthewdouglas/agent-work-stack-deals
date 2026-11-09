@@ -7,6 +7,7 @@ A row with no parseable timestamp is flagged stale with data_age_hours null and 
 """
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 
 from .gpu import STALE_DAYS
@@ -27,8 +28,19 @@ def _ts(row: dict) -> datetime | None:
     return None
 
 
+def _clock(now: datetime | None = None) -> datetime:
+    """Wall clock, or LW_AVAIL_NOW when a test or a rebuild pins the feed's build time. Always UTC."""
+    if now is not None:
+        return now
+    v = os.environ.get("LW_AVAIL_NOW")
+    if v:
+        dt = datetime.fromisoformat(v.replace("Z", "+00:00"))
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    return datetime.now(timezone.utc)
+
+
 def age_fields(row: dict, now: datetime | None = None) -> dict:
-    now = now or datetime.now(timezone.utc)
+    now = _clock(now)
     ts = _ts(row)
     if ts is None:
         return {"data_age_hours": None, "degraded": True, "stale": True}
