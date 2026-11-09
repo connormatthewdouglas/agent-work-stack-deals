@@ -7,6 +7,7 @@ import copy
 import importlib.util
 import json
 import shutil
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -72,3 +73,57 @@ def test_offline_cli_writes_the_importer_snapshot(tmp_path):
     snap = bc.build(_servers(), AT)
     assert text == (json.dumps(snap, indent=2) + "\n").encode()
     assert json.loads(text)["checked_at"] == AT and json.loads(summary.read_text())["summary"]["RTX 5090"]["median"] == 0.3729
+    assert "second_read_at" not in json.loads(text)
+    assert "second_read_listings_available" not in json.loads(text)["summary"]["RTX 5090"]
+
+
+class _Clock:
+    def __init__(self):
+        self.t = datetime(2026, 11, 9, 3, 51, 49, tzinfo=timezone.utc)
+        self.slept = []
+
+    def now(self):
+        return self.t
+
+    def sleep(self, seconds):
+        self.slept.append(seconds)
+        self.t += timedelta(seconds=seconds)
+
+
+def _raw(servers):
+    return json.dumps({"servers": servers}).encode()
+
+
+def test_second_read_counts_available_listings_and_waits_60s():
+    assert bc.SECOND_READ_MIN_S >= 60 and "os.environ" not in (ROOT / "scripts" / "build_clore.py").read_text()
+    clock = _Clock()
+    first = bc.build(_servers(), AT)
+    later = copy.deepcopy(_servers())
+    for s in later:
+        if s["id"] == 124001:  # was an available 5090; renting it must change only the second-read count
+            s["rented"] = True
+        if s["id"] == 123887:
+            s["price"]["on_demand"]["USD-Blockchain"] = 99  # second-read prices are not the median
+    snap = bc.apply_second_read(copy.deepcopy(first), lambda: _raw(later), clock.sleep, clock.now)
+    assert clock.slept == [bc.SECOND_READ_MIN_S]
+    assert snap["checked_at"] == AT and snap["second_read_at"] == "2026-11-09T03:52:49Z"
+    assert snap["summary"]["RTX 5090"]["second_read_listings_available"] == 1  # 123887 only; 117751 D stays out
+    assert snap["summary"]["RTX 4090"]["second_read_listings_available"] == 2
+    assert snap["summary"]["RTX 5090"]["listings_available"] == 2 and snap["summary"]["RTX 5090"]["median"] == 0.3729
+    assert _ids(snap, "RTX 5090") == [124001, 123887, 124062]
+    assert 117751 not in {l["id"] for l in snap["listings"]}
+
+
+def test_failed_second_read_omits_the_fields():
+    clock = _Clock()
+    first = bc.build(_servers(), AT)
+
+    def fetch():
+        clock.t += timedelta(seconds=5)  # a failed attempt must not become second_read_at
+        raise OSError("marketplace down")
+
+    snap = bc.apply_second_read(copy.deepcopy(first), fetch, clock.sleep, clock.now)
+    assert snap == first
+    assert "second_read_at" not in snap
+    assert all("second_read_listings_available" not in row for row in snap["summary"].values())
+    assert clock.slept == [bc.SECOND_READ_MIN_S]
