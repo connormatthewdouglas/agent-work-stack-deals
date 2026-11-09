@@ -15,6 +15,8 @@ NEED_OUT = {
     "test_v34.py", "test_v35.py", "test_v35c.py",
 }
 SCRIPTS = sorted(p.name for p in SCOUT.glob("test_*.py"))
+# vast_alloc waits VAST_READ_GAP_S (180s) inside test_wgpu.py. Other scripts keep the 180s cap.
+SCRIPT_TIMEOUT = {"test_wgpu.py": 300}
 
 
 @pytest.mark.parametrize("name", SCRIPTS)
@@ -33,7 +35,7 @@ def test_scout_script(name):
             lam.write_text("LAMBDA_API_KEY=scout-test\n")
             created = lam
     try:
-        proc = subprocess.run([sys.executable, name], cwd=SCOUT, capture_output=True, text=True, timeout=180)
+        proc = subprocess.run([sys.executable, name], cwd=SCOUT, capture_output=True, text=True, timeout=SCRIPT_TIMEOUT.get(name, 180))
     finally:
         if created is not None:
             created.unlink(missing_ok=True)
