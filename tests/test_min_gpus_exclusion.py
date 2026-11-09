@@ -123,5 +123,40 @@ def test_on_demand_rows_all_multi_gpu_fall_back_to_single_gpu_spot(tmp_path):
         server.gpu_loader.file, server.gpu_loader._cache = old_file, old_cache
     out = json.loads((res[0] if isinstance(res, tuple) else res)[0].text)
     assert out.get("ok", True) and [r["min_gpus"] for r in out["results"]] == [1]
-    assert "larger allocation than 1 GPU" in out["on_demand_fallback"]
+    assert "larger allocation than 1 GPU" in out["on_demand_fallback"] and "rates from other tiers" in out["on_demand_fallback"]
     assert [x["min_gpus"] for x in out["excluded_min_gpus"]] == [8] and out["min_gpus_unmet"] == 1
+
+
+# ---- Gauge #130 re-review nits ----------------------------------------------------------------------------------
+
+CLORE_MKT = next(r for r in FEED["rates"] if r.get("price_status") == "marketplace" and r.get("lowest_offer_usd") is not None)
+
+
+@pytest.mark.parametrize("lowest", ["drop", None, "n/a", True])
+def test_summary_survives_a_marketplace_row_without_a_numeric_lowest_offer(lowest):
+    """Real Clore.ai marketplace row with lowest_offer_usd removed / null / non-numeric: the summary still builds and
+    says 'variable marketplace median' without inventing a lowest offer."""
+    row = copy.deepcopy(CLORE_MKT)
+    if lowest == "drop":
+        row.pop("lowest_offer_usd")
+    else:
+        row["lowest_offer_usd"] = lowest
+    now = datetime.fromisoformat(row["verified_at"]) + timedelta(hours=1)
+    out = deals.compare_gpu_prices({**FEED, "rates": [row]}, row["gpu"], now=now, on_demand_only=False)
+    assert out["results"] and "variable marketplace median" in out["summary"] and "lowest offer" not in out["summary"]
+
+
+def test_summary_keeps_the_lowest_offer_when_present():
+    now = datetime.fromisoformat(CLORE_MKT["verified_at"]) + timedelta(hours=1)
+    out = deals.compare_gpu_prices({**FEED, "rates": [copy.deepcopy(CLORE_MKT)]}, CLORE_MKT["gpu"], now=now, on_demand_only=False)
+    assert f"lowest offer ${CLORE_MKT['lowest_offer_usd']:g}/hr" in out["summary"]
+
+
+def test_tool_description_lists_every_excluded_min_gpus_field():
+    from core.contract import EXTRA_PROPS
+    from mcp_server import server
+    doc = " ".join((server.compare_gpu_prices.__doc__ or "").split())
+    fields = list(EXTRA_PROPS["compare_gpu_prices"]["excluded_min_gpus"]["items"]["properties"])
+    assert len(fields) == 10
+    listed = doc[doc.index("listed in excluded_min_gpus ("):].split(")")[0]
+    assert all(f in listed.replace(",", " ").replace("(", " ").split() for f in fields), (fields, listed)

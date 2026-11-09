@@ -748,14 +748,18 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                        f"(unresolved, not eligible); {excluded_region} only other regions."
                        + (" Zero confirmed is not zero supply: most providers do not publish regions; check unresolved rows on the vendor page."
                           if n_ok == 0 and n_un else "") + " ")
+    # Gauge #130 nit: a marketplace row may lack lowest_offer_usd (or carry a non-number); never format a missing value.
+    lo = c.get("lowest_offer_usd")
+    lo_ok = isinstance(lo, (int, float)) and not isinstance(lo, bool)
+    mkt_note = ((f"; variable marketplace median, lowest offer ${lo:g}/hr" if lo_ok else "; variable marketplace median")
+                if c.get("price_status") == "marketplace" else "")
     return {
         "gpu": gpu,
         "summary": region_note + (f"Cheapest{' regardless of region' if region_note and not elig[id(rows[0])]['eligible'] else ''}{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
                     + (f" {c['vram_gb']}GB" if c.get("vram_gb") and f"{c['vram_gb']}GB" not in (c.get("gpu") or "") else "")
                     + f" at ${c['hourly_usd']:g}/hr ({c['tier']}" + (", interruptible" if c.get("interruptible") else "")
                     + f", {stock_phrase(c.get('availability'))}; price checked {(c['checked_at'] or '')[:10]})"
-                    + (f"; variable marketplace median, lowest offer ${c['lowest_offer_usd']:g}/hr"
-                       if c.get("price_status") == "marketplace" else "")
+                    + mkt_note
                     + (f"; sold only as {c['min_gpus']}-GPU instances" if (c.get("min_gpus") or 1) > 1 else "")
                     + f". Tier: {results[0]['tier_class']}."
                     + ("" if results[0]["tier_class"] == "on-demand" or od is None else
