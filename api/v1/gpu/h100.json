@@ -14,7 +14,7 @@
   "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
-  "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+  "reserved_policy": "reserved (commitment) rows and serverless or per-second rows are listed under rows but excluded from cheapest",
   "last_checked": "2026-11-06T06:50:11+00:00",
   "row_count": 27,
   "providers": [
@@ -601,40 +601,6 @@
           "form_factor": "NVL",
           "tier": "On-demand (Community Cloud)",
           "vram_gb": 94
-        }
-      }
-    ],
-    "serverless": [
-      {
-        "vram_gb": 80,
-        "provider": "Modal",
-        "gpu": "H100 SXM",
-        "tier": "Serverless, preemptible (per second)",
-        "tier_class": "interruptible",
-        "bucket": "serverless",
-        "interruptible": true,
-        "hourly_usd_per_gpu": 3.9492,
-        "unit": "hour",
-        "price_usd": 3.9492,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-05T01:34:56+00:00",
-        "source_url": "https://modal.com/pricing",
-        "quote": "Nvidia H100 SXM5 $ 0.001097 / sec",
-        "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "SXM",
-        "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "SXM",
-          "tier": "Serverless, preemptible (per second)",
-          "vram_gb": 80
         }
       }
     ]

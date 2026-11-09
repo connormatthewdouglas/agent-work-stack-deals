@@ -193,13 +193,13 @@ def gpu_url(gen, fam: str) -> str:
 
 
 def _single(rows):
-    """Drop multi-GPU minimums. core rank does not do this; single-GPU headlines must."""
-    return [r for r in rows if gp.min_gpus_count(r) <= 1]
+    """Headline rows only: single GPU, not reserved, not serverless. Core rank does not do this."""
+    return [r for r in rows if gp.headline_eligible(r)]
 
 
 def on_demand_head(rows) -> dict | None:
-    """Cheapest single-GPU on-demand hourly/per-second row, in core price rank. Reserved never qualifies."""
-    rs = _single(r for r in gp.rank_rates(rows) if bucket(r) == "On-demand" and r.get("billing_unit") in ("hourly", "per-second"))
+    """Cheapest on-demand hourly headline row, in core price rank. Serverless and per-second never qualify."""
+    rs = _single(r for r in gp.rank_rates(rows) if bucket(r) == "On-demand" and r.get("billing_unit") == "hourly")
     return rs[0] if rs else None
 
 
@@ -265,7 +265,8 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         for r in rs:
             ex = (vend.get(r["advertiser"]) or {}).get("extras") or {}
             ext = "; ".join(f"{k}: {esc(ex[k]['text'])}" if ex.get(k, {}).get("status") == "published" else f"{k}: not published / not verified" for k in ("egress", "storage"))
-            trs.append(f"<tr><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
+            srv = f" <strong>[serverless]</strong>" if gp.is_serverless(r) and "serverless" not in (r.get("tier") or "").lower() else ""
+            trs.append(f"<tr><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}{srv}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
                        f"<td data-label=\"Since {esc(prev)}\">{change_text(gen, ch, key(r), prev)}</td><td data-label=\"Egress / storage\"><small>{ext}</small></td><td data-label=\"Vendor quote\">{gp._quote_html(esc, r)}</td>"
                        f"<td data-label=\"Verified\"><small>{ts(r['verified_at'])}</small>{recheck_flag(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
                        + f"<td data-label=\"Link\">{link_cell(gen, r)}</td></tr>")
@@ -300,7 +301,7 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     body.append(f"<h2>More</h2><p>Other GPUs: {sib}</p><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data source: {feed_links(gen)}</p>")
     hourly = [r for r in rows if bucket(r) not in ("Monthly", "Reserved")]
     # lowPrice is a headline. Multi-GPU minimums stay in the HTML table, not in this offer.
-    single_hr = [r for r in hourly if gp.min_gpus_count(r) <= 1]
+    single_hr = [r for r in hourly if gp.headline_eligible(r)]
     ld = [{"@type": "Product", "name": f"NVIDIA {fam} GPU rental (per GPU-hour)",
            "offers": {"@type": "AggregateOffer", "priceCurrency": "USD",
                       **({"lowPrice": min(r["hourly_equiv_usd"] for r in single_hr),
@@ -396,7 +397,7 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
     body.append("<h2>FAQ</h2>" + fh + f"<h2>More</h2><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data: {feed_links(gen)}</p>")
     def prod(v, c):
         hr = [c[k] for k in shared if k[0] not in ("Monthly",)]
-        single_hr = [r for r in hr if gp.min_gpus_count(r) <= 1]
+        single_hr = [r for r in hr if gp.headline_eligible(r)]
         agg = {"@type": "AggregateOffer", "priceCurrency": "USD"}
         if single_hr:
             agg["lowPrice"] = min(r["hourly_equiv_usd"] for r in single_hr)

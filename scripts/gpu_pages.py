@@ -49,6 +49,45 @@ def min_gpus_phrase(r: dict) -> str:
     return f"{n}x GPU minimum" if n > 1 else ""
 
 
+def is_serverless(r: dict) -> bool:
+    """True when the feed marks the row serverless or per-second/function pricing.
+
+    core.gpu.price_bucket returns 'serverless' when the tier says serverless (Modal's
+    'Serverless, preemptible (per second)', Koyeb's 'Serverless GPU instance (per-second
+    billing)' even though Koyeb's billing_unit is hourly). billing_unit 'per-second' is the
+    feed's own per-second flag. A billing or tier line that says per-second or function is
+    the same class.
+    """
+    from core.gpu import price_bucket
+    if price_bucket(r) == "serverless" or r.get("billing_unit") == "per-second":
+        return True
+    blob = f"{r.get('billing') or ''} {r.get('tier') or ''}".lower()
+    return "per-second" in blob or "per second" in blob or "function" in blob
+
+
+def headline_eligible(r: dict) -> bool:
+    """Row may be a cheapest/lowest/per-form/JSON-LD/embed/calculator headline.
+
+    Single GPU, not reserved, not serverless. Core's rank does not apply this filter.
+    """
+    if min_gpus_count(r) > 1:
+        return False
+    if (r.get("tier_class") or "on-demand") == "reserved":
+        return False
+    if is_serverless(r):
+        return False
+    return True
+
+
+def serverless_mark(r: dict) -> str:
+    """Table label. Empty when the tier text already says serverless."""
+    if not is_serverless(r):
+        return ""
+    if "serverless" in (r.get("tier") or "").lower():
+        return ""
+    return " [serverless]"
+
+
 def _rate_str(r: dict) -> str:
     phrase = min_gpus_phrase(r)
     if r["unit"] == "hour":
@@ -191,30 +230,27 @@ def rank_rates(rows: list[dict]) -> list[dict]:
 
 
 def first_single(rows: list[dict], *, payg_only: bool = True) -> dict | None:
-    """First row of an already ordered list that is a single GPU. Reserved rows are skipped when payg_only."""
+    """First headline-eligible row. payg_only is retained so callers stay source-compatible; reserved is always out."""
+    del payg_only
     for r in rows:
-        if min_gpus_count(r) > 1:
-            continue
-        if payg_only and (r.get("tier_class") or "on-demand") == "reserved":
-            continue
-        return r
+        if headline_eligible(r):
+            return r
     return None
 
 
 def _pick_cheapest(rs: list[dict]) -> dict | None:
     """Single-GPU pay-as-you-go headline.
 
-    Order is core.deals.gpu_rate_rank_key. That key does not look at min_gpus, so the
-    cheaper N-GPU row would otherwise win. This pick skips min_gpus > 1 and never
-    returns a reserved row.
+    Order is core.deals.gpu_rate_rank_key. That key does not look at min_gpus or
+    serverless, so a cheaper N-GPU or serverless row would otherwise win. This pick
+    skips min_gpus > 1, reserved rows, and serverless or per-second rows.
     """
     return first_single(rank_rates(rs), payg_only=True)
 
 
 def hourly_single(rows: list[dict]) -> list[dict]:
-    """Hourly single-GPU pay-as-you-go rows in core rank order, for per-hour headlines."""
-    return rank_rates([r for r in rows if r.get("unit") == "hour" and min_gpus_count(r) <= 1
-                       and (r.get("tier_class") or "on-demand") != "reserved"])
+    """Hourly headline-eligible rows in core rank order, for per-hour headlines."""
+    return rank_rates([r for r in rows if r.get("unit") == "hour" and headline_eligible(r)])
 
 
 def _table(gen, rows: list[dict], full: dict[tuple, float]) -> str:
@@ -263,7 +299,7 @@ def form_factor_heads(rows: list[dict]) -> list[tuple[str, dict | None]]:
     from core.ids import rate_id
     scoped = [r for r in rows if split_by_form(r.get("gpu"))]
     payg = [r for r in scoped if (r.get("tier_class") or "on-demand") != "reserved"]
-    single = [r for r in payg if min_gpus_count(r) <= 1]
+    single = [r for r in payg if headline_eligible(r)]
     by_id: dict = {}
     for r in single:
         by_id.setdefault(rate_id(r), r)
@@ -300,8 +336,8 @@ def _form_split(gen, rows) -> str:
         items += (f"<li><strong>{gen.esc(model)} {gen.esc(label)}</strong>: "
                   f"{gen.esc(r['advertiser'])} ({gen.esc(r.get('tier') or '')}) at {gen.esc(_rate_str(r))}{cost}{tags}</li>")
     return (f"  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL {gen.esc(model)}s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
-            "Each line is the cheapest single-GPU, non-reserved offer among tracked providers for that form, preferring offers not marked out of stock. "
-            "A form with only multi-GPU minimums says no single-GPU rate. "
+            "Each line is the cheapest single-GPU, non-reserved, non-serverless offer among tracked providers for that form, preferring offers not marked out of stock. "
+            "A form with only multi-GPU minimums or serverless rates says no single-GPU rate. "
             "\u201cForm not stated\u201d means the vendor page doesn't say which. " + gen.esc(NVLINK_FORM_NOTE) + "</p>\n  <ul>" + items + "</ul>\n")
 
 
@@ -322,10 +358,12 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
     for i, r in enumerate(rows, 1):
         tc = r.get("tier_class") or "on-demand"
         badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
+        mark = serverless_mark(r).strip()
+        srv = f" <strong>[{esc(mark)}]</strong>" if mark else ""
         trs.append(
             f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(display_gpu(r))}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
             f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
-            f"<td data-label=\"Type\">{esc(r['tier'])}{badge}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
+            f"<td data-label=\"Type\">{esc(r['tier'])}{badge}{srv}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
             f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong></td><td data-label=\"Full month\">{_total_cell(r, full[_key(r)], HOURS_PER_MONTH)}</td>"
             f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
             f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
@@ -428,7 +466,7 @@ def _mem_note(gen, rows, od) -> str:
     base = od["gpu"].split()[0]  # every variant (SXM, PCIe, unlabelled) of the same model at the largest size
     big = [x for x in rows if x["gpu"].split()[0] == base and x.get("vram_gb") == max(sizes)
            and (x.get("tier_class") or "on-demand") == "on-demand" and not out_of_stock(x)
-           and min_gpus_count(x) <= 1]
+           and headline_eligible(x)]
     if not big:
         return ""
     b = min(big, key=lambda x: (x["monthly_cost_usd"], x["advertiser"]))
@@ -453,7 +491,7 @@ def _od_note(gen, rows, cheapest) -> str:
     tc = cheapest.get("tier_class") or "on-demand"
     if tc == "on-demand":
         return " (on-demand)" + _mem_note(gen, rows, cheapest)
-    od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand" and min_gpus_count(r) <= 1), None)
+    od = next((r for r in rows if (r.get("tier_class") or "on-demand") == "on-demand" and headline_eligible(r)), None)
     tail = (f"; cheapest <strong>on-demand</strong> among tracked providers: {_tied_names(gen, rows, od)} {gen.esc(_mem_label(rows, od))} ({gen.esc(od['tier'])}) at "
             f"{_money(od['monthly_cost_usd'])}{_mem_note(gen, rows, od)}") if od else "; no on-demand rate is tracked for this model"
     return f" — note: that rate is <strong>{gen.esc(tc)}</strong>{tail}"
@@ -524,7 +562,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     if cheapest is None:
         lead = "No single-GPU pay-as-you-go rate is tracked for this model. Multi-GPU minimums are listed in the table and are not named as the single-GPU price."
     else:
-        singles = [r for r in rows if min_gpus_count(r) <= 1]
+        singles = [r for r in rows if headline_eligible(r)]
         lead = (f"Cheapest among tracked providers for {DEFAULT_HOURS} hours a month: <strong>{_tied_names(gen, singles, cheapest)} "
                 f"{gen.esc(_mem_label(singles, cheapest))} ({gen.esc(cheapest['tier'])})</strong>{_stock_tag(gen, cheapest)} at "
                 f"{_money(cheapest['monthly_cost_usd'])}{_od_note(gen, singles, cheapest)}.")
@@ -752,7 +790,7 @@ def write_h100_vs(gen, rates):
     best = {}
     for r in rows:
         cur = best.get(r["advertiser"])
-        if cur is None or (min_gpus_count(cur) > 1 and min_gpus_count(r) <= 1):
+        if cur is None or (not headline_eligible(cur) and headline_eligible(r)):
             best[r["advertiser"]] = r
     from core.gpu import form_of, FORM_FACTOR_ORDER
     t1 = ""  # gpu_poor #18: one ranked table per form_factor; SXM and PCIe are never ranked together
@@ -767,8 +805,7 @@ def write_h100_vs(gen, rates):
                        [[_vendor_cell(gen, r), f"{gen.esc(r['gpu'])} ({gen.esc(r['tier'])}) {gen.esc(_rate_str(r))}", gen.esc(_VENDOR_FACTS[v])]
                         for v, r in best.items()])
     c = first_single(rows)
-    secure = [r for r in rows if r["tier"] != "On-demand (Community Cloud)" and min_gpus_count(r) <= 1
-              and (r.get("tier_class") or "on-demand") != "reserved"]
+    secure = [r for r in rows if r["tier"] != "On-demand (Community Cloud)" and headline_eligible(r)]
     faqs = [("Which of RunPod, Thunder Compute and Modal is cheapest among tracked providers for an H100?",
              (f"As of {day}, the lowest listed H100 rate of the three was {c['advertiser']} {c['gpu']} ({c['tier']}) at {_rate_str(c)}, "
               f"or {_money(c['monthly_cost_usd'])} for {DEFAULT_HOURS} GPU hours.") if c else "No single-GPU H100 rate is tracked for these three."),
@@ -792,7 +829,7 @@ def write_per_vram(gen, rates):
                       [[i, f"{gen.esc(r['gpu'])} {r['vram_gb']} GB", _vendor_cell(gen, r), gen.esc(r["tier"]), gen.esc(_rate_str(r)),
                         f"<strong>${r['price_usd'] / r['vram_gb']:.4f}</strong>", _quote_cell(gen, r)] for i, r in enumerate(rows, 1)])
     c = first_single(rows)
-    big = [r for r in rows if r["vram_gb"] >= 80 and min_gpus_count(r) <= 1 and (r.get("tier_class") or "on-demand") != "reserved"]
+    big = [r for r in rows if r["vram_gb"] >= 80 and headline_eligible(r)]
     faqs = [("Which cloud GPU is cheapest per GB of VRAM among tracked providers?",
              (f"On {day}: {c['advertiser']} {c['gpu']} {c['vram_gb']} GB ({c['tier']}) at ${c['price_usd'] / c['vram_gb']:.4f} per GB-hour ({_rate_str(c)}).") if c else "No single-GPU rate with a published memory size is tracked."),
             ("Which 80 GB+ GPU is cheapest per GB among tracked providers?",

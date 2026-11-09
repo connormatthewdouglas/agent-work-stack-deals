@@ -64,19 +64,15 @@ def _group(r: dict) -> tuple:
     return (r.get("vram_gb") or 0, _ff(r), r.get("tier") or "unknown")
 
 
-def _single_gpu(r: dict) -> bool:
-    n = r.get("min_gpus") or 1
-    return not isinstance(n, bool) and isinstance(n, int) and n <= 1
-
-
 def build(slug: str, fam: dict, base: str) -> dict:
+    from gpu_pages import headline_eligible
     rates = sorted(fam["rates"], key=gpu_rate_rank_key)
     cheapest = {}
     for b in BUCKETS:
-        if b == "reserved":
+        if b in ("reserved", "serverless"):
             continue
-        for v in sorted({r.get("vram_gb") for r in rates if bucket(r) == b and _single_gpu(r)}, key=lambda x: x or 0):
-            rs = [r for r in rates if bucket(r) == b and r.get("vram_gb") == v and _single_gpu(r)]
+        for v in sorted({r.get("vram_gb") for r in rates if bucket(r) == b and headline_eligible(r)}, key=lambda x: x or 0):
+            rs = [r for r in rates if bucket(r) == b and r.get("vram_gb") == v and headline_eligible(r)]
             groups = {}
             for r in rs:
                 groups.setdefault(_group(r), []).append(r)
@@ -97,7 +93,7 @@ def build(slug: str, fam: dict, base: str) -> dict:
                                   "SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. "
                                   "form_factor is 'unknown' when the source does not say."),
             "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
-            "reserved_policy": "reserved (commitment) rows are listed under rows but excluded from cheapest",
+            "reserved_policy": "reserved (commitment) rows and serverless or per-second rows are listed under rows but excluded from cheapest",
             "last_checked": max(ver) if ver else None, "row_count": len(rates),
             "providers": sorted({r["advertiser"] for r in rates}),
             "cheapest": cheapest, "rows": [_row(r) for r in rates],
@@ -126,7 +122,7 @@ def write(gen, rates: list[dict]) -> list[Path]:
         idx.append({"model": doc["model"], "slug": slug, "url": doc["url"], "row_count": doc["row_count"],
                     "providers": len(doc["providers"]), "last_checked": doc["last_checked"]})
     index = {"schema": "lantern-works-gpu-model-index/1", "license": DATA_LICENSE,
-             "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json; reserved rows excluded from cheapest.",
+             "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json; reserved rows and serverless or per-second rows excluded from cheapest.",
              **gen_fields, "models": idx}
     gen.assert_public_clean(index)
     (OUT / "index.json").write_text(json.dumps(index, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

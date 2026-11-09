@@ -11,6 +11,16 @@ from pathlib import Path
 _RANK_JS = (Path(__file__).resolve().parents[1] / "embed" / "rank.js").read_text(encoding="utf-8")
 _RANK_JS = _RANK_JS.split("if (typeof module", 1)[0].rstrip() + "\n"
 
+
+def eligibility_js() -> str:
+    """Headline rule inlined by the homepage and calculator.
+
+    Includes isSingleGpuRate, which headlineEligible calls, plus isServerlessRate.
+    """
+    start = _RANK_JS.index("function isSingleGpuRate")
+    end = _RANK_JS.index("function rankGpuRates")
+    return _RANK_JS[start:end]
+
 PATH = "embed"
 FAMILIES = {"H100": "h100", "A100": "a100", "H200": "h200", "L40S": "l40s", "RTX 4090": "rtx-4090",
             "RTX 5090": "rtx-5090", "RTX A6000": "rtx-a6000"}
@@ -27,7 +37,7 @@ function pickRow(d,gpu,match,bucket){
   var rs=(d.rates||[]).filter(function(r){
     if(r.hourly_equiv_usd==null||held[r.advertiser]||r.billing_unit!=="hourly")return false;
     if(ok.indexOf(r.tier_class)<0)return false; /* reserved / monthly never used */
-    if(!isSingleGpuRate(r))return false; /* min_gpus above 1 is not a single-GPU rate */
+    if(!headlineEligible(r))return false; /* single GPU; not reserved; not serverless or per-second */
     return match==="exact"?r.gpu===gpu:(r.gpu===gpu||r.gpu.indexOf(gpu+" ")===0);
   });
   rs.sort(cmpGpuRank);
@@ -44,7 +54,7 @@ function render(el,d){
   var css="display:inline-block;max-width:100%;box-sizing:border-box;font:13px/1.35 system-ui,sans-serif;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;background:#fff;color:#0f172a;text-decoration:none;overflow-wrap:anywhere";
   if(!p.row){el.innerHTML='<a style="'+css+'" href="'+link+'" target="_blank" rel="noopener">'+esc(gpu)+' GPU prices · Lantern Works</a>';return;}
   var r=p.row,day=(r.verified_at||d.feed_updated_at||"").slice(0,10);
-  el.innerHTML='<a style="'+css+'" href="'+link+'" target="_blank" rel="noopener" title="Lowest per-GPU-hour '+label+' single-GPU rate among '+p.n+' tracked rates from '+p.vendors+' providers. Reserved, monthly and multi-GPU minimums excluded. Confirm on the vendor page before spending.">'+
+  el.innerHTML='<a style="'+css+'" href="'+link+'" target="_blank" rel="noopener" title="Lowest per-GPU-hour '+label+' single-GPU rate among '+p.n+' tracked rates from '+p.vendors+' providers. Reserved, monthly, serverless and multi-GPU minimums excluded. Confirm on the vendor page before spending.">'+
     '<strong>'+esc(r.gpu)+(r.vram_gb?' '+esc(r.vram_gb)+' GB':'')+'</strong> from <strong>$'+Number(r.hourly_equiv_usd).toFixed(2)+'/GPU-hr</strong> '+
     '<span style="color:#475569">lowest tracked '+label+' rate · '+esc(r.advertiser)+(minGpusLabel(r)?' ('+esc(minGpusLabel(r))+')':'')+' · checked '+esc(day)+'</span>'+
     '<br><span style="color:#64748b;font-size:11px">GPU price data: Lantern Works, CC BY 4.0</span></a>';
@@ -96,7 +106,7 @@ def write(g) -> str:
   <h2 id="rules">What the badge shows</h2>
   <ul>
     <li>The lowest per-GPU-hour single-GPU rate among tracked providers in the chosen bucket, with the vendor, VRAM and the date it was last verified. It never claims to be the cheapest anywhere, only among the providers Lantern Works tracks.</li>
-    <li>Reserved, contract and monthly rates are never used. A row with a GPU minimum above 1 is not used as that single-GPU rate. Vendors whose prices are on hold (see <a href="{base}/methodology/#held">methodology</a>) are skipped.</li>
+    <li>Reserved, contract and monthly rates are never used. A row with a GPU minimum above 1 is not used as that single-GPU rate. Serverless and per-second rows are not used as that rate. Vendors whose prices are on hold (see <a href="{base}/methodology/#held">methodology</a>) are skipped.</li>
     <li>Some vendor links on Lantern Works are referral links; affiliate status does not affect which rate is shown.</li>
     <li>If the feed can't be loaded, the badge falls back to a plain link and shows no number.</li>
   </ul>
