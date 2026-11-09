@@ -63,15 +63,14 @@ def is_serverless(r: dict) -> bool:
 def headline_eligible(r: dict, gpus: int = 1) -> bool:
     """Row may be named at a requested GPU count.
 
-    Static headlines pass gpus=1 (the default): min_gpus above 1 is out. The calculator
-    passes the selected count, so a row ranks when min_gpus <= that count. Reserved rows
-    and core.serverless.rate_reason rows are out at every count.
-
-    When core PR #130 is on main, compare_gpu_prices(..., gpus=) applies this inside the
-    engine. Until then the pages call this helper and keep their own price order.
+    min_gpus uses core.gpu.min_gpus_unmet, the same rule as compare_gpu_prices(gpus=).
+    Static headlines pass gpus=1. The calculator passes the selected count. Reserved rows
+    and core.serverless.rate_reason rows are out at every count. JSON-LD, the homepage,
+    the badge, and the calculator read this helper. A model headline with a GPU name goes
+    through compare_gpu_prices instead.
     """
-    n = gpus if isinstance(gpus, int) and not isinstance(gpus, bool) and gpus >= 1 else 1
-    if min_gpus_count(r) > n:
+    from core.gpu import min_gpus_unmet
+    if min_gpus_unmet(r, gpus):
         return False
     if (r.get("tier_class") or "on-demand") == "reserved":
         return False
@@ -222,15 +221,12 @@ def _tied_names(gen, rows, best) -> str:
 
 
 def site_rank_key(r: dict) -> tuple:
-    """Price order for page generators. Same tuple compare_gpu_prices sorts by on this branch.
+    """Table order for rows the page still shows, including multi-GPU and serverless rows.
 
-    Reserved last, then the region-unresolved flag (pages do not set it, so it stays false),
-    then out of stock, then hourly price, advertiser, gpu. Affiliate is not an input.
-    min_gpus and serverless are not inputs either; headline_eligible applies those.
-
-    Core PR #130 ranks through compare_gpu_prices(data, gpu, gpus=N) and
-    cheapest_by_form_factor(rows, gpus). Switch call sites to that API once it is on main;
-    do not grow a second copy of the engine here.
+    Same tuple compare_gpu_prices sorts by after it has filtered: reserved last, region-unresolved
+    (pages do not set it), out of stock, hourly price, advertiser, gpu. Affiliate is not an input.
+    Headlines do not use this key. They call compare_gpu_prices(..., gpus=) or
+    cheapest_by_form_factor(rows, gpus), which apply min_gpus_unmet and rate_reason.
     """
     from core.deals import out_of_stock, tier_class
     return (
@@ -244,7 +240,7 @@ def site_rank_key(r: dict) -> tuple:
 
 
 def rank_rates(rows: list[dict]) -> list[dict]:
-    """site_rank_key order. A cheaper N-GPU or serverless row stays ahead until a headline filter."""
+    """site_rank_key order for tables. A cheaper N-GPU or serverless row stays in this list."""
     return sorted(rows, key=site_rank_key)
 
 
@@ -257,13 +253,45 @@ def first_single(rows: list[dict], *, payg_only: bool = True) -> dict | None:
     return None
 
 
-def _pick_cheapest(rs: list[dict]) -> dict | None:
-    """Single-GPU pay-as-you-go headline.
+def _model_query(rows: list[dict]) -> str | None:
+    """A compare_gpu_prices gpu string that matches every row, or None when the rows span models."""
+    from core.deals import _tokens
+    names = [r.get("gpu") or "" for r in rows if r.get("gpu")]
+    sets = [set(_tokens(n)) for n in names]
+    if not sets:
+        return None
+    common = set.intersection(*sets)
+    if not common:
+        return None
+    shortest = min(names, key=len)
+    q = [t for t in _tokens(shortest) if t in common]
+    return " ".join(q) if q else None
 
-    Order is site_rank_key, the same price order as compare_gpu_prices on this branch.
-    The key does not look at min_gpus or serverless, so this pick keeps only
-    headline_eligible rows (min_gpus <= 1, not reserved, not core.serverless.rate_reason).
+
+def _pick_cheapest(rs: list[dict]) -> dict | None:
+    """Headline for one model: compare_gpu_prices(..., gpus=1).
+
+    The engine drops min_gpus above 1 (excluded_min_gpus), serverless (held_serverless),
+    reserved (unless asked), and prices older than the current window. The returned row
+    is the original dict, matched by rate_id. A mixed-model list falls back to
+    headline_eligible over site_rank_key.
     """
+    from core.deals import DealError, compare_gpu_prices
+    from core.ids import rate_id
+    query = _model_query(rs)
+    if query:
+        try:
+            out = compare_gpu_prices({"rates": rs}, query, gpus=1, limit=1, on_demand_only=False, include_reserved=False)
+        except DealError:
+            return None
+        results = out.get("results") or []
+        if not results:
+            return None
+        want = results[0].get("rate_id")
+        for r in rs:
+            if rate_id(r) == want:
+                return r
+        return None
     return first_single(rank_rates(rs), payg_only=True)
 
 
@@ -306,29 +334,30 @@ FORM_ORDER = ("SXM", "PCIe", "NVL", "form not stated")
 
 
 def form_factor_heads(rows: list[dict]) -> list[tuple[str, dict | None]]:
-    """Per form, the single-GPU non-reserved row, or None when that form has only multi-GPU rows.
+    """Per form, the engine's cheapest_by_form_factor(rows, gpus=1) pick.
 
-    Order for the rows that qualify is core.deals.cheapest_by_form_factor (out of stock last, then
-    hourly price). On this branch that helper does not look at min_gpus or serverless and returns
-    nothing unless two forms remain, so this passes it only headline_eligible rows and, when one
-    form is left, uses site_rank_key. #130's cheapest_by_form_factor(rows, gpus) will do the
-    filter in core; keep this site filter until that API is on main.
-    A form that exists only as min_gpus > 1 is still listed, with no row.
+    That helper skips reserved rows, min_gpus_unmet(r, 1), and rate_reason, and returns
+    nothing unless two forms remain. A single qualifying form is ranked with the same
+    out-of-stock-then-price key. A form that exists only as multi-GPU or serverless rows
+    is still listed, with no row.
     """
-    from core.gpu import FORM_FACTOR_ORDER, form_of, split_by_form
-    from core.deals import cheapest_by_form_factor
+    from core.gpu import FORM_FACTOR_ORDER, form_of, min_gpus_unmet, split_by_form
+    from core.deals import cheapest_by_form_factor, out_of_stock
     from core.ids import rate_id
+    from core.serverless import rate_reason
     scoped = [r for r in rows if split_by_form(r.get("gpu"))]
     payg = [r for r in scoped if (r.get("tier_class") or "on-demand") != "reserved"]
-    single = [r for r in payg if headline_eligible(r)]
+    eligible = [r for r in payg if not min_gpus_unmet(r, 1) and not rate_reason(r)]
     by_id: dict = {}
-    for r in single:
+    for r in eligible:
         by_id.setdefault(rate_id(r), r)
     picked: dict[str, dict] = {}
-    for p in cheapest_by_form_factor(single):
-        picked[p["form_factor"]] = by_id[p["rate_id"]]
-    if len({form_of(r) for r in single}) < 2:
-        for r in rank_rates(single):
+    for p in cheapest_by_form_factor(payg, 1):
+        row = by_id.get(p["rate_id"])
+        if row is not None:
+            picked[p["form_factor"]] = row
+    if len({form_of(r) for r in eligible}) < 2:
+        for r in sorted(eligible, key=lambda r: (out_of_stock(r), r.get("hourly_equiv_usd"), r.get("advertiser") or "", r.get("gpu") or "")):
             picked.setdefault(form_of(r), r)
     forms = sorted({form_of(r) for r in payg}, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99)
     return [(f, picked.get(f)) for f in forms]
@@ -615,8 +644,8 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     tc = Counter(r.get("tier_class") or "on-demand" for r in rates)
     parts = ", ".join(f"{n} {k}" for k, n in sorted(tc.items(), key=lambda kv: (-kv[1], kv[0])))
     held = doc.get("held_stale") or []
-    held_n = sum(len(h.get("records") or []) for h in held)
-    held_v = sorted({h["vendor"] for h in held})
+    owner = [h for h in held if h.get("reason") == "owner_hold"]
+    rest = [h for h in held if h.get("reason") != "owner_hold"]
     unp = doc.get("unpriced") or []
     pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
     med = [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]  # Gauge G4
@@ -628,10 +657,16 @@ def rate_count_note(gen, deals: list[dict]) -> str:
                 f"(each summarises many listings from {gen.esc(', '.join(sorted({r['advertiser'] for r in med})))}, not one offer). ")
     if resv:
         out += f"{pl(resv, 'reserved or term-contract rate')} {'is' if resv == 1 else 'are'} included in the count but left out of the cheapest among tracked providers ranking. "
-    if held_n:
+    if owner:
+        names = ", ".join(sorted({h["vendor"] for h in owner}))
+        n = sum(len(h.get("records") or []) for h in owner)
+        out += f"Temporarily held, not a live verified price: {pl(n, 'price')} from {gen.esc(names)}. "
+    if rest:
+        held_n = sum(len(h.get("records") or []) for h in rest)
+        held_v = sorted({h["vendor"] for h in rest})
         out += f"Not counted: {pl(held_n, 'price')} from {pl(len(held_v), 'vendor')} we're holding back because the page was stale or the marketplace too thin. "
     if unp:
-        out += f"{'Also not counted' if held_n else 'Not counted'}: {pl(len(unp), 'vendor')} with no price we could verify."
+        out += f"{'Also not counted' if owner or rest else 'Not counted'}: {pl(len(unp), 'vendor')} with no price we could verify."
     return out
 
 
@@ -929,6 +964,8 @@ def write_all(gen, deals: list[dict]) -> list[str]:
     fams = families(rates)
     _LINKS[:] = page_links(deals)
     pages = {slug: write_model_page(gen, slug, f, rates) for slug, f in fams.items() if _has_page(slug, f, rates)}
+    import spec_pages
+    spec_pages._drop_unpublished(Path(gen.ROOT), "gpu/cheapest-*-rental", set(pages.values()))
     cmps = [write_h100_vs(gen, rates), write_per_vram(gen, rates), write_runpod_tiers(gen, rates)]
     return [write_hub(gen, rates), write_overview(gen, rates, fams, pages)] + cmps  # cheapest-* pages: canonical is the -rental-price page, so not in the sitemap
 

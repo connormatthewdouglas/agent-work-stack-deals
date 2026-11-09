@@ -85,7 +85,8 @@ def test_agent_stack_aged():
 
 def test_build_rates_holds_aged_record():
     docs = copy.deepcopy(load_vendor_files())
-    doc = next(d for d in docs if not d.get("stale") and not d.get("manual_snapshot") and d["records"]
+    from core.owner_hold import is_held
+    doc = next(d for d in docs if not d.get("stale") and not d.get("manual_snapshot") and not is_held(d.get("vendor")) and d["records"]
                and not any(r.get("stale") for r in d["records"]))
     rec = doc["records"][0]
     rec["verified_at"] = rec["checked_at"] = _iso(717)

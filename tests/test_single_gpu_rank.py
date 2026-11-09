@@ -51,17 +51,18 @@ SPOT_SINGLE = _row("Hyperstack", 0.90, tier="Spot", tier_class="interruptible")
 
 
 def test_rank_key_ignores_affiliate_and_min_gpus_value():
-    """Site price order matches the engine tuple and does not read affiliate or min_gpus."""
+    """Table order ignores affiliate and min_gpus. compare_gpu_prices(gpus=1) excludes the 8-GPU row."""
     a = _row("A", 1.0, affiliate=False)
     b = _row("A", 1.0, affiliate=True)
     assert gpu_pages.site_rank_key(a) == gpu_pages.site_rank_key(b)
     hi = _row("A", 1.0, min_gpus=8)
     assert gpu_pages.site_rank_key(a) == gpu_pages.site_rank_key(hi)
+    assert gpu_pages.rank_rates([SINGLE, MULTI])[0]["advertiser"] == "Vast"
     data = {"rates": [SINGLE, MULTI, RESERVED], "feed_updated_at": NOW.isoformat()}
-    out = compare_gpu_prices(data, "H100", now=NOW, on_demand_only=False, include_reserved=True)
-    engine = [(r["advertiser"], r["gpu"]) for r in out["results"]]
-    site = [(r["advertiser"], r["gpu"]) for r in gpu_pages.rank_rates([SINGLE, MULTI, RESERVED])]
-    assert engine == site
+    out = compare_gpu_prices(data, "H100", now=NOW, on_demand_only=False, include_reserved=True, gpus=1)
+    assert out["results"][0]["advertiser"] == "RunPod"
+    assert any(x["vendor"] == "Vast" and x["min_gpus"] == 8 for x in out["excluded_min_gpus"])
+    assert gpu_pages._pick_cheapest([SINGLE, MULTI, RESERVED])["advertiser"] == "RunPod"
 
 
 def test_gpu_pages_headline_skips_cheaper_multi_reserved_and_oos():

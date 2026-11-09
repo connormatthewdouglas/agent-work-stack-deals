@@ -34,11 +34,10 @@ def test_pair_pages_pair_within_form_factor():
 
 
 def test_page_and_mcp_share_one_form_factor_rule():
-    """Per-form lines on the page stay single-GPU even when the engine names an N-GPU row.
+    """Per-form lines match cheapest_by_form_factor(rows, gpus=1).
 
-    On this branch cheapest_by_form_factor does not read min_gpus. #130 will.
-    The list items themselves must name a price or say there is no single-GPU rate.
-    The boilerplate paragraph is not enough: it always contains those words.
+    The engine skips min_gpus above 1 and serverless rows. Each list item must name a
+    price or say there is no single-GPU rate. The boilerplate paragraph is not enough.
     """
     out = core.compare_gpu_prices(FEED, "H100", limit=25)
     picks = out["cheapest_by_form_factor"]

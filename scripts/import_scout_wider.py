@@ -33,7 +33,8 @@ ONE_GPU_RE = re.compile(r"\b1 GPU\b")
 # Serverless / per-second / active-worker prices are not dedicated instance rates (Gauge 1104 #102): held, never imported.
 # Interruptible matches core.gpu.INTERRUPTIBLE_TIER_RE (spot, preemptible, interruptible, bid). Community and
 # marketplace labels stay non-interruptible. The tier text itself is not rewritten.
-VERBATIM_KEYS = ("quote_verbatim", "verbatim_text")
+# Vendor text Scout copied from the page; price_quote is Scout's own field name for it (Gauge 1108 #102 c).
+VERBATIM_KEYS = ("quote_verbatim", "verbatim_text", "price_quote")
 
 
 def _ts(s):
@@ -184,7 +185,8 @@ def apply(docs: dict, rows: list[dict], names: list[str] | None = None) -> tuple
         if why:
             unresolved.append({"vendor": r.get("vendor"), "gpu_model": r.get("gpu_model"), "tier": r.get("tier"), "reason": why})
         if rec:
-            key = (rec["vendor"], rec["gpu"], rec["tier"], rec["vram_gb"])
+            # allocation sizes stay separate rows: (tier, gpu_count) is part of the key (Scout publishes Vast per "(Nx GPU)")
+            key = (rec["vendor"], rec["gpu"], rec["tier"], rec["vram_gb"], rec.get("gpu_count") or 1)
             if key not in seen:
                 seen.add(key)
                 by_vendor.setdefault(rec["vendor"], []).append(rec)
@@ -200,8 +202,8 @@ def apply(docs: dict, rows: list[dict], names: list[str] | None = None) -> tuple
         for x in recs:  # records carry the vendor file's own name (e.g. "Verda (formerly DataCrunch)")
             x["vendor"] = doc.get("vendor") or x["vendor"]
         keep = [x for x in doc.get("records") or [] if x.get("batch") != "wider-gpu"]
-        have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb")) for x in keep}
-        new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"]) not in have]  # existing curated rows win
+        have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb"), x.get("gpu_count") or 1) for x in keep}
+        new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"], x.get("gpu_count") or 1) not in have]  # existing curated rows win
         doc["records"] = keep + new
         total += len(new)
         out[v] = doc

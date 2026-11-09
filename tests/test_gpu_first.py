@@ -21,7 +21,12 @@ def _live():
 
 
 def _pin_feed_clock(monkeypatch):
-    """Match the committed feed to the clock it was built with. The live 26h/36h gates do not use this."""
+    """Match the committed feed to the clock it was built with. The live 26h/36h gates do not use this.
+    A caller that already set LW_AVAIL_NOW (the scout-import rebuild) keeps that clock, so the count
+    includes the same held rows the pages were just built with."""
+    import os
+    if os.environ.get("LW_AVAIL_NOW"):
+        return
     stamp = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["feed_updated_at"]
     monkeypatch.setenv("LW_AVAIL_NOW", stamp)
 

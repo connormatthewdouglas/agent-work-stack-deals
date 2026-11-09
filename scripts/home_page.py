@@ -97,7 +97,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     vendors = vendor_counts_label(rates)  # T76: "25 priced sources (23 instance vendors; ...)"
     fresh = max(((r.get("verified_at") or "")[:10] for r in rates), default="")
     rows = "".join(
-        f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/cheapest-{s["slug"]}-rental/">{esc(s["name"])}</a></th>'
+        f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/{("cheapest-" + s["slug"] + "-rental/") if (ROOT / "gpu" / ("cheapest-" + s["slug"] + "-rental")).is_dir() else "price-comparison/"}">{esc(s["name"])}</a></th>'
         f'<td class="lo"><strong>{usd(s["min"])}</strong>{f' <small class="oos">(excl. {esc(s["oos_caveat"])})</small>' if s["oos_caveat"] else ""}</td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
         f'<td class="n">{s["n"]}{f" ({s['n_oos']} out of stock excluded)" if s["n_oos"] else ""}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
         for s in spread(rates))
