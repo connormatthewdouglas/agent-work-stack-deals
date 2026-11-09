@@ -1,0 +1,32 @@
+name: Freshness watchdog
+
+# A4: a daily check from outside the collectors. Fails the run and opens or updates
+# one GitHub issue when the live feed, availability, or hosted MCP version is stale.
+on:
+  schedule:
+    - cron: "11 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: freshness-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the live feed, availability, and hosted version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 scripts/freshness_watchdog.py
