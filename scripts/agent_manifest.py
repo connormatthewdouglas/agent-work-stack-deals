@@ -17,7 +17,7 @@ def build() -> dict:
     return {
         "schema": "lantern-works-agent-discovery/1",
         "schema_note": "Project-specific discovery document; not a universal agent protocol.",
-        "name": "agent-work-stack-deals",  # legacy identifier
+        "name": "Lantern Works",
         "title": "Lantern Works — cited GPU rental prices for agents",
         "description": "Compare tracked GPU rental prices, estimate job costs and reopen quote receipts. Public JSON and hosted MCP; no API key for read-only queries.",
         "homepage": BASE + "/",

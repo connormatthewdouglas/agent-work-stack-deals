@@ -1,7 +1,7 @@
 ---
 name: lantern-works-deals
 description: >-
-  GPU price comparison for agents, checked daily: compare tracked hourly GPU
+  GPU price comparison for agents, refreshed regularly, with each price's age shown: compare tracked hourly GPU
   rental prices (H100, A100, RTX 4090 and more) with source links, check dates
   and price history. Also query Lantern Works work-stack deals (compute, search,
   crawl, hosting, templates, unblock, email). Use when an agent needs to
@@ -9,7 +9,7 @@ description: >-
   buying for itself or a human — not for consumer/entertainment shopping.
 ---
 
-# Lantern Works — GPU price comparison for agents, checked daily
+# Lantern Works — GPU price comparison for agents, refreshed regularly, with each price's age shown
 
 The GPU feed is re-read daily from each vendor's own pricing page; the current rate and provider counts are in the live feed (`rates`, `vendors`). "Cheapest" means cheapest among tracked providers. Some result links are referral links.
 
