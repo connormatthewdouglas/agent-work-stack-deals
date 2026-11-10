@@ -4174,8 +4174,8 @@
   {
    "date": "2026-11-10",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-10.json",
-   "snapshot_sha256": "67c3a6f025819df40b2fbae82c874dd1ba62e6e16e5e267eab603210d4e971b0",
-   "feed_commit_for_listing_counts": "527a4d9d9708e7933583a10d7dd2263724fe1395",
+   "snapshot_sha256": "edd1c73eb4b89849b8e305ae642cb76ed83f5e07e874ad7570e31629caa6db13",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.5,
@@ -4195,15 +4195,15 @@
       "Oblivus": 3.5,
       "RunPod": 1.99,
       "Thunder Compute": 3.2,
-      "Verda (formerly DataCrunch)": 4.987
+      "Verda (formerly DataCrunch)": 5.037
      },
      "low_coverage": false
     },
     "A100": {
-     "median_usd_per_gpu_hour": 1.48,
-     "monthly_basis_usd": 1080.4,
+     "median_usd_per_gpu_hour": 1.49,
+     "monthly_basis_usd": 1087.7,
      "min_usd_per_gpu_hour": 1.09,
-     "vendors": 10,
+     "vendors": 9,
      "vendor_prices": {
       "Civo": 1.79,
       "CoreWeave": 2.7,
@@ -4213,7 +4213,6 @@
       "Oblivus": 1.47,
       "RunPod": 1.19,
       "Thunder Compute": 1.09,
-      "Vast.ai": 1.1627,
       "Verda (formerly DataCrunch)": 2.316
      },
      "low_coverage": false
@@ -4245,13 +4244,13 @@
       "Nebius": 1.55,
       "OVHcloud (US)": 1.8,
       "RunPod": 0.79,
-      "Verda (formerly DataCrunch)": 1.958
+      "Verda (formerly DataCrunch)": 1.978
      },
      "low_coverage": false
     },
     "RTX 4090": {
-     "median_usd_per_gpu_hour": 0.4815,
-     "monthly_basis_usd": 351.5,
+     "median_usd_per_gpu_hour": 0.4976,
+     "monthly_basis_usd": 363.25,
      "min_usd_per_gpu_hour": 0.34,
      "vendors": 7,
      "vendor_prices": {
@@ -4261,7 +4260,7 @@
       "Oblivus": 0.64,
       "RunC.AI": 0.42,
       "RunPod": 0.34,
-      "Vast.ai": 0.4815
+      "Vast.ai": 0.4976
      },
      "low_coverage": false
     },
@@ -4334,7 +4333,6 @@
     "RunPod|RTX 5090|On-demand (Secure Cloud)|32|1",
     "Thunder Compute|A100|On-demand|80|1",
     "Thunder Compute|H100 SXM|On-demand|80|1",
-    "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
     "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
     "Verda (formerly DataCrunch)|A100 SXM|On-demand instance (1x GPU)|80|1",
     "Verda (formerly DataCrunch)|H100 SXM|On-demand instance (1x GPU)|80|1",
@@ -4507,6 +4505,10 @@
      "excluded_because": "reserved/committed"
     },
     {
+     "key": "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
+     "excluded_because": "held"
+    },
+    {
      "key": "Verda (formerly DataCrunch)|A100 SXM|Spot instance (1x GPU)|80|1",
      "excluded_because": "spot/interruptible"
     },
@@ -4533,12 +4535,14 @@
      "vendors_dropped": []
     },
     "A100": {
-     "matched_vendors": 10,
-     "matched_median_prev": 1.48,
-     "matched_median_cur": 1.48,
+     "matched_vendors": 9,
+     "matched_median_prev": 1.49,
+     "matched_median_cur": 1.49,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": []
+     "vendors_dropped": [
+      "Vast.ai"
+     ]
     },
     "H200": {
      "matched_vendors": 6,
@@ -4559,8 +4563,8 @@
     "RTX 4090": {
      "matched_vendors": 7,
      "matched_median_prev": 0.5078,
-     "matched_median_cur": 0.4815,
-     "matched_change_pct": -5.18,
+     "matched_median_cur": 0.4976,
+     "matched_change_pct": -2.01,
      "vendors_added": [],
      "vendors_dropped": []
     },

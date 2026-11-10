@@ -265,7 +265,9 @@ def test_new_vendor_flags():
         o = next(x for x in _gpu_options(api, 100, "RTX 4090", set()) if x["vendor"] == "Vast.ai")
         assert any("marketplace" in a for a in o["assumptions"])
     doc = next(d for d in load_vendor_files() if d["vendor"] == "Vast.ai")
-    thin = {**doc, "records": [{**doc["records"][0], "offer_count": 4}]}
+    # The check is "too thin and not held". Drop stale so an auto-held first row cannot hide it.
+    thin_row = {k: v for k, v in doc["records"][0].items() if k != "stale"}
+    thin = {**doc, "records": [{**thin_row, "offer_count": 4}]}
     assert any("offer_count" in p for p in record_problems(thin))
     # Lambda: 13 records, no deal (links to vendor page), 8x-only instances charge 8 GPUs
     lam = [r for r in rates if r["advertiser"] == "Lambda"]
