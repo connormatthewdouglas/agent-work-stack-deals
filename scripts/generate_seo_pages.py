@@ -1011,6 +1011,24 @@ def parse_deal_updated(deal: dict) -> datetime | None:
         return None
 
 
+_BADGE_CLOCK: datetime | None = None
+
+
+def _badge_clock() -> datetime:
+    """Build clock for the New/Updated badges: the GPU feed's own feed_updated_at (in the tree), not the wall clock.
+
+    A wall clock made the pages depend on when they were generated, so check_generated_pages.py (which regenerates
+    later) flipped badges at the 7/14-day edges and failed on unchanged data. Same stamp the checker falls back to."""
+    global _BADGE_CLOCK
+    if _BADGE_CLOCK is None:
+        try:
+            doc = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text(encoding="utf-8"))
+            _BADGE_CLOCK = datetime.fromisoformat(str(doc["feed_updated_at"]).replace("Z", "+00:00"))
+        except (OSError, ValueError, KeyError, TypeError):
+            _BADGE_CLOCK = datetime.now(timezone.utc)
+    return _BADGE_CLOCK
+
+
 def freshness_bits(deal: dict, *, now: datetime | None = None) -> tuple[str, str]:
     """Return (badge_html, date_line_html) from real updated_at only.
 
@@ -1021,8 +1039,8 @@ def freshness_bits(deal: dict, *, now: datetime | None = None) -> tuple[str, str
     if ts is None:
         return "", ""
     if now is None:
-        now = datetime.now(ts.tzinfo) if ts.tzinfo else datetime.now()
-    elif ts.tzinfo and now.tzinfo is None:
+        now = _badge_clock()
+    if ts.tzinfo and now.tzinfo is None:
         now = now.replace(tzinfo=ts.tzinfo)
     elif now.tzinfo and ts.tzinfo is None:
         ts = ts.replace(tzinfo=now.tzinfo)
