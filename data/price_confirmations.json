@@ -1,0 +1,18 @@
+{
+  "note": "Manual confirmations for GPU price refresh changes larger than MAX_AUTO_CHANGE_PCT (50%). scripts/refresh_gpu_prices.py releases such a change only when a matching unexpired entry (same vendor, gpu and tier) has confirmed_price equal to the live parsed price. Expired or mismatched entries are ignored. Provenance on a released row stays the live page quote and verified_at.",
+  "confirmations": [
+    {
+      "vendor": "Spheron",
+      "gpu": "L40S",
+      "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
+      "confirmed_price": 2.11,
+      "currency": "USD",
+      "source_url": "https://www.spheron.network/pricing/",
+      "confirmed_by": "Bjorn (manual check)",
+      "confirmed_at": "2026-11-10T18:44:00Z",
+      "reread_by": "Scout",
+      "reread_at": "2026-11-10T18:47:00Z",
+      "expires_at": "2026-11-17T18:44:00Z"
+    }
+  ]
+}

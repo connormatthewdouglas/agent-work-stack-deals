@@ -15,7 +15,9 @@ update the price ONLY where it was actually parsed:
 * Manual holds (vendor-level stale such as TensorDock, record-level holds without auto) are left untouched.
 * Marketplace (Vast) records use the automatic rule: held (stale.auto) below MIN_MARKET_OFFERS qualifying offers,
   released with a fresh median, quote and checked_at once MIN_MARKET_OFFERS+ return.
-* A change larger than MAX_AUTO_CHANGE_PCT is not applied automatically (flagged for a human instead).
+* A change larger than MAX_AUTO_CHANGE_PCT is not applied automatically (flagged for a human instead), unless
+  data/price_confirmations.json has a matching unexpired entry for that exact row (vendor, gpu, tier) whose
+  confirmed_price equals the live parsed price. Expired or mismatched entries are ignored and logged.
 
 Politeness: robots.txt is honoured, one request per URL per run, REQUEST_GAP_S between requests, plain UA that
 identifies Lantern Works and links the repo. Then today's snapshot is written (data/gpu_pricing/snapshots/).
@@ -28,6 +30,7 @@ import re
 import statistics
 import sys
 import time
+from decimal import Decimal, InvalidOperation
 import urllib.error
 import urllib.request
 import urllib.robotparser
@@ -45,6 +48,7 @@ from core import gpu_history  # noqa: E402
 UA = "LanternWorksPriceCheck/1.1 (+https://github.com/connormatthewdouglas/agent-work-stack-deals)"
 REQUEST_GAP_S = 3.0
 MAX_AUTO_CHANGE_PCT = 50.0
+CONFIRMATIONS_PATH = ROOT / "data" / "price_confirmations.json"
 PRICE_RE = re.compile(r"\$\s?([\d,]*\.?\d+)")
 FACTOR = {"per-second": 3600, "hourly": 1, "monthly": 1 / HOURS_PER_MONTH}
 
@@ -360,9 +364,85 @@ def _swap_quote_price(quote: str, old: float, new_s: str) -> str:
     return quote
 
 
-def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DAYS) -> list[dict]:
+def _parse_iso(s: str | None) -> datetime | None:
+    if not s or not isinstance(s, str):
+        return None
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def _price_eq(a, b) -> bool:
+    try:
+        return Decimal(str(a)) == Decimal(str(b))
+    except (InvalidOperation, TypeError, ValueError):
+        return False
+
+
+def load_price_confirmations(path: Path | None = None) -> list[dict]:
+    p = Path(path) if path is not None else CONFIRMATIONS_PATH
+    if not p.exists():
+        return []
+    data = json.loads(p.read_text(encoding="utf-8"))
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        return list(data.get("confirmations") or [])
+    raise ValueError(f"{p}: expected a list or an object with confirmations")
+
+
+def confirmation_for(r: dict, vendor: str, live_price: float, now: datetime,
+                     entries: list[dict]) -> tuple[dict | None, str]:
+    """Unexpired confirmation for this exact row whose price equals live_price, or (None, why).
+
+    why is 're-check by hand' when no entry exists (today's wording). Expired or mismatched
+    entries are not applied; why explains the first/only failure, or joins several.
+    """
+    matches = [e for e in entries
+               if e.get("vendor") == vendor and e.get("gpu") == r.get("gpu") and e.get("tier") == r.get("tier")]
+    if not matches:
+        return None, "re-check by hand"
+    reasons: list[str] = []
+    for e in matches:
+        exp = _parse_iso(e.get("expires_at"))
+        if exp is None:
+            reasons.append("confirmation has no valid expires_at")
+            continue
+        if now >= exp:
+            reasons.append(f"confirmation expired at {e.get('expires_at')}")
+            continue
+        cur = str(e.get("currency") or "").strip().upper()
+        if cur and cur != "USD":
+            reasons.append(f"confirmation currency is {e.get('currency')}, feed is USD")
+            continue
+        if not _price_eq(e.get("confirmed_price"), live_price):
+            reasons.append(f"confirmation is {e.get('confirmed_price')} {e.get('currency') or 'USD'}, "
+                           f"live parsed ${live_price}")
+            continue
+        return e, ""
+    return None, reasons[0] if len(reasons) == 1 else "; ".join(reasons)
+
+
+def _confirmation_ref(entry: dict) -> dict:
+    """Additive source-record reference (not evidence; live quote/verified_at stay on the live read)."""
+    out = {}
+    for k in ("confirmed_by", "confirmed_at", "reread_by", "reread_at", "expires_at",
+              "confirmed_price", "currency", "source_url"):
+        if entry.get(k) is not None and entry.get(k) != "":
+            out[k] = entry[k]
+    return out
+
+
+def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DAYS,
+             confirmations: list[dict] | None = None) -> list[dict]:
     """Mutates docs in place. Returns one result row per record (for the run report)."""
     stamp, report = _iso(now), []
+    if confirmations is None:
+        confirmations = load_price_confirmations()
     for doc in docs:
         if is_held(doc.get("vendor")):
             # Owner hold: do not fetch, reprice, restamp, or record a new history point.
@@ -458,9 +538,13 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     row.update(result="HELD: changed whole-instance total missing from vendor quote")
                     new_s = None
                 elif abs(pct) > MAX_AUTO_CHANGE_PCT:
-                    row.update(result=f"NOT applied: {old} -> {new} ({pct:+.1f}%) exceeds {MAX_AUTO_CHANGE_PCT:.0f}%; re-check by hand")
-                    new_s = None
-                else:
+                    conf, why = confirmation_for(r, doc["vendor"], new, now, confirmations)
+                    if conf is None:
+                        row.update(result=f"NOT applied: {old} -> {new} ({pct:+.1f}%) exceeds {MAX_AUTO_CHANGE_PCT:.0f}%; {why}")
+                        new_s = None
+                    else:
+                        row["confirmation"] = conf
+                if new_s is not None:
                     if abs(new - old) > 1e-9:
                         # use the text matched on the page: a quote holding several prices (e.g. on-demand + spot on one line)
                         # must not keep a sibling's old price (that broke the live source check on 2026-10-29)
@@ -482,6 +566,8 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     if r.get("stale", {}).get("auto"):
                         del r["stale"]
                     row.update(result="changed" if abs(new - old) > 1e-9 else "unchanged", new=r["hourly_usd"])
+                    if row.get("confirmation"):
+                        r["price_confirmation"] = _confirmation_ref(row["confirmation"])
                     succeeded += 1
             if not manual_hold:
                 attempted += 1
@@ -523,7 +609,10 @@ def main() -> int:
     summary = ", ".join(f"{v} {k}" for k, v in sorted(counts.items()))
     lines = [f"GPU price refresh {_iso(now)}: {len(rep)} records: {summary}", ""]
     lines += [f"- {r['vendor']} {r['gpu']} ({r['tier']}): {r['result']}"
-              + (f" {r['old']} -> {r['new']}" if r.get("result") == "changed" else "") for r in rep]
+              + (f" {r['old']} -> {r['new']}" if r.get("result") == "changed" else "")
+              + (f" [confirm {c.get('confirmed_by')} at {c.get('confirmed_at')}]"
+                 if (c := r.get("confirmation")) else "")
+              for r in rep]
     print("\n".join(lines))
     if a.report:
         Path(a.report).write_text("\n".join(lines) + "\n", encoding="utf-8")
