@@ -21,6 +21,14 @@ import watch as W  # noqa: E402
 import watch_store as S  # noqa: E402
 from core import deals as D, gpu_history as H  # noqa: E402
 
+import pytest
+
+@pytest.fixture(autouse=True)
+def _freeze_watch_today(monkeypatch):
+    """Pin calendar day so Nov 1–2 feed fixtures stay inside LOOKBACK_DAYS as the wall clock moves."""
+    monkeypatch.setattr(S, "_today", lambda: "2026-11-02")
+
+
 GOOD = [f"https://ok{i}.example.com/h" for i in range(3)]
 BAD = ["https://aaa-down.example.com/h", "https://aab-down.example.com/h"]
 
