@@ -326,7 +326,8 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                 line["held_serverless"], line["excluded_serverless"] = held, len(held)
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
-            opts.sort(key=lambda x: (x.get("in_stock") is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or ""))
+            from . import data_age as _da0  # shared lead rule: degraded prices never rank first while a fresh one exists
+            opts.sort(key=lambda x: (_da0.lead_key(x, now, max_h=max_data_age_hours), x.get("in_stock") is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or ""))
             if p["gpu_count"] is None:  # no GPU count in the request: 1 GPU, said out loud
                 from .gpu import NO_GPU_COUNT_ASSUMPTION
                 assumptions.append(NO_GPU_COUNT_ASSUMPTION)

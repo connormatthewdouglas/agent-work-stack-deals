@@ -683,7 +683,10 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
     oos_cheaper = min((r for r in rows if out_of_stock(r) and tier_class(r) != "reserved"),
                       key=lambda r: r["hourly_equiv_usd"], default=None)
-    rows.sort(key=lambda r: (tier_class(r) == "reserved", unresolved(r), out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    # Shared lead rule (core.data_age.lead_key): a degraded (> 48 h) row is shown and flagged but never ranked first
+    # while a fresh row exists; if none is fresh, stale_fallback says the top row is not a current price.
+    rows.sort(key=lambda r: (tier_class(r) == "reserved", data_age.lead_key(r, now, max_h=max_h), unresolved(r), out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    stale_fallback, deg_note = data_age.degraded_note([r for r in rows if tier_class(r) != "reserved"], now, max_h=max_h)
     od = next((r for r in rows if tier_class(r) == "on-demand"), None)
     # Different memory sizes are different products (an A100 40GB is not an A100 80GB): name the cheapest per size.
     by_vram = {}
@@ -724,8 +727,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         results.append(out)
     c = results[0]
     # I5: name every row tied with the cheapest (same price, tier class and stock state)
-    c_who = tie_label([x for x in rows if unresolved(x) == unresolved(rows[0])], rows[0])  # re30: a tie never mixes region-confirmed and unresolved rows
-    od_who = tie_label([x for x in rows if tier_class(x) == "on-demand"], od) if od is not None else None
+    c_who = tie_label([x for x in rows if unresolved(x) == unresolved(rows[0]) and data_age.lead_key(x, now, max_h=max_h) == data_age.lead_key(rows[0], now, max_h=max_h)], rows[0])  # re30: a tie never mixes region-confirmed and unresolved rows
+    od_who = tie_label([x for x in rows if tier_class(x) == "on-demand" and data_age.lead_key(x, now, max_h=max_h) == data_age.lead_key(od, now, max_h=max_h)], od) if od is not None else None
     oos_msg = ""
     if oos_cheaper is not None and not out_of_stock(c) and oos_cheaper["hourly_equiv_usd"] < c["hourly_usd"]:
         oos_msg = (f" Cheaper but {oos_note(oos_cheaper)}: {oos_cheaper['advertiser']} {oos_cheaper['gpu']} at "
@@ -764,7 +767,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     + f". Tier: {results[0]['tier_class']}."
                     + ("" if results[0]["tier_class"] == "on-demand" or od is None else
                        f" Cheapest on-demand: {od_who} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
-                    + oos_msg
+                    + oos_msg + deg_note
                     + (f" {len(stale_rows)} rate(s) with a price older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale_rows else "")
                     + (f" {len(excluded_min)} rate(s) sold only as allocations larger than {n_gpus} GPU(s) are not ranked (see excluded_min_gpus)." if excluded_min else "")
                     + ". This is the cheapest among tracked providers only, not the whole market. "
@@ -778,6 +781,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,
         "excluded_stale": len(stale_rows),
         "stale_prices": sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or "")),
+        "stale_fallback": stale_fallback,
         "region": cons.get("region"), "excluded_other_region": excluded_region,
         "region_unresolved": sum(1 for r in rows if cons.get("region") and unresolved(r)),
         "constraints": {"applied": cons, "eligible_rate_ids": sorted(rate_id(r) for r in rows if elig[id(r)]["eligible"]),
@@ -788,7 +792,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         "tier_classes": TIER_NOTES,
         "scope": "cheapest among tracked providers",
         "total": len(rows), "count": len(results), "results": results,
-        "sorted_by": "hourly_usd ascending (monthly plans converted at hours_per_month)",
+        "sorted_by": ("fresh rows first (degraded > 48 h never ranked first), then " if max_h is None else "")
+                     + "hourly_usd ascending (monthly plans converted at hours_per_month)",
         "hours_per_month": data.get("hours_per_month"),
         "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at"),
         "methodology": data.get("methodology"),

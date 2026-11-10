@@ -50,13 +50,18 @@ def _tokens(s: str) -> set:
 from .stack import MAX_GPU_HOURS_MONTH as MAX_JOB_HOURS  # Gauge re27: one hours cap everywhere
 
 
-def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours: float | None = None,
+def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: int = 1, job_hours: float | None = None,
                       work_units: float | None = None, throughput_units_per_gpu_hour: float | None = None,
                       workload: str | None = None, allow_interruptible: bool = False, min_vram_gb: int | None = None,
                       runs_per_month: float | None = None, top_n: int = 5, max_data_age_hours: float | None = None,
-                      now=None, region: str | None = None) -> dict:
-    if not gpu_family or not _tokens(gpu_family):
-        raise JobCostError("invalid_argument", "gpu_family is required, e.g. 'H100', 'A100 80GB', 'L40S'")
+                      now=None, region: str | None = None, gpu: str | None = None) -> dict:
+    # `gpu` is an alias for gpu_family (same name compare_gpu_prices uses); both given must name the same GPU
+    if gpu is not None and gpu_family is not None and " ".join(str(gpu).split()).lower() != " ".join(str(gpu_family).split()).lower():
+        raise JobCostError("invalid_argument", f"gpu ('{gpu}') and gpu_family ('{gpu_family}') conflict; gpu is an alias "
+                                               "for gpu_family, so pass one of them")
+    gpu_family = gpu_family if gpu_family is not None else gpu
+    if not isinstance(gpu_family, str) or not _tokens(gpu_family):
+        raise JobCostError("invalid_argument", "gpu (or gpu_family) is required, e.g. 'H100', 'A100 80GB', 'L40S'")
     if isinstance(gpus_per_job, bool) or not isinstance(gpus_per_job, int) or gpus_per_job < 1:
         raise JobCostError("invalid_argument", "gpus_per_job must be an integer >= 1")
     if isinstance(top_n, bool) or not isinstance(top_n, int) or not 1 <= top_n <= MAX_TOP:
@@ -173,10 +178,20 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
         raise JobCostError("not_found", f"No rankable hourly rate tracked for '{gpu_l}'"
                                         + (f" ({too_old} older rates excluded by max_data_age_hours)" if too_old else ""))
     priced = estimate(rows, job_hours, gpus_per_job, min_vram_gb=min_vram_gb)
-    from .deals import oos_note, out_of_stock
+    from .deals import oos_note, out_of_stock, tier_class
     from .stack import avail_fields
     _unres = lambda r: any(u["constraint"] == "region" for u in EL.evaluate(r, cons, now)["unknown"])
-    priced.sort(key=lambda r: (_unres(r), out_of_stock(r)))  # T47 region-unresolved, then F1: stable; explicit out-of-stock rows rank after in-stock/unknown rows
+    # Shared lead rule (core.data_age.lead_key, same as compare_gpu_prices' default): degraded/stale rows never rank
+    # first while a fresh row exists, and fresh on-demand rows lead. Then T47 region-unresolved, then F1 out-of-stock.
+    # Stable sort, so the shared calculator's order (reserved last, min_gpus unmet last, cost ascending) holds within.
+    from .gpu import min_gpus_unmet
+    # allow_interruptible=true is the caller opting into non-on-demand capacity (compare's on_demand_only=false):
+    # then the cheapest fresh row leads whatever its tier.
+    prefer_od = not allow_interruptible
+    _deg = lambda r: data_age.lead_key(r, now, max_h=max_h)[0]
+    priced.sort(key=lambda r: (_deg(r), _unres(r), out_of_stock(r), min_gpus_unmet(r, gpus_per_job),
+                               prefer_od and tier_class(r) != "on-demand"))
+    stale_fallback, deg_note = data_age.degraded_note(priced, now, max_h=max_h)
     out_rows = []
     for i, r in enumerate(priced[:top_n], 1):
         per = r.get("gpu_count") or 1
@@ -192,6 +207,13 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
             row["monthly_subtotal_usd"] = round(r["monthly_cost_usd"] * runs, 2)
         out_rows.append(row)
     best = out_rows[0]
+    od_note = ""
+    fresh_cheaper = [r for r in priced if not _deg(r) and not out_of_stock(r) and not _unres(r)
+                     and r["monthly_cost_usd"] < priced[0]["monthly_cost_usd"]]
+    if fresh_cheaper:  # never hide a cheaper current price: name it with its tier class
+        c = min(fresh_cheaper, key=lambda r: r["monthly_cost_usd"])
+        od_note = (f" Cheaper fresh rate ranked lower: {c.get('advertiser')} {c.get('gpu')} ({tier_class(c)}, {c.get('tier')}) at "
+                   f"${c['monthly_cost_usd']:,.2f} (fresh on-demand rows rank first; pass allow_interruptible=true to rank all tiers by cost).")
     oos_msg = ""
     if out_of_stock(priced[0]):
         oos_msg = f" Note: this row was {oos_note(priced[0])}; no in-stock or unknown-availability row matched."
@@ -212,12 +234,16 @@ def estimate_job_cost(data: dict, gpu_family: str, gpus_per_job: int, job_hours:
     return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4), "count": len(out_rows),
             "results": out_rows, "label": LABEL,
             "summary": region_note + (f"Cheapest{'' if best_ok else ' regardless of region'} among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
-                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}." + oos_msg
+                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}."
+                        + f" Tier: {tier_class(priced[0])}." + od_note + oos_msg + deg_note
                         + (f" {len(stale)} rate(s) older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale else "")
                         + held_note),
             "assumptions": assumptions, "citations": [source["url"]] if source else [],
             "throughput_basis": basis, "throughput_source": source,
             "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
             "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra, **held_extra,
+            "stale_fallback": stale_fallback,
+            "ranking": (("fresh rows first (degraded > %d h never ranked first); " % data_age.DEGRADED_HOURS if max_h is None else "")
+                        + ("on-demand before other tiers; " if prefer_od else "") + "then compute subtotal ascending"),
             "region": cons.get("region"), "excluded_other_region": other_region,
             "constraints": {"applied": cons, "eligible_rate_ids": sorted({rate_id(r) for r in priced if EL.evaluate(r, cons, now)["eligible"]})}}
