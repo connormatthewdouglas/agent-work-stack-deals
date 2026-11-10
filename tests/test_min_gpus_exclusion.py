@@ -15,7 +15,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core import deals  # noqa: E402
 
-FEED = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
+# Frozen fixture (main 1b47ecc7), not the live feed: the Lium collector rewrites Lium rows, and a live 8x row going away
+# made module import raise StopIteration (Lium collector run 42820326406). The checks below are unchanged.
+FEED_FILE = ROOT / "tests" / "fixtures" / "gpu-prices-min-gpus-2026-11-10.json"
+FEED = json.loads(FEED_FILE.read_text())
 LIUM8 = next(r for r in FEED["rates"] if r["advertiser"] == "Lium" and r["gpu"] == "H100 SXM" and r.get("min_gpus") == 8)
 NOW = datetime.fromisoformat(LIUM8["verified_at"]) + timedelta(hours=1)  # inside the freshness window
 
@@ -60,7 +63,12 @@ def test_all_unmet_is_a_clear_not_found():
 
 def test_brief_mode_keeps_the_count():
     from mcp_server import server
-    res = asyncio.run(server.mcp.call_tool("compare_gpu_prices", {"gpu": "H100", "mode": "brief", "max_data_age_hours": 100000}))
+    old_file, old_cache = server.gpu_loader.file, server.gpu_loader._cache
+    server.gpu_loader.file, server.gpu_loader._cache = str(FEED_FILE), None
+    try:
+        res = asyncio.run(server.mcp.call_tool("compare_gpu_prices", {"gpu": "H100", "mode": "brief", "max_data_age_hours": 100000}))
+    finally:
+        server.gpu_loader.file, server.gpu_loader._cache = old_file, old_cache
     out = json.loads((res[0] if isinstance(res, tuple) else res)[0].text)
     assert out["mode"] == "brief" and out["min_gpus_unmet"] >= 1 and out["gpus"] == 1
     assert all((r.get("min_gpus") or 1) <= 1 for r in out["results"])
