@@ -1,0 +1,22 @@
+{
+  "environment": "clean venvs, stdio transport, installed exactly per its README",
+  "evidence": {
+    "transcript": "tests/009-weather-transcript.txt",
+    "transcript_supplementary": "tests/009-weather-transcript-pinned.txt",
+    "writeup": "tests/009-weather-server.md"
+  },
+  "ground_truth": "Open-Meteo API fetched directly in the same minute; tolerances set before grading (temp ±1.5C, wind ±5 km/h, humidity ±5, pressure ±1.5 hPa, code exact)",
+  "observed_summary": "Crashes at import as installed (McpError renamed to MCPError upstream); needs two undocumented pins (mcp==1.12.0, pydantic==2.11.7) to start at all. Once running, its current-weather text reproduces the next hour's forecast bucket, and its two weather tools disagree in the same minute.",
+  "package": "open-meteo-mcp",
+  "record_id": "009",
+  "registry": "PyPI",
+  "task": "current weather for New York City",
+  "tested_at": "2026-10-29",
+  "verdict": "broken",
+  "version": "0.2.0",
+  "stable_url": "https://thelanternworks.com/receipts/009-open-meteo-mcp/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/009-open-meteo-mcp/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}

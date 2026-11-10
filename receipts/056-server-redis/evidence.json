@@ -1,0 +1,21 @@
+{
+  "environment": "clean sandbox, stdio transport, decoy credentials only, sandboxed fake-RESP server as positive control; no real Redis touched",
+  "evidence": {
+    "transcript": "tests/056-redis-transcript.txt",
+    "writeup": "tests/056-redis.md"
+  },
+  "ground_truth": "raw node-redis driver against the same decoy URLs (fails in 0.03s, errors contain no password), plus the fake-RESP round-trip",
+  "observed_summary": "Round-trip works (set/get correct, 0.10s per call), but the server logs the full connection URL with clear-text password to stderr on every connect, error, retry, and success (decoy password 40+ occurrences in one session; redacted in the pack's excerpts). Also connects before the MCP handshake and logs Successfully connected before AUTH.",
+  "package": "@modelcontextprotocol/server-redis",
+  "record_id": "056",
+  "registry": "npm",
+  "task": "set then get the key receipts-test",
+  "tested_at": "2026-10-31",
+  "verdict": "works_with_caveats",
+  "version": "2025.4.25",
+  "stable_url": "https://thelanternworks.com/receipts/056-server-redis/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/056-server-redis/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}
