@@ -965,7 +965,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## 2026-10-23 — ClearBounce affiliate
 
-- Live deal: [ClearBounce — email verification API](https://thelanternworks.com/deals/clearbounce-001/)
+- Live deal: ClearBounce — email verification API (deal page removed; no longer in the feed)
 
 ## 2026-10-23 — SEO polish (OG / Twitter / JSON-LD)
 
