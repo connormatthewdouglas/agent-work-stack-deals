@@ -40,19 +40,29 @@ from core.deals import latest_checked_at  # noqa: E402
 
 
 def _held_paragraph(esc, held: list[dict]) -> str:
-    """Owner holds are temporarily held. Other holds stay the stale/thin list."""
-    owner, rest, seen = [], [], set()
+    """Owner holds are temporarily held. Not-yet-effective rows get their own note. Other holds stay the stale/thin list."""
+    owner, pending, rest, seen = [], [], [], set()
     for h in held or []:
-        if h.get("reason") == "owner_hold":
+        reason = h.get("reason") or ""
+        if reason == "owner_hold":
             if h.get("vendor") not in seen:
                 seen.add(h.get("vendor"))
                 owner.append(h)
+        elif reason.startswith("not yet in effect:"):
+            pending.append(h)
         else:
             rest.append(h)
     bits = []
     if owner:
         links = ", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a>' for h in owner)
         bits.append(f"Temporarily held, not a live verified price (never ranked): {links}.")
+    if pending:
+        # Visible note: public-list prices that the vendor has dated in the future.
+        links = ", ".join(
+            f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a> ({esc(h["reason"])})'
+            for h in pending
+        )
+        bits.append(f"Listed on the vendor's public page but not yet in effect (never ranked as a current price): {links}.")
     stale = ", ".join(f'<a href="{esc(h["source_url"])}" rel="noopener">{esc(h["vendor"])}</a> (vendor page last updated {esc(h.get("page_last_updated") or "not stated")})' for h in rest)
     bits.append(f"Held out as stale (published prices not current, never ranked): {stale or 'none'}.")
     return " ".join(bits)
@@ -90,7 +100,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
             "A daily job re-reads every source_url (robots.txt respected) and updates a price only where it parsed it from the vendor's own page or API; verified_at is when the price was last parsed, checked_at the last attempt. A rate not re-verified for 7 days is held (held_stale) and never ranked. Price history: /api/v1/gpu-prices/history.json.",
             "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
             "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
-            "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. An owner_hold entry is temporarily held: the data file is unchanged, and the price is not a live verified rate. price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
+            "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. An owner_hold entry is temporarily held: the data file is unchanged, and the price is not a live verified rate. price_effective_at (additive) is the vendor's own stated instant when a listed public price takes effect; until that instant the row is in held_stale and is never ranked as a current price (Lambda's public list currently takes effect 2026-11-16T00:00:00Z; current Lambda prices require a login and are not on the public page). price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
             "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
             "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"not published\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
             REPORT_ISSUE_NOTE,

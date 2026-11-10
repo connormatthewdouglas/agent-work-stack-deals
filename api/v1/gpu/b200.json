@@ -16,46 +16,14 @@
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
   "last_checked": "2026-11-10T18:38:53+00:00",
-  "row_count": 7,
+  "row_count": 6,
   "providers": [
-    "Lambda",
     "Lium",
     "RunPod",
     "Verda (formerly DataCrunch)"
   ],
   "cheapest": {
     "on-demand": [
-      {
-        "vram_gb": 180,
-        "provider": "Lambda",
-        "gpu": "B200",
-        "tier": "On-demand instance (1x GPU)",
-        "tier_class": "on-demand",
-        "bucket": "on-demand",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 7.99,
-        "unit": "hour",
-        "price_usd": 7.99,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-10T18:31:05+00:00",
-        "source_url": "https://lambda.ai/pricing",
-        "quote": "NVIDIA B200 SXM6 180 GB 26 360 GiB 2.75 TiB SSD $7.99",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "SXM",
-        "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "SXM",
-          "tier": "On-demand instance (1x GPU)",
-          "vram_gb": 180
-        }
-      },
       {
         "vram_gb": 180,
         "provider": "RunPod",
@@ -386,32 +354,6 @@
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Lambda",
-      "gpu": "B200",
-      "vram_gb": 180,
-      "tier": "On-demand instance (1x GPU)",
-      "tier_class": "on-demand",
-      "bucket": "on-demand",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 7.99,
-      "unit": "hour",
-      "price_usd": 7.99,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-10T18:31:05+00:00",
-      "source_url": "https://lambda.ai/pricing",
-      "quote": "NVIDIA B200 SXM6 180 GB 26 360 GiB 2.75 TiB SSD $7.99",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "form_factor": "SXM",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "RunPod",

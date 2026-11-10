@@ -645,7 +645,8 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     parts = ", ".join(f"{n} {k}" for k, n in sorted(tc.items(), key=lambda kv: (-kv[1], kv[0])))
     held = doc.get("held_stale") or []
     owner = [h for h in held if h.get("reason") == "owner_hold"]
-    rest = [h for h in held if h.get("reason") != "owner_hold"]
+    pending = [h for h in held if str(h.get("reason") or "").startswith("not yet in effect:")]
+    rest = [h for h in held if h.get("reason") != "owner_hold" and not str(h.get("reason") or "").startswith("not yet in effect:")]
     unp = doc.get("unpriced") or []
     pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
     med = [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]  # Gauge G4
@@ -661,12 +662,17 @@ def rate_count_note(gen, deals: list[dict]) -> str:
         names = ", ".join(sorted({h["vendor"] for h in owner}))
         n = sum(len(h.get("records") or []) for h in owner)
         out += f"Temporarily held, not a live verified price: {pl(n, 'price')} from {gen.esc(names)}. "
+    if pending:
+        names = ", ".join(sorted({h["vendor"] for h in pending}))
+        n = sum(len(h.get("records") or []) for h in pending)
+        out += (f"Not counted as current: {pl(n, 'price')} from {gen.esc(names)} listed on the vendor public page "
+                f"but not yet in effect (price_effective_at in the future). ")
     if rest:
         held_n = sum(len(h.get("records") or []) for h in rest)
         held_v = sorted({h["vendor"] for h in rest})
         out += f"Not counted: {pl(held_n, 'price')} from {pl(len(held_v), 'vendor')} we're holding back because the page was stale or the marketplace too thin. "
     if unp:
-        out += f"{'Also not counted' if owner or rest else 'Not counted'}: {pl(len(unp), 'vendor')} with no price we could verify."
+        out += f"{'Also not counted' if owner or rest or pending else 'Not counted'}: {pl(len(unp), 'vendor')} with no price we could verify."
     return out
 
 
