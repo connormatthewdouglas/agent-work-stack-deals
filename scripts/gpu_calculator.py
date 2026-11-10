@@ -129,6 +129,21 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     from core.gpu import FAMILIES
     gpus = sorted({r["gpu"] for r in payload["rates"]} | {f for f in FAMILIES.values() if any(r["gpu"].startswith(f + " ") for r in payload["rates"])})
     opts = "".join(f'<option value="{esc(g)}">{esc(g)}</option>' for g in gpus)
+    # Opt-in tiers present in the feed, after on-demand (the MCP compare_gpu_prices default).
+    tier_labels = {
+        "on-demand": "On-demand",
+        "interruptible": "Spot / interruptible (the vendor may preempt the job)",
+        "marketplace": "Marketplace (variable host prices)",
+        "community": "Community-hosted",
+        "reserved": "Reserved / term commitment",
+        "dedicated-monthly": "Dedicated monthly",
+    }
+    tier_order = ("on-demand", "interruptible", "marketplace", "community", "reserved", "dedicated-monthly")
+    present = {r.get("tier_class") for r in payload["rates"]} | {"on-demand"}
+    tier_opts = "".join(
+        f'<option value="{esc(tc)}"{ " selected" if tc == "on-demand" else ""}>{esc(tier_labels.get(tc, tc))}</option>'
+        for tc in tier_order if tc in present
+    )
     unpriced = ", ".join(f'<a href="{gen.BASE}/deals/{gen.slug_for(u["deal_id"])}/">{esc(u["advertiser"])}</a>'
                          for u in payload["unpriced"]) or "none"
     credits = "".join(f'<li><a href="{gen.BASE}/deals/{gen.slug_for(c["deal_id"])}/">{esc(c["advertiser"])}</a>: {esc(c["unit"] or "")}</li>'
@@ -136,12 +151,13 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     api = f"{gen.BASE}/api/v1/gpu-prices.json"
     body = f"""  <nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/categories/gpu-compute/">GPU &amp; compute</a> › GPU cost calculator</nav>
   <h1>GPU cost calculator</h1>
-  <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost, cheapest among tracked providers first (vendors we don't track may cost less). The named rate is a single-GPU instance; serverless and multi-GPU minimum rows stay in the table and are not named. Referral links don't change the order.</p>
+  <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Choose a GPU model and enter workload hours and GPU count to see a comparable quote; nothing is named until those are set. The default price tier is on-demand, the same default as the MCP <code>compare_gpu_prices</code> tool. Spot/interruptible rates (the vendor may preempt the job) and marketplace rates are opt-in and labelled. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost, cheapest among tracked providers first (vendors we don't track may cost less). The named rate is a single-GPU instance; serverless and multi-GPU minimum rows stay in the table and are not named. Referral links don't change the order.</p>
   <form id="calc" onsubmit="return false" aria-label="GPU cost inputs">
-    <label>GPU hours per month <input id="hours" type="number" min="0.01" max="{MAX_GPU_HOURS_MONTH}" step="1" value="100" inputmode="numeric"></label>
-    <label>GPUs <input id="gpus" type="number" min="1" max="64" step="1" value="1" inputmode="numeric"></label>
-    <label>GPU model <select id="gpu"><option value="">Any</option>{opts}</select></label>
+    <label>GPU hours per month <input id="hours" type="number" min="0.01" max="{MAX_GPU_HOURS_MONTH}" step="1" value="" placeholder="e.g. 100" inputmode="numeric"></label>
+    <label>GPUs <input id="gpus" type="number" min="1" max="64" step="1" value="" placeholder="e.g. 1" inputmode="numeric"></label>
+    <label>GPU model <select id="gpu"><option value="">Select a GPU</option>{opts}</select></label>
     <label>Min VRAM (GB) <select id="vram"><option value="">Any</option><option>24</option><option>48</option><option>80</option></select></label>
+    <label>Price tier <select id="tier" aria-label="Price tier">{tier_opts}</select></label>
     <label><input id="flat" type="checkbox" checked> Include flat monthly servers</label>
   </form>
   <p><span id="summary" aria-live="polite"></span> <a id="permalink" href="?">Link to this estimate</a></p>
@@ -161,14 +177,15 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <p>These GPU deals have no verified, structured GPU price in the feed, so they're left out instead of guessed: {unpriced}.</p>
   <p>{_held_paragraph(esc, payload["held_stale"])}</p>
   <h2>For agents</h2>
-  <p>Machine-readable rates: <a href="{api}">{api}</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). Inputs can be preset in the URL, e.g. <code>?hours=300&amp;gpu=A100</code>.</p>
+  <p>Machine-readable rates: <a href="{api}">{api}</a> (each rate has <code>deal_id</code>, <code>price_usd</code>, <code>unit</code>, <code>hourly_equiv_usd</code>, <code>basis</code>, <code>verified_at</code>). Inputs can be preset in the URL, e.g. <code>?hours=300&amp;gpus=1&amp;gpu=H100&amp;tier=on-demand</code>. The share link keeps gpu, hours, GPU count and tier.</p>
   <script>
   const R={data_js}, H={HOURS_PER_MONTH};
   __ELIG__
   const $=id=>document.getElementById(id), fmt=n=>"$"+n.toLocaleString("en-US",{{minimumFractionDigits:2,maximumFractionDigits:2}});
   const q=new URLSearchParams(location.search);
-  for (const k of ["hours","gpus","gpu","vram"]) if (q.get(k)!==null) $(k).value=q.get(k);
+  for (const k of ["hours","gpus","gpu","vram","tier"]) if (q.get(k)!==null) $(k).value=q.get(k);
   if (q.get("flat")==="0") $("flat").checked=false;
+  if (!$("tier").value) $("tier").value="on-demand";
   function esc(s){{return String(s??"").replace(/[&<>"]/g,c=>({{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}}[c]))}}
   // BILL_START (T42): same billing contract as core.gpu.estimate: whole servers/instances only, never fractional GPUs
   function bill(r,h,g){{
@@ -197,10 +214,12 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   }}
   function run(){{
     // re24 (2): same input contract as the MCP/engine (invalid_argument), no silent clamping
-    const hs=String($("hours").value).trim(), gs=String($("gpus").value).trim(), h=Number(hs), g=Number(gs), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked;
+    const hs=String($("hours").value).trim(), gs=String($("gpus").value).trim(), h=Number(hs), g=Number(gs), m=$("gpu").value, v=+$("vram").value||0, flat=$("flat").checked, tier=$("tier").value||"on-demand";
+    const share=()=>{{ const p=new URLSearchParams(); if(hs)p.set("hours",hs); if(gs)p.set("gpus",gs); if(m)p.set("gpu",m); if(v)p.set("vram",String(v)); p.set("tier",tier); if(!flat)p.set("flat","0"); $("permalink").href="?"+p; }};
+    if(!m||hs===""||gs===""){{ $("results").tBodies[0].innerHTML='<tr><td colspan="7">Choose a GPU model and enter workload hours and GPU count to see a comparable quote.</td></tr>'; $("summary").textContent="Choose a GPU model and enter workload hours and GPU count to see a comparable quote."; share(); return; }}
     const bad=!(hs!==""&&Number.isFinite(h)&&h>0&&h<={MAX_GPU_HOURS_MONTH})?"hours must be a number > 0 and <= {MAX_GPU_HOURS_MONTH}":!(gs!==""&&Number.isInteger(g)&&g>=1)?"gpus must be an integer >= 1":"";
     if(bad){{ $("results").tBodies[0].innerHTML='<tr><td colspan="7">Invalid input: '+bad+'. No estimate shown.</td></tr>'; $("summary").textContent="invalid_argument: "+bad; return; }}
-    const rows=R.filter(r=>(!m||r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")).map(r=>{{
+    const rows=R.filter(r=>(r.gpu===m||r.gpu.startsWith(m+" "))&&(!v||(r.vram_gb||0)>=v)&&(flat||r.unit==="hour")&&r.tier_class===tier).map(r=>{{
       const ageH=(Date.now()-Date.parse(r.verified_at||r.checked_at||""))/36e5;
       return {{...r,...bill(r,h,g),old:!(ageH<={CURRENT_MAX_H}),ageD:Math.round(ageH/24),stock:stockOf(r)}};
     }}).sort((a,b)=>(a.old-b.old)||((a.tier_class==="reserved")-(b.tier_class==="reserved"))||((a.stock===false)-(b.stock===false))||a.cost-b.cost||a.advertiser.localeCompare(b.advertiser));
@@ -209,8 +228,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     const named=cur.filter(r=>headlineEligible(r, g)), pick=named[0];
     $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}${{r.stock===false?' <small class="oos">(out of stock when checked; ranked after available/unknown rows)</small>':r.stock===true?' <small>(in stock when checked)</small>':' <small>(stock unknown)</small>'}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}${{isServerlessRate(r)&&String(r.tier||"").toLowerCase().indexOf("serverless")<0?" [serverless]":""}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
     $("summary").textContent=!rows.length?"No priced option matches these filters.":pick?`${{rows.length}} options. Cheapest among tracked providers${{curIn.length?"":" (all matching rows out of stock when checked)"}}: ${{pick.advertiser}} ${{pick.gpu}} at ${{fmt(pick.cost)}}/month.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):cur.length?`${{rows.length}} options. No rate with a GPU minimum of ${{g}} or fewer to name; serverless rows stay in the table.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
-    const p=new URLSearchParams({{hours:h,gpus:g}}); if(m)p.set("gpu",m); if(v)p.set("vram",v); if(!flat)p.set("flat","0");
-    $("permalink").href="?"+p;
+    share();
   }}
   $("calc").addEventListener("input",run); run();
   $("calc").addEventListener("input",()=>document.dispatchEvent(new CustomEvent("lw:event",{{detail:"calculator"}})),{{once:true}});

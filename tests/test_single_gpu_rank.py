@@ -345,7 +345,7 @@ globalThis.document={getElementById:el,dispatchEvent(){},addEventListener(){}};
 globalThis.CustomEvent=function(){}; globalThis.location={search:process.argv[process.argv.length-1]};
 """
     proc = subprocess.run(
-        ["node", "-", "?hours=100&gpus=1"],
+        ["node", "-", "?hours=100&gpus=1&gpu=H100"],
         input=stub + src + "\nconsole.log(JSON.stringify({summary:els.summary.textContent,rows:els.results.tBodies[0].innerHTML}));",
         capture_output=True, text=True,
     )
@@ -544,13 +544,20 @@ globalThis.CustomEvent=function(){}; globalThis.location={search:process.argv[pr
                               capture_output=True, text=True)
         assert proc.returncode == 0, proc.stderr
         return proc.stdout.strip()
+    # Default tier is on-demand (no tier in the URL), matching MCP compare_gpu_prices.
     h1 = run("?hours=100&gpus=1&gpu=H100&flat=0")
-    assert "RunPod" in h1 and "199.00" in h1
-    h8 = run("?hours=100&gpus=8&gpu=H100&flat=0")
-    assert "Lium" in h8 and "1,240.00" in h8 and "RunPod" not in h8
+    assert "Hyperstack" in h1 and "250.00" in h1
+    h8_od = run("?hours=100&gpus=8&gpu=H100&flat=0")
+    assert "Hyperstack" in h8_od and "2,000.00" in h8_od and "Lium" not in h8_od
     l1 = run("?hours=100&gpus=1&gpu=L40S&flat=0")
     assert "CloudRift" in l1 and "69.00" in l1
-    l2 = run("?hours=100&gpus=2&gpu=L40S&flat=0")
+    l2_od = run("?hours=100&gpus=2&gpu=L40S&flat=0")
+    assert "CloudRift" in l2_od and "138.00" in l2_od and "Lium" not in l2_od
+    # Lium's cheaper rows are interruptible (8x H100) or marketplace (2x L40S);
+    # they are named only when that tier is opted into and the GPU count covers the minimum.
+    h8 = run("?hours=100&gpus=8&gpu=H100&flat=0&tier=interruptible")
+    assert "Lium" in h8 and "1,240.00" in h8 and "RunPod" not in h8
+    l2 = run("?hours=100&gpus=2&gpu=L40S&flat=0&tier=marketplace")
     assert "Lium" in l2 and "76.00" in l2 and "CloudRift" not in l2
 
 
