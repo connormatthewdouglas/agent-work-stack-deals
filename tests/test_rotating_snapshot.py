@@ -83,3 +83,19 @@ def test_spheron_5090_labelled_rotating_marketplace_price():
         return
     assert rows[0]["price_rotates"]["label"] == "rotating marketplace price"
     assert "rotating marketplace price" in pathlib.Path("gpu/price-comparison/index.html").read_text()
+
+def test_spheron_l40s_labelled_rotating_marketplace_price():
+    """Same additive price_rotates label as the RTX 5090 record (T87 follow-up)."""
+    import json, pathlib
+    recs = json.loads(pathlib.Path("data/gpu_pricing/spheron.json").read_text())["records"]
+    rec = [r for r in recs if r["gpu"] == "L40S"]
+    assert rec and rec[0]["price_rotates"]["label"] == "rotating marketplace price"
+    five = [r for r in recs if r["gpu"] == "RTX 5090"][0]
+    assert set(rec[0]["price_rotates"]) == set(five["price_rotates"])
+    feed = json.loads(pathlib.Path("api/v1/gpu-prices.json").read_text())
+    rows = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "L40S"]
+    if not rows:  # T68: no live row today is data, not a regression
+        assert rec[0].get("no_capacity") or rec[0].get("stale") or rec[0].get("held"), "row missing from feed without a recorded reason"
+        return
+    assert rows[0]["price_rotates"]["label"] == "rotating marketplace price"
+    assert "rotating marketplace price" in pathlib.Path("gpu/cheapest-l40s-rental/index.html").read_text()
