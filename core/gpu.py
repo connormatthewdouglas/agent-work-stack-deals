@@ -585,7 +585,12 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
             if g > gpus:
                 basis += f" ({gpus} requested, {g} billed: " + (f"sold only as whole {per}-GPU servers, {servers} instance{'s' if servers > 1 else ''})" if per > 1 else f"minimum {g} GPUs per instance)")
             if r.get("price_status") == "marketplace":
-                basis += f"; variable marketplace median, lowest offer ${r['lowest_offer_usd']}/hr"
+                # Same guard as compare_gpu_prices: a marketplace row may lack lowest_offer_usd
+                # (or carry a non-number). Price from price_usd (the median); never invent a lowest offer.
+                lo = r.get("lowest_offer_usd")
+                lo_ok = isinstance(lo, (int, float)) and not isinstance(lo, bool)
+                basis += (f"; variable marketplace median, lowest offer ${lo:g}/hr" if lo_ok
+                          else "; variable marketplace median (lowest offer unpriced)")
         else:
             n = max(1, math.ceil(hours_per_month / HOURS_PER_MONTH)) * g
             cost = r["price_usd"] * n

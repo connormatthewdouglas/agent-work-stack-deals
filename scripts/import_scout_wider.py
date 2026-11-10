@@ -27,6 +27,11 @@ MIN_VAST_OFFERS = 5  # same floor as core.gpu MIN_MARKET_OFFERS
 MAX_AGE = timedelta(hours=36)  # prices refresh daily
 # B300 is no longer forced to 288 GB (T63): the vendor's own allocation (e.g. Verda 268 GB) is kept as given.
 VRAM_FIX = {("L40S", None): 48, ("A40", "Vast.ai"): 48, ("L4", "Vast.ai"): 24, ("RTX A4000", "Vast.ai"): 16}
+# Older Scout batches overwrote B300 vram_gb with NVIDIA's official 288 GB and left the vendor
+# figure in vram_note. Recover it. Source for Verda 268 GB: public GET
+# https://api.datacrunch.io/v1/instance-types (1B300.30V, gpu_memory.size_in_gigabytes 268;
+# confirmed 2026-11-10). Do not scrape verda.com/pricing for this figure.
+VENDOR_VRAM_NOTE_RE = re.compile(r"vendor reports (\d+)\s*GB", re.I)
 UNITS = {"hourly": 1, "per-second": 3600}
 RESERVED_RE = re.compile(r"reserved|commit|\d+\s*-?\s*(?:month|year|yr)\b", re.I)
 ONE_GPU_RE = re.compile(r"\b1 GPU\b")
@@ -46,6 +51,31 @@ def _ts(s):
 
 def _int(x):
     return x if isinstance(x, int) and not isinstance(x, bool) and x >= 1 else None
+
+
+def b300_vendor_vram(vram, note, gpu="B300"):
+    """T63: B300 vram_gb is the vendor's own figure. Recover it from vram_note when present."""
+    name = str(gpu or "").split()[0]
+    if name != "B300" or not isinstance(note, str):
+        return vram, note
+    m = VENDOR_VRAM_NOTE_RE.search(note)
+    if not m:
+        return vram, note
+    return int(m.group(1)), note
+
+
+def apply_b300_vendor_vram(doc: dict) -> int:
+    """Set B300 vram_gb from a recorded vendor-report note. Prices and timestamps are untouched. Returns rows changed."""
+    n = 0
+    for r in doc.get("records") or []:
+        vram, note = b300_vendor_vram(r.get("vram_gb"), r.get("vram_note"), r.get("gpu"))
+        if vram != r.get("vram_gb"):
+            r["vram_gb"] = vram
+            if note:
+                r["vram_note"] = note
+            n += 1
+    return n
+
 
 
 def region_of(raw) -> str:
@@ -163,6 +193,7 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     if fix and vram != fix:
         note = f"vendor reports {vram}GB" if vram else note
         vram = fix
+    vram, note = b300_vendor_vram(vram, note, gpu)
     offers = r.get("offer_count")
     if v == "Vast.ai" and (offers or 0) < MIN_VAST_OFFERS:
         return None, "thin market: below the minimum offer count"

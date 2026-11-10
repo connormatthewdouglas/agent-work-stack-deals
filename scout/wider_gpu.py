@@ -20,6 +20,12 @@ LIVE_DUPES = {("Lambda", "GH200", 96, "On-demand instance (1x GPU)"), ("Lambda",
               ("Lambda", "B200", 180, "On-demand instance (1x GPU)"), ("Lambda", "B200", 180, "On-demand instance (8x GPU)")}
 OFFICIAL_VRAM = {"B200": 180,  # Mart option A (rev 5): B200 = 180GB as vendors expose it, the ONE exception to the official-spec rule; set 192 to revert
                  "B300": 288, "A40": 48, "L4": 24, "RTX A4000": 16, "RTX PRO 6000": 96, "T4": 16, "GB300": 288, "RTX PRO 5000": 48, "RTX PRO 4500": 32, "RTX PRO 4000": 24, "RTX 5090": 32}
+# B300 keeps the vendor's own allocation (T63), not NVIDIA's official 288 GB.
+# Source for Verda: public GET https://api.datacrunch.io/v1/instance-types (same payload at
+# https://api.verda.com/v1/instance-types). 1B300.30V is gpu.description "1x B300 SXM6 268GB"
+# and gpu_memory.size_in_gigabytes 268 (confirmed 2026-11-10). Do not scrape verda.com/pricing
+# for this figure. RunPod B300 still publishes 288, so vram_gb stays 288 there.
+VENDOR_VRAM = {"B300"}
 PAGES = {"RunPod": "https://www.runpod.io/pricing", "Vast.ai": "https://vast.ai/pricing", "Clore.ai": "https://clore.ai/marketplace",
          "Oblivus": "https://oblivus.com/availability/", "Verda": "https://verda.com/pricing", "Lambda": "https://lambda.ai/pricing"}
 FAMILY_SCOPE = ("B200", "B300", "GH200", "MI300X", "A40", "L4", "T4", "V100", "A10", "RTX 6000 Ada", "RTX PRO 6000", "RTX A4000", "GB300", "Quadro RTX 6000", "RTX PRO 5000", "RTX PRO 4500", "RTX PRO 4000", "RTX 5090", "H100")
@@ -34,9 +40,13 @@ def stamp():
 def canon(family, form, vendor_vram):
     """-> (gpu_model, vram_gb, vram_note). family keys OFFICIAL_VRAM; form e.g. 'Server' or None."""
     off = OFFICIAL_VRAM.get(family)
-    vram = vendor_vram if (VRAM_MODE == "vendor" or off is None) else off
+    use_vendor = VRAM_MODE == "vendor" or off is None or family in VENDOR_VRAM
+    vram = vendor_vram if use_vendor else off
     if vram is None: vram = off
     note = None if vendor_vram == vram or vendor_vram is None else f"vendor reports {vendor_vram}GB; {spec_label(family)} {vram}GB"
+    if family in VENDOR_VRAM and vendor_vram is not None and off is not None and vendor_vram != off:
+        # vram_gb is the vendor figure; NVIDIA's official spec stays in the note
+        note = f"vendor reports {vendor_vram}GB; official spec {off}GB"
     if family in VRAM_EXCEPTIONS and VRAM_MODE == "official": note = "; ".join(x for x in (note, VRAM_EXCEPTIONS[family]) if x)
     name = family + (f" {form}" if form else "")
     if NAME_MODE == "with_vram" and vram: name += f" {vram}GB"
@@ -99,6 +109,11 @@ def vast(min_machines=None):
         held = bool(min_machines) and m < min_machines
         figs = dict(g["raw"]); off = vram
         vn = None if set(figs) == {off} else "vendor reports " + ", ".join(f"{k}GB ({v} offers)" for k, v in sorted(figs.items())) + f"; {spec_label(fam)} {off}GB"
+        official = OFFICIAL_VRAM.get(fam)
+        if fam in VENDOR_VRAM and official is not None and official != vram:
+            # vram_gb is already the vendor figure; keep NVIDIA's official spec in the note
+            official_note = f"official spec {official}GB"
+            vn = official_note if vn is None else f"{vn}; {official_note}"
         cnt = f"{n} offers on {m} distinct machine_id" + (f" ({g['nomid']} offers without machine_id, not counted)" if g["nomid"] else "")
         med = statistics.median(g["p"])
         r = row("Vast.ai", fam, form, vram, "Marketplace on-demand (verified)", None if held else med,
