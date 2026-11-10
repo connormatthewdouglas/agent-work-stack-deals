@@ -55,7 +55,7 @@ def test_unresolvable_or_short_build_fails():
     assert W.builds_match("21684cc", EXPECT)
 
 
-def test_empty_rates_all_held_future_and_shrink():
+def test_empty_rates_all_held_future_and_shrink(fixed_owner_hold):
     empty = {**FRESH_FEED, "rates": [], "held_stale": [
         {"vendor": "Hyperstack", "checked_at": "2026-11-01T00:00:00Z", "reason": "owner hold"}]}
     probs = W.evaluate(empty, HOSTED_OK, now=NOW, expected_version="0.6.2", expected_build=EXPECT,
@@ -87,8 +87,8 @@ def test_checkout_version_commit_is_0_6_2():
     assert sha.startswith("21684cc5") and len(sha) >= 7
 
 
-def test_owner_hold_json_is_not_a_ranked_staleness_failure():
-    """data/owner_hold.json is read. An old Hyperstack row does not fail the 48h bar; a non-held row still does."""
+def test_owner_hold_json_is_not_a_ranked_staleness_failure(fixed_owner_hold):
+    """The owner hold list is read (fixed fixture list here). An old Hyperstack row does not fail the 48h bar; a non-held row still does."""
     assert W._is_owner_held("Hyperstack") and W._is_owner_held("Verda (formerly DataCrunch)")
     assert not W._is_owner_held("RunPod") and not W._is_owner_held("Lambda")
     feed = {**FRESH_FEED, "rates": [

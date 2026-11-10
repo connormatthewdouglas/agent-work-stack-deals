@@ -50,7 +50,8 @@ def test_homepage_leads_with_gpu_spread_and_install(monkeypatch):
     import home_page
     for s in home_page.spread(build_rates(_deals())["rates"]):
         row = re.search(rf'<tr data-fam="{s["slug"]}">(.*?)</tr>', t).group(1)
-        assert f'${s["min"]:.2f}' in row and f'${s["max"]:.2f}' in row
+        from core.money import usd
+        assert usd(s["min"]) in row and f'${s["max"]:.2f}' in row  # min uses the page's own usd() formatter
 
 
 def test_deals_directory_nav_footer_sitemap_and_old_links():

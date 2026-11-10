@@ -76,7 +76,7 @@ def test_wider_hold_keeps_verda_and_hyperstack_bytes(tmp_path, monkeypatch):
     assert all(r["source_url"] == "https://www.runpod.io/pricing" for r in got["records"] if r.get("batch") == "wider-gpu")
 
 
-def test_availability_hold_carries_rows_unchanged(tmp_path, monkeypatch):
+def test_availability_hold_carries_rows_unchanged(tmp_path, monkeypatch, fixed_owner_hold):
     old_h = {"vendor": "Hyperstack", "gpu": "A100", "vram_gb": 80, "tier": "On-demand", "in_stock": False,
              "availability_checked_at": "2026-11-06T02:51:34Z", "availability_note": "keep hyperstack"}
     old_v = {"vendor": "Verda (formerly DataCrunch)", "gpu": "H100 SXM", "vram_gb": 80, "tier": "On-demand",
@@ -137,7 +137,7 @@ _PARSED_PAGE = ("<html><body><table><tr><td>NVIDIA A100 SXM</td><td>40 GB</td><t
                 "<td>220 GiB</td><td>512 GiB SSD</td><td>$1.89</td></tr></table></body></html>")
 
 
-def test_refresh_does_not_touch_held_vendors_when_the_page_parses():
+def test_refresh_does_not_touch_held_vendors_when_the_page_parses(fixed_owner_hold):
     now = datetime(2026, 11, 9, 12, tzinfo=timezone.utc)
     held = [_priced("Hyperstack"), _priced("Verda (formerly DataCrunch)")]
     before = [json.dumps(d, sort_keys=True) for d in held]
@@ -160,7 +160,7 @@ def test_refresh_does_not_touch_held_vendors_when_the_page_parses():
     assert {r["result"] for r in report if r["vendor"] != "RunPod"} == {"owner hold, untouched"}
 
 
-def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack():
+def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack(fixed_owner_hold):
     from core.gpu import build_rates
     from core.deals import compare_gpu_prices
     from core import agent_stack
@@ -190,7 +190,7 @@ def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack():
     assert gpu_line["held"][0]["reason"] == "owner_hold" and gpu_line["held"][0]["vendor"] == "Hyperstack"
 
 
-def test_committed_feed_wall_clock_catches_stale_ranked_rows(monkeypatch):
+def test_committed_feed_wall_clock_catches_stale_ranked_rows(monkeypatch, fixed_owner_hold):
     """Outside T41-12, and without the pinned build clock. Owner-held rows are not ranked.
     A non-held vendor-file row past its existing hold (7 days, or 48h for a batch row) is not ranked either.
     Thresholds are unchanged. T41-12's 48h bar on the published feed stays in the release gate."""
@@ -198,8 +198,13 @@ def test_committed_feed_wall_clock_catches_stale_ranked_rows(monkeypatch):
     from core.gpu import build_rates, load_vendor_files
     from core.data_age import STALE_HOURS
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
-    assert not any(is_held(r.get("advertiser")) for r in feed["rates"])
-    assert any(h.get("reason") == "owner_hold" and is_held(h.get("vendor")) for h in feed.get("held_stale") or [])
+    # The committed feed follows the live data/owner_hold.json; the build below uses the fixed hold list.
+    from core.owner_hold import hold_names
+    live = hold_names(ROOT / "data" / "owner_hold.json")
+    assert not any(is_held(r.get("advertiser"), live) for r in feed["rates"])
+    assert all(is_held(h.get("vendor"), live) for h in feed.get("held_stale") or [] if h.get("reason") == "owner_hold")
+    assert all(any(is_held(h.get("vendor"), [n]) and h.get("reason") == "owner_hold" for h in feed.get("held_stale") or [])
+               for n in live)
     deals = json.loads((ROOT / "api/v1/deals.json").read_text())["deals"]
     built = build_rates(deals)  # wall clock: LW_AVAIL_NOW is unset
     assert not any(is_held(r["advertiser"]) for r in built["rates"])

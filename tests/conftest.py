@@ -16,3 +16,15 @@ def _restore_build_horizon_env():
             os.environ.pop(k, None)
         else:
             os.environ[k] = v
+
+
+HOLD_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "owner_hold_vendors.json"
+
+
+@pytest.fixture
+def fixed_owner_hold(monkeypatch):
+    """Point core.owner_hold at the frozen Hyperstack/Verda hold list, not the live data/owner_hold.json."""
+    import core.owner_hold as oh
+    monkeypatch.setattr(oh, "CONFIG", HOLD_FIXTURE)
+    monkeypatch.setenv("LW_OWNER_HOLD", str(HOLD_FIXTURE))
+    return HOLD_FIXTURE

@@ -16,9 +16,12 @@ def test_referral_label_on_every_code_carrying_row():
             assert r.get("referral_label") == REFERRAL_LABEL, (r["advertiser"], r.get("redeem_url"))
         if r["advertiser"] == "Lambda":
             assert "referral_url" not in r and "referral_label" not in r, r["advertiser"]
+    # The committed feed follows the live data/owner_hold.json: every listed vendor is held, none is ranked.
+    from core.owner_hold import hold_names, is_held
+    live = hold_names()
     owners = {h["vendor"] for h in FEED["held_stale"] if h.get("reason") == "owner_hold"}
-    assert "Hyperstack" in owners and any(str(v).startswith("Verda") for v in owners)
-    assert not any(r["advertiser"] == "Hyperstack" or str(r["advertiser"]).startswith("Verda") for r in FEED["rates"])
+    assert all(any(is_held(v, [n]) for v in owners) for n in live) and all(is_held(v, live) for v in owners)
+    assert not any(is_held(r["advertiser"], live) for r in FEED["rates"])
     labelled = {r["advertiser"] for r in FEED["rates"] if r.get("referral_label")}
     assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "RunPod", "Thunder Compute"} <= labelled
     # 99Stack's /a/<uuid> referral drops the token on redirect. Price rows stay; the link is the vendor page.
