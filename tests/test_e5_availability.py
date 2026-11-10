@@ -22,8 +22,9 @@ def _row(adv, price, avail="absent", vram=40, tier="On-demand"):
 
 @pytest.fixture
 def feed():
-    return {"rates": [_row("Verda (formerly DataCrunch)", 0.7965, OOS, tier="Spot instance (1x GPU)"),
-                      _row("Lambda", 1.99, UNK), _row("Hyperstack", 1.08)]}
+    # Not owner-held names: Hyperstack and Verda are held out of compare.
+    return {"rates": [_row("Oblivus", 0.7965, OOS, tier="Spot instance (1x GPU)"),
+                      _row("Lambda", 1.99, UNK), _row("CoreWeave", 1.08)]}
 
 
 def test_rate_fields_and_schema():
@@ -35,26 +36,26 @@ def test_rate_fields_and_schema():
 def test_verda_oos_demoted_not_dropped(feed):
     r = compare_gpu_prices(feed, "A100")
     names = [x["advertiser"] for x in r["results"]]
-    assert names == ["Hyperstack", "Lambda", "Verda (formerly DataCrunch)"]
+    assert names == ["CoreWeave", "Lambda", "Oblivus"]
     v = r["results"][-1]
     assert v["availability"] == OOS and v["in_stock"] is False
     assert "out of stock when checked at 2026-10-29T15:19:43Z" in v["availability_note"]
-    assert "Hyperstack" in r["summary"].split(".")[0]
+    assert "CoreWeave" in r["summary"].split(".")[0]
     assert "Cheaper but out of stock when checked at 2026-10-29T15:19:43Z" in r["summary"] and "0.7965" in r["summary"]
 
 
 def test_passthrough_never_invented(feed):
     res = {x["advertiser"]: x for x in compare_gpu_prices(feed, "A100")["results"]}
-    assert res["Hyperstack"]["availability"] is None and res["Hyperstack"]["in_stock"] is None
+    assert res["CoreWeave"]["availability"] is None and res["CoreWeave"]["in_stock"] is None
     assert res["Lambda"]["availability"] == UNK and "availability_note" not in res["Lambda"]
 
 
 def test_all_oos_still_returned():
-    r = compare_gpu_prices({"rates": [_row("Verda", 0.7965, OOS)]}, "A100")
+    r = compare_gpu_prices({"rates": [_row("Oblivus", 0.7965, OOS)]}, "A100")
     assert r["count"] == 1 and "out of stock when checked" in r["summary"]
 
 
 def test_home_spread_excludes_oos(feed):
     a = [s for s in spread(feed["rates"]) if s["slug"] == "a100"][0]
-    assert a["cheapest_vendor"] == "Hyperstack" and a["min"] == 1.08
-    assert "Verda" in a["oos_caveat"] and "$0.7965 out of stock when checked" in a["oos_caveat"]  # F3: digits kept
+    assert a["cheapest_vendor"] == "CoreWeave" and a["min"] == 1.08
+    assert "Oblivus" in a["oos_caveat"] and "$0.7965 out of stock when checked" in a["oos_caveat"]  # F3: digits kept

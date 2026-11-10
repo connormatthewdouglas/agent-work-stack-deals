@@ -327,8 +327,10 @@ jobs:
         with:
           source: ./
           destination: ./_site
-      # re20 P1: Scout's raw availability import is an unguarded input, not a public feed (served guarded via api/v1)
-      - run: sudo rm -rf _site/data/gpu_availability && test ! -e _site/data/gpu_availability && sudo chown -R $USER _site
+      # re20 P1: Scout's raw availability import is an unguarded input, not a public feed (served guarded via api/v1).
+      # scout/ is collector internals (fixtures, overrides, scripts); tests/ is test fixtures. Jekyll's source is the repo root and there is no
+      # _config.yml exclude, so those files are copied into _site. Nothing public links to them; the repo copies stay.
+      - run: sudo rm -rf _site/data/gpu_availability _site/scout _site/tests && test ! -e _site/data/gpu_availability && test ! -e _site/scout && test ! -e _site/tests && sudo chown -R $USER _site
         if: steps.head.outputs.go == 'true'
       # re21 P1: no raw repo data on the site (allowlisted files only, availability fields stripped); then the build fails if any reappears
       - run: python3 scripts/guard_site_raw_data.py _site && python3 scripts/guard_site_raw_data.py --check _site

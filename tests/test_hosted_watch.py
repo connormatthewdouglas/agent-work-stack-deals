@@ -23,6 +23,12 @@ import watch_store as S  # noqa: E402
 MASTER = "test-master-not-a-real-secret"
 
 
+@pytest.fixture(autouse=True)
+def _freeze_watch_today(monkeypatch):
+    """Pin calendar day so Nov 1–2 feed fixtures stay inside LOOKBACK_DAYS as the wall clock moves."""
+    monkeypatch.setattr(S, "_today", lambda: "2026-11-02")
+
+
 # ---- fake D1 ---------------------------------------------------------------------------------------------------
 class _Stmt:
     def __init__(self, db, sql):

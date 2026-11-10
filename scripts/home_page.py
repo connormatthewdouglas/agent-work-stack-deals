@@ -16,19 +16,29 @@ INSTALL_UVX = "uvx lantern-works-deals-mcp"
 INSTALL_PIP = "pip install lantern-works-deals-mcp"
 
 
+def _eligibility_js() -> str:
+    sys.path.insert(0, str(ROOT / "scripts")) if str(ROOT / "scripts") not in sys.path else None
+    from embed_page import eligibility_js  # noqa: E402
+    return eligibility_js()
+
+
 def spread(rates: list[dict]) -> list[dict]:
     sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    sys.path.insert(0, str(ROOT / "scripts")) if str(ROOT / "scripts") not in sys.path else None
     from core.money import usd  # noqa: E402
     from core.gpu import family_of
+    from gpu_pages import headline_eligible  # noqa: E402
     out = []
     for slug, name in SPREAD:
-        rs = sorted((r for r in rates if family_of(r["gpu"]) == slug and r.get("hourly_equiv_usd") is not None),
-                    key=lambda r: (r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
+        oos = lambda r: isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is False
+        # Out of stock sorts last, same order as compare_gpu_prices, then price.
+        rs = sorted((r for r in rates if family_of(r["gpu"]) == slug and r.get("hourly_equiv_usd") is not None
+                     and headline_eligible(r)),
+                    key=lambda r: (oos(r), r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
         if not rs:
             continue
         vals = [r["hourly_equiv_usd"] for r in rs]
         # E5: "cheapest" is the cheapest row not marked out of stock when checked (unknown counts as available).
-        oos = lambda r: isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is False
         lo = next((r for r in rs if not oos(r)), rs[0])
         skipped = next((r for r in rs if oos(r)), None)
         caveat = ""
@@ -46,20 +56,22 @@ def spread(rates: list[dict]) -> list[dict]:
     return out
 
 
-JS = r"""  <script>
+JS = """  <script>
   (function(){
   const FAM={"h100":"H100","a100":"A100","rtx-4090":"RTX 4090"};
   function fam(g){for(const k in FAM){const n=FAM[k];if(g===n||g.startsWith(n+" "))return k}return null}
   const m=v=>"$"+v.toFixed(2);
-  fetch("/api/v1/gpu-prices.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(d=>{
+""" + _eligibility_js() + """  fetch("/api/v1/gpu-prices.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(d=>{
     if(!d||!Array.isArray(d.rates))return;
     const c=document.querySelectorAll("[data-live-count]");c.forEach(e=>e.textContent=d.rates.length);
     for(const k in FAM){
-      const rs=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&!(r.availability&&r.availability.in_stock===false)).sort((a,b)=>a.hourly_equiv_usd-b.hourly_equiv_usd);
+      const oos=r=>r.availability&&r.availability.in_stock===false?1:0;
+      const allElig=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&headlineEligible(r)).sort((a,b)=>oos(a)-oos(b)||a.hourly_equiv_usd-b.hourly_equiv_usd);
+      const rs=allElig.filter(r=>!oos(r));
       const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!rs.length)continue;
       const v=rs.map(r=>r.hourly_equiv_usd),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
       (row.querySelector(".lo strong")||row.querySelector(".lo")).textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
-      const all=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null).length,x=all-v.length;row.querySelector(".n").textContent=v.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
+      const x=allElig.length-v.length;row.querySelector(".n").textContent=v.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
     }
   }).catch(()=>{});
   })();
@@ -85,7 +97,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     vendors = vendor_counts_label(rates)  # T76: "25 priced sources (23 instance vendors; ...)"
     fresh = max(((r.get("verified_at") or "")[:10] for r in rates), default="")
     rows = "".join(
-        f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/cheapest-{s["slug"]}-rental/">{esc(s["name"])}</a></th>'
+        f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/{("cheapest-" + s["slug"] + "-rental/") if (ROOT / "gpu" / ("cheapest-" + s["slug"] + "-rental")).is_dir() else "price-comparison/"}">{esc(s["name"])}</a></th>'
         f'<td class="lo"><strong>{usd(s["min"])}</strong>{f' <small class="oos">(excl. {esc(s["oos_caveat"])})</small>' if s["oos_caveat"] else ""}</td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
         f'<td class="n">{s["n"]}{f" ({s['n_oos']} out of stock excluded)" if s["n_oos"] else ""}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
         for s in spread(rates))

@@ -213,9 +213,16 @@ PAGE_ALSO = {"h100-nvl": "h100"}  # H100 NVL rows also list (labelled by form) o
 MIN_OFFERS, MIN_VENDORS = 3, 2  # below this a model gets no standalone page (avoid thin pages)
 
 
+# Distinct models whose names start with a tracked family name: they never fall into that family (RTX 5090 D and its
+# 24 GB "v2" are not RTX 5090s). They map to no family, so canonical_model() keeps them as themselves.
+SEPARATE_MODELS = ("RTX 5090 D",)
+
+
 def family_of(gpu: str) -> str | None:
     """Longest family name that equals the model or prefixes it at a word boundary: 'L4' never takes
-    'L40'/'L40S', 'A10' never takes 'A100'/'A10G', and 'H100 NVL' wins over 'H100'."""
+    'L40'/'L40S', 'A10' never takes 'A100'/'A10G', and 'H100 NVL' wins over 'H100'. SEPARATE_MODELS never match."""
+    if any(gpu == m or gpu.startswith(m + " ") for m in SEPARATE_MODELS):
+        return None
     best = None
     for slug, name in FAMILIES.items():
         if (gpu == name or gpu.startswith(name + " ")) and (best is None or len(name) > len(FAMILIES[best])):
@@ -391,6 +398,14 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
         if d is None:
             problems.append(f"{doc['deal_id']}: not in public feed")
             continue
+        from .owner_hold import is_held
+        if is_held(doc.get("vendor")):
+            # Frozen on purpose: the data file stays byte-identical, but the price is not a live verified rate.
+            held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
+                         "checked_at": doc["checked_at"], "reason": "owner_hold", "page_last_updated": None,
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}
+                                     for r in doc["records"]]})
+            continue
         if doc.get("stale"):
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                          "checked_at": doc["checked_at"], "reason": doc["stale"]["reason"],
@@ -492,6 +507,16 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
             "problems": problems}
 
 
+def min_gpus_unmet(r: dict, gpus: int | None = 1) -> bool:
+    """Shared allocation rule (pages, compare_gpu_prices, stack/agent recommendations): a row sold only as an
+    N-GPU allocation (min_gpus = N) never ranks as cheapest for a request of fewer than N GPUs. No count = 1 GPU."""
+    return (r.get("min_gpus") or 1) > (gpus or 1)
+
+
+NO_GPU_COUNT_ASSUMPTION = ("No GPU count given; treated as 1 GPU. Rows sold only as multi-GPU allocations (min_gpus > 1) "
+                           "rank after single-GPU rows and are never named cheapest.")
+
+
 def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filter: str | None = None,
              min_vram_gb: int | None = None) -> list[dict]:
     """Monthly cost per option for N GPUs x hours. Flat monthly servers need ceil(hours/730) per GPU."""
@@ -525,7 +550,8 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
         out.append({**r, "monthly_cost_usd": round(cost, 2), "calc": basis,
                     "requested_gpus": gpus, "billed_gpus": g, "instances": servers})
     # Reservation / commitment prices are shown but never ranked as "cheapest": they sort after every pay-as-you-go row.
-    return sorted(out, key=lambda x: (_tier_class(x) == "reserved", x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
+    # A row whose minimum allocation exceeds the request sorts after every row that fits it (min_gpus_unmet).
+    return sorted(out, key=lambda x: (_tier_class(x) == "reserved", min_gpus_unmet(x, gpus), x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
 
 
 def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) -> int:

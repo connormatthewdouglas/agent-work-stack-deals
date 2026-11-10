@@ -33,3 +33,24 @@ def test_mcp_readme_lists_every_tool():
     assert len(tools) == 9, tools
     missing = [t for t in tools if f"| `{t}` |" not in readme]
     assert not missing, missing
+
+
+def test_lhm_plugin_compare_gpu_prices_matches_server_contract():
+    """Plugin listing must stay in lockstep with the live compare_gpu_prices contract (#130 gpus/min_gpus)."""
+    import inspect
+    from mcp_server import server
+
+    plugin = json.loads((R / "lhm.plugin.json").read_text())
+    tool = next(t for t in plugin["tools"] if t["name"] == "compare_gpu_prices")
+    # inspect.getdoc/cleandoc is stable across Python 3.12 (raw __doc__ keeps indent) and 3.13.
+    assert inspect.cleandoc(tool["description"] or "").strip() == (inspect.getdoc(server.compare_gpu_prices) or "").strip()
+    props = tool["inputSchema"]["properties"]
+    for name in ("gpus", "region", "min_usable_memory_gb", "mode"):
+        assert name in props, name
+    assert props["mode"]["default"] == "brief"
+    assert props["gpus"]["type"] == "integer"
+    from core.contract import EXTRA_PROPS
+    fields = list(EXTRA_PROPS["compare_gpu_prices"]["excluded_min_gpus"]["items"]["properties"])
+    listed = " ".join(tool["description"].split())
+    chunk = listed[listed.index("listed in excluded_min_gpus ("):].split(")")[0]
+    assert all(f in chunk.replace(",", " ").replace("(", " ").split() for f in fields), (fields, chunk)

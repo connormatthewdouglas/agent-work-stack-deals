@@ -6,9 +6,23 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- GPU cost calculator (T120): no quote is named until the visitor picks a GPU model and enters workload hours and GPU count; the price tier defaults to on-demand (the same default as MCP compare_gpu_prices), with opt-in Spot/interruptible (labelled as interruptible) and marketplace filters on the feed's tier_class; the share URL keeps gpu, hours, GPU count and tier.
+- T104/T105 referral recheck (2026-11-10): restore Vapi, Botpress, Relay, Latenode, Exa, Bolna, SiliconFlow China, and BuildShip to the live feed with their verified referral links (those links were on file; a prior audit missed them). DataForSEO stays demoted and is not listed. ClearBounce is pulled (vendor host is down). ScrapeNest remains pulled. SERP-Tool, 99Stack, Waalaxy, and SendPulse stay listed on the vendor's own page, with no referral.
+- Referral links (2026-11-09): DataForSEO, Bolna, Botpress, BuildShip, Exa, Latenode, Relay, SiliconFlow China and Vapi are no longer live listings. Their deal pages say the listing is temporarily unavailable and carry no signup link. SERP-Tool, SendPulse and Waalaxy stay listed and link to the vendor's own page, with no referral. 99Stack Cloud price rows stay, ordered by price, and link to the vendor product page with no referral.
+- GPU model JSON (`/api/v1/gpu/<model>.json`, schema `lantern-works-gpu-model-view/1`): `cheapest` no longer includes a `serverless` bucket, and a bucket key is omitted when every row in it fails the headline rule. `cheapest.monthly` is gone from `a100` (only a 2-GPU minimum remained) and `cheapest.spot-community` is gone from `l40` (only a 2-GPU minimum remained). `reserved` was already omitted. Those rows are still listed under `rows`. Serverless follows `core.serverless.rate_reason`.
 - GPU feed (T69, broader hardware): first-party DigitalOcean rows for AMD MI325X 256GB ($3.80/GPU-hr on-demand) and MI355X 288GB ($4.50/GPU-hr spot, interruptible), quoted from digitalocean.com/pricing/gpu-droplets; model families added for MI325X, MI355X, RTX PRO 5000 (48GB and 72GB kept as separate rows), RTX PRO 4000 and RTX PRO 4500.
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
+
+## 0.6.3 (2026-11-10, PyPI)
+
+- T118: publish the current agent contract so the PyPI wheel and hosted Worker match main (package version plus `serverInfo.build` SHA). 0.6.2 stayed at `21684cc5` while later contract behavior landed on main.
+- `compare_gpu_prices` excludes rows whose `min_gpus` exceeds the requested GPU count (#130).
+- Shared hold for serverless/per-second rows in compare, `estimate_job_cost`, agent-stack and /cost/ pages (#125, #127).
+- Owner-held vendors are excluded from rankings, pages and freshness gates (#128).
+- T61: sourced model identity and nominal vs usable memory (#103).
+- T63: wider-import evidence and billing semantics preserved; bid-tier labels count as interruptible, labels kept verbatim (#102, #122, #108).
+- `agent_stack` caps parsed hours and converts per-day × days (#100).
 
 ## 0.6.2 (2026-11-06, PyPI)
 
@@ -961,7 +975,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## 2026-10-23 — ClearBounce affiliate
 
-- Live deal: [ClearBounce — email verification API](https://thelanternworks.com/deals/clearbounce-001/)
+- Live deal: ClearBounce — email verification API (listing later pulled; URL removed)
 
 ## 2026-10-23 — SEO polish (OG / Twitter / JSON-LD)
 

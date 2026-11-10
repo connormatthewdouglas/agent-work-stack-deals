@@ -331,10 +331,6 @@ GUIDES = [
                 "why": "Email finder, verifier, and outreach in one stack — practical when an agent needs leads plus deliverability checks before send.",
             },
             {
-                "id": "deal-clearbounce-001",
-                "why": "Email verification API to keep agent lists clean — reduces bounces before you burn transactional quota.",
-            },
-            {
                 "id": "deal-postmark-001",
                 "why": "Transactional email API with strong deliverability — a solid send layer for agent receipts, alerts, and sequenced outreach.",
             },
@@ -1486,16 +1482,25 @@ def guides_nav_html() -> str:
 
 
 def _iso_date(value: str | None) -> str | None:
-    """Return YYYY-MM-DD from an ISO-8601 timestamp, or None if unusable."""
+    """UTC calendar day (YYYY-MM-DD) of an ISO-8601 timestamp, or None if unusable.
+
+    A date-only value is that UTC day. A zoned timestamp is converted to UTC before the day is taken,
+    so 19:00 America/New_York (00:00Z next day) is not stamped as the previous local date.
+    """
     if not value or not isinstance(value, str):
         return None
     s = value.strip()
-    if len(s) < 10:
+    if not s:
         return None
-    day = s[:10]
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
         return None
-    return day
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).date().isoformat()
 
 
 # T121 — sitemap lastmod method (do not stamp a single global date):
@@ -1506,8 +1511,9 @@ def _iso_date(value: str | None) -> str | None:
 #    max'd with the generator script's git date
 # 3. Deal hubs / homepage / categories / guides → deals.json updated_at,
 #    max'd with the generator script's git date
-# 4. Other pages → git log -1 --format=%cs on the generator script that owns
-#    the URL; fall back to the published artifact only when no source is known
+# 4. Other pages → git committer date as a UTC day (unix %ct, not %cs, so the
+#    runner's TZ does not move the day after 19:00 America/New_York); fall back
+#    to the published artifact only when no source is known
 # 5. Omit <lastmod> when nothing honest is available
 _SITEMAP_GIT_DATE_CACHE: dict[str, str | None] = {}
 _SITEMAP_DEAL_DATES: dict[str, str] | None = None
@@ -1537,7 +1543,7 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("coverage", ("scripts/coverage_page.py",)),
     ("reports", ("scripts/reports_page.py",)),
     ("install", ("scripts/install_page.py",)),
-    ("embed", ("scripts/embed_page.py",)),
+    ("embed", ("scripts/embed_page.py", "embed/rank.js")),
     ("stack", ("scripts/stack_page.py",)),
     ("cost/", ("scripts/cost_pages.py",)),
     ("cost", ("scripts/cost_pages.py",)),
@@ -1558,7 +1564,7 @@ def _git_commit_date(rel: Path | str) -> str | None:
         return _SITEMAP_GIT_DATE_CACHE[key]
     try:
         proc = subprocess.run(
-            ["git", "log", "-1", "--format=%cs", "--", key],
+            ["git", "log", "-1", "--format=%ct", "--", key],
             cwd=ROOT,
             capture_output=True,
             text=True,
@@ -1567,9 +1573,11 @@ def _git_commit_date(rel: Path | str) -> str | None:
     except OSError:
         _SITEMAP_GIT_DATE_CACHE[key] = None
         return None
-    day = (proc.stdout or "").strip() or None
-    if day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
-        day = None
+    raw = (proc.stdout or "").strip()
+    day = None
+    if raw.isdigit():
+        # %ct is timezone-independent. Do not read TZ or use %cs (local committer date).
+        day = datetime.fromtimestamp(int(raw), timezone.utc).date().isoformat()
     _SITEMAP_GIT_DATE_CACHE[key] = day
     return day
 
@@ -1693,6 +1701,15 @@ def _depends_on_deals_feed(url_path: str) -> bool:
 
 def _source_paths_for(url_path: str) -> list[str]:
     p = url_path.strip("/")
+    # Vendor-vs GPU pages and the three gpu_pages comparisons live under compare/ but are not built by compare_pages.py.
+    if p.endswith("-gpu-prices"):
+        return ["scripts/spec_pages.py", "scripts/gpu_pages.py"]
+    if p in {
+        "compare/runpod-vs-thunder-compute-vs-modal-h100",
+        "compare/cheapest-gpu-per-gb-vram",
+        "compare/runpod-community-vs-secure-cloud-prices",
+    }:
+        return ["scripts/gpu_pages.py"]
     if not p:
         return ["scripts/home_page.py", "scripts/generate_seo_pages.py", "deals.json"]
     for prefix, sources in _SITEMAP_SOURCE_SCRIPTS:
@@ -1704,10 +1721,23 @@ def _source_paths_for(url_path: str) -> list[str]:
     return []
 
 
+def _changes_content_day() -> str | None:
+    """Day the published price-changes feed moved. The file's own date, not the generator's commit and not the clock."""
+    try:
+        doc = json.loads((ROOT / "api/v1/gpu-price-changes.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return _iso_date(doc.get("date"))
+
+
 def sitemap_lastmod_for_loc(loc: str) -> str | None:
     """Honest YYYY-MM-DD lastmod for a sitemap loc, or None to omit the tag."""
     url_path = _sitemap_url_path(loc)
     stripped = url_path.strip("/")
+    # gpu/changes.xml is the changes feed. Its lastmod is that feed's date, so a later edit to a
+    # generator script or a CI merge commit does not move it.
+    if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:
+        return _changes_content_day() or _gpu_feed_day()
 
     # Per-deal pages: the deal record is the content source of truth.
     m = re.fullmatch(r"deals/([^/]+)", stripped)
@@ -2252,20 +2282,23 @@ def main() -> None:
     import agent_growth_pages
     tool_paths += agent_growth_pages.write_all(sys.modules[__name__])
     import receipts_page
-    tool_paths.append(receipts_page.write(sys.modules[__name__]))
+    tool_paths += receipts_page.write(sys.modules[__name__])
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])
     tool_paths.append(compare_pages.write_compare_index(sys.modules[__name__]))  # T93: after all compare/* pages exist
     import stale_js
     print(f"av_stale_js_pages={stale_js.inject(ROOT)}")
+    # Price-changes JSON is the lastmod source for gpu-price-changes.json and gpu/changes.xml.
+    # Write it before the sitemap so a refresh (gate runs before the commit) stamps today's data date,
+    # not the previous commit's date.
+    import gpu_changes_feed
+    gpu_changes_feed.write(sys.modules[__name__])
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)
     import home_page
     home_page.write(sys.modules[__name__], deals, feed_updated)
-    import gpu_changes_feed
-    gpu_changes_feed.write(sys.modules[__name__])
     write_about(deals)
     ensure_robots()
     write_404()

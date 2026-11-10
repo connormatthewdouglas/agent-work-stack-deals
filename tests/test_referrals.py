@@ -14,10 +14,24 @@ def test_referral_label_on_every_code_carrying_row():
             assert r["referral_url"] == REFERRALS[r["advertiser"]] and r["referral_label"] == REFERRAL_LABEL
         if r.get("affiliate") or has_ref_code(r.get("redeem_url")) or has_ref_code(r.get("referral_url")):
             assert r.get("referral_label") == REFERRAL_LABEL, (r["advertiser"], r.get("redeem_url"))
-        if r["advertiser"] in ("Lambda", "Hyperstack") or r["advertiser"].startswith("Verda"):
+        if r["advertiser"] == "Lambda":
             assert "referral_url" not in r and "referral_label" not in r, r["advertiser"]
+    # The committed feed follows the live data/owner_hold.json: every listed vendor is held, none is ranked.
+    from core.owner_hold import hold_names, is_held
+    live = hold_names()
+    owners = {h["vendor"] for h in FEED["held_stale"] if h.get("reason") == "owner_hold"}
+    assert all(any(is_held(v, [n]) for v in owners) for n in live) and all(is_held(v, live) for v in owners)
+    assert not any(is_held(r["advertiser"], live) for r in FEED["rates"])
     labelled = {r["advertiser"] for r in FEED["rates"] if r.get("referral_label")}
-    assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "99Stack Cloud", "RunPod", "Thunder Compute"} <= labelled
+    assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "RunPod", "Thunder Compute"} <= labelled
+    # 99Stack's /a/<uuid> referral drops the token on redirect. Price rows stay; the link is the vendor page.
+    rows_99 = [r for r in FEED["rates"] if r["advertiser"] == "99Stack Cloud"]
+    assert rows_99 and all(
+        r.get("affiliate") is False and "referral_url" not in r and "referral_label" not in r
+        and r["redeem_url"] == "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100"
+        and r["hourly_equiv_usd"] == 2.8767
+        for r in rows_99
+    )
 
 
 def test_codes_are_never_stripped():

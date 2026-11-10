@@ -14,10 +14,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core.compliance import is_pulled  # noqa: E402
-from core.gpu import family_of  # noqa: E402
+from core.gpu import INTERRUPTIBLE_TIER_RE, family_of, form_factor_of  # noqa: E402
+from core.owner_hold import hold_names, is_held  # noqa: E402
+from core.source_urls import split_source, valid_source_url  # noqa: E402
 from core import serverless  # noqa: E402  (T63: one shared serverless/per-second rule)
 
 PRICING = ROOT / "data" / "gpu_pricing"
+META = ROOT / "data" / "gpu_availability" / "wider_meta.json"
 FILES = {"RunPod": "runpod.json", "Lambda": "lambda.json", "Vast.ai": "vast.json", "Verda": "verda.json", "Oblivus": "oblivus.json"}
 NEVER = ("clore", "tensordock")
 MIN_VAST_OFFERS = 5  # same floor as core.gpu MIN_MARKET_OFFERS
@@ -28,9 +31,13 @@ UNITS = {"hourly": 1, "per-second": 3600}
 RESERVED_RE = re.compile(r"reserved|commit|\d+\s*-?\s*(?:month|year|yr)\b", re.I)
 ONE_GPU_RE = re.compile(r"\b1 GPU\b")
 # Serverless / per-second / active-worker prices are not dedicated instance rates (Gauge 1104 #102): held, never imported.
-# Interruptible / non-guaranteed capacity: spot, preemptible, community and marketplace tiers.
-INTERRUPTIBLE_RE = re.compile(r"spot|preempt|interrupt", re.I)
-VERBATIM_KEYS = ("quote_verbatim", "verbatim_text")
+# Interruptible matches core.gpu.INTERRUPTIBLE_TIER_RE (spot, preemptible, interruptible, bid). Community and
+# marketplace labels stay non-interruptible. The tier text itself is not rewritten.
+# Vendor text Scout copied from the page; price_quote is Scout's own field name for it (Gauge 1108 #102 c).
+VERBATIM_KEYS = ("quote_verbatim", "verbatim_text", "price_quote")
+# Scout's region "all" is an aggregate row, not a place. Blank and missing are the same: unknown.
+# A stated location is copied as published. Nothing else is filled in.
+_UNSTATED_REGION = {"", "all", "unknown"}
 
 
 def _ts(s):
@@ -39,6 +46,42 @@ def _ts(s):
 
 def _int(x):
     return x if isinstance(x, int) and not isinstance(x, bool) and x >= 1 else None
+
+
+def region_of(raw) -> str:
+    """Stated location, or 'unknown'. Never a guessed city, zone, or fresh timestamp."""
+    if isinstance(raw, str):
+        s = raw.strip()
+        if s.lower() not in _UNSTATED_REGION:
+            return s
+    return "unknown"
+
+
+def request_evidence(detail: str) -> dict:
+    """Pull method, operation and record_id out of a known API citation suffix.
+
+    Scout puts that suffix on source_detail. Only the two formats split_source already
+    accepts are read. Any other detail is left as text and is not turned into a URL.
+    """
+    if not isinstance(detail, str) or not detail.strip():
+        return {}
+    try:
+        _endpoint, ev = split_source(detail.strip())
+    except ValueError:
+        return {}
+    return ev
+
+
+def _place_new(keep: list[dict], new: list[dict]) -> list[dict]:
+    """Curated rows stay first. A new row with no stated region is inserted before the last
+    curated row that cites a location, so that citation is still the vendor's region of record."""
+    stated = [i for i, x in enumerate(keep) if region_of(x.get("region")) != "unknown" and x.get("region")]
+    if not stated:
+        return keep + new
+    at = stated[-1]
+    unstated = [x for x in new if region_of(x.get("region")) == "unknown"]
+    stated_new = [x for x in new if region_of(x.get("region")) != "unknown"]
+    return keep[:at] + unstated + keep[at:] + stated_new
 
 
 def serverless_reason(r: dict) -> str | None:
@@ -73,10 +116,13 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     raw = r.get("price_usd_sec") if unit == "per-second" else r.get("price_usd_hr")
     if not isinstance(raw, (int, float)) or isinstance(raw, bool) or raw <= 0:
         return None, f"unsupported price {raw!r}"
-    src = r.get("source_detail") or r.get("source_url") or ""
+    # source_url is the citation. A known API suffix on source_detail (RunPod graphql, Verda instance-types)
+    # is the canonical endpoint plus its request evidence. Any other source_detail stays text and is not
+    # the URL (Oblivus rows append ' ("RTX 4090" card)', which is not a canonical https URL).
     page = r.get("source_url") or ""
+    detail = r.get("source_detail") if isinstance(r.get("source_detail"), str) else ""
     when = r.get("verified_at") or r.get("checked_at") or r.get("collected_at")
-    if not (str(page).startswith("https://") and when):
+    if not (valid_source_url(page) and when):
         return None, "evidence missing: needs an https source_url and a check time"
     try:
         _ts(when)
@@ -104,6 +150,13 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     hourly = round(price * factor / n, 4)
     base = re.sub(r"\s+(SXM\d*|PCIe)$", "", gpu)
     form = (re.search(r"\b(SXM\d*|PCIe)\b", gpu) or [None])[0]
+    req = request_evidence(detail)
+    # The name did not state a form. The vendor record id can ("NVIDIA B300 SXM6 AC" -> SXM6).
+    # "not stated" is left as null so a later reader does not treat it as the vendor's own value.
+    if not form and req.get("record_id"):
+        derived = form_factor_of(gpu, None, "", req["record_id"])
+        if derived and derived != "not stated":
+            form = derived
     vram = r.get("vram_gb")
     note = r.get("vram_note")
     fix = VRAM_FIX.get((base, None)) or VRAM_FIX.get((base, v))
@@ -119,19 +172,27 @@ def normalize_ex(r: dict) -> tuple[dict | None, str | None]:
     if verbatim:
         quote, kind = str(verbatim), "verbatim"
     elif v == "Vast.ai" and offers:
-        quote, kind = (f"Vast offers API {src}: median per-GPU dph_total over {offers} offers"
-                       + (f" on {r['distinct_machines']} machines" if r.get("distinct_machines") else "") + f" = {raw}"), "api_field"
+        quote, kind = (f"Vast offers API: median per-GPU dph_total over {offers} offers"
+                       + (f" on {r['distinct_machines']} machines" if r.get("distinct_machines") else "") + f" = ${raw}"), "api_field"
     else:
-        quote, kind = f"{basis}: {raw} ({src})", "api_field"
+        # T41-01 / credibility: published price must appear as a $ amount in evidence.quote
+        quote, kind = f"{basis}: ${raw}", "api_field"
     quote = quote[:200]
     tier = r.get("tier")
-    intr = bool(INTERRUPTIBLE_RE.search(tier or ""))
+    intr = bool(INTERRUPTIBLE_TIER_RE.search(tier or ""))
+    # A known API citation suffix is the canonical source. The human pricing page is not a substitute
+    # for the endpoint, method, operation and record id Scout put on source_detail.
+    if req:
+        page = split_source(detail.strip())[0]
+    evidence = {"source_url": page, "quote": quote, "checked_at": when, **req}
     rec = {"vendor": v, "gpu": gpu, "vram_gb": vram, "price_usd": price, "billing_unit": unit, "hourly_usd": hourly,
-           "interruptible": intr, "tier": tier, "form_factor": form,
-           "quote": quote, "source_url": page if kind == "verbatim" else src if src.startswith("https://") else page,
-           "checked_at": when, "evidence": {"source_url": src if src.startswith("https://") else page, "quote": quote, "checked_at": when},
+           "interruptible": intr, "tier": tier, "region": region_of(r.get("region")), "form_factor": form,
+           "quote": quote, "source_url": page,
+           "checked_at": when, "evidence": evidence,
            "evidence_kind": kind, "normalized_summary": summary, "verified_at": when,
            "batch": "wider-gpu", "price_check": "batch"}  # Gauge G5: re-read only when Scout pushes a batch
+    if detail.strip() and detail.strip() != page:
+        rec["source_detail"] = detail.strip()  # evidence text, never the citation URL
     if kind == "api_field":
         rec["evidence_method"] = basis or "Vast offers API median"
     if n > 1:
@@ -159,26 +220,33 @@ def normalize(r: dict) -> dict | None:
     return normalize_ex(r)[0]
 
 
-def apply(docs: dict, rows: list[dict]) -> tuple[dict, list[dict], int]:
+def apply(docs: dict, rows: list[dict], names: list[str] | None = None) -> tuple[dict, list[dict], int]:
     """Pure merge: every vendor file loses ALL its previous wider-gpu rows (stale batch rows go even when the vendor is
-    absent from this batch); curated rows are never touched and win on (gpu, tier, vram_gb). Idempotent."""
+    absent from this batch); curated rows are never touched and win on (gpu, tier, vram_gb). Idempotent.
+    Owner-held vendors are omitted entirely: their documents are not returned, so the caller does not rewrite them."""
+    names = list(names or [])
     by_vendor: dict = {}
     unresolved = []
     seen = set()
     for r in rows:
+        if is_held(r.get("vendor"), names):
+            continue
         if r.get("batch") not in (None, "wider-gpu"):
             continue
         rec, why = normalize_ex(r)
         if why:
             unresolved.append({"vendor": r.get("vendor"), "gpu_model": r.get("gpu_model"), "tier": r.get("tier"), "reason": why})
         if rec:
-            key = (rec["vendor"], rec["gpu"], rec["tier"], rec["vram_gb"])
+            # allocation sizes stay separate rows: (tier, gpu_count) is part of the key (Scout publishes Vast per "(Nx GPU)")
+            key = (rec["vendor"], rec["gpu"], rec["tier"], rec["vram_gb"], rec.get("gpu_count") or 1)
             if key not in seen:
                 seen.add(key)
                 by_vendor.setdefault(rec["vendor"], []).append(rec)
     total = 0
     out = {}
     for v, doc in docs.items():
+        if is_held(v, names) or is_held((doc or {}).get("vendor"), names):
+            continue
         if doc is None or is_pulled(doc.get("deal_id")):
             continue
         doc = json.loads(json.dumps(doc))
@@ -186,15 +254,17 @@ def apply(docs: dict, rows: list[dict]) -> tuple[dict, list[dict], int]:
         for x in recs:  # records carry the vendor file's own name (e.g. "Verda (formerly DataCrunch)")
             x["vendor"] = doc.get("vendor") or x["vendor"]
         keep = [x for x in doc.get("records") or [] if x.get("batch") != "wider-gpu"]
-        have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb")) for x in keep}
-        new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"]) not in have]  # existing curated rows win
-        doc["records"] = keep + new
+        have = {(x.get("gpu"), x.get("tier"), x.get("vram_gb"), x.get("gpu_count") or 1) for x in keep}
+        new = [x for x in recs if (x["gpu"], x["tier"], x["vram_gb"], x.get("gpu_count") or 1) not in have]  # existing curated rows win
+        doc["records"] = _place_new(keep, new)
         total += len(new)
         out[v] = doc
     return out, unresolved, total
 
 
 def main() -> None:
+    # Owner hold is resolved before any vendor file is read or hashed and before unresolved rows are recorded.
+    names = hold_names()
     src = Path(sys.argv[1])
     dry = "--dry-run" in sys.argv
     d = json.loads(src.read_text())
@@ -202,8 +272,17 @@ def main() -> None:
         raise SystemExit(f"refusing: expected version 3.2 batch wider-gpu, got {d.get('version')}/{d.get('batch')}")
     if datetime.now(timezone.utc) - _ts(d["collected_at"]) > MAX_AGE:
         raise SystemExit(f"refusing: wider batch {d['collected_at']} older than {MAX_AGE}")
-    docs = {v: (json.loads((PRICING / f).read_text()) if (PRICING / f).is_file() else None) for v, f in FILES.items()}
-    new_docs, unresolved, total = apply(docs, d.get("rows") or [])
+    incoming = d.get("rows") or []
+    held_skipped = sum(1 for r in incoming if is_held(r.get("vendor"), names))
+    rows = [r for r in incoming if not is_held(r.get("vendor"), names)]
+    docs = {}
+    for v, f in FILES.items():
+        if is_held(v, names):
+            print(f"{v}: owner hold, file unchanged")
+            continue
+        p = PRICING / f
+        docs[v] = json.loads(p.read_text()) if p.is_file() else None
+    new_docs, unresolved, total = apply(docs, rows, names)
     for v, doc in sorted(new_docs.items()):
         n = sum(1 for x in doc["records"] if x.get("batch") == "wider-gpu")
         print(f"{v}: {n} wider-gpu records")
@@ -213,9 +292,10 @@ def main() -> None:
         print(f"unresolved: {u['vendor']} {u['gpu_model']} ({u['tier']}): {u['reason']}")
     gen = os.environ.get("LW_WIDER_GEN") or d.get("generation_id") or d["collected_at"]
     if not dry:  # carried into gpu-prices.json as wider_generation_id
-        (ROOT / "data" / "gpu_availability" / "wider_meta.json").write_text(json.dumps({"wider_generation_id": gen, "wider_collected_at": d["collected_at"],
-                                                             "wider_records": total, "unresolved": unresolved}, indent=2) + "\n")
-    print(f"wider-gpu records={total}{' (dry run)' if dry else ''}")
+        META.write_text(json.dumps({"wider_generation_id": gen, "wider_collected_at": d["collected_at"],
+                                    "wider_records": total, "unresolved": unresolved,
+                                    "owner_hold_skipped": held_skipped}, indent=2) + "\n")
+    print(f"wider-gpu records={total} owner_hold_skipped={held_skipped}{' (dry run)' if dry else ''}")
 
 
 if __name__ == "__main__":

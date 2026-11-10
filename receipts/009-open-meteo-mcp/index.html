@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Listing temporarily unavailable — Lantern Works</title>
-  <meta name="description" content="This Lantern Works listing is temporarily paused." />
-  <meta name="robots" content="noindex,follow" />
-  <link rel="canonical" href="https://thelanternworks.com/deals/clearbounce-001/" />
-  <meta property="og:title" content="Listing temporarily unavailable — Lantern Works" />
-  <meta property="og:description" content="This Lantern Works listing is temporarily paused." />
-  <meta property="og:url" content="https://thelanternworks.com/deals/clearbounce-001/" />
+  <title>Receipts #009: open-meteo-mcp — Broken</title>
+  <meta name="description" content="Pax proof-pack case #009 (Broken): open-meteo-mcp v0.2.0, tested 2026-10-29. Third-party MCP server; not the Lantern Works house product." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/receipts/009-open-meteo-mcp/" />
+  <meta property="og:title" content="Receipts #009: open-meteo-mcp — Broken" />
+  <meta property="og:description" content="Pax proof-pack case #009 (Broken): open-meteo-mcp v0.2.0, tested 2026-10-29. Third-party MCP server; not the Lantern Works house product." />
+  <meta property="og:url" content="https://thelanternworks.com/receipts/009-open-meteo-mcp/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Lantern Works" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Listing temporarily unavailable — Lantern Works" />
-  <meta name="twitter:description" content="This Lantern Works listing is temporarily paused." />
+  <meta name="twitter:title" content="Receipts #009: open-meteo-mcp — Broken" />
+  <meta name="twitter:description" content="Pax proof-pack case #009 (Broken): open-meteo-mcp v0.2.0, tested 2026-10-29. Third-party MCP server; not the Lantern Works house product." />
   <style>
     :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
     body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
@@ -120,10 +120,23 @@
   <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, checked daily</span></header>
   <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/coverage/">GPU coverage</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/methodology/">Methodology</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
 <div id="content">
-  <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › Deal unavailable</nav>
-  <h1>This listing is temporarily unavailable</h1>
-  <p>This deal is paused while we re-check it. See <a href="https://thelanternworks.com/">all current deals</a>.</p>
-
+<style>.proof-case{overflow-wrap:anywhere}.proof-case pre{overflow:auto;background:#f3f4f6;padding:1rem;border-radius:8px}.proof-case code{white-space:normal}.proof-meta{border-left:4px solid #6366f1;padding-left:1rem;margin:1rem 0}.third-party{border-left:4px solid #9ca3af;padding-left:1rem}</style>
+<nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/receipts/">Receipts</a> › #009</nav>
+<article class="proof-case">
+<h1>Receipts #009 — BROKEN: open-meteo-mcp (Receipts #009)</h1>
+<aside class="third-party" aria-label="Third-party disclosure"><p><strong>Third-party MCP server. Not the Lantern Works house product (Receipts #000 stays labeled house on the index).</strong></p></aside>
+<aside class="proof-meta" aria-label="Case metadata">
+<p><strong>Package:</strong> <code>open-meteo-mcp</code> v0.2.0 (PyPI)</p>
+<p><strong>Verdict:</strong> Broken · <strong>Tested:</strong> 2026-10-29 · <strong>Assembled by:</strong> Pax</p>
+<p><strong>Machine-readable evidence:</strong> <a href="https://thelanternworks.com/receipts/009-open-meteo-mcp/evidence.json"><code>evidence.json</code></a> · pack <a href="https://thelanternworks.com/receipts/proof-pack-v1.json"><code>proof-pack-v1.json</code></a></p>
+</aside>
+<ul><li>Package: open-meteo-mcp, version 0.2.0 (PyPI), run as its README instructs: <code>python -m open_meteo_mcp</code>. Tested 2026-10-29, clean venvs.</li><li>Task: current weather for New York City.</li><li>Expected (ground truth): the Open-Meteo API fetched directly in the same minute (21:37–21:38 UTC), with tolerances set before grading: temperature ±1.5 °C, wind ±5 km/h, humidity ±5, pressure ±1.5 hPa, weather code exact.</li><li>Observed: as installed per its README the server never answers initialize — it crashes at import:</li></ul>
+<pre><code class="language-text">ImportError: cannot import name &#x27;McpError&#x27; from &#x27;mcp&#x27; … Did you mean: &#x27;MCPError&#x27;?</code></pre>
+<p>Pinning the SDK to the package&#x27;s own declared floor (mcp==1.12.0) fails one import later inside FastMCP against today&#x27;s pydantic; only TWO undocumented pins (mcp==1.12.0 AND pydantic==2.11.7) make it start. Cause: open-ended dependency ranges met two fatal upstream renames after 0.2.0 shipped. Even then, its &quot;current&quot; weather text reproduces the NEXT hour&#x27;s forecast bucket digit-for-digit (gusts off by 7.6 km/h vs the API&#x27;s actual current block, outside tolerance), and its two weather tools disagree with each other in the same minute.</p>
+<ul><li>Verdict: Broken — a user installing this package today gets a traceback, not a weather server.</li><li>Evidence refs: record 009; write-up tests/009-weather-server.md; transcripts tests/009-weather-transcript.txt (failed probe + both tracebacks) and tests/009-weather-transcript-pinned.txt.</li></ul>
+<p>Corrections and retest requests: open an issue on the Lantern Works repo naming the record id. Paid re-tests are accepted under the Receipts firewall: money can buy being measured sooner, never a changed verdict.</p>
+<p>Need GPU prices in your own agent? <a href="https://thelanternworks.com/quickstart/?ref=receipts-proofpack">Try a free, cited comparison</a>. Back to the <a href="https://thelanternworks.com/receipts/">Receipts index</a>.</p>
+</article>
 </div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>

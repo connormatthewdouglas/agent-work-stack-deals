@@ -275,7 +275,13 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
     excluded = before - len(sdata["offers"])
     gdata = copy.deepcopy(gpu_data) if gpu_data else None
     assumptions = []
+    owner_rates: list[dict] = []
     if gdata:
+        from .owner_hold import is_held
+        def _who(r):
+            return r.get("advertiser") or r.get("vendor")
+        owner_rates = [r for r in gdata.get("rates") or [] if is_held(_who(r))]
+        gdata["rates"] = [r for r in gdata.get("rates") or [] if not is_held(_who(r))]
         n0 = len(gdata.get("rates") or [])
         gdata["rates"] = [r for r in gdata.get("rates") or [] if not r.get("deal_id") or r["deal_id"] in allowed]
         excluded += n0 - len(gdata["rates"])
@@ -294,6 +300,9 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
             line["gpu_count"] = gpus
             if p["gpu_count_text"]:
                 line["gpu_count_note"] = f"{gpus} GPU(s) parsed from '{p['gpu_count_text']}'"
+            if owner_rates:
+                line["held"] = [{"vendor": r.get("advertiser") or r.get("vendor"), "gpu": r.get("gpu"),
+                                 "reason": "owner_hold"} for r in owner_rates]
             if not gdata:
                 lines.append({**line, "status": "no_data", "note": NO_DATA, "choice": None, "monthly_cost_usd": None}); continue
             if size:
@@ -313,9 +322,14 @@ def plan(description: str, deals: list[dict], stack_data: dict, gpu_data: dict |
                                    + (f"; {hours:,g} GPU-hours total = {per_gpu:,g} h per GPU" if hours and gpu_h_total
                                       else f"; {hours:,g} wall-clock hours x {gpus} GPU(s)" if hours else ""))
             opts = stack._gpu_options(gdata, per_gpu or 1, gpu_model, manual, gpus=gpus)
+            if held := stack.held_serverless(gdata, gpu_model):  # shared serverless rule: listed with reason, never priced
+                line["held_serverless"], line["excluded_serverless"] = held, len(held)
             if exclude_manual_signup:
                 opts = [o for o in opts if not (o.get("manual_signup_only") or o.get("deal_id") in manual)]
-            opts.sort(key=lambda x: (x.get("in_stock") is False, x["monthly_cost_usd"], x["vendor"] or ""))
+            opts.sort(key=lambda x: (x.get("in_stock") is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or ""))
+            if p["gpu_count"] is None:  # no GPU count in the request: 1 GPU, said out loud
+                from .gpu import NO_GPU_COUNT_ASSUMPTION
+                assumptions.append(NO_GPU_COUNT_ASSUMPTION)
             if max_data_age_hours is None and opts:  # Gauge re28: > 168 h prices never rank by default
                 from . import data_age as _da
                 opts, old = _da.split_current(opts, None, now)

@@ -25,7 +25,7 @@ def render(query):
 @pytest.mark.parametrize("gpus", [1, 8, 9])
 def test_browser_matches_python_engine(gpus):
     rates = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())["rates"]
-    py = G.estimate([r for r in rates if r["unit"] == "hour"], 10, gpus, "H100")
+    py = G.estimate([r for r in rates if r["unit"] == "hour" and r.get("tier_class") == "on-demand"], 10, gpus, "H100")
     want = sorted(round(r["monthly_cost_usd"], 2) for r in py)
     got = render(f"?hours=10&gpus={gpus}&gpu=H100&flat=0")
     g = sorted(c for c, *_ in got)  # half-cent ties (e.g. Lium $1.7945 x 90 h = 161.505) round differently in JS vs Python

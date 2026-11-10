@@ -1,6 +1,6 @@
 """/cost/{gpu}-{hours}-hours/ (T24 part A, spec /workspace/pulse/specs/t24-workload-pages-ready.md): "Cost to rent
 {GPU} for N hours" on 1 GPU, pure feed math (rate x hours x 1). Fail closed: on-demand, non-interruptible, non-serverless,
-hourly/per-second billing, min_gpus == 1, vendor not held; reserved/thin/held/marketplace/monthly rows never appear.
+hourly billing (serverless/per-second rows held by core/serverless.rate_reason), min_gpus == 1, vendor not held; reserved/thin/held/marketplace/monthly rows never appear.
 Variants (exact gpu + vram) are never mixed; a variant needs >= 2 vendors, and "cheapest" needs >= 3.
 Replace the math with T35 quote() when it ships; do not grow a second pricing engine here."""
 from __future__ import annotations
@@ -10,6 +10,7 @@ import re
 from html import escape as esc_
 import json
 import statistics
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -22,6 +23,8 @@ LABEL = ("Compute subtotal only, excludes storage, egress, vCPU, tax. Among trac
 
 
 NEVER_ON_COST = {"TensorDock", "Clore.ai"}
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from core.serverless import rate_reason  # noqa: E402  one serverless/per-second rule for pages, compare and the stack
 
 
 def eligible(feed: dict, family: str) -> dict[tuple, list[dict]]:
@@ -33,8 +36,8 @@ def eligible(feed: dict, family: str) -> dict[tuple, list[dict]]:
         if not (g == family or g.startswith(family + " ")):
             continue
         if (r.get("advertiser") in held or r.get("hourly_equiv_usd") is None
-                or r.get("billing_unit") not in ("hourly", "per-second") or r.get("tier_class") != "on-demand"
-                or r.get("interruptible") or "serverless" in (r.get("tier") or "").lower()
+                or r.get("billing_unit") != "hourly" or r.get("tier_class") != "on-demand"
+                or r.get("interruptible") or rate_reason(r)  # shared serverless/per-second rule (core/serverless.py)
                 or (r.get("min_gpus") or 1) != 1 or r.get("price_status") not in (None, "listed")):
             continue
         out.setdefault((g, r.get("vram_gb")), []).append(r)
@@ -154,8 +157,18 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
         "<h2>What's not included</h2><p>Storage, egress, vCPU/RAM add-ons, region and tax. Availability is an automated check at the time shown: "
         "rows marked out of stock when checked are listed last and left out of lowest, median and cheapest; other rows are "
         "not an availability claim. Multi-GPU and 8-GPU-only offers are left out: multi-GPU quotes need whole-instance pricing, coming later. "
-        "Spot, community, marketplace, serverless, reserved and held or thin prices are never shown here.</p>"
-        f"<p>Other durations: {other}. Full price list: <a href=\"{base}/gpu/{slug}-rental-price/\">{esc(fam)} rental prices</a>. "
+        "Spot, community, marketplace, serverless, reserved and held or thin prices are never shown here.</p>")
+    owners = sorted({h.get("vendor") for h in feed.get("held_stale") or [] if h.get("reason") == "owner_hold"
+                     and any(fam in str(rec.get("gpu") or "") for rec in h.get("records") or [])})
+    if owners:
+        parts.append(f"<p>Temporarily held, not a live verified price: {esc(', '.join(owners))}.</p>")
+    rental = Path(g.ROOT) / "gpu" / f"{slug}-rental-price"
+    if rental.is_dir():
+        full_list = f'<a href="{base}/gpu/{slug}-rental-price/">{esc(fam)} rental prices</a>'
+    else:
+        full_list = f'<a href="{base}/gpu/price-comparison/">all GPU prices</a>'
+    parts.append(
+        f"<p>Other durations: {other}. Full price list: {full_list}. "
         f"For your own hours or throughput, use the MCP tool <code>estimate_job_cost</code>.</p>"
         "<p class=\"meta\">Order is by cost only; referral links are labelled and never change the order. "
         f"Feed updated {esc(_et(feed.get('feed_updated_at')))}. Data CC BY 4.0, Lantern Works "
