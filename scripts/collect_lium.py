@@ -101,7 +101,11 @@ def build(payload: dict, old: dict | None, now: datetime) -> tuple[dict, list[st
         p, mg = b["price_per_gpu_hour"], int(b.get("min_rentable_gpu_count") or 1)
         loc = ", ".join(x for x in (b.get("city"), b.get("country")) if x)
         q = (f"Lium nodes API {gen}: {g['node_count']} available {b['gpu_model']} {tier} nodes, {g['stock']} GPUs free; "
-             f"lowest price_per_gpu_hour ${p:g} (min rental {mg} GPU{'s' if mg > 1 else ''}, {loc})")
+             f"lowest price_per_gpu_hour ${p:g} "
+             # multi-GPU rows record the whole-node price, so the quote states it (check_gpu_changes needs the recorded price)
+             + (f"(min {mg} GPUs = ${round(p * mg, 4):g}/hr, {loc})" if mg > 1 else f"(min rental {mg} GPU, {loc})"))
+        if len(q) > 200 and loc:  # core.gpu.MAX_QUOTE: the location is the only optional part of the quote
+            q = q.replace(f", {loc})", ")")
         r = {"vendor": "Lium", "gpu": fg, "vram_gb": vram, "price_usd": p, "billing_unit": "hourly", "hourly_usd": p,
              "interruptible": tier == "spot", "tier": TIERS[tier], "form_factor": ff,
              "quote": q, "source_url": NODES_URL, "checked_at": gen, "verified_at": gen,
