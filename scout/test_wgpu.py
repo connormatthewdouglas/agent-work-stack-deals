@@ -64,12 +64,53 @@ p6 = vd[("RTX PRO 6000", "On-demand instance (1x GPU)")]; assert "does not state
 assert vd[("V100", "On-demand instance (1x GPU)")]["source_url"] == "https://verda.com/pricing" and not any(k[0].startswith("H100") for k in vd)
 # item 3: Lambda rows already live are dropped; setting switches
 assert w.is_live_dupe({"vendor": "Lambda", "gpu_model": "B200", "vram_gb": 192, "tier": "On-demand instance (8x GPU)"})
+# vast_alloc waits on wider_gpu._sleep / _mono (bound at import to time.sleep / time.monotonic). Advance a fake
+# clock by the full requested gap so the 180s check still applies and no real sleep runs.
+_vast_clk, _vast_slept = {"t": 0.0}, []
+# Epoch is one gap behind wall time so collect()'s collected_at (after the fake wait) stays current.
+_vast_t0 = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(seconds=w.VAST_READ_GAP_S)
+_real_now = c.NOW
+def _vast_mono():
+    return _vast_clk["t"]
+def _vast_sleep(sec):
+    _vast_slept.append(sec)
+    if sec > 0: _vast_clk["t"] += sec
+def _vast_now():
+    return (_vast_t0 + timedelta(seconds=_vast_clk["t"])).isoformat().replace("+00:00", "Z")
+w._mono, w._sleep, c.NOW = _vast_mono, _vast_sleep, _vast_now
 doc = w.collect(d)
 assert not doc["errors"] and doc["version"] == "3.2" and not any(r["vendor"] == "Lambda" for r in doc["rows"])
 cn = doc["meta"]["counts"]; assert cn["total_rows"] == len(doc["rows"]) == cn["publishable_rows"] + cn["stock_only_rows"] + cn["held_rows"]
 for x in doc["rows"]:
     assert x["source_url"].startswith("https://") and "?" not in x["source_url"] and x["source_detail"] and x["verified_at"].endswith("Z") and x["in_stock"] is None
     assert not (x.get("feed_status") and x["price_usd_hr"] is not None), "held row with price"
+assert w.VAST_READ_GAP_S >= 180
+va = doc["meta"]["vast_allocation"]
+_gap = (datetime.fromisoformat(va["read2_at"].replace("Z", "+00:00")) - datetime.fromisoformat(va["read1_at"].replace("Z", "+00:00"))).total_seconds()
+assert _gap >= 180 and _gap >= w.VAST_READ_GAP_S and _vast_clk["t"] >= w.VAST_READ_GAP_S and _vast_slept and min(_vast_slept) >= w.VAST_READ_GAP_S, va
+assert va["min_machines"] >= w.VAST_ALLOC_MIN_MACHINES and va["sizes"] and all(
+    s["status"].startswith("held:") and "fewer than" in s["status"] and s["machines1"] < va["min_machines"] and s["machines2"] < va["min_machines"] for s in va["sizes"]), va
+# A clock that does not move is still rejected: the second read must be >= VAST_READ_GAP_S later.
+w._sleep = lambda sec: _vast_slept.append(sec)
+assert w.vast_alloc() == [] and "minimum gap" in w.VAST_ALLOC_META.get("read2_error", "")
+w._sleep = _vast_sleep
+# Stability at the 7-machine floor: medians within 5% publish; medians beyond 5% hold and emit no row.
+def _alloc_offers(price, n=8):
+    return {"offers": [{"gpu_name": "B200", "gpu_ram": 179 * 1024, "num_gpus": 1, "dph_total": price, "machine_id": i} for i in range(n)]}
+_prices = []
+def _alloc_get(url, data=None):
+    if "vast" in url: return _alloc_offers(_prices.pop(0))
+    return fake_get(url, data)
+c.get = _alloc_get
+_vast_clk["t"], _prices[:] = 0.0, [10.0, 10.0]
+_stable = w.vast_alloc(); _smeta = dict(w.VAST_ALLOC_META)
+assert len(_stable) == 1 and _stable[0]["price_usd_hr"] == 10.0 and _stable[0]["gpu_count"] == 1 and _stable[0]["distinct_machines"] == 8
+assert _smeta["sizes"][0]["status"] == "published (read 2)"
+_sgap = (datetime.fromisoformat(_smeta["read2_at"].replace("Z", "+00:00")) - datetime.fromisoformat(_smeta["read1_at"].replace("Z", "+00:00"))).total_seconds()
+assert _sgap >= 180 and _sgap >= w.VAST_READ_GAP_S
+_vast_clk["t"], _prices[:] = 0.0, [10.0, 12.0]
+assert w.vast_alloc() == [] and "medians differ" in w.VAST_ALLOC_META["sizes"][0]["status"]
+c.get, c.NOW = fake_get, _real_now
 w.NAME_MODE = "with_vram"; assert w.canon("B200", None, 180)[0] == "B200 180GB"; assert w.canon("B300", None, 269)[2] == "vendor reports 269GB; official spec 288GB"; w.VRAM_MODE = "vendor"; assert w.canon("B200", None, 180)[1] == 180
 w.NAME_MODE, w.VRAM_MODE = "bare", "official"
 
