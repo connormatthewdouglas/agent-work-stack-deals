@@ -1,4 +1,4 @@
-"""Homepage: GPU price comparison for agents, checked daily. Everything numeric is computed from the feed
+"""Homepage: GPU price comparison for agents, refreshed regularly, with each price's age shown. Everything numeric is computed from the feed
 (core.gpu.build_rates over deals.json + data/gpu_pricing/), and a small script refreshes the spread from
 /api/v1/gpu-prices.json in the browser. The deals directory lives at /deals/ (old /?q=… and /#cat-… links
 are forwarded there)."""
@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-HERO = "GPU price comparison for agents, checked daily"
+HERO = "GPU price comparison for agents, refreshed regularly, with each price's age shown"
 SPREAD = (("h100", "H100"), ("a100", "A100"), ("rtx-4090", "RTX 4090"))
 INSTALL_UVX = "uvx lantern-works-deals-mcp"
 INSTALL_PIP = "pip install lantern-works-deals-mcp"
@@ -106,7 +106,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     moved_html = ("<ul>" + "".join(f'<li><a href="{esc(c["source_url"] or BASE + "/gpu/")}" rel="noopener">{esc(change_title(c))}</a></li>' for c in moved) + "</ul>") if moved else "<p>No tracked rate moved between the last two daily snapshots.</p>"
     counts = ch["counts"]
     title = f"{HERO} | Lantern Works"
-    desc = (f"Cheapest H100, A100 and RTX 4090 rental prices among tracked providers, re-checked daily on vendor pricing pages. "
+    desc = (f"Cheapest H100, A100 and RTX 4090 rental prices among tracked providers, refreshed regularly, with each price's age shown, on vendor pricing pages. "
             f"{count} rates from {vendors}, with quotes, dates, price history and an MCP server for agents.")
     body = f"""  <header>
     <h1>{esc(HERO)}</h1>
@@ -158,7 +158,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
 {REDIRECT_JS}</head>
 <body>
 {gen.site_ui.nav_html(BASE, BASE + "/")}{body}
-{JS}  <footer><p>Prices are re-checked daily; confirm on the vendor page before you rent. Some result links are referral links (marked); that never changes ranking or your price.</p>
+{JS}  <footer><p>Prices are refreshed regularly, with each price's age shown; confirm on the vendor page before you rent. Some result links are referral links (marked); that never changes ranking or your price.</p>
     <p><strong>Lantern Works</strong> · <a href="{BASE}/gpu/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
   </footer>
 {gen.analytics_snippet()}</body>

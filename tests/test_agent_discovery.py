@@ -14,7 +14,7 @@ import install_page
 def test_generated_manifest_preserves_legacy_links_and_exposes_current_tools():
     doc = json.loads((ROOT / "agent.json").read_text())
     assert doc == agent_manifest.build()
-    assert doc["name"] == "agent-work-stack-deals"
+    assert doc["name"] == "Lantern Works"
     feeds = {f["rel"]: f["url"] for f in doc["feeds"]}
     assert feeds["deals"] == "https://thelanternworks.com/deals.json"
     assert feeds["mirror"] == agent_manifest.LEGACY_MIRROR

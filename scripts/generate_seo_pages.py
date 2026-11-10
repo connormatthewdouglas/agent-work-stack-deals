@@ -1296,7 +1296,7 @@ def homepage_json_ld(deals: list[dict], home: bool = False) -> str:
             "name": "Lantern Works",
             "url": f"{BASE}/",
             "description": (
-                "GPU rental price comparison for agents, checked daily (H100, A100, RTX 4090 and more), "
+                "GPU rental price comparison for agents, refreshed regularly, with each price's age shown (H100, A100, RTX 4090 and more), "
                 "plus agent work-stack deals and a machine-readable JSON feed."
             ),
             "publisher": {"@id": org_id},
