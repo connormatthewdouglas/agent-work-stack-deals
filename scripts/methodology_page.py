@@ -136,6 +136,6 @@ def write(g) -> str:
     out = Path(g.ROOT) / PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(g.page_shell("Methodology: how Lantern Works collects, verifies and holds prices",
-                                "Where Lantern Works prices come from, how they are checked daily, when they are held, why reserved rates are not ranked cheapest, and the license (CC BY 4.0 data, MIT code).",
+                                "Where Lantern Works prices come from, how they are refreshed regularly, with each price's age shown, when they are held, why reserved rates are not ranked cheapest, and the license (CC BY 4.0 data, MIT code).",
                                 f"{base}/{PATH}/", body), encoding="utf-8")
     return PATH

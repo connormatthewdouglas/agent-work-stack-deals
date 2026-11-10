@@ -40,7 +40,7 @@ def test_homepage_leads_with_gpu_spread_and_install(monkeypatch):
     _pin_feed_clock(monkeypatch)
     t = (ROOT / "index.html").read_text()
     h1 = re.search(r"<h1>(.*?)</h1>", t).group(1)
-    assert h1 == "GPU price comparison for agents, checked daily"
+    assert h1 == "GPU price comparison for agents, refreshed regularly, with each price's age shown"
     for fam in ("h100", "a100", "rtx-4090"):
         assert f'data-fam="{fam}"' in t
     assert 'href="https://thelanternworks.com/gpu/"' in t

@@ -77,7 +77,7 @@ def nav_html(base: str, canonical: str = "") -> str:
         links.append(f'<a href="{href}"{cur}>{escape(label)}</a>')
     return ('  <a class="skip" href="#content">Skip to content</a>\n'
             f'  <header class="brandbar"><a class="brand" href="{base}/"><img src="{base}/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a>'
-            '<span class="brand-tag">GPU prices, checked daily</span></header>\n'
+            '<span class="brand-tag">GPU prices, refreshed regularly, with each price\'s age shown</span></header>\n'
             f'  <nav class="sitenav" aria-label="Site">{"".join(links)}</nav>\n')
 
 
