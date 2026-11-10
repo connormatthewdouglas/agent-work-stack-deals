@@ -8,6 +8,7 @@ otherwise the feed's own feed_updated_at. A hand-edited page still fails.
 from __future__ import annotations
 
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -82,6 +83,20 @@ def _same_except_provenance(a: Path, b: Path) -> bool:
         return False
 
 
+# sitemap.xml <lastmod> comes from each page's last git commit date, so a squash merge of an older
+# branch moves it on main without any content change. Compare the sitemap with lastmod values
+# blanked: added, removed or changed URLs (and anything else) still fail.
+_SITEMAP = "sitemap.xml"
+_LASTMOD = re.compile(r"<lastmod>[^<]*</lastmod>")
+
+
+def _same_sitemap_except_lastmod(a: Path, b: Path) -> bool:
+    try:
+        return _LASTMOD.sub("<lastmod/>", a.read_text(encoding="utf-8")) == _LASTMOD.sub("<lastmod/>", b.read_text(encoding="utf-8"))
+    except OSError:
+        return False
+
+
 def _diff_names(src: Path, dest: Path) -> list[str]:
     proc = subprocess.run(
         ["diff", "-rq", "--exclude=.git", "--exclude=__pycache__", "--exclude=.pytest_cache",
@@ -94,6 +109,8 @@ def _diff_names(src: Path, dest: Path) -> list[str]:
             continue
         rel = next((f for f in _PROVENANCE_FILES if line == f"Files {src / f} and {dest / f} differ"), None)
         if rel and _same_except_provenance(src / rel, dest / rel):
+            continue
+        if line == f"Files {src / _SITEMAP} and {dest / _SITEMAP} differ" and _same_sitemap_except_lastmod(src / _SITEMAP, dest / _SITEMAP):
             continue
         names.append(line)
     return names
