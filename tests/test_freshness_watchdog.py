@@ -81,10 +81,12 @@ def test_failed_collector_run_is_a_problem():
     assert probs == notes
 
 
-def test_checkout_version_commit_is_0_6_2():
+def test_checkout_version_commit_is_current_package():
     version, sha = W.expected_from_checkout(ROOT)
-    assert version == "0.6.2"
-    assert sha.startswith("21684cc5") and len(sha) >= 7
+    assert version == "0.6.3"
+    # SHA is the commit that last set this version line. Do not pin a literal SHA:
+    # a squash-merge rewrites it. expected_from_checkout already requires a resolvable hex commit.
+    assert len(sha) >= 7 and W.builds_match(sha, sha)
 
 
 def test_owner_hold_json_is_not_a_ranked_staleness_failure(fixed_owner_hold):
