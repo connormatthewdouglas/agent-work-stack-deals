@@ -97,7 +97,7 @@ def test_clore_unchanged_reimport_keeps_timestamps():
 
 # ---- B) min_gpus ------------------------------------------------------------------------------------------------
 
-# Frozen fixture (main 35f9b26), not the live feed: these checks name real Lium prices ($2.05 H100 SXM, the L40S 2x
+# Frozen fixture (main 1b47ecc7), not the live feed: these checks name real Lium prices ($2.05 H100 SXM, the L40S 2x
 # node), and the Lium collector rewrites those rows every run (Lium collector failures since 2026-11-07). Checks unchanged.
 FEED = json.loads((ROOT / "tests" / "fixtures" / "gpu-prices-min-gpus-2026-11-10.json").read_text())
 NOW = datetime.fromisoformat("2026-11-06T08:00:00+00:00")

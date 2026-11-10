@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core import deals  # noqa: E402
 
-# Frozen fixture (main 35f9b26), not the live feed: the Lium collector rewrites Lium rows, and a live 8x row going away
+# Frozen fixture (main 1b47ecc7), not the live feed: the Lium collector rewrites Lium rows, and a live 8x row going away
 # made module import raise StopIteration (Lium collector run 42820326406). The checks below are unchanged.
 FEED_FILE = ROOT / "tests" / "fixtures" / "gpu-prices-min-gpus-2026-11-10.json"
 FEED = json.loads(FEED_FILE.read_text())
