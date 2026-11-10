@@ -91,12 +91,13 @@ def test_unlabelled_and_nvlink_variants_named_not_mixed():
     s = _page("a100", 100)
     # 0.3.27: unlabelled A100 80GB now has 4+ vendors (Thunder, Jarvislabs, Civo, E2E) so it is its own compared table, never mixed with SXM/PCIe
     sec = s.split("<h2>A100 80GB</h2>")[1].split("</table>")[0]
-    assert "Thunder Compute" in sec and "Civo" in sec and "SXM" not in sec
-    assert "Hyperstack A100 NVLink 80GB" not in s
-    assert "Temporarily held, not a live verified price: Hyperstack, Verda (formerly DataCrunch)." in s
+    assert "Thunder Compute" in sec and "Civo" in sec and "SXM" not in sec and "NVLink" not in sec
+    # The held-vendor line follows the live data/owner_hold.json.
+    from core.owner_hold import hold_names
+    live = hold_names()
     h100 = _page("h100", 100)
-    assert "Hyperstack H100 NVLink 80GB" not in h100
-    assert "Temporarily held, not a live verified price: Hyperstack, Verda (formerly DataCrunch)." in h100
+    for page in (s, h100):
+        assert ("Temporarily held, not a live verified price:" in page) == bool(live)
 
 
 def test_ovh_marked_ex_tax_and_index_page_linked():

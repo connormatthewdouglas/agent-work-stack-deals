@@ -81,7 +81,7 @@ def test_n1_derived_claim_unknown_once_regions_expire():
         del os.environ["LW_BUILD_HORIZON_MIN"]
 
 
-def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path):
+def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path, fixed_owner_hold):
     from datetime import datetime, timezone, timedelta
     t = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat(timespec="seconds").replace("+00:00", "Z")
     row = {"vendor": "RunPod", "gpu": "H100 PCIe", "vram_gb": 80, "tier": "On-demand (Secure Cloud)", "in_live_feed": True,
@@ -94,7 +94,7 @@ def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path):
     out = ROOT / "data/gpu_availability/latest.json"
     keep = out.read_bytes()
     try:
-        r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m)}, tmp_path)
+        r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m), "LW_OWNER_HOLD": str(fixed_owner_hold)}, tmp_path)
         assert r.returncode == 0, r.stderr
         rows = json.loads(out.read_text())["rows"]
         got = next(x for x in rows if x["vendor"] == "RunPod" and x["gpu"] == "H100 PCIe")

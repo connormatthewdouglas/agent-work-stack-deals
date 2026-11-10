@@ -8,10 +8,14 @@ parenthetical / extra words ("Verda (formerly DataCrunch)").
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "data" / "owner_hold.json"
+# Tests that run an importer in a subprocess point it at a fixed hold list with LW_OWNER_HOLD.
+if os.environ.get("LW_OWNER_HOLD"):
+    CONFIG = Path(os.environ["LW_OWNER_HOLD"])
 
 
 def hold_names(path: Path | None = None) -> list[str]:
