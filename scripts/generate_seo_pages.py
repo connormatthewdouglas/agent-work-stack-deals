@@ -2282,7 +2282,7 @@ def main() -> None:
     import agent_growth_pages
     tool_paths += agent_growth_pages.write_all(sys.modules[__name__])
     import receipts_page
-    tool_paths.append(receipts_page.write(sys.modules[__name__]))
+    tool_paths += receipts_page.write(sys.modules[__name__])
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])

@@ -1,0 +1,21 @@
+{
+  "environment": "clean venv, stdio transport, Receipts probe.py harness",
+  "evidence": {
+    "transcript": "tests/002-time-transcript.txt",
+    "writeup": "tests/002-mcp-server-time.md"
+  },
+  "ground_truth": "system date with TZ conversions in the same session",
+  "observed_summary": "Both answers exact, including the asymmetric DST fall-back difference of +4.0h (London off DST, US still on).",
+  "package": "mcp-server-time",
+  "record_id": "002",
+  "registry": "PyPI",
+  "task": "current time in America/New_York; convert 2026-10-29 09:00 America/New_York to Europe/London",
+  "tested_at": "2026-10-29",
+  "verdict": "works",
+  "version": "2026.10.28",
+  "stable_url": "https://thelanternworks.com/receipts/002-mcp-server-time/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/002-mcp-server-time/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}
