@@ -26,15 +26,26 @@ SPEC = {
                            # T72 (brief is the default here): keep the counts, scope and refresh time a caller needs to
                            # trust the ranking, plus tier/price_status/in_stock per row; the bulky per-row detail stays full-only.
                            ["gpu", "summary", "scope", "count", "total", "excluded_non_on_demand", "excluded_reserved",
-                            "next_refresh_utc", "data_checked_at", "refresh_hint", "results", "cheapest_by_form_factor", "cheapest_by_form_factor_note"],
+                            "next_refresh_utc", "data_checked_at", "refresh_hint", "results", "cheapest_by_form_factor", "cheapest_by_form_factor_note",
+                            # T115 (additive): a relaxed hard constraint must stay visible in brief mode
+                            "on_demand_only", "on_demand_fallback",
+                            # T63 (additive): serverless/per-second rows are held in every mode; the count stays visible in brief
+                            "excluded_serverless",
+                            # T61 (additive): the usable-memory filter outcome when min_usable_memory_gb is given
+                            "usable_memory_filter", "model_identity_note",
+                            # #122 (additive): GPU count ranked for (no count = 1, stated in assumptions)
+                            # Bjorn 1109: min_gpus_unmet = count of rows excluded because min_gpus > gpus (list in full mode: excluded_min_gpus)
+                            "gpus", "assumptions", "min_gpus_unmet"],
                            ["rank", "rate_id", "advertiser", "gpu", "vram_gb", "tier", "hourly_usd", "tier_class", "price_status",
-                            "in_stock", "canonical_model", "form_factor", "source_url", "checked_at",
+                            "in_stock", "interruptible", "canonical_model", "form_factor", "source_url", "checked_at",
                             # Brain #247 (additive): currency, FX date, last verification, disclosed referral link
                             "quote_currency", "fx_date", "last_verified", "referral_url", "referral_label",
-                            # T112 (additive): 7-day observed in-stock share and the availability-adjusted estimate
+                            # T116: observed stock share; legacy expected_cost_usd is deprecated/null.
                             "availability_rate_7d", "expected_cost_usd",
                             # Scout schema 3.2 (additive): Scout's own status (in_stock|out_of_stock|unknown) and reason
-                            "availability_status", "availability_reason", "availability_reason_detail"]),
+                            "availability_status", "availability_reason", "availability_reason_detail",
+                            # #122 (additive): the row's allocation minimum (rows above the requested gpus are excluded, #130)
+                            "min_gpus"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
@@ -43,12 +54,12 @@ SPEC = {
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
-                       ["need", "status", "monthly_cost_usd", "choice"]),
+                       ["need", "status", "monthly_cost_usd", "choice", "excluded_serverless"]),
     "optimize_agent_stack": (["lines", "monthly_estimate_usd", "estimate_is_complete", "quote_id", "issued_at"], "lines",
                              ["component", "status"],
                              ["lines", "monthly_estimate_usd", "estimate_is_complete", "missing_components", "budget",
                               "quote_id", "issued_at"],
-                             ["component", "status", "monthly_cost_usd", "choice"]),
+                             ["component", "status", "monthly_cost_usd", "choice", "excluded_serverless"]),
     "search_deals": (["total", "count", "results"], "results",
                      ["id"],
                      ["total", "count", "results", "next_cursor"],
@@ -61,7 +72,9 @@ SPEC = {
                            "missing_costs", "budget_verdict", "quote_id", "issued_at"], "results",
                           ["rank", "rate_id", "vendor", "allocated_gpus", "instances", "compute_subtotal_usd", "source_url"],
                           ["summary", "job_hours", "count", "results", "assumptions", "missing_costs", "budget_verdict",
-                           "quote_id", "issued_at"],
+                           "quote_id", "issued_at",
+                           # (additive) serverless/per-second rows are held out of cost ranking; count and reasons stay in brief
+                           "excluded_serverless", "held_serverless"],
                           ["rank", "rate_id", "vendor", "gpu", "allocated_gpus", "instances", "compute_subtotal_usd",
                            "source_url", "verified_at", "stale"]),
     "rebuild_quote": (["quote_id", "receipt_intact", "reproduced", "lines", "revalidation"], "lines",
@@ -97,7 +110,15 @@ _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": 
                                                                      "alternatives": {"type": "array", "items": _OPTION}}}}
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"canonical_model": _str, "form_factor": _str, "rate_id": _RATE_ID, "report_issue_url": _str,
-                                                                          "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}}}}}
+                                                                          "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]},
+                                                                          "min_gpus": {"type": ["integer", "null"]}}}},
+    # #130: GPU count ranked for; rows whose min_gpus exceeds it are excluded (count + full-mode list with reasons)
+    "gpus": {"type": "integer", "minimum": 1}, "assumptions": {"type": "array", "items": {"type": "string"}},
+    "min_gpus_unmet": {"type": "integer", "minimum": 0},
+    "excluded_min_gpus": {"type": "array", "items": {"type": "object", "required": ["vendor", "gpu", "min_gpus", "reason"],
+                          "properties": {"vendor": _str, "gpu": _str, "tier": _str, "min_gpus": {"type": "integer"},
+                                         "gpu_count": {"type": ["integer", "null"]}, "hourly_usd": {"type": ["number", "null"]},
+                                         "rate_id": _str, "source_url": _str, "checked_at": _str, "reason": _str}}}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
@@ -237,6 +258,8 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
     if mode == "full":
         return {"ok": True, "mode": "full", **out}
     b = {k: copy.deepcopy(out[k]) for k in brief_keys if k in out}
+    if tool == "compare_gpu_prices" and isinstance(out.get("constraints"), dict) and "applied" in out["constraints"]:
+        b["constraints"] = {"applied": copy.deepcopy(out["constraints"]["applied"])}  # T115: applied constraints stay in brief
     if tool == "get_deal" and "price_usd" in b:
         b.setdefault("list_price_usd", None)
     if list_key and isinstance(b.get(list_key), list):

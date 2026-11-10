@@ -6,6 +6,7 @@ import html
 import json
 import os
 import sys
+import subprocess
 import re
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEALS_PATH = ROOT / "deals.json"
 GOTCHAS_PATH = ROOT / "data" / "deal_gotchas.json"
 BASE = "https://thelanternworks.com"
+# Display-only stamp on hub/guide HTML meta lines (not used for sitemap lastmod; see T121).
 LASTMOD = "2026-10-23"
 VERIFIED = "2026-10-23"
 SITE_NAME = "Lantern Works"
@@ -327,10 +329,6 @@ GUIDES = [
             {
                 "id": "deal-snovio-001",
                 "why": "Email finder, verifier, and outreach in one stack — practical when an agent needs leads plus deliverability checks before send.",
-            },
-            {
-                "id": "deal-clearbounce-001",
-                "why": "Email verification API to keep agent lists clean — reduces bounces before you burn transactional quota.",
             },
             {
                 "id": "deal-postmark-001",
@@ -1483,6 +1481,304 @@ def guides_nav_html() -> str:
 
 
 
+def _iso_date(value: str | None) -> str | None:
+    """UTC calendar day (YYYY-MM-DD) of an ISO-8601 timestamp, or None if unusable.
+
+    A date-only value is that UTC day. A zoned timestamp is converted to UTC before the day is taken,
+    so 19:00 America/New_York (00:00Z next day) is not stamped as the previous local date.
+    """
+    if not value or not isinstance(value, str):
+        return None
+    s = value.strip()
+    if not s:
+        return None
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).date().isoformat()
+
+
+# T121 — sitemap lastmod method (do not stamp a single global date):
+# Prefer content/source dates over published-HTML git dates (bulk regen commits
+# would otherwise collapse every lastmod onto one day):
+# 1. /deals/<slug>/ → later of updated_at and verified_at (omit→deals feed day)
+# 2. Pages that embed live GPU rates → api/v1/gpu-prices.json feed_updated_at,
+#    max'd with the generator script's git date
+# 3. Deal hubs / homepage / categories / guides → deals.json updated_at,
+#    max'd with the generator script's git date
+# 4. Other pages → git committer date as a UTC day (unix %ct, not %cs, so the
+#    runner's TZ does not move the day after 19:00 America/New_York); fall back
+#    to the published artifact only when no source is known
+# 5. Omit <lastmod> when nothing honest is available
+_SITEMAP_GIT_DATE_CACHE: dict[str, str | None] = {}
+_SITEMAP_DEAL_DATES: dict[str, str] | None = None
+_SITEMAP_DEALS_FEED_DAY: str | None | bool = False  # False = unloaded
+_SITEMAP_GPU_FEED_DAY: str | None | bool = False
+
+# Relative site path prefix → generator script(s) that own that URL's content.
+_SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
+    ("tools/gpu-cost-calculator", ("scripts/gpu_calculator.py",)),
+    ("tools/stack-optimizer", ("scripts/stack_optimizer.py",)),
+    ("gpu/index/methodology", ("scripts/gpu_index_page.py",)),
+    ("gpu/index", ("scripts/gpu_index_page.py",)),
+    ("gpu/free-credits", ("scripts/free_credits_page.py",)),
+    ("gpu/changes", ("scripts/gpu_changes_feed.py", "scripts/gpu_pages.py")),
+    ("gpu/price-comparison", ("scripts/gpu_pages.py",)),
+    ("docs/watch-gpu-prices", ("scripts/agent_growth_pages.py",)),
+    ("api/v1/gpu-price-changes", ("scripts/gpu_changes_feed.py",)),
+    ("report-price", ("scripts/report_price_page.py",)),
+    ("methodology", ("scripts/methodology_page.py",)),
+    ("for-agents", ("scripts/generate_seo_pages.py",)),
+    ("ai-agent-tool-deals", ("scripts/generate_seo_pages.py",)),
+    ("lanternworks", ("scripts/generate_seo_pages.py",)),
+    ("changelog", ("scripts/generate_seo_pages.py",)),
+    ("quickstart", ("scripts/agent_growth_pages.py",)),
+    ("integrate", ("scripts/agent_growth_pages.py",)),
+    ("receipts", ("scripts/receipts_page.py",)),
+    ("coverage", ("scripts/coverage_page.py",)),
+    ("reports", ("scripts/reports_page.py",)),
+    ("install", ("scripts/install_page.py",)),
+    ("embed", ("scripts/embed_page.py", "embed/rank.js")),
+    ("stack", ("scripts/stack_page.py",)),
+    ("cost/", ("scripts/cost_pages.py",)),
+    ("cost", ("scripts/cost_pages.py",)),
+    ("compare/", ("scripts/compare_pages.py",)),
+    ("compare", ("scripts/compare_pages.py",)),
+    ("categories/", ("scripts/generate_seo_pages.py",)),
+    ("guides/", ("scripts/generate_seo_pages.py",)),
+    ("deals/", ("scripts/generate_seo_pages.py", "deals.json")),
+    ("deals", ("scripts/generate_seo_pages.py", "deals.json")),
+    ("gpu/", ("scripts/spec_pages.py", "scripts/gpu_pages.py")),
+    ("gpu", ("scripts/gpu_pages.py",)),
+]
+
+
+def _git_commit_date(rel: Path | str) -> str | None:
+    key = str(rel).replace("\\", "/")
+    if key in _SITEMAP_GIT_DATE_CACHE:
+        return _SITEMAP_GIT_DATE_CACHE[key]
+    try:
+        proc = subprocess.run(
+            ["git", "log", "-1", "--format=%ct", "--", key],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        _SITEMAP_GIT_DATE_CACHE[key] = None
+        return None
+    raw = (proc.stdout or "").strip()
+    day = None
+    if raw.isdigit():
+        # %ct is timezone-independent. Do not read TZ or use %cs (local committer date).
+        day = datetime.fromtimestamp(int(raw), timezone.utc).date().isoformat()
+    _SITEMAP_GIT_DATE_CACHE[key] = day
+    return day
+
+
+def _load_deal_lastmod_dates() -> dict[str, str]:
+    global _SITEMAP_DEAL_DATES
+    if _SITEMAP_DEAL_DATES is not None:
+        return _SITEMAP_DEAL_DATES
+    out: dict[str, str] = {}
+    try:
+        feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        _SITEMAP_DEAL_DATES = out
+        return out
+    for deal in feed.get("deals") or []:
+        if not isinstance(deal, dict):
+            continue
+        did = deal.get("id")
+        if not did:
+            continue
+        days = [d for d in (_iso_date(deal.get("updated_at")), _iso_date(deal.get("verified_at"))) if d]
+        if days:
+            out[slug_for(str(did))] = max(days)
+    _SITEMAP_DEAL_DATES = out
+    return out
+
+
+def _deals_feed_day() -> str | None:
+    global _SITEMAP_DEALS_FEED_DAY
+    if _SITEMAP_DEALS_FEED_DAY is not False:
+        return _SITEMAP_DEALS_FEED_DAY  # type: ignore[return-value]
+    try:
+        feed = json.loads(DEALS_PATH.read_text(encoding="utf-8"))
+        day = _iso_date(feed.get("updated_at"))
+    except (OSError, ValueError):
+        day = None
+    if day is None:
+        day = _git_commit_date("deals.json")
+    _SITEMAP_DEALS_FEED_DAY = day
+    return day
+
+
+def _gpu_feed_day() -> str | None:
+    global _SITEMAP_GPU_FEED_DAY
+    if _SITEMAP_GPU_FEED_DAY is not False:
+        return _SITEMAP_GPU_FEED_DAY  # type: ignore[return-value]
+    gpu_path = "api/v1/gpu-prices.json"
+    day = None
+    try:
+        doc = json.loads((ROOT / gpu_path).read_text(encoding="utf-8"))
+        day = _iso_date(doc.get("feed_updated_at")) or _iso_date(doc.get("prices_verified_through"))
+    except (OSError, ValueError):
+        day = None
+    if day is None:
+        day = _git_commit_date(gpu_path)
+    _SITEMAP_GPU_FEED_DAY = day
+    return day
+
+
+def _sitemap_url_path(loc: str) -> str:
+    """Path under the site root, no leading slash ('' for home)."""
+    prefix = BASE.rstrip("/") + "/"
+    if loc.startswith(prefix):
+        return loc[len(prefix):]
+    if loc.startswith(BASE.rstrip("/")):
+        return loc[len(BASE.rstrip("/")):].lstrip("/")
+    return loc.lstrip("/")
+
+
+def _published_file_for_path(url_path: str) -> Path | None:
+    """Map a site path to the committed public file that serves it."""
+    p = url_path.strip("/")
+    if not p:
+        cand = ROOT / "index.html"
+        return cand if cand.is_file() else None
+    if p.endswith((".json", ".xml", ".txt", ".csv")):
+        cand = ROOT / p
+        return cand if cand.is_file() else None
+    for rel in (f"{p}/index.html", f"{p}.html"):
+        cand = ROOT / rel
+        if cand.is_file():
+            return cand
+    return None
+
+
+def _depends_on_gpu_feed(url_path: str) -> bool:
+    p = url_path.strip("/")
+    if p == "gpu" or p.startswith("gpu/"):
+        return True
+    if p == "cost" or p.startswith("cost/"):
+        return True
+    if p.startswith("api/v1/gpu-price-changes"):
+        return True
+    if p == "coverage" or p.startswith("coverage/"):
+        return True
+    if p in {"tools/gpu-cost-calculator", "tools/stack-optimizer", "stack", "methodology", "report-price", "embed"}:
+        return True
+    if p == "reports" or p.startswith("reports/"):
+        return True
+    if p.startswith("compare/"):
+        markers = (
+            "gpu", "runpod", "coreweave", "nebius", "verda", "thunder", "modal",
+            "vram", "h100", "h200", "a100", "l40", "rtx",
+        )
+        return any(m in p for m in markers)
+    if p.startswith("docs/watch-gpu"):
+        return True
+    return False
+
+
+def _depends_on_deals_feed(url_path: str) -> bool:
+    p = url_path.strip("/")
+    if p in {"", "deals", "lanternworks", "changelog", "for-agents", "ai-agent-tool-deals"}:
+        return True
+    if p.startswith("categories/") or p.startswith("guides/"):
+        return True
+    if p.startswith("compare/") and not _depends_on_gpu_feed(url_path):
+        return True
+    return False
+
+
+def _source_paths_for(url_path: str) -> list[str]:
+    p = url_path.strip("/")
+    # Vendor-vs GPU pages and the three gpu_pages comparisons live under compare/ but are not built by compare_pages.py.
+    if p.endswith("-gpu-prices"):
+        return ["scripts/spec_pages.py", "scripts/gpu_pages.py"]
+    if p in {
+        "compare/runpod-vs-thunder-compute-vs-modal-h100",
+        "compare/cheapest-gpu-per-gb-vram",
+        "compare/runpod-community-vs-secure-cloud-prices",
+    }:
+        return ["scripts/gpu_pages.py"]
+    if not p:
+        return ["scripts/home_page.py", "scripts/generate_seo_pages.py", "deals.json"]
+    for prefix, sources in _SITEMAP_SOURCE_SCRIPTS:
+        if prefix.endswith("/"):
+            if p.startswith(prefix) or p == prefix.rstrip("/"):
+                return list(sources)
+        elif p == prefix or p.startswith(prefix + "/"):
+            return list(sources)
+    return []
+
+
+def _changes_content_day() -> str | None:
+    """Day the published price-changes feed moved. The file's own date, not the generator's commit and not the clock."""
+    try:
+        doc = json.loads((ROOT / "api/v1/gpu-price-changes.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return _iso_date(doc.get("date"))
+
+
+def sitemap_lastmod_for_loc(loc: str) -> str | None:
+    """Honest YYYY-MM-DD lastmod for a sitemap loc, or None to omit the tag."""
+    url_path = _sitemap_url_path(loc)
+    stripped = url_path.strip("/")
+    # gpu/changes.xml is the changes feed. Its lastmod is that feed's date, so a later edit to a
+    # generator script or a CI merge commit does not move it.
+    if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:
+        return _changes_content_day() or _gpu_feed_day()
+
+    # Per-deal pages: the deal record is the content source of truth.
+    m = re.fullmatch(r"deals/([^/]+)", stripped)
+    if m:
+        day = _load_deal_lastmod_dates().get(m.group(1))
+        if day:
+            return day
+        return _deals_feed_day()
+
+    candidates: list[str] = []
+
+    for src in _source_paths_for(url_path):
+        day = _git_commit_date(src)
+        if day:
+            candidates.append(day)
+
+    if _depends_on_deals_feed(url_path):
+        day = _deals_feed_day()
+        if day:
+            candidates.append(day)
+
+    if _depends_on_gpu_feed(url_path):
+        day = _gpu_feed_day()
+        if day:
+            candidates.append(day)
+
+    if not candidates:
+        published = _published_file_for_path(url_path)
+        if published is not None:
+            day = _git_commit_date(published.relative_to(ROOT))
+            if day:
+                candidates.append(day)
+
+    return max(candidates) if candidates else None
+
+
+def _norm_tool_path(s: str) -> str:
+    """Normalize generator path fragments so we never emit /coverage//."""
+    return str(s).strip().strip("/")
+
+
 def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list[str] | None = None, compare_paths: list[str] | None = None) -> Path:
     urls = [
         (f"{BASE}/", "1.0"),
@@ -1495,27 +1791,79 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
         (f"{BASE}/for-agents/", "0.8"),
     ]
     for s in (compare_paths or []):
-        urls.append((f"{BASE}/{s}/", "0.8"))
+        ns = _norm_tool_path(s)
+        if not ns:
+            continue
+        if ns.endswith((".json", ".xml", ".txt", ".csv")):
+            urls.append((f"{BASE}/{ns}", "0.8"))
+        else:
+            urls.append((f"{BASE}/{ns}/", "0.8"))
     for s in hub_slugs:
-        urls.append((f"{BASE}/categories/{s}/", "0.7"))
+        urls.append((f"{BASE}/categories/{_norm_tool_path(s)}/", "0.7"))
     for s in (guide_slugs or []):
-        urls.append((f"{BASE}/guides/{s}/", "0.75"))
+        urls.append((f"{BASE}/guides/{_norm_tool_path(s)}/", "0.75"))
     for s in deal_slugs:
-        urls.append((f"{BASE}/deals/{s}/", "0.6"))
+        urls.append((f"{BASE}/deals/{_norm_tool_path(s)}/", "0.6"))
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
     for loc, pri in urls:
-        lines.append(
-            f"  <url><loc>{loc}</loc><lastmod>{LASTMOD}</lastmod>"
-            f"<changefreq>weekly</changefreq><priority>{pri}</priority></url>"
-        )
+        lastmod = sitemap_lastmod_for_loc(loc)
+        if lastmod:
+            lines.append(
+                f"  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod>"
+                f"<changefreq>weekly</changefreq><priority>{pri}</priority></url>"
+            )
+        else:
+            lines.append(
+                f"  <url><loc>{loc}</loc>"
+                f"<changefreq>weekly</changefreq><priority>{pri}</priority></url>"
+            )
     lines.append("</urlset>")
-    path = ROOT / "sitemap.xml"
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return path
+    out = ROOT / "sitemap.xml"
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return out
 
+
+def rewrite_sitemap_lastmods() -> Path:
+    """Refresh lastmod on the committed sitemap.xml without regenerating the whole site.
+
+    Preserves loc / changefreq / priority; recomputes lastmod with sitemap_lastmod_for_loc.
+    Also collapses accidental double slashes in locs (e.g. /coverage//).
+    """
+    out = ROOT / "sitemap.xml"
+    raw = out.read_text(encoding="utf-8")
+    entry_re = re.compile(
+        r"<url>\s*<loc>(.*?)</loc>\s*(?:<lastmod>.*?</lastmod>\s*)?"
+        r"(?:<changefreq>(.*?)</changefreq>\s*)?(?:<priority>(.*?)</priority>\s*)?</url>",
+        re.S,
+    )
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for m in entry_re.finditer(raw):
+        loc, freq, pri = m.group(1), m.group(2) or "weekly", m.group(3) or "0.5"
+        if loc.startswith(BASE):
+            rest = loc[len(BASE):]
+            while "//" in rest:
+                rest = rest.replace("//", "/")
+            loc = BASE.rstrip("/") + rest
+        lastmod = sitemap_lastmod_for_loc(loc)
+        if lastmod:
+            lines.append(
+                f"  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod>"
+                f"<changefreq>{freq}</changefreq><priority>{pri}</priority></url>"
+            )
+        else:
+            lines.append(
+                f"  <url><loc>{loc}</loc>"
+                f"<changefreq>{freq}</changefreq><priority>{pri}</priority></url>"
+            )
+    lines.append("</urlset>")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return out
 
 
 FEED_RAW = "https://thelanternworks.com/deals.json"
@@ -1941,13 +2289,16 @@ def main() -> None:
     tool_paths.append(compare_pages.write_compare_index(sys.modules[__name__]))  # T93: after all compare/* pages exist
     import stale_js
     print(f"av_stale_js_pages={stale_js.inject(ROOT)}")
+    # Price-changes JSON is the lastmod source for gpu-price-changes.json and gpu/changes.xml.
+    # Write it before the sitemap so a refresh (gate runs before the commit) stamps today's data date,
+    # not the previous commit's date.
+    import gpu_changes_feed
+    gpu_changes_feed.write(sys.modules[__name__])
     write_sitemap(deal_slugs, hub_slugs, guide_slugs, compare_paths + tool_paths)
     write_changelog()
     write_index(deals, feed_updated)
     import home_page
     home_page.write(sys.modules[__name__], deals, feed_updated)
-    import gpu_changes_feed
-    gpu_changes_feed.write(sys.modules[__name__])
     write_about(deals)
     ensure_robots()
     write_404()
@@ -1965,7 +2316,7 @@ def main() -> None:
     print(f"guide_pages={len(guide_paths)}")
     # home + lanternworks + changelog + hubs + guides + deals
     print(f"compare_pages={len(compare_paths)}")
-    print(f"sitemap_urls={7 + len(compare_paths) + len(tool_paths) + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
+    print(f"sitemap_urls={8 + len(compare_paths) + len(tool_paths) + len(hub_slugs) + len(guide_slugs) + len(deal_slugs)}")
     print(f"deals={len(deals)}")
 
 

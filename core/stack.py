@@ -170,13 +170,35 @@ def oos_caveat(opts: list[dict]) -> str | None:
             f"${c['monthly_cost_usd']:,.2f}/mo ({c['calc']}); not picked.")
 
 
+def _model_match(r: dict, model: str | None) -> bool:
+    return not model or (r.get("gpu") == model or str(r.get("gpu", "")).startswith(model + " ")
+                         or model.lower() in str(r.get("gpu", "")).lower().split())
+
+
+def held_serverless(gpu_data: dict, model: str | None) -> list[dict]:
+    """Serverless / per-second rates for the model, held out of GPU options by the shared rule (core/serverless.py),
+    listed with the reason in the same shape compare_gpu_prices and estimate_job_cost use."""
+    from .owner_hold import is_held
+    from .serverless import rate_reason
+    return [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"), "billing_unit": r.get("billing_unit"),
+             "price_per_second_usd": r.get("price_per_second_usd"), "source_url": r.get("source_url"),
+             "checked_at": r.get("verified_at") or r.get("checked_at"), "reason": rate_reason(r)}
+            for r in gpu_data.get("rates") or []
+            if _model_match(r, model) and rate_reason(r) and not is_held(r.get("advertiser") or r.get("vendor"))]  # owner_hold rows are never listed
+
+
 def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, gpus: int = 1) -> list[dict]:
+    from .serverless import rate_reason
     hpm = gpu_data.get("hours_per_month") or 730
     out = []
+    from .owner_hold import is_held
     for r in gpu_data.get("rates") or []:
-        if model and not (r.get("gpu") == model or str(r.get("gpu", "")).startswith(model + " ")
-                          or model.lower() in str(r.get("gpu", "")).lower().split()):
+        if is_held(r.get("advertiser") or r.get("vendor")):
+            continue  # owner_hold (#128): not a ranked option
+        if not _model_match(r, model):
             continue
+        if rate_reason(r):
+            continue  # serverless / per-second: not a dedicated instance rate, never an option (see held_serverless)
         if (r.get("tier_class") or _tc(r)) == "reserved":
             continue  # reservation/commitment "starting from" prices need a term contract; not a pay-as-you-go option
         per = r.get("gpu_count") or 1
@@ -203,9 +225,11 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, g
                     "signup": "manual_only" if r.get("deal_id") in manual else None,
                     "manual_signup_only": r.get("deal_id") in manual, "signup_note": None,
                     "affiliate": bool(r.get("affiliate")), "redeem_url": r.get("redeem_url"),
-                    "deal_url": deal_page_url(r.get("deal_id")), **avail_fields(r)})
+                    "deal_url": deal_page_url(r.get("deal_id")), **avail_fields(r),
+                    **({"min_gpus_unmet": True} if (r.get("min_gpus") or 1) > gpus else {})})
     # F1: explicit out-of-stock rows (in_stock False) never outrank in-stock/unknown rows
-    return sorted(out, key=lambda x: (x["in_stock"] is False, x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
+    # min_gpus: an allocation larger than the request (gpus_billed > gpus_requested because of min_gpus) never ranks first
+    return sorted(out, key=lambda x: (x["in_stock"] is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
 
 
 class StackError(ValueError):
@@ -237,6 +261,8 @@ def optimize(data: dict, needs: dict, gpu_data: dict | None = None, gpu_model: s
             if gpu_data is None:
                 raise StackError("gpu_hours needs GPU price data")
             priced = _gpu_options(gpu_data, qty, gpu_model, manual)
+            if held := held_serverless(gpu_data, gpu_model):  # shared serverless rule: listed with reason, never priced
+                line["held_serverless"], line["excluded_serverless"] = held, len(held)
             line["gpu_model"] = gpu_model or "any"
             line["gpu_count"] = 1
             untracked = [u.get("advertiser") for u in gpu_data.get("unpriced") or []]

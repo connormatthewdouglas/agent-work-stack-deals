@@ -33,10 +33,17 @@ def test_g4_median_count():
 
 
 def test_g5_batch_rows_labelled_and_held_after_48h():
+    """A batch row still in the ranked feed is inside its 48h window. Past that window it is held out of rates."""
+    from core.gpu import BATCH_HOLD_HOURS
     b = [r for r in FEED["rates"] if r.get("price_check") == "batch"]
-    assert b and all(r["last_read"] and r["hold_after"] for r in b)
-    now = datetime.now(timezone.utc)
-    assert all(datetime.fromisoformat(r["hold_after"]) > now - timedelta(minutes=30) for r in b)
+    # Judge the committed feed at the time it was built. Wall-clock freshness stays in check_gpu_freshness / T41.
+    now = datetime.fromisoformat(FEED["feed_updated_at"].replace("Z", "+00:00"))
+    for r in b:
+        assert r["last_read"] and r["hold_after"]
+        last = datetime.fromisoformat(r["last_read"].replace("Z", "+00:00"))
+        hold = datetime.fromisoformat(r["hold_after"].replace("Z", "+00:00"))
+        assert hold - last == timedelta(hours=BATCH_HOLD_HOURS)
+        assert hold > now - timedelta(minutes=30)
 
 
 def test_g6_future_timestamp_fails():

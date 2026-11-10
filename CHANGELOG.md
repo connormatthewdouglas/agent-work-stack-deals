@@ -6,10 +6,20 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
-- GPU feed + MCP compare_gpu_prices (T112, additive): availability_rate_7d (observed in-stock share over the last 7 days of Lantern Scout stock checks, with check counts) and expected_cost_usd = hourly rate / max(share, 0.1), labelled as an estimate; null with fewer than 6 readings. The raw rate is unchanged.
+- Referral links (2026-11-09): DataForSEO, Bolna, Botpress, BuildShip, Exa, Latenode, Relay, SiliconFlow China and Vapi are no longer live listings. Their deal pages say the listing is temporarily unavailable and carry no signup link. SERP-Tool, SendPulse and Waalaxy stay listed and link to the vendor's own page, with no referral. 99Stack Cloud price rows stay, ordered by price, and link to the vendor product page with no referral.
+- GPU model JSON (`/api/v1/gpu/<model>.json`, schema `lantern-works-gpu-model-view/1`): `cheapest` no longer includes a `serverless` bucket, and a bucket key is omitted when every row in it fails the headline rule. `cheapest.monthly` is gone from `a100` (only a 2-GPU minimum remained) and `cheapest.spot-community` is gone from `l40` (only a 2-GPU minimum remained). `reserved` was already omitted. Those rows are still listed under `rows`. Serverless follows `core.serverless.rate_reason`.
 - GPU feed (T69, broader hardware): first-party DigitalOcean rows for AMD MI325X 256GB ($3.80/GPU-hr on-demand) and MI355X 288GB ($4.50/GPU-hr spot, interruptible), quoted from digitalocean.com/pricing/gpu-droplets; model families added for MI325X, MI355X, RTX PRO 5000 (48GB and 72GB kept as separate rows), RTX PRO 4000 and RTX PRO 4500.
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
+
+## 0.6.2 (2026-11-06, PyPI)
+
+- T116: `expected_cost_usd` deprecated to explicit null with a deprecation label; stock frequency stays descriptive only (known/unknown counts, observed window, sample size, stale-window labels) — not a quote, budget verdict or predicted bill. The previous T112 price/share formula is withdrawn; raw vendor prices are unchanged. Source: PR #113 (Gauge content GO at 572575eb).
+- T117: 35 citation URL repairs (23 RunPod, 12 Verda); API request method/operation/record id kept in evidence fields; zero price/quote/identity/timestamp drift. Source: PR #113.
+
+## 0.6.1 (2026-11-06, PyPI + MCP Registry)
+
+- T115/T118: brief GPU comparisons retain the on-demand fallback indicator, interruptible flag and applied constraints. Stdio serverInfo.build carries the release commit. Existing stock/availability feed fields pass through without renames. Source: PR #112 (Gauge-approved f83d3e0).
 
 ## 0.6.0 (2026-11-03, PyPI + MCP Registry)
 

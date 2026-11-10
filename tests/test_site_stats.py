@@ -95,3 +95,16 @@ def test_receipts_funnel_null_with_reason_without_beacon():
     w = S.build({"rows": [{"day": "2026-11-03", "tool": "a", "ref": "x", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc))["weeks"][0]
     f = w["receipts_funnel"]
     assert f["page_views"] is None and f["page_views_null_reason"] and f["visits_by_ref"] is None
+
+
+def test_generated_at_is_the_collection_clock():
+    now = datetime(2026, 11, 9, 12, 0, tzinfo=timezone.utc)
+    rep = S.build({"rows": [{"day": "2026-11-09", "tool": "a", "ref": "x", "n": 1}]}, {}, None, 12, now)
+    assert rep["generated_at"] == "2026-11-09T12:00:00Z"
+    assert "receipts_funnel" in rep["weeks"][0]
+
+
+def test_weekly_workflow_rebases_before_push():
+    text = (Path(__file__).resolve().parents[1] / ".github/workflows/site-stats.yml").read_text(encoding="utf-8")
+    assert "site_stats.py" in text and "git rebase origin/main" in text and "git push origin HEAD:main" in text
+    assert text.index("git rebase origin/main") < text.index("git push origin HEAD:main")

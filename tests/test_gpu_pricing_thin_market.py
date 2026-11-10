@@ -38,7 +38,8 @@ def test_manual_snapshot_fields_in_feed_and_page():
     assert all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in clore)
     assert all(r["price_check"] == ("batch" if r.get("last_read") else "daily") for r in feed["rates"] if r["advertiser"] not in {"Clore.ai", "Microsoft Azure", "Lium", "Amazon Web Services", "Cirrascale"})  # G5; T59 AWS/Cirrascale snapshots
     azure = [r for r in feed["rates"] if r["advertiser"] == "Microsoft Azure"]  # T60: Retail Prices API snapshot
-    assert azure and all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in azure)
+    assert azure or "Microsoft Azure" in {h["vendor"] for h in feed["held_stale"]}
+    assert all(r["price_check"] == "manual snapshot" and r["snapshot_at"] and r["hold_after"] for r in azure)
     t59 = [r for r in feed["rates"] if r["advertiser"] in ("Amazon Web Services", "Cirrascale")]  # T59 manual snapshots
     assert all(r["price_check"] == "manual snapshot" and r["hold_after"] for r in t59)
     sph = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]

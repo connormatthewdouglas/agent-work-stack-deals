@@ -16,12 +16,15 @@ permissions:
   actions: write
 
 concurrency:
-  group: gpu-refresh
+  group: lium-collect
   cancel-in-progress: false
 
 jobs:
   collect:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +62,9 @@ jobs:
             git commit -qm "data: Lium collector $(python3 -c 'import json;print(json.load(open("data/gpu_pricing/lium.json"))["checked_at"])')"
             python3 scripts/gpu_index.py . api/v1 > /dev/null && python3 scripts/generate_seo_pages.py > /dev/null
             if [ -n "$(git status --porcelain)" ]; then git add -A && git commit -qm "data: pin GPU index to the feed commit"; fi
-            if git push origin HEAD:main; then pushed=1; break; fi
+            if sh scripts/rebase_push_main.sh; then pushed=1; break; fi
+            echo "push rejected; resetting to origin/main and re-collecting (attempt $i)"
+            git rebase --abort 2>/dev/null || true
             git fetch -q origin main && git reset -q --hard origin/main
             sleep $((i * 15))
             rc=0; build || rc=$?

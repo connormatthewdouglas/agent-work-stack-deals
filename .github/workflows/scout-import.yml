@@ -8,7 +8,8 @@ name: Scout availability import
 # The importer keeps in_live_feed rows only and refuses a snapshot older than 8 h; a refusal keeps the current data,
 # is logged in the run summary, and the pages and feeds are still rebuilt (expired claims become unknown).
 # Commits only if something changed, then dispatches the gated Pages deploy. deals.json never changes here (gist lockstep).
-# Shares the gpu-refresh concurrency group so it never runs at the same time as the daily price refresh.
+# Own concurrency group so a queued import does not cancel a pending price refresh.
+# Push conflicts are handled by rebasing onto origin/main before push (scripts/rebase_push_main.sh).
 on:
   schedule:
     - cron: "*/10 * * * *"  # backstop (GitHub's shortest is 5 min; runs may be delayed): gated, does work only on a 4-hourly slot, a new snapshot or an expired claim
@@ -25,13 +26,17 @@ permissions:
   issues: write
 
 concurrency:
-  group: gpu-refresh
+  group: scout-import
   cancel-in-progress: false
 
 jobs:
   import:
-    continue-on-error: true  # failures go to the "Pipeline failing: Scout import" issue, not a red run (no per-run email)
+    # A failed import fails the job. The issue comment below still runs (if: failure()).
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      issues: write
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -110,9 +115,11 @@ jobs:
             fi
             # optional wider-GPU price batch (schema 3.2, batch wider-gpu): merged into data/gpu_pricing; refusal keeps current records
             if git show origin/scout-data:latest/wider_gpu_prices_latest.json > "$RUNNER_TEMP/wider.json" 2>/dev/null; then
-              LW_WIDER_GEN="$(git log -1 --format=%s origin/scout-data -- latest/wider_gpu_prices_latest.json | grep -o 'gen [^ ]*' | cut -c5-)" python3 scripts/import_scout_wider.py "$RUNNER_TEMP/wider.json" >> "$S" 2>&1 || { git checkout -q -- data/gpu_pricing; echo "wider-gpu import refused, current records kept" >> "$S"; }
+              LW_WIDER_GEN="$(git log -1 --format=%s origin/scout-data -- latest/wider_gpu_prices_latest.json | grep -o 'gen [^ ]*' | cut -c5- || true)" python3 scripts/import_scout_wider.py "$RUNNER_TEMP/wider.json" 2>&1 | tee -a "$S" || { git checkout -q -- data/gpu_pricing; echo "wider-gpu import refused, current records kept" | tee -a "$S"; }
               python3 scripts/sync_today_snapshot.py >> "$S" 2>&1 || return 3  # T73: changes feed must match imported prices
             fi
+            # T117 import boundary: canonical citations + separate API request evidence; refuses unknown malformed URLs.
+            python3 scripts/normalize_gpu_sources.py 2>&1 | tee -a "$S" || return 3
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
             python3 scripts/gpu_index.py . api/v1 > /dev/null || return 3
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
@@ -123,6 +130,8 @@ jobs:
             python3 -m pytest -q tests || return 3
           }
           rc=0; run_import || rc=$?
+          echo "run_import rc=$rc"
+          if [ "$rc" != 0 ] && [ -f "$RUNNER_TEMP/import.log" ]; then echo "---- import.log ----"; tail -n 40 "$RUNNER_TEMP/import.log" || true; fi
           [ "$rc" = 0 ] || { [ "$rc" = 1 ] && exit 0; exit 1; }
           for i in 1 2 3 4; do
             git add -A
@@ -130,8 +139,9 @@ jobs:
             # the index pins the commit that last changed gpu-prices.json, which only exists now: second pass, own commit
             python3 scripts/gpu_index.py . api/v1 > /dev/null && python3 scripts/generate_seo_pages.py > /dev/null
             if [ -n "$(git status --porcelain)" ]; then git add -A && git commit -qm "data: pin GPU index to the feed commit"; fi
-            if git push origin HEAD:main; then pushed=1; break; fi
+            if sh scripts/rebase_push_main.sh; then pushed=1; break; fi
             echo "push rejected; resetting to origin/main and rebuilding (attempt $i)"
+            git rebase --abort 2>/dev/null || true
             git fetch -q origin main && git reset -q --hard origin/main
             sleep $((i * 15))
             rc=0; run_import || rc=$?

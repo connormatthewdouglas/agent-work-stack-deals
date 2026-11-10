@@ -13,25 +13,48 @@ def _rec(vendor, gpu, tier=None):
                 if r["gpu"] == gpu and (tier is None or r["tier"] == tier))
 
 
+def _multi_gpu_doc():
+    """Fixed multi-GPU server fixture (not a live vendor row): 2x A100 + RTX 4090 monthly servers, stamped fresh."""
+    from datetime import datetime, timezone
+    doc = json.loads((Path(__file__).resolve().parent / "fixtures" / "multi_gpu_server_vendor.json").read_text())
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    doc["checked_at"] = now
+    for r in doc["records"]:
+        r["checked_at"] = r["verified_at"] = r["evidence"]["checked_at"] = now
+    return doc
+
+
+def _fixture_docs():
+    return [d for d in load_vendor_files() if d["vendor"] != "Ucartz"] + [_multi_gpu_doc()]
+
+
+def _fx(gpu):
+    return next(r for r in _multi_gpu_doc()["records"] if r["gpu"] == gpu)
+
+
 def test_all_specs_verified_against_feed():
+    from core.gpu import _price_too_old
     r = build_rates(FEED)
-    live = [d for d in load_vendor_files() if not d.get("stale")]
-    assert r["problems"] == [] and len(r["rates"]) == sum(1 for d in live for x in d["records"] if not x.get("stale") and not x.get("no_capacity"))
+    from core.owner_hold import is_held
+    live = [d for d in load_vendor_files() if not d.get("stale") and not is_held(d.get("vendor"))]
+    publishable = sum(1 for d in live for x in d["records"]
+                      if not x.get("stale") and not x.get("no_capacity") and not _price_too_old(x, d))
+    assert r["problems"] == [] and len(r["rates"]) == publishable
 
 
 def test_estimate_hourly_vs_flat_and_rank():
-    rates = build_rates(FEED)["rates"]
+    rates = build_rates(FEED, _fixture_docs())["rates"]
     e = estimate(rates, 100, gpu_filter="A100")
     key = [(x["tier_class"] == "reserved", x["monthly_cost_usd"]) for x in e]
     assert key == sorted(key) and e[0]["tier_class"] != "reserved"  # reservations never rank first
     th = next(x for x in e if x["deal_id"] == "deal-thundercompute-001")
     assert th["monthly_cost_usd"] == round(_rec("Thunder Compute", "A100")["hourly_usd"] * 100, 2)
     uc = next(x for x in e if x["deal_id"] == "deal-ucartz-001")
-    a100 = _rec("Ucartz", "A100")
+    a100 = _fx("A100")
     # T35: whole servers only. 1 GPU on a 2x A100 monthly server bills the full server (2 GPUs), not half of it.
     assert uc["monthly_cost_usd"] == round(round(a100["price_usd"] / 2, 2) * 2, 2) and uc["gpu_count"] == 2
     e4090 = estimate(rates, 1000, gpu_filter="4090")
-    assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(_rec("Ucartz", "RTX 4090")["price_usd"] * 2, 2)
+    assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(_fx("RTX 4090")["price_usd"] * 2, 2)
     assert [x["monthly_cost_usd"] for x in e4090] == sorted(x["monthly_cost_usd"] for x in e4090)
 
 
@@ -127,10 +150,12 @@ def pinned_build_clock(monkeypatch):
 
 def test_published_api_matches_records(pinned_build_clock):
     api = pinned_build_clock
-    assert api["rates"] == build_rates(FEED)["rates"]
-    assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale")}
-    held = {d["vendor"] for d in load_vendor_files() if d.get("stale") or any(r.get("stale") or r.get("no_capacity") for r in d["records"])}
-    assert {h["vendor"] for h in api["held_stale"]} == held
+    built = build_rates(FEED)
+    assert api["rates"] == built["rates"]
+    from core.owner_hold import is_held
+    assert {v["vendor"] for v in api["vendors"]} == {d["vendor"] for d in load_vendor_files() if not d.get("stale") and not is_held(d.get("vendor"))}
+    # Age holds (past STALE_DAYS / the 48h batch window) are part of held_stale even when the source row has no stale flag.
+    assert {h["vendor"] for h in api["held_stale"]} == {h["vendor"] for h in built["held_stale"]}
 
 
 def test_gpu_pages_carry_accuracy_notes_and_tracked_wording():
@@ -156,7 +181,10 @@ def test_every_record_has_live_evidence():
         for r in doc["records"]:
             ev = r["evidence"]
             n -= r.get("batch") == "wider-gpu" or doc["vendor"] == "Lium"  # Lium (T62 collector) rows vary per capture  # Scout wider-GPU batch (scripts/import_scout_wider.py) is counted separately
-            assert set(ev) in ({"source_url", "quote", "checked_at"}, {"source_url", "quote", "checked_at", "interruption_quote", "interruption_source_url", "interruption_checked_at"}), r["gpu"]
+            required = {"source_url", "quote", "checked_at"}
+            optional = {"interruption_quote", "interruption_source_url", "interruption_checked_at",
+                        "request_method", "operation", "record_id"}
+            assert required <= set(ev) <= required | optional, r["gpu"]
             assert ev["source_url"].startswith("https://") and 0 < len(ev["quote"]) <= 200
             assert ev["checked_at"] == (r.get("verified_at") or r["checked_at"])  # evidence = last parsed price
             from datetime import datetime
@@ -169,7 +197,7 @@ def test_every_record_has_live_evidence():
 
 def test_multi_gpu_server_is_per_gpu():
     from core.gpu import record_problems
-    uc = next(d for d in load_vendor_files() if d["vendor"] == "Ucartz")
+    uc = _multi_gpu_doc()
     a100 = next(r for r in uc["records"] if r["gpu"] == "A100")
     p = a100["price_usd"]
     assert (a100["gpu_count"], a100["hourly_usd"], a100["server_hourly_usd"]) == (2, round(p / 730 / 2, 4), round(p / 730, 4))
@@ -179,7 +207,7 @@ def test_multi_gpu_server_is_per_gpu():
     assert any("server_hourly_usd" in p for p in record_problems(bad))
     bad = {**uc, "records": [{k: v for k, v in a100.items() if k != "evidence"}]}
     assert any("evidence" in p for p in record_problems(bad))
-    rate = next(r for r in build_rates(FEED)["rates"] if r["deal_id"] == "deal-ucartz-001" and r["gpu"] == "A100")
+    rate = next(r for r in build_rates(FEED, _fixture_docs())["rates"] if r["deal_id"] == "deal-ucartz-001" and r["gpu"] == "A100")
     assert (rate["hourly_equiv_usd"], rate["price_usd"], rate["server_price_usd"]) == (a100["hourly_usd"], round(p / 2, 2), p)
 
 
@@ -187,11 +215,14 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
     from core.deals import compare_gpu_prices
     from core.stack import _gpu_options
     data = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
-    res = compare_gpu_prices(data, "A100", limit=25)["results"]
+    data = {**data, "rates": build_rates(FEED, _fixture_docs())["rates"]}
+    res = compare_gpu_prices(data, "A100", limit=25, gpus=2)["results"]  # Bjorn 1109: Ucartz sells 2-GPU servers; ranks for gpus >= 2
     uc = next(r for r in res if r["advertiser"] == "Ucartz")
-    a100 = _rec("Ucartz", "A100")
+    a100 = _fx("A100")
     assert uc["hourly_usd"] == a100["hourly_usd"] and uc["gpu_count"] == 2 and uc["server_hourly_usd"] == a100["server_hourly_usd"]
-    assert [(r["in_stock"] is False, r["hourly_usd"]) for r in res] == sorted((r["in_stock"] is False, r["hourly_usd"]) for r in res)  # E5: out-of-stock last
+    k = [(r["in_stock"] is False, r["hourly_usd"]) for r in res]
+    assert k == sorted(k)  # E5: out-of-stock last
+    assert all(r["advertiser"] != "Ucartz" for r in compare_gpu_prices(data, "A100", limit=25)["results"])  # 1 GPU: excluded
     opts = _gpu_options(data, 730, "A100", set())
     o = next(x for x in opts if x["vendor"] == "Ucartz")
     # T35: whole servers only. The optimizer bills the full 2x A100 server for 1 GPU.
@@ -210,7 +241,8 @@ def test_new_vendor_flags():
     assert len(td) == 1 and td[0]["page_last_updated"] == "2024-07-24"
     assert not any(r["advertiser"] == "TensorDock" for r in rates)
     for g in ("RTX 4090", "A100", "H100", "V100"):
-        assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25)["results"])
+        # gpus=1024: every allocation size ranks (Bjorn 1109 excludes min_gpus > gpus), so no TensorDock row can hide
+        assert all(r["advertiser"] != "TensorDock" for r in compare_gpu_prices(api, g, limit=25, gpus=1024)["results"])
     assert all(o["vendor"] != "TensorDock" for o in _gpu_options(api, 100, None, set()))
     for page in ("gpu/price-comparison/index.html", "gpu/cheapest-rtx-4090-rental/index.html"):
         f = root / page
@@ -331,7 +363,13 @@ def test_t71_multi_gpu_rows_label_whole_instance_totals():
             assert "whole " in cells["100 h/month"] and "-GPU instance" in cells["100 h/month"], r
         assert "whole " in cells["Full month"] and "-GPU instance" in cells["Full month"], r
     lam = [r for r in rows if "Lambda" in r and "A100 SXM" in r]
-    assert lam and "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]
+    if lam:
+        assert "$2,232.00" in lam[0] and "8 GPUs × $2.79/hr × 100 h" in lam[0] and "$16,293.60" in lam[0]
+    else:  # vendor rate changed: an unsupported 8x evidence total must be held, never ranked
+        feed = json.loads((root / "api/v1/gpu-prices.json").read_text())
+        assert any(h["vendor"] == "Lambda" and h.get("scope") == "record" and
+                   any(r["gpu"] == "A100 SXM" and "8x" in r["tier"] for r in h["records"])
+                   for h in feed["held_stale"])
 
 
 def test_t75_canonical_model_and_form_factor_on_every_rate():
@@ -409,10 +447,17 @@ def test_t77_calculator_models_all_in_comparison_summary_with_interruptible_labe
     names = {_re.sub(r"<[^>]+>|\(few verified offers\)", "", _re.findall(r"<td>(.*?)</td>", tr, _re.S)[0]).strip() for tr in rows}
     for r in rates:  # every GPU the calculator can price (it embeds the full feed) has a summary row
         assert (FAMILIES.get(family_of(r["gpu"])) or r["gpu"]) in names, r["gpu"]
+    # The summary names the family or the full GPU. A model with no ranked rate (owner-held only) has no row.
     for m in ("B200", "B300", "GB300"):
-        tr = next(tr for tr in rows if _re.search(rf">{m}(<| <em)", tr))
-        if "Spot" in tr:
-            assert "interruptible" in tr, tr
+        found = [tr for tr in rows if _re.search(rf"\b{m}\b", _re.sub(r"<[^>]+>", " ", tr))]
+        ranked = [r for r in rates if m in r["gpu"].split() or r["gpu"].startswith(m)]
+        if not ranked:
+            assert not found, m
+            continue
+        assert found, m
+        for tr in found:
+            if "Spot" in tr:
+                assert "interruptible" in tr, tr
 
 
 def test_availability_coverage_on_gpu_hub():
@@ -459,12 +504,17 @@ def test_t75_compare_rows_carry_canonical_model_and_form_factor_and_vendor_id_fo
     assert form_factor_of("B300", None, "", "NVIDIA B300 SXM6 AC") == "SXM6"
     assert {"canonical_model", "form_factor"} <= set(SPEC["compare_gpu_prices"][4])  # brief keeps them too
     feed = json.loads((Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json").read_text())
-    out = core.compare_gpu_prices(feed, "B300", 25)
-    assert out["results"]
+    # #130 (Bjorn 1109): rows rank only when min_gpus <= gpus. B300 is sold as 8-GPU nodes (Lium) as well as single GPUs
+    # (RunPod), so ask for 8: every fresh B300 row ranks and each one is checked for canonical_model/form_factor.
+    out = core.compare_gpu_prices(feed, "B300", 25, gpus=8)
+    assert out["results"] and out["min_gpus_unmet"] == 0
     for x in out["results"]:
         assert x["canonical_model"] == "B300" and x["form_factor"], x
+    # RunPod B300 is SXM6 when it is ranked. A held or unreadable row is not in the feed and must not be required here.
     rp = [x for x in out["results"] if x["advertiser"] == "RunPod"]
-    assert rp and all(x["form_factor"] == "SXM6" for x in rp)
+    in_feed = [r for r in feed["rates"] if r.get("advertiser") == "RunPod" and r.get("canonical_model") == "B300"]
+    assert len(rp) == len(in_feed)
+    assert all(x["form_factor"] == "SXM6" for x in rp)
 
 
 def test_coverage_shows_headline_and_all_rows_share():

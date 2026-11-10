@@ -23,7 +23,7 @@ def usd(x) -> str:
     t = f"{float(x):.4f}".rstrip("0")
     return "$" + (t + "0" * (2 - len(t.split(".")[1])))
 
-VERSION = "0.6.0"  # package version (pyproject + server.json must match; tests enforce)
+VERSION = "0.6.2"  # package version (pyproject + server.json must match; tests enforce)
 # Non-identifying: product/version only, no host, user, or install id.
 USER_AGENT = f"lantern-works-deals-mcp/{VERSION} (pypi-client)"  # T51: distinct UA for the installed client's own fetches
 FEED_URL = "https://thelanternworks.com/api/v1/deals.json"
@@ -79,9 +79,10 @@ CACHE_TTL_S = 300
 
 
 class DealError(Exception):
-    def __init__(self, code: str, message: str):
+    def __init__(self, code: str, message: str, reason: str | None = None):
         super().__init__(message)
         self.code, self.message = code, message
+        self.reason = reason  # machine-readable cause for callers (e.g. "min_gpus": every row needs more GPUs)
 
     def to_dict(self) -> dict:
         return {"error": {"code": self.code, "message": self.message}}
@@ -423,7 +424,11 @@ NVLINK_FORM_NOTE = ("Rows named 'NVLink' (e.g. Hyperstack 'H100 NVLink', 'A100 N
                     "GPU-to-GPU bridge, and the vendor page does not say SXM or PCIe. A row maps to SXM only where the vendor says SXM or HGX.")
 
 
-def cheapest_by_form_factor(rows: list[dict]) -> list[dict]:
+COMPARE_NO_GPU_COUNT = ("No GPU count given; treated as 1 GPU. Rows sold only as multi-GPU allocations (min_gpus > 1) "
+                        "are not ranked; they are listed in excluded_min_gpus with the reason.")
+
+
+def cheapest_by_form_factor(rows: list[dict], gpus: int | None = 1) -> list[dict]:
     """gpu_poor #18, one rule for pages and MCP: per form_factor, the cheapest non-reserved row, preferring rows not marked
     out of stock (in stock or unknown); an out-of-stock row is named only when nothing else exists for that form. Each entry
     says whether the pick is interruptible (spot/community) so it is never read as on-demand. Empty when only one form."""
@@ -433,6 +438,12 @@ def cheapest_by_form_factor(rows: list[dict]) -> list[dict]:
     for r in rows:
         if tier_class(r) == "reserved" or r.get("hourly_equiv_usd") is None:
             continue
+        from .gpu import min_gpus_unmet
+        from .serverless import rate_reason
+        if min_gpus_unmet(r, gpus):
+            continue  # Bjorn 1109: an allocation larger than the request is never a form-factor pick
+        if rate_reason(r):
+            continue  # same serverless/per-second hold as compare (#102/#125), also for callers passing unfiltered rows
         k = (out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or "")
         f = form_of(r)
         if f not in byf or k < byf[f][0]:
@@ -475,7 +486,10 @@ def oos_note(r: dict) -> str:
 RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", "unit", "tier", "billing",
                "basis", "source_url", "verified_at", "offer_type", "affiliate", "redeem_url", "deal_id",
                "gpu_count", "server_price_usd", "server_hourly_usd", "evidence", "min_gpus", "price_status",
-               "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability", "region")
+               "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability", "region",
+               # T112/T113 (additive pass-through of existing feed fields; T118 found them dropped here)
+               "availability_rate_7d", "expected_cost_usd", "expected_cost_label", "availability_status",
+               "availability_reason", "availability_reason_detail")
 
 
 def _tokens(s: str) -> list[str]:
@@ -519,7 +533,8 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
 
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
                        on_demand_only: bool = False, include_reserved: bool = False,
-                       max_data_age_hours: float | None = None, now: datetime | None = None, region: str | None = None) -> dict:
+                       max_data_age_hours: float | None = None, now: datetime | None = None, region: str | None = None,
+                       usable_filter=None, gpus: int | None = None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     from .ids import rate_id
@@ -530,11 +545,27 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         raise DealError("invalid_argument", "gpu is required, e.g. 'H100', 'A100 SXM', 'A100 80GB', 'RTX 4090'")
     if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIMIT:
         raise DealError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
+    if gpus is not None and (not isinstance(gpus, int) or isinstance(gpus, bool) or not 1 <= gpus <= 1024):
+        raise DealError("invalid_argument", "gpus must be an integer 1-1024")
+    from .gpu import min_gpus_unmet
+    assumptions = [] if gpus is not None else [COMPARE_NO_GPU_COUNT]
+    n_gpus = gpus or 1
     rows = [r for r in data.get("rates") or []
             if isinstance(r, dict) and isinstance(r.get("hourly_equiv_usd"), (int, float))
             and set(q) <= set(_tokens(r.get("gpu", "")))
             and (want_vram is None or r.get("vram_gb") == want_vram)]
+    from .owner_hold import is_held
+    held_owner = [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"),
+                   "source_url": r.get("source_url"), "checked_at": r.get("verified_at") or r.get("checked_at"),
+                   "reason": "owner_hold"} for r in rows if is_held(r.get("advertiser"))]
+    rows = [r for r in rows if not is_held(r.get("advertiser"))]
     if not rows:
+        if held_owner:
+            return {"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
+                    "summary": (f"No current price for '{gpu}': {len(held_owner)} tracked rate(s) are temporarily held "
+                                "(owner_hold) and are not ranked."),
+                    "held_owner": held_owner, "data_source": GPU_PRICES_URL,
+                    "feed_updated_at": data.get("feed_updated_at"), "scope": "cheapest among tracked providers"}
         raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
     from . import data_age
     try:
@@ -568,10 +599,23 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     "current_max_age_hours": data_age.CURRENT_MAX_HOURS,
                     "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at"),
                     "scope": "cheapest among tracked providers"}
+    # T63 (Gauge/Bjorn 1108): serverless / per-second prices are held in EVERY pricing mode (never ranked as an hourly
+    # rate); they stay visible in held_serverless with the reason.
+    from . import serverless as _sl
+    held_serverless = [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"), "billing_unit": r.get("billing_unit"),
+                        "price_per_second_usd": r.get("price_per_second_usd"), "source_url": r.get("source_url"),
+                        "checked_at": r.get("verified_at") or r.get("checked_at"), "reason": _sl.rate_reason(r), "_row": r}
+                       for r in rows if _sl.rate_reason(r)]
+    if held_serverless:
+        rows = [r for r in rows if not _sl.rate_reason(r)]
+        if not rows:
+            raise DealError("not_found", f"Only serverless/per-second prices are tracked for GPU '{gpu}' ({len(held_serverless)}); "
+                                         "they are held, never ranked as a dedicated hourly rate")
     excluded = 0
     if on_demand_only:
         keep = [r for r in rows if tier_class(r) == "on-demand"]
-        excluded = len(rows) - len(keep)
+        # held serverless rows that are not on-demand still count here (same count as before the T63 hold)
+        excluded = len(rows) - len(keep) + sum(1 for h in held_serverless if tier_class(h["_row"]) != "on-demand")
         if not keep:
             raise DealError("not_found", f"No on-demand tracked price for GPU '{gpu}' ({excluded} spot/community/marketplace/monthly rates exist; retry without on_demand_only)")
         rows = keep
@@ -598,6 +642,42 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         if not keep:
             raise DealError("not_found", f"No tracked '{gpu}' rate publishes region {cons['region']} ({excluded_region} rates publish other regions)")
         rows = keep
+    # Bjorn 1109: a row ranks only when min_gpus <= the requested GPU count (1 when none given). Rows sold only as
+    # larger allocations are NOT ranked; they are listed in excluded_min_gpus with the reason (never dropped silently).
+    excluded_min = [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"), "min_gpus": r.get("min_gpus"),
+                     "gpu_count": r.get("gpu_count"), "hourly_usd": r.get("hourly_equiv_usd"), "rate_id": rate_id(r),
+                     "source_url": r.get("source_url"), "checked_at": r.get("verified_at") or r.get("checked_at"),
+                     "reason": f"sold only as {r.get('min_gpus')}-GPU allocations; {n_gpus} GPU(s) requested"}
+                    for r in rows if min_gpus_unmet(r, n_gpus)]
+    excluded_min.sort(key=lambda x: (x["min_gpus"] or 1, x["hourly_usd"], x["vendor"] or ""))
+    if excluded_min:
+        rows = [r for r in rows if not min_gpus_unmet(r, n_gpus)]
+        if not rows:
+            raise DealError("not_found", f"No tracked '{gpu}' rate sells a {n_gpus}-GPU allocation: all {len(excluded_min)} "
+                                         "matching rates need more GPUs (" + "; ".join(
+                                             f"{x['vendor']} {x['gpu']} min {x['min_gpus']}" for x in excluded_min[:8])
+                                         + (" ..." if len(excluded_min) > 8 else "") + "). Pass gpus >= "
+                                         f"{min(x['min_gpus'] for x in excluded_min)} to rank them.", reason="min_gpus")
+    # T61: optional usable-memory filter (callable(rows) -> core.gpu_identity.filter_usable result). It runs on every
+    # remaining row BEFORE sort/limit, so count, total, the summary and cheapest_by_form_factor describe filtered rows.
+    ufilter = None
+    if usable_filter is not None:
+        f = usable_filter(rows)
+        ufilter = {"matched": len(f["matched"]), "below": len(f["below"]), "unknown": len(f["unknown"]), "note": f.get("note")}
+        if f.get("identity_unavailable"):
+            ufilter["identity_unavailable"] = True
+        rows = f["matched"]
+        if not rows:
+            return {"gpu": gpu, "summary": (f"No tracked '{gpu}' rate has a sourced usable memory meeting the filter "
+                                            f"({ufilter['unknown']} unknown, {ufilter['below']} below). Nominal memory is not used as usable memory."),
+                    "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
+                    "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
+                    "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old, "excluded_stale": len(stale_rows),
+                    "region": cons.get("region"), "excluded_other_region": excluded_region,
+                    "scope": "cheapest among tracked providers", "total": 0, "count": 0, "results": [],
+                    "usable_memory_filter": ufilter, "excluded_serverless": len(held_serverless),
+                    "held_serverless": [{k: v for k, v in h.items() if k != "_row"} for h in held_serverless],
+                    "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at")}
     unresolved = lambda r: any(u["constraint"] == "region" for u in elig[id(r)]["unknown"])
     # Reserved rows (only with include_reserved) sort after pay-as-you-go rows: never reported as "cheapest".
     # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
@@ -655,7 +735,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
     from .gpu import split_by_form
     if split_by_form(gpu):  # gpu_poor #18 (additive): cheapest per form factor, same rule as the pages
-        cbf = cheapest_by_form_factor(rows)
+        cbf = cheapest_by_form_factor(rows, n_gpus)
         if cbf:
             extra["cheapest_by_form_factor"] = cbf
             extra["cheapest_by_form_factor_note"] = ("Cheapest non-reserved per form; in-stock/unknown before out-of-stock. "
@@ -668,23 +748,31 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                        f"(unresolved, not eligible); {excluded_region} only other regions."
                        + (" Zero confirmed is not zero supply: most providers do not publish regions; check unresolved rows on the vendor page."
                           if n_ok == 0 and n_un else "") + " ")
+    # Gauge #130 nit: a marketplace row may lack lowest_offer_usd (or carry a non-number); never format a missing value.
+    lo = c.get("lowest_offer_usd")
+    lo_ok = isinstance(lo, (int, float)) and not isinstance(lo, bool)
+    mkt_note = ((f"; variable marketplace median, lowest offer ${lo:g}/hr" if lo_ok else "; variable marketplace median")
+                if c.get("price_status") == "marketplace" else "")
     return {
         "gpu": gpu,
         "summary": region_note + (f"Cheapest{' regardless of region' if region_note and not elig[id(rows[0])]['eligible'] else ''}{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
                     + (f" {c['vram_gb']}GB" if c.get("vram_gb") and f"{c['vram_gb']}GB" not in (c.get("gpu") or "") else "")
                     + f" at ${c['hourly_usd']:g}/hr ({c['tier']}" + (", interruptible" if c.get("interruptible") else "")
                     + f", {stock_phrase(c.get('availability'))}; price checked {(c['checked_at'] or '')[:10]})"
-                    + (f"; variable marketplace median, lowest offer ${c['lowest_offer_usd']:g}/hr"
-                       if c.get("price_status") == "marketplace" else "")
+                    + mkt_note
                     + (f"; sold only as {c['min_gpus']}-GPU instances" if (c.get("min_gpus") or 1) > 1 else "")
                     + f". Tier: {results[0]['tier_class']}."
                     + ("" if results[0]["tier_class"] == "on-demand" or od is None else
                        f" Cheapest on-demand: {od_who} {od['gpu']} at ${od['hourly_equiv_usd']:g}/hr ({od['tier']}).")
                     + oos_msg
                     + (f" {len(stale_rows)} rate(s) with a price older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale_rows else "")
+                    + (f" {len(excluded_min)} rate(s) sold only as allocations larger than {n_gpus} GPU(s) are not ranked (see excluded_min_gpus)." if excluded_min else "")
                     + ". This is the cheapest among tracked providers only, not the whole market. "
                     "Vendors with stale published prices are held out." + vram_note).replace("). .", ").").replace(".. ", ". "),
+        "gpus": n_gpus, "assumptions": assumptions, "min_gpus_unmet": len(excluded_min), "excluded_min_gpus": excluded_min,
         "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
+        "excluded_serverless": len(held_serverless), "held_serverless": [{k: v for k, v in h.items() if k != "_row"} for h in held_serverless],
+        "held_owner": held_owner,
         "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
         "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old,
         "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,
@@ -707,6 +795,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         "note": "Each result's source_url is the vendor page the price was checked on (checked_at). "
                 "Excludes storage, egress and taxes; confirm on the vendor page before spending.",
         **extra,
+        **({"usable_memory_filter": ufilter} if ufilter is not None else {}),
     }
 
 

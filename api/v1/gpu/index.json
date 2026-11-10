@@ -7,17 +7,17 @@
     "code": "MIT",
     "details": "https://thelanternworks.com/methodology/#license"
   },
-  "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json; reserved rows excluded from cheapest.",
-  "generation_id": "20261104T153457Z-1efdef17",
-  "feed_updated_at": "2026-11-05T02:46:23Z",
+  "description": "Per-model GPU price views (small JSON). Same data as gpu-prices.json. cheapest omits reserved and serverless buckets, and omits a bucket when no headline-eligible row remains (min_gpus above 1). Those rows stay under rows.",
+  "generation_id": "20261110T105811Z-ded08751",
+  "feed_updated_at": "2026-11-10T10:58:11Z",
   "models": [
     {
       "model": "H100",
       "slug": "h100",
       "url": "https://thelanternworks.com/api/v1/gpu/h100.json",
-      "row_count": 29,
-      "providers": 16,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "row_count": 27,
+      "providers": 15,
+      "last_checked": "2026-11-10T06:18:37+00:00"
     },
     {
       "model": "H200",
@@ -25,15 +25,15 @@
       "url": "https://thelanternworks.com/api/v1/gpu/h200.json",
       "row_count": 11,
       "providers": 8,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T06:18:37+00:00"
     },
     {
       "model": "A100",
       "slug": "a100",
       "url": "https://thelanternworks.com/api/v1/gpu/a100.json",
-      "row_count": 29,
-      "providers": 14,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "row_count": 26,
+      "providers": 12,
+      "last_checked": "2026-11-10T06:18:37+00:00"
     },
     {
       "model": "L40S",
@@ -41,7 +41,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/l40s.json",
       "row_count": 16,
       "providers": 11,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T06:18:37+00:00"
     },
     {
       "model": "RTX 4090",
@@ -49,7 +49,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-4090.json",
       "row_count": 11,
       "providers": 9,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T10:58:04Z"
     },
     {
       "model": "RTX 5090",
@@ -57,7 +57,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-5090.json",
       "row_count": 10,
       "providers": 6,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T06:18:22+00:00"
     },
     {
       "model": "L40",
@@ -65,7 +65,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/l40.json",
       "row_count": 3,
       "providers": 3,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T06:18:16+00:00"
     },
     {
       "model": "RTX A6000",
@@ -73,7 +73,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-a6000.json",
       "row_count": 8,
       "providers": 5,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T06:18:37+00:00"
     },
     {
       "model": "RTX 3090",
@@ -81,23 +81,23 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-3090.json",
       "row_count": 4,
       "providers": 2,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T06:17:51+00:00"
     },
     {
       "model": "RTX A5000",
       "slug": "rtx-a5000",
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-a5000.json",
-      "row_count": 2,
-      "providers": 2,
-      "last_checked": "2026-11-05T01:37:17+00:00"
+      "row_count": 1,
+      "providers": 1,
+      "last_checked": "2026-11-10T06:17:51+00:00"
     },
     {
       "model": "B200",
       "slug": "b200",
       "url": "https://thelanternworks.com/api/v1/gpu/b200.json",
-      "row_count": 7,
+      "row_count": 6,
       "providers": 4,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T10:58:11Z"
     },
     {
       "model": "GH200",
@@ -105,15 +105,15 @@
       "url": "https://thelanternworks.com/api/v1/gpu/gh200.json",
       "row_count": 2,
       "providers": 2,
-      "last_checked": "2026-11-05T01:34:50+00:00"
+      "last_checked": "2026-11-10T06:17:01+00:00"
     },
     {
       "model": "MI300X",
       "slug": "mi300x",
       "url": "https://thelanternworks.com/api/v1/gpu/mi300x.json",
-      "row_count": 4,
-      "providers": 4,
-      "last_checked": "2026-11-05T01:34:29+00:00"
+      "row_count": 3,
+      "providers": 3,
+      "last_checked": "2026-11-10T10:58:02Z"
     },
     {
       "model": "MI250",
@@ -121,7 +121,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/mi250.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-04T16:11:55+00:00"
+      "last_checked": "2026-11-09T04:33:11+00:00"
     },
     {
       "model": "L4",
@@ -129,7 +129,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/l4.json",
       "row_count": 2,
       "providers": 2,
-      "last_checked": "2026-11-05T01:34:38+00:00"
+      "last_checked": "2026-11-10T10:58:02Z"
     },
     {
       "model": "A10",
@@ -137,7 +137,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/a10.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-05T01:34:50+00:00"
+      "last_checked": "2026-11-10T06:17:01+00:00"
     },
     {
       "model": "A10G",
@@ -153,7 +153,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/a40.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-04T15:34:53Z"
+      "last_checked": "2026-11-10T10:58:02Z"
     },
     {
       "model": "RTX 6000 Ada",
@@ -161,7 +161,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-6000-ada.json",
       "row_count": 6,
       "providers": 4,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T10:58:11Z"
     },
     {
       "model": "T4",
@@ -169,7 +169,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/t4.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-05T01:34:20+00:00"
+      "last_checked": "2026-11-10T06:16:31+00:00"
     },
     {
       "model": "V100",
@@ -177,7 +177,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/v100.json",
       "row_count": 5,
       "providers": 3,
-      "last_checked": "2026-11-05T01:34:50+00:00"
+      "last_checked": "2026-11-10T10:58:11Z"
     },
     {
       "model": "B300",
@@ -185,31 +185,31 @@
       "url": "https://thelanternworks.com/api/v1/gpu/b300.json",
       "row_count": 5,
       "providers": 3,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "last_checked": "2026-11-10T10:58:11Z"
     },
     {
       "model": "RTX PRO 6000",
       "slug": "rtx-pro-6000",
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-pro-6000.json",
-      "row_count": 10,
-      "providers": 4,
-      "last_checked": "2026-11-05T02:46:23+00:00"
+      "row_count": 9,
+      "providers": 3,
+      "last_checked": "2026-11-10T10:58:11Z"
     },
     {
       "model": "RTX A4000",
       "slug": "rtx-a4000",
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-a4000.json",
-      "row_count": 4,
-      "providers": 3,
-      "last_checked": "2026-11-05T01:34:32+00:00"
+      "row_count": 3,
+      "providers": 2,
+      "last_checked": "2026-11-10T10:58:02Z"
     },
     {
       "model": "H100 NVL",
       "slug": "h100-nvl",
       "url": "https://thelanternworks.com/api/v1/gpu/h100-nvl.json",
-      "row_count": 3,
-      "providers": 2,
-      "last_checked": "2026-11-05T01:35:40+00:00"
+      "row_count": 2,
+      "providers": 1,
+      "last_checked": "2026-11-10T06:17:51+00:00"
     },
     {
       "model": "GB300",
@@ -217,7 +217,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/gb300.json",
       "row_count": 2,
       "providers": 1,
-      "last_checked": "2026-11-04T15:34:57Z"
+      "last_checked": "2026-11-10T10:58:11Z"
     },
     {
       "model": "Quadro RTX 6000",
@@ -225,7 +225,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/quadro-rtx-6000.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-05T01:34:50+00:00"
+      "last_checked": "2026-11-10T06:17:01+00:00"
     },
     {
       "model": "MI325X",
@@ -233,7 +233,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/mi325x.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-05T01:34:14+00:00"
+      "last_checked": "2026-11-10T06:16:25+00:00"
     },
     {
       "model": "MI355X",
@@ -241,7 +241,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/mi355x.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-05T01:34:14+00:00"
+      "last_checked": "2026-11-10T06:16:25+00:00"
     },
     {
       "model": "RTX PRO 5000",
@@ -249,7 +249,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-pro-5000.json",
       "row_count": 2,
       "providers": 1,
-      "last_checked": "2026-11-04T15:34:53Z"
+      "last_checked": "2026-11-10T10:58:02Z"
     },
     {
       "model": "RTX PRO 4000",
@@ -257,7 +257,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-pro-4000.json",
       "row_count": 1,
       "providers": 1,
-      "last_checked": "2026-11-04T15:34:53Z"
+      "last_checked": "2026-11-10T10:58:02Z"
     },
     {
       "model": "RTX PRO 4500",
@@ -265,7 +265,7 @@
       "url": "https://thelanternworks.com/api/v1/gpu/rtx-pro-4500.json",
       "row_count": 2,
       "providers": 1,
-      "last_checked": "2026-11-04T15:34:53Z"
+      "last_checked": "2026-11-10T10:58:02Z"
     }
   ]
 }

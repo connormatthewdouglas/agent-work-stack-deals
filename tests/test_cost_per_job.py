@@ -92,3 +92,12 @@ def test_mcp_tool_contract(monkeypatch):
     import jsonschema
     jsonschema.validate(ok, contract.output_schema("estimate_job_cost"))
     jsonschema.validate(err, contract.output_schema("estimate_job_cost"))
+
+
+def test_all_stale_rows_give_typed_empty_result_not_crash():
+    """Nov 4 regression: when every matching row is older than 168 h the tool returns no results with a summary
+    and stale_prices, never an exception (the IndexError seen when fixtures aged out)."""
+    later = datetime.now(timezone.utc) + timedelta(days=8)
+    out = estimate_job_cost(CW, "H100", 9, job_hours=10, now=later)
+    assert out["results"] == [] and out["ok_current"] is False and out["excluded_stale"] == 1
+    assert "stale" in out["summary"] and out["stale_prices"]

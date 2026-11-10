@@ -151,8 +151,13 @@ def test_interruptible_flag_matches_tier_and_reserved_never_on_demand():
 
 def test_ucartz_a100_min_gpus_and_history_aliases():
     p = _payload()
-    a = [r for r in p["rates"] if r["advertiser"] == "Ucartz" and r["gpu"] == "A100"]
-    assert a and all(r["min_gpus"] == 2 and r["gpu_count"] == 2 for r in a)
+    # Ucartz withdrew its 2 x A100 plan (2026-11-10): the record is held (not ranked) but keeps its derived fields.
+    assert not [r for r in p["rates"] if r["advertiser"] == "Ucartz" and r["gpu"] == "A100"]
+    import json as _json
+    from pathlib import Path as _Path
+    doc = _json.loads((_Path(__file__).resolve().parents[1] / "data/gpu_pricing/ucartz.json").read_text())
+    a = [r for r in doc["records"] if r["gpu"] == "A100"]
+    assert a and all(r["min_gpus"] == 2 and r["gpu_count"] == 2 and r["stale"]["reason"] for r in a)
     from core import gpu_history
     assert gpu_history.series_key("RunPod", "H100", "Secure Cloud", 80) == gpu_history.series_key("RunPod", "H100", "On-demand (Secure Cloud)", 80)
 

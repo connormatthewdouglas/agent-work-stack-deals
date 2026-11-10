@@ -82,7 +82,17 @@ def test_record_level_availability_and_region():
 
 def test_new_held_rtx4090_vendors_not_ranked():
     feed = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
-    held = {h["vendor"] for h in feed["held_stale"]}
+    held_rows = feed["held_stale"]
+    held = {h["vendor"] for h in held_rows}
     assert {"SimplePod", "Runcrate", "Beam"} <= held
-    assert not held & {r["advertiser"] for r in feed["rates"]} - {"Clore.ai", "CloudRift", "E2E Networks", "Spheron", "Lium"}  # record-level holds (Lium: T62 no-stock rows)
+    # A vendor-level hold (including owner_hold) is the whole vendor: none of its rows rank.
+    # A record-level hold blocks that gpu/tier only, so a later refresh can hold one RTX 4090 without hiding the vendor.
+    vendor_level = {h["vendor"] for h in held_rows if h.get("scope") != "record"}
+    assert not vendor_level & {r["advertiser"] for r in feed["rates"]}
+    for h in held_rows:
+        if h.get("scope") != "record":
+            continue
+        for rec in h.get("records") or []:
+            assert not any(r["advertiser"] == h["vendor"] and r.get("gpu") == rec.get("gpu") and r.get("tier") == rec.get("tier")
+                           for r in feed["rates"]), (h["vendor"], rec.get("gpu"), rec.get("tier"))
     assert not {"TensorDock", "Clore.ai"} & {r["advertiser"] for r in feed["rates"] if r["tier_class"] == "on-demand"}

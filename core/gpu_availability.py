@@ -56,9 +56,13 @@ def _from_record(a: dict) -> dict:
         # I2: a static "in stock" label on the vendor's own page is not a capacity check: in_stock stays null
         return {"status": STATIC_LABEL_STATUS, "in_stock": None, "basis": "vendor_static_label",
                 "checked_at": a.get("checked_at"), "source": a.get("source"), "note": STATIC_LABEL_NOTE}
+    reads = {k: a[k] for k in ("first_read_at", "second_read_at", "second_read_gap_s") if k in a}
+    if reads:  # Clore snapshot two-read provenance (Gauge clore-1109 N1): both read times travel with the claim
+        g = a.get("second_read_gap_s")
+        reads["two_read_gap_ok"] = g is not None and g >= TWO_READ_MIN_S
     if a.get("in_stock") is None:
         return {"status": "unknown", "in_stock": None, "checked_at": a.get("checked_at"),
-                "source": a.get("source"), "note": _clean(a.get("note")) or UNKNOWN_NOTE}
+                "source": a.get("source"), "note": _clean(a.get("note")) or UNKNOWN_NOTE, **reads}
     out = {"status": "available when checked" if a["in_stock"] else "out of stock when checked",
            "in_stock": bool(a["in_stock"]), "checked_at": a.get("checked_at"),
            "refresh": REFRESH_AUTOMATED, "source": a.get("source"), "note": NOTE,
@@ -69,6 +73,7 @@ def _from_record(a: dict) -> dict:
         out["same_capture_as_price"] = True  # J6: price quote and stock count read from one page capture
     if a.get("note"):
         out["detail"] = _clean(a["note"])
+    out.update(reads)
     return out
 
 

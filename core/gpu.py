@@ -62,6 +62,7 @@ STALE_DAYS = 7
 EVIDENCE_FIELDS = ("source_url", "quote", "checked_at")
 # optional second cited quote for the row's interruption/preemption terms (Modal); all three or none
 EVIDENCE_OPTIONAL = ("interruption_quote", "interruption_source_url", "interruption_checked_at")
+EVIDENCE_REQUEST_FIELDS = ("request_method", "operation", "record_id")
 MIN_MARKET_OFFERS = 5
 MAX_QUOTE = 200
 
@@ -73,7 +74,7 @@ def load_vendor_files(directory: Path | None = None) -> list[dict]:
 
 
 # Integrated / laptop-class GPUs are not cloud GPU rentals; they never belong in the comparison (audit T7/M4).
-INTERRUPTIBLE_TIER_RE = re.compile(r"(?<!not )(?<!non-)(?:spot|preempt|interrupt)", re.I)
+INTERRUPTIBLE_TIER_RE = re.compile(r"(?<!not )(?<!non-)(?:spot|preempt|interrupt|\bbid\b)", re.I)
 NON_DEDICATED_RE = re.compile(r"\b(radeon\s+\d{3,4}m|iris|uhd graphics|vega\s*\d+|integrated|igpu)\b", re.I)
 
 
@@ -83,7 +84,8 @@ def is_non_dedicated(gpu: str) -> bool:
 
 def record_problems(doc: dict) -> list[str]:
     """Schema/consistency checks for one vendor file. Empty list = valid."""
-    out, name = [], doc.get("vendor") or "?"
+    from core.source_urls import citation_problems
+    out, name = citation_problems(doc), doc.get("vendor") or "?"
     for k in ("vendor", "source_url", "checked_at", "records", "extras"):
         if not doc.get(k):
             out.append(f"{name}: missing {k}")
@@ -155,8 +157,8 @@ def record_problems(doc: dict) -> list[str]:
         if not isinstance(ev, dict) or any(not ev.get(k) for k in EVIDENCE_FIELDS):
             out.append(f"{tag}: evidence needs {EVIDENCE_FIELDS}")
         else:
-            if set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL):
-                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL))}")
+            if set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL) - set(EVIDENCE_REQUEST_FIELDS):
+                out.append(f"{tag}: evidence has extra keys {sorted(set(ev) - set(EVIDENCE_FIELDS) - set(EVIDENCE_OPTIONAL) - set(EVIDENCE_REQUEST_FIELDS))}")
             opt = [k for k in EVIDENCE_OPTIONAL if ev.get(k)]
             if opt and len(opt) != len(EVIDENCE_OPTIONAL):
                 out.append(f"{tag}: evidence interruption quote needs {EVIDENCE_OPTIONAL}")
@@ -211,9 +213,16 @@ PAGE_ALSO = {"h100-nvl": "h100"}  # H100 NVL rows also list (labelled by form) o
 MIN_OFFERS, MIN_VENDORS = 3, 2  # below this a model gets no standalone page (avoid thin pages)
 
 
+# Distinct models whose names start with a tracked family name: they never fall into that family (RTX 5090 D and its
+# 24 GB "v2" are not RTX 5090s). They map to no family, so canonical_model() keeps them as themselves.
+SEPARATE_MODELS = ("RTX 5090 D",)
+
+
 def family_of(gpu: str) -> str | None:
     """Longest family name that equals the model or prefixes it at a word boundary: 'L4' never takes
-    'L40'/'L40S', 'A10' never takes 'A100'/'A10G', and 'H100 NVL' wins over 'H100'."""
+    'L40'/'L40S', 'A10' never takes 'A100'/'A10G', and 'H100 NVL' wins over 'H100'. SEPARATE_MODELS never match."""
+    if any(gpu == m or gpu.startswith(m + " ") for m in SEPARATE_MODELS):
+        return None
     best = None
     for slug, name in FAMILIES.items():
         if (gpu == name or gpu.startswith(name + " ")) and (best is None or len(name) > len(FAMILIES[best])):
@@ -301,6 +310,9 @@ def canonical_model(gpu: str) -> str:
 
 def _vendor_gpu_id(r: dict) -> str:
     """The vendor's own GPU id when the source cites one ('... id=NVIDIA B300 SXM6 AC')."""
+    record_id = (r.get("evidence") or {}).get("record_id")
+    if record_id:
+        return record_id
     for u in (r.get("source_url"), (r.get("evidence") or {}).get("source_url")):
         m = re.search(r"\bid=(.+)$", str(u or ""))
         if m:
@@ -386,6 +398,14 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
         if d is None:
             problems.append(f"{doc['deal_id']}: not in public feed")
             continue
+        from .owner_hold import is_held
+        if is_held(doc.get("vendor")):
+            # Frozen on purpose: the data file stays byte-identical, but the price is not a live verified rate.
+            held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
+                         "checked_at": doc["checked_at"], "reason": "owner_hold", "page_last_updated": None,
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}
+                                     for r in doc["records"]]})
+            continue
         if doc.get("stale"):
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                          "checked_at": doc["checked_at"], "reason": doc["stale"]["reason"],
@@ -469,7 +489,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                 "redeem_url": d.get("redeem_url") or r["source_url"], "basis": r["quote"], "evidence": r["evidence"],
                 # availability has its own timestamp/cadence, separate from the daily price check (verified_at)
                 "availability": availability_for(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r.get("availability"), price_rec=r),
-                # T112 (additive estimate, never replaces the rate): 7-day in-stock share and rate / max(share, 0.1)
+                # T116: descriptive stock observations; legacy expected_cost_usd is deprecated/null.
                 **availability_rate.fields(r["vendor"], r["gpu"], r["vram_gb"], r["tier"], r["hourly_usd"])})
     for x in rates:  # Scout schema 3.2 (additive): top-level copies of Scout's availability status/reason; null when Scout has none
         for k in ("availability_status", "availability_reason", "availability_reason_detail"):
@@ -485,6 +505,16 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                for d in deals if is_gpu_deal(d) and d.get("offer_type") in ("free_tier", "trial")]
     return {"rates": rates, "vendors": vendors, "held_stale": held, "unpriced": unpriced, "free_credits": credits,
             "problems": problems}
+
+
+def min_gpus_unmet(r: dict, gpus: int | None = 1) -> bool:
+    """Shared allocation rule (pages, compare_gpu_prices, stack/agent recommendations): a row sold only as an
+    N-GPU allocation (min_gpus = N) never ranks as cheapest for a request of fewer than N GPUs. No count = 1 GPU."""
+    return (r.get("min_gpus") or 1) > (gpus or 1)
+
+
+NO_GPU_COUNT_ASSUMPTION = ("No GPU count given; treated as 1 GPU. Rows sold only as multi-GPU allocations (min_gpus > 1) "
+                           "rank after single-GPU rows and are never named cheapest.")
 
 
 def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filter: str | None = None,
@@ -520,7 +550,8 @@ def estimate(rates: list[dict], hours_per_month: float, gpus: int = 1, gpu_filte
         out.append({**r, "monthly_cost_usd": round(cost, 2), "calc": basis,
                     "requested_gpus": gpus, "billed_gpus": g, "instances": servers})
     # Reservation / commitment prices are shown but never ranked as "cheapest": they sort after every pay-as-you-go row.
-    return sorted(out, key=lambda x: (_tier_class(x) == "reserved", x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
+    # A row whose minimum allocation exceeds the request sorts after every row that fits it (min_gpus_unmet).
+    return sorted(out, key=lambda x: (_tier_class(x) == "reserved", min_gpus_unmet(x, gpus), x["monthly_cost_usd"], x["advertiser"] or "", x["gpu"]))
 
 
 def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) -> int:
