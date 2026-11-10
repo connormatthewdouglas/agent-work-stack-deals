@@ -34,6 +34,20 @@ def series_key(vendor: str, gpu: str, tier: str, vram_gb, gpu_count=1) -> str:
     return f"{vendor}|{gpu}|{tier}|{vram_gb}|{gpu_count or 1}"
 
 
+def _map_vendor_vram(row: dict) -> bool:
+    """Map a mis-labelled VRAM figure on read. Snapshot files are never rewritten.
+
+    Verda B300 was stored as NVIDIA's official 288 GB; the vendor's own allocation is 268 GB
+    (confirmed 2026-11-10 against the public GET https://api.datacrunch.io/v1/instance-types,
+    1B300.30V gpu_memory.size_in_gigabytes = 268). Do not map RunPod/Lium B300 or Verda GB300.
+    """
+    vendor = row.get("vendor") or ""
+    if vendor.startswith("Verda") and row.get("gpu") == "B300" and row.get("vram_gb") == 288:
+        row["vram_gb"] = 268
+        return True
+    return False
+
+
 def snapshot_rows(docs: list[dict]) -> list[dict]:
     """One row per record, from the per-vendor files (raw, before ranking)."""
     rows = []
@@ -71,13 +85,14 @@ def write_snapshot(docs: list[dict], day: str, directory: Path | None = None) ->
 def load_snapshots(directory: Path | None = None) -> list[dict]:
     d = Path(directory or SNAPSHOT_DIR)
     snaps = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(d.glob("????-??-??.json"))]
-    for snap in snaps:  # snapshot files are never rewritten; renamed tier labels are mapped on read
+    for snap in snaps:  # snapshot files are never rewritten; identity corrections (tier, gpu_count, Verda B300 VRAM) are mapped on read
         for row in snap.get("rows", []):
             m = re.search(r"\((\d+)x GPU\)", row.get("tier") or "")
             fix_n = m and int(m.group(1)) > 1 and (row.get("gpu_count") or 1) == 1  # Lambda 8x rows got gpu_count 8 on 2026-10-29
             if fix_n:
                 row["gpu_count"] = int(m.group(1))
-            if row.get("tier") in TIER_ALIASES or fix_n:
+            vram_fix = _map_vendor_vram(row)
+            if row.get("tier") in TIER_ALIASES or fix_n or vram_fix:
                 row["tier"] = TIER_ALIASES.get(row["tier"], row["tier"])
                 row["key"] = series_key(row["vendor"], row["gpu"], row["tier"], row.get("vram_gb"), row.get("gpu_count", 1))
     return snaps

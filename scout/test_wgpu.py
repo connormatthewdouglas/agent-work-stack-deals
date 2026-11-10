@@ -49,7 +49,7 @@ a40 = v["A40"]; assert a40["vram_gb"] == 48 and a40["offer_count"] == 6 and a40[
 assert "45GB (3 offers)" in a40["vram_note"]
 assert v["L4"]["vram_gb"] == 24 and "22GB" in v["L4"]["vram_note"] and v["L4"]["price_usd_hr"] is None
 assert v["RTX A4000"]["vram_gb"] == 16 and v["RTX A4000"]["offer_count"] == 4 and "15GB (2 offers)" in v["RTX A4000"]["vram_note"] and v["RTX A4000"]["price_usd_hr"] is None
-assert v["B300"]["vram_gb"] == 288 and "269GB" in v["B300"]["vram_note"] and v["B300"]["price_usd_hr"] is None
+assert v["B300"]["vram_gb"] == 269 and "official spec 288GB" in v["B300"]["vram_note"] and v["B300"]["price_usd_hr"] is None
 assert v["B200"]["source_url"] == "https://vast.ai/pricing" and v["B200"]["source_detail"].startswith("https://console.vast.ai/api/v0/bundles/?q=")
 cl = {x["gpu_model"]: x for x in w.clore()}
 assert cl["L4"]["unrented_servers"] == 1 and cl["L4"]["vram_gb"] == 24 and "23GB" in cl["L4"]["vram_note"] and cl["T4"]["vram_gb"] == 16
@@ -58,7 +58,7 @@ assert ob["B200"]["vram_gb"] == 180 and ob["B200"]["available_gpus"] == 2 and ob
 assert ob["RTX PRO 6000 Server"]["vram_note"] == "vendor page lists no VRAM; 96GB is the official spec" and ob["B200"]["source_url"] == "https://oblivus.com/availability/"
 vd = {(x["gpu_model"], x["tier"]): x for x in w.verda(d + "/verda.env")}
 assert vd[("B200", "On-demand instance (1x GPU)")]["price_usd_hr"] == 8.869, "CC variant excluded"
-assert vd[("B300", "On-demand instance (1x GPU)")]["vram_gb"] == 288 and "268GB" in vd[("B300", "On-demand instance (1x GPU)")]["vram_note"]
+assert vd[("B300", "On-demand instance (1x GPU)")]["vram_gb"] == 268 and vd[("B300", "On-demand instance (1x GPU)")]["vram_note"] == "vendor reports 268GB; official spec 288GB"
 assert vd[("GB300", "Spot instance (1x GPU)")]["price_usd_hr"] == 6.526
 p6 = vd[("RTX PRO 6000", "On-demand instance (1x GPU)")]; assert "does not state the edition" in p6["vram_note"] and p6["vram_gb"] == 96  # item 11
 assert vd[("V100", "On-demand instance (1x GPU)")]["source_url"] == "https://verda.com/pricing" and not any(k[0].startswith("H100") for k in vd)
@@ -70,7 +70,7 @@ cn = doc["meta"]["counts"]; assert cn["total_rows"] == len(doc["rows"]) == cn["p
 for x in doc["rows"]:
     assert x["source_url"].startswith("https://") and "?" not in x["source_url"] and x["source_detail"] and x["verified_at"].endswith("Z") and x["in_stock"] is None
     assert not (x.get("feed_status") and x["price_usd_hr"] is not None), "held row with price"
-w.NAME_MODE = "with_vram"; assert w.canon("B200", None, 180)[0] == "B200 180GB"; assert w.canon("B300", None, 269)[2] == "vendor reports 269GB; official spec 288GB"; w.VRAM_MODE = "vendor"; assert w.canon("B200", None, 180)[1] == 180
+w.NAME_MODE = "with_vram"; assert w.canon("B200", None, 180)[0] == "B200 180GB"; assert w.canon("B300", None, 269) == ("B300 269GB", 269, "vendor reports 269GB; official spec 288GB"); w.VRAM_MODE = "vendor"; assert w.canon("B200", None, 180)[1] == 180
 w.NAME_MODE, w.VRAM_MODE = "bare", "official"
 
 # items 4, 10: optional file handling

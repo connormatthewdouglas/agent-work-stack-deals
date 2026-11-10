@@ -273,3 +273,26 @@ def test_shared_quote_line_keeps_sibling_price_current():
     out = rf._current_quote("1x L40S 48GB $1.863/h $0.9410/h", "1x L40S 48GB $1.882/h $0.9410/h", 0.941, "0.9410")
     assert out == "1x L40S 48GB $1.882/h $0.9410/h"
     assert rf._current_quote("A100 $1.79/hr", "NVIDIA A100 SXM 40 GB $1.89", 1.79, "1.89") == "A100 $1.89/hr"
+
+
+def test_verda_b300_vram_mapped_on_read(tmp_path):
+    """Historical snapshot files keep 288 on disk; load_snapshots maps Verda B300 to 268 so the series continues."""
+    def row(vendor, gpu, vram, hourly=11.57):
+        key = f"{vendor}|{gpu}|On-demand instance (1x GPU)|{vram}|1"
+        return {"key": key, "vendor": vendor, "gpu": gpu, "tier": "On-demand instance (1x GPU)",
+                "vram_gb": vram, "gpu_count": 1, "billing_unit": "hour",
+                "price_usd": hourly, "hourly_usd": hourly, "status": "ranked",
+                "verified_at": "2026-11-09T10:00:00+00:00", "source_url": "https://api.datacrunch.io/v1/instance-types"}
+    day = tmp_path / "2026-11-09.json"
+    day.write_text(json.dumps({"schema": "lantern-works-gpu-snapshot/1", "date": "2026-11-09",
+                               "rows": [row("Verda (formerly DataCrunch)", "B300", 288),
+                                        row("RunPod", "B300", 288, 6.94),
+                                        row("Verda (formerly DataCrunch)", "GB300", 288, 13.31)]}) + "\n")
+    snaps = H.load_snapshots(tmp_path)
+    keyed = {r["gpu"] + "|" + r["vendor"].split()[0]: r for r in snaps[0]["rows"]}
+    verda = keyed["B300|Verda"]
+    assert verda["vram_gb"] == 268 and verda["key"].endswith("|268|1")
+    assert keyed["B300|RunPod"]["vram_gb"] == 288 and keyed["B300|RunPod"]["key"].endswith("|288|1")
+    assert keyed["GB300|Verda"]["vram_gb"] == 288
+    on_disk = json.loads(day.read_text())
+    assert on_disk["rows"][0]["vram_gb"] == 288  # snapshot file is not rewritten

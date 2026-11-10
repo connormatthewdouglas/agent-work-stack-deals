@@ -41,6 +41,26 @@ def test_b300_keeps_vendor_memory():
     _valid("Verda", r)
 
 
+def test_b300_recovers_vendor_memory_from_official_spec_note():
+    """Older Scout batches stored official 288 GB and left 'vendor reports 268GB' in vram_note."""
+    raw = row(vendor="Verda", gpu_model="B300", vram_gb=288, price_usd_hr=11.93,
+              vram_note="vendor reports 268GB; official spec 288GB")
+    r = normalize(raw)
+    assert r["gpu"] == "B300" and r["vram_gb"] == 268
+    assert r["vram_note"] == "vendor reports 268GB; official spec 288GB"
+    _valid("Verda", r)
+    # Existing vendor-file records are remapped the same way; prices and timestamps stay put.
+    from import_scout_wider import apply_b300_vendor_vram
+    rec = {"gpu": "B300", "vram_gb": 288, "hourly_usd": 11.93, "vram_note": "vendor reports 268GB; official spec 288GB",
+           "verified_at": "2026-11-10T10:58:11Z", "checked_at": "2026-11-10T10:58:11Z"}
+    other = {"gpu": "GB300", "vram_gb": 288, "hourly_usd": 13.72, "verified_at": rec["verified_at"]}
+    doc = {"records": [dict(rec), dict(other)]}
+    assert apply_b300_vendor_vram(doc) == 1
+    assert doc["records"][0]["vram_gb"] == 268 and doc["records"][0]["hourly_usd"] == 11.93
+    assert doc["records"][0]["verified_at"] == rec["verified_at"]
+    assert doc["records"][1]["vram_gb"] == 288
+
+
 def test_eight_gpu_only_offer_bills_sixteen_for_nine():
     r = normalize(row(vendor="Lambda", gpu_model="H100 SXM 80GB", vram_gb=80, price_usd_hr=2.99, gpu_count=8,
                       min_gpus=8, server_price_usd_hr=23.92, price_basis="instance price_cents_per_hour (8x H100 server)"))
