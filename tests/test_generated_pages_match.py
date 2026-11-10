@@ -95,3 +95,20 @@ def test_feed_commit_provenance_lag_passes_but_other_index_edits_fail(tmp_path):
         assert chk.check(dest) != 0
     finally:
         _remove(dest)
+
+
+def test_sitemap_lastmod_drift_passes_but_url_changes_fail(tmp_path):
+    """A squash merge moves git dates behind <lastmod>; URL adds/removals must still fail."""
+    import re as _re
+    dest = tmp_path / "sitemap"
+    _worktree(dest)
+    try:
+        sm = dest / "sitemap.xml"
+        text = sm.read_text(encoding="utf-8")
+        sm.write_text(_re.sub(r"<lastmod>[^<]*</lastmod>", "<lastmod>2000-01-01</lastmod>", text), encoding="utf-8")
+        assert chk.check(dest) == 0
+        first = _re.search(r"<url>.*?</url>\s*", text, _re.S).group(0)
+        sm.write_text(text.replace(first, "", 1), encoding="utf-8")
+        assert chk.check(dest) != 0
+    finally:
+        _remove(dest)
