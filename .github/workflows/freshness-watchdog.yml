@@ -1,8 +1,11 @@
 name: Freshness watchdog
 
 # A4: an outside check every 4 hours. Fails the run and opens or updates the issue
-# labeled freshness-watchdog when the live feed, a ranked row, availability, the hosted
-# build, or a collector run is stale. 26h and 4h bars are not loosened.
+# labeled freshness-watchdog when the live feed, a ranked row, availability, stats,
+# the hosted build, or a collector run is stale or too old. Data-freshness and
+# collector-run failures are titled separately. Bars: feed 26h, availability 8h,
+# ranked row 48h, stats 192h; last successful gpu-refresh / scout-import / lium-collect
+# 30h / 10h / 6h. Queued and in-progress runs are ignored.
 on:
   schedule:
     - cron: "11 */4 * * *"

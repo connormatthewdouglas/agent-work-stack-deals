@@ -107,6 +107,12 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 
 By default no tool or page ranks a GPU price older than 168 hours (7 days) or names it cheapest. Such rows are listed separately as "stale price (N days old)" in `stale_prices`. If every matching price is stale, no current cheapest is named and the summary says so. Pass `max_data_age_hours` to set a different limit (for example 1000 to rank older quotes anyway; confirm them on the vendor page).
 
+## Freshness watchdog
+
+A scheduled GitHub Actions job (`scripts/freshness_watchdog.py`) checks the live price feed, availability stamps, ranked-row ages, public `/stats.json`, the hosted MCP `/version`, and recent collector runs. It opens or updates one issue labeled `freshness-watchdog` and closes that issue when everything is fresh again.
+
+The hosted-build check expects `/version` to match the `pyproject.toml` version and the commit that last changed that version line. A hotfix deployed from a later commit, without bumping that version, will false-alarm until the release pin is updated (or the Worker is redeployed from the version-line commit).
+
 ## Published GPU throughput data (T20 Phase B, data only)
 
 `data/gpu_throughput.json` (schema `lantern-works-gpu-throughput/1`) holds **published** throughput and peak-spec figures for H100 (SXM, PCIe 80GB, NVL), A100 (40/80GB, SXM vs PCIe), L40S and RTX 4090, from NVIDIA spec sheets and MLPerf Inference results (closed division, Offline). Each figure carries `gpu`, `variant`, `workload`, `metric`, `unit`, `value`, `conditions` (precision, sparsity, scenario, batch, `gpu_count`, `per_gpu`), `source_url`, `source_title`, `publication_date`, `retrieved_at` (UTC) and a verbatim `quote`.
