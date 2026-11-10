@@ -356,6 +356,29 @@ def _set_price(r: dict, new: float) -> None:
         r["server_hourly_usd"] = round(new * FACTOR[r["billing_unit"]], 4)
 
 
+# Public-page disclaimer used by Lambda (lambda.ai/pricing, also served at lambda.com/pricing):
+# "These prices take effect November 16, 2026, at 00:00 UTC. Until then, log in to your
+# Lambda Cloud account to see current pricing." The collector is GET-only and reads that
+# public page, so the parsed figures are the future list, not the login-only current list.
+PRICE_EFFECTIVE_RE = re.compile(
+    r"These prices take effect ([A-Za-z]+ \d{1,2}, \d{4}), at (\d{2}:\d{2}) UTC"
+)
+
+
+def parse_price_effective_at(text: str) -> datetime | None:
+    """Vendor-stated UTC instant when the listed prices take effect, or None if the page does not say."""
+    if not text:
+        return None
+    m = PRICE_EFFECTIVE_RE.search(text)
+    if not m:
+        return None
+    try:
+        dt = datetime.strptime(f"{m.group(1)} {m.group(2)}", "%B %d, %Y %H:%M")
+    except ValueError:
+        return None
+    return dt.replace(tzinfo=timezone.utc)
+
+
 def _swap_quote_price(quote: str, old: float, new_s: str) -> str:
     for m in PRICE_RE.finditer(quote):
         if abs(_num(m.group(1)) - old) < 1e-9:
@@ -468,6 +491,7 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
         for r in doc["records"]:
             row = {"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "old": r["hourly_usd"]}
             r.setdefault("verified_at", r["evidence"]["checked_at"])
+            text = None
             manual_hold = r.get("stale") and not r["stale"].get("auto")
             st, body = fetcher.get(r["source_url"])
             # verified_at = when THIS page was actually fetched (not the run start), when the fetcher records it
@@ -568,6 +592,9 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     row.update(result="changed" if abs(new - old) > 1e-9 else "unchanged", new=r["hourly_usd"])
                     if row.get("confirmation"):
                         r["price_confirmation"] = _confirmation_ref(row["confirmation"])
+                    eff = parse_price_effective_at(text) if text else None
+                    if eff is not None:
+                        r["price_effective_at"] = _iso(eff)
                     succeeded += 1
             if not manual_hold:
                 attempted += 1

@@ -33,12 +33,13 @@ def _fx(gpu):
 
 
 def test_all_specs_verified_against_feed():
-    from core.gpu import _price_too_old
+    from core.gpu import _price_too_old, price_not_yet_effective
     r = build_rates(FEED)
     from core.owner_hold import is_held
     live = [d for d in load_vendor_files() if not d.get("stale") and not is_held(d.get("vendor"))]
     publishable = sum(1 for d in live for x in d["records"]
-                      if not x.get("stale") and not x.get("no_capacity") and not _price_too_old(x, d))
+                      if not x.get("stale") and not x.get("no_capacity") and not _price_too_old(x, d)
+                      and not price_not_yet_effective(x))
     assert r["problems"] == [] and len(r["rates"]) == publishable
 
 
@@ -269,10 +270,26 @@ def test_new_vendor_flags():
     thin_row = {k: v for k, v in doc["records"][0].items() if k != "stale"}
     thin = {**doc, "records": [{**thin_row, "offer_count": 4}]}
     assert any("offer_count" in p for p in record_problems(thin))
-    # Lambda: 13 records, no deal (links to vendor page), 8x-only instances charge 8 GPUs
-    lam = [r for r in rates if r["advertiser"] == "Lambda"]
-    assert len(lam) == 13 - sum(1 for d in load_vendor_files() if d["vendor"] == "Lambda" for r in d["records"] if r.get("stale")) and all(r["deal_id"] is None and not r["affiliate"] and r["redeem_url"] == "https://lambda.ai/pricing" for r in lam)
-    e = estimate(rates, 100, gpu_filter="V100")
+    # Lambda: 13 records, no deal (links to vendor page), 8x-only instances charge 8 GPUs.
+    # The public list is dated in the future (price_effective_at): those rows are held and
+    # never ranked as a current price until that instant. After it, the same checks hold.
+    from core.gpu import price_not_yet_effective
+    from datetime import datetime, timezone
+    recs = next(d for d in load_vendor_files() if d["vendor"] == "Lambda")["records"]
+    assert len(recs) == 13
+    if any(price_not_yet_effective(r) for r in recs):
+        assert [r for r in rates if r["advertiser"] == "Lambda"] == []
+        pending = [h for h in api["held_stale"] if h["vendor"] == "Lambda"
+                   and str(h.get("reason") or "").startswith("not yet in effect:")]
+        assert pending and all((h.get("records") or [{}])[0].get("price_effective_at") for h in pending)
+        later_rates = build_rates(FEED, now=datetime(2026, 11, 16, 0, 0, tzinfo=timezone.utc))["rates"]
+        lam = [r for r in later_rates if r["advertiser"] == "Lambda"]
+    else:
+        lam = [r for r in rates if r["advertiser"] == "Lambda"]
+        later_rates = rates
+    assert len(lam) == 13 - sum(1 for r in recs if r.get("stale")) and all(
+        r["deal_id"] is None and not r["affiliate"] and r["redeem_url"] == "https://lambda.ai/pricing" for r in lam)
+    e = estimate(later_rates, 100, gpu_filter="V100")
     v100 = next(x for x in e if x["advertiser"] == "Lambda")
     assert v100["monthly_cost_usd"] == round(_rec("Lambda", "V100")["hourly_usd"] * 100 * 8, 2) and "8-GPU" in v100["calc"]
 

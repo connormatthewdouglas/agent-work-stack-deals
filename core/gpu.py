@@ -13,6 +13,9 @@ scripts/refresh_gpu_prices.py (daily Action) re-reads each source and updates a 
 the vendor's own page/API: verified_at = when the price was last parsed, checked_at = last attempt. A rate not
 re-verified for STALE_DAYS gets an automatic record-level hold (stale.auto) and is never ranked until re-verified.
 scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits); scripts/refresh_gpu_prices.py updates parsed prices.
+A record with price_effective_at in the future (the vendor's own stated instant, e.g. Lambda's
+public list taking effect 2026-11-16T00:00:00Z) is listed in held_stale and never ranked as a
+current price until that instant; after it, the field stays on the rate as an additive annotation.
 Ranking is by estimated cost for the user's hours, never by affiliate status or commission.
 """
 from __future__ import annotations
@@ -381,7 +384,45 @@ def _vram_note(r: dict) -> dict:
     return {"vram_note": r["vram_note"]} if r.get("vram_note") else {}
 
 
-def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dict:
+NOT_YET_EFFECTIVE_PREFIX = "not yet in effect:"
+
+
+def price_effective_at(r: dict):
+    """Vendor-stated UTC instant when this listed price takes effect, or None."""
+    s = r.get("price_effective_at")
+    if not s:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def price_not_yet_effective(r: dict, now: datetime | None = None) -> bool:
+    """True when the vendor has dated this listed price in the future."""
+    eff = price_effective_at(r)
+    if eff is None:
+        return False
+    clock = now or datetime.now(timezone.utc)
+    if clock.tzinfo is None:
+        clock = clock.replace(tzinfo=timezone.utc)
+    return clock.astimezone(timezone.utc) < eff
+
+
+def not_yet_effective_reason(r: dict) -> str:
+    when = r.get("price_effective_at")
+    return (f"{NOT_YET_EFFECTIVE_PREFIX} vendor page lists this price as taking effect {when}. "
+            "Current prices are not on the public page. Not ranked as a current price until that time.")
+
+
+def _effective_field(r: dict) -> dict:
+    return {"price_effective_at": r["price_effective_at"]} if r.get("price_effective_at") else {}
+
+
+def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: datetime | None = None) -> dict:
     """Rates for /api/v1/gpu-prices.json and every GPU page, from the per-vendor records.
 
     Output fields stay compatible with 0.2.0 consumers: price_usd/unit are the hourly (unit 'hour') or
@@ -389,6 +430,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
     by_id = {d["id"]: d for d in deals}
     docs = load_vendor_files() if vendor_docs is None else vendor_docs
     rates, problems, vendors, held = [], [], [], []
+    clock = now or datetime.now(timezone.utc)
     for doc in docs:
         bad = record_problems(doc)
         if bad:
@@ -403,14 +445,14 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
             # Frozen on purpose: the data file stays byte-identical, but the price is not a live verified rate.
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                          "checked_at": doc["checked_at"], "reason": "owner_hold", "page_last_updated": None,
-                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}
                                      for r in doc["records"]]})
             continue
         if doc.get("stale"):
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
                          "checked_at": doc["checked_at"], "reason": doc["stale"]["reason"],
                          "page_last_updated": doc["stale"].get("page_last_updated"),
-                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}
                                      for r in doc["records"]]})
             continue
         vendors.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": doc["source_url"],
@@ -425,23 +467,29 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                              f"${r['hourly_usd']:.2f}/hr on {r['verified_at'][:10]}", "page_last_updated": None, "scope": "record",
                              "availability": {"status": "out of stock when checked", "in_stock": False, "reason": nc["reason"],
                                               "checked_at": nc["read_at"], "source": nc["source_url"], "page_text": nc.get("page_text")},
-                             "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}]})
+                             "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}]})
         held_recs = [r for r in doc["records"] if r.get("stale")]
         for r in held_recs:
             # Record-level hold (e.g. marketplace too thin: < MIN_MARKET_OFFERS offers): listed, never ranked.
             held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
                          "checked_at": r["checked_at"], "reason": r["stale"]["reason"],
                          "page_last_updated": r["stale"].get("page_last_updated"),
-                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}], "scope": "record"})
+                         "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}], "scope": "record"})
         for r in doc["records"]:
             if r.get("stale") or r.get("no_capacity"):
+                continue
+            if price_not_yet_effective(r, clock):
+                held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
+                             "checked_at": r["checked_at"], "reason": not_yet_effective_reason(r),
+                             "page_last_updated": None, "scope": "record",
+                             "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}]})
                 continue
             if _price_too_old(r, doc):
                 # Gauge re28: a price not re-verified for STALE_DAYS never ranks on any page; listed in held_stale.
                 from .data_age import stale_label
                 held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
                              "checked_at": r["checked_at"], "reason": stale_label(r), "page_last_updated": None, "scope": "record",
-                             "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r)}]})
+                             "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}]})
                 continue
             monthly = r["billing_unit"] == "monthly"
             n = r.get("gpu_count", 1)
@@ -470,7 +518,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None) -> dic
                                               _vendor_gpu_id(r)),
                 **({"form_class": fc} if (fc := form_class(r["gpu"], f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}")) else {}),
                 "price_scope": "gpu_hour_only", **_published_extras(doc),
-                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note", "price_rotates", "vendor_confirmed", "vendor_confirmed_by", "vendor_confirmed_at") if r.get(k)}),
+                **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note", "price_rotates", "vendor_confirmed", "vendor_confirmed_by", "vendor_confirmed_at", "price_effective_at") if r.get(k)}),
                 # Manual snapshot vendors (e.g. Clore.ai): not re-checked daily; held automatically after hold_after.
                 **({"price_check": "manual snapshot", "snapshot_at": r["checked_at"],
                     "hold_after": (datetime.fromisoformat(r["checked_at"]) + timedelta(days=STALE_DAYS)).isoformat()}

@@ -289,6 +289,11 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         if h.get("reason") == "owner_hold":
             body.append(f"<p><small>{esc(h['vendor'])} is temporarily held (owner_hold) and is not counted as a live verified price.</small></p>")
             continue
+        if str(h.get("reason") or "").startswith("not yet in effect:"):
+            g = (h.get("records") or [{}])[0]
+            body.append(f"<p><small>{esc(h['vendor'])} {esc(g.get('gpu') or '')} not ranked as a current price: "
+                        f"{esc(h['reason'])}</small></p>")
+            continue
         if av.get("in_stock") is False:  # vendor page says no capacity now: out of stock, last sourced price kept, unranked
             g = (h.get("records") or [{}])[0]
             body.append(f"<p><small>{esc(h['vendor'])} {esc(g.get('gpu', ''))} not ranked: out of stock, {esc(av.get('reason', ''))} "

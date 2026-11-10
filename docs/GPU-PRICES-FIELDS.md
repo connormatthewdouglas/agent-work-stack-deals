@@ -25,6 +25,12 @@ Every rate in `api/v1/gpu-prices.json` carries these fields (since 0.5.0, T75):
   including `min_gpus` above 1. That is why `a100.json` has no `cheapest.monthly` and `l40.json` has no `cheapest.spot-community`.
   The rows themselves stay in `rows`. Schema id remains `lantern-works-gpu-model-view/1`.
 
+## price_effective_at (additive, schema 3.2, Nov 2026)
+
+| Field | Type | Meaning |
+|---|---|---|
+| `price_effective_at` | string (ISO-8601 UTC) or absent | The vendor's own stated instant when this listed public price takes effect. Set only from a sentence on the vendor's public page (Lambda: "These prices take effect November 16, 2026, at 00:00 UTC"). Absent when the vendor does not date the list. Until that instant the row is listed in `held_stale` with a `not yet in effect:` reason and is never ranked as a current price; after it, the field stays on the ranked rate as an annotation. Current prices that require a login are not invented.
+
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
 | Field | Type | Meaning |

@@ -306,15 +306,24 @@ def test_k2_cost_a100_any_variant_80gb_line_from_feed():
 def test_scout_v25_lambda_clore_render():
     import json
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    pending = [h for h in feed.get("held_stale") or []
+               if h.get("vendor") == "Lambda" and str(h.get("reason") or "").startswith("not yet in effect:")]
     if not _fresh():  # stale snapshot: Lambda/Clore claims are unknown, the Lambda auth label stays
         lam = [r["availability"] for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("origin") == "scout"]
-        # stale (collected > 8 h) or expired within the build horizon: either way no claim is shown
-        assert lam and all(a["in_stock"] is None and str(a.get("status", "")).startswith("unknown") for a in lam if a.get("checked_at"))
+        # stale (collected > 8 h) or expired within the build horizon: either way no claim is shown.
+        # Rows held as not-yet-effective are also absent from rates until price_effective_at.
+        if pending:
+            assert lam == []
+        else:
+            assert lam and all(a["in_stock"] is None and str(a.get("status", "")).startswith("unknown") for a in lam if a.get("checked_at"))
         for slug in ("a100", "h100", "rtx-4090", "l40s"):
             assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
         return
     lam = [r for r in feed["rates"] if r["advertiser"] == "Lambda" and r["availability"].get("in_stock") is not None]
-    assert all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
+    if pending:
+        assert lam == []
+    else:
+        assert all(r["availability"]["source_label"] == "authenticated vendor API (not publicly reproducible)" for r in lam)
     cla = [r for r in feed["rates"] if r["advertiser"] == "Clore.ai" and r["availability"].get("in_stock") is not None]
     # Gauge rel053: a newer Clore snapshot (same capture as the price) carries its own available-listing count
     assert all(r["availability"].get("same_capture_as_price") and r["availability"].get("stock_level") for r in cla if r["availability"].get("origin") == "record")
