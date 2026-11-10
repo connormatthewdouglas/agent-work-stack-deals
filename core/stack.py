@@ -229,7 +229,9 @@ def _gpu_options(gpu_data: dict, hours: float, model: str | None, manual: set, g
                     **({"min_gpus_unmet": True} if (r.get("min_gpus") or 1) > gpus else {})})
     # F1: explicit out-of-stock rows (in_stock False) never outrank in-stock/unknown rows
     # min_gpus: an allocation larger than the request (gpus_billed > gpus_requested because of min_gpus) never ranks first
-    return sorted(out, key=lambda x: (x["in_stock"] is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
+    # shared lead rule (core.data_age.lead_key): a degraded (> 48 h) price never ranks first while a fresh one exists
+    from . import data_age as _da
+    return sorted(out, key=lambda x: (_da.lead_key(x), x["in_stock"] is False, x.get("min_gpus_unmet", False), x["monthly_cost_usd"], x["vendor"] or "", x["plan"]))
 
 
 class StackError(ValueError):

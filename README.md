@@ -1,4 +1,4 @@
-# Lantern Works — GPU price comparison for agents, checked daily
+# Lantern Works — GPU price comparison for agents, refreshed regularly, with each price's age shown
 
 **Lantern Works** compares GPU rental prices and estimates job costs for agents, with vendor source links, check times and quote receipts. Prices refresh daily; "cheapest" means among tracked providers. Referral links are labeled and never affect ranking.
 

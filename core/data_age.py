@@ -97,3 +97,32 @@ def stale_option(o: dict, now: datetime | None = None) -> dict:
 def all_stale_note(n: int) -> str:
     return (f"All {n} tracked GPU prices that match are older than {CURRENT_MAX_HOURS} h (stale), so no current cheapest is "
             "named; see stale_prices, or pass max_data_age_hours to rank them anyway.")
+
+
+def lead_key(row: dict, now: datetime | None = None, prefer_on_demand: bool = False, max_h: float | None = None) -> tuple:
+    """Shared ranking rule (compare_gpu_prices, estimate_job_cost, stack GPU options): by default a degraded
+    (> DEGRADED_HOURS), stale or undated row sorts after every fresh row, so it is shown and flagged but never ranked
+    first while a fresh row exists. An explicit max_data_age_hours (max_h) is the caller's documented "rank them
+    anyway" override, so age is then not a lead criterion. With prefer_on_demand, fresh on-demand rows lead the fresh
+    rows (compare_gpu_prices' MCP default on_demand_only=true)."""
+    deg = age_fields(row, now)["degraded"] and max_h is None
+    if not prefer_on_demand:
+        return (deg,)
+    from .deals import tier_class
+    return (deg, tier_class(row) != "on-demand")
+
+
+def degraded_note(rows: list, now: datetime | None = None, get=lambda r: r, max_h: float | None = None) -> tuple[bool, str]:
+    """(stale_fallback, summary note) for a ranked list sorted with lead_key. stale_fallback is True only when no fresh
+    row exists, so the top row is itself degraded; the note says so instead of presenting it as a current price."""
+    if not rows or max_h is not None:
+        return False, ""
+    flags = [age_fields(get(r), now)["degraded"] for r in rows]
+    n = sum(flags)
+    if not n:
+        return False, ""
+    if n == len(rows):
+        return True, (f" STALE FALLBACK: no fresh price; all {n} ranked rate(s) are degraded (price older than "
+                      f"{DEGRADED_HOURS} h), so the top row is not a current price. Confirm on the vendor page.")
+    return False, (f" {n} degraded rate(s) (price older than {DEGRADED_HOURS} h) are shown after fresh rates and never "
+                   "ranked first.")
