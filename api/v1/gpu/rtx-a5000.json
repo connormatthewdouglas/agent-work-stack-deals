@@ -16,10 +16,9 @@
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
   "last_checked": "2026-11-09T20:52:02+00:00",
-  "row_count": 2,
+  "row_count": 1,
   "providers": [
-    "RunPod",
-    "Ucartz"
+    "RunPod"
   ],
   "cheapest": {
     "on-demand": [
@@ -54,39 +53,6 @@
           "vram_gb": 24
         }
       }
-    ],
-    "monthly": [
-      {
-        "vram_gb": 24,
-        "provider": "Ucartz",
-        "gpu": "RTX A5000",
-        "tier": "Dedicated server (monthly)",
-        "tier_class": "dedicated-monthly",
-        "bucket": "monthly",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 1.1226,
-        "unit": "month",
-        "price_usd": 819.52,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-05T01:37:17+00:00",
-        "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
-        "quote": "RTX A5000 servers from $819.52",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Dedicated server (monthly)",
-          "vram_gb": 24
-        }
-      }
     ]
   },
   "rows": [
@@ -115,32 +81,6 @@
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Ucartz",
-      "gpu": "RTX A5000",
-      "vram_gb": 24,
-      "tier": "Dedicated server (monthly)",
-      "tier_class": "dedicated-monthly",
-      "bucket": "monthly",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 1.1226,
-      "unit": "month",
-      "price_usd": 819.52,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-05T01:37:17+00:00",
-      "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
-      "quote": "RTX A5000 servers from $819.52",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption"
     }
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",

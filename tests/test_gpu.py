@@ -13,6 +13,25 @@ def _rec(vendor, gpu, tier=None):
                 if r["gpu"] == gpu and (tier is None or r["tier"] == tier))
 
 
+def _multi_gpu_doc():
+    """Fixed multi-GPU server fixture (not a live vendor row): 2x A100 + RTX 4090 monthly servers, stamped fresh."""
+    from datetime import datetime, timezone
+    doc = json.loads((Path(__file__).resolve().parent / "fixtures" / "multi_gpu_server_vendor.json").read_text())
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    doc["checked_at"] = now
+    for r in doc["records"]:
+        r["checked_at"] = r["verified_at"] = r["evidence"]["checked_at"] = now
+    return doc
+
+
+def _fixture_docs():
+    return [d for d in load_vendor_files() if d["vendor"] != "Ucartz"] + [_multi_gpu_doc()]
+
+
+def _fx(gpu):
+    return next(r for r in _multi_gpu_doc()["records"] if r["gpu"] == gpu)
+
+
 def test_all_specs_verified_against_feed():
     from core.gpu import _price_too_old
     r = build_rates(FEED)
@@ -24,18 +43,18 @@ def test_all_specs_verified_against_feed():
 
 
 def test_estimate_hourly_vs_flat_and_rank():
-    rates = build_rates(FEED)["rates"]
+    rates = build_rates(FEED, _fixture_docs())["rates"]
     e = estimate(rates, 100, gpu_filter="A100")
     key = [(x["tier_class"] == "reserved", x["monthly_cost_usd"]) for x in e]
     assert key == sorted(key) and e[0]["tier_class"] != "reserved"  # reservations never rank first
     th = next(x for x in e if x["deal_id"] == "deal-thundercompute-001")
     assert th["monthly_cost_usd"] == round(_rec("Thunder Compute", "A100")["hourly_usd"] * 100, 2)
     uc = next(x for x in e if x["deal_id"] == "deal-ucartz-001")
-    a100 = _rec("Ucartz", "A100")
+    a100 = _fx("A100")
     # T35: whole servers only. 1 GPU on a 2x A100 monthly server bills the full server (2 GPUs), not half of it.
     assert uc["monthly_cost_usd"] == round(round(a100["price_usd"] / 2, 2) * 2, 2) and uc["gpu_count"] == 2
     e4090 = estimate(rates, 1000, gpu_filter="4090")
-    assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(_rec("Ucartz", "RTX 4090")["price_usd"] * 2, 2)
+    assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(_fx("RTX 4090")["price_usd"] * 2, 2)
     assert [x["monthly_cost_usd"] for x in e4090] == sorted(x["monthly_cost_usd"] for x in e4090)
 
 
@@ -178,7 +197,7 @@ def test_every_record_has_live_evidence():
 
 def test_multi_gpu_server_is_per_gpu():
     from core.gpu import record_problems
-    uc = next(d for d in load_vendor_files() if d["vendor"] == "Ucartz")
+    uc = _multi_gpu_doc()
     a100 = next(r for r in uc["records"] if r["gpu"] == "A100")
     p = a100["price_usd"]
     assert (a100["gpu_count"], a100["hourly_usd"], a100["server_hourly_usd"]) == (2, round(p / 730 / 2, 4), round(p / 730, 4))
@@ -188,7 +207,7 @@ def test_multi_gpu_server_is_per_gpu():
     assert any("server_hourly_usd" in p for p in record_problems(bad))
     bad = {**uc, "records": [{k: v for k, v in a100.items() if k != "evidence"}]}
     assert any("evidence" in p for p in record_problems(bad))
-    rate = next(r for r in build_rates(FEED)["rates"] if r["deal_id"] == "deal-ucartz-001" and r["gpu"] == "A100")
+    rate = next(r for r in build_rates(FEED, _fixture_docs())["rates"] if r["deal_id"] == "deal-ucartz-001" and r["gpu"] == "A100")
     assert (rate["hourly_equiv_usd"], rate["price_usd"], rate["server_price_usd"]) == (a100["hourly_usd"], round(p / 2, 2), p)
 
 
@@ -196,9 +215,10 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
     from core.deals import compare_gpu_prices
     from core.stack import _gpu_options
     data = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    data = {**data, "rates": build_rates(FEED, _fixture_docs())["rates"]}
     res = compare_gpu_prices(data, "A100", limit=25, gpus=2)["results"]  # Bjorn 1109: Ucartz sells 2-GPU servers; ranks for gpus >= 2
     uc = next(r for r in res if r["advertiser"] == "Ucartz")
-    a100 = _rec("Ucartz", "A100")
+    a100 = _fx("A100")
     assert uc["hourly_usd"] == a100["hourly_usd"] and uc["gpu_count"] == 2 and uc["server_hourly_usd"] == a100["server_hourly_usd"]
     k = [(r["in_stock"] is False, r["hourly_usd"]) for r in res]
     assert k == sorted(k)  # E5: out-of-stock last
