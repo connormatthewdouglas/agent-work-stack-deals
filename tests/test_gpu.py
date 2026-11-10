@@ -323,6 +323,33 @@ def test_whole_server_billing_9_gpus_on_8_gpu_h100_bills_16():
 
 
 
+
+@pytest.mark.parametrize("lowest", ["drop", None, "n/a", True])
+def test_estimate_survives_marketplace_row_without_numeric_lowest_offer(lowest):
+    """A marketplace row with lowest_offer_usd missing / null / non-numeric must not KeyError.
+    Monthly cost comes from price_usd (the median); the calc names the median and does not invent a lowest offer."""
+    row = {"advertiser": "Clore.ai", "gpu": "RTX 4090", "vram_gb": 24, "price_usd": 0.40, "unit": "hour",
+           "tier": "Marketplace", "tier_class": "marketplace", "price_status": "marketplace", "gpu_count": 1,
+           "deal_id": None, "min_gpus": 1}
+    if lowest != "drop":
+        row["lowest_offer_usd"] = lowest
+    out = estimate([row], 10, gpus=1)
+    assert len(out) == 1
+    assert out[0]["monthly_cost_usd"] == 4.0  # 0.40/hr x 10 h x 1 GPU; not an invented lowest offer
+    assert "variable marketplace median (lowest offer unpriced)" in out[0]["calc"]
+    assert "lowest offer $" not in out[0]["calc"]  # never invent a lowest-offer price
+    assert "$0.4/hr x 10 h x 1 GPU" in out[0]["calc"]
+
+
+def test_estimate_keeps_the_lowest_offer_when_present():
+    row = {"advertiser": "Clore.ai", "gpu": "RTX 4090", "vram_gb": 24, "price_usd": 0.40, "unit": "hour",
+           "tier": "Marketplace", "tier_class": "marketplace", "price_status": "marketplace",
+           "lowest_offer_usd": 0.29, "gpu_count": 1, "deal_id": None, "min_gpus": 1}
+    out = estimate([row], 10, gpus=1)
+    assert out[0]["monthly_cost_usd"] == 4.0
+    assert "lowest offer $0.29/hr" in out[0]["calc"]
+
+
 def test_cheapest_pages_canonical_to_rental_price_page():
     import re, pathlib
     root = pathlib.Path(__file__).resolve().parents[1]
