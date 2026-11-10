@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-10T18:18:23+00:00",
+  "last_checked": "2026-11-10T18:28:05+00:00",
   "row_count": 26,
   "providers": [
     "Civo",
@@ -47,7 +47,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:15:37+00:00",
+        "verified_at": "2026-11-10T18:25:19+00:00",
         "source_url": "https://jarvislabs.ai/pricing",
         "quote": "NVIDIA A100 40GB 40 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $0.89",
         "availability": {
@@ -79,7 +79,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:18:23+00:00",
+        "verified_at": "2026-11-10T18:28:05+00:00",
         "source_url": "https://verda.com/pricing",
         "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.657/h",
         "availability": {
@@ -120,7 +120,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:15:49+00:00",
+        "verified_at": "2026-11-10T18:25:31+00:00",
         "source_url": "https://lambda.ai/pricing",
         "quote": "NVIDIA A100 PCIe 40 GB 30 225 GiB 512 GiB SSD $1.99",
         "availability": {
@@ -166,7 +166,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:18:02+00:00",
+        "verified_at": "2026-11-10T18:27:44+00:00",
         "source_url": "https://www.thundercompute.com/pricing",
         "quote": "A100 80GB 80 GB 8 included · 16 max 64–128 GB 100–500 GB $1.09 /hr",
         "availability": {
@@ -197,7 +197,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:15:31+00:00",
+        "verified_at": "2026-11-10T18:25:13+00:00",
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
         "quote": "NVIDIA A100 80 28 120 $1.35",
         "availability": {
@@ -242,7 +242,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:15:31+00:00",
+        "verified_at": "2026-11-10T18:25:13+00:00",
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
         "quote": "NVIDIA A100 SXM 80 24 120 $1.60",
         "availability": {
@@ -287,19 +287,18 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:16:39+00:00",
+        "verified_at": "2026-11-10T18:26:20+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
         "availability": {
-          "status": "unknown",
+          "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
           "in_stock": null,
+          "availability_stale": true,
           "checked_at": "2026-11-10T10:50:28Z",
-          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "max_age_hours": 8,
           "origin": "scout",
-          "availability_status": "unknown",
-          "availability_reason": "no_source",
-          "availability_reason_detail": "api_null_signal"
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -323,7 +322,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:16:39+00:00",
+        "verified_at": "2026-11-10T18:26:20+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
         "availability": {
@@ -368,7 +367,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:18:23+00:00",
+        "verified_at": "2026-11-10T18:28:05+00:00",
         "source_url": "https://verda.com/pricing",
         "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.316/h",
         "availability": {
@@ -411,7 +410,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:18:23+00:00",
+        "verified_at": "2026-11-10T18:28:05+00:00",
         "source_url": "https://verda.com/pricing",
         "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.657/h $0.8285/h",
         "availability": {
@@ -452,7 +451,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:15:31+00:00",
+        "verified_at": "2026-11-10T18:25:13+00:00",
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
         "quote": "GPU Model Spot VM NVIDIA H100 PCIe $2.00 NVIDIA RTX Pro 6000 SE $1.48 NVIDIA A100 $1.08",
         "availability": {
@@ -491,15 +490,15 @@
         "tier_class": "marketplace",
         "bucket": "spot-community",
         "interruptible": false,
-        "hourly_usd_per_gpu": 1.1297,
+        "hourly_usd_per_gpu": 1.1389,
         "unit": "hour",
-        "price_usd": 1.1297,
+        "price_usd": 1.1389,
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "marketplace",
-        "verified_at": "2026-11-10T18:18:14+00:00",
+        "verified_at": "2026-11-10T18:27:55+00:00",
         "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-        "quote": "Vast public offers API: 8 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1297/hr, min $1.1070/hr",
+        "quote": "Vast public offers API: 8 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1389/hr, min $1.1070/hr",
         "availability": {
           "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
           "in_stock": null,
@@ -537,7 +536,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:18:23+00:00",
+        "verified_at": "2026-11-10T18:28:05+00:00",
         "source_url": "https://verda.com/pricing",
         "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.316/h $1.158/h",
         "availability": {
@@ -578,19 +577,18 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:16:39+00:00",
+        "verified_at": "2026-11-10T18:26:20+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
         "availability": {
-          "status": "unknown",
+          "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
           "in_stock": null,
+          "availability_stale": true,
           "checked_at": "2026-11-10T10:50:30Z",
-          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+          "max_age_hours": 8,
           "origin": "scout",
-          "availability_status": "unknown",
-          "availability_reason": "no_source",
-          "availability_reason_detail": "api_null_signal"
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
         },
         "form_factor": "PCIe",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -614,19 +612,18 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:16:39+00:00",
+        "verified_at": "2026-11-10T18:26:20+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
         "availability": {
-          "status": "unknown",
+          "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
           "in_stock": null,
+          "availability_stale": true,
           "checked_at": "2026-11-10T10:50:30Z",
-          "note": "No confirmed region claim at overall_recomputed_at",
-          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+          "max_age_hours": 8,
           "origin": "scout",
-          "availability_status": "unknown",
-          "availability_reason": "no_source",
-          "availability_reason_detail": "unconfirmed_two_reads"
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
         },
         "form_factor": "SXM",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -653,7 +650,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:18:23+00:00",
+      "verified_at": "2026-11-10T18:28:05+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.657/h $0.8285/h",
       "availability": {
@@ -689,7 +686,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:37+00:00",
+      "verified_at": "2026-11-10T18:25:19+00:00",
       "source_url": "https://jarvislabs.ai/pricing",
       "quote": "NVIDIA A100 40GB 40 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $0.89",
       "availability": {
@@ -716,7 +713,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:31+00:00",
+      "verified_at": "2026-11-10T18:25:13+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "GPU Model Spot VM NVIDIA H100 PCIe $2.00 NVIDIA RTX Pro 6000 SE $1.48 NVIDIA A100 $1.08",
       "availability": {
@@ -756,7 +753,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:14:52+00:00",
+      "verified_at": "2026-11-10T18:24:34+00:00",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA A100 - 40GB 56 GB 8 200GB NVMe FREE $1.09 per hour",
       "availability": {
@@ -783,7 +780,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:18:02+00:00",
+      "verified_at": "2026-11-10T18:27:44+00:00",
       "source_url": "https://www.thundercompute.com/pricing",
       "quote": "A100 80GB 80 GB 8 included · 16 max 64–128 GB 100–500 GB $1.09 /hr",
       "availability": {
@@ -803,15 +800,15 @@
       "tier_class": "marketplace",
       "bucket": "spot-community",
       "interruptible": false,
-      "hourly_usd_per_gpu": 1.1297,
+      "hourly_usd_per_gpu": 1.1389,
       "unit": "hour",
-      "price_usd": 1.1297,
+      "price_usd": 1.1389,
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "marketplace",
-      "verified_at": "2026-11-10T18:18:14+00:00",
+      "verified_at": "2026-11-10T18:27:55+00:00",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "quote": "Vast public offers API: 8 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1297/hr, min $1.1070/hr",
+      "quote": "Vast public offers API: 8 verified rentable on-demand A100 SXM4 80GB offers; per-GPU dph_total median $1.1389/hr, min $1.1070/hr",
       "availability": {
         "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
         "in_stock": null,
@@ -844,7 +841,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:18:23+00:00",
+      "verified_at": "2026-11-10T18:28:05+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.316/h $1.158/h",
       "availability": {
@@ -880,19 +877,18 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:16:39+00:00",
+      "verified_at": "2026-11-10T18:26:20+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-10T10:50:30Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "form_factor": "PCIe",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -911,7 +907,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:31+00:00",
+      "verified_at": "2026-11-10T18:25:13+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 80 28 120 $1.35",
       "availability": {
@@ -951,19 +947,18 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:16:39+00:00",
+      "verified_at": "2026-11-10T18:26:20+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-10T10:50:30Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "unconfirmed_two_reads"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -982,7 +977,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:31+00:00",
+      "verified_at": "2026-11-10T18:25:13+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 NVLink 80 31 240 $1.40",
       "availability": {
@@ -1022,7 +1017,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:16:20+00:00",
+      "verified_at": "2026-11-10T18:26:02+00:00",
       "source_url": "https://oblivus.com/pricing/",
       "quote": "A100 80GB PCIE 28 vCPU 120GB RAM 850GB NVMe On-Demand: $1.47/hr",
       "availability": {
@@ -1062,7 +1057,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:37+00:00",
+      "verified_at": "2026-11-10T18:25:19+00:00",
       "source_url": "https://jarvislabs.ai/pricing",
       "quote": "NVIDIA A100 80GB 80 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $1.49",
       "availability": {
@@ -1089,7 +1084,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:31+00:00",
+      "verified_at": "2026-11-10T18:25:13+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 SXM 80 24 120 $1.60",
       "availability": {
@@ -1129,7 +1124,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:18:23+00:00",
+      "verified_at": "2026-11-10T18:28:05+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 40GB 22 120 GB 40 GB $1.657/h",
       "availability": {
@@ -1165,7 +1160,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:14:52+00:00",
+      "verified_at": "2026-11-10T18:24:34+00:00",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA A100 - 80GB 96 GB 12 200GB NVMe FREE $1.79 per hour",
       "availability": {
@@ -1192,19 +1187,18 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:16:39+00:00",
+      "verified_at": "2026-11-10T18:26:20+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $1.79/hr.",
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-10 05:50 ET)",
         "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-10T10:50:28Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "max_age_hours": 8,
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1223,7 +1217,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:16:39+00:00",
+      "verified_at": "2026-11-10T18:26:20+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $1.79/hr.",
       "availability": {
@@ -1263,7 +1257,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:19+00:00",
+      "verified_at": "2026-11-10T18:25:01+00:00",
       "source_url": "https://www.e2enetworks.com/pricing",
       "quote": "NVIDIA A100 40 16 115 $1.98",
       "availability": {
@@ -1290,7 +1284,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:49+00:00",
+      "verified_at": "2026-11-10T18:25:31+00:00",
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 PCIe 40 GB 30 225 GiB 512 GiB SSD $1.99",
       "availability": {
@@ -1331,7 +1325,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:49+00:00",
+      "verified_at": "2026-11-10T18:25:31+00:00",
       "source_url": "https://lambda.ai/pricing",
       "quote": "NVIDIA A100 SXM 40 GB 30 220 GiB 512 GiB SSD $1.99",
       "availability": {
@@ -1372,7 +1366,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:19+00:00",
+      "verified_at": "2026-11-10T18:25:01+00:00",
       "source_url": "https://www.e2enetworks.com/pricing",
       "quote": "NVIDIA A100 80 16 115 $2.10",
       "availability": {
@@ -1399,7 +1393,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:18:23+00:00",
+      "verified_at": "2026-11-10T18:28:05+00:00",
       "source_url": "https://verda.com/pricing",
       "quote": "1x A100 SXM4 80GB 22 120 GB 80 GB $2.316/h",
       "availability": {
@@ -1435,7 +1429,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:55+00:00",
+      "verified_at": "2026-11-10T18:25:37+00:00",
       "source_url": "https://modal.com/pricing",
       "quote": "Nvidia A100, 80 GB $ 0.000694 / sec",
       "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
@@ -1463,7 +1457,7 @@
       "server_hourly_usd": 21.6,
       "min_gpus": 8,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:07+00:00",
+      "verified_at": "2026-11-10T18:24:49+00:00",
       "source_url": "https://www.coreweave.com/pricing",
       "quote": "NVIDIA A100 On-Demand Price: $21.60 / Hour",
       "availability": {
@@ -1489,7 +1483,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:15:31+00:00",
+      "verified_at": "2026-11-10T18:25:13+00:00",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA A100 SXM $1.36 Reserve here",
       "availability": {
@@ -1505,5 +1499,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261110T105811Z-ded08751",
-  "feed_updated_at": "2026-11-10T18:18:23Z"
+  "feed_updated_at": "2026-11-10T18:28:05Z"
 }
