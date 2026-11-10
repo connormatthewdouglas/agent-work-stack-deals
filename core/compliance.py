@@ -13,6 +13,7 @@ PULLED_ID_SHA256 = frozenset({
     "37cbce2d8ff08ee5d9c16b5ba3ec1214a5ea81631fdf9d16695aa42359c50f3b",
     "48f2b01deb93e9410c524852b038ab0d24c2f3c559df6d2c1265726ef4b80a5d",
     "39855a1e80d49dd19e11c1986b7607d96fa861d0925f73f05974abb691c409ad",
+    "6755642363322d9c9379247618ffb5f6565e57631b8924989e33d032bde28ef0",
 })
 BLOCKED_STATUSES = frozenset({"pulled", "do_not_relist", "held"})
 
