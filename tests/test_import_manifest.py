@@ -93,7 +93,13 @@ def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path, fixed_owne
     m.write_text(json.dumps({"files": {"feed_enriched_v2_latest.json": hashlib.sha256(feed.read_bytes()).hexdigest()}}))
     out = ROOT / "data/gpu_availability/latest.json"
     keep = out.read_bytes()
+    prev = json.loads(keep)
+    held_prev = {"vendor": "Hyperstack", "gpu": "H100 SXM", "tier": "On-demand", "in_stock": None,
+                 "availability_checked_at": "2026-11-06T02:51:34Z",
+                 "availability_note": "fixture row for the owner-hold carry-through"}
+    prev["rows"] = [x for x in prev.get("rows") or [] if x.get("vendor") != "Hyperstack"] + [held_prev]
     try:
+        out.write_text(json.dumps(prev))  # a previous file that has an owner-held row to carry through
         r = _run_import(feed, {"LW_SCOUT_MANIFESTS": str(m), "LW_OWNER_HOLD": str(fixed_owner_hold)}, tmp_path)
         assert r.returncode == 0, r.stderr
         rows = json.loads(out.read_text())["rows"]
@@ -101,7 +107,7 @@ def test_n2_runpod_overall_without_confirmed_region_unknown(tmp_path, fixed_owne
         assert got["in_stock"] is None and got["stock_level"] is None and "no region" in got["availability_note"]
         # Owner-held vendors are copied from the previous file, not replaced by this snapshot.
         from core.owner_hold import is_held
-        assert any(is_held(x["vendor"]) for x in rows)
+        assert held_prev in [x for x in rows if is_held(x["vendor"])]
     finally:
         out.write_bytes(keep)
 
