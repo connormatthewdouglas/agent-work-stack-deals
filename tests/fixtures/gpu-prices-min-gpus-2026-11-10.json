@@ -43,7 +43,7 @@
   }
  ],
  "price_scope": "GPU-hour price only: excludes storage, data egress, extra vCPU/RAM and taxes. Check the vendor pricing page (source_url) for those; storage/egress fields appear on a rate only where that vendor's own page states them.",
- "note_fixture": "Frozen slice of api/v1/gpu-prices.json at main 35f9b26 (H100*/L40S rows + one marketplace row) for tests/test_min_gpus_exclusion.py, so live Lium/Koyeb/Clore changes cannot break the checks.",
+ "note_fixture": "Frozen slice of api/v1/gpu-prices.json at main 35f9b26 (H100*/L40S rows + one marketplace row) for the min_gpus tests (test_min_gpus_exclusion, test_t122_clore_min_gpus, the published-calculator check in test_single_gpu_rank), so live Lium/Koyeb/Clore/RunPod/CloudRift changes cannot break those checks.",
  "rates": [
   {
    "deal_id": "deal-99stack-001",
