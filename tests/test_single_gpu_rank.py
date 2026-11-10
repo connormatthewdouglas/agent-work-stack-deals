@@ -534,7 +534,15 @@ def test_published_calculator_names_lium_when_gpu_count_covers_the_minimum():
     """QA: 8x H100 names Lium $1,240, not RunPod $1,592. 2x L40S names Lium $76, not CloudRift $138."""
     page = (ROOT / "tools" / "gpu-cost-calculator" / "index.html").read_text(encoding="utf-8")
     src = re_search_script(page)
-    stub = r"""
+    # The published calculator script runs on a frozen rate fixture (main 1b47ecc7) with the clock pinned 12 h after its
+    # feed_updated_at: the named prices are real Lium/RunPod/CloudRift rows, and live collectors rewrite them.
+    fixture = json.loads((ROOT / "tests" / "fixtures" / "gpu-prices-min-gpus-2026-11-10.json").read_text(encoding="utf-8"))
+    start = src.index("const R=") + len("const R=")
+    _, end = json.JSONDecoder().raw_decode(src, start)
+    src = src[:start] + json.dumps(fixture["rates"], ensure_ascii=False) + src[end:]
+    # 12 h after the feed build: 1 h availability claims have expired (stock unknown), prices are well inside 48 h.
+    pin = "Date.now=()=>Date.parse(%s)+12*3600e3;\n" % json.dumps(fixture["feed_updated_at"])
+    stub = pin + r"""
 const els={}; function el(id){ if(!els[id]) els[id]={id,value:"",checked:true,href:"",textContent:"",tBodies:[{innerHTML:""}],addEventListener(){}}; return els[id]; }
 globalThis.document={getElementById:el,dispatchEvent(){},addEventListener(){}};
 globalThis.CustomEvent=function(){}; globalThis.location={search:process.argv[process.argv.length-1]};

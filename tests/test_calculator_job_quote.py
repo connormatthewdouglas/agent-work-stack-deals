@@ -7,6 +7,7 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PAGE = ROOT / "tools/gpu-cost-calculator/index.html"
+FIXTURE = ROOT / "tests/fixtures/gpu-prices-min-gpus-2026-11-10.json"
 NODE = shutil.which("node")
 PROMPT = "Choose a GPU model and enter workload hours and GPU count to see a comparable quote."
 STUB = r"""
@@ -19,7 +20,15 @@ globalThis.CustomEvent=function(){}; globalThis.location={search:process.argv[pr
 def render(query="?"):
     src = PAGE.read_text(encoding="utf-8")
     js = re.search(r"<script>\s*(const R=.*?)</script>", src, re.S).group(1)
-    js = STUB + js + "\nconsole.log(JSON.stringify({rows:els.results.tBodies[0].innerHTML,summary:els.summary.textContent,href:els.permalink.href,hours:els.hours.value,gpus:els.gpus.value,gpu:els.gpu.value,tier:els.tier.value}));"
+    # Frozen rate fixture (main 1b47ecc7) with the clock pinned 12 h after its feed_updated_at: the named quotes are real
+    # Hyperstack/RunPod/Lium rows, and the live collectors rewrite them. Assertions unchanged.
+    fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    start = js.index("const R=") + len("const R=")
+    _, end = json.JSONDecoder().raw_decode(js, start)
+    js = js[:start] + json.dumps(fixture["rates"], ensure_ascii=False) + js[end:]
+    # 12 h after the feed build: 1 h availability claims have expired (stock unknown), prices are well inside 48 h.
+    pin = "Date.now=()=>Date.parse(%s)+12*3600e3;\n" % json.dumps(fixture["feed_updated_at"])
+    js = pin + STUB + js + "\nconsole.log(JSON.stringify({rows:els.results.tBodies[0].innerHTML,summary:els.summary.textContent,href:els.permalink.href,hours:els.hours.value,gpus:els.gpus.value,gpu:els.gpu.value,tier:els.tier.value}));"
     p = subprocess.run([NODE, "-", query], input=js, capture_output=True, text=True, check=True)
     return json.loads(p.stdout)
 

@@ -4174,8 +4174,8 @@
   {
    "date": "2026-11-10",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-10.json",
-   "snapshot_sha256": "edd1c73eb4b89849b8e305ae642cb76ed83f5e07e874ad7570e31629caa6db13",
-   "feed_commit_for_listing_counts": "13fdc377cd717bdbb593668e98cc2d238a58c158",
+   "snapshot_sha256": "9a167cba00d2ca5f0078de94218e12aa0f391118df3ce36a38c769e9b6a8b470",
+   "feed_commit_for_listing_counts": "f1af4e726e20cb832d98d8d0c2dbc40f745b35dc",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.5,
@@ -4200,10 +4200,10 @@
      "low_coverage": false
     },
     "A100": {
-     "median_usd_per_gpu_hour": 1.49,
-     "monthly_basis_usd": 1087.7,
+     "median_usd_per_gpu_hour": 1.48,
+     "monthly_basis_usd": 1080.4,
      "min_usd_per_gpu_hour": 1.09,
-     "vendors": 9,
+     "vendors": 10,
      "vendor_prices": {
       "Civo": 1.79,
       "CoreWeave": 2.7,
@@ -4213,6 +4213,7 @@
       "Oblivus": 1.47,
       "RunPod": 1.19,
       "Thunder Compute": 1.09,
+      "Vast.ai": 1.1311,
       "Verda (formerly DataCrunch)": 2.316
      },
      "low_coverage": false
@@ -4249,8 +4250,8 @@
      "low_coverage": false
     },
     "RTX 4090": {
-     "median_usd_per_gpu_hour": 0.4976,
-     "monthly_basis_usd": 363.25,
+     "median_usd_per_gpu_hour": 0.4941,
+     "monthly_basis_usd": 360.69,
      "min_usd_per_gpu_hour": 0.34,
      "vendors": 7,
      "vendor_prices": {
@@ -4260,7 +4261,7 @@
       "Oblivus": 0.64,
       "RunC.AI": 0.42,
       "RunPod": 0.34,
-      "Vast.ai": 0.4976
+      "Vast.ai": 0.4941
      },
      "low_coverage": false
     },
@@ -4333,6 +4334,7 @@
     "RunPod|RTX 5090|On-demand (Secure Cloud)|32|1",
     "Thunder Compute|A100|On-demand|80|1",
     "Thunder Compute|H100 SXM|On-demand|80|1",
+    "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
     "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
     "Verda (formerly DataCrunch)|A100 SXM|On-demand instance (1x GPU)|80|1",
     "Verda (formerly DataCrunch)|H100 SXM|On-demand instance (1x GPU)|80|1",
@@ -4405,6 +4407,10 @@
      "excluded_because": "held"
     },
     {
+     "key": "Lium|A100 SXM|Marketplace secure node|80|1",
+     "excluded_because": "marketplace, listing count unknown"
+    },
+    {
      "key": "Lium|H100 SXM|Marketplace secure node|80|1",
      "excluded_because": "marketplace, listing count unknown"
     },
@@ -4417,12 +4423,8 @@
      "excluded_because": "marketplace, listing count unknown"
     },
     {
-     "key": "Lium|L40S|Marketplace secure node|48|2",
+     "key": "Lium|L40S|Marketplace secure node|48|4",
      "excluded_because": "marketplace, listing count unknown"
-    },
-    {
-     "key": "Lium|L40S|Marketplace spot node (interruptible)|48|8",
-     "excluded_because": "spot/interruptible"
     },
     {
      "key": "Lium|RTX 4090|Marketplace secure node|24|1",
@@ -4433,11 +4435,11 @@
      "excluded_because": "spot/interruptible"
     },
     {
-     "key": "Lium|RTX 5090|Marketplace secure node|32|1",
+     "key": "Lium|RTX 5090|Marketplace secure node|32|8",
      "excluded_because": "marketplace, listing count unknown"
     },
     {
-     "key": "Lium|RTX 5090|Marketplace spot node (interruptible)|32|1",
+     "key": "Lium|RTX 5090|Marketplace spot node (interruptible)|32|7",
      "excluded_because": "spot/interruptible"
     },
     {
@@ -4505,10 +4507,6 @@
      "excluded_because": "reserved/committed"
     },
     {
-     "key": "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
-     "excluded_because": "held"
-    },
-    {
      "key": "Verda (formerly DataCrunch)|A100 SXM|Spot instance (1x GPU)|80|1",
      "excluded_because": "spot/interruptible"
     },
@@ -4535,14 +4533,12 @@
      "vendors_dropped": []
     },
     "A100": {
-     "matched_vendors": 9,
-     "matched_median_prev": 1.49,
-     "matched_median_cur": 1.49,
+     "matched_vendors": 10,
+     "matched_median_prev": 1.48,
+     "matched_median_cur": 1.48,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": [
-      "Vast.ai"
-     ]
+     "vendors_dropped": []
     },
     "H200": {
      "matched_vendors": 6,
@@ -4563,8 +4559,8 @@
     "RTX 4090": {
      "matched_vendors": 7,
      "matched_median_prev": 0.5078,
-     "matched_median_cur": 0.4976,
-     "matched_change_pct": -2.01,
+     "matched_median_cur": 0.4941,
+     "matched_change_pct": -2.7,
      "vendors_added": [],
      "vendors_dropped": []
     },

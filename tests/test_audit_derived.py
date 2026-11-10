@@ -81,6 +81,25 @@ def test_no_integrated_gpus():
     assert not gpu.is_non_dedicated("RTX 4090") and not gpu.is_non_dedicated("Radeon PRO W7900")
 
 
+def test_availability_import_does_not_bump_feed_updated_at(tmp_path):
+    """An availability-only collected_at must not move the price feed's feed_updated_at."""
+    import gpu_calculator as gc
+    import generate_seo_pages as gen
+    avail = tmp_path / "data" / "gpu_availability"
+    avail.mkdir(parents=True)
+    (avail / "latest.json").write_text(json.dumps({"collected_at": "2099-01-01T00:00:00Z", "generation_id": "avail-only"}))
+    class G:
+        ROOT = tmp_path
+        BASE = gen.BASE
+        assert_public_clean = staticmethod(gen.assert_public_clean)
+    deals = json.loads((ROOT / "deals.json").read_text())["deals"]
+    p = gc.build_payload(G(), deals, "2020-01-01T00:00:00Z")
+    newest = core.latest_checked_at([r["verified_at"] for r in p["rates"]])
+    assert p["availability_collected_at"] == "2099-01-01T00:00:00Z"
+    assert p["generation_id"] == "avail-only"
+    assert p["feed_updated_at"] == newest and not p["feed_updated_at"].startswith("2099")
+
+
 def test_feed_updated_at_not_older_than_prices():
     """T8/M5: header dates come from the data, never older than the newest price check."""
     from core.deals import latest_checked_at
