@@ -12,6 +12,16 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
+## 0.6.3 (2026-11-10, PyPI)
+
+- T118: publish the current agent contract so the PyPI wheel and hosted Worker match main (package version plus `serverInfo.build` SHA). 0.6.2 stayed at `21684cc5` while later contract behavior landed on main.
+- `compare_gpu_prices` excludes rows whose `min_gpus` exceeds the requested GPU count (#130).
+- Shared hold for serverless/per-second rows in compare, `estimate_job_cost`, agent-stack and /cost/ pages (#125, #127).
+- Owner-held vendors are excluded from rankings, pages and freshness gates (#128).
+- T61: sourced model identity and nominal vs usable memory (#103).
+- T63: wider-import evidence and billing semantics preserved; bid-tier labels count as interruptible, labels kept verbatim (#102, #122, #108).
+- `agent_stack` caps parsed hours and converts per-day × days (#100).
+
 ## 0.6.2 (2026-11-06, PyPI)
 
 - T116: `expected_cost_usd` deprecated to explicit null with a deprecation label; stock frequency stays descriptive only (known/unknown counts, observed window, sample size, stale-window labels) — not a quote, budget verdict or predicted bill. The previous T112 price/share formula is withdrawn; raw vendor prices are unchanged. Source: PR #113 (Gauge content GO at 572575eb).
