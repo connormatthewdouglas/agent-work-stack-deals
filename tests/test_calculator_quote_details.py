@@ -7,6 +7,7 @@ from core import gpu as G
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PAGE = ROOT / "tools/gpu-cost-calculator/index.html"
+FIXTURE = ROOT / "tests/fixtures/gpu-prices-min-gpus-2026-11-10.json"
 NODE = shutil.which("node")
 STUB = r"""
 const els={}; function el(id){ if(!els[id]) els[id]={id,value:"",checked:true,href:"",hidden:false,textContent:"",innerHTML:"",tBodies:[{innerHTML:""}],addEventListener(){}}; return els[id]; }
@@ -18,7 +19,15 @@ globalThis.CustomEvent=function(){}; globalThis.location={search:process.argv[pr
 def render(query="?"):
     src = PAGE.read_text(encoding="utf-8")
     js = re.search(r"<script>\s*(const R=.*?)</script>", src, re.S).group(1)
-    js = STUB + js + """
+    # Frozen rate fixture (main 1b47ecc7) with the clock pinned 12 h after its feed_updated_at: the named rows are real
+    # Hyperstack/CoreWeave rates, and live stock imports flip which one is named. Assertions unchanged.
+    fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    start = js.index("const R=") + len("const R=")
+    _, end = json.JSONDecoder().raw_decode(js, start)
+    js = js[:start] + json.dumps(fixture["rates"], ensure_ascii=False) + js[end:]
+    # 12 h after the feed build: 1 h availability claims have expired (stock unknown), prices are well inside 48 h.
+    pin = "Date.now=()=>Date.parse(%s)+12*3600e3;\n" % json.dumps(fixture["feed_updated_at"])
+    js = pin + STUB + js + """
 console.log(JSON.stringify({rows:els.results.tBodies[0].innerHTML,summary:els.summary.textContent,quote:(els.quote&&els.quote.innerHTML)||"",href:els.permalink.href}));"""
     p = subprocess.run([NODE, "-", query], input=js, capture_output=True, text=True, check=True)
     out = json.loads(p.stdout)
