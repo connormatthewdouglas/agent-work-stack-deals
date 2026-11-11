@@ -650,12 +650,13 @@ def vendor_body(gen, bundle: dict, report: dict) -> str:
         recs = held.get("records") or []
         if recs:
             parts.append("  <h2>Last held records</h2>\n  <div class=\"tscroll\"><table>\n")
-            parts.append("    <thead><tr><th>GPU</th><th>Tier</th><th>$/GPU-hr (held)</th><th>Source quote</th></tr></thead>\n    <tbody>\n")
+            parts.append("    <thead><tr><th>GPU</th><th>Tier</th><th>$/GPU-hr (held)</th><th>Read</th><th>Source quote</th></tr></thead>\n    <tbody>\n")
+            import gpu_pages as gp
             for rec in recs:
                 q = rec.get("quote") or (rec.get("evidence") or {}).get("quote") or "No quote recorded"
                 parts.append(
                     f'    <tr><td>{e(rec.get("gpu"))}</td><td>{e(rec.get("tier"))}</td>'
-                    f'<td>{e(money(rec.get("hourly_usd")))}</td><td>{e(q)}</td></tr>\n'
+                    f'<td>{e(money(rec.get("hourly_usd")))}</td><td>{gp.read_time_html(rec, e)}</td><td>{e(q)}</td></tr>\n'
                 )
             parts.append("    </tbody></table></div>\n")
 
@@ -673,9 +674,13 @@ def vendor_body(gen, bundle: dict, report: dict) -> str:
         parts.append('  <div class="tscroll"><table>\n')
         parts.append(
             "    <thead><tr><th>GPU</th><th>This vendor</th><th>Rank</th>"
-            "<th>Cheapest tracked</th><th>Evidence</th></tr></thead>\n    <tbody>\n"
+            "<th>Cheapest tracked</th><th>Read</th><th>Evidence</th></tr></thead>\n    <tbody>\n"
         )
+        import gpu_pages as gp
+        src_rows = []
         for r in ranks:
+            src = r.get("row") or r
+            src_rows.append(src)
             if r["comparable"]:
                 rank_txt = f'{r["rank"]} of {r["field"]}'
                 if r["tied"]:
@@ -688,16 +693,21 @@ def vendor_body(gen, bundle: dict, report: dict) -> str:
             tier = r.get("tier") or ""
             ff = r.get("form_factor") or ""
             mid = f'{e(price)}/hr'
+            if src.get("price_status") == "marketplace":
+                mid += " · marketplace median, from in-stock listings only"
             if tier:
                 mid += f' · {e(tier)}'
             if ff and ff != "not stated":
                 mid += f' · {e(ff)}'
             ev = _evidence_html(gen, r)
+            stock_cls = gp.row_stock_class(src)
+            stock_lbl = gp.stock_label_html() if stock_cls == "no-stock-reading" else ""
             parts.append(
-                f'    <tr><td>{e(r["gpu"])}</td><td>{mid}</td><td>{rank_txt}</td>'
-                f"<td>{cheap}</td><td>{ev}</td></tr>\n"
+                f'    <tr class="{stock_cls}"><td>{e(r["gpu"])}</td><td>{mid}{stock_lbl}</td><td>{rank_txt}</td>'
+                f"<td>{cheap}</td><td>{gp.read_time_html(src, e)}</td><td>{ev}</td></tr>\n"
             )
         parts.append("    </tbody></table></div>\n")
+        parts.append(gp.median_footnote_html(src_rows) + gp.no_stock_note_html(src_rows))
 
     parts.append("  <h2>Undercut in the last 14 days</h2>\n")
     missing = under["snapshot_days_missing"]
