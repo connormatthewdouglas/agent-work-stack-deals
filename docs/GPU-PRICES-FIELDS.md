@@ -59,6 +59,18 @@ On every up/down change in `/api/v1/gpu-price-changes.json` and in `changes` of 
 | `availability_reason` | string or null | Scout's machine-readable reason for the status (e.g. `no_source`), unchanged. |
 | `availability_reason_detail` | string or null | Scout's finer reason (e.g. `no_api`), unchanged. |
 
+
+## machine_ids and listing_ids (additive, P44, Nov 2026)
+
+Vendor-native identifiers recorded by Scout on availability rows and inside `available_regions_detail`. Null when the vendor did not provide one, or when Scout has no availability collector for that vendor. Never invented. Schema 3.2 is unchanged.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `machine_ids` | array of integers, or null | Vast.ai `machine_id` values from the offers that made up this snapshot row (overall or region). |
+| `listing_ids` | array of integers, or null | Clore.ai marketplace listing `servers[].id` values for the unrented servers in this snapshot row. |
+
+Lium node ids are not in this import yet: Scout has no Lium availability collector.
+
 ## T116: stock frequency is not a dollar cost
 
 `expected_cost_usd` is **deprecated and always null**. `expected_cost_label` explicitly marks the deprecation.
