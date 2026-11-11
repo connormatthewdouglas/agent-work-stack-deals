@@ -4,9 +4,7 @@
   "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.csv",
   "checked_at": "2026-11-11T21:31:38+00:00",
   "billing_granularity": "hourly",
-  "manual_snapshot": {
-    "reason": "Priced from AWS's public Price List Bulk API (AmazonEC2 us-east-1 current offer, publicationDate 2026-11-10T17:38:52Z, version 20261110173852; no robots.txt on pricing.us-east-1.amazonaws.com). Linux, shared tenancy, on-demand, CapacityStatus Used, No License required, unit Hrs. A snapshot (2026-11-11T21:31:38+00:00) that auto-holds after 7 days unless re-snapshotted."
-  },
+  "collector": "aws_price_list",
   "extras": {
     "egress": {
       "status": "unknown",
@@ -47,7 +45,8 @@
         "checked_at": "2026-11-11T21:31:38+00:00"
       },
       "verified_at": "2026-11-11T21:31:38+00:00",
-      "region": "us-east-1"
+      "region": "us-east-1",
+      "instance_type": "g5.xlarge"
     }
   ]
 }
