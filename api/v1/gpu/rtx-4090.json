@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-11T18:54:54Z",
+  "last_checked": "2026-11-11T22:12:05+00:00",
   "row_count": 11,
   "providers": [
     "Clore.ai",
@@ -44,7 +44,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:31:24+00:00",
+        "verified_at": "2026-11-11T22:10:50+00:00",
         "source_url": "https://nova-cloud.ai/gpu-models/4090",
         "quote": "1 x RTX 4090 $ 0.42 /hr $ 0.00012 /sec vRAM: 24 GB System RAM: 64 GB CPU Cores: 16 CPU: EPYC 7B13",
         "availability": {
@@ -77,7 +77,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:31:55+00:00",
+        "verified_at": "2026-11-11T22:11:20+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
         "availability": {
@@ -115,7 +115,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:32:05+00:00",
+        "verified_at": "2026-11-11T22:11:31+00:00",
         "source_url": "https://salad.com/pricing",
         "quote": "GPU VRAM High Medium Low Lowest $/mo (Lowest) RTX 5090 32 GB $0.600 $0.483 $0.367 $0.250 $182.50 RTX 4090 24 GB $0.440 $0.347 $0.253 $0.160",
         "availability": {
@@ -146,7 +146,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-10T18:31:55+00:00",
+        "verified_at": "2026-11-11T22:11:20+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
         "availability": {
@@ -219,15 +219,15 @@
         "tier_class": "marketplace",
         "bucket": "spot-community",
         "interruptible": false,
-        "hourly_usd_per_gpu": 0.4941,
+        "hourly_usd_per_gpu": 0.4681,
         "unit": "hour",
-        "price_usd": 0.4941,
+        "price_usd": 0.4681,
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "marketplace",
-        "verified_at": "2026-11-10T18:33:36+00:00",
+        "verified_at": "2026-11-11T22:12:05+00:00",
         "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-        "quote": "Vast public offers API: 49 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4941/hr, min $0.3681/hr",
+        "quote": "Vast public offers API: 41 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4681/hr, min $0.3630/hr",
         "availability": {
           "status": "unknown (stale availability, last checked 2026-11-11 13:46 ET)",
           "in_stock": null,
@@ -241,13 +241,9 @@
           "price_read_at": "2026-11-10T18:33:36+00:00",
           "price_at_claim_usd": 0.4941,
           "gpu_count": 1,
-          "first_read_at": "2026-11-11T18:46:49Z",
-          "second_read_at": "2026-11-11T18:53:51Z",
-          "second_read_gap_s": 422.0,
-          "second_read_basis": "region BG",
-          "two_read_gap_ok": true,
-          "last_known_in_stock": true,
-          "last_known_at": "2026-11-11T18:46:49Z"
+          "price_join_failed": true,
+          "last_known_in_stock": null,
+          "last_known_at": null
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -363,7 +359,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:32:05+00:00",
+      "verified_at": "2026-11-11T22:11:31+00:00",
       "source_url": "https://salad.com/pricing",
       "quote": "GPU VRAM High Medium Low Lowest $/mo (Lowest) RTX 5090 32 GB $0.600 $0.483 $0.367 $0.250 $182.50 RTX 4090 24 GB $0.440 $0.347 $0.253 $0.160",
       "availability": {
@@ -389,7 +385,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:31:55+00:00",
+      "verified_at": "2026-11-11T22:11:20+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
       "availability": {
@@ -458,7 +454,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:31:24+00:00",
+      "verified_at": "2026-11-11T22:10:50+00:00",
       "source_url": "https://nova-cloud.ai/gpu-models/4090",
       "quote": "1 x RTX 4090 $ 0.42 /hr $ 0.00012 /sec vRAM: 24 GB System RAM: 64 GB CPU Cores: 16 CPU: EPYC 7B13",
       "availability": {
@@ -486,7 +482,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:31:47+00:00",
+      "verified_at": "2026-11-11T22:11:14+00:00",
       "source_url": "https://www.runc.ai/gpu/rtx-4090/",
       "quote": "1x RTX 4090 CPU 16 Cores RAM 64 GB VRAM 24 GB Hourly $0.42/hr",
       "availability": {
@@ -507,15 +503,15 @@
       "tier_class": "marketplace",
       "bucket": "spot-community",
       "interruptible": false,
-      "hourly_usd_per_gpu": 0.4941,
+      "hourly_usd_per_gpu": 0.4681,
       "unit": "hour",
-      "price_usd": 0.4941,
+      "price_usd": 0.4681,
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "marketplace",
-      "verified_at": "2026-11-10T18:33:36+00:00",
+      "verified_at": "2026-11-11T22:12:05+00:00",
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-      "quote": "Vast public offers API: 49 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4941/hr, min $0.3681/hr",
+      "quote": "Vast public offers API: 41 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.4681/hr, min $0.3630/hr",
       "availability": {
         "status": "unknown (stale availability, last checked 2026-11-11 13:46 ET)",
         "in_stock": null,
@@ -529,13 +525,9 @@
         "price_read_at": "2026-11-10T18:33:36+00:00",
         "price_at_claim_usd": 0.4941,
         "gpu_count": 1,
-        "first_read_at": "2026-11-11T18:46:49Z",
-        "second_read_at": "2026-11-11T18:53:51Z",
-        "second_read_gap_s": 422.0,
-        "second_read_basis": "region BG",
-        "two_read_gap_ok": true,
-        "last_known_in_stock": true,
-        "last_known_at": "2026-11-11T18:46:49Z"
+        "price_join_failed": true,
+        "last_known_in_stock": null,
+        "last_known_at": null
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -633,7 +625,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-11T18:54:54Z",
+      "verified_at": "2026-11-11T22:11:02+00:00",
       "source_url": "https://oblivus.com/pricing/",
       "quote": "RTX 4090 ... On-Demand: $0.64/hr",
       "availability": {
@@ -659,7 +651,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:31:29+00:00",
+      "verified_at": "2026-11-11T22:10:55+00:00",
       "source_url": "https://novita.ai/gpu-instance/gpu/rtx-4090",
       "quote": "RTX 4090 On-Demand The specific price is subject to the computing power market. $0.67/GPU/hr",
       "availability": {
@@ -700,7 +692,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-10T18:31:55+00:00",
+      "verified_at": "2026-11-11T22:11:20+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
       "availability": {
@@ -721,5 +713,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261111T185501Z-dadd3327",
-  "feed_updated_at": "2026-11-11T21:31:38Z"
+  "feed_updated_at": "2026-11-11T22:12:08Z"
 }
