@@ -105,3 +105,43 @@ def test_mcp_brief_rows_add_audit_fields_only():
     b = out["results"][0]
     assert (b["stock_read_at"], b["price_read_at"], b["price_at_claim_usd"]) == ("s", "p", 2.79)
     assert "availability" not in b and b["in_stock"] is True  # existing brief keys unchanged
+
+
+def test_price_change_drop_keeps_firm_dated_claim_as_last_known(monkeypatch):
+    """A firm, dated claim dropped because the price changed is kept as last_known_* (not invented)."""
+    from datetime import datetime, timezone
+    monkeypatch.setattr(ga, "_SNAP_CACHE", {"VendorX|A100 SXM|On-demand|80|1": [("2026-11-01T17:48:57+00:00", 2.248)]})
+    rec = _rec(2.27, "2026-11-02T11:59:59+00:00")
+    for firm in (True, False):
+        c = dict(_claim("2026-11-02T11:38:46Z"), in_stock=firm,
+                 status="available when checked" if firm else "out of stock when checked")
+        out = ga.price_join_guard(c, rec)
+        assert out["in_stock"] is None and out["price_join_failed"] is True  # in_stock still dropped
+        assert out["last_known_in_stock"] is firm and out["last_known_at"] == "2026-11-02T11:38:46Z"
+
+    # No check time: the join cannot drop the claim, and last_known is not invented.
+    undated = {"in_stock": True, "status": "available when checked", "origin": "scout"}
+    out = ga.price_join_guard(undated, rec)
+    assert out["in_stock"] is True and not out.get("price_join_failed")
+    assert out.get("last_known_in_stock") is None and out.get("last_known_at") is None
+
+    # Already unknown: early return, nothing invented.
+    already = {"in_stock": None, "status": "unknown", "checked_at": "2026-11-02T11:38:46Z", "origin": "scout"}
+    out = ga.price_join_guard(already, rec)
+    assert out is already and out.get("last_known_in_stock") is None
+
+
+def test_price_change_then_stale_still_keeps_last_known(monkeypatch):
+    """The live path: price_join_guard drops the claim, then stale_guard lapses it. last_known must survive."""
+    from datetime import datetime, timezone
+    monkeypatch.setattr(ga, "_SNAP_CACHE", {"VendorX|A100 SXM|On-demand|80|1": [("2026-11-01T17:48:57+00:00", 2.248)]})
+    rec = _rec(2.27, "2026-11-02T11:59:59+00:00")
+    c = dict(_claim("2026-11-02T11:38:46Z"), in_stock=True, status="available when checked",
+             availability_expires_at="2026-11-02T12:38:46Z")
+    dropped = ga.price_join_guard(c, rec)
+    assert dropped["in_stock"] is None and dropped["last_known_in_stock"] is True
+    later = ga.stale_guard(dropped, datetime(2026, 11, 2, 14, 0, tzinfo=timezone.utc))
+    assert later["in_stock"] is None and later.get("availability_stale") is True
+    assert later["last_known_in_stock"] is True and later["last_known_at"] == "2026-11-02T11:38:46Z"
+    from core import deals as core
+    assert core.out_of_stock({"availability": later}) is False  # still unknown for ranking

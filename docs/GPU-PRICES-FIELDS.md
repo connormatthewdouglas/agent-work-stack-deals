@@ -51,6 +51,16 @@ On every up/down change in `/api/v1/gpu-price-changes.json` and in `changes` of 
 | `last_verified_before` | string (ISO-8601 UTC) or null | `verified_at` of the last daily snapshot that still showed the previous price for this rate (the last time we confirmed the old price). Null on `new` and `removed` entries, and when that timestamp is missing. |
 | `gap_days` | number (2 dp) or null | Days from `last_verified_before` to the `verified_at` of the first snapshot that showed the new price. The vendor changed the price inside that window: after `last_verified_before`, and at or before `last_verified_before` + `gap_days`. Null when either timestamp is missing, or when they are out of order. |
 
+
+## last_known_in_stock and last_known_at (additive, P36, Nov 2026)
+
+On every GPU rate's `availability` in `gpu-prices.json` and in `compare_gpu_prices` / `estimate_job_cost` (full mode; brief rows carry them only when they add something: `in_stock` is null and last_known is a firm value). Display only: ranking still reads `in_stock`.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `last_known_in_stock` | boolean or null | The last firm true/false stock answer. Set when a claim lapses (expired) or is dropped because the price changed after the stock check (`price_join_guard`). A current firm claim reports itself in full mode. Null when there was never a firm, dated claim. Never invented. |
+| `last_known_at` | string (date-time) or null | The `checked_at` of that firm claim (ISO UTC). Null when `last_known_in_stock` is null. |
+
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
 | Field | Type | Meaning |
