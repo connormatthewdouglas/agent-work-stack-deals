@@ -42,6 +42,26 @@ On every rate in `gpu-prices.json` and every `compare_gpu_prices` result (full m
 | `min_bill_usd_per_hour` | number or null | `min_gpus` x the per-GPU hourly price (`hourly_equiv_usd` in the feed, `hourly_usd` in MCP rows): the least you pay per hour for one allocation. Equals the hourly price when `min_gpus` is 1. Null when either input is missing. Also on `excluded_min_gpus` entries. |
 | `min_bill_basis` | `hourly_rate`, `per_second_rate`, `monthly_equivalent` or null | What the hourly price is: the vendor's own per-GPU hourly rate; its per-second rate x 3600 (billed per second while running); or, for flat monthly servers, a derived equivalent (monthly price / 730 h). A `monthly_equivalent` is not a quoted hourly rate: the vendor bills the month. Marketplace rows use the median offer, as `hourly_equiv_usd` does. |
 
+## next_check_at, will_backfill, backfill_eta (additive, P40, Nov 2026; MCP only)
+
+`compare_gpu_prices` adds these to every result whose stock is unknown (`in_stock` null, including a lapsed claim) and to every `stale_prices` entry (`core/check_schedule.py`). They are computed when you call the tool, because a "next check" time written into the static feed would go out of date. Brief rows carry `next_check_at` and `will_backfill`. Ranking never reads them.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `next_check_at` | string (ISO-8601 UTC) or null | The next scheduled run, at or after the request, that can re-check this row. Null when no schedule covers it. GitHub cron can start late. |
+| `will_backfill` | boolean or null | `true` ("filling"): a scheduled check covers this row and will try again. `false` ("scope limit"): nothing scheduled re-checks it. `null`: not derivable from our config. `true` does not promise the source will answer, and a missed check is never re-run for the past. |
+| `backfill_eta` | string (ISO-8601 UTC) or null | The last scheduled attempt in that cycle: for daily prices the 14:47 UTC fallback after the 10:23 UTC primary run. Other schedules have no fallback, so this equals `next_check_at`. Null when `will_backfill` is not `true`. |
+| `next_check_basis` | string | Which schedule or config produced the answer. |
+
+How each case is derived (each constant is asserted against its workflow file in `tests/test_p40_next_check.py`):
+
+- **Unknown stock, row has Scout stock data** (`availability.origin` `scout`, including `no_source` reads such as `api_null_signal` / `unconfirmed_two_reads` and lapsed claims): the next 4-hourly import slot of `.github/workflows/scout-import.yml` (00/04/08/12/16/20 UTC, from :10). A new Scout push can import sooner. `will_backfill: true`.
+- **Unknown stock, no Scout stock source** (no Scout row, or Scout `no_api`): scope limit. `will_backfill: false`, `next_check_at: null`.
+- **Stale price, `price_check` `daily`** (also `rotating snapshot`): `.github/workflows/gpu-refresh.yml`, 10:23 UTC, fallback 14:47 UTC.
+- **Stale price, Lium**: `.github/workflows/lium-collect.yml`, every 2 h at :40 UTC (`scripts/collect_lium.py`). Lium is marked `manual snapshot` in the feed but has this scheduled collector.
+- **Stale price, `price_check` `batch`** (Scout wider-GPU batch): `scripts/import_scout_wider.py` in the next 4-hourly `scout-import.yml` run (from :10 UTC), when Scout has published a batch.
+- **Stale price, any other `manual snapshot`** (for example Clore.ai, Cirrascale): scope limit. `will_backfill: false`, `next_check_at: null`.
+- **Anything else**: all null, with basis "not derivable".
 ## last_verified_before and gap_days on price changes (additive, P46, Nov 2026)
 
 On every up/down change in `/api/v1/gpu-price-changes.json` and in `changes` of `/api/v1/gpu-prices/history.json`, and on `get_price_changes` rows and `compare_gpu_prices` `history.recent_changes` (`core.gpu_history.change_gap`).
