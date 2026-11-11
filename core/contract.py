@@ -52,7 +52,7 @@ SPEC = {
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
                           ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
-                           "change_pct", "source_url"]),
+                           "change_pct", "source_url", "last_verified_before", "gap_days"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -93,7 +93,10 @@ EXTRA_PROPS = {
         "next_cursor": _str, "has_more": _bool, "last_seq": {"type": ["integer", "null"]},
         "changes": {"type": "array", "items": {"type": "object", "required": ["vendor", "gpu", "direction"],
                                                 "properties": {"event_id": _str, "rate_id": _str, "key": _str,
-                                                               "seq": {"type": ["integer", "null"]}, "snapshot_id": _str}}},
+                                                               "seq": {"type": ["integer", "null"]}, "snapshot_id": _str,
+                                                               # P46 (additive): bounds on when the change happened; null when unknown
+                                                               "last_verified_before": {"type": ["string", "null"], "format": "date-time"},
+                                                               "gap_days": {"type": ["number", "null"], "minimum": 0}}}},
     },
 }
 # T39: rate_id on every compared rate and optimizer option; quote_id receipt on optimize/estimate responses.

@@ -39,13 +39,15 @@ def build_changes(snapshots: list[dict] | None = None) -> dict:
                 continue
             kind = "down" if new < old else "up"
             out.append({**base, "change": kind, "old_hourly_usd": old, "new_hourly_usd": new,
-                        "pct": round((new - old) / old * 100, 1) if old else None, "verified_at": n.get("verified_at")})
+                        "pct": round((new - old) / old * 100, 1) if old else None, "verified_at": n.get("verified_at"),
+                        # P46 (additive): last check at the old price (previous snapshot) and the gap to the new one
+                        **gpu_history.change_gap(o.get("verified_at"), n.get("verified_at"))})
         elif n:
             out.append({**base, "change": "new", "old_hourly_usd": None, "new_hourly_usd": round(n["hourly_usd"], 4),
-                        "pct": None, "verified_at": n.get("verified_at")})
+                        "pct": None, "verified_at": n.get("verified_at"), "last_verified_before": None, "gap_days": None})
         else:
             out.append({**base, "change": "removed", "old_hourly_usd": round(o["hourly_usd"], 4), "new_hourly_usd": None,
-                        "pct": None, "verified_at": None})
+                        "pct": None, "verified_at": None, "last_verified_before": None, "gap_days": None})
     order = {"down": 0, "up": 1, "new": 2, "removed": 3}
     out.sort(key=lambda c: (order[c["change"]], c["pct"] if c["pct"] is not None else 0, c["gpu"], c["vendor"], c["key"]))
     doc["changes"] = out
