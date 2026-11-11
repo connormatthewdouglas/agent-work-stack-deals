@@ -540,7 +540,10 @@ def write_all(gen) -> list[str]:
             body = (f"<h1>{esc(sa)} vs {esc(sb)} GPU prices</h1>"
                     f"<p>This comparison is not shown right now: {esc(sa)} and {esc(sb)} do not currently "
                     f"share at least {MIN_SHARED} live, same-tier GPU rates among tracked providers "
-                    "(or one vendor has no live ranked rates). Previously published figures are not kept on this page.</p>")
+                    "(or one vendor has no live ranked rates). Previously published figures are not kept on this page.</p>"
+                    '<script type="application/json" id="lw-price-block">'
+                    '{"schema":"lantern-works-price-block/1","mcp":"compare_gpu_prices (brief mode)","items":[],'
+                    '"note":"not enough overlapping live rates to compare"}</script>')
             write(gen, path, f"{sa} vs {sb} GPU prices",
                   f"{sa} vs {sb} does not currently have enough overlapping live rates to compare.",
                   f"{gen.BASE}/{path}/", body, [])

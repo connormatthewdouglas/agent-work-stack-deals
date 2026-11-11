@@ -29,7 +29,7 @@ def _rows(html):
     # all rate tables: pay-as-you-go first, then the reserved/term section (H5)
     tbl = "".join(t.split("</table>", 1)[0] for t in html.split('<table class="howto" id="')[1:])
     out = []
-    for tr in re.findall(r"<tr data-tier=\"([^\"]+)\">(.*?)</tr>", tbl, re.S):
+    for tr in re.findall(r"<tr data-tier=\"([^\"]+)\"[^>]*>(.*?)</tr>", tbl, re.S):
         cells = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", tr[1], re.S)]
         out.append((tr[0], cells))
     return out
