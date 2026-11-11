@@ -234,6 +234,36 @@ def add_go_clicks(rep: dict, go: dict) -> None:
             w["clicks"]["by_source"] = dict(sorted(w["clicks"]["by_source"].items(), key=lambda x: (-x[1], x[0])))
 
 
+AGENT_Q2C_SOURCE = ("T136: agent_query_to_click = agent_mcp_clicks / agent_tool_calls per ISO week. agent_tool_calls = hosted "
+                    "worker tool calls (hits kind=tool) minus house traffic (src_class house, or a house ref: ci, qa, test, smoke, "
+                    "house-*, t<N>) and known bots. agent_mcp_clicks = clicks.by_source.mcp (the src=mcp /go/ links in MCP "
+                    "results), already without bots and house clicks. Clicks also come from local (stdio) installs, whose calls "
+                    "the hosted worker cannot see, so the rate can overstate hosted-only conversion. null when no agent calls.")
+
+
+def add_agent_query_to_click(rep: dict, hosted: dict) -> None:
+    """Weekly query-to-click rate for agent (MCP) traffic, house traffic and known bots excluded (T136)."""
+    rep["sources"]["agent_query_to_click"] = AGENT_Q2C_SOURCE
+    calls: dict = {}
+    for h in hosted.get("hits") or []:
+        if h.get("kind") != "tool":
+            continue
+        ref, srcc, uac = str(h.get("ref") or "none"), str(h.get("src_class") or ""), str(h.get("ua_class") or "")
+        if srcc == "house" or uac in ("house", "ci", "known-bot") or internal(ref):
+            continue
+        _add(calls, week(h["day"]), h.get("n"))
+    for w in rep["weeks"]:
+        n = calls.get(w["week"], 0)
+        c = w.get("clicks")
+        k = (c or {}).get("by_source", {}).get("mcp", 0) if c is not None else None
+        rate = round(k / n, 4) if (n and k is not None) else None
+        w["agent_query_to_click"] = {
+            "agent_tool_calls": n, "agent_mcp_clicks": k, "rate": rate,
+            "null_reason": None if rate is not None else ("click source not available this run" if k is None
+                                                          else "no agent tool calls recorded this week"),
+        }
+
+
 def _safe_clicks() -> dict | None:
     try:
         return weekly_clicks()
@@ -331,6 +361,7 @@ def main(argv=None) -> int:
     if rum is None:
         _carry_forward(rep, Path(a.out))
     add_go_clicks(rep, _get(GO_CLICKS))
+    add_agent_query_to_click(rep, hosted)
     Path(a.out).write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {a.out}: {len(rep['weeks'])} weeks")
     return 0

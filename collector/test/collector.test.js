@@ -117,3 +117,27 @@ test("T135: /go/ records ua_class in go_clicks, falls back to legacy clicks, /v1
   assert.deepEqual(out.rows.map((x) => x.ua_class).sort(), ["browser", "unclassified"]);
   globalThis.fetch = realFetch;
 });
+
+test("T136: /go/v/<slug> resolves only from the served feeds; referral_url wins; unknown 404; slug rule matches core", async () => {
+  const { vendorMap, vendorSlug } = await import("../src/index.js");
+  assert.equal(vendorSlug("SiliconFlow (硅基流动, China site)"), "siliconflow-china-site");
+  assert.equal(vendorSlug("Vast.ai"), "vast-ai");
+  const gpu = { rates: [{ advertiser: "Hyperstack", source_url: "https://www.hyperstack.cloud/gpu-pricing" },
+                        { advertiser: "RunPod", source_url: "https://runpod.io/pricing", referral_url: "https://runpod.io?ref=lw" }],
+                vendors: [{ vendor: "Civo", source_url: "https://www.civo.com/pricing" }] };
+  const deals = { deals: [{ id: "deal-z", advertiser: "Zed", redeem_url: "https://zed.example/r" }] };
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (u) => new Response(JSON.stringify(String(u).includes("gpu-prices") ? gpu : deals));
+  const m = await vendorMap(fetch, Date.now() + 20 * 60_000);
+  assert.equal(m.get("runpod").url, "https://runpod.io?ref=lw");
+  assert.equal(m.get("civo").url, "https://www.civo.com/pricing");
+  const calls = [];
+  const env = { DB: { prepare: (sql) => ({ bind: (...a) => ({ run: async () => calls.push(a) }) }) } };
+  const r = await worker.fetch(new Request("https://w/go/v/hyperstack?src=mcp&to=https://evil.example"), env);
+  assert.equal(r.status, 302);
+  assert.equal(r.headers.get("location"), "https://www.hyperstack.cloud/gpu-pricing");
+  assert.deepEqual(calls[0].slice(1, 5), ["v:hyperstack", "Hyperstack", "mcp", "none"]);
+  assert.equal((await worker.fetch(new Request("https://w/go/v/nobody"), env)).status, 404);
+  assert.equal((await worker.fetch(new Request("https://w/go/v/Bad%20Slug"), env)).status, 400);
+  globalThis.fetch = realFetch;
+});
