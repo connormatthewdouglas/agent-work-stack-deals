@@ -175,6 +175,59 @@
           "referral_disclosure": {
             "type": "string",
             "description": "One-line referral disclosure, present whenever the result names a provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."
+          },
+          "batch_due_ledger": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "build",
+                "expected_at",
+                "last_expected_at",
+                "member_rate_ids",
+                "member_count"
+              ],
+              "properties": {
+                "build": {
+                  "type": "string",
+                  "enum": [
+                    "gpu-refresh",
+                    "lium-collect",
+                    "scout-import",
+                    "scout-wider"
+                  ]
+                },
+                "expected_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "last_expected_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "fallback_expected_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "member_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "member_rate_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^r_[0-9a-f]{12}$"
+                  }
+                },
+                "schedule_basis": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "required": [

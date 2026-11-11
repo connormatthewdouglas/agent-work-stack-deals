@@ -201,6 +201,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     monthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,
     or first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),
     separate from last_verified. Neither affects ranking.
+    Full results also include batch_due_ledger: each scheduled build (gpu-refresh, lium-collect, scout-import,
+    scout-wider) has expected_at, last_expected_at, and the member_rate_ids it covers, derived only from the
+    workflow schedules. Brief mode omits the ledger.
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).

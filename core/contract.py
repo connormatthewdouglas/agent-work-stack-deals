@@ -131,6 +131,16 @@ EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
                                          "rate_id": _str, "source_url": _str, "checked_at": _str, "reason": _str,
                                          "min_bill_usd_per_hour": _RATE_DATES["min_bill_usd_per_hour"],
                                          "min_bill_basis": _RATE_DATES["min_bill_basis"]}}}}
+# P39 (additive): scheduled-build due ledger (core.batch_ledger); full mode only
+_LEDGER_ITEM = {"type": "object", "required": ["build", "expected_at", "last_expected_at", "member_rate_ids", "member_count"],
+                "properties": {"build": {"type": "string", "enum": ["gpu-refresh", "lium-collect", "scout-import", "scout-wider"]},
+                               "expected_at": {"type": "string", "format": "date-time"},
+                               "last_expected_at": {"type": "string", "format": "date-time"},
+                               "fallback_expected_at": {"type": ["string", "null"], "format": "date-time"},
+                               "member_count": {"type": "integer", "minimum": 0},
+                               "member_rate_ids": {"type": "array", "items": _RATE_ID},
+                               "schedule_basis": {"type": "string"}}}
+EXTRA_PROPS["compare_gpu_prices"]["batch_due_ledger"] = {"type": "array", "items": _LEDGER_ITEM}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {

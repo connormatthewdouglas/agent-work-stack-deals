@@ -42,6 +42,28 @@ On every rate in `gpu-prices.json` and every `compare_gpu_prices` result (full m
 | `min_bill_usd_per_hour` | number or null | `min_gpus` x the per-GPU hourly price (`hourly_equiv_usd` in the feed, `hourly_usd` in MCP rows): the least you pay per hour for one allocation. Equals the hourly price when `min_gpus` is 1. Null when either input is missing. Also on `excluded_min_gpus` entries. |
 | `min_bill_basis` | `hourly_rate`, `per_second_rate`, `monthly_equivalent` or null | What the hourly price is: the vendor's own per-GPU hourly rate; its per-second rate x 3600 (billed per second while running); or, for flat monthly servers, a derived equivalent (monthly price / 730 h). A `monthly_equivalent` is not a quoted hourly rate: the vendor bills the month. Marketplace rows use the median offer, as `hourly_equiv_usd` does. |
 
+
+## batch_due_ledger (additive, P39, Nov 2026; MCP, full mode)
+
+`compare_gpu_prices` (full mode) includes `batch_due_ledger`: one entry per scheduled build or collection, derived only from the workflow files and the current feed's membership (`core/batch_ledger.py`). Brief mode omits it (the member id lists would blow the brief-size budget). Ranking never reads it. Tests assert each schedule constant against its workflow file.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `build` | `gpu-refresh`, `lium-collect`, `scout-import`, or `scout-wider` | Which scheduled collection this entry is. `scout-wider` rides the same `scout-import.yml` run as `scout-import`. |
+| `expected_at` | string (ISO-8601 UTC) | The next scheduled slot at or after the request. GitHub cron can start late. |
+| `last_expected_at` | string (ISO-8601 UTC) | The most recently due slot, including a slot that is due now. Compare a row's `checked_at` to this to see "due, not renewed". This is not a claim that the run happened. |
+| `fallback_expected_at` | string (ISO-8601 UTC) or null | For `gpu-refresh` only: the next 14:47 UTC fallback. Null on the other builds (they have no fallback). |
+| `member_rate_ids` | array of `rate_id` | The feed rows this build is scheduled to cover, so "in the batch but failed" is distinguishable from "never in the batch". |
+| `member_count` | integer | `len(member_rate_ids)`. |
+| `schedule_basis` | string | Which workflow or script produced the answer. |
+
+Membership:
+
+- **gpu-refresh**: `price_check` is `daily` or `rotating snapshot`, excluding Lium (Lium has its own collector).
+- **lium-collect**: Lium rows (`.github/workflows/lium-collect.yml`, every 2 h at :40 UTC).
+- **scout-import**: rows whose `availability.origin` is `scout`, except Scout `no_api` (out of scope, not in the batch).
+- **scout-wider**: `price_check` is `batch` (`scripts/import_scout_wider.py` in the same 4-hourly `scout-import.yml` run).
+
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
 | Field | Type | Meaning |
