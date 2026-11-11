@@ -165,6 +165,6 @@ def test_tool_description_lists_every_excluded_min_gpus_field():
     from mcp_server import server
     doc = " ".join((server.compare_gpu_prices.__doc__ or "").split())
     fields = list(EXTRA_PROPS["compare_gpu_prices"]["excluded_min_gpus"]["items"]["properties"])
-    assert len(fields) == 10
+    assert len(fields) == 12  # P43 (additive): + min_bill_usd_per_hour, min_bill_basis
     listed = doc[doc.index("listed in excluded_min_gpus ("):].split(")")[0]
     assert all(f in listed.replace(",", " ").replace("(", " ").split() for f in fields), (fields, listed)

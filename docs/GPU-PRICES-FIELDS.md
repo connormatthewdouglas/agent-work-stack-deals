@@ -31,6 +31,17 @@ Every rate in `api/v1/gpu-prices.json` carries these fields (since 0.5.0, T75):
 |---|---|---|
 | `price_effective_at` | string (ISO-8601 UTC) or absent | The vendor's own stated instant when this listed public price takes effect. Set only from a sentence on the vendor's public page (Lambda: "These prices take effect November 16, 2026, at 00:00 UTC"). Absent when the vendor does not date the list. Until that instant the row is listed in `held_stale` with a `not yet in effect:` reason and is never ranked as a current price; after it, the field stays on the ranked rate as an annotation. Current prices that require a login are not invented.
 
+## effective_at and min_bill_usd_per_hour (additive, P37/P43, Nov 2026)
+
+On every rate in `gpu-prices.json` and every `compare_gpu_prices` result (full mode always; brief rows carry them only when they add something: `effective_at` when known, `min_bill_*` when `min_gpus` > 1). Computed by `core/rate_dates.py`. Display only: ranking never reads them.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `effective_at` | string (ISO-8601 UTC) or null | When the vendor started charging the current price. Different from `last_verified` / `verified_at` (when we last confirmed it). See `effective_at_basis`. Null when real data cannot date it: the price is the first one we recorded for this rate (it predates our tracking, which starts 2026-10-27), the rate left tracking in between, or the price moved after the latest daily snapshot. Never guessed. |
+| `effective_at_basis` | `vendor_stated`, `first_observed` or null | `vendor_stated`: the vendor's page dates the price (`price_effective_at`), and `effective_at` is that instant exactly. `first_observed`: our daily snapshots (`/api/v1/gpu-prices/history.json`) saw a different price for this exact rate earlier, and `effective_at` is the `verified_at` in the first snapshot showing the current price. That is an upper bound: the change happened at or before it, and after the earlier price was last seen. If a stated date is older than an observed later change, the observed change wins. |
+| `min_bill_usd_per_hour` | number or null | `min_gpus` x the per-GPU hourly price (`hourly_equiv_usd` in the feed, `hourly_usd` in MCP rows): the least you pay per hour for one allocation. Equals the hourly price when `min_gpus` is 1. Null when either input is missing. Also on `excluded_min_gpus` entries. |
+| `min_bill_basis` | `hourly_rate`, `per_second_rate`, `monthly_equivalent` or null | What the hourly price is: the vendor's own per-GPU hourly rate; its per-second rate x 3600 (billed per second while running); or, for flat monthly servers, a derived equivalent (monthly price / 730 h). A `monthly_equivalent` is not a quoted hourly rate: the vendor bills the month. Marketplace rows use the median offer, as `hourly_equiv_usd` does. |
+
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
 | Field | Type | Meaning |
