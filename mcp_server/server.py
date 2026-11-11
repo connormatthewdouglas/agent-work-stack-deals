@@ -201,6 +201,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     monthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,
     or first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),
     separate from last_verified. Neither affects ranking.
+    A failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and
+    failure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source
+    does not say; never guessed. Display only.
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).

@@ -107,8 +107,11 @@ _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock":
                                                      "basis": _str, "source": {"type": ["string", "null"]},
                                                      # P36 (additive): last firm stock answer + its check time (display only)
                                                      **(_LAST_KNOWN := {"last_known_in_stock": {"type": ["boolean", "null"]},
-                                                                        "last_known_at": {"type": ["string", "null"], "format": "date-time"}})}}
-_AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str, **_LAST_KNOWN}
+                                                                        "last_known_at": {"type": ["string", "null"], "format": "date-time"}}),
+                                                     **(_FAILURE_REASON := {  # P41 (additive): core.probe_reason; null when the source does not say
+                                                         "failure_reason": {"type": ["string", "null"], "enum": ["sold_out", "region", "quota", "other", None]},
+                                                         "failure_reason_detail": {"type": ["string", "null"]}})}}
+_AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str, **_LAST_KNOWN, **_FAILURE_REASON}
 _OPTION = {**_OPTION, "properties": {**_OPTION["properties"], **_AVAIL_PROPS}}
 _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION, "availability_note": _str,
                                                                      "gpu_count": {"type": ["integer", "null"], "minimum": 1},
@@ -116,7 +119,7 @@ _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": 
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"canonical_model": _str, "form_factor": _str, "rate_id": _RATE_ID, "report_issue_url": _str,
                                                                           "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]},
-                                                                          "min_gpus": {"type": ["integer", "null"]}, **_LAST_KNOWN, **(_RATE_DATES := {
+                                                                          "min_gpus": {"type": ["integer", "null"]}, **_LAST_KNOWN, **_FAILURE_REASON, **(_RATE_DATES := {
                                                                               # Brain #584 / eddie_compute (additive): core.rate_dates; null when not known
                                                                               "effective_at": {"type": ["string", "null"], "format": "date-time"},
                                                                               "effective_at_basis": {"type": ["string", "null"], "enum": ["vendor_stated", "first_observed", None]},
@@ -146,6 +149,8 @@ for _t, (_req, _lk, _rr, _bk, _br) in list(SPEC.items()):
     SPEC[_t] = (_req, _lk, _rr, list(_bk) + ["referral_disclosure"], list(_br) + (["tracked_url"] if _lk else []))
 for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P36 (additive): brief GPU rows keep the last firm stock answer
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["last_known_in_stock", "last_known_at"],)
+for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P41 (additive): brief rows carry a non-null failure reason only
+    SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["failure_reason", "failure_reason_detail"],)
 REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
                               "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
@@ -266,6 +271,12 @@ def _brief_row(tool: str, row: dict, keys: list) -> dict:
             if k in av and k not in LAST_KNOWN_KEYS:
                 out[k] = av[k]
     out.update(_brief_last_known(row.get("availability")))
+    out.update(_brief_failure_reason(row))
+    if not out.get("failure_reason"):
+        out.pop("failure_reason", None)
+        out.pop("failure_reason_detail", None)
+    elif out.get("failure_reason_detail") is None:
+        out.pop("failure_reason_detail", None)
     if tool == "compare_gpu_prices":
         out.update(_brief_rate_dates(row))
     if isinstance(out.get("choice"), dict):
@@ -273,6 +284,7 @@ def _brief_row(tool: str, row: dict, keys: list) -> dict:
         out["choice"] = {k: ch[k] for k in BRIEF_CHOICE_KEYS if k in ch}
         if isinstance(ch.get("availability"), dict):
             out["choice"].update(_brief_last_known(ch["availability"]))
+            out["choice"].update(_brief_failure_reason({"availability": ch["availability"], **ch}))
     return out
 
 
@@ -303,6 +315,39 @@ def _fill_last_known(o) -> None:
             _fill_last_known(x)
 
 
+def _brief_failure_reason(row) -> dict:
+    """P41 (additive): a brief GPU row carries failure_reason (+ detail) only when the source gave a
+    classified no or failure. Absent means null; full mode always has both inside availability."""
+    from .probe_reason import classify
+    src = row if isinstance(row, dict) else {}
+    d = classify(src if src.get("availability") or "in_stock" in src or "availability_reason" in src else {"availability": src})
+    out = {}
+    if d.get("failure_reason"):
+        out["failure_reason"] = d["failure_reason"]
+        if d.get("failure_reason_detail"):
+            out["failure_reason_detail"] = d["failure_reason_detail"]
+    return out
+
+
+def _fill_failure_reason(o, parent: dict | None = None) -> None:
+    """P41 (additive, display only): give every availability dict failure_reason / failure_reason_detail.
+    A lapsed out-of-stock claim keeps sold_out (or a source-stated region/quota) beside last_known_in_stock.
+    Null when the source does not say. Never invented; ranking never reads these."""
+    from .probe_reason import apply
+    if isinstance(o, dict):
+        av = o.get("availability")
+        if isinstance(av, dict):
+            apply(av, o if parent is None else {**parent, **o})
+            for k in ("failure_reason", "failure_reason_detail"):
+                o[k] = av.get(k)
+        for k, x in o.items():
+            if k not in ("receipt", "error"):
+                _fill_failure_reason(x, o if "availability" in o or "advertiser" in o or "vendor" in o else parent)
+    elif isinstance(o, list):
+        for x in o:
+            _fill_failure_reason(x, parent)
+
+
 def _brief_rate_dates(row: dict) -> dict:
     """Brain #584 / eddie_compute (additive): a brief row carries effective_at (+ basis) only when it is known, and
     min_bill_usd_per_hour (+ basis) only when min_gpus > 1 (otherwise it equals hourly_usd). Absent = null or equal to
@@ -326,6 +371,7 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
     out = golinks.annotate(copy.deepcopy(out))
     # T136: tagged /go/ link per provider + one referral line (additive, both modes)
     _fill_last_known(out)  # P36: every availability in a result says its last firm stock answer (null when never firm)
+    _fill_failure_reason(out)  # P41: keep a failed/no probe's fixed reason (null when the source does not say)
     if mode == "full":
         return {"ok": True, "mode": "full", **out}
     b = {k: copy.deepcopy(out[k]) for k in brief_keys if k in out}
