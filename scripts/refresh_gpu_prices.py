@@ -4,6 +4,7 @@
 For each tracked record in data/gpu_pricing/<vendor>.json, re-read the vendor's own public pricing page/API and
 update the price ONLY where it was actually parsed:
 
+* AWS Price List (data/gpu_pricing/aws.json, collector=aws_price_list): the public no-auth regional offer CSV on pricing.us-east-1.amazonaws.com is streamed and filtered to Linux, shared tenancy, on-demand, CapacityStatus Used, unit Hrs; the matching instance type's PricePerUnit is the live rate. Offer Version, Publication Date and RateCode are stored on evidence. Fetch or parse failure leaves the row (and its verified timestamps) unchanged.
 * Listed prices: the record's last evidence quote is turned into a pattern (its words must appear in the same
   order on today's page, prices become capture groups). The record's price is updated only if that context is
   found and gives exactly one value. The new evidence {source_url, quote, checked_at} is the matched page text.
@@ -44,6 +45,7 @@ sys.path.insert(0, str(ROOT))
 from core.gpu import HOURS_PER_MONTH, MAX_QUOTE, MIN_MARKET_OFFERS, PRICING_DIR, STALE_DAYS  # noqa: E402
 from core.owner_hold import is_held  # noqa: E402
 from core import gpu_history  # noqa: E402
+from core import aws_price_list  # noqa: E402
 
 UA = "LanternWorksPriceCheck/1.1 (+https://github.com/connormatthewdouglas/agent-work-stack-deals)"
 REQUEST_GAP_S = 3.0
@@ -302,6 +304,8 @@ class Fetcher:
         if wait > 0:
             time.sleep(wait)
         self.last = time.monotonic()
+        if aws_price_list.is_offer_url(url):
+            return aws_price_list.fetch_filtered_csv(url, ua=UA, timeout=aws_price_list.DEFAULT_TIMEOUT_S)
         req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,application/json,*/*"})
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
@@ -476,8 +480,10 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
             report += [{"vendor": doc["vendor"], "gpu": r["gpu"], "tier": r["tier"], "result": "held (vendor-level, untouched)"}
                        for r in doc["records"]]
             continue
-        if doc.get("manual_snapshot"):
+        if doc.get("manual_snapshot") and not aws_price_list.is_doc(doc):
             # Not auto-refreshed (Clore.ai: API 401s CI; Vast parser doesn't apply). Staleness hold still applies below.
+            # AWS Price List docs (collector=aws_price_list) used to be manual snapshots; they now go through the
+            # normal refresh path below, with the specialized offer-CSV parser.
             for r in doc["records"]:
                 r.setdefault("verified_at", r["evidence"]["checked_at"])
                 if not r.get("stale") and now - datetime.fromisoformat(r["verified_at"]) > timedelta(days=stale_days):
@@ -498,8 +504,14 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
             fat = (getattr(fetcher, "fetched_at", None) or {}).get(r["source_url"])
             fstamp = _iso(fat) if fat else stamp
             new_s, quote, msg = None, None, ""
+            price_list_meta = None
             if st != 200:
                 msg = f"unreachable ({st or body})"
+            elif aws_price_list.is_doc(doc) or aws_price_list.is_offer_url(r.get("source_url")):
+                if manual_hold:
+                    msg = "held (manual), untouched"
+                else:
+                    new_s, quote, msg, price_list_meta = aws_price_list.parse_record(r, body)
             elif r.get("price_status") == "marketplace":
                 per = market_stats(body, r["vram_gb"])
                 if per is None:
@@ -586,6 +598,9 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         r["quote"] = eq
                     r["evidence"] = {**{k: v for k, v in (r.get("evidence") or {}).items() if k not in ("source_url", "quote", "checked_at")},
                                      "source_url": r["source_url"], "quote": eq, "checked_at": fstamp}  # keep extra cited quotes (e.g. Modal preemption)
+                    if price_list_meta:
+                        r["evidence"].update({k: price_list_meta[k] for k in ("offer_version", "publication_date", "rate_code")
+                                              if price_list_meta.get(k)})
                     r["verified_at"] = r["checked_at"] = fstamp
                     if r.get("stale", {}).get("auto"):
                         del r["stale"]
