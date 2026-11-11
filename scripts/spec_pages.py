@@ -118,7 +118,8 @@ def seven_day_ready(history) -> bool:
 def price_cell(gen, r) -> str:
     s = m(r["hourly_equiv_usd"])
     if r.get("price_status") == "marketplace":
-        s += f" (median of {r['offer_count']} offers; lowest ${r['lowest_offer_usd']:g})"
+        s += (f" (median of {r['offer_count']} offers, from in-stock listings only; "
+              f"lowest ${r['lowest_offer_usd']:g})")
     phrase = gp.min_gpus_phrase(r)
     if phrase:
         n = gp.min_gpus_count(r)
@@ -243,7 +244,8 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         r = sp_row
         note = " May be preempted." if r.get("interruptible") else ""
         if r.get("price_status") == "marketplace":
-            note += f" Median of {r['offer_count']} offers; lowest ${r['lowest_offer_usd']:g}."
+            note += (f" Median of {r['offer_count']} offers, from in-stock listings only; "
+                     f"lowest ${r['lowest_offer_usd']:g}.")
         cards.append(f"<div class=\"card\"><h2>Cheapest spot / community among tracked providers</h2><p><strong>{m(r['hourly_equiv_usd'])}/GPU-hr</strong> verified {verified_html(r)} · {vendor_link(gen, r)} · {esc(r['gpu'])} · {esc(r['tier'])}.{note}</p></div>")
     body += cards
     if split:
@@ -262,21 +264,25 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
         if not rs:
             continue
         has_av = any(((r.get("availability") or {}).get("in_stock") is not None) for r in rs)
-        hdr = ("<tr><th>Vendor</th><th>Variant</th><th>VRAM</th><th>Tier</th><th>$/GPU-hr</th><th>Since " + esc(prev) + "</th><th>Egress / storage</th><th>Vendor quote</th><th>Verified</th>"
+        hdr = ("<tr><th>Vendor</th><th>Variant</th><th>VRAM</th><th>Tier</th><th>$/GPU-hr</th><th>Since " + esc(prev) + "</th><th>Egress / storage</th><th>Vendor quote</th><th>Verified</th><th>Read</th>"
                + ("<th>Availability (automated check, time shown)</th>" if has_av else "") + "<th>Link</th></tr>")
         trs = []
         for r in rs:
             ex = (vend.get(r["advertiser"]) or {}).get("extras") or {}
             ext = "; ".join(f"{k}: {esc(ex[k]['text'])}" if ex.get(k, {}).get("status") == "published" else f"{k}: not published / not verified" for k in ("egress", "storage"))
             srv = f" <strong>[serverless]</strong>" if gp.is_serverless(r) and "serverless" not in (r.get("tier") or "").lower() else ""
-            trs.append(f"<tr><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}{srv}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
+            stock_cls = gp.row_stock_class(r)
+            stock_lbl = gp.stock_label_html() if stock_cls == "no-stock-reading" and has_av else ""
+            av_cell = (gp._avail_cell(gen, r) + stock_lbl) if has_av else ""
+            trs.append(f"<tr class=\"{stock_cls}\"><td data-label=\"Vendor\">{vendor_link(gen, r)}</td><td data-label=\"Variant\">{esc(r['gpu'])}</td><td data-label=\"VRAM\">{r['vram_gb'] or ''} GB</td><td data-label=\"Tier\">{esc(r['tier'])}{srv}</td><td data-label=\"$/GPU-hr\">{esc(price_cell(gen, r))}</td>"
                        f"<td data-label=\"Since {esc(prev)}\">{change_text(gen, ch, key(r), prev)}</td><td data-label=\"Egress / storage\"><small>{ext}</small></td><td data-label=\"Vendor quote\">{gp._quote_html(esc, r)}</td>"
-                       f"<td data-label=\"Verified\">{verified_html(r)}</td>" + (f"<td data-label=\"Availability\">{gp._avail_cell(gen, r)}</td>" if has_av else "")
+                       f"<td data-label=\"Verified\">{verified_html(r)}</td><td data-label=\"Read\">{gp.read_time_html(r, esc)}</td>" + (f"<td data-label=\"Availability\">{av_cell}</td>" if has_av else "")
                        + f"<td data-label=\"Link\">{link_cell(gen, r)}</td></tr>")
         label = glabel + (" (reservation / term contract; excluded from the cheapest among tracked providers ranking)" if b == "Reserved" else "")
         av_note = ("<strong>Availability:</strong> " + gp.STOCK_EXPLAINER + " " + gp.REGIONS_NOTE
                    if has_av else "<strong>Availability</strong> is hidden because no vendor here publishes a stock signal yet.")
         body.append(f"<h2>{esc(label)}</h2><div class=\"tscroll rates-cards\"><table class=\"howto\"><thead>{hdr}</thead><tbody>{''.join(trs)}</tbody></table></div>"
+                    + gp.median_footnote_html(rs) + gp.no_stock_note_html(rs)
                     + LEGEND + "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. " + av_note + "</p>")
     if not show7:
         body.append(f"<p><small>7-day change appears once price history spans 7 days (history starts {esc(history['first_snapshot'])}).</small></p>")
@@ -401,11 +407,18 @@ def write_pair(gen, a, b, feeds, quals) -> str | None:
             diff = abs(x - y); pct = diff / max(x, y) * 100 if max(x, y) else 0
             win = "tie" if x == y else (sa if x < y else sb)
             fam = family(k[1]); g = f'<a href="{gpu_url(gen, fam)}">{esc(k[1])}</a>' if fam in quals else esc(k[1])
-            trs.append(f"<tr><td data-label=\"GPU\">{g}</td><td data-label=\"VRAM\">{k[2] or ''} GB</td><td data-label=\"{esc(sa)} $/GPU-hr\">{esc(price_cell(gen, ra))} <small>({esc(ra['tier'])})</small> verified {verified_html(ra)} · {link_cell(gen, ra)}<br>{gp._quote_html(esc, ra)}</td>"
-                       f"<td data-label=\"{esc(sb)} $/GPU-hr\">{esc(price_cell(gen, rb))} <small>({esc(rb['tier'])})</small> verified {verified_html(rb)} · {link_cell(gen, rb)}<br>{gp._quote_html(esc, rb)}</td><td data-label=\"Diff (vs dearer)\">{m(diff)} ({pct:.0f}%)</td>"
+            def _side(r):
+                stock = gp.stock_label_html() if not gp.has_stock_reading(r) else ""
+                return (f"{esc(price_cell(gen, r))} <small>({esc(r['tier'])})</small> verified {verified_html(r)} "
+                        f"· {gp.read_time_html(r, esc)}{stock} · {link_cell(gen, r)}<br>{gp._quote_html(esc, r)}")
+            cls = "no-stock-reading" if (not gp.has_stock_reading(ra) and not gp.has_stock_reading(rb)) else "stock-checked"
+            trs.append(f"<tr class=\"{cls}\"><td data-label=\"GPU\">{g}</td><td data-label=\"VRAM\">{k[2] or ''} GB</td><td data-label=\"{esc(sa)} $/GPU-hr\">{_side(ra)}</td>"
+                       f"<td data-label=\"{esc(sb)} $/GPU-hr\">{_side(rb)}</td><td data-label=\"Diff (vs dearer)\">{m(diff)} ({pct:.0f}%)</td>"
                        f"<td data-label=\"Since {esc(prev)}\">{esc(sa)}: {change_text(gen, ch, key(ra), prev)}<br>{esc(sb)}: {change_text(gen, ch, key(rb), prev)}</td><td data-label=\"Cheaper\"><strong>{esc(win)}</strong></td></tr>")
+        pair_rows = [ca[k] for k in ks] + [cb[k] for k in ks]
         body.append(f"<h2>{esc(bk)}</h2><div class=\"tscroll rates-cards\"><table class=\"howto\"><thead><tr><th>GPU</th><th>VRAM</th><th>{vendor_link(gen, ca[ks[0]]).split('</a>')[0]}</a> $/GPU-hr</th>"
                     f"<th>{esc(sb)} $/GPU-hr</th><th>Diff (vs dearer)</th><th>Since {esc(prev)}</th><th>Cheaper</th></tr></thead><tbody>{''.join(trs)}</tbody></table></div>"
+                    + gp.median_footnote_html(pair_rows) + gp.no_stock_note_html(pair_rows)
                     + LEGEND + "Each price cell has a short excerpt of the vendor's pricing page; open it for the full text and source.</p>")
     only = {v: sorted({k[1] for k in c} - set(gpus)) for v, c in ((sa, ca), (sb, cb))}
     if any(only.values()):
@@ -519,7 +532,21 @@ def write_all(gen) -> list[str]:
                   f"{held_name} is temporarily held and is not a live verified price.",
                   f"{gen.BASE}/{path}/", body, [])
             continue
-        write_pair(gen, a, b, feeds, quals)
+        if write_pair(gen, a, b, feeds, quals) is None:
+            # Do not leave a previously generated comparison showing rates that no longer qualify.
+            sa, sb = short_vendor(a), short_vendor(b)
+            path = f"compare/{slug(sa)}-vs-{slug(sb)}-gpu-prices"
+            esc = gen.esc
+            body = (f"<h1>{esc(sa)} vs {esc(sb)} GPU prices</h1>"
+                    f"<p>This comparison is not shown right now: {esc(sa)} and {esc(sb)} do not currently "
+                    f"share at least {MIN_SHARED} live, same-tier GPU rates among tracked providers "
+                    "(or one vendor has no live ranked rates). Previously published figures are not kept on this page.</p>"
+                    '<script type="application/json" id="lw-price-block">'
+                    '{"schema":"lantern-works-price-block/1","mcp":"compare_gpu_prices (brief mode)","items":[],'
+                    '"note":"not enough overlapping live rates to compare"}</script>')
+            write(gen, path, f"{sa} vs {sb} GPU prices",
+                  f"{sa} vs {sb} does not currently have enough overlapping live rates to compare.",
+                  f"{gen.BASE}/{path}/", body, [])
     write_changes(gen, feeds)
     write_watch_doc(gen)
     written = set(SPEC_PATHS)
