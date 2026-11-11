@@ -2,25 +2,25 @@
   "vendor": "Lium",
   "deal_id": null,
   "source_url": "https://lium.io/",
-  "checked_at": "2026-11-10T20:59:22+00:00",
+  "checked_at": "2026-11-11T02:14:49+00:00",
   "billing_granularity": null,
   "extras": {
     "egress": {
       "status": "unknown",
       "text": "Not verified in this pass.",
       "source_url": "https://lium.io/pricing",
-      "checked_at": "2026-11-10T20:59:22+00:00"
+      "checked_at": "2026-11-11T02:14:49+00:00"
     },
     "storage": {
       "status": "unknown",
       "text": "Not verified in this pass.",
       "source_url": "https://lium.io/pricing",
-      "checked_at": "2026-11-10T20:59:22+00:00"
+      "checked_at": "2026-11-11T02:14:49+00:00"
     },
     "interruption": {
       "status": "published",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "text": "Secure tier rows are on-demand node rentals; spot tier rows are interruptible capacity."
     }
   },
@@ -33,15 +33,15 @@
       "vendor": "Lium",
       "gpu": "A100 SXM",
       "vram_gb": 80,
-      "price_usd": 0.999,
+      "price_usd": null,
       "billing_unit": "hourly",
-      "hourly_usd": 0.999,
+      "hourly_usd": null,
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": "SXM",
       "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available A100-SXM4-80GB secure nodes, 1 GPUs free; lowest price_per_gpu_hour $0.999 (min rental 1 GPU, Beltsville, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-10T20:59:22+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "A100-SXM4-80GB",
@@ -50,51 +50,55 @@
       "node_verified_at": "2026-11-10T20:57:41.869101Z",
       "available_nodes": 1,
       "availability": {
-        "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "in_stock": false,
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "1 GPUs free on 1 nodes",
-        "note": "Lium public nodes API: 1 available GPUs (secure tier)"
+        "stock_level": "0 GPUs free",
+        "note": "No available node in the Lium public nodes feed"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
         "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available A100-SXM4-80GB secure nodes, 1 GPUs free; lowest price_per_gpu_hour $0.999 (min rental 1 GPU, Beltsville, United States)",
         "checked_at": "2026-11-10T20:59:22+00:00"
+      },
+      "stale": {
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
+        "auto": true
       }
     },
     {
       "vendor": "Lium",
       "gpu": "B200",
       "vram_gb": 180,
-      "price_usd": 6.1,
+      "price_usd": 8.88,
       "billing_unit": "hourly",
-      "hourly_usd": 6.1,
+      "hourly_usd": 8.88,
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 3 available B200 secure nodes, 10 GPUs free; lowest price_per_gpu_hour $6.1 (min rental 1 GPU, Ashburn, United States)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 3 available B200 secure nodes, 8 GPUs free; lowest price_per_gpu_hour $8.88 (min rental 1 GPU, Kansas City, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "B200",
       "node_memory_gb": 179,
-      "rent_url": "https://lium.io/browse-pods/2e874b18-dd06-45fe-bb6d-008887c69b98",
-      "node_verified_at": "2026-11-10T20:45:24.028602Z",
+      "rent_url": "https://lium.io/browse-pods/1272828d-0c9e-412f-9da4-c04b141a5fe3",
+      "node_verified_at": "2026-11-11T02:12:14.510925Z",
       "available_nodes": 3,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "10 GPUs free on 3 nodes",
-        "note": "Lium public nodes API: 10 available GPUs (secure tier)"
+        "stock_level": "8 GPUs free on 3 nodes",
+        "note": "Lium public nodes API: 8 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 3 available B200 secure nodes, 10 GPUs free; lowest price_per_gpu_hour $6.1 (min rental 1 GPU, Ashburn, United States)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 3 available B200 secure nodes, 8 GPUs free; lowest price_per_gpu_hour $8.88 (min rental 1 GPU, Kansas City, United States)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       },
       "vram_note": "B200 is the one exception to the official-spec rule: 180GB (as vendors expose it) is used, not NVIDIA's 192GB"
     },
@@ -102,15 +106,15 @@
       "vendor": "Lium",
       "gpu": "B200",
       "vram_gb": 180,
-      "price_usd": 36.0,
+      "price_usd": null,
       "billing_unit": "hourly",
-      "hourly_usd": 4.5,
+      "hourly_usd": null,
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": null,
       "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 3 available B200 spot nodes, 24 GPUs free; lowest price_per_gpu_hour $4.5 (min 8 GPUs = $36/hr, Stockholm, Sweden)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-10T20:59:22+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "B200",
@@ -119,12 +123,12 @@
       "node_verified_at": "2026-11-10T20:57:56.059013Z",
       "available_nodes": 3,
       "availability": {
-        "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "in_stock": false,
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "24 GPUs free on 3 nodes",
-        "note": "Lium public nodes API: 24 available GPUs (spot tier)"
+        "stock_level": "0 GPUs free",
+        "note": "No available node in the Lium public nodes feed"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
@@ -133,8 +137,11 @@
       },
       "min_gpus": 8,
       "gpu_count": 8,
-      "server_hourly_usd": 36.0,
-      "vram_note": "B200 is the one exception to the official-spec rule: 180GB (as vendors expose it) is used, not NVIDIA's 192GB"
+      "vram_note": "B200 is the one exception to the official-spec rule: 180GB (as vendors expose it) is used, not NVIDIA's 192GB",
+      "stale": {
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
+        "auto": true
+      }
     },
     {
       "vendor": "Lium",
@@ -148,7 +155,7 @@
       "form_factor": null,
       "quote": "Lium nodes API 2026-11-05T02:46:23+00:00: 1 available B300 SXM6 AC spot nodes, 8 GPUs free; lowest price_per_gpu_hour $9.99 (min rental 8 GPUs, Dublin, Ireland)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-05T02:46:23+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "B300 SXM6 AC",
@@ -158,7 +165,7 @@
       "available_nodes": 1,
       "availability": {
         "in_stock": false,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
         "stock_level": "0 GPUs free",
@@ -172,7 +179,7 @@
       "min_gpus": 8,
       "gpu_count": 8,
       "stale": {
-        "reason": "no available Lium node at 2026-11-10T20:59:22+00:00; price withheld until a node is listed again",
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
         "auto": true
       }
     },
@@ -186,28 +193,28 @@
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": "PCIe",
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available H100 PCIe secure nodes, 7 GPUs free; lowest price_per_gpu_hour $1.9 (min rental 1 GPU, Nizhniy Novgorod, Russia)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 1 available H100 PCIe secure nodes, 6 GPUs free; lowest price_per_gpu_hour $1.9 (min rental 1 GPU, Nizhniy Novgorod, Russia)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "H100 PCIe",
       "node_memory_gb": 80,
       "rent_url": "https://lium.io/browse-pods/d4093d0c-8d7c-448a-b4e0-a34e44468ea8",
-      "node_verified_at": "2026-11-10T20:57:42.057364Z",
+      "node_verified_at": "2026-11-11T02:01:34.304057Z",
       "available_nodes": 1,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "7 GPUs free on 1 nodes",
-        "note": "Lium public nodes API: 7 available GPUs (secure tier)"
+        "stock_level": "6 GPUs free on 1 nodes",
+        "note": "Lium public nodes API: 6 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available H100 PCIe secure nodes, 7 GPUs free; lowest price_per_gpu_hour $1.9 (min rental 1 GPU, Nizhniy Novgorod, Russia)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 1 available H100 PCIe secure nodes, 6 GPUs free; lowest price_per_gpu_hour $1.9 (min rental 1 GPU, Nizhniy Novgorod, Russia)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
@@ -220,63 +227,66 @@
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": "SXM",
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 3 available H100 80GB HBM3 secure nodes, 10 GPUs free; lowest price_per_gpu_hour $2.5 (min rental 1 GPU, Helsinki, Finland)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 4 available H100 80GB HBM3 secure nodes, 11 GPUs free; lowest price_per_gpu_hour $2.5 (min rental 1 GPU, Helsinki, Finland)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "H100 80GB HBM3",
       "node_memory_gb": 80,
       "rent_url": "https://lium.io/browse-pods/df4234ab-eb2a-47af-9b14-f838a31458d4",
-      "node_verified_at": "2026-11-10T20:44:06.714750Z",
-      "available_nodes": 3,
+      "node_verified_at": "2026-11-11T02:12:13.161914Z",
+      "available_nodes": 4,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "10 GPUs free on 3 nodes",
-        "note": "Lium public nodes API: 10 available GPUs (secure tier)"
+        "stock_level": "11 GPUs free on 4 nodes",
+        "note": "Lium public nodes API: 11 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 3 available H100 80GB HBM3 secure nodes, 10 GPUs free; lowest price_per_gpu_hour $2.5 (min rental 1 GPU, Helsinki, Finland)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 4 available H100 80GB HBM3 secure nodes, 11 GPUs free; lowest price_per_gpu_hour $2.5 (min rental 1 GPU, Helsinki, Finland)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
       "vendor": "Lium",
       "gpu": "H100 SXM",
       "vram_gb": 80,
-      "price_usd": 2.1,
+      "price_usd": 12.4,
       "billing_unit": "hourly",
-      "hourly_usd": 2.1,
+      "hourly_usd": 1.55,
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": "SXM",
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available H100 80GB HBM3 spot nodes, 2 GPUs free; lowest price_per_gpu_hour $2.1 (min rental 1 GPU, Nuremberg, Germany)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 6 available H100 80GB HBM3 spot nodes, 35 GPUs free; lowest price_per_gpu_hour $1.55 (min 8 GPUs = $12.4/hr, Helsinki, Finland)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "H100 80GB HBM3",
       "node_memory_gb": 80,
-      "rent_url": "https://lium.io/browse-pods/aecebf6d-b665-4b1a-9053-9f5d59a702f1",
-      "node_verified_at": "2026-11-10T20:43:53.760651Z",
-      "available_nodes": 1,
+      "rent_url": "https://lium.io/browse-pods/0aaddf4d-7f81-4edb-b362-7c5cfd6b3c2a",
+      "node_verified_at": "2026-11-11T02:12:27.046077Z",
+      "available_nodes": 6,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "2 GPUs free on 1 nodes",
-        "note": "Lium public nodes API: 2 available GPUs (spot tier)"
+        "stock_level": "35 GPUs free on 6 nodes",
+        "note": "Lium public nodes API: 35 available GPUs (spot tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available H100 80GB HBM3 spot nodes, 2 GPUs free; lowest price_per_gpu_hour $2.1 (min rental 1 GPU, Nuremberg, Germany)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
-      }
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 6 available H100 80GB HBM3 spot nodes, 35 GPUs free; lowest price_per_gpu_hour $1.55 (min 8 GPUs = $12.4/hr, Helsinki, Finland)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
+      },
+      "min_gpus": 8,
+      "gpu_count": 8,
+      "server_hourly_usd": 12.4
     },
     {
       "vendor": "Lium",
@@ -288,28 +298,28 @@
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 9 available H200 secure nodes, 27 GPUs free; lowest price_per_gpu_hour $3.85 (min rental 1 GPU, City of London, United Kingdom)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 9 available H200 secure nodes, 44 GPUs free; lowest price_per_gpu_hour $3.85 (min rental 1 GPU, City of London, United Kingdom)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "H200",
       "node_memory_gb": 140,
-      "rent_url": "https://lium.io/browse-pods/acd98d5b-f181-42dd-8502-548e939d9fc2",
-      "node_verified_at": "2026-11-10T20:44:36.731316Z",
+      "rent_url": "https://lium.io/browse-pods/baf8dbc3-5681-4bd3-ae76-55c5e75746f6",
+      "node_verified_at": "2026-11-11T02:01:27.111252Z",
       "available_nodes": 9,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "27 GPUs free on 9 nodes",
-        "note": "Lium public nodes API: 27 available GPUs (secure tier)"
+        "stock_level": "44 GPUs free on 9 nodes",
+        "note": "Lium public nodes API: 44 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 9 available H200 secure nodes, 27 GPUs free; lowest price_per_gpu_hour $3.85 (min rental 1 GPU, City of London, United Kingdom)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 9 available H200 secure nodes, 44 GPUs free; lowest price_per_gpu_hour $3.85 (min rental 1 GPU, City of London, United Kingdom)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
@@ -324,7 +334,7 @@
       "form_factor": null,
       "quote": "Lium nodes API 2026-11-04T22:13:18+00:00: 1 available H200 spot nodes, 1 GPUs free; lowest price_per_gpu_hour $4.19 (min rental 1 GPU, Paris, France)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-04T22:13:18+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "H200",
@@ -334,7 +344,7 @@
       "available_nodes": 1,
       "availability": {
         "in_stock": false,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
         "stock_level": "0 GPUs free",
@@ -346,7 +356,7 @@
         "checked_at": "2026-11-04T22:13:18+00:00"
       },
       "stale": {
-        "reason": "no available Lium node at 2026-11-10T20:59:22+00:00; price withheld until a node is listed again",
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
         "auto": true
       }
     },
@@ -362,7 +372,7 @@
       "form_factor": "NVL",
       "quote": "Lium nodes API 2026-11-10T18:38:53+00:00: 1 available H200 NVL secure nodes, 4 GPUs free; lowest price_per_gpu_hour $5 (min rental 1 GPU, Palm Beach Gardens, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-10T18:38:53+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "H200 NVL",
@@ -372,7 +382,7 @@
       "available_nodes": 1,
       "availability": {
         "in_stock": false,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
         "stock_level": "0 GPUs free",
@@ -384,7 +394,7 @@
         "checked_at": "2026-11-10T18:38:53+00:00"
       },
       "stale": {
-        "reason": "no available Lium node at 2026-11-10T20:59:22+00:00; price withheld until a node is listed again",
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
         "auto": true
       }
     },
@@ -392,15 +402,15 @@
       "vendor": "Lium",
       "gpu": "H200 NVL",
       "vram_gb": 141,
-      "price_usd": 3.25,
+      "price_usd": null,
       "billing_unit": "hourly",
-      "hourly_usd": 3.25,
+      "hourly_usd": null,
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": "NVL",
       "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available H200 NVL spot nodes, 3 GPUs free; lowest price_per_gpu_hour $3.25 (min rental 1 GPU, Palm Beach Gardens, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-10T20:59:22+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "H200 NVL",
@@ -409,17 +419,21 @@
       "node_verified_at": "2026-11-10T20:43:56.724460Z",
       "available_nodes": 1,
       "availability": {
-        "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "in_stock": false,
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "3 GPUs free on 1 nodes",
-        "note": "Lium public nodes API: 3 available GPUs (spot tier)"
+        "stock_level": "0 GPUs free",
+        "note": "No available node in the Lium public nodes feed"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
         "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available H200 NVL spot nodes, 3 GPUs free; lowest price_per_gpu_hour $3.25 (min rental 1 GPU, Palm Beach Gardens, United States)",
         "checked_at": "2026-11-10T20:59:22+00:00"
+      },
+      "stale": {
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
+        "auto": true
       }
     },
     {
@@ -434,7 +448,7 @@
       "form_factor": null,
       "quote": "Lium nodes API 2026-11-10T18:28:33+00:00: 3 available L40 secure nodes, 6 GPUs free; lowest price_per_gpu_hour $0.33 (min rental 2 GPUs, Des Moines, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-10T18:28:33+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "L40",
@@ -444,7 +458,7 @@
       "available_nodes": 3,
       "availability": {
         "in_stock": false,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
         "stock_level": "0 GPUs free",
@@ -458,7 +472,7 @@
       "min_gpus": 2,
       "gpu_count": 2,
       "stale": {
-        "reason": "no available Lium node at 2026-11-10T20:59:22+00:00; price withheld until a node is listed again",
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
         "auto": true
       }
     },
@@ -466,38 +480,38 @@
       "vendor": "Lium",
       "gpu": "L40S",
       "vram_gb": 48,
-      "price_usd": 1.52,
+      "price_usd": 0.76,
       "billing_unit": "hourly",
       "hourly_usd": 0.38,
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 6 available L40S secure nodes, 16 GPUs free; lowest price_per_gpu_hour $0.38 (min 4 GPUs = $1.52/hr, Las Vegas, United States)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 1 available L40S secure nodes, 2 GPUs free; lowest price_per_gpu_hour $0.38 (min 2 GPUs = $0.76/hr, Las Vegas, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "L40S",
       "node_memory_gb": 45,
-      "rent_url": "https://lium.io/browse-pods/35735736-f2c4-4295-bc00-28240359794f",
-      "node_verified_at": "2026-11-10T20:57:32.060217Z",
-      "available_nodes": 6,
+      "rent_url": "https://lium.io/browse-pods/f95c307c-7b31-4422-bd87-dabdd8ac353a",
+      "node_verified_at": "2026-11-11T02:12:25.186259Z",
+      "available_nodes": 1,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "16 GPUs free on 6 nodes",
-        "note": "Lium public nodes API: 16 available GPUs (secure tier)"
+        "stock_level": "2 GPUs free on 1 nodes",
+        "note": "Lium public nodes API: 2 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 6 available L40S secure nodes, 16 GPUs free; lowest price_per_gpu_hour $0.38 (min 4 GPUs = $1.52/hr, Las Vegas, United States)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 1 available L40S secure nodes, 2 GPUs free; lowest price_per_gpu_hour $0.38 (min 2 GPUs = $0.76/hr, Las Vegas, United States)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       },
-      "min_gpus": 4,
-      "gpu_count": 4,
-      "server_hourly_usd": 1.52
+      "min_gpus": 2,
+      "gpu_count": 2,
+      "server_hourly_usd": 0.76
     },
     {
       "vendor": "Lium",
@@ -511,7 +525,7 @@
       "form_factor": null,
       "quote": "Lium nodes API 2026-11-05T02:46:23+00:00: 1 available L40S spot nodes, 8 GPUs free; lowest price_per_gpu_hour $0.53 (min rental 8 GPUs, Las Vegas, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-05T02:46:23+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "L40S",
@@ -521,7 +535,7 @@
       "available_nodes": 1,
       "availability": {
         "in_stock": false,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
         "stock_level": "0 GPUs free",
@@ -535,7 +549,7 @@
       "min_gpus": 8,
       "gpu_count": 8,
       "stale": {
-        "reason": "no available Lium node at 2026-11-10T20:59:22+00:00; price withheld until a node is listed again",
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
         "auto": true
       }
     },
@@ -549,28 +563,28 @@
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 6 available RTX 3090 secure nodes, 31 GPUs free; lowest price_per_gpu_hour $0.16 (min 8 GPUs = $1.28/hr, Chiyoda City, Japan)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 9 available RTX 3090 secure nodes, 24 GPUs free; lowest price_per_gpu_hour $0.16 (min 8 GPUs = $1.28/hr, Chiyoda City, Japan)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 3090",
       "node_memory_gb": 24,
       "rent_url": "https://lium.io/browse-pods/adb5b8fc-7067-4a9a-96da-779a6aafd1c9",
-      "node_verified_at": "2026-11-10T20:44:24.918653Z",
-      "available_nodes": 6,
+      "node_verified_at": "2026-11-11T02:12:21.873815Z",
+      "available_nodes": 9,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "31 GPUs free on 6 nodes",
-        "note": "Lium public nodes API: 31 available GPUs (secure tier)"
+        "stock_level": "24 GPUs free on 9 nodes",
+        "note": "Lium public nodes API: 24 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 6 available RTX 3090 secure nodes, 31 GPUs free; lowest price_per_gpu_hour $0.16 (min 8 GPUs = $1.28/hr, Chiyoda City, Japan)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 9 available RTX 3090 secure nodes, 24 GPUs free; lowest price_per_gpu_hour $0.16 (min 8 GPUs = $1.28/hr, Chiyoda City, Japan)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       },
       "min_gpus": 8,
       "gpu_count": 8,
@@ -586,19 +600,19 @@
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 2 available RTX 3090 spot nodes, 2 GPUs free; lowest price_per_gpu_hour $0.25 (min rental 1 GPU, Dnipro, Ukraine)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 2 available RTX 3090 spot nodes, 2 GPUs free; lowest price_per_gpu_hour $0.25 (min rental 1 GPU, Dnipro, Ukraine)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 3090",
       "node_memory_gb": 24,
       "rent_url": "https://lium.io/browse-pods/d12bbb47-d6a6-48be-8fcb-04f982bf498c",
-      "node_verified_at": "2026-11-10T20:57:46.256042Z",
+      "node_verified_at": "2026-11-11T02:12:27.929684Z",
       "available_nodes": 2,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
         "stock_level": "2 GPUs free on 2 nodes",
@@ -606,83 +620,77 @@
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 2 available RTX 3090 spot nodes, 2 GPUs free; lowest price_per_gpu_hour $0.25 (min rental 1 GPU, Dnipro, Ukraine)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 2 available RTX 3090 spot nodes, 2 GPUs free; lowest price_per_gpu_hour $0.25 (min rental 1 GPU, Dnipro, Ukraine)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
       "vendor": "Lium",
       "gpu": "RTX 4090",
       "vram_gb": 24,
-      "price_usd": 2.8,
+      "price_usd": 0.4,
       "billing_unit": "hourly",
-      "hourly_usd": 0.35,
+      "hourly_usd": 0.4,
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 23 available RTX 4090 secure nodes, 45 GPUs free; lowest price_per_gpu_hour $0.35 (min 8 GPUs = $2.8/hr, Hong Kong, Hong Kong)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 20 available RTX 4090 secure nodes, 34 GPUs free; lowest price_per_gpu_hour $0.4 (min rental 1 GPU, Frankfurt am Main, Germany)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 4090",
       "node_memory_gb": 24,
-      "rent_url": "https://lium.io/browse-pods/d4ad3380-5eab-49a7-8011-509589debc00",
-      "node_verified_at": "2026-11-10T20:45:13.252701Z",
-      "available_nodes": 23,
+      "rent_url": "https://lium.io/browse-pods/4b606116-114a-404e-8f5e-9041495d98f5",
+      "node_verified_at": "2026-11-11T02:12:27.430257Z",
+      "available_nodes": 20,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "45 GPUs free on 23 nodes",
-        "note": "Lium public nodes API: 45 available GPUs (secure tier)"
+        "stock_level": "34 GPUs free on 20 nodes",
+        "note": "Lium public nodes API: 34 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 23 available RTX 4090 secure nodes, 45 GPUs free; lowest price_per_gpu_hour $0.35 (min 8 GPUs = $2.8/hr, Hong Kong, Hong Kong)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
-      },
-      "min_gpus": 8,
-      "gpu_count": 8,
-      "server_hourly_usd": 2.8
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 20 available RTX 4090 secure nodes, 34 GPUs free; lowest price_per_gpu_hour $0.4 (min rental 1 GPU, Frankfurt am Main, Germany)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
+      }
     },
     {
       "vendor": "Lium",
       "gpu": "RTX 4090",
       "vram_gb": 24,
-      "price_usd": 2.4,
+      "price_usd": 0.4,
       "billing_unit": "hourly",
-      "hourly_usd": 0.3,
+      "hourly_usd": 0.4,
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 2 available RTX 4090 spot nodes, 16 GPUs free; lowest price_per_gpu_hour $0.3 (min 8 GPUs = $2.4/hr, Hong Kong, Hong Kong)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 1 available RTX 4090 spot nodes, 4 GPUs free; lowest price_per_gpu_hour $0.4 (min rental 1 GPU, Glendale, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 4090",
       "node_memory_gb": 24,
-      "rent_url": "https://lium.io/browse-pods/a87232c2-89fe-41fe-ba5b-0c77798bb99e",
-      "node_verified_at": "2026-11-10T20:44:00.874533Z",
-      "available_nodes": 2,
+      "rent_url": "https://lium.io/browse-pods/29b9e3aa-a583-45f2-a625-a883b4046ab7",
+      "node_verified_at": "2026-11-11T02:12:10.906574Z",
+      "available_nodes": 1,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "16 GPUs free on 2 nodes",
-        "note": "Lium public nodes API: 16 available GPUs (spot tier)"
+        "stock_level": "4 GPUs free on 1 nodes",
+        "note": "Lium public nodes API: 4 available GPUs (spot tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 2 available RTX 4090 spot nodes, 16 GPUs free; lowest price_per_gpu_hour $0.3 (min 8 GPUs = $2.4/hr, Hong Kong, Hong Kong)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
-      },
-      "min_gpus": 8,
-      "gpu_count": 8,
-      "server_hourly_usd": 2.4
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 1 available RTX 4090 spot nodes, 4 GPUs free; lowest price_per_gpu_hour $0.4 (min rental 1 GPU, Glendale, United States)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
+      }
     },
     {
       "vendor": "Lium",
@@ -694,28 +702,28 @@
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 43 available RTX 5090 secure nodes, 175 GPUs free; lowest price_per_gpu_hour $0.5 (min 8 GPUs = $4/hr, Chiyoda City, Japan)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 35 available RTX 5090 secure nodes, 145 GPUs free; lowest price_per_gpu_hour $0.5 (min 8 GPUs = $4/hr, Chiyoda City, Japan)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 5090",
       "node_memory_gb": 32,
       "rent_url": "https://lium.io/browse-pods/c6e337eb-5b69-4965-b1a9-7eb2753c2859",
-      "node_verified_at": "2026-11-10T20:57:45.758877Z",
-      "available_nodes": 43,
+      "node_verified_at": "2026-11-11T02:00:59.773426Z",
+      "available_nodes": 35,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "175 GPUs free on 43 nodes",
-        "note": "Lium public nodes API: 175 available GPUs (secure tier)"
+        "stock_level": "145 GPUs free on 35 nodes",
+        "note": "Lium public nodes API: 145 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 43 available RTX 5090 secure nodes, 175 GPUs free; lowest price_per_gpu_hour $0.5 (min 8 GPUs = $4/hr, Chiyoda City, Japan)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 35 available RTX 5090 secure nodes, 145 GPUs free; lowest price_per_gpu_hour $0.5 (min 8 GPUs = $4/hr, Chiyoda City, Japan)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       },
       "min_gpus": 8,
       "gpu_count": 8,
@@ -725,68 +733,68 @@
       "vendor": "Lium",
       "gpu": "RTX 5090",
       "vram_gb": 32,
-      "price_usd": 0.57,
+      "price_usd": 0.58,
       "billing_unit": "hourly",
-      "hourly_usd": 0.57,
+      "hourly_usd": 0.58,
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 19 available RTX 5090 spot nodes, 27 GPUs free; lowest price_per_gpu_hour $0.57 (min rental 1 GPU, Marseille, France)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 17 available RTX 5090 spot nodes, 27 GPUs free; lowest price_per_gpu_hour $0.58 (min rental 1 GPU, San Antonio, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 5090",
       "node_memory_gb": 32,
-      "rent_url": "https://lium.io/browse-pods/99d2802c-3b50-4231-9fca-45332bffcd80",
-      "node_verified_at": "2026-11-10T20:45:04.313224Z",
-      "available_nodes": 19,
+      "rent_url": "https://lium.io/browse-pods/b96e61ed-30c9-4e25-852d-60518e74c961",
+      "node_verified_at": "2026-11-11T02:00:31.967028Z",
+      "available_nodes": 17,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "27 GPUs free on 19 nodes",
+        "stock_level": "27 GPUs free on 17 nodes",
         "note": "Lium public nodes API: 27 available GPUs (spot tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 19 available RTX 5090 spot nodes, 27 GPUs free; lowest price_per_gpu_hour $0.57 (min rental 1 GPU, Marseille, France)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 17 available RTX 5090 spot nodes, 27 GPUs free; lowest price_per_gpu_hour $0.58 (min rental 1 GPU, San Antonio, United States)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
       "vendor": "Lium",
       "gpu": "RTX 6000 Ada",
       "vram_gb": 48,
-      "price_usd": 0.69,
+      "price_usd": 0.8,
       "billing_unit": "hourly",
-      "hourly_usd": 0.69,
+      "hourly_usd": 0.8,
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 11 available RTX 6000 Ada Generation secure nodes, 19 GPUs free; lowest price_per_gpu_hour $0.69 (min rental 1 GPU, Richmond, United States)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 9 available RTX 6000 Ada Generation secure nodes, 10 GPUs free; lowest price_per_gpu_hour $0.8 (min rental 1 GPU, Almaty, Kazakhstan)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 6000 Ada Generation",
       "node_memory_gb": 48,
-      "rent_url": "https://lium.io/browse-pods/c84f404c-35f8-4dc7-b0b2-635a6d2b55fe",
-      "node_verified_at": "2026-11-10T20:45:17.194838Z",
-      "available_nodes": 11,
+      "rent_url": "https://lium.io/browse-pods/9beea58b-fe2c-4e5e-909e-43df549fb9d1",
+      "node_verified_at": "2026-11-11T02:00:50.709195Z",
+      "available_nodes": 9,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "19 GPUs free on 11 nodes",
-        "note": "Lium public nodes API: 19 available GPUs (secure tier)"
+        "stock_level": "10 GPUs free on 9 nodes",
+        "note": "Lium public nodes API: 10 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 11 available RTX 6000 Ada Generation secure nodes, 19 GPUs free; lowest price_per_gpu_hour $0.69 (min rental 1 GPU, Richmond, United States)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 9 available RTX 6000 Ada Generation secure nodes, 10 GPUs free; lowest price_per_gpu_hour $0.8 (min rental 1 GPU, Almaty, Kazakhstan)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
@@ -799,80 +807,77 @@
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available RTX 6000 Ada Generation spot nodes, 1 GPUs free; lowest price_per_gpu_hour $1.04 (min rental 1 GPU, Las Vegas, United States)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 2 available RTX 6000 Ada Generation spot nodes, 9 GPUs free; lowest price_per_gpu_hour $1.04 (min rental 1 GPU, Las Vegas, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX 6000 Ada Generation",
       "node_memory_gb": 48,
       "rent_url": "https://lium.io/browse-pods/c161e3b0-f007-4a38-83e4-c844d504b254",
-      "node_verified_at": "2026-11-10T20:57:41.433419Z",
-      "available_nodes": 1,
+      "node_verified_at": "2026-11-11T02:00:26.752204Z",
+      "available_nodes": 2,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "1 GPUs free on 1 nodes",
-        "note": "Lium public nodes API: 1 available GPUs (spot tier)"
+        "stock_level": "9 GPUs free on 2 nodes",
+        "note": "Lium public nodes API: 9 available GPUs (spot tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available RTX 6000 Ada Generation spot nodes, 1 GPUs free; lowest price_per_gpu_hour $1.04 (min rental 1 GPU, Las Vegas, United States)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 2 available RTX 6000 Ada Generation spot nodes, 9 GPUs free; lowest price_per_gpu_hour $1.04 (min rental 1 GPU, Las Vegas, United States)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
       "vendor": "Lium",
       "gpu": "RTX A6000",
       "vram_gb": 48,
-      "price_usd": 3.2,
+      "price_usd": 0.4,
       "billing_unit": "hourly",
       "hourly_usd": 0.4,
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 7 available RTX A6000 secure nodes, 27 GPUs free; lowest price_per_gpu_hour $0.4 (min 8 GPUs = $3.2/hr, Amsterdam, The Netherlands)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 16 available RTX A6000 secure nodes, 31 GPUs free; lowest price_per_gpu_hour $0.4 (min rental 1 GPU, Amsterdam, The Netherlands)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX A6000",
       "node_memory_gb": 48,
-      "rent_url": "https://lium.io/browse-pods/e8908a45-fe67-49d8-812c-f3586796da08",
-      "node_verified_at": "2026-11-10T20:57:43.261288Z",
-      "available_nodes": 7,
+      "rent_url": "https://lium.io/browse-pods/4a4a65f8-95fc-49fc-a5c0-a77a0f8fb86f",
+      "node_verified_at": "2026-11-11T02:12:29.477282Z",
+      "available_nodes": 16,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "27 GPUs free on 7 nodes",
-        "note": "Lium public nodes API: 27 available GPUs (secure tier)"
+        "stock_level": "31 GPUs free on 16 nodes",
+        "note": "Lium public nodes API: 31 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 7 available RTX A6000 secure nodes, 27 GPUs free; lowest price_per_gpu_hour $0.4 (min 8 GPUs = $3.2/hr, Amsterdam, The Netherlands)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
-      },
-      "min_gpus": 8,
-      "gpu_count": 8,
-      "server_hourly_usd": 3.2
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 16 available RTX A6000 secure nodes, 31 GPUs free; lowest price_per_gpu_hour $0.4 (min rental 1 GPU, Amsterdam, The Netherlands)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
+      }
     },
     {
       "vendor": "Lium",
       "gpu": "RTX A6000",
       "vram_gb": 48,
-      "price_usd": 0.42,
+      "price_usd": null,
       "billing_unit": "hourly",
-      "hourly_usd": 0.42,
+      "hourly_usd": null,
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": null,
       "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available RTX A6000 spot nodes, 1 GPUs free; lowest price_per_gpu_hour $0.42 (min rental 1 GPU, Oakland, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
       "verified_at": "2026-11-10T20:59:22+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX A6000",
@@ -881,51 +886,55 @@
       "node_verified_at": "2026-11-10T20:44:06.542886Z",
       "available_nodes": 1,
       "availability": {
-        "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "in_stock": false,
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "1 GPUs free on 1 nodes",
-        "note": "Lium public nodes API: 1 available GPUs (spot tier)"
+        "stock_level": "0 GPUs free",
+        "note": "No available node in the Lium public nodes feed"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
         "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 1 available RTX A6000 spot nodes, 1 GPUs free; lowest price_per_gpu_hour $0.42 (min rental 1 GPU, Oakland, United States)",
         "checked_at": "2026-11-10T20:59:22+00:00"
+      },
+      "stale": {
+        "reason": "no available Lium node at 2026-11-11T02:14:49+00:00; price withheld until a node is listed again",
+        "auto": true
       }
     },
     {
       "vendor": "Lium",
       "gpu": "RTX PRO 6000 Server",
       "vram_gb": 96,
-      "price_usd": 1.5,
+      "price_usd": 1.65,
       "billing_unit": "hourly",
-      "hourly_usd": 1.5,
+      "hourly_usd": 1.65,
       "interruptible": false,
       "tier": "Marketplace secure node",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 6 available RTX PRO 6000 Blackwell Server Edition secure nodes, 8 GPUs free; lowest price_per_gpu_hour $1.5 (min rental 1 GPU, Columbus, United States)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 8 available RTX PRO 6000 Blackwell Server Edition secure nodes, 30 GPUs free; lowest price_per_gpu_hour $1.65 (min rental 1 GPU, Los Angeles, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX PRO 6000 Blackwell Server Edition",
       "node_memory_gb": 96,
-      "rent_url": "https://lium.io/browse-pods/78d7ed87-fe74-4a9c-bb45-9d79cc3e3c3f",
-      "node_verified_at": "2026-11-10T20:43:55.938440Z",
-      "available_nodes": 6,
+      "rent_url": "https://lium.io/browse-pods/2d446110-e111-4791-bebe-42398dbe9d96",
+      "node_verified_at": "2026-11-11T02:12:12.636822Z",
+      "available_nodes": 8,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
-        "stock_level": "8 GPUs free on 6 nodes",
-        "note": "Lium public nodes API: 8 available GPUs (secure tier)"
+        "stock_level": "30 GPUs free on 8 nodes",
+        "note": "Lium public nodes API: 30 available GPUs (secure tier)"
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 6 available RTX PRO 6000 Blackwell Server Edition secure nodes, 8 GPUs free; lowest price_per_gpu_hour $1.5 (min rental 1 GPU, Columbus, United States)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 8 available RTX PRO 6000 Blackwell Server Edition secure nodes, 30 GPUs free; lowest price_per_gpu_hour $1.65 (min rental 1 GPU, Los Angeles, United States)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       }
     },
     {
@@ -938,19 +947,19 @@
       "interruptible": true,
       "tier": "Marketplace spot node (interruptible)",
       "form_factor": null,
-      "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 4 available RTX PRO 6000 Blackwell Server Edition spot nodes, 18 GPUs free; lowest price_per_gpu_hour $1.69 (min 8 GPUs = $13.52/hr, Charlotte, United States)",
+      "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 4 available RTX PRO 6000 Blackwell Server Edition spot nodes, 18 GPUs free; lowest price_per_gpu_hour $1.69 (min 8 GPUs = $13.52/hr, Charlotte, United States)",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "checked_at": "2026-11-10T20:59:22+00:00",
-      "verified_at": "2026-11-10T20:59:22+00:00",
+      "checked_at": "2026-11-11T02:14:49+00:00",
+      "verified_at": "2026-11-11T02:14:49+00:00",
       "price_basis": "lowest price_per_gpu_hour among available nodes in the public nodes feed (never pricing.json reference prices)",
       "lium_model": "RTX PRO 6000 Blackwell Server Edition",
       "node_memory_gb": 96,
       "rent_url": "https://lium.io/browse-pods/6ce2f235-a2b1-4f95-8b59-254d85113650",
-      "node_verified_at": "2026-11-10T20:57:39.382227Z",
+      "node_verified_at": "2026-11-11T02:12:29.808185Z",
       "available_nodes": 4,
       "availability": {
         "in_stock": true,
-        "checked_at": "2026-11-10T20:59:22+00:00",
+        "checked_at": "2026-11-11T02:14:49+00:00",
         "source": "https://lium.io/api/public/v1/nodes",
         "same_capture_as_price": true,
         "stock_level": "18 GPUs free on 4 nodes",
@@ -958,8 +967,8 @@
       },
       "evidence": {
         "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-10T20:59:22+00:00: 4 available RTX PRO 6000 Blackwell Server Edition spot nodes, 18 GPUs free; lowest price_per_gpu_hour $1.69 (min 8 GPUs = $13.52/hr, Charlotte, United States)",
-        "checked_at": "2026-11-10T20:59:22+00:00"
+        "quote": "Lium nodes API 2026-11-11T02:14:49+00:00: 4 available RTX PRO 6000 Blackwell Server Edition spot nodes, 18 GPUs free; lowest price_per_gpu_hour $1.69 (min 8 GPUs = $13.52/hr, Charlotte, United States)",
+        "checked_at": "2026-11-11T02:14:49+00:00"
       },
       "min_gpus": 8,
       "gpu_count": 8,
