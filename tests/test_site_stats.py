@@ -111,6 +111,26 @@ def test_weekly_workflow_rebases_before_push():
     assert text.index("git rebase origin/main") < text.index("git push origin HEAD:main")
 
 
+def test_p8_demand_daily_copied_bucketed_only():
+    now = datetime(2026, 11, 10, 12, tzinfo=timezone.utc)
+    hosted = {"rows": [{"day": "2026-11-10", "ref": "x", "n": 1}], "demand_daily": [
+        {"day": "2026-11-10", "tool": "compare_gpu_prices", "gpu_family": "H100", "region_group": "any", "price_tier": "on-demand",
+         "cheapest_provider": "Hyperstack", "n": 4, "extra": "dropped"},
+        {"day": "2026-06-01", "tool": "compare_gpu_prices", "gpu_family": "A100", "region_group": "any", "price_tier": "on-demand",
+         "cheapest_provider": "X", "n": 1}]}
+    rep = S.build(hosted, {}, None, 12, now)
+    S.add_demand(rep, hosted, now)
+    assert rep["demand_daily"] == [{"day": "2026-11-10", "tool": "compare_gpu_prices", "gpu_family": "H100", "region_group": "any",
+                                    "price_tier": "on-demand", "cheapest_provider": "Hyperstack", "n": 4}]
+    assert rep["demand_daily_null_reason"] is None and "raw arguments" in rep["sources"]["demand_daily"]
+
+
+def test_p8_demand_null_with_reason_before_deploy():
+    now = datetime(2026, 11, 10, 12, tzinfo=timezone.utc)
+    rep = S.build({"rows": [{"day": "2026-11-10", "ref": "x", "n": 1}]}, {}, None, 12, now)
+    S.add_demand(rep, {"rows": []}, now)
+    assert rep["demand_daily"] is None and "migration 0005" in rep["demand_daily_null_reason"]
+
 def test_t135_one_agreed_click_count_bots_and_house_excluded():
     """Nov 2 week: 19 feed /go/ redirects (no UA class yet) vs 0 beacon events. One agreed count, nothing hidden."""
     g = [{"count": 3, "dimensions": {"date": "2026-11-02", "requestPath": "/"}}]

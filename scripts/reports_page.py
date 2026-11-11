@@ -140,7 +140,9 @@ def write_all(gen) -> list[str]:
             f'<a href="{gen.BASE}/api/v1/gpu-prices.json">gpu-prices.json</a> and '
             f'<a href="{gen.BASE}/api/v1/gpu-price-changes.json">gpu-price-changes.json</a> feeds on its date. '
             f'Price data is licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (attribution: Lantern Works). '
-            f"Some vendor links are referral links; affiliate status does not affect rankings.</p>\n  <ul>{lis}</ul>\n")
+            f"Some vendor links are referral links; affiliate status does not affect rankings.</p>\n"
+            f'  <p>Also: <a href="{gen.BASE}/reports/vendors/">vendor sample reports</a> — one generated page per tracked instance vendor, with rank per GPU, 14-day undercuts, and a chart.</p>\n'
+            f"  <ul>{lis}</ul>\n")
     (ROOT / "reports").mkdir(exist_ok=True)
     (ROOT / "reports" / "index.html").write_text(gen.page_shell("GPU price reports | Lantern Works",
                                                                 "Weekly GPU rental price reports from Lantern Works, newest first.", url, body))

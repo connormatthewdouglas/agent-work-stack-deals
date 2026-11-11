@@ -3,7 +3,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NAV = ["/deals/", "/ai-agent-tool-deals/", "/gpu/price-comparison/", "/tools/gpu-cost-calculator/", "/install/", "/for-agents/"]
+NAV = ["/gpu/price-comparison/", "/tools/gpu-cost-calculator/", "/install/", "/for-agents/"]
+DEALS_NAV = ["/deals/", "/ai-agent-tool-deals/"]
 
 
 def test_homepage_filters_are_progressive_and_cards_carry_public_attrs():
@@ -27,7 +28,12 @@ def test_site_nav_everywhere():
         nav = t.split('<nav class="sitenav"')[1].split("</nav>")[0]
         for href in NAV:
             assert href in nav, (p, href)
-        assert nav.count('aria-current=') == 1, p
+        for href in DEALS_NAV:
+            assert href not in nav, (p, href)
+        deals = t.split('aria-label="Deals"')[1].split("</nav>")[0]
+        for href in DEALS_NAV:
+            assert href in deals, (p, href)
+        assert nav.count('aria-current=') + deals.count('aria-current=') == 1, p
         assert 'id="content"' in t, p
 
 

@@ -10,7 +10,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-HERO = "GPU price comparison for agents, refreshed regularly, with each price's age shown"
+HERO = "GPU rental prices, compared across tracked providers"
+TITLE = "Cheapest GPU rental prices today | Lantern Works"
+DESC = ("Cheapest H100, A100 and RTX 4090 rentals today, compared across tracked providers. "
+        "Each listed price shows its age.")
 SPREAD = (("h100", "H100"), ("a100", "A100"), ("rtx-4090", "RTX 4090"))
 INSTALL_UVX = "uvx lantern-works-deals-mcp"
 INSTALL_PIP = "pip install lantern-works-deals-mcp"
@@ -31,24 +34,31 @@ def spread(rates: list[dict]) -> list[dict]:
     out = []
     for slug, name in SPREAD:
         oos = lambda r: isinstance(r.get("availability"), dict) and r["availability"].get("in_stock") is False
-        # Out of stock sorts last, same order as compare_gpu_prices, then price.
-        rs = sorted((r for r in rates if family_of(r["gpu"]) == slug and r.get("hourly_equiv_usd") is not None
-                     and headline_eligible(r)),
-                    key=lambda r: (oos(r), r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
+        # Same rule as compare/estimate (#163): core.data_age.lead_key, fresh on-demand first.
+        from core.data_age import lead_key
+        rs = [r for r in rates if family_of(r["gpu"]) == slug and r.get("hourly_equiv_usd") is not None
+              and headline_eligible(r)]
+        rs = sorted(rs, key=lambda r: (*lead_key(r, prefer_on_demand=True), oos(r), r["hourly_equiv_usd"], r["advertiser"], r["gpu"]))
         if not rs:
             continue
-        vals = [r["hourly_equiv_usd"] for r in rs]
-        # E5: "cheapest" is the cheapest row not marked out of stock when checked (unknown counts as available).
         lo = next((r for r in rs if not oos(r)), rs[0])
-        skipped = next((r for r in rs if oos(r)), None)
+        in_stock = [r for r in rs if not oos(r)]
+        od = lambda r: (r.get("tier_class") or "on-demand") == "on-demand"
+        fresh = lambda r: not lead_key(r, prefer_on_demand=True)[0]
+        od_stock = [r for r in in_stock if od(r)]
+        fresh_od = [r for r in od_stock if fresh(r)]
+        universe = ([r for r in rs if od(r) and fresh(r)] if fresh_od
+                    else ([r for r in rs if od(r)] if od_stock else rs))
+        stat_rows = fresh_od or od_stock or in_stock or rs
+        skipped = next((r for r in universe if oos(r) and r["hourly_equiv_usd"] < lo["hourly_equiv_usd"]), None)
         caveat = ""
-        if skipped is not None and skipped["hourly_equiv_usd"] < lo["hourly_equiv_usd"]:
+        if skipped is not None:
             ca = skipped["availability"].get("checked_at")
             caveat = (f'{skipped["advertiser"]} {usd(skipped["hourly_equiv_usd"])} out of stock when checked'
                       + (f" at {ca}" if ca else ""))
-        vals = [r["hourly_equiv_usd"] for r in rs if not oos(r)] or vals
-        n_oos = len(rs) - len(vals) if len(vals) < len(rs) else 0
-        out.append({"slug": slug, "name": name, "n": len(vals), "n_oos": n_oos, "vendors": len({r["advertiser"] for r in rs}),
+        vals = sorted(r["hourly_equiv_usd"] for r in stat_rows)
+        n_oos = len(universe) - len(stat_rows)
+        out.append({"slug": slug, "name": name, "n": len(vals), "n_oos": n_oos, "vendors": len({r["advertiser"] for r in universe}),
                     "min": vals[0], "median": statistics.median(vals), "max": vals[-1],
                     "cheapest_vendor": lo["advertiser"], "cheapest_gpu": lo["gpu"], "cheapest_tier": lo.get("tier"),
                     "checked": (lo.get("verified_at") or lo.get("checked_at") or "")[:10], "source_url": lo.get("source_url"),
@@ -64,14 +74,22 @@ JS = """  <script>
 """ + _eligibility_js() + """  fetch("/api/v1/gpu-prices.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(d=>{
     if(!d||!Array.isArray(d.rates))return;
     const c=document.querySelectorAll("[data-live-count]");c.forEach(e=>e.textContent=d.rates.length);
+    const now=Date.parse(d.feed_updated_at||"")||Date.now();
+    const ageH=r=>{const raw=r.verified_at||r.checked_at;if(!raw)return null;const t=Date.parse(raw);return Number.isNaN(t)?null:(now-t)/3600000;};
+    const leadKey=r=>{const h=ageH(r);return [(h==null||h>48)?1:0, (r.tier_class||"on-demand")!=="on-demand"?1:0];}; // core.data_age.lead_key(..., prefer_on_demand=True); 48=DEGRADED_HOURS
     for(const k in FAM){
       const oos=r=>r.availability&&r.availability.in_stock===false?1:0;
-      const allElig=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&headlineEligible(r)).sort((a,b)=>oos(a)-oos(b)||a.hourly_equiv_usd-b.hourly_equiv_usd);
-      const rs=allElig.filter(r=>!oos(r));
-      const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!rs.length)continue;
-      const v=rs.map(r=>r.hourly_equiv_usd),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
+      const allElig=d.rates.filter(r=>fam(r.gpu)===k&&r.hourly_equiv_usd!=null&&headlineEligible(r)).sort((a,b)=>{const ka=leadKey(a),kb=leadKey(b);return ka[0]-kb[0]||ka[1]-kb[1]||oos(a)-oos(b)||a.hourly_equiv_usd-b.hourly_equiv_usd||(a.advertiser||"").localeCompare(b.advertiser||"");});
+      const inStock=allElig.filter(r=>!oos(r));
+      const odStock=inStock.filter(r=>(r.tier_class||"on-demand")==="on-demand");
+      const freshOd=odStock.filter(r=>!leadKey(r)[0]);
+      const stat=freshOd.length?freshOd:(odStock.length?odStock:(inStock.length?inStock:allElig));
+      const universe=freshOd.length?allElig.filter(r=>(r.tier_class||"on-demand")==="on-demand"&&!leadKey(r)[0]):(odStock.length?allElig.filter(r=>(r.tier_class||"on-demand")==="on-demand"):allElig);
+      const lo=inStock[0]||allElig[0];
+      const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!stat.length||!lo)continue;
+      const v=stat.map(r=>r.hourly_equiv_usd).sort((a,b)=>a-b),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
       (row.querySelector(".lo strong")||row.querySelector(".lo")).textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
-      const x=allElig.length-v.length;row.querySelector(".n").textContent=v.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=rs[0].advertiser+" ("+rs[0].gpu+", "+(rs[0].tier||"")+")";
+      const x=universe.length-stat.length;row.querySelector(".n").textContent=stat.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=lo.advertiser+" ("+lo.gpu+", "+(lo.tier||"")+")";
     }
   }).catch(()=>{});
   })();
@@ -105,9 +123,8 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     moved = [c for c in ch["changes"] if c["change"] in ("down", "up")][:5]
     moved_html = ("<ul>" + "".join(f'<li><a href="{esc(c["source_url"] or BASE + "/gpu/")}" rel="noopener">{esc(change_title(c))}</a></li>' for c in moved) + "</ul>") if moved else "<p>No tracked rate moved between the last two daily snapshots.</p>"
     counts = ch["counts"]
-    title = f"{HERO} | Lantern Works"
-    desc = (f"Cheapest H100, A100 and RTX 4090 rental prices among tracked providers, refreshed regularly, with each price's age shown, on vendor pricing pages. "
-            f"{count} rates from {vendors}, with quotes, dates, price history and an MCP server for agents.")
+    title = TITLE
+    desc = DESC
     body = f"""  <header>
     <h1>{esc(HERO)}</h1>
     <p>Hourly GPU rental prices re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate. <strong><span data-live-count>{count}</span> rates</strong> from {esc(vendors)}, newest check {esc(fresh)}. "Cheapest" always means cheapest among tracked providers.</p>
