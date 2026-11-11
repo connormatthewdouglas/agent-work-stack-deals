@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import copy
 
+from . import golinks
+
 ERROR_CODES = ("invalid_argument", "invalid_cursor", "cursor_expired", "not_found", "feed_unavailable", "feed_invalid",
                "upstream_unavailable", "internal_error")
 MODES = ("brief", "full")
@@ -129,7 +131,12 @@ EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "item
 _RECEIPT = {"receipt": {"type": "object", "required": ["receipt_version", "tool", "quote_id", "lines", "feed_revision", "receipt_sha256"]}}
 for _t in ("optimize_stack", "optimize_agent_stack", "estimate_job_cost"):
     EXTRA_PROPS[_t] = {**EXTRA_PROPS[_t], **_RECEIPT}
-BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at")
+# T136 (additive): the tagged /go/ link stays in brief rows, and the one referral line stays in brief results
+for _t, (_req, _lk, _rr, _bk, _br) in list(SPEC.items()):
+    SPEC[_t] = (_req, _lk, _rr, list(_bk) + ["referral_disclosure"], list(_br) + (["tracked_url"] if _lk else []))
+REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
+                              "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
+BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
 
 
 def output_schema(tool: str) -> dict:
@@ -138,6 +145,7 @@ def output_schema(tool: str) -> dict:
     if list_key:
         props[list_key] = {"type": "array", "items": {"type": "object", "required": row_req}}
     props.update(EXTRA_PROPS.get(tool, {}))
+    props["referral_disclosure"] = REFERRAL_DISCLOSURE_SCHEMA  # T136: one line whenever the result names a provider
     return {
         "type": "object",
         "required": ["ok"],
@@ -255,6 +263,7 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
         e = out["error"]
         return error(e.get("code") or "internal_error", e.get("message") or "")
     _, list_key, _, brief_keys, brief_row = SPEC[tool]
+    out = golinks.annotate(copy.deepcopy(out))  # T136: tagged /go/ link per provider + one referral line (additive, both modes)
     if mode == "full":
         return {"ok": True, "mode": "full", **out}
     b = {k: copy.deepcopy(out[k]) for k in brief_keys if k in out}

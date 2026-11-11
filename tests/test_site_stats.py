@@ -162,3 +162,30 @@ def test_t135_clicks_null_with_reason_when_source_down():
     S.add_go_clicks(rep, {"error": "URLError"})
     w = rep["weeks"][0]
     assert w["clicks"] is None and w["outbound_clicks"] is None and w["clicks_null_reason"]
+
+
+def test_t136_agent_query_to_click_excludes_house_and_bots():
+    hosted = {"rows": [{"day": "2026-11-09", "ref": "x", "n": 1}],
+              "hits": [{"day": "2026-11-09", "kind": "tool", "name": "a", "ref": "none", "ua_class": "mcp:claude", "src_class": "other", "n": 40},
+                       {"day": "2026-11-10", "kind": "tool", "name": "a", "ref": "lobehub", "ua_class": "other", "src_class": "github-actions", "n": 10},
+                       {"day": "2026-11-10", "kind": "tool", "name": "a", "ref": "none", "ua_class": "house", "src_class": "house", "n": 99},
+                       {"day": "2026-11-10", "kind": "tool", "name": "a", "ref": "t41", "ua_class": "other", "src_class": "other", "n": 7},
+                       {"day": "2026-11-10", "kind": "tool", "name": "a", "ref": "none", "ua_class": "known-bot", "src_class": "other", "n": 5},
+                       {"day": "2026-11-10", "kind": "feed", "name": "/api", "ref": "none", "ua_class": "other", "src_class": "other", "n": 50}]}
+    rep = S.build(hosted, {}, None, 12, datetime.now(timezone.utc))
+    S.add_go_clicks(rep, {"rows": [{"day": "2026-11-10", "provider": "A", "src": "mcp", "ref": "none", "ua_class": "browser", "n": 2},
+                                   {"day": "2026-11-10", "provider": "A", "src": "mcp-test", "ref": "house-t136", "ua_class": "browser", "n": 3},
+                                   {"day": "2026-11-10", "provider": "A", "src": "mcp", "ref": "none", "ua_class": "bot", "n": 4},
+                                   {"day": "2026-11-10", "provider": "A", "src": "site", "ref": "none", "ua_class": "browser", "n": 6}]})
+    S.add_agent_query_to_click(rep, hosted)
+    q = rep["weeks"][0]["agent_query_to_click"]
+    assert q == {"agent_tool_calls": 50, "agent_mcp_clicks": 2, "rate": 0.04, "null_reason": None}
+    assert "house" in rep["sources"]["agent_query_to_click"]
+
+
+def test_t136_query_to_click_null_with_reason():
+    rep = S.build({"rows": [{"day": "2026-11-09", "ref": "x", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc))
+    S.add_go_clicks(rep, {"rows": []})
+    S.add_agent_query_to_click(rep, {"hits": []})
+    q = rep["weeks"][0]["agent_query_to_click"]
+    assert q["rate"] is None and q["agent_tool_calls"] == 0 and q["null_reason"]

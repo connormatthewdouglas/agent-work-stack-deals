@@ -4,6 +4,7 @@
 // GET  /v1/stats?days=30  -> read-only aggregates
 // GET  /go/<deal-id>?src=site|mcp|feed|readme[-test]&ref=<tag>  -> 302 to that deal's stored redeem_url (looked up in the
 //      served feed; never a caller-supplied URL, so not an open redirect). Counts one click per (day, deal, provider, src, ref).
+// GET  /go/v/<vendor-slug>?src=... -> same, for a provider with no feed deal (T136; target from the served GPU feed only)
 // GET  /v1/clicks?days=30 -> read-only click aggregates
 // T135: each click also gets a coarse ua_class (browser|bot|script|prefetch|other) worked out from the User-Agent and
 // prefetch headers at request time; the User-Agent itself is never stored. Rows recorded before this have ua_class
@@ -89,6 +90,42 @@ export async function dealMap(fetchFn = fetch, now = Date.now()) {
   return byId;
 }
 
+// T136: vendor-level links for providers with no feed deal. /go/v/<vendor-slug> resolves the slug ONLY from the served
+// feeds: a disclosed referral_url on a GPU rate, else that vendor's checked source_url, else the redeem_url of the vendor's
+// only deal. Never a caller-supplied URL, so not an open redirect.
+export const GPU_FEED_URL = "https://thelanternworks.com/api/v1/gpu-prices.json";
+export const vendorSlug = (name) => String(name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,59}$/;
+let vendorCache = { at: 0, bySlug: null };
+const https = (u) => typeof u === "string" && /^https:\/\//.test(u);
+
+export async function vendorMap(fetchFn = fetch, now = Date.now()) {
+  if (vendorCache.bySlug && now - vendorCache.at < 300_000) return vendorCache.bySlug;
+  const bySlug = new Map(), ref = new Map(), src = new Map(), deals = new Map();
+  const r = await fetchFn(GPU_FEED_URL, { cf: { cacheTtl: 300 } });
+  if (!r.ok) { if (vendorCache.bySlug) return vendorCache.bySlug; throw new Error("gpu feed " + r.status); }
+  const g = await r.json();
+  for (const x of g.rates || []) {
+    const s = vendorSlug(x && x.advertiser); if (!s) continue;
+    if (https(x.referral_url) && !ref.has(s)) ref.set(s, { url: x.referral_url, provider: x.advertiser });
+    if (https(x.source_url) && !src.has(s)) src.set(s, { url: x.source_url, provider: x.advertiser });
+  }
+  for (const v of g.vendors || []) {
+    const s = vendorSlug(v && v.vendor);
+    if (s && https(v.source_url) && !src.has(s)) src.set(s, { url: v.source_url, provider: v.vendor });
+  }
+  try {
+    for (const [, d] of await dealMap(fetchFn, now)) {
+      const s = vendorSlug(d.provider); if (s) deals.set(s, deals.has(s) ? null : d);
+    }
+  } catch {}
+  for (const [s, d] of deals) if (d) bySlug.set(s, d);
+  for (const [s, d] of src) bySlug.set(s, d);
+  for (const [s, d] of ref) bySlug.set(s, d);  // a disclosed referral link wins
+  vendorCache = { at: now, bySlug };
+  return bySlug;
+}
+
 export function clickParams(url) {
   const src = (url.searchParams.get("src") || "").toLowerCase();
   const ref = (url.searchParams.get("ref") || "").toLowerCase();
@@ -129,12 +166,22 @@ export default {
         note: "Opt-in (LANTERN_TELEMETRY=1) aggregate tool-call counts. No IPs or IDs are stored." });
     }
     if (url.pathname.startsWith("/go/") && (request.method === "GET" || request.method === "HEAD")) {
-      const id = url.pathname.slice(4).replace(/\/$/, "").toLowerCase();
-      if (!ID_RE.test(id)) return json({ error: "bad deal id" }, 400);
-      let byId;
-      try { byId = await dealMap(); } catch { return json({ error: "feed unavailable" }, 503); }
-      const deal = byId.get(id);
-      if (!deal) return json({ error: "unknown deal id" }, 404);
+      let id = url.pathname.slice(4).replace(/\/$/, "").toLowerCase(), deal;
+      if (id.startsWith("v/")) {  // T136: vendor-level link, counted as deal_id "v:<slug>"
+        const slug = id.slice(2);
+        if (!SLUG_RE.test(slug)) return json({ error: "bad vendor" }, 400);
+        let bySlug;
+        try { bySlug = await vendorMap(); } catch { return json({ error: "feed unavailable" }, 503); }
+        deal = bySlug.get(slug);
+        if (!deal) return json({ error: "unknown vendor" }, 404);
+        id = "v:" + slug;
+      } else {
+        if (!ID_RE.test(id)) return json({ error: "bad deal id" }, 400);
+        let byId;
+        try { byId = await dealMap(); } catch { return json({ error: "feed unavailable" }, 503); }
+        deal = byId.get(id);
+        if (!deal) return json({ error: "unknown deal id" }, 404);
+      }
       const { src, ref } = clickParams(url);
       let target = deal.url;
       if (src.startsWith("site")) {  // keep the site's existing T51 utm_source tag
