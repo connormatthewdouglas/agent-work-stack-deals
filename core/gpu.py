@@ -613,7 +613,7 @@ def live_rate_count(deals: list[dict], vendor_docs: list[dict] | None = None) ->
 
 
 # Availability coverage (T73 surfacing on /gpu/): vendors with no free stock signal are labelled, not counted as gaps.
-UNMEASURABLE_NO_SIGNAL = ("99Stack", "Civo", "CoreWeave", "DigitalOcean", "E2E", "Modal", "Nebius", "Ucartz", "RunC.AI", "SaladCloud")
+UNMEASURABLE_NO_SIGNAL = ("99Stack", "CoreWeave", "DigitalOcean", "E2E", "Modal", "Nebius", "Ucartz", "RunC.AI", "SaladCloud")
 UNMEASURABLE_ACCOUNT = ("Hyperstack", "Novita")
 # rel055 (Scout): Scout does not collect Jarvislabs stock and Thunder Compute collection is paused. Their rows keep
 # their cited prices; stock is labelled with this text on /gpu/ pages (existing status text and fields only).
