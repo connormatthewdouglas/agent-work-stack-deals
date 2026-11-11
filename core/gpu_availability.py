@@ -179,7 +179,31 @@ CLAIM_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "gpu
                     "first_read_at", "second_read_at", "second_read_gap_s", "second_read_basis", "two_read_gap_ok")
 
 
+LAST_KNOWN_KEYS = ("last_known_in_stock", "last_known_at")
+
+
+def last_known(src: dict) -> tuple[bool | None, str | None]:
+    """P36: the most recent firm stock answer (in_stock true/false) and its checked_at. A current firm claim is its own last
+    known value; an unknown or lapsed claim keeps whatever an earlier pass recorded. Never invented: both null when no firm
+    claim with a check time was ever seen. Display only; ranking reads in_stock, never these."""
+    if isinstance(src.get("in_stock"), bool) and src.get("checked_at"):
+        return src["in_stock"], src["checked_at"]
+    v, t = src.get("last_known_in_stock"), src.get("last_known_at")
+    return (v, t) if isinstance(v, bool) and isinstance(t, str) and t else (None, None)
+
+
 def stale_guard(a, now: datetime | None = None):
+    """_stale_guard plus P36: when a claim lapses here, the stale result also carries last_known_in_stock / last_known_at,
+    taken from the claim BEFORE it lapsed. Current claims are returned unchanged (their in_stock is the firm value)."""
+    out = _stale_guard(a, now)
+    if not isinstance(a, dict) or not isinstance(out, dict) or out is a or not out.get("availability_stale") \
+            or a.get("availability_stale"):
+        return out  # current claims and already-lapsed ones pass through unchanged (same object, same fields)
+    v, t = last_known(a)  # lapsing now: keep the answer it gave before it lapsed (null when it never gave one)
+    return {**out, "last_known_in_stock": v, "last_known_at": t}
+
+
+def _stale_guard(a, now: datetime | None = None):
     """Scout (or record-level, J6) availability older than AVAIL_MAX_AGE_H renders unknown (in_stock null, availability_stale true).
     Applied when the feed is built and again when the MCP tool reads it, so a stale stock claim never ranks or leads."""
     if not isinstance(a, dict) or a.get("origin") not in ("scout", "record") or a.get("availability_stale"):
