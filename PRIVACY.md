@@ -37,6 +37,14 @@ Set `LANTERN_TELEMETRY=1` to help us see which tools are used. It is enabled onl
 
 To turn it off, unset `LANTERN_TELEMETRY` or set it to anything other than `1`. You can delete the cache file at any time.
 
+## Hosted MCP endpoint
+
+The hosted worker at `https://lantern-works-mcp.lantern-works.workers.dev` keeps anonymous daily counters, public at `/stats.json`.
+
+- **Call counts (`hits`):** totals per UTC day × kind × path or tool × `ref` × `ua_class` × `src_class`. These rows do not include an IP address or the raw user agent.
+- **Distinct callers (`callers_daily`, `callers`):** for `/mcp` POSTs and successful feed fetches, the worker stores only a daily-salted SHA-256 hash of the IP address and user agent (`sha256(salt | IP | user-agent)`), plus the same coarse buckets. The raw IP and user agent are never stored, logged or returned. A random salt is created for each UTC day and deleted when that day ends, so hashes from different days cannot be linked. Hashes are kept for 120 days, then deleted. House and CI traffic is not counted. See [`docs/MEASUREMENT.md`](docs/MEASUREMENT.md).
+- **Opt-in price watches:** if you create a watch key, the worker stores a hash of the key, the webhook URL, an optional email, your watches and per-key daily counts. Call arguments are not stored.
+
 ## Website
 
 The site uses Cloudflare Web Analytics for page views; it sets no cookies. Clicks on search, compare, calculator and outbound links are counted as virtual page views under `/e/...`. Deal links (and the `tracked_url` field in the feed and MCP results) go through a `/go/<deal-id>` redirect on the telemetry worker, which adds one to an aggregate counter per UTC day, deal, provider, `src` and `?ref=` tag, then redirects to that deal's listed `redeem_url`. No IP address, cookie, user agent or other identifier is stored.
