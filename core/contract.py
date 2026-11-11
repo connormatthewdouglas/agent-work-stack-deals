@@ -116,14 +116,21 @@ _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": 
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"canonical_model": _str, "form_factor": _str, "rate_id": _RATE_ID, "report_issue_url": _str,
                                                                           "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]},
-                                                                          "min_gpus": {"type": ["integer", "null"]}, **_LAST_KNOWN}}},
+                                                                          "min_gpus": {"type": ["integer", "null"]}, **_LAST_KNOWN, **(_RATE_DATES := {
+                                                                              # Brain #584 / eddie_compute (additive): core.rate_dates; null when not known
+                                                                              "effective_at": {"type": ["string", "null"], "format": "date-time"},
+                                                                              "effective_at_basis": {"type": ["string", "null"], "enum": ["vendor_stated", "first_observed", None]},
+                                                                              "min_bill_usd_per_hour": {"type": ["number", "null"], "minimum": 0},
+                                                                              "min_bill_basis": {"type": ["string", "null"], "enum": ["hourly_rate", "per_second_rate", "monthly_equivalent", None]}})}}},
     # #130: GPU count ranked for; rows whose min_gpus exceeds it are excluded (count + full-mode list with reasons)
     "gpus": {"type": "integer", "minimum": 1}, "assumptions": {"type": "array", "items": {"type": "string"}},
     "min_gpus_unmet": {"type": "integer", "minimum": 0},
     "excluded_min_gpus": {"type": "array", "items": {"type": "object", "required": ["vendor", "gpu", "min_gpus", "reason"],
                           "properties": {"vendor": _str, "gpu": _str, "tier": _str, "min_gpus": {"type": "integer"},
                                          "gpu_count": {"type": ["integer", "null"]}, "hourly_usd": {"type": ["number", "null"]},
-                                         "rate_id": _str, "source_url": _str, "checked_at": _str, "reason": _str}}}}
+                                         "rate_id": _str, "source_url": _str, "checked_at": _str, "reason": _str,
+                                         "min_bill_usd_per_hour": _RATE_DATES["min_bill_usd_per_hour"],
+                                         "min_bill_basis": _RATE_DATES["min_bill_basis"]}}}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
@@ -259,6 +266,8 @@ def _brief_row(tool: str, row: dict, keys: list) -> dict:
             if k in av and k not in LAST_KNOWN_KEYS:
                 out[k] = av[k]
     out.update(_brief_last_known(row.get("availability")))
+    if tool == "compare_gpu_prices":
+        out.update(_brief_rate_dates(row))
     if isinstance(out.get("choice"), dict):
         ch = out["choice"]
         out["choice"] = {k: ch[k] for k in BRIEF_CHOICE_KEYS if k in ch}
@@ -292,6 +301,18 @@ def _fill_last_known(o) -> None:
     elif isinstance(o, list):
         for x in o:
             _fill_last_known(x)
+
+
+def _brief_rate_dates(row: dict) -> dict:
+    """Brain #584 / eddie_compute (additive): a brief row carries effective_at (+ basis) only when it is known, and
+    min_bill_usd_per_hour (+ basis) only when min_gpus > 1 (otherwise it equals hourly_usd). Absent = null or equal to
+    hourly_usd; full mode always has all four. Keeps brief within its size budget."""
+    out = {}
+    if row.get("effective_at"):
+        out.update({k: row.get(k) for k in ("effective_at", "effective_at_basis")})
+    if (row.get("min_gpus") or 1) > 1 and row.get("min_bill_usd_per_hour") is not None:
+        out.update({k: row.get(k) for k in ("min_bill_usd_per_hour", "min_bill_basis")})
+    return out
 
 
 def finalize(tool: str, out, mode: str = "full") -> dict:

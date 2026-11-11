@@ -1,12 +1,10 @@
 {
   "vendor": "Amazon Web Services",
   "deal_id": null,
-  "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-  "checked_at": "2026-11-04T16:11:55+00:00",
+  "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.csv",
+  "checked_at": "2026-11-11T21:31:38+00:00",
   "billing_granularity": "hourly",
-  "manual_snapshot": {
-    "reason": "Priced from AWS's public EC2 on-demand price JSON (hawkFilePublicationDate 2026-11-03T23:57:16Z; no displayed '$' price for the CI page check); a snapshot (2026-11-04T16:11:55+00:00) that auto-holds after 7 days unless re-snapshotted."
-  },
+  "collector": "aws_price_list",
   "extras": {
     "egress": {
       "status": "unknown",
@@ -38,16 +36,17 @@
       "interruptible": false,
       "tier": "On-demand EC2 instance g5.xlarge (1x A10G, 4 vCPU, 16 GiB, 250 GB NVMe; whole-instance price), US East (N. Virginia)",
       "form_factor": null,
-      "quote": "AWS EC2 on-demand price JSON: \"Instance Type\": \"g5.xlarge\", \"Location\": \"US East (N. Virginia)\", \"Operating System\": \"Linux\", \"price\": \"1.0060000000\" USD per hour ($1.006)",
-      "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-      "checked_at": "2026-11-04T16:11:55+00:00",
+      "quote": "AWS Price List us-east-1 v20261110173852: RateCode 79BRGEEZC6TARVWJ.JRTCKXETXF.6YS6EN2CT7; g5.xlarge Linux Shared Used OnDemand \"PricePerUnit\": \"1.0060000000\" USD/hr ($1.006)",
+      "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.csv",
+      "checked_at": "2026-11-11T21:31:38+00:00",
       "evidence": {
-        "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
-        "quote": "AWS EC2 on-demand price JSON: \"Instance Type\": \"g5.xlarge\", \"Location\": \"US East (N. Virginia)\", \"Operating System\": \"Linux\", \"price\": \"1.0060000000\" USD per hour ($1.006)",
-        "checked_at": "2026-11-04T16:11:55+00:00"
+        "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.csv",
+        "quote": "AWS Price List us-east-1 v20261110173852: RateCode 79BRGEEZC6TARVWJ.JRTCKXETXF.6YS6EN2CT7; g5.xlarge Linux Shared Used OnDemand \"PricePerUnit\": \"1.0060000000\" USD/hr ($1.006)",
+        "checked_at": "2026-11-11T21:31:38+00:00"
       },
-      "verified_at": "2026-11-04T16:11:55+00:00",
-      "region": "us-east-1"
+      "verified_at": "2026-11-11T21:31:38+00:00",
+      "region": "us-east-1",
+      "instance_type": "g5.xlarge"
     }
   ]
 }

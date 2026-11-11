@@ -548,6 +548,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     if gpus is not None and (not isinstance(gpus, int) or isinstance(gpus, bool) or not 1 <= gpus <= 1024):
         raise DealError("invalid_argument", "gpus must be an integer 1-1024")
     from .gpu import min_gpus_unmet
+    from .rate_dates import min_bill as _min_bill
     assumptions = [] if gpus is not None else [COMPARE_NO_GPU_COUNT]
     n_gpus = gpus or 1
     rows = [r for r in data.get("rates") or []
@@ -647,7 +648,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     excluded_min = [{"vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"), "min_gpus": r.get("min_gpus"),
                      "gpu_count": r.get("gpu_count"), "hourly_usd": r.get("hourly_equiv_usd"), "rate_id": rate_id(r),
                      "source_url": r.get("source_url"), "checked_at": r.get("verified_at") or r.get("checked_at"),
-                     "reason": f"sold only as {r.get('min_gpus')}-GPU allocations; {n_gpus} GPU(s) requested"}
+                     "reason": f"sold only as {r.get('min_gpus')}-GPU allocations; {n_gpus} GPU(s) requested",
+                     **dict(zip(("min_bill_usd_per_hour", "min_bill_basis"), _min_bill(r)))}
                     for r in rows if min_gpus_unmet(r, n_gpus)]
     excluded_min.sort(key=lambda x: (x["min_gpus"] or 1, x["hourly_usd"], x["vendor"] or ""))
     if excluded_min:
@@ -714,6 +716,11 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         out["quote_currency"] = r.get("quote_currency") or "USD"
         out["fx_date"] = r.get("fx_date")
         out["last_verified"] = r.get("last_verified") or r.get("verified_at")
+        # Brain #584 (additive): when the price took effect at the vendor (feed value; null when not datable), separate
+        # from last_verified. eddie_compute (additive): least hourly bill for one allocation = min_gpus x hourly_usd.
+        from .rate_dates import EFFECTIVE_KEYS, min_bill
+        out.update({k: r.get(k) for k in EFFECTIVE_KEYS})
+        out["min_bill_usd_per_hour"], out["min_bill_basis"] = min_bill(r)
         out.update({k: r[k] for k in ("referral_url", "referral_label") if r.get(k)})
         out["rank"] = i
         out["in_stock"] = (out.get("availability") or {}).get("in_stock") if isinstance(out.get("availability"), dict) else None

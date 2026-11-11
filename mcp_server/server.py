@@ -195,8 +195,12 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     gpus (optional, 1-1024; default 1, stated in assumptions): the GPU count you need. A rate ranks only when its
     min_gpus (smallest allocation sold) is <= gpus; rates sold only as larger allocations (e.g. 8-GPU nodes) are NOT
     ranked and are listed in excluded_min_gpus (vendor, gpu, tier, min_gpus, gpu_count, hourly_usd, rate_id, source_url,
-    checked_at, reason); min_gpus_unmet counts them (also in brief). Pass gpus=8 to compare 8-GPU nodes. If every
-    rate needs more GPUs, the error says which gpus value ranks them.
+    checked_at, reason, min_bill_usd_per_hour, min_bill_basis); min_gpus_unmet counts them (also in brief). Pass gpus=8 to
+    compare 8-GPU nodes. If every rate needs more GPUs, the error says which gpus value ranks them.
+    Each result has min_bill_usd_per_hour = min_gpus x hourly_usd (min_bill_basis: hourly_rate, per_second_rate or
+    monthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,
+    or first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),
+    separate from last_verified. Neither affects ranking.
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
