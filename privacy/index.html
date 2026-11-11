@@ -134,6 +134,7 @@
   <ul>
     <li><strong>Call counts</strong> are totals per UTC day, kind (feed, tool or initialize), path or tool name, <code>ref</code> tag, user-agent class and source class. Those rows do not include an IP address or the raw user agent.</li>
     <li><strong>Distinct-caller counts</strong> (for <code>/mcp</code> POSTs and successful feed fetches) store only a <strong>daily-salted SHA-256 hash of the IP address and user agent</strong>, together with the same coarse buckets. The raw IP and user agent are never stored, logged or returned. A random salt is created for each UTC day and deleted when that day ends, so hashes from different days cannot be linked. The hashes themselves are kept for 120 days, then deleted. House and CI traffic is not counted.</li>
+    <li><strong>Demand counts</strong> (for hosted GPU tool calls) are totals per UTC day, tool, GPU family, region group, price tier and cheapest provider. The GPU family and region group are bucketed to fixed lists, and anything else is stored as <code>other</code>; the price tier and provider describe the first result in our own answer. These rows do not include an IP address, the raw user agent, a caller hash, the tool arguments or any free text. They are kept for 120 days. House and CI traffic and known bots are not counted.</li>
     <li><strong>Opt-in price watches:</strong> if you create a watch key, the worker stores a hash of the key, the webhook URL, an optional email, your watches and per-key daily counts. Call arguments are not stored.</li>
   </ul>
 
