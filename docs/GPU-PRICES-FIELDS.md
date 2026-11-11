@@ -53,6 +53,14 @@ On every rate in `gpu-prices.json` and every `compare_gpu_prices` result (full m
 | `failure_reason_detail` | string or null | The source or Scout detail, passed through unchanged. Null when there is no source detail (our stale-claim note is not used). |
 
 HTTP-failed probes that never landed in a Scout snapshot cannot be invented here. When such a row does appear, it is `other`.
+## last_verified_before and gap_days on price changes (additive, P46, Nov 2026)
+
+On every up/down change in `/api/v1/gpu-price-changes.json` and in `changes` of `/api/v1/gpu-prices/history.json`, and on `get_price_changes` rows and `compare_gpu_prices` `history.recent_changes` (`core.gpu_history.change_gap`).
+
+| Field | Type | Meaning |
+|---|---|---|
+| `last_verified_before` | string (ISO-8601 UTC) or null | `verified_at` of the last daily snapshot that still showed the previous price for this rate (the last time we confirmed the old price). Null on `new` and `removed` entries, and when that timestamp is missing. |
+| `gap_days` | number (2 dp) or null | Days from `last_verified_before` to the `verified_at` of the first snapshot that showed the new price. The vendor changed the price inside that window: after `last_verified_before`, and at or before `last_verified_before` + `gap_days`. Null when either timestamp is missing, or when they are out of order. |
 
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
