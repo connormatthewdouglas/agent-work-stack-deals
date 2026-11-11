@@ -63,3 +63,11 @@ def test_methodology_like_for_like_demo_from_feed():
         assert (lo["canonical_model"], lo["form_factor"], lo["vram_gb"], lo["gpu_count"]) == (hi["canonical_model"], hi["form_factor"], hi["vram_gb"], hi["gpu_count"])
         assert f'${x["gap_month"]:,}/mo per GPU' in s
     assert 'id="like-for-like"' in s and "cheapest" not in s.split('id="like-for-like"')[1].split('id="cadence"')[0].lower()
+
+def test_methodology_customers_buy_data_never_placement():
+    s = (ROOT / "methodology" / "index.html").read_text(encoding="utf-8")
+    assert "Customers buy data, never placement" in s
+    assert "no vendor can pay to rank higher" in s
+    assert "never changes the order" in s
+    assert "Frosty" not in s
+

@@ -590,6 +590,8 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         r["quote"] = _current_quote(r["quote"], quote, old, new_s)  # sibling prices on the line may move
                     if quote and r.get("price_status") == "marketplace":
                         r["quote"] = quote  # count/median/min all from this one API snapshot (Vast basis drifted 2026-10-29)
+                    if quote and (aws_price_list.is_doc(doc) or aws_price_list.is_offer_url(r.get("source_url"))):
+                        r["quote"] = quote  # Price List identity (version, publication date, RateCode) lives in this allowed field
                     eq = quote
                     if quote and re.search(r"\.\.\.|…", r["evidence"]["quote"]):  # keep the elided form (stays matchable)
                         eq = r["evidence"]["quote"]
@@ -598,9 +600,8 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         r["quote"] = eq
                     r["evidence"] = {**{k: v for k, v in (r.get("evidence") or {}).items() if k not in ("source_url", "quote", "checked_at")},
                                      "source_url": r["source_url"], "quote": eq, "checked_at": fstamp}  # keep extra cited quotes (e.g. Modal preemption)
-                    if price_list_meta:
-                        r["evidence"].update({k: price_list_meta[k] for k in ("offer_version", "publication_date", "rate_code")
-                                              if price_list_meta.get(k)})
+                    # AWS Price List Version, Publication Date and RateCode stay in evidence.quote
+                    # (allowed field). Do not add extra evidence keys — record_problems rejects them.
                     r["verified_at"] = r["checked_at"] = fstamp
                     if r.get("stale", {}).get("auto"):
                         del r["stale"]
