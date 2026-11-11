@@ -99,8 +99,11 @@ def format_quote(meta: dict[str, str], row: dict, instance_type: str) -> str:
         shown = f"${float(price):g}"
     except ValueError:
         shown = f"${price}"
+    pub = meta.get("Publication Date") or ""
+    # Keep offer Version, Publication Date and RateCode in the quote: evidence may only
+    # carry source_url/quote/checked_at (plus interruption/request keys). No extra keys.
     q = (
-        f"AWS Price List us-east-1 v{version}: RateCode {rate}; "
+        f"AWS Price List us-east-1 v{version} pub {pub}: RateCode {rate}; "
         f"{instance_type} Linux Shared Used OnDemand "
         f'"PricePerUnit": "{price}" USD/hr ({shown})'
     )
