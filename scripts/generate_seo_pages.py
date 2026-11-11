@@ -115,6 +115,9 @@ CSS = """
     nav a { margin-right: .5rem; }
     .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
     .meta { color: #333; }
+    tr.no-stock-reading { opacity: 0.78; }
+    tr.no-stock-reading td:first-child { border-left: 3px solid #444; }
+    .stock-reading-label { font-style: italic; font-weight: 600; }
     .verified { font-size: .85rem; color: #555; }
     a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
     .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
@@ -577,7 +580,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
     <li><a href="{BASE}/methodology/">How prices are checked</a>: sources, check times, tiers and how rows are ranked.</li>
     <li>Each rate in the feed has its vendor <code>source_url</code>, a quoted <code>evidence</code> snippet and <code>checked_at</code>, so an agent can re-check it before acting.</li>
     <li>Spot a wrong number? <a href="{BASE}/report-price/">Report a wrong price</a>.</li>
-    <li><a href="{BASE}/receipts/">Receipts: dated MCP server test summaries</a> (separate from price-quote receipts; includes evidence limits and a verdict policy).</li>
+    <li><a href="https://lantern-works-mcp.lantern-works.workers.dev/receipts/?ref=receipts-for-agents">Receipts: dated MCP server test summaries</a> (separate from price-quote receipts; includes evidence limits and a verdict policy).</li>
   </ul>
 
   <h2 id="mcp-tools">MCP tools</h2>
