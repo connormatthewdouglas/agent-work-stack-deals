@@ -68,6 +68,7 @@ FAST = {core_deals.GPU_PRICES_URL: 60}
 _cache = {}
 SITE = "https://thelanternworks.com"
 HOSTED_UA = f"lantern-works-deals-mcp/{core_deals.VERSION} (hosted-worker)"
+RECEIPTS_RE = re.compile(r"^/receipts(/[a-z0-9][a-z0-9-]{0,79})?/?$")  # T137
 FEED_RE = re.compile(r"^/(api/v1/[a-z0-9_./-]+\.json|deals\.json)$")
 REF_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 CORS = {"access-control-allow-origin": "*", "access-control-allow-headers": "content-type, authorization, mcp-protocol-version, mcp-session-id",
@@ -298,6 +299,13 @@ class Default(WorkerEntrypoint):
                 await callers.record(self.env.DB, "feed", ref, *cls, request.headers.get("cf-connecting-ip"), request.headers.get("user-agent"))
             return Response(await r.text(), status=r.status, headers={"content-type": "application/json; charset=utf-8",
                                                                        "cache-control": "public, max-age=60", **CORS})
+        if request.method in ("GET", "HEAD") and RECEIPTS_RE.match(path):
+            # T137: tagged Receipts links (?ref=receipts-<channel>) counted server-side, then 302 to the same page on the site.
+            # The target is always SITE + a /receipts/ path matched above, never a caller URL. HEAD is not counted.
+            if request.method == "GET":
+                await _hit(self.env, "receipts", path.rstrip("/") + "/", ref, *cls)
+            to = f"{SITE}{path.rstrip('/')}/" + (f"?ref={ref}" if ref not in ("none", "other") else "")
+            return Response("", status=302, headers={"location": to, "cache-control": "no-store", **CORS})
         if path in ("/stats", "/stats/"):
             return Response(_stats_html(await _stats(self.env)), headers={"content-type": "text/html; charset=utf-8", **CORS})
         if path in ("/version", "/version.json"):  # additive: which commit this worker was built from

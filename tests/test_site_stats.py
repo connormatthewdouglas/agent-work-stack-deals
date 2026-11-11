@@ -189,3 +189,38 @@ def test_t136_query_to_click_null_with_reason():
     S.add_agent_query_to_click(rep, {"hits": []})
     q = rep["weeks"][0]["agent_query_to_click"]
     assert q["rate"] is None and q["agent_tool_calls"] == 0 and q["null_reason"]
+
+
+def test_t137_receipts_json_fetches_and_link_visits_server_side():
+    hosted = {"rows": [{"day": "2026-11-10", "ref": "x", "n": 1}],
+              "hits": [{"day": "2026-11-10", "kind": "feed", "name": "/api/v1/receipts.json", "ref": "receipts-colony", "ua_class": "other", "src_class": "other", "n": 3},
+                       {"day": "2026-11-10", "kind": "feed", "name": "/api/v1/receipts-proof-pack.json", "ref": "none", "ua_class": "mcp:claude", "src_class": "other", "n": 1},
+                       {"day": "2026-11-10", "kind": "feed", "name": "/api/v1/receipts.json", "ref": "house-t137", "ua_class": "other", "src_class": "other", "n": 9},
+                       {"day": "2026-11-10", "kind": "feed", "name": "/api/v1/receipts.json", "ref": "none", "ua_class": "known-bot", "src_class": "other", "n": 4},
+                       {"day": "2026-11-10", "kind": "feed", "name": "/api/v1/deals.json", "ref": "none", "ua_class": "other", "src_class": "other", "n": 8},
+                       {"day": "2026-11-10", "kind": "receipts", "name": "/receipts/", "ref": "receipts-hn", "ua_class": "browser", "src_class": "other", "n": 2},
+                       {"day": "2026-11-10", "kind": "receipts", "name": "/receipts/", "ref": "none", "ua_class": "house", "src_class": "house", "n": 5}]}
+    rep = S.build(hosted, {}, None, 12, datetime.now(timezone.utc))
+    S.add_receipts_hosted(rep, hosted)
+    f = rep["weeks"][0]["receipts_funnel"]
+    assert f["json_fetches"] == 4 and f["json_fetches_by_ref"] == {"receipts-colony": 3, "none": 1} and f["json_fetches_null_reason"] is None
+    assert f["link_visits"] == 2 and f["link_visits_by_ref"] == {"receipts-hn": 2}
+    assert "GitHub Pages" in rep["sources"]["receipts_hosted"]
+
+
+def test_t137_receipts_stay_null_when_hosted_down():
+    rep = S.build({"rows": [{"day": "2026-11-10", "ref": "x", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc))
+    S.add_receipts_hosted(rep, {"error": "URLError"})
+    f = rep["weeks"][0]["receipts_funnel"]
+    assert f["json_fetches"] is None and f["json_fetches_null_reason"] and f["link_visits"] is None
+
+
+def test_t137_hosted_receipts_redirect_is_not_open():
+    import re
+    src = (Path(__file__).resolve().parents[1] / "hosted" / "src" / "entry.py").read_text()
+    rx = re.compile(re.search(r'RECEIPTS_RE = re\.compile\(r"([^"]+)"\)', src).group(1))
+    for ok in ("/receipts", "/receipts/", "/receipts/009-open-meteo-mcp/", "/receipts/proof-pack-v1"):
+        assert rx.match(ok), ok
+    for bad in ("/receipts//evil.example", "/receipts/../x", "/receipts/a/b", "/receiptsx", "/receipts/https:"):
+        assert not rx.match(bad), bad
+    assert 'to = f"{SITE}{path.rstrip(\'/\')}/"' in src and '_hit(self.env, "receipts"' in src
