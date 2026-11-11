@@ -2,7 +2,9 @@
 # Publish a Lantern Scout snapshot to the orphan branch scout-data, at latest/.
 # Usage: scripts/push_scout_snapshot.sh <scout out dir>
 # Copies (never moves or edits) availability_v2_latest.json and feed_enriched_v2_latest.json, plus their CSVs,
-# t112_availability_rate_7d.json and RUN_LOG.txt if present, and writes latest/manifest.json (snapshot time, sha256, pushed_at). Uses the caller's
+# t112_availability_rate_7d.json and RUN_LOG.txt if present, and writes latest/manifest.json (snapshot time, sha256, pushed_at).
+# P42: also merge-appends out/probe_archive/*.jsonl.gz into history/probes/ (append-only; never drops
+# lines already on scout-data, so a local out/ wipe cannot erase the durable archive). Uses the caller's
 # existing git/gh auth. Prints no tokens or remote URLs. Exits 0 without a commit if nothing changed.
 set -euo pipefail
 OUT="${1:?usage: push_scout_snapshot.sh <scout out dir>}"
@@ -38,6 +40,50 @@ d=json.load(open(sys.argv[1])); ts=d.get("collected_at") or min(r["verified_at"]
 age=(datetime.now(timezone.utc)-datetime.fromisoformat(ts.replace("Z","+00:00")).astimezone(timezone.utc)).total_seconds()
 sys.exit(0 if 0<=age<=6*3600 else 1)' "$WG" 2>/dev/null; then cp "$WG" "$W/r/latest/"
 else rm -f "$W/r/latest/wider_gpu_prices_latest.json"; [ -e "$WG" ] && echo "skip wider_gpu_prices_latest.json: empty, unreadable or older than 6h"; fi
+# P42: merge local out/probe_archive/*.jsonl.gz into history/probes/ (never drop remote lines)
+PROBE_SRC="${LW_PROBE_ARCHIVE:-$OUT/probe_archive}"
+python3 - "$PROBE_SRC" "$W/r/history/probes" <<'PA'
+import gzip, os, sys, tempfile
+from pathlib import Path
+
+def _gzip_lines(path):
+    path = Path(path)
+    if not path.exists() or path.stat().st_size == 0:
+        return []
+    with gzip.open(path, "rt", encoding="utf-8") as f:
+        return [ln if ln.endswith("\n") else ln + "\n" for ln in f]
+
+def _write_gzip_lines(path, lines):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
+    os.close(fd)
+    tmp_path = Path(tmp)
+    try:
+        with gzip.open(tmp_path, "wt", encoding="utf-8") as f:
+            f.writelines(lines)
+        tmp_path.replace(path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+
+src_dir, dst_dir = Path(sys.argv[1]), Path(sys.argv[2])
+dst_dir.mkdir(parents=True, exist_ok=True)
+if src_dir.is_dir():
+    for src in sorted(src_dir.glob("*.jsonl.gz")):
+        dst = dst_dir / src.name
+        old = _gzip_lines(dst)
+        seen = set(old)
+        new = list(old)
+        added = 0
+        for ln in _gzip_lines(src):
+            if ln not in seen:
+                new.append(ln)
+                seen.add(ln)
+                added += 1
+        if added or not dst.exists():
+            _write_gzip_lines(dst, new)
+PA
 python3 - "$W/r/latest" <<'PY'
 import hashlib, json, sys
 from datetime import datetime, timezone
@@ -63,7 +109,7 @@ m["pushed_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replac
 old.write_text(json.dumps(m, indent=1) + "\n")
 PY
 cd "$W/r"
-git add -A latest
+git add -A latest history/probes
 if git diff --cached --quiet; then echo "scout-data: no change"; exit 0; fi
 # v3.3 (Scout): commit message = this generation, not the 4h cycle's collected_at (which a 20-min refresh does not change)
 git \
