@@ -96,3 +96,26 @@ def test_new_held_rtx4090_vendors_not_ranked():
             assert not any(r["advertiser"] == h["vendor"] and r.get("gpu") == rec.get("gpu") and r.get("tier") == rec.get("tier")
                            for r in feed["rates"]), (h["vendor"], rec.get("gpu"), rec.get("tier"))
     assert not {"TensorDock", "Clore.ai"} & {r["advertiser"] for r in feed["rates"] if r["tier_class"] == "on-demand"}
+
+
+def test_scout_firm_claim_copies_availability_source_and_does_not_invent_one():
+    """A firm Scout in_stock/out-of-stock claim must carry availability_source as availability.source
+    (record-origin already does this; the firm _scout_base path did not, which broke Civo after import).
+    Missing source stays missing; unknown stays unknown."""
+    from core import gpu_availability as ga
+    src = "https://www.civo.com/ai/h100-gpu"
+    row = {
+        "in_stock": True,
+        "availability_checked_at": "2026-11-11T22:53:00Z",
+        "availability_source": src,
+        "availability_source_type": "public vendor web page",
+        "availability_note": "statusText on the vendor product page: 'In stock'",
+    }
+    a = ga._scout("Civo", row)
+    assert a["in_stock"] is True and a["origin"] == "scout" and a["source"] == src
+    out = ga._scout("Civo", dict(row, in_stock=False))
+    assert out["in_stock"] is False and out["source"] == src
+    nosrc = ga._scout("Civo", {"in_stock": True, "availability_checked_at": "2026-11-11T22:53:00Z"})
+    assert nosrc["in_stock"] is True and not nosrc.get("source")
+    unknown = ga._scout("Civo", {"in_stock": None})
+    assert unknown["in_stock"] is None and unknown["status"] == "unknown" and not unknown.get("source")

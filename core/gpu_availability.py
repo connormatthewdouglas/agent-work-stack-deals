@@ -401,6 +401,8 @@ def _scout_base(vendor: str, r: dict | None) -> dict:
         out["regions_expires_at"] = rx
     if r.get("unrented_servers") is not None:  # Clore: servers, not GPU offers
         out["unrented_servers_note"] = UNRENTED_NOTE
+    if r.get("availability_source"):  # URL or API identifier from Scout; never invent a source when the snapshot has none
+        out["source"] = r["availability_source"]
     if r.get("availability_source_type") == AUTH_LABEL or any(a in (r.get("availability_source") or "") for a in AUTH_SOURCES):
         out["source_label"] = AUTH_LABEL
     if r.get("availability_note"):
