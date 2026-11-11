@@ -88,6 +88,9 @@ def write(g) -> str:
   <h1>How Lantern Works collects and checks prices</h1>
   <p>This page explains, in plain words, where every price on this site comes from, how it is checked, when it is held back, and how you may reuse the data. The same rules are in the <code>methodology</code> field of the <a href="{base}/api/v1/gpu-prices.json">GPU price feed</a>.</p>
 
+  <h2 id="placement">Customers buy data, never placement</h2>
+  <p>Rankings and order on this site come only from the price and freshness rules on this page; no vendor can pay to rank higher. Some links are referral links (labelled), and Lantern Works may earn a commission if you sign up through one, but that never changes the order of a list or the price you pay.</p>
+
   <h2 id="collected">How prices are collected</h2>
   <ul>
     <li>Every price comes from the vendor's own public pricing page or API. Each rate keeps a link to that page (<code>source_url</code>) and the exact text found there (<code>evidence.quote</code>).</li>
