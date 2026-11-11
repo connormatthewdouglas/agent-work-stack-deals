@@ -285,7 +285,23 @@
                 "vendor",
                 "gpu",
                 "direction"
-              ]
+              ],
+              "properties": {
+                "last_verified_before": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "gap_days": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                }
+              }
             }
           },
           "referral_disclosure": {

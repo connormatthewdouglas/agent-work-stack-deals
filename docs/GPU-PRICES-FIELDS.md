@@ -42,6 +42,15 @@ On every rate in `gpu-prices.json` and every `compare_gpu_prices` result (full m
 | `min_bill_usd_per_hour` | number or null | `min_gpus` x the per-GPU hourly price (`hourly_equiv_usd` in the feed, `hourly_usd` in MCP rows): the least you pay per hour for one allocation. Equals the hourly price when `min_gpus` is 1. Null when either input is missing. Also on `excluded_min_gpus` entries. |
 | `min_bill_basis` | `hourly_rate`, `per_second_rate`, `monthly_equivalent` or null | What the hourly price is: the vendor's own per-GPU hourly rate; its per-second rate x 3600 (billed per second while running); or, for flat monthly servers, a derived equivalent (monthly price / 730 h). A `monthly_equivalent` is not a quoted hourly rate: the vendor bills the month. Marketplace rows use the median offer, as `hourly_equiv_usd` does. |
 
+## last_verified_before and gap_days on price changes (additive, P46, Nov 2026)
+
+On every up/down change in `/api/v1/gpu-price-changes.json` and in `changes` of `/api/v1/gpu-prices/history.json`, and on `get_price_changes` rows and `compare_gpu_prices` `history.recent_changes` (`core.gpu_history.change_gap`).
+
+| Field | Type | Meaning |
+|---|---|---|
+| `last_verified_before` | string (ISO-8601 UTC) or null | `verified_at` of the last daily snapshot that still showed the previous price for this rate (the last time we confirmed the old price). Null on `new` and `removed` entries, and when that timestamp is missing. |
+| `gap_days` | number (2 dp) or null | Days from `last_verified_before` to the `verified_at` of the first snapshot that showed the new price. The vendor changed the price inside that window: after `last_verified_before`, and at or before `last_verified_before` + `gap_days`. Null when either timestamp is missing, or when they are out of order. |
+
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
 | Field | Type | Meaning |
