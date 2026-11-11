@@ -187,6 +187,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <h2>Calculation basis</h2>
   <ul>
     <li>Hourly: rate × hours × GPUs. Billed while the instance runs.</li>
+    <li>Marketplace medians are computed from in-stock listings only.</li>
     <li>Monthly dedicated servers: flat price × ceil(hours ÷ {HOURS_PER_MONTH}) × GPUs, whatever your usage.</li>
     <li>Excludes storage, egress, extra vCPU, taxes and promo credits. Prices are "from" prices; confirm on the vendor page before spending.</li>
   </ul>
@@ -213,7 +214,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     if(r.unit==="hour"){{
       let calc=`$${{r.price_usd}}/hr × ${{h}} h × ${{gg}} GPU`;
       if(gg>g) calc+=` (${{g}} requested, ${{gg}} billed: `+(per>1?`sold only as whole ${{per}}-GPU servers, ${{servers}} instance${{servers>1?"s":""}})`:`minimum ${{gg}} GPUs per instance)`);
-      if(r.price_status==="marketplace") calc+=`; variable marketplace median, lowest offer $${{r.lowest_offer_usd}}/hr`;
+      if(r.price_status==="marketplace") calc+=`; variable marketplace median, from in-stock listings only, lowest offer $${{r.lowest_offer_usd}}/hr`;
       return {{cost:Math.round(r.price_usd*h*gg*100)/100,calc,requested_gpus:g,billed_gpus:gg,instances:servers}};
     }}
     const n=Math.max(1,Math.ceil(h/H))*gg;

@@ -8,6 +8,8 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+from datetime import datetime, timezone
+from html import escape as html_escape
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -19,6 +21,115 @@ from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
 DEFAULT_HOURS = 100
+
+# Footnote for every marketplace-median display. Verified against
+# scripts/refresh_gpu_prices.py:market_stats (Vast.ai: verified, rentable,
+# not-rented, on-demand, non-bid offers) and scripts/build_clore.py (Clore.ai:
+# rented is false, on-demand USD listings; spot/bid excluded).
+MARKETPLACE_MEDIAN_FOOTNOTE = "Marketplace medians are computed from in-stock listings only."
+
+_READ_CLOCK: datetime | None = None
+
+
+def parse_row_time(raw) -> datetime | None:
+    """Parse a feed ISO timestamp, or None if it is missing or unusable. Never invent one."""
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    try:
+        ts = datetime.fromisoformat(raw.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=timezone.utc)
+    return ts
+
+
+def row_checked_at(r: dict) -> str | None:
+    """The feed's per-row observed/checked timestamp, or None. Never invent one."""
+    for raw in (r.get("checked_at"), (r.get("evidence") or {}).get("checked_at"), r.get("verified_at")):
+        if isinstance(raw, str) and raw.strip():
+            return raw.strip()
+    inner = r.get("row")
+    if isinstance(inner, dict) and inner is not r:
+        return row_checked_at(inner)
+    return None
+
+
+def has_stock_reading(r: dict) -> bool:
+    """True when the feed has a stock check for this row (in, out, unknown-after-check, or stale)."""
+    src = r["row"] if isinstance(r.get("row"), dict) and "availability" not in r else r
+    a = src.get("availability") or {}
+    return (a.get("in_stock") is not None or bool(a.get("checked_at"))
+            or bool(a.get("availability_stale")) or bool(a.get("stock_read_at")))
+
+
+def read_clock() -> datetime:
+    """Age clock: the GPU feed's feed_updated_at, not the wall clock (same reason as the badge clock)."""
+    global _READ_CLOCK
+    if _READ_CLOCK is None:
+        try:
+            doc = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text(encoding="utf-8"))
+            _READ_CLOCK = datetime.fromisoformat(str(doc["feed_updated_at"]).replace("Z", "+00:00"))
+        except (OSError, ValueError, KeyError, TypeError):
+            _READ_CLOCK = datetime.now(timezone.utc)
+    if _READ_CLOCK.tzinfo is None:
+        _READ_CLOCK = _READ_CLOCK.replace(tzinfo=timezone.utc)
+    return _READ_CLOCK
+
+
+def format_read_ago(ts: datetime, now: datetime) -> str | None:
+    """Relative 'read Nh ago' label, or None when we must not claim 'ago' (timestamp after now)."""
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    sec = (now - ts).total_seconds()
+    if sec < -60:
+        return None
+    if sec < 0:
+        sec = 0
+    if sec < 3600:
+        return f"read {int(sec // 60)}m ago"
+    if sec < 48 * 3600:
+        return f"read {int(sec // 3600)}h ago"
+    return f"read {int(sec // 86400)}d ago"
+
+
+def read_time_html(r: dict, esc=None, now: datetime | None = None) -> str:
+    """Per-row read time: 'read 3h ago' in a <time datetime> element, or 'read time unknown'."""
+    esc = esc or (lambda s: html_escape(str(s), quote=True))
+    raw = row_checked_at(r)
+    if not raw:
+        return "read time unknown"
+    ts = parse_row_time(raw)
+    if ts is None:
+        return "read time unknown"
+    iso = ts.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    ago = format_read_ago(ts, now if now is not None else read_clock())
+    label = ago if ago is not None else f"read at {iso}"
+    return f'<time datetime="{esc(iso)}">{esc(label)}</time>'
+
+
+def stock_label_html() -> str:
+    return ' <small class="stock-reading-label">No stock reading</small>'
+
+
+def row_stock_class(r: dict) -> str:
+    return "no-stock-reading" if not has_stock_reading(r) else "stock-checked"
+
+
+def median_footnote_html(rows: list[dict]) -> str:
+    if any(r.get("price_status") == "marketplace" or "median" in str(r.get("price_basis") or "").lower() for r in rows):
+        return f'<p class="meta" id="median-footnote">{MARKETPLACE_MEDIAN_FOOTNOTE}</p>'
+    return ""
+
+
+def no_stock_note_html(rows: list[dict]) -> str:
+    kinds = {has_stock_reading(r) for r in rows}
+    if True in kinds and False in kinds:
+        return ('<p class="meta">Rows labelled “No stock reading” have no stock check in the feed. '
+                "They are visually separated from stock-checked rows (label plus muted style); sort order is unchanged.</p>")
+    return ""
 
 
 def _money(x: float) -> str:
@@ -93,7 +204,8 @@ def _rate_str(r: dict) -> str:
     if r["unit"] == "hour":
         s = f"{usd(r['price_usd'])}/hr"
         if r.get("price_status") == "marketplace":
-            s += f" (variable marketplace median; lowest offer {usd(r['lowest_offer_usd'])}/hr, {r['offer_count']} offers)"
+            s += (f" (variable marketplace median, from in-stock listings only; "
+                  f"lowest offer {usd(r['lowest_offer_usd'])}/hr, {r['offer_count']} offers)")
         if phrase:
             s += f" ({phrase}; sold only as {min_gpus_count(r)}-GPU instances)"
         return s
@@ -410,13 +522,17 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
         badge = "" if tc == "on-demand" else f" <strong>[{esc(tc)}]</strong>"
         mark = serverless_mark(r).strip()
         srv = f" <strong>[{esc(mark)}]</strong>" if mark else ""
+        stock_cls = row_stock_class(r)
+        stock_lbl = stock_label_html() if stock_cls == "no-stock-reading" and has_av else ""
+        av_cell = (_avail_cell(gen, r) + stock_lbl) if has_av else ""
         trs.append(
-            f"<tr data-tier=\"{esc(tc)}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(display_gpu(r))}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
+            f"<tr data-tier=\"{esc(tc)}\" class=\"{stock_cls}\"><td data-label=\"#\">{i}</td><td data-label=\"GPU\">{esc(display_gpu(r))}{(' ' + str(r['vram_gb']) + ' GB') if r.get('vram_gb') else ''}</td>"
             f"<td data-label=\"Vendor\">{_vendor_link(gen, r)}</td>"
             f"<td data-label=\"Type\">{esc(r['tier'])}{badge}{srv}</td><td data-label=\"Rate\">{esc(_rate_str(r))}</td>"
             f"<td data-label=\"{DEFAULT_HOURS} h/month\"><strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong></td><td data-label=\"Full month\">{_total_cell(r, full[_key(r)], HOURS_PER_MONTH)}</td>"
             f"<td data-label=\"Vendor quote\">{_quote_html(esc, r)}</td>"
-            f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>" + (f"<td data-label=\"Availability\">{_avail_cell(gen, r)}</td>" if has_av else "")
+            f"<td data-label=\"Verified\">{_verified_cell(r, esc)}</td>"
+            f"<td data-label=\"Read\">{read_time_html(r, esc)}</td>" + (f"<td data-label=\"Availability\">{av_cell}</td>" if has_av else "")
             + f"<td data-label=\"Link\">{'Referral link' if (r.get('affiliate') or r.get('referral_label')) else 'Direct link'} <a class=\"meta\" rel=\"nofollow\" href=\"{gen.BASE}/report-price/?{esc(_report_q(r))}\">Wrong price?</a></td></tr>")
     tid = "rt" + hashlib.sha1(repr([_key(r) for r in rows]).encode()).hexdigest()[:8]
     filt = (f"<p><label><input type=\"checkbox\" onchange=\"document.querySelectorAll('#{tid} tbody tr').forEach("
@@ -426,8 +542,9 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
         filt = ""
     return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
             f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; × GPUs for whole multi-GPU instances; flat plans as listed)</th><th>Vendor quote</th>"
-            "<th>Price verified</th>" + (f"<th>Availability ({av_head}, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
-            "<p class=\"meta\"><strong>Prices are GPU-hour only</strong>: they exclude storage, data egress and taxes. "
+            "<th>Price verified</th><th>Read</th>" + (f"<th>Availability ({av_head}, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
+            + median_footnote_html(rows) + no_stock_note_html(rows)
+            + "<p class=\"meta\"><strong>Prices are GPU-hour only</strong>: they exclude storage, data egress and taxes. "
             "Each Vendor quote links that vendor's pricing page, where those costs are listed if published. <strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
             + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. "
@@ -655,7 +772,8 @@ def rate_count_note(gen, deals: list[dict]) -> str:
            f"<a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> ({gen.esc(parts)}). ")
     if med:
         out += (f"{pl(len(med), 'of those rows is a marketplace median', ) if len(med) == 1 else str(len(med)) + ' of those rows are marketplace medians'} "
-                f"(each summarises many listings from {gen.esc(', '.join(sorted({r['advertiser'] for r in med})))}, not one offer). ")
+                f"(each summarises many listings from {gen.esc(', '.join(sorted({r['advertiser'] for r in med})))}, not one offer; "
+                f"{MARKETPLACE_MEDIAN_FOOTNOTE[0].lower() + MARKETPLACE_MEDIAN_FOOTNOTE[1:]}). ")
     if resv:
         out += f"{pl(resv, 'reserved or term-contract rate')} {'is' if resv == 1 else 'are'} included in the count but left out of the cheapest among tracked providers ranking. "
     if owner:
@@ -784,10 +902,14 @@ def _cmp_page(gen, path, title, desc, h1, crumb, intro, sections, rows_ld, faqs,
     return path
 
 
-def _simple_table(head, rows):
+def _simple_table(head, rows, row_attrs=None, footnote=""):
+    trs = []
+    for i, r in enumerate(rows):
+        attr = (" " + row_attrs[i]) if row_attrs and i < len(row_attrs) and row_attrs[i] else ""
+        trs.append("<tr" + attr + ">" + "".join(f"<td>{c}</td>" for c in r) + "</tr>")
     return ("<div class=\"tscroll\"><table class=\"howto sticky1\"><thead><tr>" + "".join(f"<th>{h}</th>" for h in head)
-            + "</tr></thead><tbody>\n" + "\n".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in rows)
-            + "\n</tbody></table></div>")
+            + "</tr></thead><tbody>\n" + "\n".join(trs)
+            + "\n</tbody></table></div>" + (footnote or ""))
 
 
 def _vendor_cell(gen, r):
@@ -859,10 +981,13 @@ def write_h100_vs(gen, rates):
     for ff in sorted({form_of(r) for r in rows}, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99):
         fr = [r for r in rows if form_of(r) == ff]
         t1 += f"  <h2>H100 {gen.esc('form not stated' if ff == 'not stated' else ff)}</h2>\n" + _simple_table(
-            ["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH} h)", "Vendor quote"],
+            ["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH} h)", "Vendor quote", "Read"],
             [[i, _vendor_cell(gen, r), f"{gen.esc(r['gpu'])} · {gen.esc(r['tier'])}", gen.esc(_rate_str(r)),
-              f"<strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r)]
-             for i, r in enumerate(fr, 1)])
+              f"<strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r),
+              read_time_html(r, gen.esc) + (stock_label_html() if not has_stock_reading(r) else "")]
+             for i, r in enumerate(fr, 1)],
+            row_attrs=[f'class="{row_stock_class(r)}"' for r in fr],
+            footnote=median_footnote_html(fr) + no_stock_note_html(fr))
     t2 = _simple_table(["Vendor", "Lowest-priced H100 (tracked)", "Billing and extras"],
                        [[_vendor_cell(gen, r), f"{gen.esc(r['gpu'])} ({gen.esc(r['tier'])}) {gen.esc(_rate_str(r))}", gen.esc(_VENDOR_FACTS[v])]
                         for v, r in best.items()])
@@ -887,9 +1012,13 @@ def write_h100_vs(gen, rates):
 def write_per_vram(gen, rates):
     day, rs = _today_rates(rates)
     rows = sorted((r for r in rs if r.get("vram_gb")), key=lambda r: (r["price_usd"] / r["vram_gb"], r["advertiser"], r["gpu"]))
-    t = _simple_table(["#", "GPU", "Vendor", "Type", "Rate", "$ per GB VRAM-hour", "Vendor quote"],
+    t = _simple_table(["#", "GPU", "Vendor", "Type", "Rate", "$ per GB VRAM-hour", "Vendor quote", "Read"],
                       [[i, f"{gen.esc(r['gpu'])} {r['vram_gb']} GB", _vendor_cell(gen, r), gen.esc(r["tier"]), gen.esc(_rate_str(r)),
-                        f"<strong>${r['price_usd'] / r['vram_gb']:.4f}</strong>", _quote_cell(gen, r)] for i, r in enumerate(rows, 1)])
+                        f"<strong>${r['price_usd'] / r['vram_gb']:.4f}</strong>", _quote_cell(gen, r),
+                        read_time_html(r, gen.esc) + (stock_label_html() if not has_stock_reading(r) else "")]
+                       for i, r in enumerate(rows, 1)],
+                      row_attrs=[f'class="{row_stock_class(r)}"' for r in rows],
+                      footnote=median_footnote_html(rows) + no_stock_note_html(rows))
     c = first_single(rows)
     big = [r for r in rows if r["vram_gb"] >= 80 and headline_eligible(r)]
     faqs = [("Which cloud GPU is cheapest per GB of VRAM among tracked providers?",
@@ -913,9 +1042,13 @@ def write_runpod_tiers(gen, rates):
     pairs = sorted(((sec[r["gpu"]], r) for r in rp if r["tier"] == "On-demand (Community Cloud)" and r["gpu"] in sec),
                    key=lambda p: -(1 - p[1]["price_usd"] / p[0]["price_usd"]))
     t = _simple_table(["GPU", "Secure Cloud", "Community Cloud", "Saving", f"Saving over {HOURS_PER_MONTH} h"],
-                      [[f"{gen.esc(s['gpu'])} {s['vram_gb']} GB", gen.esc(_rate_str(s)), gen.esc(_rate_str(c)),
-                        f"<strong>{(1 - c['price_usd'] / s['price_usd']) * 100:.0f}%</strong>", _money((s['price_usd'] - c['price_usd']) * HOURS_PER_MONTH)]
-                       for s, c in pairs])
+                      [[f"{gen.esc(s['gpu'])} {s['vram_gb']} GB",
+                        gen.esc(_rate_str(s)) + " " + read_time_html(s, gen.esc),
+                        gen.esc(_rate_str(c)) + " " + read_time_html(c, gen.esc),
+                        f"<strong>{(1 - c['price_usd'] / s['price_usd']) * 100:.0f}%</strong>",
+                        _money((s['price_usd'] - c['price_usd']) * HOURS_PER_MONTH)]
+                       for s, c in pairs],
+                      footnote=median_footnote_html([s for s, c in pairs] + [c for s, c in pairs]))
     top, low = pairs[0], pairs[-1]
     rows_ld = [p[1] for p in pairs]
     faqs = [("How much less does RunPod Community Cloud cost?",
