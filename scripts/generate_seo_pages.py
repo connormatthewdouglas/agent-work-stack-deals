@@ -577,7 +577,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
     <li><a href="{BASE}/methodology/">How prices are checked</a>: sources, check times, tiers and how rows are ranked.</li>
     <li>Each rate in the feed has its vendor <code>source_url</code>, a quoted <code>evidence</code> snippet and <code>checked_at</code>, so an agent can re-check it before acting.</li>
     <li>Spot a wrong number? <a href="{BASE}/report-price/">Report a wrong price</a>.</li>
-    <li><a href="{BASE}/receipts/">Receipts: dated MCP server test summaries</a> (separate from price-quote receipts; includes evidence limits and a verdict policy).</li>
+    <li><a href="https://lantern-works-mcp.lantern-works.workers.dev/receipts/?ref=receipts-for-agents">Receipts: dated MCP server test summaries</a> (separate from price-quote receipts; includes evidence limits and a verdict policy).</li>
   </ul>
 
   <h2 id="mcp-tools">MCP tools</h2>
