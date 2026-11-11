@@ -94,7 +94,7 @@ def test_price_changes_diff_logic():
     a = {"date": "2026-01-01", "rows": [row("a", 2.0), row("b", 1.0), row("c", 3.0), row("d", 1.0, "held")]}
     b = {"date": "2026-01-02", "rows": [row("a", 1.5), row("b", 1.0), row("e", 4.0), row("d", 0.5)]}
     d = build_changes([b, a])
-    assert d["previous_date"] == "2026-01-01" and d["counts"] == {"down": 1, "up": 0, "new": 2, "removed": 1}
+    assert d["previous_date"] == "2026-01-01" and d["counts"] == {"down": 1, "up": 0, "new": 2, "removed": 1, "composition": 0, "mixed": 0, "unknown": 0}
     assert d["changes"][0]["key"] == "a" and d["changes"][0]["pct"] == -25.0
 
 

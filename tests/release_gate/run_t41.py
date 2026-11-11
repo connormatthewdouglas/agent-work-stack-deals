@@ -439,9 +439,11 @@ def _(f, ev):
 @case("T41-14")
 def _(f, ev):
     chs = CH.get("changes") or []
-    from collections import Counter
-    cnt = Counter(c["change"] for c in chs)
-    if dict(cnt) != {k: v for k, v in (CH.get("counts") or {}).items() if v}: f.append(f"counts {CH.get('counts')} != list {dict(cnt)}")
+    from core.gpu_changes import count_changes
+    # P45: up/down are price moves only; composition/mixed/unknown have their own additive counts.
+    expected = {k: v for k, v in count_changes(chs).items() if v}
+    got = {k: v for k, v in (CH.get("counts") or {}).items() if v}
+    if got != expected: f.append(f"counts {CH.get('counts')} != list {expected}")
     for c in chs:
         if c["change"] in ("up", "down"):
             o, n = c["old_hourly_usd"], c["new_hourly_usd"]

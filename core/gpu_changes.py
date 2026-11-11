@@ -13,6 +13,22 @@ def _ranked(snap: dict) -> dict[str, dict]:
     return {r["key"]: r for r in snap.get("rows", []) if r.get("status") == "ranked" and r.get("hourly_usd") is not None}
 
 
+
+def count_changes(changes: list[dict]) -> dict:
+    """up/down count only price moves (composition_flag is None or 'price').
+    composition, mixed and unknown are additive, separate, and never included in up/down.
+    """
+    counts = {"down": 0, "up": 0, "new": 0, "removed": 0, "composition": 0, "mixed": 0, "unknown": 0}
+    for c in changes:
+        flag = c.get("composition_flag")
+        kind = c["change"]
+        if kind in ("down", "up") and flag in ("composition", "mixed", "unknown"):
+            counts[flag] += 1
+        elif kind in counts:
+            counts[kind] += 1
+    return counts
+
+
 def build_changes(snapshots: list[dict] | None = None) -> dict:
     snaps = sorted(snapshots if snapshots is not None else gpu_history.load_snapshots(), key=lambda s: s["date"])
     doc = {"schema": "lantern-works-gpu-price-changes/1",
@@ -21,7 +37,7 @@ def build_changes(snapshots: list[dict] | None = None) -> dict:
            "methodology": [REPORT_ISSUE_NOTE],
            "description": "GPU rental rates that moved between the two latest daily snapshots (per GPU-hour, USD). "
                           "Each change links the vendor's own pricing page. 'Cheapest' always means among tracked providers.",
-           "date": None, "previous_date": None, "changes": [], "counts": {"down": 0, "up": 0, "new": 0, "removed": 0}}
+           "date": None, "previous_date": None, "changes": [], "counts": count_changes([])}
     if len(snaps) < 2:
         return doc
     prev, cur = snaps[-2], snaps[-1]
@@ -64,8 +80,7 @@ def build_changes(snapshots: list[dict] | None = None) -> dict:
     order = {"down": 0, "up": 1, "new": 2, "removed": 3}
     out.sort(key=lambda c: (order[c["change"]], c["pct"] if c["pct"] is not None else 0, c["gpu"], c["vendor"], c["key"]))
     doc["changes"] = out
-    for c in out:
-        doc["counts"][c["change"]] += 1
+    doc["counts"] = count_changes(out)
     return doc
 
 

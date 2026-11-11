@@ -291,3 +291,52 @@ def test_listed_price_move_is_not_flagged_unknown_or_called_composition():
     assert d["changes"][0]["composition_flag"] == "unknown"
     title = change_title({**d["changes"][0], "old_hourly_usd": 1.20, "new_hourly_usd": 1.10, "pct": d["changes"][0]["pct"]})
     assert "dropped" not in title and "not classified as a price move" in title
+
+
+def test_changes_counts_exclude_composition_mixed_unknown_from_up_down():
+    """gpu-price-changes.json counts.down/up are price moves only; composition/mixed/unknown are additive."""
+    def snap(day, rows):
+        out = []
+        for vendor, tier, med, lo, n, status in rows:
+            r = {"key": f"{vendor}|X|{tier}|80|1", "vendor": vendor, "gpu": "H100 SXM", "tier": tier,
+                 "vram_gb": 80, "gpu_count": 1, "billing_unit": "hourly",
+                 "price_usd": med, "hourly_usd": med, "status": "ranked",
+                 "verified_at": f"{day}T12:00:00Z", "source_url": "https://example.invalid/p"}
+            if status:
+                r["price_status"] = status
+            if lo is not None:
+                r["lowest_offer_usd"] = lo
+            if n is not None:
+                r["offer_count"] = n
+            out.append(r)
+        return {"date": day, "rows": out}
+
+    vast = "Marketplace on-demand (verified; median per GPU)"
+    prev = snap("2026-11-10", [
+        ("Verda", "On-demand", 2.50, None, None, "listed"),
+        ("Vast.ai", vast, 1.20, 1.00, 5, "marketplace"),
+        ("Clore.ai", "Marketplace on-demand (host USD listings; median per GPU)", 0.50, 0.40, 10, "marketplace"),
+        ("Vast.ai", "Marketplace on-demand (verified; median per GPU) B", 1.00, 0.80, 8, "marketplace"),
+    ])
+    # listed Verda up (price); Vast same-n opposite med/min = composition; Clore n+med up = mixed;
+    # historical-style Vast B with no prev min/n = unknown
+    cur = snap("2026-11-11", [
+        ("Verda", "On-demand", 2.60, None, None, "listed"),
+        ("Vast.ai", vast, 1.10, 1.05, 5, "marketplace"),
+        ("Clore.ai", "Marketplace on-demand (host USD listings; median per GPU)", 0.55, 0.42, 12, "marketplace"),
+        ("Vast.ai", "Marketplace on-demand (verified; median per GPU) B", 0.90, 0.70, 8, "marketplace"),
+    ])
+    # For Vast B unknown: previous snapshot must lack min/n
+    prev["rows"][3].pop("lowest_offer_usd", None)
+    prev["rows"][3].pop("offer_count", None)
+    d = gpu_changes.build_changes([prev, cur])
+    kinds = {(c["vendor"], c["composition_flag"], c["change"]) for c in d["changes"]}
+    assert ("Verda", None, "up") in kinds
+    assert any(c["vendor"] == "Vast.ai" and c["composition_flag"] == "composition" and c["change"] == "down" for c in d["changes"])
+    assert any(c["vendor"] == "Clore.ai" and c["composition_flag"] == "mixed" and c["change"] == "up" for c in d["changes"])
+    assert any(c["vendor"].startswith("Vast.ai") and c["composition_flag"] == "unknown" for c in d["changes"]) or any(
+        c["composition_flag"] == "unknown" for c in d["changes"])
+    assert d["counts"]["up"] == 1 and d["counts"]["down"] == 0
+    assert d["counts"]["composition"] == 1 and d["counts"]["mixed"] == 1 and d["counts"]["unknown"] == 1
+    assert d["counts"]["new"] == 0 and d["counts"]["removed"] == 0
+    assert sum(d["counts"].values()) == len(d["changes"]) == 4
