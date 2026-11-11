@@ -59,14 +59,48 @@ RECEIPTS_PATH_RE = re.compile(r"^/receipts(/|$)")
 RECEIPTS_REF_RE = re.compile(r"^receipts(-|$)")  # T55: Receipts links carry ?ref=receipts-<channel>; GPU traffic never uses it
 RECEIPTS_FUNNEL_NOTE = ("T55: Receipts (MCP test summaries) measured apart from GPU demand. page_views = beacon views of /receipts/ "
                         "pages; visits_by_ref / mcp_initialize_by_ref / mcp_tool_calls_by_ref = refs matching receipts or "
-                        "receipts-<channel> only. api/v1/receipts.json is served by GitHub Pages, which publishes no fetch counts, so "
-                        "json_fetches is null. Independent inquiries arrive by email and are not published here (null).")
+                        "receipts-<channel> only. json_fetches and link_visits are counted server-side by the hosted worker (see "
+                        "sources.receipts_hosted); direct GitHub Pages fetches publish no counts. Independent inquiries arrive by email and are not published here (null).")
 RECEIPTS_JSON_NULL = "not measurable: /api/v1/receipts.json is served by GitHub Pages only (no request counts); not proxied by the hosted worker"
 RECEIPTS_INQ_NULL = "not published: inquiries arrive by email; counts stay private (no PII in stats.json)"
 BEACON_SINCE_WEEK = "2026-W45"  # site b392c8b3... beacon token 327dc277... shipped 2026-11-02
 BEACON_SINCE_REASON = "not measured: this Web Analytics site's beacon went live on 2026-11-02 (ISO week 2026-W45)"
 INSTALLS_NULL_REASON = ("not measurable: the opt-in telemetry worker records day x tool x version only, with no install id "
                         "or ref; an install id needs the owner's approval. Hosted connects by ref are in mcp_initialize_by_ref.")
+
+
+RECEIPTS_JSON_PATHS = ("/api/v1/receipts.json", "/api/v1/receipts-proof-pack.json")
+RECEIPTS_HOSTED_NOTE = ("T137: json_fetches counts api/v1/receipts.json and receipts-proof-pack.json fetched through the hosted worker "
+                        "(https://lantern-works-mcp.lantern-works.workers.dev/api/v1/receipts.json?ref=receipts-<channel>); direct "
+                        "GitHub Pages fetches publish no counts and are not included. link_visits counts tagged Receipts links "
+                        "through the hosted worker's /receipts/ redirect (302 to the same page on the site). Both exclude house "
+                        "traffic (src_class house or a house ref) and known bots, and are split by ref.")
+
+
+def add_receipts_hosted(rep: dict, hosted: dict) -> None:
+    """T137: server-side Receipts counts from the hosted worker's hits (aggregate day x kind x path x ref x classes)."""
+    rep["sources"]["receipts_hosted"] = RECEIPTS_HOSTED_NOTE
+    if "error" in hosted:
+        return  # stays null with its reason
+    per: dict = {}
+    for h in hosted.get("hits") or []:
+        kind, name = h.get("kind"), str(h.get("name") or "")
+        key = ("json" if kind == "feed" and name in RECEIPTS_JSON_PATHS else "link" if kind == "receipts" else None)
+        if key is None:
+            continue
+        ref, srcc, uac = str(h.get("ref") or "none"), str(h.get("src_class") or ""), str(h.get("ua_class") or "")
+        if srcc == "house" or uac in ("house", "ci", "known-bot") or internal(ref):
+            continue
+        w = per.setdefault(week(h["day"]), {"json": {}, "link": {}})
+        _add(w[key], ref, h.get("n"))
+    for w in rep["weeks"]:
+        f = w.get("receipts_funnel")
+        if f is None:
+            continue
+        p = per.get(w["week"], {"json": {}, "link": {}})
+        srt = lambda d: dict(sorted(d.items(), key=lambda x: (-x[1], x[0])))  # noqa: E731
+        f.update(json_fetches=sum(p["json"].values()), json_fetches_by_ref=srt(p["json"]),
+                 json_fetches_null_reason=None, link_visits=sum(p["link"].values()), link_visits_by_ref=srt(p["link"]))
 
 
 def rum_weekly(groups: list[dict]) -> dict:
@@ -141,6 +175,7 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
             "mcp_initialize_by_ref": sel(s["mcp_initialize_by_ref"]),
             "mcp_tool_calls_by_ref": sel(s["mcp_tool_calls_by_ref"]),
             "json_fetches": None, "json_fetches_null_reason": RECEIPTS_JSON_NULL,
+            "json_fetches_by_ref": None, "link_visits": None, "link_visits_by_ref": None,
             "inquiries": None, "inquiries_null_reason": RECEIPTS_INQ_NULL,
             "page_views_null_reason": None if measured else (s["visits_null_reason"] or "Web Analytics not available this run"),
         }
@@ -362,6 +397,7 @@ def main(argv=None) -> int:
         _carry_forward(rep, Path(a.out))
     add_go_clicks(rep, _get(GO_CLICKS))
     add_agent_query_to_click(rep, hosted)
+    add_receipts_hosted(rep, hosted)
     Path(a.out).write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {a.out}: {len(rep['weeks'])} weeks")
     return 0
