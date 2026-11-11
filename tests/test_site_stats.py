@@ -14,7 +14,7 @@ def test_weekly_aggregate_no_pii():
     w = rep["weeks"][0]
     assert w["week"] == "2026-W45" and w["mcp_tool_calls_by_ref"]["ci"] == 3
     assert w["untagged_mcp_tool_calls"] == 5
-    assert w["external_mcp_tool_calls"] == 2 and w["telemetry_tool_calls"] == 0 and w["outbound_clicks"] == 4
+    assert w["external_mcp_tool_calls"] == 2 and w["telemetry_tool_calls"] == 0 and w["beacon_out_events"] == 4
     text = json.dumps(rep)
     for bad in ("k_abc", "ua_class", "src_class", "ip", "email"):
         assert f'"{bad}"' not in text
@@ -64,6 +64,7 @@ def test_carry_forward_keeps_box_filled_page_views(tmp_path):
     ss._carry_forward(rep, old)
     assert rep["weeks"][0]["page_views"] == 12 and rep["weeks"][0]["visits_by_ref"] == {"forum-x": 2}
     assert rep["weeks"][1]["page_views"] is None
+    assert rep["weeks"][0]["beacon_out_events"] == 1  # pre-T135 outbound_clicks was the beacon figure
 
 
 def test_go_clicks_per_provider_test_traffic_apart():
@@ -129,3 +130,35 @@ def test_p8_demand_null_with_reason_before_deploy():
     rep = S.build({"rows": [{"day": "2026-11-10", "ref": "x", "n": 1}]}, {}, None, 12, now)
     S.add_demand(rep, {"rows": []}, now)
     assert rep["demand_daily"] is None and "migration 0005" in rep["demand_daily_null_reason"]
+
+def test_t135_one_agreed_click_count_bots_and_house_excluded():
+    """Nov 2 week: 19 feed /go/ redirects (no UA class yet) vs 0 beacon events. One agreed count, nothing hidden."""
+    g = [{"count": 3, "dimensions": {"date": "2026-11-02", "requestPath": "/"}}]
+    rep = S.build({"rows": [{"day": "2026-11-02", "ref": "x", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc), S.rum_weekly(g))
+    legacy = [{"day": "2026-11-03", "provider": f"P{i}", "src": "feed", "ref": "none", "n": 2 if i < 2 else 1} for i in range(17)]
+    S.add_go_clicks(rep, {"rows": legacy + [
+        {"day": "2026-11-04", "provider": "P0", "src": "mcp", "ref": "none", "ua_class": "browser", "n": 3},
+        {"day": "2026-11-04", "provider": "P0", "src": "site", "ref": "none", "ua_class": "bot", "n": 5},
+        {"day": "2026-11-04", "provider": "P1", "src": "feed", "ref": "none", "ua_class": "script", "n": 4},
+        {"day": "2026-11-04", "provider": "P1", "src": "feed", "ref": "none", "ua_class": "prefetch", "n": 1},
+        # Mart's post-deploy verification click: /go/<id>?src=mcp-test&ref=house-t135 with a browser UA
+        {"day": "2026-11-04", "provider": "P0", "src": "mcp-test", "ref": "house-t135", "ua_class": "browser", "n": 1}]})
+    w = rep["weeks"][0]
+    c = w["clicks"]
+    assert c["count"] == 22 == w["outbound_clicks"]  # 19 unclassified legacy + 3 browser
+    assert c["unclassified_ua"] == 19
+    assert c["excluded"] == {"bot": 5, "script": 4, "prefetch": 1, "house": 1}
+    assert c["by_source"] == {"feed": 19, "mcp": 3}
+    assert c["by_provider"]["P0"] == {"feed": 2, "mcp": 3} and w["go_clicks_by_provider"] is c["by_provider"]
+    assert sum(sum(v.values()) for v in c["by_provider"].values()) == c["count"]
+    assert w["test_go_clicks_by_provider"] == {"P0": {"mcp": 1}}
+    assert w["beacon_out_events"] == 0  # the beacon figure is kept apart, not the click count
+    assert "19 /go/ redirects" in rep["sources"]["clicks_reconciliation"]
+    assert '"ua"' not in json.dumps(rep) and "Mozilla" not in json.dumps(rep)
+
+
+def test_t135_clicks_null_with_reason_when_source_down():
+    rep = S.build({"rows": [{"day": "2026-11-02", "ref": "x", "n": 1}]}, {}, None, 12, datetime.now(timezone.utc))
+    S.add_go_clicks(rep, {"error": "URLError"})
+    w = rep["weeks"][0]
+    assert w["clicks"] is None and w["outbound_clicks"] is None and w["clicks_null_reason"]
