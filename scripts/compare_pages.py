@@ -10,6 +10,7 @@ import json
 import re
 from pathlib import Path
 from install_page import link_snippet as install_link_snippet
+import gpu_pages as gp
 
 PRICE_RE = re.compile(r"\$\s?\d|¢|free|\bfree\b|credits?", re.I)
 
@@ -389,7 +390,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
             kind = "Vendor discount" if d["offer_type"] == "verified_discount" else "Listed discount (unverified)" if d["offer_type"] == "listed_discount" else ("Free tier" if d["offer_type"] == "free_tier" else ("Trial" if d["offer_type"] == "trial" else "Standard signup"))
             tr.append(
                 f'<tr><td><a href="{deal_link(base, g.slug_for, d)}">{esc(d["advertiser"])}</a></td>'
-                f"<td>{esc(kind)}</td><td>{price}</td><td>{free}</td></tr>"
+                f"<td>{esc(kind)}</td><td>{price}</td><td>{gp.read_time_html(d, esc)}</td><td>{free}</td></tr>"
             )
             pros, cons = facts(d)
             pc.append(
@@ -428,7 +429,7 @@ def write_compare_pages(g, deals: list[dict]) -> list[str]:
   <p><small>{price_coverage_note(known, len(rows))} Always confirm at checkout. Order: vendor discounts, then free tiers, then standard signups, A–Z. Affiliate status does not affect order.</small></p>
   <h2>Comparison table</h2>
   <div class="tscroll"><table>
-  <thead><tr><th>Provider</th><th>Offer</th><th>Published pricing</th><th>Free option</th></tr></thead>
+  <thead><tr><th>Provider</th><th>Offer</th><th>Published pricing</th><th>Read</th><th>Free option</th></tr></thead>
   <tbody>
   {''.join(tr)}
   </tbody></table></div>
