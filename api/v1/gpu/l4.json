@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-11T02:54:18Z",
+  "last_checked": "2026-11-11T06:54:34Z",
   "row_count": 2,
   "providers": [
     "Jarvislabs",
@@ -69,7 +69,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-11T02:54:18Z",
+        "verified_at": "2026-11-11T06:54:34Z",
         "source_url": "https://api.runpod.io/graphql",
         "quote": "gpuTypes.securePrice (list price, 1 GPU): $0.59",
         "availability": {
@@ -135,7 +135,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-11T02:54:18Z",
+      "verified_at": "2026-11-11T06:54:34Z",
       "source_url": "https://api.runpod.io/graphql",
       "quote": "gpuTypes.securePrice (list price, 1 GPU): $0.59",
       "availability": {
@@ -155,6 +155,6 @@
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261111T025429Z-3651f65b",
-  "feed_updated_at": "2026-11-11T02:54:29Z"
+  "generation_id": "20261111T065444Z-faa61ca5",
+  "feed_updated_at": "2026-11-11T06:54:44Z"
 }
