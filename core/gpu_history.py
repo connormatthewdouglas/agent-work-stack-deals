@@ -29,6 +29,24 @@ TIER_ALIASES = {"Secure Cloud": "On-demand (Secure Cloud)", "Community Cloud": "
                 "Lowest (Batch) priority": "Lowest (Batch) priority, interruptible"}
 
 
+def change_gap(before: str | None, after: str | None) -> dict:
+    """P46 (fieldnotes_ai, additive): bound when a price change happened. last_verified_before = verified_at of the last
+    observation at the previous price; gap_days = days from that to the observation showing the new price (2 dp). The
+    change happened inside that window. Both null when a timestamp is missing or unparseable (gap_days also when it would
+    be negative). Never guessed."""
+    from datetime import datetime, timezone
+
+    def ts(x):
+        try:
+            d = datetime.fromisoformat(str(x).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            return None
+        return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+    b, a = ts(before) if before else None, ts(after) if after else None
+    gap = round((a - b).total_seconds() / 86400, 2) if a and b and a >= b else None
+    return {"last_verified_before": before if b else None, "gap_days": gap}
+
+
 def series_key(vendor: str, gpu: str, tier: str, vram_gb, gpu_count=1) -> str:
     tier = TIER_ALIASES.get(tier, tier)
     return f"{vendor}|{gpu}|{tier}|{vram_gb}|{gpu_count or 1}"
@@ -107,6 +125,7 @@ def build_history(snapshots: list[dict]) -> dict:
     series: dict[str, dict] = {}
     changes: list[dict] = []
     snap_ids: dict[str, str] = {}
+    prev_row: dict[str, dict] = {}  # P46: the last snapshot row seen per series (last observation at its price)
     for snap in sorted(snapshots, key=lambda s: s["date"]):
         day = snap["date"]
         snap_ids[day] = sid = snapshot_id(snap)
@@ -132,12 +151,14 @@ def build_history(snapshots: list[dict]) -> dict:
                                 "vram_gb": row["vram_gb"], "from_hourly_usd": old, "to_hourly_usd": new,
                                 "change_pct": round((new - old) / old * 100, 1) if old else None,
                                 "status": row["status"], "source_url": source,
-                                **({"evidence": request} if request else {})})
+                                **({"evidence": request} if request else {}),
+                                **change_gap((prev_row.get(k) or {}).get("verified_at"), row.get("verified_at"))})
             if (not last or last["hourly_usd"] != row["hourly_usd"] or last["price_usd"] != row["price_usd"]
                     or last["status"] != row["status"]):
                 s["points"].append({"date": day, "price_usd": row["price_usd"], "hourly_usd": row["hourly_usd"],
                                     "status": row["status"], "verified_at": row["verified_at"]})
             s["last_seen"] = day
+            prev_row[k] = row
         for k, s in series.items():
             if k not in seen and s["points"] and s["points"][-1]["status"] != "removed":
                 p = s["points"][-1]
