@@ -1,9 +1,21 @@
-import json, re
+import json, os, re
 from pathlib import Path
+
+import pytest
+
 from core import deals as core
 
 ROOT = Path(__file__).resolve().parents[1]
 FEED = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+
+
+@pytest.fixture(autouse=True)
+def _pin_feed_clock(monkeypatch):
+    """Judge the committed page and feed as of the moment the generator built them (same pin as tests/test_cost_pages.py).
+    Without it, compare_gpu_prices read availability with the wall clock: once a 1 h stock claim (e.g. Hyperstack
+    'H100 NVLink' out of stock) expired, the MCP pick changed while the committed page kept the build-time pick."""
+    monkeypatch.setenv("LW_AVAIL_NOW", os.environ.get("LW_AVAIL_NOW") or FEED["feed_updated_at"])
+    monkeypatch.setenv("LW_BUILD_HORIZON_MIN", "25")
 
 
 def test_mcp_cheapest_by_form_factor_is_additive():
