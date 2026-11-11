@@ -74,6 +74,7 @@ def snapshot_rows(docs: list[dict]) -> list[dict]:
             if r.get("price_usd") is None:
                 continue  # a held row that withholds its price (thin Clore group) has no price to record
             held = doc.get("stale") or r.get("stale") or r.get("no_capacity")  # no-capacity rows are listed, never ranked
+            from .marketplace import snapshot_extras
             rows.append({
                 "key": series_key(r["vendor"], r["gpu"], r["tier"], r.get("vram_gb"), r.get("gpu_count", 1)),
                 "vendor": r["vendor"], "gpu": r["gpu"], "tier": r["tier"], "vram_gb": r.get("vram_gb"),
@@ -82,6 +83,7 @@ def snapshot_rows(docs: list[dict]) -> list[dict]:
                 "status": "held" if held else "ranked",
                 "verified_at": r.get("verified_at") or (r.get("evidence") or {}).get("checked_at") or r["checked_at"],
                 "source_url": r["source_url"],
+                **snapshot_extras(r),  # P45: keep min and n on marketplace median rows when already known
             })
     return sorted(rows, key=lambda x: x["key"])
 
@@ -145,6 +147,11 @@ def build_history(snapshots: list[dict]) -> dict:
                 # Historical snapshots remain immutable; exported citations use canonical URLs.
                 from core.source_urls import split_source
                 source, request = split_source(row["source_url"])
+                from .marketplace import composition_fields, is_marketplace_median, stats_from
+                prev_s, cur_s = stats_from(prev_row.get(k)), stats_from(row)
+                comp = (composition_fields(prev_s or None, cur_s or None)
+                        if is_marketplace_median(row) or is_marketplace_median(prev_row.get(k) or {})
+                        else {"composition_flag": None})
                 changes.append({"date": day, "key": k, "rate_id": s["rate_id"],
                                 "event_id": event_id(day, s["rate_id"], kind), "snapshot_id": sid,
                                 "vendor": row["vendor"], "gpu": row["gpu"], "tier": row["tier"],
@@ -152,11 +159,26 @@ def build_history(snapshots: list[dict]) -> dict:
                                 "change_pct": round((new - old) / old * 100, 1) if old else None,
                                 "status": row["status"], "source_url": source,
                                 **({"evidence": request} if request else {}),
-                                **change_gap((prev_row.get(k) or {}).get("verified_at"), row.get("verified_at"))})
+                                **change_gap((prev_row.get(k) or {}).get("verified_at"), row.get("verified_at")),
+                                # P45 (additive): composition vs price, from successive med/min/n only
+                                "composition_flag": comp["composition_flag"],
+                                **({"lowest_offer_usd": cur_s["lowest_offer_usd"]} if "lowest_offer_usd" in cur_s else {}),
+                                **({"offer_count": cur_s["offer_count"]} if "offer_count" in cur_s else {}),
+                                **({"previous_lowest_offer_usd": prev_s["lowest_offer_usd"]} if "lowest_offer_usd" in prev_s else {}),
+                                **({"previous_offer_count": prev_s["offer_count"]} if "offer_count" in prev_s else {})})
+            def _point(r):
+                pt = {"date": day, "price_usd": r["price_usd"], "hourly_usd": r["hourly_usd"],
+                      "status": r["status"], "verified_at": r["verified_at"]}
+                if r.get("lowest_offer_usd") is not None:
+                    pt["lowest_offer_usd"] = r["lowest_offer_usd"]
+                if r.get("offer_count") is not None:
+                    pt["offer_count"] = r["offer_count"]
+                return pt
             if (not last or last["hourly_usd"] != row["hourly_usd"] or last["price_usd"] != row["price_usd"]
-                    or last["status"] != row["status"]):
-                s["points"].append({"date": day, "price_usd": row["price_usd"], "hourly_usd": row["hourly_usd"],
-                                    "status": row["status"], "verified_at": row["verified_at"]})
+                    or last["status"] != row["status"]
+                    or last.get("lowest_offer_usd") != row.get("lowest_offer_usd")
+                    or last.get("offer_count") != row.get("offer_count")):
+                s["points"].append(_point(row))
             s["last_seen"] = day
             prev_row[k] = row
         for k, s in series.items():

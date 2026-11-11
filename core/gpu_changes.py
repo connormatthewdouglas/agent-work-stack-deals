@@ -38,16 +38,29 @@ def build_changes(snapshots: list[dict] | None = None) -> dict:
             if old == new:
                 continue
             kind = "down" if new < old else "up"
+            from core.marketplace import composition_fields, is_marketplace_median, stats_from
+            prev_s, cur_s = stats_from(o), stats_from(n)
+            # Only marketplace medians get a composition flag; listed prices stay ordinary price moves (flag null).
+            comp = (composition_fields(prev_s or None, cur_s or None)
+                    if is_marketplace_median(n) or is_marketplace_median(o) else {"composition_flag": None})
             out.append({**base, "change": kind, "old_hourly_usd": old, "new_hourly_usd": new,
                         "pct": round((new - old) / old * 100, 1) if old else None, "verified_at": n.get("verified_at"),
                         # P46 (additive): last check at the old price (previous snapshot) and the gap to the new one
-                        **gpu_history.change_gap(o.get("verified_at"), n.get("verified_at"))})
+                        **gpu_history.change_gap(o.get("verified_at"), n.get("verified_at")),
+                        # P45 (additive): composition vs price from successive med/min/n; never invent missing min/n
+                        "composition_flag": comp["composition_flag"],
+                        **({"lowest_offer_usd": cur_s["lowest_offer_usd"]} if "lowest_offer_usd" in cur_s else {}),
+                        **({"offer_count": cur_s["offer_count"]} if "offer_count" in cur_s else {}),
+                        **({"previous_lowest_offer_usd": prev_s["lowest_offer_usd"]} if "lowest_offer_usd" in prev_s else {}),
+                        **({"previous_offer_count": prev_s["offer_count"]} if "offer_count" in prev_s else {})})
         elif n:
             out.append({**base, "change": "new", "old_hourly_usd": None, "new_hourly_usd": round(n["hourly_usd"], 4),
-                        "pct": None, "verified_at": n.get("verified_at"), "last_verified_before": None, "gap_days": None})
+                        "pct": None, "verified_at": n.get("verified_at"), "last_verified_before": None, "gap_days": None,
+                        "composition_flag": None})
         else:
             out.append({**base, "change": "removed", "old_hourly_usd": round(o["hourly_usd"], 4), "new_hourly_usd": None,
-                        "pct": None, "verified_at": None, "last_verified_before": None, "gap_days": None})
+                        "pct": None, "verified_at": None, "last_verified_before": None, "gap_days": None,
+                        "composition_flag": None})
     order = {"down": 0, "up": 1, "new": 2, "removed": 3}
     out.sort(key=lambda c: (order[c["change"]], c["pct"] if c["pct"] is not None else 0, c["gpu"], c["vendor"], c["key"]))
     doc["changes"] = out
@@ -68,8 +81,21 @@ def _pair(a, b):
 
 def change_title(c: dict) -> str:
     if c["change"] in ("down", "up"):
-        return (f"{c['gpu']} at {c['vendor']} {'dropped' if c['change'] == 'down' else 'rose'} {abs(c['pct'])}%: "
-                + "{} → {}".format(*(f"{x}/GPU-hr" for x in _pair(c['old_hourly_usd'], c['new_hourly_usd']))))
+        pair = "{} → {}".format(*(f"{x}/GPU-hr" for x in _pair(c['old_hourly_usd'], c['new_hourly_usd'])))
+        flag = c.get("composition_flag")
+        pct = abs(c["pct"]) if c.get("pct") is not None else None
+        pct_s = f" {pct}%" if pct is not None else ""
+        # P45: never call a composition / mixed / unknown marketplace median move a price move.
+        if flag == "composition":
+            return (f"{c['gpu']} at {c['vendor']} marketplace median changed{pct_s} "
+                    f"(composition: not a price move; median and minimum moved differently or the listing count changed): {pair}")
+        if flag == "mixed":
+            return (f"{c['gpu']} at {c['vendor']} marketplace median changed{pct_s} "
+                    f"(mixed: listing count also changed, not classified as a price move): {pair}")
+        if flag == "unknown":
+            return (f"{c['gpu']} at {c['vendor']} marketplace median changed{pct_s} "
+                    f"(composition unknown: previous minimum or listing count was not recorded; not classified as a price move): {pair}")
+        return (f"{c['gpu']} at {c['vendor']} {'dropped' if c['change'] == 'down' else 'rose'} {abs(c['pct'])}%: " + pair)
     if c["change"] == "new":
         return f"Newly tracked: {c['gpu']} at {c['vendor']} {_fmt(c['new_hourly_usd'])}"
     return f"No longer ranked: {c['gpu']} at {c['vendor']} (was {_fmt(c['old_hourly_usd'])})"

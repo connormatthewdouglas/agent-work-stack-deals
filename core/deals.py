@@ -265,7 +265,10 @@ def _history_row(c: dict) -> dict:
          "to_hourly_usd": c.get("to_hourly_usd"), "change_pct": c.get("change_pct"),
          "status": c.get("status"), "source_url": c.get("source_url"),
          # P46 (additive): last check at the previous price and days to the check that showed the new one (null if unknown)
-         "last_verified_before": c.get("last_verified_before"), "gap_days": c.get("gap_days")}
+         "last_verified_before": c.get("last_verified_before"), "gap_days": c.get("gap_days"),
+         # P45 (additive)
+         "composition_flag": c.get("composition_flag"),
+         **({k: c[k] for k in ("lowest_offer_usd", "offer_count", "previous_lowest_offer_usd", "previous_offer_count") if k in c})}
     r["direction"] = _direction(r["from_hourly_usd"], r["to_hourly_usd"])
     return r
 
@@ -307,7 +310,9 @@ def price_changes(latest: dict | None, history: dict | None, since: str | None =
                  "gpu_count": c.get("gpu_count", 1), "from_hourly_usd": c.get("old_hourly_usd"),
                  "to_hourly_usd": c.get("new_hourly_usd"), "change_pct": c.get("pct"), "source_url": c.get("source_url"),
                  "verified_at": c.get("verified_at"),
-                 "last_verified_before": c.get("last_verified_before"), "gap_days": c.get("gap_days")}  # P46 (additive)
+                 "last_verified_before": c.get("last_verified_before"), "gap_days": c.get("gap_days"),  # P46 (additive)
+                 "composition_flag": c.get("composition_flag"),  # P45 (additive)
+                 **({k: c[k] for k in ("lowest_offer_usd", "offer_count", "previous_lowest_offer_usd", "previous_offer_count") if k in c})}
             r["direction"] = _direction(r["from_hourly_usd"], r["to_hourly_usd"], c.get("change"))
             r["rate_id"] = rate_id({**r, "vram_gb": c.get("vram_gb") or _key_vram(c.get("key")),
                                     "billing_unit": c.get("billing_unit") or "hourly"})
@@ -331,24 +336,43 @@ def price_changes(latest: dict | None, history: dict | None, since: str | None =
         rows.sort(key=lambda r: (r.get("vendor") or "", r.get("gpu") or ""))
         rows.sort(key=lambda r: rank[r["direction"]])
         rows.sort(key=lambda r: r.get("date") or "", reverse=True)
-    down = sum(r["direction"] == "down" for r in rows)
-    up = sum(r["direction"] == "up" for r in rows)
+    def _is_price(r):
+        # P45: only composition_flag == 'price' (or a non-marketplace row with no flag) is a price move
+        if r["direction"] not in ("down", "up"):
+            return False
+        return r.get("composition_flag") in (None, "price")
+    down = sum(_is_price(r) and r["direction"] == "down" for r in rows)
+    up = sum(_is_price(r) and r["direction"] == "up" for r in rows)
     added = sum(r["direction"] == "new" for r in rows)
     removed = sum(r["direction"] == "removed" for r in rows)
+    comp_n = sum(r["direction"] in ("down", "up") and r.get("composition_flag") in ("composition", "mixed") for r in rows)
+    unk_n = sum(r["direction"] in ("down", "up") and r.get("composition_flag") == "unknown" for r in rows)
+    bits = [f"{down} price down", f"{up} price up"]
+    if comp_n:
+        bits.append(f"{comp_n} composition (not a price move)")
+    if unk_n:
+        bits.append(f"{unk_n} composition unknown (not classified as a price move)")
+    bits += [f"{added} newly tracked", f"{removed} no longer tracked"]
     out = {"scope": "tracked providers only (not the whole market); prices per GPU-hour, USD",
            "window": window, "total": len(rows), "count": min(len(rows), limit), "price_drops": down, "price_rises": up,
            "newly_tracked": added, "no_longer_tracked": removed,
+           "composition_changes": comp_n, "composition_unknown": unk_n,
            "changes": rows[:limit], "data_source": src,
-           "summary": (f"{len(rows)} tracked GPU price change(s)" + (f" for '{gpu}'" if gpu else "") +
-                       f" between {window['from']} and {window['to']}: {down} down, {up} up, {added} newly tracked, {removed} no longer tracked."),
+           "summary": (f"{len(rows)} tracked GPU change(s)" + (f" for '{gpu}'" if gpu else "") +
+                       f" between {window['from']} and {window['to']}: " + ", ".join(bits) + "."),
            "sorted_by": "date (newest first), then price drops, rises, removals, new rates",
            "note": "'new' = a rate first tracked in this window (no earlier price to compare). Each change cites the vendor source_url it was read from. Confirm on the vendor page before spending. Dedupe on event_id."}
     if paging is not None:
         out.update(paging)
         out["sorted_by"] = "seq ascending (oldest first); save next_cursor only after you have processed these changes"
         out["total"] = out["count"] = len(rows)
-        out["summary"] = (f"{len(rows)} tracked GPU price change(s) after the cursor" + (f" for '{gpu}'" if gpu else "") +
-                          f": {down} down, {up} up." + (" More available: call again with next_cursor." if paging["has_more"] else ""))
+        bits = [f"{down} price down", f"{up} price up"]
+        if comp_n:
+            bits.append(f"{comp_n} composition (not a price move)")
+        if unk_n:
+            bits.append(f"{unk_n} composition unknown (not classified as a price move)")
+        out["summary"] = (f"{len(rows)} tracked GPU change(s) after the cursor" + (f" for '{gpu}'" if gpu else "") +
+                          f": " + ", ".join(bits) + "." + (" More available: call again with next_cursor." if paging["has_more"] else ""))
     elif since is not None:
         # Catch-up path for a windowed read: next_cursor sits just before the oldest event in the window, so paging
         # forward with it returns every event (none lost to limit). has_more = rows were cut by limit.
@@ -492,7 +516,9 @@ RATE_FIELDS = ("advertiser", "gpu", "vram_gb", "hourly_equiv_usd", "price_usd", 
                "price_basis", "lowest_offer_usd", "offer_count", "interruptible", "availability", "region",
                # T112/T113 (additive pass-through of existing feed fields; T118 found them dropped here)
                "availability_rate_7d", "expected_cost_usd", "expected_cost_label", "availability_status",
-               "availability_reason", "availability_reason_detail")
+               "availability_reason", "availability_reason_detail",
+               # P45 (additive): literal marketplace query + composition flag from successive med/min/n
+               "marketplace_query", "composition_flag", "composition_previous")
 
 
 def _tokens(s: str) -> list[str]:
@@ -517,7 +543,8 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
     series = {s.get("key"): s for s in history.get("series") or [] if isinstance(s, dict)}
     for r in results:
         s = series.get(_hist_key(r))
-        r["price_history"] = [{k: p.get(k) for k in ("date", "hourly_usd", "status")} for p in (s or {}).get("points") or []]
+        r["price_history"] = [{k: p[k] for k in ("date", "hourly_usd", "status", "lowest_offer_usd", "offer_count") if k in p}
+                              for p in (s or {}).get("points") or []]
     last = history.get("last_snapshot")
     start = None
     if last:
@@ -526,12 +553,19 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
         except ValueError:
             start = None
     changes = [{k: c.get(k) for k in ("date", "vendor", "gpu", "tier", "vram_gb", "from_hourly_usd", "to_hourly_usd",
-                                      "change_pct", "status", "source_url", "last_verified_before", "gap_days")}
+                                      "change_pct", "status", "source_url", "last_verified_before", "gap_days",
+                                      "composition_flag", "lowest_offer_usd", "offer_count",
+                                      "previous_lowest_offer_usd", "previous_offer_count") if k in c or k in (
+                                          "date", "vendor", "gpu", "tier", "vram_gb", "from_hourly_usd",
+                                          "to_hourly_usd", "change_pct", "status", "source_url",
+                                          "last_verified_before", "gap_days", "composition_flag")}
                for c in history.get("changes") or [] if isinstance(c, dict) and q <= set(_tokens(c.get("gpu", "")))
                and (start is None or (c.get("date") or "") > start)]
     return {"recent_changes": changes, "window_days": days, "first_snapshot": history.get("first_snapshot"),
             "last_snapshot": last, "source": GPU_HISTORY_URL,
-            "note": "Price changes among tracked providers only (daily snapshots; points are change points)."}
+            "note": "Changes among tracked providers only (daily snapshots; points are change points). "
+                    "composition_flag on a marketplace median is from successive median/min/n, not a host intersection; "
+                    "composition, mixed and unknown are not price moves."}
 
 
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
