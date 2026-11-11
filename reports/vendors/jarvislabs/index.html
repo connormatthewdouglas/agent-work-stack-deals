@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jarvislabs GPU price sample report | Lantern Works</title>
+  <meta name="description" content="Lantern Works sample report for Jarvislabs: rank per GPU among tracked vendors, 14-day undercuts, and one chart." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/reports/vendors/jarvislabs/" />
+  <meta property="og:title" content="Jarvislabs GPU price sample report | Lantern Works" />
+  <meta property="og:description" content="Lantern Works sample report for Jarvislabs: rank per GPU among tracked vendors, 14-day undercuts, and one chart." />
+  <meta property="og:url" content="https://thelanternworks.com/reports/vendors/jarvislabs/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Jarvislabs GPU price sample report | Lantern Works" />
+  <meta name="twitter:description" content="Lantern Works sample report for Jarvislabs: rank per GPU among tracked vendors, 14-day undercuts, and one chart." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
+    }
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+  <!-- brand -->
+  <link rel="icon" href="https://thelanternworks.com/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://thelanternworks.com/favicon-32.png" />
+  <link rel="apple-touch-icon" href="https://thelanternworks.com/apple-touch-icon.png" />
+  <meta property="og:image" content="https://thelanternworks.com/logo.png" />
+  <meta property="og:image:width" content="400" />
+  <meta property="og:image:height" content="400" />
+  <meta property="og:image:alt" content="Lantern Works lantern logo" />
+  <meta name="twitter:image" content="https://thelanternworks.com/logo.png" />
+  <!-- /brand -->
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, refreshed regularly, with each price's age shown</span></header>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/coverage/">GPU coverage</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/methodology/">Methodology</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
+  <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/reports/">Reports</a> · <a href="https://thelanternworks.com/reports/vendors/">Vendor sample reports</a> · Jarvislabs</p>
+  <h1>Jarvislabs GPU price sample report</h1>
+  <p>A one-page sample from Lantern Works, generated from the public price feed and daily snapshots. Rankings are among <strong>tracked vendors only</strong>, not the whole market. Price data is licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (attribution: Lantern Works).</p>
+  <p class="meta">Feed timestamp: <code>feed_updated_at=2026-11-11 02:14:49 UTC</code>. Prices verified through <code>2026-11-11 02:14:49 UTC</code>. 14-day window: 2026-10-29 to 2026-11-11 (inclusive), ending on the latest published snapshot date.</p>
+  <p>Vendor pricing page used as the source for current rows: <a href="https://jarvislabs.ai/pricing" rel="noopener">https://jarvislabs.ai/pricing</a>.</p>
+  <h2>Rank per GPU model</h2>
+  <p>Rank is among tracked vendors with a comparable rate for the same published GPU name: a single-GPU, headline-eligible, non-reserved, non-serverless, non-interruptible offer. Lower hourly equivalent wins. Affiliate status is not a ranking factor. Multi-GPU, serverless, reserved, or interruptible offers are listed but not given a rank in this table, with the reason shown. If the feed has no hourly figure, it is listed as no figure recorded; none is invented.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>GPU</th><th>This vendor</th><th>Rank</th><th>Cheapest tracked</th><th>Evidence</th></tr></thead>
+    <tbody>
+    <tr><td>A100</td><td>$0.89/hr · On-demand</td><td>1 of 4</td><td>$0.89 · Jarvislabs</td><td><p><code>rate_id=r_7ecbac1ef69f</code> · source check 2026-11-10 18:30:54+00:00 · <a href="https://jarvislabs.ai/pricing" rel="noopener">https://jarvislabs.ai/pricing</a></p><blockquote><p>NVIDIA A100 40GB 40 GB VRAM · 16 vCPU · 112 GB RAM On-demand / hr $0.89</p></blockquote></td></tr>
+    <tr><td>L4</td><td>$0.44/hr · On-demand</td><td>1 of 2</td><td>$0.44 · Jarvislabs</td><td><p><code>rate_id=r_9a60bd536241</code> · source check 2026-11-10 18:30:54+00:00 · <a href="https://jarvislabs.ai/pricing" rel="noopener">https://jarvislabs.ai/pricing</a></p><blockquote><p>NVIDIA L4 24 GB VRAM · 32 vCPU · 124 GB RAM On-demand / hr $0.44</p></blockquote></td></tr>
+    <tr><td>H100 SXM</td><td>$3.49/hr · On-demand · SXM</td><td>6 of 7</td><td>$2.5 · Lium</td><td><p><code>rate_id=r_587961ef5912</code> · source check 2026-11-10 18:30:54+00:00 · <a href="https://jarvislabs.ai/pricing" rel="noopener">https://jarvislabs.ai/pricing</a></p><blockquote><p>NVIDIA H100 SXM 80 GB VRAM · 16 vCPU · 200 GB RAM On-demand / hr $3.49</p></blockquote></td></tr>
+    </tbody></table></div>
+  <h2>Undercut in the last 14 days</h2>
+  <p><strong>History is incomplete for this window.</strong> No daily snapshot was published for 2026-11-07, 2026-11-08. Undercut counts use only the 12 snapshot days that exist (2026-10-29 … 2026-11-11). No snapshot exists for those days, so undercut counts do not include them and do not assume prices held steady. No figures were invented for those days.</p>
+  <p>An undercut observation is one snapshot day and GPU name where this vendor had a comparable ranked 1-GPU, non-spot, non-reserved rate and at least one other tracked vendor was strictly cheaper the same day. Counts are observations, not distinct hours. Days with no comparable ranked rate for this vendor are not counted as undercuts.</p>
+  <p><strong>11 undercut observations</strong> across 11 snapshot days where this vendor had a comparable ranked rate on A100, H100 SXM, L4.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Undercut by</th><th>Observations</th><th>GPU names</th></tr></thead>
+    <tbody>
+    <tr><td>RunPod</td><td>11</td><td>H100 SXM</td></tr>
+    <tr><td>Hyperstack</td><td>11</td><td>H100 SXM</td></tr>
+    <tr><td>Civo</td><td>11</td><td>H100 SXM</td></tr>
+    <tr><td>Thunder Compute</td><td>11</td><td>H100 SXM</td></tr>
+    <tr><td>Lium</td><td>5</td><td>H100 SXM</td></tr>
+    </tbody></table></div>
+  <h2>Chart</h2>
+  <p>Current hourly equivalent (amber) next to the cheapest tracked comparable rate (gray), for each GPU this vendor lists that is in the comparable set. The table above is the source; the chart does not add information.</p>
+  <p><img src="rank-chart.svg" alt="Bar chart: Jarvislabs hourly rate versus the cheapest tracked comparable rate, by GPU model." /></p>
+  <h2>Check against the vendor pricing page</h2>
+  <p><strong>Matches the vendor page.</strong> Fetched https://jarvislabs.ai/pricing (HTTP 200); every current published hourly figure (A100, L4, H100 SXM) appears in the response body.</p>
+  <p class="meta">Checked at 2026-11-11 02:56:05 UTC from https://jarvislabs.ai/pricing.</p>
+  <p><em>Disclosure: some vendor links on Lantern Works are referral/affiliate links (currently RunPod, Thunder Compute, Vast.ai, Novita AI, Clore.ai, Ucartz and 99Stack Cloud). Lantern Works may earn a commission. Affiliate status does not affect rankings.</em></p>
+  <p>Report a correction: <a href="https://thelanternworks.com/report-price/">report a price</a>. See also the <a href="https://thelanternworks.com/methodology/">methodology</a> and the <a href="https://thelanternworks.com/api/v1/gpu-prices.json">gpu-prices.json</a> feed.</p>
+
+</div>
+  <footer>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/reports/">Reports</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="https://thelanternworks.com/report-price/">report a price or correction</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "327dc277f310484b93db8d3156c54a0f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[href]"); if(!a||bypass) return;
+    try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
+      if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
+    let id;
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+      // route deal links through the counted /go/ redirect (302 to the same stored redeem_url, utm_source kept; aggregate count only)
+      const g=new URL("https://lantern-works-telemetry.lantern-works.workers.dev/go/"+id.slice(4)); g.searchParams.set("src","site");
+      try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) g.searchParams.set("ref",r); }catch(e){}
+      a.href=g.href; }
+    else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
+      let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
+      if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;
+      id="out/h-"+u.hostname.toLowerCase().replace(/^www\./,"").replace(/[^a-z0-9-]/g,"-").slice(0,60);
+    }
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  // rel055: a landing ?ref= channel tag (same pattern the hosted worker accepts) counts once as /e/ref/<ref>/; nothing else from the query is sent
+  try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) lwTrack("ref/"+r); }catch(e){}
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
+</body>
+</html>

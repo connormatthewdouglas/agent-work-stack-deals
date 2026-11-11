@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vendor page verification | Lantern Works</title>
+  <meta name="description" content="Point-in-time check of Lantern Works vendor sample reports against each vendor&#x27;s public pricing page." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/reports/vendors/verification/" />
+  <meta property="og:title" content="Vendor page verification | Lantern Works" />
+  <meta property="og:description" content="Point-in-time check of Lantern Works vendor sample reports against each vendor&#x27;s public pricing page." />
+  <meta property="og:url" content="https://thelanternworks.com/reports/vendors/verification/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Vendor page verification | Lantern Works" />
+  <meta name="twitter:description" content="Point-in-time check of Lantern Works vendor sample reports against each vendor&#x27;s public pricing page." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
+    }
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+  <!-- brand -->
+  <link rel="icon" href="https://thelanternworks.com/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://thelanternworks.com/favicon-32.png" />
+  <link rel="apple-touch-icon" href="https://thelanternworks.com/apple-touch-icon.png" />
+  <meta property="og:image" content="https://thelanternworks.com/logo.png" />
+  <meta property="og:image:width" content="400" />
+  <meta property="og:image:height" content="400" />
+  <meta property="og:image:alt" content="Lantern Works lantern logo" />
+  <meta name="twitter:image" content="https://thelanternworks.com/logo.png" />
+  <!-- /brand -->
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, refreshed regularly, with each price's age shown</span></header>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/deals/">Deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/coverage/">GPU coverage</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/methodology/">Methodology</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+<div id="content">
+  <p class="crumbs"><a href="https://thelanternworks.com/">Home</a> · <a href="https://thelanternworks.com/reports/">Reports</a> · <a href="https://thelanternworks.com/reports/vendors/">Vendor sample reports</a> · Verification</p>
+  <h1>Vendor page verification</h1>
+  <p>A point-in-time check of each sample report against the vendor's own public pricing page (GET only, robots.txt respected). Mismatches are recorded; published prices and gates were not changed to force a match. An unreadable or disallowed vendor page is recorded as could not verify; no price is invented. Price data is licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (attribution: Lantern Works).</p>
+  <p class="meta">Checked at 2026-11-11 02:55:55 UTC. 24 match, 0 mismatch, 6 could not verify.</p>
+  <div class="tscroll"><table>
+    <thead><tr><th>Vendor</th><th>Status</th><th>Detail</th><th>Source</th></tr></thead>
+    <tbody>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/99stack/">99Stack Cloud</a></td><td>match</td><td>Fetched https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100 (HTTP 200); every current published hourly figure (H100) appears in the response body.</td><td><a href="https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100" rel="noopener">https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/aws/">Amazon Web Services</a></td><td>could_not_verify</td><td>Could not read robots.txt (HTTP 403); pricing page not fetched.</td><td><a href="https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json" rel="noopener">https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/azure/">Microsoft Azure</a></td><td>match</td><td>Fetched https://prices.azure.com/api/retail/prices?$filter=armSkuName%20eq%20%27Standard_ND96isr_MI300X_v5%27%20and%20armRegionName%20eq%20%27eastus2%27%20and%20priceType%20eq%20%27Consumption%27 (HTTP 200); every current published hourly figure (MI300X) appears in the response body.</td><td><a href="https://prices.azure.com/api/retail/prices?$filter=armSkuName%20eq%20%27Standard_ND96isr_MI300X_v5%27%20and%20armRegionName%20eq%20%27eastus2%27%20and%20priceType%20eq%20%27Consumption%27" rel="noopener">https://prices.azure.com/api/retail/prices?$filter=armSkuName%20eq%20%27Standard_ND96isr_MI300X_v5%27%20and%20armRegionName%20eq%20%27eastus2%27%20and%20priceType%20eq%20%27Consumption%27</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/cirrascale/">Cirrascale</a></td><td>match</td><td>Fetched https://www.cirrascale.com/explore/explore-amd-mi250 (HTTP 200); every current published hourly figure (MI250) appears in the response body.</td><td><a href="https://www.cirrascale.com/explore/explore-amd-mi250" rel="noopener">https://www.cirrascale.com/explore/explore-amd-mi250</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/civo/">Civo</a></td><td>match</td><td>Fetched https://www.civo.com/pricing (HTTP 200); every current published hourly figure (A100, H100 SXM) appears in the response body.</td><td><a href="https://www.civo.com/pricing" rel="noopener">https://www.civo.com/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/clore/">Clore.ai</a></td><td>could_not_verify</td><td>Fetched https://clore.ai/marketplace (HTTP 200); found RTX 4090 in the page body, but did not find RTX 5090 $0.7104. Not treated as a mismatch without a clear alternate list price for those SKUs.</td><td><a href="https://clore.ai/marketplace" rel="noopener">https://clore.ai/marketplace</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/cloudrift/">CloudRift</a></td><td>match</td><td>Fetched https://www.cloudrift.ai/pricing (HTTP 200); every current published hourly figure (L40S, RTX 5090) appears in the response body.</td><td><a href="https://www.cloudrift.ai/pricing" rel="noopener">https://www.cloudrift.ai/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/coreweave/">CoreWeave</a></td><td>could_not_verify</td><td>Fetched https://www.coreweave.com/pricing (HTTP 200); found GH200, A100, H100, L40S in the page body, but did not find H200 $6.305. Not treated as a mismatch without a clear alternate list price for those SKUs.</td><td><a href="https://www.coreweave.com/pricing" rel="noopener">https://www.coreweave.com/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/digitalocean/">DigitalOcean GPU Droplets</a></td><td>match</td><td>Fetched https://www.digitalocean.com/pricing/gpu-droplets (HTTP 200); every current published hourly figure (MI325X, MI300X, H100, H200, RTX 6000 Ada, L40S, MI355X) appears in the response body.</td><td><a href="https://www.digitalocean.com/pricing/gpu-droplets" rel="noopener">https://www.digitalocean.com/pricing/gpu-droplets</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/e2e-networks/">E2E Networks</a></td><td>match</td><td>Fetched https://www.e2enetworks.com/pricing (HTTP 200); every current published hourly figure (T4, H100, A100) appears in the response body.</td><td><a href="https://www.e2enetworks.com/pricing" rel="noopener">https://www.e2enetworks.com/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/hot-aisle/">Hot Aisle</a></td><td>match</td><td>Fetched https://hotaisle.xyz/pricing/ (HTTP 200); every current published hourly figure (MI300X) appears in the response body.</td><td><a href="https://hotaisle.xyz/pricing/" rel="noopener">https://hotaisle.xyz/pricing/</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/hyperstack/">Hyperstack</a></td><td>match</td><td>Fetched https://www.hyperstack.cloud/gpu-pricing (HTTP 200); every current published hourly figure (A100 NVLink, H100 NVLink, H200 SXM, RTX A4000, A100 PCIe, A100 SXM, H100 PCIe, H100 SXM) appears in the response body.</td><td><a href="https://www.hyperstack.cloud/gpu-pricing" rel="noopener">https://www.hyperstack.cloud/gpu-pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/jarvislabs/">Jarvislabs</a></td><td>match</td><td>Fetched https://jarvislabs.ai/pricing (HTTP 200); every current published hourly figure (A100, L4, H100 SXM) appears in the response body.</td><td><a href="https://jarvislabs.ai/pricing" rel="noopener">https://jarvislabs.ai/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/koyeb/">Koyeb</a></td><td>match</td><td>Fetched https://www.koyeb.com/pricing (HTTP 200); every current published hourly figure (L40S) appears in the response body.</td><td><a href="https://www.koyeb.com/pricing" rel="noopener">https://www.koyeb.com/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/lambda/">Lambda</a></td><td>could_not_verify</td><td>Fetched https://lambda.ai/pricing (HTTP 200); none of the published hourly figures (B200 $6.69) appear in the response body. The page may be JavaScript-rendered or use a different format. Not treated as a mismatch.</td><td><a href="https://lambda.ai/pricing" rel="noopener">https://lambda.ai/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/lium/">Lium</a></td><td>match</td><td>Fetched https://lium.io/ (HTTP 200); every current published hourly figure (H100 PCIe, H100 SXM, RTX PRO 6000 Server, B200, H200, RTX 4090, RTX 6000 Ada, RTX A6000, L40S, RTX 3090, RTX 5090) appears in the response body.</td><td><a href="https://lium.io/" rel="noopener">https://lium.io/</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/modal/">Modal</a></td><td>match</td><td>Fetched https://modal.com/pricing (HTTP 200); every current published hourly figure (A100, H100 SXM, H200 SXM, L40S) appears in the response body.</td><td><a href="https://modal.com/pricing" rel="noopener">https://modal.com/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/nebius/">Nebius</a></td><td>match</td><td>Fetched https://nebius.com/prices (HTTP 200); every current published hourly figure (H100, H200, L40S) appears in the response body.</td><td><a href="https://nebius.com/prices" rel="noopener">https://nebius.com/prices</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/nova-cloud/">Nova Cloud</a></td><td>match</td><td>Fetched https://nova-cloud.ai/gpu-models/4090 (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body.</td><td><a href="https://nova-cloud.ai/gpu-models/4090" rel="noopener">https://nova-cloud.ai/gpu-models/4090</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/novita/">Novita AI</a></td><td>match</td><td>Fetched https://novita.ai/gpu-instance/gpu/rtx-4090 (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body.</td><td><a href="https://novita.ai/gpu-instance/gpu/rtx-4090" rel="noopener">https://novita.ai/gpu-instance/gpu/rtx-4090</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/oblivus/">Oblivus</a></td><td>match</td><td>Fetched https://oblivus.com/pricing/ (HTTP 200); every current published hourly figure (A100 PCIe, H100 PCIe, RTX 4090) appears in the response body.</td><td><a href="https://oblivus.com/pricing/" rel="noopener">https://oblivus.com/pricing/</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/ovhcloud/">OVHcloud (US)</a></td><td>match</td><td>Fetched https://us.ovhcloud.com/public-cloud/prices/ (HTTP 200); every current published hourly figure (L40S) appears in the response body.</td><td><a href="https://us.ovhcloud.com/public-cloud/prices/" rel="noopener">https://us.ovhcloud.com/public-cloud/prices/</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/runc-ai/">RunC.AI</a></td><td>match</td><td>Fetched https://www.runc.ai/gpu/rtx-4090/ (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body.</td><td><a href="https://www.runc.ai/gpu/rtx-4090/" rel="noopener">https://www.runc.ai/gpu/rtx-4090/</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/runpod/">RunPod</a></td><td>could_not_verify</td><td>Fetched https://www.runpod.io/pricing (HTTP 200); found A100 PCIe, A40, B200, B300, H100 NVL, H200, RTX 3090, RTX 4090, RTX 6000 Ada, RTX A5000, RTX A6000, RTX PRO 4000, RTX PRO 4500, RTX PRO 4500 Server, RTX PRO 5000, RTX PRO 6000 Max-Q, RTX PRO 6000 Workstation, V100 PCIe, V100 SXM2, A100 SXM, H100 PCIe, H100 SXM, L4, L40, L40S, RTX 5090, RTX A4000, RTX PRO 6000 Server in the page body, but did not find MI300X $2.39. Not treated as a mismatch without a clear alternate list price for those SKUs.</td><td><a href="https://www.runpod.io/pricing" rel="noopener">https://www.runpod.io/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/salad/">SaladCloud</a></td><td>match</td><td>Fetched https://salad.com/pricing (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body.</td><td><a href="https://salad.com/pricing" rel="noopener">https://salad.com/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/spheron/">Spheron</a></td><td>match</td><td>Fetched https://www.spheron.network/pricing/ (HTTP 200); every current published hourly figure (L40S, RTX 5090) appears in the response body.</td><td><a href="https://www.spheron.network/pricing/" rel="noopener">https://www.spheron.network/pricing/</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/thunder-compute/">Thunder Compute</a></td><td>match</td><td>Fetched https://www.thundercompute.com/pricing (HTTP 200); every current published hourly figure (L40, A100, RTX A6000, H100 SXM) appears in the response body.</td><td><a href="https://www.thundercompute.com/pricing" rel="noopener">https://www.thundercompute.com/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/ucartz/">Ucartz</a></td><td>match</td><td>Fetched https://www.ucartz.com/gpu-dedicated-servers (HTTP 200); every current published hourly figure (RTX 5090) appears in the response body.</td><td><a href="https://www.ucartz.com/gpu-dedicated-servers" rel="noopener">https://www.ucartz.com/gpu-dedicated-servers</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/vast/">Vast.ai</a></td><td>could_not_verify</td><td>Fetched https://vast.ai/pricing (HTTP 200); none of the published hourly figures (A100 SXM $1.1311, RTX 4090 $0.4941) appear in the response body. The page may be JavaScript-rendered or use a different format. Not treated as a mismatch.</td><td><a href="https://vast.ai/pricing" rel="noopener">https://vast.ai/pricing</a></td></tr>
+    <tr><td><a href="https://thelanternworks.com/reports/vendors/verda/">Verda (formerly DataCrunch)</a></td><td>match</td><td>Fetched https://verda.com/pricing (HTTP 200); every current published hourly figure (GB300, RTX PRO 6000, V100, B300, H200 SXM, B200, RTX 6000 Ada, A100 SXM, RTX A6000, H100 SXM, L40S) appears in the response body.</td><td><a href="https://verda.com/pricing" rel="noopener">https://verda.com/pricing</a></td></tr>
+    </tbody></table></div>
+  <p><em>Disclosure: some vendor links on Lantern Works are referral/affiliate links (currently RunPod, Thunder Compute, Vast.ai, Novita AI, Clore.ai, Ucartz and 99Stack Cloud). Lantern Works may earn a commission. Affiliate status does not affect rankings.</em></p>
+
+</div>
+  <footer>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/reports/">Reports</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · Contact <a href="https://thelanternworks.com/report-price/">report a price or correction</a></p>
+    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "327dc277f310484b93db8d3156c54a0f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[href]"); if(!a||bypass) return;
+    try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
+      if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
+    let id;
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+      // route deal links through the counted /go/ redirect (302 to the same stored redeem_url, utm_source kept; aggregate count only)
+      const g=new URL("https://lantern-works-telemetry.lantern-works.workers.dev/go/"+id.slice(4)); g.searchParams.set("src","site");
+      try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) g.searchParams.set("ref",r); }catch(e){}
+      a.href=g.href; }
+    else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
+      let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
+      if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;
+      id="out/h-"+u.hostname.toLowerCase().replace(/^www\./,"").replace(/[^a-z0-9-]/g,"-").slice(0,60);
+    }
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  // rel055: a landing ?ref= channel tag (same pattern the hosted worker accepts) counts once as /e/ref/<ref>/; nothing else from the query is sent
+  try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) lwTrack("ref/"+r); }catch(e){}
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
+</body>
+</html>

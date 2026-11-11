@@ -1559,6 +1559,7 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("integrate", ("scripts/agent_growth_pages.py",)),
     ("receipts", ("scripts/receipts_page.py",)),
     ("coverage", ("scripts/coverage_page.py",)),
+    ("reports/vendors", ("scripts/vendor_sample_reports.py",)),
     ("reports", ("scripts/reports_page.py",)),
     ("install", ("scripts/install_page.py",)),
     ("embed", ("scripts/embed_page.py", "embed/rank.js")),
@@ -2295,6 +2296,9 @@ def main() -> None:
     tool_paths.append(coverage_page.write(sys.modules[__name__]))
     import reports_page
     tool_paths += reports_page.write_all(sys.modules[__name__])
+    import vendor_sample_reports
+    tool_paths += vendor_sample_reports.write_all(sys.modules[__name__])
+    vendor_sample_reports._llms_update(ROOT)
     import agent_manifest
     agent_manifest.write(ROOT)
     import agent_growth_pages
