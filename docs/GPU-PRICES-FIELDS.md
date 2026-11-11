@@ -60,7 +60,13 @@ Use `hourly_equiv_usd` and the existing whole-instance/minimum-GPU rules for com
 `availability_rate_7d` remains a descriptive observation: `rate` (stocked / known checks, null with zero known),
 `checks` (legacy known count), `known_checks`, `unknown_checks`, `total_checks`, `in_stock_checks`,
 `window_start`, `window_end`, `window_days`, and first/last observation timestamps. Unknown observations
-are excluded from the share, but not hidden from the counts. Legacy captures without unknown counts emit null,
+are excluded from the share, but not hidden from the counts. P38 (additive) splits `unknown_checks` by why each check had no stock answer, using the row's own
+`availability_reason` (Scout T113 enum): `never_ran_checks` = no stock reading was taken (`check_failed_timeout`,
+`check_failed_http`, or `stale`/backoff); `no_source_checks` = the probe ran but the source gives no stock signal
+(`no_source`: the vendor API returned no stock field, two reads did not confirm, no matching API row, or no API).
+`unknown_checks` is unchanged and always equals `never_ran_checks + no_source_checks` when both are set. Both are null
+when any unknown check in the window has no recorded reason, or when the source does not carry the split yet
+(`source: scout_t112` rows until Scout's T112 build emits `never_ran_checks_7d` / `no_source_checks_7d`); never a guessed split. Legacy captures without unknown counts emit null,
 not an invented zero. `sample_status` distinguishes observed, insufficient_sample (<6 known), and all_unknown;
 `window_stale` flags windows whose last observation is older than 24h or undated. Sparse/old data remains
 labelled historical description, never a probability forecast. `source` is `scout_t112` or `git_history`.
