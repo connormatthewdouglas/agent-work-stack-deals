@@ -66,6 +66,28 @@ def test_restamp_then_regenerate_still_matches(tmp_path):
         _remove(dest)
 
 
+def test_snapshot_price_move_then_one_regenerate_matches(tmp_path):
+    """A price refresh moves today's snapshot; ONE regenerate must already match (the "Since" column reads the
+    changes feed, so that feed has to be written before the pages that read it)."""
+    dest = tmp_path / "snapmove"
+    _worktree(dest)
+    try:
+        snaps = sorted((dest / "data" / "gpu_pricing" / "snapshots").glob("*.json"))
+        doc = json.loads(snaps[-1].read_text(encoding="utf-8"))
+        row = next(r for r in doc["rows"] if r.get("gpu") == "H100" and r.get("hourly_usd"))
+        row["hourly_usd"] = row["price_usd"] = round(row["hourly_usd"] * 1.1, 4)
+        snaps[-1].write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+        _regenerate(dest)
+        saved = os.environ.pop("LW_AVAIL_NOW", None)
+        try:
+            assert chk.check(dest) == 0
+        finally:
+            if saved is not None:
+                os.environ["LW_AVAIL_NOW"] = saved
+    finally:
+        _remove(dest)
+
+
 def test_tampered_page_fails(tmp_path):
     dest = tmp_path / "tamper"
     _worktree(dest)
