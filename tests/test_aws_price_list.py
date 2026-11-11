@@ -94,6 +94,8 @@ def test_parse_record_matches_g5_xlarge():
         "rate_code": "79BRGEEZC6TARVWJ.JRTCKXETXF.6YS6EN2CT7",
     }
     assert "RateCode 79BRGEEZC6TARVWJ.JRTCKXETXF.6YS6EN2CT7" in quote
+    assert "v20261110173852" in quote
+    assert "pub 2026-11-10T17:38:52Z" in quote
     assert '"PricePerUnit": "1.0060000000"' in quote
     assert len(quote) <= MAX_QUOTE
     # Must not pick Dedicated $1.1066, Windows, Reserved, or g5.2xlarge.
@@ -120,10 +122,14 @@ def test_refresh_success_same_price_restamps_and_records_ratecode():
     assert r["verified_at"] == "2026-11-11T21:45:00+00:00"
     assert r["checked_at"] == r["verified_at"]
     ev = r["evidence"]
-    assert ev["offer_version"] == "20261110173852"
-    assert ev["publication_date"] == "2026-11-10T17:38:52Z"
-    assert ev["rate_code"] == "79BRGEEZC6TARVWJ.JRTCKXETXF.6YS6EN2CT7"
     assert ev["checked_at"] == r["verified_at"]
+    assert ev["source_url"] == URL
+    # Version, publication date and RateCode live in the allowed quote field, not extra keys.
+    assert ev["quote"] == r["quote"]
+    assert "v20261110173852" in ev["quote"]
+    assert "pub 2026-11-10T17:38:52Z" in ev["quote"]
+    assert "RateCode 79BRGEEZC6TARVWJ.JRTCKXETXF.6YS6EN2CT7" in ev["quote"]
+    assert set(ev) <= {"source_url", "quote", "checked_at"}
     assert doc["checked_at"] == "2026-11-11T21:45:00+00:00"
     assert rep[0]["result"] == "unchanged"
 
@@ -181,3 +187,21 @@ def test_live_aws_json_is_wired_for_the_collector():
     assert not doc.get("manual_snapshot")
     assert apl.is_offer_url(doc["records"][0]["source_url"])
     assert apl.instance_type_of(doc["records"][0]) == "g5.xlarge"
+
+def test_refresh_output_passes_same_validator_as_the_feed():
+    """The daily gpu-refresh workflow writes vendor files then generate_seo_pages/pytest
+    call core.gpu.record_problems (via build_rates / test_records_schema_and_compat_fields).
+    #191 missed this: extra evidence keys passed unit tests but failed the refresh gate."""
+    from core.gpu import EVIDENCE_FIELDS, EVIDENCE_OPTIONAL, EVIDENCE_REQUEST_FIELDS, record_problems
+    doc = _doc()
+    RGP.refresh([doc], FakeFetch(200, FIXTURE), NOW)
+    probs = record_problems(doc)
+    assert probs == [], probs
+    ev = doc["records"][0]["evidence"]
+    allowed = set(EVIDENCE_FIELDS) | set(EVIDENCE_OPTIONAL) | set(EVIDENCE_REQUEST_FIELDS)
+    assert set(ev) <= allowed
+    # Offer identity is still present, in the quote.
+    assert "v20261110173852" in ev["quote"]
+    assert "pub 2026-11-10T17:38:52Z" in ev["quote"]
+    assert "RateCode 79BRGEEZC6TARVWJ.JRTCKXETXF.6YS6EN2CT7" in ev["quote"]
+
