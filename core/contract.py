@@ -52,7 +52,7 @@ SPEC = {
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
                           ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
-                           "change_pct", "source_url"]),
+                           "change_pct", "source_url", "last_verified_before", "gap_days"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -93,7 +93,10 @@ EXTRA_PROPS = {
         "next_cursor": _str, "has_more": _bool, "last_seq": {"type": ["integer", "null"]},
         "changes": {"type": "array", "items": {"type": "object", "required": ["vendor", "gpu", "direction"],
                                                 "properties": {"event_id": _str, "rate_id": _str, "key": _str,
-                                                               "seq": {"type": ["integer", "null"]}, "snapshot_id": _str}}},
+                                                               "seq": {"type": ["integer", "null"]}, "snapshot_id": _str,
+                                                               # P46 (additive): bounds on when the change happened; null when unknown
+                                                               "last_verified_before": {"type": ["string", "null"], "format": "date-time"},
+                                                               "gap_days": {"type": ["number", "null"], "minimum": 0}}}},
     },
 }
 # T39: rate_id on every compared rate and optimizer option; quote_id receipt on optimize/estimate responses.
@@ -104,8 +107,11 @@ _QUOTE = {"quote_id": {"type": "string", "pattern": "^q_[0-9a-f]{20}$"}, "issued
 # E5: availability passed through from the feed as-is (null when the feed has none; never invented).
 _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock": {"type": ["boolean", "null"]},
                                                      "checked_at": {"type": ["string", "null"]}, "note": _str,
-                                                     "basis": _str, "source": {"type": ["string", "null"]}}}
-_AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str}
+                                                     "basis": _str, "source": {"type": ["string", "null"]},
+                                                     # P36 (additive): last firm stock answer + its check time (display only)
+                                                     **(_LAST_KNOWN := {"last_known_in_stock": {"type": ["boolean", "null"]},
+                                                                        "last_known_at": {"type": ["string", "null"], "format": "date-time"}})}}
+_AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str, **_LAST_KNOWN}
 _OPTION = {**_OPTION, "properties": {**_OPTION["properties"], **_AVAIL_PROPS}}
 _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION, "availability_note": _str,
                                                                      "gpu_count": {"type": ["integer", "null"], "minimum": 1},
@@ -113,7 +119,7 @@ _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": 
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"canonical_model": _str, "form_factor": _str, "rate_id": _RATE_ID, "report_issue_url": _str,
                                                                           "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]},
-                                                                          "min_gpus": {"type": ["integer", "null"]}, **(_RATE_DATES := {
+                                                                          "min_gpus": {"type": ["integer", "null"]}, **_LAST_KNOWN, **(_RATE_DATES := {
                                                                               # Brain #584 / eddie_compute (additive): core.rate_dates; null when not known
                                                                               "effective_at": {"type": ["string", "null"], "format": "date-time"},
                                                                               "effective_at_basis": {"type": ["string", "null"], "enum": ["vendor_stated", "first_observed", None]},
@@ -141,6 +147,8 @@ for _t in ("optimize_stack", "optimize_agent_stack", "estimate_job_cost"):
 # T136 (additive): the tagged /go/ link stays in brief rows, and the one referral line stays in brief results
 for _t, (_req, _lk, _rr, _bk, _br) in list(SPEC.items()):
     SPEC[_t] = (_req, _lk, _rr, list(_bk) + ["referral_disclosure"], list(_br) + (["tracked_url"] if _lk else []))
+for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P36 (additive): brief GPU rows keep the last firm stock answer
+    SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["last_known_in_stock", "last_known_at"],)
 REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
                               "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
@@ -239,9 +247,12 @@ def error(code: str, message: str) -> dict:
 
 
 BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "first_read_at", "second_read_at",
-                          "second_read_gap_s", "second_read_basis", "two_read_gap_ok", "price_join_failed")
+                          "second_read_gap_s", "second_read_basis", "two_read_gap_ok", "price_join_failed",
+                          # P36 (additive): last firm stock answer and its check time, kept beside a lapsed claim
+                          "last_known_in_stock", "last_known_at")
 
 
+LAST_KNOWN_KEYS = ("last_known_in_stock", "last_known_at")  # same as core.gpu_availability.LAST_KNOWN_KEYS
 DEAL_TOOLS = ("search_deals", "compare_deals", "get_deal")
 
 
@@ -255,13 +266,44 @@ def _brief_row(tool: str, row: dict, keys: list) -> dict:
         # Gauge T73 F1-F6 #3 (additive): brief rows carry the stock-claim audit fields that full rows hold in availability
         av = row["availability"]
         for k in BRIEF_AVAIL_AUDIT_KEYS:
-            if k in av:
+            if k in av and k not in LAST_KNOWN_KEYS:
                 out[k] = av[k]
+    out.update(_brief_last_known(row.get("availability")))
     if tool == "compare_gpu_prices":
         out.update(_brief_rate_dates(row))
     if isinstance(out.get("choice"), dict):
-        out["choice"] = {k: out["choice"][k] for k in BRIEF_CHOICE_KEYS if k in out["choice"]}
+        ch = out["choice"]
+        out["choice"] = {k: ch[k] for k in BRIEF_CHOICE_KEYS if k in ch}
+        if isinstance(ch.get("availability"), dict):
+            out["choice"].update(_brief_last_known(ch["availability"]))
     return out
+
+
+def _brief_last_known(av) -> dict:
+    """P36 (additive): a brief GPU row carries last_known_in_stock / last_known_at only when they add something, i.e.
+    the claim lapsed (in_stock null) after a firm answer. Absent means null or equal to in_stock / checked_at; full
+    mode always has both inside availability. Keeps brief within its size budget."""
+    if isinstance(av, dict) and av.get("in_stock") is None and isinstance(av.get("last_known_in_stock"), bool):
+        return {k: av.get(k) for k in LAST_KNOWN_KEYS}
+    return {}
+
+
+def _fill_last_known(o) -> None:
+    """P36 (additive, display only): give every availability dict in a tool result last_known_in_stock / last_known_at.
+    A lapsed claim already carries them (core.gpu_availability.stale_guard); a current firm claim is its own last known
+    value; anything else is null. Never invented, and ranking never reads them (it reads in_stock)."""
+    from .gpu_availability import last_known
+    if isinstance(o, dict):
+        av = o.get("availability")
+        if isinstance(av, dict):
+            v, t = last_known(av)
+            av["last_known_in_stock"], av["last_known_at"] = v, t
+        for k, x in o.items():
+            if k not in ("receipt", "error"):
+                _fill_last_known(x)
+    elif isinstance(o, list):
+        for x in o:
+            _fill_last_known(x)
 
 
 def _brief_rate_dates(row: dict) -> dict:
@@ -284,7 +326,9 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
         e = out["error"]
         return error(e.get("code") or "internal_error", e.get("message") or "")
     _, list_key, _, brief_keys, brief_row = SPEC[tool]
-    out = golinks.annotate(copy.deepcopy(out))  # T136: tagged /go/ link per provider + one referral line (additive, both modes)
+    out = golinks.annotate(copy.deepcopy(out))
+    # T136: tagged /go/ link per provider + one referral line (additive, both modes)
+    _fill_last_known(out)  # P36: every availability in a result says its last firm stock answer (null when never firm)
     if mode == "full":
         return {"ok": True, "mode": "full", **out}
     b = {k: copy.deepcopy(out[k]) for k in brief_keys if k in out}
