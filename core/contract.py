@@ -127,7 +127,12 @@ EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
                                                                               "effective_at": {"type": ["string", "null"], "format": "date-time"},
                                                                               "effective_at_basis": {"type": ["string", "null"], "enum": ["vendor_stated", "first_observed", None]},
                                                                               "min_bill_usd_per_hour": {"type": ["number", "null"], "minimum": 0},
-                                                                              "min_bill_basis": {"type": ["string", "null"], "enum": ["hourly_rate", "per_second_rate", "monthly_equivalent", None]}})}}},
+                                                                              "min_bill_basis": {"type": ["string", "null"], "enum": ["hourly_rate", "per_second_rate", "monthly_equivalent", None]}}),
+                                                                          **(_NEXT_CHECK := {  # P40 (additive): core.check_schedule; only on stale/unknown rows
+                                                                              "next_check_at": {"type": ["string", "null"], "format": "date-time"},
+                                                                              "will_backfill": {"type": ["boolean", "null"]},
+                                                                              "backfill_eta": {"type": ["string", "null"], "format": "date-time"},
+                                                                              "next_check_basis": {"type": ["string", "null"]}})}}},
     # #130: GPU count ranked for; rows whose min_gpus exceeds it are excluded (count + full-mode list with reasons)
     "gpus": {"type": "integer", "minimum": 1}, "assumptions": {"type": "array", "items": {"type": "string"}},
     "min_gpus_unmet": {"type": "integer", "minimum": 0},
@@ -137,6 +142,8 @@ EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
                                          "rate_id": _str, "source_url": _str, "checked_at": _str, "reason": _str,
                                          "min_bill_usd_per_hour": _RATE_DATES["min_bill_usd_per_hour"],
                                          "min_bill_basis": _RATE_DATES["min_bill_basis"]}}}}
+# P40 (additive): each stale price says when it is next re-read and whether that can fill it
+EXTRA_PROPS["compare_gpu_prices"]["stale_prices"] = {"type": "array", "items": {"type": "object", "properties": dict(_NEXT_CHECK)}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
@@ -282,6 +289,8 @@ def _brief_row(tool: str, row: dict, keys: list) -> dict:
         out.pop("failure_reason_detail", None)
     if tool == "compare_gpu_prices":
         out.update(_brief_rate_dates(row))
+        # P40 (additive): an unknown-stock row says when it is next checked and whether that can fill it (basis/eta: full)
+        out.update({k: row[k] for k in ("next_check_at", "will_backfill") if k in row})
     if isinstance(out.get("choice"), dict):
         ch = out["choice"]
         out["choice"] = {k: ch[k] for k in BRIEF_CHOICE_KEYS if k in ch}

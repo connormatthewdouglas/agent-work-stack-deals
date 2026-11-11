@@ -204,6 +204,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     A failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and
     failure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source
     does not say; never guessed. Display only.
+    A row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill
+    (true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),
+    backfill_eta and next_check_basis (the schedule it came from).
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
