@@ -162,7 +162,7 @@ def _h100_buckets():
     return listed, reserved, serverless
 
 
-from t41_counts import ranked_after_min_gpus  # noqa: E402
+from t41_counts import payg_eligible, ranked_after_min_gpus  # noqa: E402
 
 
 @case("T41-03")
@@ -557,13 +557,13 @@ def _(f, ev):
     for model_cell, _n, low in rows:
         name = html.unescape(re.sub(r"<[^>]+>", "", model_cell)).replace("(few verified offers)", "").strip()
         rs = [r for r in RATES if r["gpu"] == name or r["gpu"].startswith(name + " ")] if G.family_of(name) else [r for r in RATES if r["gpu"] == name]
-        # Independent of the page helper: min hourly among min_gpus <= 1, not reserved, not serverless, out of stock last.
+        # Independent of the page helper: min hourly among min_gpus <= 1, not reserved, not serverless, out of stock last,
+        # inside the page's 168 h stale cut (core.data_age, same clock as the build).
         from core.serverless import rate_reason
         def _n(r):
             n = r.get("min_gpus") or 1
             return 1 if isinstance(n, bool) or not isinstance(n, int) or n < 1 else n
-        eligible = [r for r in rs if _n(r) <= 1 and D.tier_class(r) != "reserved" and not rate_reason(r) and r.get("hourly_equiv_usd") is not None]
-        eligible.sort(key=lambda r: (D.out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+        eligible = payg_eligible(rs, NOW)
         picked = eligible[0] if eligible else None
         low_txt = html.unescape(low)
         if picked is None:
