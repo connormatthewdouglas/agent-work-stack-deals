@@ -1,15 +1,15 @@
 {
   "schema": "lantern-works-site-stats/1",
-  "generated_at": "2026-11-11T03:09:32Z",
+  "generated_at": "2026-11-09T20:01:38Z",
   "note": "Weekly (ISO week, UTC) aggregate counts only. No IP addresses, user agents, cookies, keys or per-caller data. ref is the ?ref= channel tag. Refs ci, qa, test, smoke, house-* and t<N>/t<N>-* are our own checks and are excluded from external_mcp_tool_calls. Calls with no ref are counted separately in untagged_mcp_tool_calls and may include our own checks. feed_fetches_by_ref counts only feed fetches through the hosted worker, not GitHub Pages feed hits. mcp_initialize_by_ref['mcp-registry'] is probably MCP Registry health checks, not users.",
   "sources": {
     "feed_fetches": "hosted worker only (lantern-works-mcp.lantern-works.workers.dev/api/...); GitHub Pages feed hits are not counted",
     "mcp_initialize_mcp_registry": "probably MCP Registry health checks, not users",
     "hosted_mcp": "https://lantern-works-mcp.lantern-works.workers.dev/stats",
     "telemetry": "opt-in LANTERN_TELEMETRY=1 aggregate",
-    "outbound_clicks": "Cloudflare Web Analytics beacon, /e/out/ virtual page views, weekly total",
-    "page_views": "Cloudflare Web Analytics beacon page views (site b392c8b3...), real pages only, weekly total",
-    "visits_by_ref": "Cloudflare Web Analytics /e/ref/<ref>/ virtual views, sent once per landing with ?ref= by pages built from 2026-11-02 (rel055) on; earlier weeks cannot show refs",
+    "outbound_clicks": "not available this run (null)",
+    "page_views": "null: not queried in this run: CI has no Cloudflare token; page views are filled box-side through the Cloudflare connector (scripts/rum_box_fill.py)",
+    "visits_by_ref": "null: not queried in this run: CI has no Cloudflare token; page views are filled box-side through the Cloudflare connector (scripts/rum_box_fill.py)",
     "installs_by_ref": "null: not measurable: the opt-in telemetry worker records day x tool x version only, with no install id or ref; an install id needs the owner's approval. Hosted connects by ref are in mcp_initialize_by_ref.",
     "receipts_funnel": "T55: Receipts (MCP test summaries) measured apart from GPU demand. page_views = beacon views of /receipts/ pages; visits_by_ref / mcp_initialize_by_ref / mcp_tool_calls_by_ref = refs matching receipts or receipts-<channel> only. api/v1/receipts.json is served by GitHub Pages, which publishes no fetch counts, so json_fetches is null. Independent inquiries arrive by email and are not published here (null).",
     "go_clicks": "telemetry worker /go/<deal-id>?src= redirect (aggregate day x deal x provider x src x ref in D1; no IPs or cookies). test_go_clicks_by_provider = our own test clicks (src *-test or internal ref), excluded from go_clicks_by_provider"
@@ -18,69 +18,39 @@
     {
       "week": "2026-W46",
       "mcp_tool_calls_by_ref": {
-        "qa": 77,
-        "ci": 74,
-        "none": 6,
-        "mcp-registry": 4,
-        "t118-verify": 3,
-        "install-readiness": 1
+        "qa": 20,
+        "ci": 10,
+        "none": 4,
+        "mcp-registry": 3
       },
-      "feed_fetches_by_ref": {
-        "other": 5,
-        "none": 1
-      },
+      "feed_fetches_by_ref": {},
       "mcp_initialize_by_ref": {
-        "mcp-registry": 779,
-        "none": 53,
-        "github-readme": 27,
-        "readme": 26,
-        "qa": 2,
-        "install-readiness": 1,
-        "t118-verify": 1
+        "mcp-registry": 337,
+        "none": 27,
+        "github-readme": 10,
+        "readme": 10
       },
-      "external_mcp_tool_calls": 5,
-      "untagged_mcp_tool_calls": 6,
+      "external_mcp_tool_calls": 3,
+      "untagged_mcp_tool_calls": 4,
       "telemetry_tool_calls": 0,
-      "outbound_clicks": 0,
-      "page_views": 180,
-      "visits_by_ref": {},
-      "visits_null_reason": null,
+      "outbound_clicks": null,
+      "page_views": null,
+      "visits_by_ref": null,
+      "visits_null_reason": "not queried in this run: CI has no Cloudflare token; page views are filled box-side through the Cloudflare connector (scripts/rum_box_fill.py)",
       "installs_by_ref": null,
       "installs_null_reason": "not measurable: the opt-in telemetry worker records day x tool x version only, with no install id or ref; an install id needs the owner's approval. Hosted connects by ref are in mcp_initialize_by_ref.",
       "receipts_funnel": {
-        "page_views": 0,
-        "visits_by_ref": {},
+        "page_views": null,
+        "visits_by_ref": null,
         "mcp_initialize_by_ref": {},
         "mcp_tool_calls_by_ref": {},
         "json_fetches": null,
         "json_fetches_null_reason": "not measurable: /api/v1/receipts.json is served by GitHub Pages only (no request counts); not proxied by the hosted worker",
         "inquiries": null,
         "inquiries_null_reason": "not published: inquiries arrive by email; counts stay private (no PII in stats.json)",
-        "page_views_null_reason": null
+        "page_views_null_reason": "not queried in this run: CI has no Cloudflare token; page views are filled box-side through the Cloudflare connector (scripts/rum_box_fill.py)"
       },
-      "go_clicks_by_provider": {
-        "99Stack Cloud": {
-          "feed": 1
-        },
-        "AdsPower": {
-          "feed": 1
-        },
-        "AgentMail": {
-          "feed": 1
-        },
-        "Apify": {
-          "feed": 2
-        },
-        "Bouncer": {
-          "feed": 1
-        },
-        "Modal": {
-          "feed": 1
-        },
-        "Bright Data": {
-          "feed": 1
-        }
-      },
+      "go_clicks_by_provider": {},
       "test_go_clicks_by_provider": {}
     },
     {
@@ -120,7 +90,7 @@
       "untagged_mcp_tool_calls": 52,
       "telemetry_tool_calls": 0,
       "outbound_clicks": 0,
-      "page_views": 180,
+      "page_views": 104,
       "visits_by_ref": {},
       "visits_null_reason": null,
       "installs_by_ref": null,
@@ -228,7 +198,7 @@
       "outbound_clicks": null,
       "page_views": null,
       "visits_by_ref": null,
-      "visits_null_reason": "not measured: this Web Analytics site's beacon went live on 2026-11-02 (ISO week 2026-W45)",
+      "visits_null_reason": "not queried in this run: CI has no Cloudflare token; page views are filled box-side through the Cloudflare connector (scripts/rum_box_fill.py)",
       "installs_by_ref": null,
       "installs_null_reason": "not measurable: the opt-in telemetry worker records day x tool x version only, with no install id or ref; an install id needs the owner's approval. Hosted connects by ref are in mcp_initialize_by_ref.",
       "receipts_funnel": {
@@ -240,7 +210,7 @@
         "json_fetches_null_reason": "not measurable: /api/v1/receipts.json is served by GitHub Pages only (no request counts); not proxied by the hosted worker",
         "inquiries": null,
         "inquiries_null_reason": "not published: inquiries arrive by email; counts stay private (no PII in stats.json)",
-        "page_views_null_reason": "not measured: this Web Analytics site's beacon went live on 2026-11-02 (ISO week 2026-W45)"
+        "page_views_null_reason": "not queried in this run: CI has no Cloudflare token; page views are filled box-side through the Cloudflare connector (scripts/rum_box_fill.py)"
       },
       "go_clicks_by_provider": {},
       "test_go_clicks_by_provider": {}
