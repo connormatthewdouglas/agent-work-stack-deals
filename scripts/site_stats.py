@@ -234,6 +234,30 @@ def add_go_clicks(rep: dict, go: dict) -> None:
             w["clicks"]["by_source"] = dict(sorted(w["clicks"]["by_source"].items(), key=lambda x: (-x[1], x[0])))
 
 
+DEMAND_SOURCE = ("P8: daily aggregate demand from hosted GPU tool calls (compare_gpu_prices, estimate_job_cost, "
+                 "optimize_agent_stack): one count per UTC day x tool x gpu_family x region_group x price_tier x cheapest_provider. "
+                 "gpu_family is the requested GPU bucketed to a fixed list of known families (anything else 'other', none 'any'); "
+                 "region_group is the requested region bucketed likewise; price_tier and cheapest_provider describe the first-ranked "
+                 "result in our answer ('none' when there was none). No caller IDs, raw arguments or free text are stored. House "
+                 "traffic and known bots are not counted. Hosted endpoint only; local (stdio) installs are not included.")
+DEMAND_DAYS = 84
+
+
+def add_demand(rep: dict, hosted: dict, now: datetime) -> None:
+    """P8: copy the hosted worker's daily demand aggregates (last DEMAND_DAYS days), bucketed fields only."""
+    keys = ("day", "tool", "gpu_family", "region_group", "price_tier", "cheapest_provider", "n")
+    rep["sources"]["demand_daily"] = DEMAND_SOURCE
+    if "error" in hosted or "demand_daily" not in hosted:
+        rep["demand_daily"] = None
+        rep["demand_daily_null_reason"] = ("hosted stats not available this run" if "error" in hosted
+                                           else "not collected yet: the hosted worker has not served demand_daily (deploy + migration 0005 pending)")
+        return
+    cut = (now.date() - timedelta(days=DEMAND_DAYS)).isoformat()
+    rows = [{k: r.get(k) for k in keys} for r in hosted.get("demand_daily") or [] if str(r.get("day") or "") >= cut]
+    rep["demand_daily"] = sorted(rows, key=lambda r: (r["day"], -int(r["n"] or 0), r["tool"], r["gpu_family"]), reverse=False)
+    rep["demand_daily_null_reason"] = None
+
+
 def _safe_clicks() -> dict | None:
     try:
         return weekly_clicks()
@@ -331,6 +355,7 @@ def main(argv=None) -> int:
     if rum is None:
         _carry_forward(rep, Path(a.out))
     add_go_clicks(rep, _get(GO_CLICKS))
+    add_demand(rep, hosted, datetime.now(timezone.utc))
     Path(a.out).write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {a.out}: {len(rep['weeks'])} weeks")
     return 0
