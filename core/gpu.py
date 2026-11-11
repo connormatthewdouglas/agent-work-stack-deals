@@ -545,6 +545,10 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: d
     for x in rates:  # Gauge strat2 #4: label every code-carrying link; sort order is untouched
         x.update(referral_fields_for(x))
         x["price_basis_label"] = price_basis_label(x)  # additive: plain-language basis (600me review)
+    # P37/P43 (additive, display only): effective_at from the vendor's stated date or the committed daily snapshots
+    # (never guessed; null when not datable), and min_bill_usd_per_hour = min_gpus x per-GPU hourly price (core.rate_dates)
+    from . import gpu_history, rate_dates
+    rate_dates.annotate(rates, gpu_history.build_history(gpu_history.load_snapshots()))
     priced = {r["deal_id"] for r in rates} | {d["id"] for d in deals if d.get("advertiser") in {h["vendor"] for h in held}}  # Gauge G1: held != unpriced
     unpriced = [{"deal_id": d["id"], "advertiser": d.get("advertiser"),
                  "reason": "no structured GPU pricing record", "source_url": d.get("source_url")}

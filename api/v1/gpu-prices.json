@@ -29,6 +29,7 @@
     "billing_unit is per-second, hourly or monthly; price_usd/unit give the hourly (unit 'hour') or flat monthly price; per-second prices are also in price_per_second_usd. interruptible=true means the vendor may preempt the job.",
     "Hourly rates bill while running; monthly rates are flat dedicated servers (ceil(hours/730) servers per GPU).",
     "Vendors with stale published prices (vendor-level `stale`) are listed in held_stale and never ranked. An owner_hold entry is temporarily held: the data file is unchanged, and the price is not a live verified rate. price_effective_at (additive) is the vendor's own stated instant when a listed public price takes effect; until that instant the row is in held_stale and is never ranked as a current price (Lambda's public list currently takes effect 2026-11-16T00:00:00Z; current Lambda prices require a login and are not on the public page). price_status 'marketplace' rates are variable host prices: price_usd is the median per-GPU offer, with lowest_offer_usd and offer_count. min_gpus > 1 means the instance is only sold with that many GPUs; estimates charge at least that many.",
+    "effective_at (additive) is when the vendor started charging the current price, separate from last_verified: effective_at_basis 'vendor_stated' = the vendor's own date (price_effective_at); 'first_observed' = verified_at of the first daily snapshot showing the current price after a different one (an upper bound); null when real data cannot date it. min_bill_usd_per_hour = min_gpus x hourly_equiv_usd (min_bill_basis hourly_rate, per_second_rate, or monthly_equivalent for flat monthly servers); null when an input is missing. Neither affects ranking.",
     "All prices are per GPU. Multi-GPU servers (gpu_count > 1) are divided by gpu_count; server_price_usd / server_hourly_usd give the whole-server price. Each rate's evidence {source_url, quote, checked_at} is the last live check of the vendor page.",
     "Totals exclude storage, egress, extra vCPU and taxes; each vendor's published egress/storage/interruption terms (or \"not published\") are in vendors[].extras with source_url. Confirm on the vendor page before spending.",
     "Report a wrong price: https://thelanternworks.com/report-price/ (or the GitHub issue form in report_issue.issue_form; agents see report_issue.docs). MCP results carry a prefilled report_issue_url per row."
@@ -86,7 +87,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.8767,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -140,7 +145,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.006,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -195,7 +204,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 6.4096,
+      "min_bill_basis": "monthly_equivalent"
     },
     {
       "deal_id": null,
@@ -270,7 +283,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -344,7 +361,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.79,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -418,7 +439,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.09,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1185,7 +1210,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://clore.ai/register?ref_id=rymfuis6",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-09T03:51:49+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.5104,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-clore-ai",
@@ -1249,7 +1278,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://clore.ai/register?ref_id=rymfuis6",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-09T03:51:49+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.7104,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1305,7 +1338,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-06T06:50:15+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.69,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1361,7 +1398,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-06T06:50:15+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.62,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1417,7 +1458,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-06T06:50:15+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1473,7 +1518,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.65,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1529,7 +1578,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1585,7 +1638,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.55,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1639,7 +1696,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 49.24,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1692,7 +1753,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 50.44,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1745,7 +1810,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 21.6,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1798,7 +1867,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 18.0,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1851,7 +1924,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 6.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1904,7 +1981,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 4.47,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -1958,7 +2039,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 4.41,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2011,7 +2096,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.57,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2064,7 +2153,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.57,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2117,7 +2210,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2170,7 +2267,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.8,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2223,7 +2324,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 4.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2279,7 +2384,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2334,7 +2443,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.1,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2389,7 +2502,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.98,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2444,7 +2561,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.45,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2497,7 +2618,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2550,7 +2675,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2635,7 +2764,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.2,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2720,7 +2853,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.6,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2805,7 +2942,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2889,7 +3030,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.6,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -2973,7 +3118,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.4,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3048,7 +3197,11 @@
       "availability_status": "unknown",
       "availability_reason": "no_source",
       "availability_reason_detail": "unconfirmed_two_reads",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.35,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3133,7 +3286,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.0,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3217,7 +3374,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.08,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3270,7 +3431,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.79,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3324,7 +3489,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.72,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3377,7 +3546,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.36,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3430,7 +3603,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.15,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3496,7 +3673,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.49,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3561,7 +3742,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.49,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3626,7 +3811,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.89,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3691,7 +3880,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.44,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3745,7 +3938,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.2,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3813,7 +4010,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 50.48,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3881,7 +4082,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:02:47+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 38.0,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -3949,7 +4154,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T20:59:22+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 2.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4017,7 +4226,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 11.92,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4084,7 +4297,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T20:59:22+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 3.85,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4151,7 +4368,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.1,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4218,7 +4439,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.85,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4285,7 +4510,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.28,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4352,7 +4581,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T20:59:22+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.25,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4419,7 +4652,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.4,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4486,7 +4723,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4553,7 +4794,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 4.0,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4620,7 +4865,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.85,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4687,7 +4936,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:02:47+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.8,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4754,7 +5007,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.04,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4821,7 +5078,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.68,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4888,7 +5149,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:02:47+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.49,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -4955,7 +5220,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T20:59:22+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 13.52,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -5021,7 +5290,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 4.5396,
+      "min_bill_basis": "per_second_rate"
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -5088,7 +5361,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.9492,
+      "min_bill_basis": "per_second_rate"
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -5154,7 +5431,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.4984,
+      "min_bill_basis": "per_second_rate"
     },
     {
       "deal_id": "deal-modal-free-001",
@@ -5220,7 +5501,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.9512,
+      "min_bill_basis": "per_second_rate"
     },
     {
       "deal_id": null,
@@ -5273,7 +5558,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 5.4,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5327,7 +5616,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 4.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5380,7 +5673,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.55,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5436,7 +5733,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.42,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-novita-001",
@@ -5521,7 +5822,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://novita.ai/?ref=mgezngr",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.67,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5612,7 +5917,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5673,7 +5982,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.64,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5763,7 +6076,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.47,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5816,7 +6133,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.8,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -5871,7 +6192,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.42,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -5931,7 +6256,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 5.29,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6014,7 +6343,11 @@
       "availability_reason_detail": "unconfirmed_two_reads",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6097,7 +6430,11 @@
       "availability_reason_detail": "api_null_signal",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.89,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6179,7 +6516,11 @@
       "availability_reason_detail": "unconfirmed_two_reads",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.79,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6261,7 +6602,11 @@
       "availability_reason_detail": "unconfirmed_two_reads",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.79,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6321,7 +6666,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.09,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6381,7 +6730,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.82,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6441,7 +6794,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6501,7 +6858,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.19,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6583,7 +6944,11 @@
       "availability_reason_detail": "unconfirmed_two_reads",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.89,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6643,7 +7008,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.5,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6703,7 +7072,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.27,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6786,7 +7159,11 @@
       "availability_reason_detail": "api_null_signal",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.69,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6869,7 +7246,11 @@
       "availability_reason_detail": "api_null_signal",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -6951,7 +7332,11 @@
       "availability_reason_detail": "api_null_signal",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.39,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7033,7 +7418,11 @@
       "availability_reason_detail": "api_null_signal",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.19,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7115,7 +7504,11 @@
       "availability_reason_detail": "api_null_signal",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.34,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7175,7 +7568,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.22,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7235,7 +7632,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7295,7 +7696,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.79,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7355,7 +7760,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.33,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7415,7 +7824,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.69,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7498,7 +7911,11 @@
       "availability_reason_detail": "api_null_signal",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.19,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7581,7 +7998,11 @@
       "availability_reason_detail": "unconfirmed_two_reads",
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7647,7 +8068,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.39,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7713,7 +8138,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7780,7 +8209,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 7.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7847,7 +8280,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 5.98,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7913,7 +8350,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 8.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -7979,7 +8420,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 6.94,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8045,7 +8490,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8111,7 +8560,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.99,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8177,7 +8630,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.74,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8243,7 +8700,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.25,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8309,7 +8770,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.17,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8375,7 +8840,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.57,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8441,7 +8910,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.72,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8507,7 +8980,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.72,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8573,7 +9050,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.96,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8639,7 +9120,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.82,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8705,7 +9190,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.64,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8771,7 +9260,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.49,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8837,7 +9330,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.69,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8903,7 +9400,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 2.59,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -8969,7 +9470,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.69,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -9035,7 +9540,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.19,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-runpod-001",
@@ -9101,7 +9610,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://runpod.io?ref=wuct08gl&sub=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.23,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -9154,7 +9667,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.16,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -9217,7 +9734,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-09T20:52:19+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.78,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -9280,7 +9801,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.96,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -9345,7 +9870,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.35,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -9410,7 +9939,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 0.79,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -9475,7 +10008,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 1.09,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-thundercompute-001",
@@ -9541,7 +10078,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://console.thundercompute.com/signup?ref=organization-live-94ea517d-20b7-4794-b5b1-6e1b8cd2a5a1&utm_medium=referral&utm_source=agent-feed",
       "referral_label": "Referral link",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": null,
+      "effective_at_basis": null,
+      "min_bill_usd_per_hour": 3.2,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-ucartz-001",
@@ -9606,7 +10147,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://www.ucartz.com/clients/aff.php?aff=5132",
       "referral_label": "Referral link",
-      "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "flat monthly price / 730 h per GPU; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-09T20:53:31+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.3972,
+      "min_bill_basis": "monthly_equivalent"
     },
     {
       "deal_id": "deal-vastai-001",
@@ -9693,7 +10238,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://cloud.vast.ai/?ref_id=760339",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:30+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.1311,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": "deal-vastai-001",
@@ -9780,7 +10329,11 @@
       "availability_reason_detail": null,
       "referral_url": "https://cloud.vast.ai/?ref_id=760339",
       "referral_label": "Referral link",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:36+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.4941,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -9833,7 +10386,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 6.44,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -9886,7 +10443,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 3.22,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -9972,7 +10533,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 5.037,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10058,7 +10623,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 2.519,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10143,7 +10712,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 2.316,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10228,7 +10801,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.158,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10313,7 +10890,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.657,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10398,7 +10979,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.8285,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10451,7 +11036,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.978,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10504,7 +11093,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.989,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10557,7 +11150,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.852,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10610,7 +11207,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-10T18:33:39+00:00",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.426,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10669,7 +11270,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 13.86,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10728,7 +11333,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 6.929,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10788,7 +11397,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 12.05,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10848,7 +11461,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 6.025,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10908,7 +11525,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 9.229,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -10968,7 +11589,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 4.615,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -11028,7 +11653,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.244,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -11088,7 +11717,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.122,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -11148,7 +11781,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 2.752,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -11208,7 +11845,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.376,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -11267,7 +11908,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 1.558,
+      "min_bill_basis": "hourly_rate"
     },
     {
       "deal_id": null,
@@ -11326,7 +11971,11 @@
       "availability_status": null,
       "availability_reason": null,
       "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+      "effective_at": "2026-11-11T18:55:00Z",
+      "effective_at_basis": "first_observed",
+      "min_bill_usd_per_hour": 0.779,
+      "min_bill_basis": "hourly_rate"
     }
   ],
   "vendors": [
