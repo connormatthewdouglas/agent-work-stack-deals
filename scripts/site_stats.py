@@ -99,7 +99,7 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
     def slot(w):
         return out.setdefault(w, {"week": w, "mcp_tool_calls_by_ref": {}, "feed_fetches_by_ref": {},
                                   "mcp_initialize_by_ref": {}, "external_mcp_tool_calls": 0, "untagged_mcp_tool_calls": 0,
-                                  "telemetry_tool_calls": 0, "outbound_clicks": None,
+                                  "telemetry_tool_calls": 0, "outbound_clicks": None, "beacon_out_events": None,
                                   "page_views": None, "visits_by_ref": None,
                                   "visits_null_reason": rum_reason or None, "installs_by_ref": None,
                                   "installs_null_reason": INSTALLS_NULL_REASON})
@@ -119,10 +119,10 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
         if r.get("version") != "0.0.0":
             slot(week(r["day"]))["telemetry_tool_calls"] += int(r.get("n") or 0)
     for w, n in (clicks or {}).items():
-        slot(w)["outbound_clicks"] = n
+        slot(w)["beacon_out_events"] = n
     for w, r in (rum or {}).items():
         s = slot(w)
-        s["page_views"], s["outbound_clicks"] = r["page_views"], r["outbound_clicks"]
+        s["page_views"], s["beacon_out_events"] = r["page_views"], r["outbound_clicks"]
         s["visits_by_ref"] = dict(sorted(r["visits_by_ref"].items(), key=lambda x: (-x[1], x[0])))
         s["visits_null_reason"] = None
     if rum is not None:  # measured, so a week with no beacon rows is a real zero, from the beacon switch on
@@ -130,7 +130,7 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
             if s["week"] < BEACON_SINCE_WEEK and not rum.get(s["week"]):
                 s["visits_null_reason"] = BEACON_SINCE_REASON
             elif s["page_views"] is None:
-                s.update(page_views=0, visits_by_ref={}, outbound_clicks=s["outbound_clicks"] or 0, visits_null_reason=None)
+                s.update(page_views=0, visits_by_ref={}, beacon_out_events=s["beacon_out_events"] or 0, visits_null_reason=None)
     for s in out.values():
         r = (rum or {}).get(s["week"]) or {}
         measured = s["page_views"] is not None
@@ -162,8 +162,10 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
             "mcp_initialize_mcp_registry": "probably MCP Registry health checks, not users",
             "hosted_mcp": "https://lantern-works-mcp.lantern-works.workers.dev/stats" + ("" if "error" not in hosted else " (unavailable this run)"),
             "telemetry": "opt-in LANTERN_TELEMETRY=1 aggregate" + ("" if "error" not in telemetry else " (unavailable this run)"),
-            "outbound_clicks": "Cloudflare Web Analytics beacon, /e/out/ virtual page views, weekly total" if (clicks is not None or rum is not None)
-                               else "not available this run (null)",
+            "outbound_clicks": CLICKS_SOURCE,
+            "beacon_out_events": ("Cloudflare Web Analytics beacon /e/out/ virtual page views (site JavaScript only), weekly total; "
+                                  "a cross-check, not the click count" if (clicks is not None or rum is not None) else "not available this run (null)"),
+            "clicks_reconciliation": CLICKS_RECONCILIATION,
             "page_views": ("Cloudflare Web Analytics beacon page views (site b392c8b3...), real pages only, weekly total" if rum is not None
                            else f"null: {rum_reason}"),
             "visits_by_ref": ("Cloudflare Web Analytics /e/ref/<ref>/ virtual views, sent once per landing with ?ref= by pages built "
@@ -175,24 +177,61 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
     }
 
 
+CLICKS_SOURCE = ("T135 agreed click count: server-side /go/<deal-id> redirects (telemetry worker D1, aggregate day x deal x "
+                 "provider x src x ref x ua_class; no IPs, user agents or cookies), minus known bots, crawlers, link previews, "
+                 "HTTP scripts and prefetches (ua_class bot|script|prefetch) and minus our own test traffic (src *-test or "
+                 "internal ref). Per week in clicks {count, by_provider, by_source, excluded, unclassified_ua}.")
+CLICKS_RECONCILIATION = ("T135: before Nov 11 2026, outbound_clicks was the Web Analytics beacon's /e/out/ count, which only fires "
+                         "from site JavaScript, while go_clicks counted every server-side /go/ redirect (mostly src=feed). The week "
+                         "of Nov 2 (2026-W45) had 19 /go/ redirects (all src=feed, no ref, 17 providers, Nov 6-7 UTC) and 0 beacon events, "
+                         "so the two never measured the same thing. outbound_clicks now equals clicks.count; the beacon figure "
+                         "is kept as beacon_out_events. Clicks recorded before the UA filter shipped have no UA class and are "
+                         "counted but reported in clicks.unclassified_ua, not dropped or relabelled.")
+EXCLUDED_UA = ("bot", "script", "prefetch")
+
+
 def add_go_clicks(rep: dict, go: dict) -> None:
-    """Per-provider /go/ redirect clicks by src (site|mcp|feed|readme), weekly. src ending -test and internal refs are our
-    own test traffic: kept apart in test_go_clicks_by_provider and never counted in go_clicks_by_provider."""
+    """Per-provider /go/ redirect clicks by src (site|mcp|feed|readme), weekly, and the one agreed weekly click count (T135).
+    src ending -test and internal refs are our own test traffic (kept in test_go_clicks_by_provider); ua_class
+    bot|script|prefetch are automated fetches (counted in clicks.excluded). Neither is in clicks.count or go_clicks_by_provider."""
     ok = "error" not in go
-    rep["sources"]["go_clicks"] = ("telemetry worker /go/<deal-id>?src= redirect (aggregate day x deal x provider x src x ref in D1; "
-                                   "no IPs or cookies). test_go_clicks_by_provider = our own test clicks (src *-test or internal ref), "
-                                   "excluded from go_clicks_by_provider" if ok else "not available this run")
+    rep["sources"]["go_clicks"] = ("telemetry worker /go/<deal-id>?src= redirect (aggregate day x deal x provider x src x ref x "
+                                   "ua_class in D1; no IPs, user agents or cookies). go_clicks_by_provider = clicks.count split by "
+                                   "provider and src. test_go_clicks_by_provider = our own test clicks (src *-test or internal ref)"
+                                   if ok else "not available this run")
     weeks = {w["week"]: w for w in rep["weeks"]}
     for w in weeks.values():
         w["go_clicks_by_provider"], w["test_go_clicks_by_provider"] = {}, {}
+        if ok:
+            w["clicks"] = {"count": 0, "by_provider": w["go_clicks_by_provider"], "by_source": {},
+                           "excluded": {"bot": 0, "script": 0, "prefetch": 0, "house": 0}, "unclassified_ua": 0}
+            w["outbound_clicks"] = 0
+        else:
+            w["clicks"], w["outbound_clicks"] = None, None
+            w["clicks_null_reason"] = "telemetry worker /v1/clicks not available this run"
     for r in go.get("rows") or [] if ok else []:
         w = weeks.get(week(r["day"]))
         if w is None:
             continue
         src, ref = str(r.get("src") or "none"), str(r.get("ref") or "none")
-        test = src.endswith("-test") or internal(ref)
-        key = "test_go_clicks_by_provider" if test else "go_clicks_by_provider"
-        _add(w[key].setdefault(str(r.get("provider") or "unknown"), {}), src.removesuffix("-test"), r.get("n"))
+        uac, n = str(r.get("ua_class") or "unclassified"), int(r.get("n") or 0)
+        c = w["clicks"]
+        if src.endswith("-test") or internal(ref):
+            _add(w["test_go_clicks_by_provider"].setdefault(str(r.get("provider") or "unknown"), {}), src.removesuffix("-test"), n)
+            c["excluded"]["house"] += n
+            continue
+        if uac in EXCLUDED_UA:
+            c["excluded"][uac] += n
+            continue
+        _add(w["go_clicks_by_provider"].setdefault(str(r.get("provider") or "unknown"), {}), src, n)
+        _add(c["by_source"], src, n)
+        c["count"] += n
+        if uac == "unclassified":
+            c["unclassified_ua"] += n
+    for w in weeks.values():
+        if w.get("clicks"):
+            w["outbound_clicks"] = w["clicks"]["count"]
+            w["clicks"]["by_source"] = dict(sorted(w["clicks"]["by_source"].items(), key=lambda x: (-x[1], x[0])))
 
 
 def _safe_clicks() -> dict | None:
@@ -257,9 +296,11 @@ def _carry_forward(rep: dict, old_path: Path) -> None:
     for s in rep.get("weeks", []):
         o = old.get(s["week"])
         if o and o.get("page_views") is not None:
-            for k in RUM_KEYS + ("outbound_clicks",):
+            for k in RUM_KEYS + ("beacon_out_events",):
                 if k in o:
                     s[k] = o[k]
+            if "beacon_out_events" not in o and "clicks" not in o and "outbound_clicks" in o:
+                s["beacon_out_events"] = o["outbound_clicks"]  # pre-T135 file: outbound_clicks was the beacon figure
             orf, rf = o.get("receipts_funnel") or {}, s.get("receipts_funnel")
             if rf is not None and orf.get("page_views") is not None:
                 rf.update(page_views=orf["page_views"], visits_by_ref=orf.get("visits_by_ref") or {}, page_views_null_reason=None)

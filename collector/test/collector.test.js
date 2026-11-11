@@ -72,8 +72,48 @@ test("/go/ redirects only to the feed's stored redeem_url and counts the click",
   const r = await worker.fetch(new Request("https://w/go/deal-x?src=feed-test&ref=qa&to=https://evil.example"), env);
   assert.equal(r.status, 302);
   assert.equal(r.headers.get("location"), "https://x.example/r?a=1");
-  assert.deepEqual(calls[0].slice(1), ["deal-x", "X", "feed-test", "qa"]);
+  assert.deepEqual(calls[0].slice(1, 5), ["deal-x", "X", "feed-test", "qa"]);
   assert.equal((await worker.fetch(new Request("https://w/go/nope"), env)).status, 404);
   assert.deepEqual(clickParams(new URL("https://w/go/a?src=EVIL")), { src: "other", ref: "none" });
+  globalThis.fetch = realFetch;
+});
+
+test("T135: uaClass splits browsers from bots, scripts and prefetch; UA never stored", async () => {
+  const { uaClass } = await import("../src/index.js");
+  const chrome = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
+  assert.equal(uaClass(chrome), "browser");
+  assert.equal(uaClass("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"), "bot");
+  assert.equal(uaClass("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2)"), "bot");
+  assert.equal(uaClass("facebookexternalhit/1.1"), "bot");
+  assert.equal(uaClass("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 HeadlessChrome/120.0 Safari/537.36"), "bot");
+  assert.equal(uaClass("curl/8.5.0"), "script");
+  assert.equal(uaClass("python-requests/2.32"), "script");
+  assert.equal(uaClass(""), "script");
+  assert.equal(uaClass(chrome, new Headers({ "sec-purpose": "prefetch;prerender" })), "prefetch");
+  assert.equal(uaClass("SomeApp/1.0"), "other");
+});
+
+test("T135: /go/ records ua_class in go_clicks, falls back to legacy clicks, /v1/clicks merges both", async () => {
+  const feed = { deals: [{ id: "deal-y", advertiser: "Y", redeem_url: "https://y.example/r" }] };
+  const realFetch = globalThis.fetch; globalThis.fetch = async () => new Response(JSON.stringify(feed));
+  const { dealMap } = await import("../src/index.js");
+  await dealMap(fetch, Date.now() + 10 * 60_000);  // refresh the cache with deal-y
+  const calls = [];
+  const env = { DB: { prepare: (sql) => ({ bind: (...a) => ({ run: async () => calls.push([sql, a]), all: async () => ({
+    results: sql.includes("go_clicks") ? [{ day: today, deal_id: "deal-y", provider: "Y", src: "mcp", ref: "none", ua_class: "browser", n: 1 }]
+      : [{ day: today, deal_id: "deal-y", provider: "Y", src: "feed", ref: "none", n: 2 }] }) }) }) } };
+  // Mart's post-deploy verification click, marked as house traffic (src *-test, ref house-*), sent with a browser UA
+  const r = await worker.fetch(new Request("https://w/go/deal-y?src=mcp-test&ref=house-t135", {
+    headers: { "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36" } }), env);
+  assert.equal(r.status, 302);
+  assert.match(calls[0][0], /INSERT INTO go_clicks/);
+  assert.deepEqual(calls[0][1].slice(1), ["deal-y", "Y", "mcp-test", "house-t135", "browser"]);
+  assert.ok(!JSON.stringify(calls).includes("Chrome/130"));  // the UA itself is never stored
+  const legacy = [];
+  const env2 = { DB: { prepare: (sql) => ({ bind: (...a) => ({ run: async () => { if (sql.includes("go_clicks")) throw new Error("no such table"); legacy.push(a); } }) }) } };
+  assert.equal((await worker.fetch(new Request("https://w/go/deal-y?src=site"), env2)).status, 302);
+  assert.equal(legacy.length, 1);
+  const out = await (await worker.fetch(new Request("https://w/v1/clicks?days=7"), env)).json();
+  assert.deepEqual(out.rows.map((x) => x.ua_class).sort(), ["browser", "unclassified"]);
   globalThis.fetch = realFetch;
 });
