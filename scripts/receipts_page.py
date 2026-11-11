@@ -271,7 +271,7 @@ def proof_pack_index_section(g) -> str:
         '<p>These three cases are <strong>third-party</strong> servers. The house label stays on Receipts #000 (Lantern Works) on this index.</p>\n'
         f'<ul>{"".join(links)}</ul>\n'
         f'<p>Machine-readable pack: <a href="{g.BASE}/receipts/proof-pack-v1.json"><code>/receipts/proof-pack-v1.json</code></a>\n'
-        f'(same bytes mirrored at <a href="{g.BASE}/api/v1/receipts-proof-pack.json"><code>/api/v1/receipts-proof-pack.json</code></a>).\n'
+        f'(same bytes mirrored at <a href="https://lantern-works-mcp.lantern-works.workers.dev/api/v1/receipts-proof-pack.json?ref=receipts-page"><code>/api/v1/receipts-proof-pack.json</code></a>).\n'
         f'Receipts-intent referrals from the case pages use <code>ref={e(REF_PROOF)}</code>.</p>\n'
         '</section>'
     )
@@ -336,7 +336,7 @@ def write(g) -> list[str]:
         f'<p>{e(doc['publication']['house_disclosure'])}</p></aside>\n'
         f'<h2>What this edition can establish</h2><p>{e(LIMITS)}</p><p>{e(EVIDENCE)}</p>\n'
         f'{proof_pack_index_section(g)}\n'
-        f'<p><a href="{g.BASE}/api/v1/receipts.json">Download all records as JSON</a>. Verdict values preserve the original reports; “failed tested task” is the original <code>broken</code> label, scoped to the dated task.</p>\n'
+        f'<p><a href="https://lantern-works-mcp.lantern-works.workers.dev/api/v1/receipts.json?ref=receipts-page">Download all records as JSON</a>. Verdict values preserve the original reports; “failed tested task” is the original <code>broken</code> label, scoped to the dated task.</p>\n'
         f'<p>Need GPU prices in your own agent? <a href="{g.BASE}/quickstart/?ref=receipts">Try a free, cited comparison</a>. Price methodology is documented separately at <a href="{g.BASE}/methodology/">/methodology/</a>.</p>\n'
         f'{"".join(cards)}'
     )
