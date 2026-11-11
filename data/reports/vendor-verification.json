@@ -1,0 +1,252 @@
+{
+  "schema": "lantern-works-vendor-verification/1",
+  "checked_at": "2026-11-11T02:55:55Z",
+  "method": "Public GET of each vendor source_url after reading robots.txt. Lambda GET-only. No credentials. No prices or gates were changed.",
+  "counts": {
+    "match": 24,
+    "mismatch": 0,
+    "could_not_verify": 6
+  },
+  "vendors": [
+    {
+      "vendor": "99Stack Cloud",
+      "slug": "99stack",
+      "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
+      "checked_at": "2026-11-11T02:55:55Z",
+      "status": "match",
+      "detail": "Fetched https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100 (HTTP 200); every current published hourly figure (H100) appears in the response body."
+    },
+    {
+      "vendor": "Amazon Web Services",
+      "slug": "aws",
+      "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(N.%20Virginia)/Linux/index.json",
+      "checked_at": "2026-11-11T02:55:56Z",
+      "status": "could_not_verify",
+      "detail": "Could not read robots.txt (HTTP 403); pricing page not fetched."
+    },
+    {
+      "vendor": "Microsoft Azure",
+      "slug": "azure",
+      "source_url": "https://prices.azure.com/api/retail/prices?$filter=armSkuName%20eq%20%27Standard_ND96isr_MI300X_v5%27%20and%20armRegionName%20eq%20%27eastus2%27%20and%20priceType%20eq%20%27Consumption%27",
+      "checked_at": "2026-11-11T02:55:56Z",
+      "status": "match",
+      "detail": "Fetched https://prices.azure.com/api/retail/prices?$filter=armSkuName%20eq%20%27Standard_ND96isr_MI300X_v5%27%20and%20armRegionName%20eq%20%27eastus2%27%20and%20priceType%20eq%20%27Consumption%27 (HTTP 200); every current published hourly figure (MI300X) appears in the response body."
+    },
+    {
+      "vendor": "Cirrascale",
+      "slug": "cirrascale",
+      "source_url": "https://www.cirrascale.com/explore/explore-amd-mi250",
+      "checked_at": "2026-11-11T02:55:57Z",
+      "status": "match",
+      "detail": "Fetched https://www.cirrascale.com/explore/explore-amd-mi250 (HTTP 200); every current published hourly figure (MI250) appears in the response body."
+    },
+    {
+      "vendor": "Civo",
+      "slug": "civo",
+      "source_url": "https://www.civo.com/pricing",
+      "checked_at": "2026-11-11T02:55:57Z",
+      "status": "match",
+      "detail": "Fetched https://www.civo.com/pricing (HTTP 200); every current published hourly figure (A100, H100 SXM) appears in the response body."
+    },
+    {
+      "vendor": "Clore.ai",
+      "slug": "clore",
+      "source_url": "https://clore.ai/marketplace",
+      "checked_at": "2026-11-11T02:55:59Z",
+      "status": "could_not_verify",
+      "detail": "Fetched https://clore.ai/marketplace (HTTP 200); found RTX 4090 in the page body, but did not find RTX 5090 $0.7104. Not treated as a mismatch without a clear alternate list price for those SKUs."
+    },
+    {
+      "vendor": "CloudRift",
+      "slug": "cloudrift",
+      "source_url": "https://www.cloudrift.ai/pricing",
+      "checked_at": "2026-11-11T02:55:59Z",
+      "status": "match",
+      "detail": "Fetched https://www.cloudrift.ai/pricing (HTTP 200); every current published hourly figure (L40S, RTX 5090) appears in the response body."
+    },
+    {
+      "vendor": "CoreWeave",
+      "slug": "coreweave",
+      "source_url": "https://www.coreweave.com/pricing",
+      "checked_at": "2026-11-11T02:56:00Z",
+      "status": "could_not_verify",
+      "detail": "Fetched https://www.coreweave.com/pricing (HTTP 200); found GH200, A100, H100, L40S in the page body, but did not find H200 $6.305. Not treated as a mismatch without a clear alternate list price for those SKUs."
+    },
+    {
+      "vendor": "DigitalOcean GPU Droplets",
+      "slug": "digitalocean",
+      "source_url": "https://www.digitalocean.com/pricing/gpu-droplets",
+      "checked_at": "2026-11-11T02:56:00Z",
+      "status": "match",
+      "detail": "Fetched https://www.digitalocean.com/pricing/gpu-droplets (HTTP 200); every current published hourly figure (MI325X, MI300X, H100, H200, RTX 6000 Ada, L40S, MI355X) appears in the response body."
+    },
+    {
+      "vendor": "E2E Networks",
+      "slug": "e2e-networks",
+      "source_url": "https://www.e2enetworks.com/pricing",
+      "checked_at": "2026-11-11T02:56:00Z",
+      "status": "match",
+      "detail": "Fetched https://www.e2enetworks.com/pricing (HTTP 200); every current published hourly figure (T4, H100, A100) appears in the response body."
+    },
+    {
+      "vendor": "Hot Aisle",
+      "slug": "hot-aisle",
+      "source_url": "https://hotaisle.xyz/pricing/",
+      "checked_at": "2026-11-11T02:56:04Z",
+      "status": "match",
+      "detail": "Fetched https://hotaisle.xyz/pricing/ (HTTP 200); every current published hourly figure (MI300X) appears in the response body."
+    },
+    {
+      "vendor": "Hyperstack",
+      "slug": "hyperstack",
+      "source_url": "https://www.hyperstack.cloud/gpu-pricing",
+      "checked_at": "2026-11-11T02:56:04Z",
+      "status": "match",
+      "detail": "Fetched https://www.hyperstack.cloud/gpu-pricing (HTTP 200); every current published hourly figure (A100 NVLink, H100 NVLink, H200 SXM, RTX A4000, A100 PCIe, A100 SXM, H100 PCIe, H100 SXM) appears in the response body."
+    },
+    {
+      "vendor": "Jarvislabs",
+      "slug": "jarvislabs",
+      "source_url": "https://jarvislabs.ai/pricing",
+      "checked_at": "2026-11-11T02:56:05Z",
+      "status": "match",
+      "detail": "Fetched https://jarvislabs.ai/pricing (HTTP 200); every current published hourly figure (A100, L4, H100 SXM) appears in the response body."
+    },
+    {
+      "vendor": "Koyeb",
+      "slug": "koyeb",
+      "source_url": "https://www.koyeb.com/pricing",
+      "checked_at": "2026-11-11T02:56:06Z",
+      "status": "match",
+      "detail": "Fetched https://www.koyeb.com/pricing (HTTP 200); every current published hourly figure (L40S) appears in the response body."
+    },
+    {
+      "vendor": "Lambda",
+      "slug": "lambda",
+      "source_url": "https://lambda.ai/pricing",
+      "checked_at": "2026-11-11T02:56:06Z",
+      "status": "could_not_verify",
+      "detail": "Fetched https://lambda.ai/pricing (HTTP 200); none of the published hourly figures (B200 $6.69) appear in the response body. The page may be JavaScript-rendered or use a different format. Not treated as a mismatch."
+    },
+    {
+      "vendor": "Lium",
+      "slug": "lium",
+      "source_url": "https://lium.io/",
+      "checked_at": "2026-11-11T02:56:07Z",
+      "status": "match",
+      "detail": "Fetched https://lium.io/ (HTTP 200); every current published hourly figure (H100 PCIe, H100 SXM, RTX PRO 6000 Server, B200, H200, RTX 4090, RTX 6000 Ada, RTX A6000, L40S, RTX 3090, RTX 5090) appears in the response body."
+    },
+    {
+      "vendor": "Modal",
+      "slug": "modal",
+      "source_url": "https://modal.com/pricing",
+      "checked_at": "2026-11-11T02:56:07Z",
+      "status": "match",
+      "detail": "Fetched https://modal.com/pricing (HTTP 200); every current published hourly figure (A100, H100 SXM, H200 SXM, L40S) appears in the response body."
+    },
+    {
+      "vendor": "Nebius",
+      "slug": "nebius",
+      "source_url": "https://nebius.com/prices",
+      "checked_at": "2026-11-11T02:56:08Z",
+      "status": "match",
+      "detail": "Fetched https://nebius.com/prices (HTTP 200); every current published hourly figure (H100, H200, L40S) appears in the response body."
+    },
+    {
+      "vendor": "Nova Cloud",
+      "slug": "nova-cloud",
+      "source_url": "https://nova-cloud.ai/gpu-models/4090",
+      "checked_at": "2026-11-11T02:56:10Z",
+      "status": "match",
+      "detail": "Fetched https://nova-cloud.ai/gpu-models/4090 (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body."
+    },
+    {
+      "vendor": "Novita AI",
+      "slug": "novita",
+      "source_url": "https://novita.ai/gpu-instance/gpu/rtx-4090",
+      "checked_at": "2026-11-11T02:56:10Z",
+      "status": "match",
+      "detail": "Fetched https://novita.ai/gpu-instance/gpu/rtx-4090 (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body."
+    },
+    {
+      "vendor": "Oblivus",
+      "slug": "oblivus",
+      "source_url": "https://oblivus.com/pricing/",
+      "checked_at": "2026-11-11T02:56:11Z",
+      "status": "match",
+      "detail": "Fetched https://oblivus.com/pricing/ (HTTP 200); every current published hourly figure (A100 PCIe, H100 PCIe, RTX 4090) appears in the response body."
+    },
+    {
+      "vendor": "OVHcloud (US)",
+      "slug": "ovhcloud",
+      "source_url": "https://us.ovhcloud.com/public-cloud/prices/",
+      "checked_at": "2026-11-11T02:56:14Z",
+      "status": "match",
+      "detail": "Fetched https://us.ovhcloud.com/public-cloud/prices/ (HTTP 200); every current published hourly figure (L40S) appears in the response body."
+    },
+    {
+      "vendor": "RunC.AI",
+      "slug": "runc-ai",
+      "source_url": "https://www.runc.ai/gpu/rtx-4090/",
+      "checked_at": "2026-11-11T02:56:14Z",
+      "status": "match",
+      "detail": "Fetched https://www.runc.ai/gpu/rtx-4090/ (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body."
+    },
+    {
+      "vendor": "RunPod",
+      "slug": "runpod",
+      "source_url": "https://www.runpod.io/pricing",
+      "checked_at": "2026-11-11T02:56:17Z",
+      "status": "could_not_verify",
+      "detail": "Fetched https://www.runpod.io/pricing (HTTP 200); found A100 PCIe, A40, B200, B300, H100 NVL, H200, RTX 3090, RTX 4090, RTX 6000 Ada, RTX A5000, RTX A6000, RTX PRO 4000, RTX PRO 4500, RTX PRO 4500 Server, RTX PRO 5000, RTX PRO 6000 Max-Q, RTX PRO 6000 Workstation, V100 PCIe, V100 SXM2, A100 SXM, H100 PCIe, H100 SXM, L4, L40, L40S, RTX 5090, RTX A4000, RTX PRO 6000 Server in the page body, but did not find MI300X $2.39. Not treated as a mismatch without a clear alternate list price for those SKUs."
+    },
+    {
+      "vendor": "SaladCloud",
+      "slug": "salad",
+      "source_url": "https://salad.com/pricing",
+      "checked_at": "2026-11-11T02:56:17Z",
+      "status": "match",
+      "detail": "Fetched https://salad.com/pricing (HTTP 200); every current published hourly figure (RTX 4090) appears in the response body."
+    },
+    {
+      "vendor": "Spheron",
+      "slug": "spheron",
+      "source_url": "https://www.spheron.network/pricing/",
+      "checked_at": "2026-11-11T02:56:18Z",
+      "status": "match",
+      "detail": "Fetched https://www.spheron.network/pricing/ (HTTP 200); every current published hourly figure (L40S, RTX 5090) appears in the response body."
+    },
+    {
+      "vendor": "Thunder Compute",
+      "slug": "thunder-compute",
+      "source_url": "https://www.thundercompute.com/pricing",
+      "checked_at": "2026-11-11T02:56:18Z",
+      "status": "match",
+      "detail": "Fetched https://www.thundercompute.com/pricing (HTTP 200); every current published hourly figure (L40, A100, RTX A6000, H100 SXM) appears in the response body."
+    },
+    {
+      "vendor": "Ucartz",
+      "slug": "ucartz",
+      "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
+      "checked_at": "2026-11-11T02:56:18Z",
+      "status": "match",
+      "detail": "Fetched https://www.ucartz.com/gpu-dedicated-servers (HTTP 200); every current published hourly figure (RTX 5090) appears in the response body."
+    },
+    {
+      "vendor": "Vast.ai",
+      "slug": "vast",
+      "source_url": "https://vast.ai/pricing",
+      "checked_at": "2026-11-11T02:56:20Z",
+      "status": "could_not_verify",
+      "detail": "Fetched https://vast.ai/pricing (HTTP 200); none of the published hourly figures (A100 SXM $1.1311, RTX 4090 $0.4941) appear in the response body. The page may be JavaScript-rendered or use a different format. Not treated as a mismatch."
+    },
+    {
+      "vendor": "Verda (formerly DataCrunch)",
+      "slug": "verda",
+      "source_url": "https://verda.com/pricing",
+      "checked_at": "2026-11-11T02:56:20Z",
+      "status": "match",
+      "detail": "Fetched https://verda.com/pricing (HTTP 200); every current published hourly figure (GB300, RTX PRO 6000, V100, B300, H200 SXM, B200, RTX 6000 Ada, A100 SXM, RTX A6000, H100 SXM, L40S) appears in the response body."
+    }
+  ]
+}
