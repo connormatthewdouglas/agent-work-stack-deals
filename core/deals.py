@@ -263,7 +263,9 @@ def _history_row(c: dict) -> dict:
          "rate_id": c.get("rate_id"), "snapshot_id": c.get("snapshot_id"), "vendor": c.get("vendor"), "gpu": c.get("gpu"),
          "tier": c.get("tier"), "vram_gb": c.get("vram_gb"), "from_hourly_usd": c.get("from_hourly_usd"),
          "to_hourly_usd": c.get("to_hourly_usd"), "change_pct": c.get("change_pct"),
-         "status": c.get("status"), "source_url": c.get("source_url")}
+         "status": c.get("status"), "source_url": c.get("source_url"),
+         # P46 (additive): last check at the previous price and days to the check that showed the new one (null if unknown)
+         "last_verified_before": c.get("last_verified_before"), "gap_days": c.get("gap_days")}
     r["direction"] = _direction(r["from_hourly_usd"], r["to_hourly_usd"])
     return r
 
@@ -304,7 +306,8 @@ def price_changes(latest: dict | None, history: dict | None, since: str | None =
             r = {"date": doc.get("date"), "key": c.get("key"), "vendor": c.get("vendor"), "gpu": c.get("gpu"), "tier": c.get("tier"),
                  "gpu_count": c.get("gpu_count", 1), "from_hourly_usd": c.get("old_hourly_usd"),
                  "to_hourly_usd": c.get("new_hourly_usd"), "change_pct": c.get("pct"), "source_url": c.get("source_url"),
-                 "verified_at": c.get("verified_at")}
+                 "verified_at": c.get("verified_at"),
+                 "last_verified_before": c.get("last_verified_before"), "gap_days": c.get("gap_days")}  # P46 (additive)
             r["direction"] = _direction(r["from_hourly_usd"], r["to_hourly_usd"], c.get("change"))
             r["rate_id"] = rate_id({**r, "vram_gb": c.get("vram_gb") or _key_vram(c.get("key")),
                                     "billing_unit": c.get("billing_unit") or "hourly"})
@@ -523,7 +526,7 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
         except ValueError:
             start = None
     changes = [{k: c.get(k) for k in ("date", "vendor", "gpu", "tier", "vram_gb", "from_hourly_usd", "to_hourly_usd",
-                                      "change_pct", "status", "source_url")}
+                                      "change_pct", "status", "source_url", "last_verified_before", "gap_days")}
                for c in history.get("changes") or [] if isinstance(c, dict) and q <= set(_tokens(c.get("gpu", "")))
                and (start is None or (c.get("date") or "") > start)]
     return {"recent_changes": changes, "window_days": days, "first_snapshot": history.get("first_snapshot"),

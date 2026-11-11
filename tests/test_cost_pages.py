@@ -198,9 +198,17 @@ def test_0327_new_h100_a100_rows_live_and_sourced():
     assert want <= got | held  # live, or held with a reason (E2E H100: page now INR-only, Nov 1)
     for r in feed["rates"]:
         if r["advertiser"] in {"Jarvislabs", "Civo", "Oblivus", "E2E Networks"}:
-            assert r["region"] and not r["interruptible"] and r["tier_class"] == "on-demand"
-            if r["advertiser"] != "Oblivus":
+            assert r["region"] and not r["interruptible"]
+            if r["advertiser"] == "Civo" and "commitment" in (r.get("tier") or "").lower():
+                assert r["tier_class"] == "reserved"
+            else:
+                assert r["tier_class"] == "on-demand"
+            if r["advertiser"] not in {"Oblivus", "Civo"}:
                 assert r["availability"]["in_stock"] is None
+            if r["advertiser"] == "Civo":
+                # Public product-page statusText is a firm In stock / Out of stock signal (gigawatt).
+                assert r["availability"]["in_stock"] is not None
+                assert r["availability"]["source"].startswith("https://www.civo.com/ai/")
     ob = [r for r in feed["rates"] if r["advertiser"] == "Oblivus"]
     assert ob
     for r in ob:  # J6: quote and stock count from the same capture
