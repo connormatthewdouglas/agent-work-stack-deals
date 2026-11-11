@@ -40,7 +40,7 @@ def test_homepage_leads_with_gpu_spread_and_install(monkeypatch):
     _pin_feed_clock(monkeypatch)
     t = (ROOT / "index.html").read_text()
     h1 = re.search(r"<h1>(.*?)</h1>", t).group(1)
-    assert h1 == "GPU price comparison for agents, refreshed regularly, with each price&#x27;s age shown"
+    assert h1 == "GPU rental prices, compared across tracked providers"
     for fam in ("h100", "a100", "rtx-4090"):
         assert f'data-fam="{fam}"' in t
     assert 'href="https://thelanternworks.com/gpu/"' in t
@@ -58,8 +58,10 @@ def test_deals_directory_nav_footer_sitemap_and_old_links():
     d = (ROOT / "deals" / "index.html").read_text()
     assert '<link rel="canonical" href="https://thelanternworks.com/deals/"' in d
     home = (ROOT / "index.html").read_text()
-    nav = home.split('<nav class="sitenav"')[1].split("</nav>")[0]
+    nav = home.split('aria-label="Deals"')[1].split("</nav>")[0]
     assert 'href="https://thelanternworks.com/deals/"' in nav
+    primary = home.split('<nav class="sitenav"')[1].split("</nav>")[0]
+    assert 'href="https://thelanternworks.com/deals/"' not in primary
     assert 'href="https://thelanternworks.com/deals/">Deals</a>' in home.split("<footer>")[1]
     assert 'location.replace("/deals/"' in home  # old /?q= and /#cat- links forward
     sm = (ROOT / "sitemap.xml").read_text()

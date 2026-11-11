@@ -226,14 +226,11 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     nv = len({r["advertiser"] for r in rows if bucket(r) != "Reserved"})
     mv = max_verified(rows); day = mv[:10]
     canon = CANONICAL_OVERRIDE.get(fam, gpu_url(gen, fam))
-    title = f"Rent {fam}: price today | Lantern Works"
-    desc = (f"{fam} rental from {m(od_row['hourly_equiv_usd'])}/GPU-hr on-demand ({od_row['advertiser']}) across {nv} tracked providers."
-            if od_row else f"{fam} rental prices across {nv} tracked providers.")
-    if sp_row:
-        desc += f" Spot/community from {m(sp_row['hourly_equiv_usd'])}."
-    desc += f" Checked {day}."
+    title = f"Cheapest {fam} rental today among tracked providers"
+    desc = (f"Cheapest {fam} rental today among tracked providers. "
+            f"{len(rows)} offers from {len({r['advertiser'] for r in rows})} vendors; each price shows its age.")
     body = [f'<nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/">GPU prices</a> › {esc(fam)}</nav>',
-            f"<h1>Rent {esc(fam)}: price today</h1>",
+            f"<h1>Cheapest {esc(fam)} rental today among tracked providers</h1>",
             f'<p class="meta">Prices verified {ts(mv)} · {len(rows)} offers from {len({r["advertiser"] for r in rows})} vendors. Per GPU-hour, among tracked providers only.</p>']
     ranked = gp.rank_rates(gp.estimate(rows, gp.DEFAULT_HOURS))
     split = gp._form_split(gen, ranked)  # Gauge Nov 1: same per-form lines (incl. H100 NVL) as /gpu/cheapest-<model>-rental/

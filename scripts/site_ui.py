@@ -9,8 +9,6 @@ from html import escape
 
 NAV_ITEMS = [
     ("", "Home"),
-    ("deals/", "Deals"),
-    ("ai-agent-tool-deals/", "Deal categories"),
     ("gpu/price-comparison/", "GPU price comparison"),
     ("tools/gpu-cost-calculator/", "GPU calculator"),
     ("coverage/", "GPU coverage"),
@@ -20,6 +18,11 @@ NAV_ITEMS = [
     ("methodology/", "Methodology"),
     ("for-agents/", "For agents"),
     ("changelog/", "Changelog"),
+]
+
+DEALS_NAV_ITEMS = [
+    ("deals/", "Deals"),
+    ("ai-agent-tool-deals/", "Deal categories"),
 ]
 
 SECTIONS = {"ai-agent-tool-deals/": ("compare/", "categories/", "guides/"), "gpu/price-comparison/": ("gpu/",)}
@@ -43,7 +46,8 @@ CSS = """
       .rates-cards td:last-child { border-bottom: 0; }
       .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
     }
-    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .4rem; border-bottom: 0; margin-bottom: 0; }
+    .sitenav-deals { font-size: .85rem; padding-top: .15rem; padding-bottom: .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
     .sitenav a { margin: 0; }
     .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
     .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
@@ -64,21 +68,24 @@ CSS = """
 
 
 def nav_html(base: str, canonical: str = "") -> str:
-    links = []
-    for path, label in NAV_ITEMS:
-        href = f"{base}/{path}"
-        rel = canonical[len(base) + 1:] if canonical.startswith(base + "/") else None
-        if rel is not None and rel.rstrip("/") == path.rstrip("/"):
-            cur = ' aria-current="page"'
-        elif rel and path and any(rel.startswith(pre) for pre in SECTIONS.get(path, ())):
-            cur = ' aria-current="true"'
-        else:
-            cur = ""
-        links.append(f'<a href="{href}"{cur}>{escape(label)}</a>')
+    def links(items):
+        out = []
+        for path, label in items:
+            href = f"{base}/{path}"
+            rel = canonical[len(base) + 1:] if canonical.startswith(base + "/") else None
+            if rel is not None and rel.rstrip("/") == path.rstrip("/"):
+                cur = ' aria-current="page"'
+            elif rel and path and any(rel.startswith(pre) for pre in SECTIONS.get(path, ())):
+                cur = ' aria-current="true"'
+            else:
+                cur = ""
+            out.append(f'<a href="{href}"{cur}>{escape(label)}</a>')
+        return "".join(out)
     return ('  <a class="skip" href="#content">Skip to content</a>\n'
             f'  <header class="brandbar"><a class="brand" href="{base}/"><img src="{base}/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a>'
             '<span class="brand-tag">GPU prices, refreshed regularly, with each price\'s age shown</span></header>\n'
-            f'  <nav class="sitenav" aria-label="Site">{"".join(links)}</nav>\n')
+            f'  <nav class="sitenav" aria-label="Site">{links(NAV_ITEMS)}</nav>\n'
+            f'  <nav class="sitenav sitenav-deals" aria-label="Deals">{links(DEALS_NAV_ITEMS)}</nav>\n')
 
 
 OFFER_LABELS = {
