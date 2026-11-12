@@ -554,6 +554,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     from .rate_dates import min_bill as _min_bill
     from . import data_age
     from .batch_ledger import ledger as _batch_ledger
+    from .check_schedule import price as _next_price
     def _due(out: dict) -> dict:
         out["batch_due_ledger"] = _batch_ledger(data, data_age._clock(now))
         return out
@@ -599,7 +600,8 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         # Gauge re28: by default a price older than 168 h never ranks or heads the summary; listed separately
         rows, stale_rows = data_age.split_current(rows, None, now)
         if not rows:
-            sv = sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or ""))
+            sv = sorted(({**data_age.stale_view(r, now), **_next_price(r, data_age._clock(now))} for r in stale_rows),
+                        key=lambda x: (x["price"], x["vendor"] or ""))  # P40 (additive)
             return _due({"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
                     "summary": (f"No current price for '{gpu}': all {len(sv)} tracked rates are older than "
                                 f"{data_age.CURRENT_MAX_HOURS} h (stale), so no current cheapest is named. Stale rows are in "
@@ -736,6 +738,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             out["availability_note"] = oos_note(r) + "; ranked after in-stock/unknown rows"
         out["eligibility"] = elig[id(r)]  # T47: applied / unmet / unknown constraints for this row
         out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
+        # P40 (additive): unknown stock -> next scheduled stock check and whether it can fill (core.check_schedule)
+        from .check_schedule import stock as _next_stock
+        out.update(_next_stock(out, data_age._clock(now)))
         out.update(data_age.age_fields(r, now))
         from .report_issue import report_issue_url
         out["report_issue_url"] = report_issue_url(out)  # T40: give this to the user if the row looks wrong
@@ -795,7 +800,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old,
         "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,
         "excluded_stale": len(stale_rows),
-        "stale_prices": sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or "")),
+        # P40 (additive): each stale price says when it is next re-read and whether that can fill it (core.check_schedule)
+        "stale_prices": sorted(({**data_age.stale_view(r, now), **_next_price(r, data_age._clock(now))} for r in stale_rows),
+                               key=lambda x: (x["price"], x["vendor"] or "")),
         "stale_fallback": stale_fallback,
         "region": cons.get("region"), "excluded_other_region": excluded_region,
         "region_unresolved": sum(1 for r in rows if cons.get("region") and unresolved(r)),
