@@ -120,7 +120,77 @@ def test_changes_feed_is_written_before_the_sitemap():
     assert main.index("gpu_changes_feed.write") < main.index("write_sitemap(")
 
 
+def _reset_lastmod_caches() -> None:
+    gen._SITEMAP_GIT_DATE_CACHE.clear()
+    gen._SITEMAP_DEAL_DATES = None
+    gen._SITEMAP_DEALS_FEED_DAY = False
+    gen._SITEMAP_GPU_FEED_DAY = False
+
+
+def test_homepage_lastmod_follows_feed_not_script_commit_or_clock(monkeypatch):
+    """Homepage lastmod is the GPU/deals/changes content day, not a script squash-merge date or the wall clock.
+
+    #208 merged scripts/home_page.py at 19:38 America/New_York (00:38 UTC next day).
+    Using that git date made the helper emit the next UTC day and fail this file's
+    committed-sitemap check after midnight even though feed_updated_at had not moved.
+    """
+    _reset_lastmod_caches()
+    expected = max(gen._homepage_content_days())
+    tomorrow = "2099-01-02"
+    original_git = gen._git_commit_date
+
+    def fake_git(rel):
+        # Generator and data-file git dates look like the next UTC day (late ET squash merge).
+        # CHANGELOG.md is the changelog content source and is allowed through.
+        key = str(rel).replace('\\', '/')
+        if key == 'CHANGELOG.md':
+            return original_git(rel)
+        return tomorrow
+
+    monkeypatch.setattr(gen, "_git_commit_date", fake_git)
+    # A faked next-day clock must not move homepage lastmod either.
+    class _FrozenDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(2099, 1, 2, 12, 0, 0, tzinfo=tz or timezone.utc)
+
+        @classmethod
+        def utcnow(cls):
+            return datetime(2099, 1, 2, 12, 0, 0)
+
+    monkeypatch.setattr(gen, "datetime", _FrozenDateTime)
+    _reset_lastmod_caches()
+    got = gen.sitemap_lastmod_for_loc("https://thelanternworks.com/")
+    assert got == expected
+    assert got != tomorrow
+    committed = dict(_entries())["https://thelanternworks.com/"]
+    assert got == committed, (got, committed, expected)
+    # Deal-hub lastmods also ignore the generator script's squash-merge date.
+    deals_day = gen._deals_feed_day()
+    for loc in (
+        "https://thelanternworks.com/deals/",
+        "https://thelanternworks.com/categories/ai-agents/",
+        "https://thelanternworks.com/guides/cheap-gpu-week/",
+        "https://thelanternworks.com/for-agents/",
+    ):
+        assert gen.sitemap_lastmod_for_loc(loc) == deals_day, loc
+        assert gen.sitemap_lastmod_for_loc(loc) != tomorrow
+    # Changelog follows CHANGELOG.md, not the generator script.
+    cl = gen.sitemap_lastmod_for_loc("https://thelanternworks.com/changelog/")
+    assert cl == gen._git_commit_date("CHANGELOG.md")
+    assert cl != tomorrow
+    # The check is still strict: a newer feed date must not be hidden.
+    monkeypatch.setattr(gen, "_gpu_feed_day", lambda: "2099-01-02")
+    monkeypatch.setattr(gen, "_deals_feed_day", lambda: "2099-01-02")
+    monkeypatch.setattr(gen, "_changes_content_day", lambda: "2099-01-02")
+    stale = gen.sitemap_lastmod_for_loc("https://thelanternworks.com/")
+    assert stale == "2099-01-02"
+    assert stale != committed
+    _reset_lastmod_caches()
+
+
 def test_sitemap_lastmod_helper_varies_and_skips_future():
+
     entries = _entries()
     assert entries, "sitemap.xml missing entries"
     today = datetime.now(timezone.utc).date().isoformat()
