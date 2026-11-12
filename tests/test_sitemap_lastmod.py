@@ -140,11 +140,7 @@ def test_homepage_lastmod_follows_feed_not_script_commit_or_clock(monkeypatch):
     original_git = gen._git_commit_date
 
     def fake_git(rel):
-        # Generator and data-file git dates look like the next UTC day (late ET squash merge).
-        # CHANGELOG.md is the changelog content source and is allowed through.
-        key = str(rel).replace('\\', '/')
-        if key == 'CHANGELOG.md':
-            return original_git(rel)
+        # Every git date, including CHANGELOG.md, looks like the next UTC day.
         return tomorrow
 
     monkeypatch.setattr(gen, "_git_commit_date", fake_git)
@@ -175,10 +171,11 @@ def test_homepage_lastmod_follows_feed_not_script_commit_or_clock(monkeypatch):
     ):
         assert gen.sitemap_lastmod_for_loc(loc) == deals_day, loc
         assert gen.sitemap_lastmod_for_loc(loc) != tomorrow
-    # Changelog follows CHANGELOG.md, not the generator script.
+    # Changelog follows the newest ISO date in CHANGELOG.md, not its git date.
     cl = gen.sitemap_lastmod_for_loc("https://thelanternworks.com/changelog/")
-    assert cl == gen._git_commit_date("CHANGELOG.md")
+    assert cl == gen._changelog_content_day()
     assert cl != tomorrow
+    assert gen._git_commit_date("CHANGELOG.md") == tomorrow
     # The check is still strict: a newer feed date must not be hidden.
     monkeypatch.setattr(gen, "_gpu_feed_day", lambda: "2099-01-02")
     monkeypatch.setattr(gen, "_deals_feed_day", lambda: "2099-01-02")
