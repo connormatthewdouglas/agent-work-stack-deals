@@ -20,7 +20,7 @@
   "tools": [
     {
       "name": "compare_gpu_prices",
-      "description": "Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.\n\nSame data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result\nhas source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.\nlimit 1-25. Unknown model returns not_found listing tracked models.\nH100/A100: cheapest_by_form_factor gives one pick per form_factor (tier_class, interruptible, in_stock); same rule as the site. 'NVLink' rows are form 'not stated': NVLink is the bridge, and the vendor doesn't say SXM or PCIe.\nEach result has tier_class: on-demand | community | marketplace | interruptible (spot/preemptible) |\nreserved | dedicated-monthly. Reserved (reservation/commitment 'starting from') rates are left out unless\ninclude_reserved=true, and even then they are never reported as cheapest. DEFAULT on_demand_only=true: results[0] is the cheapest\non-demand rate. Pass on_demand_only=false to include spot/interruptible, community and marketplace capacity (each\nsuch row is labelled by tier_class and interruptible); the summary then names the cheapest on-demand rate when the\noverall cheapest isn't. If a model has no on-demand rate, or every on-demand rate needs more GPUs than requested,\nthe default falls back to all rates and says so in on_demand_fallback.\ngpus (optional, 1-1024; default 1, stated in assumptions): the GPU count you need. A rate ranks only when its\nmin_gpus (smallest allocation sold) is <= gpus; rates sold only as larger allocations (e.g. 8-GPU nodes) are NOT\nranked and are listed in excluded_min_gpus (vendor, gpu, tier, min_gpus, gpu_count, hourly_usd, rate_id, source_url,\nchecked_at, reason, min_bill_usd_per_hour, min_bill_basis); min_gpus_unmet counts them (also in brief). Pass gpus=8 to\ncompare 8-GPU nodes. If every rate needs more GPUs, the error says which gpus value ranks them.\nEach result has min_bill_usd_per_hour = min_gpus x hourly_usd (min_bill_basis: hourly_rate, per_second_rate or\nmonthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,\nor first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),\nseparate from last_verified. Neither affects ranking.\nFull results also include batch_due_ledger: each scheduled build (gpu-refresh, lium-collect, scout-import,\nscout-wider) has expected_at, last_expected_at, and the member_rate_ids it covers, derived only from the\nworkflow schedules. Brief mode omits the ledger.\nA failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and\nfailure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source\ndoes not say; never guessed. Display only.\nA row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill\n(true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),\nbackfill_eta and next_check_basis (the schedule it came from).\ninclude_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes\n(price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.\nEach result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).\nA degraded row is shown and flagged but never ranked first while a fresh row exists; if none is fresh,\nstale_fallback=true and the summary says so.\nBy default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices\n('stale price (N days old)'); if every rate is stale, results is empty and the summary says no current cheapest.\nmax_data_age_hours (optional) replaces the 168 h default and drops older rates; excluded_too_old counts them.\nregion (optional): a country/area code ('US', 'EU') matches every published zone in it; a zone code ('US-NE-1', 'us-east-1') matches exactly, any case. Rates whose unexpired published regions exclude it are dropped; rates with no region\nevidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,\nunknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price\nwatches use. Unknown stock is not confirmed availability.\nmodel_identity (T61): sourced nominal_memory and usable_memory (vendor-allocatable) for the queried model, each\nwith source_url; unknown stays 'unknown'. min_usable_memory_gb (optional) keeps only rows whose SOURCED usable\nmemory meets it; rows with unknown usable memory are counted in usable_memory_filter.unknown and never matched\non nominal memory or vram_gb.",
+      "description": "Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.\n\nSame data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result\nhas source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.\nlimit 1-25. Unknown model returns not_found listing tracked models.\nH100/A100: cheapest_by_form_factor gives one pick per form_factor (tier_class, interruptible, in_stock); same rule as the site. 'NVLink' rows are form 'not stated': NVLink is the bridge, and the vendor doesn't say SXM or PCIe.\nEach result has tier_class: on-demand | community | marketplace | interruptible (spot/preemptible) |\nreserved | dedicated-monthly. Reserved (reservation/commitment 'starting from') rates are left out unless\ninclude_reserved=true, and even then they are never reported as cheapest. DEFAULT on_demand_only=true: results[0] is the cheapest\non-demand rate. Pass on_demand_only=false to include spot/interruptible, community and marketplace capacity (each\nsuch row is labelled by tier_class and interruptible); the summary then names the cheapest on-demand rate when the\noverall cheapest isn't. If a model has no on-demand rate, or every on-demand rate needs more GPUs than requested,\nthe default falls back to all rates and says so in on_demand_fallback.\ngpus (optional, 1-1024; default 1, stated in assumptions): the GPU count you need. A rate ranks only when its\nmin_gpus (smallest allocation sold) is <= gpus; rates sold only as larger allocations (e.g. 8-GPU nodes) are NOT\nranked and are listed in excluded_min_gpus (vendor, gpu, tier, min_gpus, gpu_count, hourly_usd, rate_id, source_url,\nchecked_at, reason, min_bill_usd_per_hour, min_bill_basis); min_gpus_unmet counts them (also in brief). Pass gpus=8 to\ncompare 8-GPU nodes. If every rate needs more GPUs, the error says which gpus value ranks them.\nEach result has min_bill_usd_per_hour = min_gpus x hourly_usd (min_bill_basis: hourly_rate, per_second_rate or\nmonthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,\nor first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),\nseparate from last_verified. Neither affects ranking.\nFull results also include batch_due_ledger: each scheduled build (gpu-refresh, lium-collect, scout-import,\nscout-wider) has expected_at, last_expected_at, and the member_rate_ids it covers, derived only from the\nworkflow schedules. Brief mode omits the ledger.\nA failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and\nfailure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source\ndoes not say; never guessed. Display only.\nA row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill\n(true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),\nbackfill_eta and next_check_basis (the schedule it came from).\ninclude_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes\n(price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.\nEach result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).\nA degraded row is shown and flagged but never ranked first while a fresh row exists; if none is fresh,\nstale_fallback=true and the summary says so.\nBy default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices\n('stale price (N days old)'); if every rate is stale, results is empty and the summary says no current cheapest.\nmax_data_age_hours (optional) replaces the 168 h default and drops older rates; excluded_too_old counts them.\nregion (optional): a country/area code ('US', 'EU') matches every published zone in it; a zone code ('US-NE-1', 'us-east-1') matches exactly, any case. Rates whose unexpired published regions exclude it are dropped; rates with no region\nevidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,\nunknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price\nwatches use. Unknown stock is not confirmed availability.\nMarketplace median rows (price_status=marketplace) also have marketplace_query (the literal filter used for the median, plus structured filters; null when unknown) next to offer_count and lowest_offer_usd, and composition_flag (composition, price, mixed, unknown, or null) from successive median, minimum and listing count only, not a host intersection. A composition, mixed or unknown flag is not a price move. Missing previous min or n stays unknown, never invented. Stale prices stay flagged as stale.\nmodel_identity (T61): sourced nominal_memory and usable_memory (vendor-allocatable) for the queried model, each\nwith source_url; unknown stays 'unknown'. min_usable_memory_gb (optional) keeps only rows whose SOURCED usable\nmemory meets it; rows with unknown usable memory are counted in usable_memory_filter.unknown and never matched\non nominal memory or vram_gb.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -213,6 +213,51 @@
                     "string",
                     "null"
                   ]
+                },
+                "marketplace_query": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "literal": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "url": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "filters": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  }
+                },
+                "composition_flag": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "composition",
+                    "price",
+                    "mixed",
+                    "unknown",
+                    null
+                  ]
+                },
+                "composition_previous": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
                 }
               }
             }
@@ -349,7 +394,7 @@
     },
     {
       "name": "get_price_changes",
-      "description": "GPU rental price changes among tracked providers, newest first, each with old/new hourly price, change_pct,\ndirection and the vendor source_url.\n\nsince: 'YYYY-MM-DD' returns every change on or after that date (daily snapshots in\n/api/v1/gpu-prices/history.json); omitted returns the latest day's moves (/api/v1/gpu-price-changes.json).\ngpu: optional model filter (substring, e.g. 'H100'). limit 1-200. Includes data_checked_at and next_refresh_utc\n(prices refresh daily at about 10:23 UTC), so you can call again after the next refresh to see what moved.",
+      "description": "GPU rental price changes among tracked providers, newest first, each with old/new hourly price, change_pct,\ndirection and the vendor source_url.\n\nMarketplace median moves also have composition_flag (composition, price, mixed, unknown, or null) from\nsuccessive median, minimum and listing count; composition, mixed and unknown are not price moves.\nsince: 'YYYY-MM-DD' returns every change on or after that date (daily snapshots in\n/api/v1/gpu-prices/history.json); omitted returns the latest day's moves (/api/v1/gpu-price-changes.json).\ngpu: optional model filter (substring, e.g. 'H100'). limit 1-200. Includes data_checked_at and next_refresh_utc\n(prices refresh daily at about 10:23 UTC), so you can call again after the next refresh to see what moved.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -429,6 +474,45 @@
                 "gap_days": {
                   "type": [
                     "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "composition_flag": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "composition",
+                    "price",
+                    "mixed",
+                    "unknown",
+                    null
+                  ]
+                },
+                "lowest_offer_usd": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "offer_count": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "previous_lowest_offer_usd": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "previous_offer_count": {
+                  "type": [
+                    "integer",
                     "null"
                   ],
                   "minimum": 0

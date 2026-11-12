@@ -36,6 +36,9 @@ A snapshot row is **included** only if all are true:
 The headline median moves when vendors are added. Each day after the first also carries a **matched-vendor change**:
 the median over vendors present on both days, plus lists of vendors added and dropped. Only matched changes may be described as
 "prices moved". A newly tracked cheap provider is a coverage change, not a market price cut.
+This matched-vendor rule is for the GPU Price Index only. Per-row marketplace medians (Vast.ai, Clore.ai) have a separate
+`composition_flag` on the rate and on change events (P45); a composition, mixed, or unknown flag there is not a price
+move. See docs/GPU-PRICES-FIELDS.md.
 
 ## History
 - Source: `data/gpu_pricing/snapshots/YYYY-MM-DD.json` (one per day, **starting 2026-10-27**). Each output day records the

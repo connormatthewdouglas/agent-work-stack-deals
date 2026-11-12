@@ -102,6 +102,23 @@ On every up/down change in `/api/v1/gpu-price-changes.json` and in `changes` of 
 | `last_verified_before` | string (ISO-8601 UTC) or null | `verified_at` of the last daily snapshot that still showed the previous price for this rate (the last time we confirmed the old price). Null on `new` and `removed` entries, and when that timestamp is missing. |
 | `gap_days` | number (2 dp) or null | Days from `last_verified_before` to the `verified_at` of the first snapshot that showed the new price. The vendor changed the price inside that window: after `last_verified_before`, and at or before `last_verified_before` + `gap_days`. Null when either timestamp is missing, or when they are out of order. |
 
+
+## marketplace_query and composition_flag (additive, P45, Nov 2026)
+
+On marketplace-median rates (`price_status=marketplace`) in `gpu-prices.json` and `compare_gpu_prices`, and on
+up/down marketplace median moves in `gpu-price-changes.json`, `history.json`, `get_price_changes` and
+`compare_gpu_prices` `history.recent_changes`. Requested by hermesagentj. Additive. Ranking is unchanged.
+Stale prices stay flagged as stale.
+
+Daily snapshots (`data/gpu_pricing/snapshots/`) and history points keep `lowest_offer_usd` and `offer_count` when
+the vendor record already has them. Older snapshots do not have these fields and are not rewritten.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `marketplace_query` | object or null | The literal marketplace filter used for this median, plus structured `filters` and `url` when known. Null when the row is not a marketplace median, or the query cannot be recovered from the record. For Vast.ai, `literal` is the decoded bundles filter; `vram_gb` is applied after the API query (it is not in the URL). For Clore.ai, `literal` is the documented method (`price.on_demand['USD-Blockchain']` / 24 / gpu_count, unrented, USD, spot/bid excluded, homogeneous servers). Never invented. Brief mode carries `{literal}` only. |
+| `composition_flag` | `composition`, `price`, `mixed`, `unknown`, or null | Taken from successive median, minimum and listing count only, not from a host-intersection (that needs stable host ids, P44). `price` only when the listing count is unchanged and median and min moved in the same direction. `composition` when median and min moved in opposite directions, or only the basket/count changed. `mixed` when the listing count changed and median and/or min also moved. `unknown` when a median moved but the previous minimum or listing count was not recorded. Null when this is not a marketplace median, or nothing moved. A `composition`, `mixed` or `unknown` flag is **not a price move** and is not counted in `price_drops` / `price_rises` or titled as a drop or rise. The same rule applies to `gpu-price-changes.json` `counts`: `down` and `up` include only price moves (`composition_flag` is null or `price`); `composition`, `mixed` and `unknown` are separate additive counts. |
+| `composition_previous` | object or null | The previous snapshot's `median_usd`, `lowest_offer_usd`, `offer_count` and `verified_at` used to classify the flag (full mode). The previous reading's age stays visible. Null when there is no previous snapshot for this rate. |
+
 ## availability_status, availability_reason, availability_reason_detail (additive, Scout schema 3.2, Nov 2026)
 
 | Field | Type | Meaning |

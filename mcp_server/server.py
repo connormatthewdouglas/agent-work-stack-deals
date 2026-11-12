@@ -222,6 +222,7 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     evidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,
     unknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price
     watches use. Unknown stock is not confirmed availability.
+    Marketplace median rows (price_status=marketplace) also have marketplace_query (the literal filter used for the median, plus structured filters; null when unknown) next to offer_count and lowest_offer_usd, and composition_flag (composition, price, mixed, unknown, or null) from successive median, minimum and listing count only, not a host intersection. A composition, mixed or unknown flag is not a price move. Missing previous min or n stays unknown, never invented. Stale prices stay flagged as stale.
     model_identity (T61): sourced nominal_memory and usable_memory (vendor-allocatable) for the queried model, each
     with source_url; unknown stays 'unknown'. min_usable_memory_gb (optional) keeps only rows whose SOURCED usable
     memory meets it; rows with unknown usable memory are counted in usable_memory_filter.unknown and never matched
@@ -287,6 +288,8 @@ def get_price_changes(since: str | None = None, gpu: str | None = None, limit: i
                       kinds: list[str] | None = None) -> dict:
     """GPU rental price changes among tracked providers, each with old/new hourly price, change_pct, direction,
     the vendor source_url, a stable event_id (dedupe key) and rate_id.
+    Marketplace median moves also have composition_flag (composition, price, mixed, unknown, or null) from
+    successive median, minimum and listing count; composition, mixed and unknown are not price moves.
 
     since: 'YYYY-MM-DD' returns every change on or after that date, newest first (daily snapshots in
     /api/v1/gpu-prices/history.json); omitted returns the latest day's moves (/api/v1/gpu-price-changes.json).
