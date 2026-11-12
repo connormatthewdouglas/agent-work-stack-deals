@@ -330,6 +330,11 @@ def price_join_guard(a: dict, price_rec: dict | None) -> dict:
     for k in ("source", "source_label", "availability_expires_at"):
         if a.get(k):
             out[k] = a[k]
+    # Keep the firm, dated claim that existed before this drop (observed value and its
+    # observation time). Never invented: both null when there was no firm, dated claim.
+    # in_stock stays null; ranking still reads in_stock. Staleness is applied by stale_guard.
+    v, ts = last_known(a)
+    out["last_known_in_stock"], out["last_known_at"] = v, ts
     return out
 
 
