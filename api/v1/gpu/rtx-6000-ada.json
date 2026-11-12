@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-12T18:36:10+00:00",
+  "last_checked": "2026-11-12T19:03:16Z",
   "row_count": 7,
   "providers": [
     "DigitalOcean GPU Droplets",
@@ -33,15 +33,15 @@
         "tier_class": "on-demand",
         "bucket": "on-demand",
         "interruptible": false,
-        "hourly_usd_per_gpu": 0.99,
+        "hourly_usd_per_gpu": 1.09,
         "unit": "hour",
-        "price_usd": 0.99,
+        "price_usd": 1.09,
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-12T14:54:50Z",
+        "verified_at": "2026-11-12T19:03:06Z",
         "source_url": "https://api.runpod.io/graphql",
-        "quote": "gpuTypes.securePrice (list price, 1 GPU): $0.99",
+        "quote": "gpuTypes.securePrice (list price, 1 GPU): $1.09",
         "availability": {
           "status": "unknown",
           "in_stock": null,
@@ -106,7 +106,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-12T14:55:01Z",
+        "verified_at": "2026-11-12T19:03:16Z",
         "source_url": "https://api.datacrunch.io/v1/instance-types",
         "quote": "instance-types price_per_hour (1 GPU): $1.574",
         "availability": {
@@ -144,7 +144,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-12T14:54:50Z",
+        "verified_at": "2026-11-12T19:03:06Z",
         "source_url": "https://api.runpod.io/graphql",
         "quote": "gpuTypes.communityPrice (list price, 1 GPU): $0.74",
         "availability": {
@@ -180,7 +180,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-12T14:55:01Z",
+        "verified_at": "2026-11-12T19:03:16Z",
         "source_url": "https://api.datacrunch.io/v1/instance-types",
         "quote": "instance-types spot_price (1 GPU): $0.787",
         "availability": {
@@ -262,7 +262,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-12T14:54:50Z",
+      "verified_at": "2026-11-12T19:03:06Z",
       "source_url": "https://api.runpod.io/graphql",
       "quote": "gpuTypes.communityPrice (list price, 1 GPU): $0.74",
       "availability": {
@@ -332,7 +332,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-12T14:55:01Z",
+      "verified_at": "2026-11-12T19:03:16Z",
       "source_url": "https://api.datacrunch.io/v1/instance-types",
       "quote": "instance-types spot_price (1 GPU): $0.787",
       "availability": {
@@ -348,37 +348,6 @@
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "RunPod",
-      "gpu": "RTX 6000 Ada",
-      "vram_gb": 48,
-      "tier": "On-demand (Secure Cloud)",
-      "tier_class": "on-demand",
-      "bucket": "on-demand",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 0.99,
-      "unit": "hour",
-      "price_usd": 0.99,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-12T14:54:50Z",
-      "source_url": "https://api.runpod.io/graphql",
-      "quote": "gpuTypes.securePrice (list price, 1 GPU): $0.99",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "evidence": {
-        "request_method": "POST",
-        "operation": "gpuTypes.securePrice",
-        "record_id": "NVIDIA RTX 6000 Ada Generation"
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "Lium",
@@ -417,6 +386,37 @@
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
+      "provider": "RunPod",
+      "gpu": "RTX 6000 Ada",
+      "vram_gb": 48,
+      "tier": "On-demand (Secure Cloud)",
+      "tier_class": "on-demand",
+      "bucket": "on-demand",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 1.09,
+      "unit": "hour",
+      "price_usd": 1.09,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-12T19:03:06Z",
+      "source_url": "https://api.runpod.io/graphql",
+      "quote": "gpuTypes.securePrice (list price, 1 GPU): $1.09",
+      "availability": {
+        "status": "unknown",
+        "in_stock": null,
+        "checked_at": null,
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+      },
+      "evidence": {
+        "request_method": "POST",
+        "operation": "gpuTypes.securePrice",
+        "record_id": "NVIDIA RTX 6000 Ada Generation"
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
       "provider": "DigitalOcean GPU Droplets",
@@ -458,7 +458,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-12T14:55:01Z",
+      "verified_at": "2026-11-12T19:03:16Z",
       "source_url": "https://api.datacrunch.io/v1/instance-types",
       "quote": "instance-types price_per_hour (1 GPU): $1.574",
       "availability": {
@@ -478,6 +478,6 @@
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261112T145501Z-8c07118e",
-  "feed_updated_at": "2026-11-12T18:36:10Z"
+  "generation_id": "20261112T190317Z-0a18f44b",
+  "feed_updated_at": "2026-11-12T19:03:16Z"
 }
