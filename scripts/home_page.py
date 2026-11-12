@@ -123,6 +123,15 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     moved = [c for c in ch["changes"] if c["change"] in ("down", "up")][:5]
     moved_html = ("<ul>" + "".join(f'<li><a href="{esc(c["source_url"] or BASE + "/gpu/")}" rel="noopener">{esc(change_title(c))}</a></li>' for c in moved) + "</ul>") if moved else "<p>No tracked rate moved between the last two daily snapshots.</p>"
     counts = ch["counts"]
+    moved_bits = [f"{counts['down']} down", f"{counts['up']} up"]
+    if counts.get("composition"):
+        moved_bits.append(f"{counts['composition']} composition (not a price move)")
+    if counts.get("mixed"):
+        moved_bits.append(f"{counts['mixed']} mixed (not a price move)")
+    if counts.get("unknown"):
+        moved_bits.append(f"{counts['unknown']} composition unknown (not classified as a price move)")
+    moved_bits += [f"{counts['new']} newly tracked", f"{counts['removed']} no longer ranked"]
+    moved_meta = ", ".join(moved_bits)
     title = TITLE
     desc = DESC
     body = f"""  <header>
@@ -145,7 +154,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
   </section>
   <section aria-labelledby="moved">
     <h2 id="moved">What moved since yesterday</h2>
-    <p class="meta">Snapshot {esc(str(ch["previous_date"]))} → {esc(str(ch["date"]))}: {counts["down"]} down, {counts["up"]} up, {counts["new"]} newly tracked, {counts["removed"]} no longer ranked.</p>
+    <p class="meta">Snapshot {esc(str(ch["previous_date"]))} → {esc(str(ch["date"]))}: {esc(moved_meta)}.</p>
     {moved_html}
     <p><a href="{BASE}/api/v1/gpu-price-changes.json">Price changes (JSON)</a> · <a href="{BASE}/api/v1/gpu-price-changes.xml">RSS</a> · <a href="{BASE}/api/v1/gpu-prices.json">all rates (JSON)</a></p>
   </section>

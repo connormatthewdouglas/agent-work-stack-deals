@@ -47,12 +47,14 @@ SPEC = {
                             # Scout schema 3.2 (additive): Scout's own status (in_stock|out_of_stock|unknown) and reason
                             "availability_status", "availability_reason", "availability_reason_detail",
                             # #122 (additive): the row's allocation minimum (rows above the requested gpus are excluded, #130)
-                            "min_gpus"]),
+                            "min_gpus",
+                            # P45 (additive): literal marketplace query + composition flag (brief helper may drop empties)
+                            "marketplace_query", "composition_flag"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
                           ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
-                           "change_pct", "source_url", "last_verified_before", "gap_days"]),
+                           "change_pct", "source_url", "last_verified_before", "gap_days", "composition_flag"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -96,7 +98,13 @@ EXTRA_PROPS = {
                                                                "seq": {"type": ["integer", "null"]}, "snapshot_id": _str,
                                                                # P46 (additive): bounds on when the change happened; null when unknown
                                                                "last_verified_before": {"type": ["string", "null"], "format": "date-time"},
-                                                               "gap_days": {"type": ["number", "null"], "minimum": 0}}}},
+                                                               "gap_days": {"type": ["number", "null"], "minimum": 0},
+                                                               # P45 (additive): composition vs price from successive med/min/n
+                                                               "composition_flag": {"type": ["string", "null"],
+                                                                                    "enum": ["composition", "price", "mixed", "unknown", None]},
+                                                               "lowest_offer_usd": _num, "offer_count": {"type": ["integer", "null"], "minimum": 0},
+                                                               "previous_lowest_offer_usd": _num,
+                                                               "previous_offer_count": {"type": ["integer", "null"], "minimum": 0}}}},
     },
 }
 # T39: rate_id on every compared rate and optimizer option; quote_id receipt on optimize/estimate responses.
@@ -110,8 +118,11 @@ _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock":
                                                      "basis": _str, "source": {"type": ["string", "null"]},
                                                      # P36 (additive): last firm stock answer + its check time (display only)
                                                      **(_LAST_KNOWN := {"last_known_in_stock": {"type": ["boolean", "null"]},
-                                                                        "last_known_at": {"type": ["string", "null"], "format": "date-time"}})}}
-_AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str, **_LAST_KNOWN}
+                                                                        "last_known_at": {"type": ["string", "null"], "format": "date-time"}}),
+                                                     **(_FAILURE_REASON := {  # P41 (additive): core.probe_reason; null when the source does not say
+                                                         "failure_reason": {"type": ["string", "null"], "enum": ["sold_out", "region", "quota", "other", None]},
+                                                         "failure_reason_detail": {"type": ["string", "null"]}})}}
+_AVAIL_PROPS = {"availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]}, "availability_note": _str, **_LAST_KNOWN, **_FAILURE_REASON}
 _OPTION = {**_OPTION, "properties": {**_OPTION["properties"], **_AVAIL_PROPS}}
 _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": _OPTION, "availability_note": _str,
                                                                      "gpu_count": {"type": ["integer", "null"], "minimum": 1},
@@ -119,12 +130,28 @@ _LINES = {"type": "array", "items": {"type": "object", "properties": {"choice": 
 EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
     "type": "object", "required": SPEC["compare_gpu_prices"][2], "properties": {"canonical_model": _str, "form_factor": _str, "rate_id": _RATE_ID, "report_issue_url": _str,
                                                                           "region": {"type": ["string", "null"]}, "availability": _AVAIL, "in_stock": {"type": ["boolean", "null"]},
-                                                                          "min_gpus": {"type": ["integer", "null"]}, **_LAST_KNOWN, **(_RATE_DATES := {
+                                                                          "min_gpus": {"type": ["integer", "null"]}, **_LAST_KNOWN, **_FAILURE_REASON, **(_RATE_DATES := {
                                                                               # Brain #584 / eddie_compute (additive): core.rate_dates; null when not known
                                                                               "effective_at": {"type": ["string", "null"], "format": "date-time"},
                                                                               "effective_at_basis": {"type": ["string", "null"], "enum": ["vendor_stated", "first_observed", None]},
                                                                               "min_bill_usd_per_hour": {"type": ["number", "null"], "minimum": 0},
-                                                                              "min_bill_basis": {"type": ["string", "null"], "enum": ["hourly_rate", "per_second_rate", "monthly_equivalent", None]}})}}},
+                                                                              "min_bill_basis": {"type": ["string", "null"], "enum": ["hourly_rate", "per_second_rate", "monthly_equivalent", None]}}),
+                                                                          # P45 (additive): literal query + composition flag on marketplace median rows
+                                                                          **(_MKT := {
+                                                                              "marketplace_query": {"type": ["object", "null"],
+                                                                                                    "properties": {"literal": _str, "url": _str,
+                                                                                                                   "filters": {"type": ["object", "null"]}}},
+                                                                              "composition_flag": {"type": ["string", "null"],
+                                                                                                   "enum": ["composition", "price", "mixed", "unknown", None]},
+                                                                              "composition_previous": {"type": ["object", "null"],
+                                                                                                       "properties": {"median_usd": _num, "lowest_offer_usd": _num,
+                                                                                                                      "offer_count": {"type": ["integer", "null"], "minimum": 0},
+                                                                                                                      "verified_at": {"type": ["string", "null"], "format": "date-time"}}}}),
+                                                                          **(_NEXT_CHECK := {  # P40 (additive): core.check_schedule; only on stale/unknown rows
+                                                                              "next_check_at": {"type": ["string", "null"], "format": "date-time"},
+                                                                              "will_backfill": {"type": ["boolean", "null"]},
+                                                                              "backfill_eta": {"type": ["string", "null"], "format": "date-time"},
+                                                                              "next_check_basis": {"type": ["string", "null"]}})}}},
     # #130: GPU count ranked for; rows whose min_gpus exceeds it are excluded (count + full-mode list with reasons)
     "gpus": {"type": "integer", "minimum": 1}, "assumptions": {"type": "array", "items": {"type": "string"}},
     "min_gpus_unmet": {"type": "integer", "minimum": 0},
@@ -134,6 +161,18 @@ EXTRA_PROPS["compare_gpu_prices"] = {"results": {"type": "array", "items": {
                                          "rate_id": _str, "source_url": _str, "checked_at": _str, "reason": _str,
                                          "min_bill_usd_per_hour": _RATE_DATES["min_bill_usd_per_hour"],
                                          "min_bill_basis": _RATE_DATES["min_bill_basis"]}}}}
+# P39 (additive): scheduled-build due ledger (core.batch_ledger); full mode only
+_LEDGER_ITEM = {"type": "object", "required": ["build", "expected_at", "last_expected_at", "member_rate_ids", "member_count"],
+                "properties": {"build": {"type": "string", "enum": ["gpu-refresh", "lium-collect", "scout-import", "scout-wider"]},
+                               "expected_at": {"type": "string", "format": "date-time"},
+                               "last_expected_at": {"type": "string", "format": "date-time"},
+                               "fallback_expected_at": {"type": ["string", "null"], "format": "date-time"},
+                               "member_count": {"type": "integer", "minimum": 0},
+                               "member_rate_ids": {"type": "array", "items": _RATE_ID},
+                               "schedule_basis": {"type": "string"}}}
+EXTRA_PROPS["compare_gpu_prices"]["batch_due_ledger"] = {"type": "array", "items": _LEDGER_ITEM}
+# P40 (additive): each stale price says when it is next re-read and whether that can fill it
+EXTRA_PROPS["compare_gpu_prices"]["stale_prices"] = {"type": "array", "items": {"type": "object", "properties": dict(_NEXT_CHECK)}}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
@@ -149,6 +188,8 @@ for _t, (_req, _lk, _rr, _bk, _br) in list(SPEC.items()):
     SPEC[_t] = (_req, _lk, _rr, list(_bk) + ["referral_disclosure"], list(_br) + (["tracked_url"] if _lk else []))
 for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P36 (additive): brief GPU rows keep the last firm stock answer
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["last_known_in_stock", "last_known_at"],)
+for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P41 (additive): brief rows carry a non-null failure reason only
+    SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["failure_reason", "failure_reason_detail"],)
 REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
                               "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
@@ -269,13 +310,23 @@ def _brief_row(tool: str, row: dict, keys: list) -> dict:
             if k in av and k not in LAST_KNOWN_KEYS:
                 out[k] = av[k]
     out.update(_brief_last_known(row.get("availability")))
+    out.update(_brief_failure_reason(row))
+    if not out.get("failure_reason"):
+        out.pop("failure_reason", None)
+        out.pop("failure_reason_detail", None)
+    elif out.get("failure_reason_detail") is None:
+        out.pop("failure_reason_detail", None)
     if tool == "compare_gpu_prices":
         out.update(_brief_rate_dates(row))
+        out.update(_brief_marketplace(row))
+        # P40 (additive): an unknown-stock row says when it is next checked and whether that can fill it (basis/eta: full)
+        out.update({k: row[k] for k in ("next_check_at", "will_backfill") if k in row})
     if isinstance(out.get("choice"), dict):
         ch = out["choice"]
         out["choice"] = {k: ch[k] for k in BRIEF_CHOICE_KEYS if k in ch}
         if isinstance(ch.get("availability"), dict):
             out["choice"].update(_brief_last_known(ch["availability"]))
+            out["choice"].update(_brief_failure_reason({"availability": ch["availability"], **ch}))
     return out
 
 
@@ -306,6 +357,39 @@ def _fill_last_known(o) -> None:
             _fill_last_known(x)
 
 
+def _brief_failure_reason(row) -> dict:
+    """P41 (additive): a brief GPU row carries failure_reason (+ detail) only when the source gave a
+    classified no or failure. Absent means null; full mode always has both inside availability."""
+    from .probe_reason import classify
+    src = row if isinstance(row, dict) else {}
+    d = classify(src if src.get("availability") or "in_stock" in src or "availability_reason" in src else {"availability": src})
+    out = {}
+    if d.get("failure_reason"):
+        out["failure_reason"] = d["failure_reason"]
+        if d.get("failure_reason_detail"):
+            out["failure_reason_detail"] = d["failure_reason_detail"]
+    return out
+
+
+def _fill_failure_reason(o, parent: dict | None = None) -> None:
+    """P41 (additive, display only): give every availability dict failure_reason / failure_reason_detail.
+    A lapsed out-of-stock claim keeps sold_out (or a source-stated region/quota) beside last_known_in_stock.
+    Null when the source does not say. Never invented; ranking never reads these."""
+    from .probe_reason import apply
+    if isinstance(o, dict):
+        av = o.get("availability")
+        if isinstance(av, dict):
+            apply(av, o if parent is None else {**parent, **o})
+            for k in ("failure_reason", "failure_reason_detail"):
+                o[k] = av.get(k)
+        for k, x in o.items():
+            if k not in ("receipt", "error"):
+                _fill_failure_reason(x, o if "availability" in o or "advertiser" in o or "vendor" in o else parent)
+    elif isinstance(o, list):
+        for x in o:
+            _fill_failure_reason(x, parent)
+
+
 def _brief_rate_dates(row: dict) -> dict:
     """Brain #584 / eddie_compute (additive): a brief row carries effective_at (+ basis) only when it is known, and
     min_bill_usd_per_hour (+ basis) only when min_gpus > 1 (otherwise it equals hourly_usd). Absent = null or equal to
@@ -315,6 +399,23 @@ def _brief_rate_dates(row: dict) -> dict:
         out.update({k: row.get(k) for k in ("effective_at", "effective_at_basis")})
     if (row.get("min_gpus") or 1) > 1 and row.get("min_bill_usd_per_hour") is not None:
         out.update({k: row.get(k) for k in ("min_bill_usd_per_hour", "min_bill_basis")})
+    return out
+
+
+def _brief_marketplace(row: dict) -> dict:
+    """P45 (additive): brief marketplace rows carry composition_flag when set, a compact marketplace_query
+    (literal only, not the long URL), and offer_count / lowest_offer_usd when present. Absent = not a
+    marketplace median, or null/empty. Full mode always has the full objects. Keeps brief within 0.4x."""
+    out = {}
+    if row.get("composition_flag"):
+        out["composition_flag"] = row["composition_flag"]
+    q = row.get("marketplace_query")
+    if isinstance(q, dict) and q.get("literal"):
+        out["marketplace_query"] = {"literal": q["literal"]}
+    if row.get("offer_count") is not None:
+        out["offer_count"] = row["offer_count"]
+    if row.get("lowest_offer_usd") is not None:
+        out["lowest_offer_usd"] = row["lowest_offer_usd"]
     return out
 
 
@@ -329,6 +430,7 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
     out = golinks.annotate(copy.deepcopy(out))
     # T136: tagged /go/ link per provider + one referral line (additive, both modes)
     _fill_last_known(out)  # P36: every availability in a result says its last firm stock answer (null when never firm)
+    _fill_failure_reason(out)  # P41: keep a failed/no probe's fixed reason (null when the source does not say)
     if mode == "full":
         return {"ok": True, "mode": "full", **out}
     b = {k: copy.deepcopy(out[k]) for k in brief_keys if k in out}

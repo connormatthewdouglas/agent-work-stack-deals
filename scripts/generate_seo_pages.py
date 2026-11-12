@@ -1528,14 +1528,23 @@ def _iso_date(value: str | None) -> str | None:
 # Prefer content/source dates over published-HTML git dates (bulk regen commits
 # would otherwise collapse every lastmod onto one day):
 # 1. /deals/<slug>/ → later of updated_at and verified_at (omit→deals feed day)
-# 2. Pages that embed live GPU rates → api/v1/gpu-prices.json feed_updated_at,
-#    max'd with the generator script's git date
-# 3. Deal hubs / homepage / categories / guides → deals.json updated_at,
-#    max'd with the generator script's git date
-# 4. Other pages → git committer date as a UTC day (unix %ct, not %cs, so the
+# 2. Pages that embed live GPU rates → api/v1/gpu-prices.json feed_updated_at
+#    only (not the generator script's git date).
+# 3. Deal hubs / categories / guides / lanternworks / for-agents →
+#    deals.json updated_at only. Do not max with the generator script's git
+#    date: a squash merge after 19:00 America/New_York stamps the next UTC
+#    day even when the feed has not moved.
+#    Intentional: feed-backed GPU and deal pages no longer pick up
+#    template-only changes in their lastmod.
+# 4. Homepage → content dates only: GPU feed_updated_at, price-changes date,
+#    and deals.json updated_at. Do not use a git committer date (script or
+#    data file), for the same squash-merge reason.
+# 4b. Changelog → newest YYYY-MM-DD written in CHANGELOG.md's own entries.
+#    No git date (almost every PR touches the file) and no clock.
+# 5. Other pages → git committer date as a UTC day (unix %ct, not %cs, so the
 #    runner's TZ does not move the day after 19:00 America/New_York); fall back
 #    to the published artifact only when no source is known
-# 5. Omit <lastmod> when nothing honest is available
+# 6. Omit <lastmod> when nothing honest is available
 _SITEMAP_GIT_DATE_CACHE: dict[str, str | None] = {}
 _SITEMAP_DEAL_DATES: dict[str, str] | None = None
 _SITEMAP_DEALS_FEED_DAY: str | None | bool = False  # False = unloaded
@@ -1688,6 +1697,8 @@ def _published_file_for_path(url_path: str) -> Path | None:
 
 def _depends_on_gpu_feed(url_path: str) -> bool:
     p = url_path.strip("/")
+    if not p:
+        return True  # homepage headlines live GPU rates
     if p == "gpu" or p.startswith("gpu/"):
         return True
     if p == "cost" or p.startswith("cost/"):
@@ -1753,10 +1764,50 @@ def _changes_content_day() -> str | None:
     return _iso_date(doc.get("date"))
 
 
+_CHANGELOG_DAY_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
+
+
+def _changelog_content_day() -> str | None:
+    """Newest YYYY-MM-DD written in CHANGELOG.md entries. No git date, no clock."""
+    try:
+        text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    except OSError:
+        return None
+    days: list[str] = []
+    for raw in _CHANGELOG_DAY_RE.findall(text):
+        try:
+            datetime.strptime(raw, "%Y-%m-%d")
+        except ValueError:
+            continue
+        days.append(raw)
+    return max(days) if days else None
+
+
+def _homepage_content_days() -> list[str]:
+    """UTC days from homepage feed stamps, never the clock or a git committer date.
+
+    Git dates of the generator or of the data files are not used: a squash merge
+    after 19:00 America/New_York stamps the next UTC day even when feed_updated_at
+    (and the price-changes date) have not moved.
+    """
+    return [day for day in (_gpu_feed_day(), _deals_feed_day(), _changes_content_day()) if day]
+
+
 def sitemap_lastmod_for_loc(loc: str) -> str | None:
     """Honest YYYY-MM-DD lastmod for a sitemap loc, or None to omit the tag."""
     url_path = _sitemap_url_path(loc)
     stripped = url_path.strip("/")
+    # Homepage lastmod follows the live feeds, not scripts/home_page.py's git date.
+    # A squash merge after 19:00 America/New_York would otherwise stamp the next
+    # UTC day and fail the committed-sitemap check with no content-date change.
+    if not stripped:
+        candidates = _homepage_content_days()
+        return max(candidates) if candidates else None
+    # Changelog lastmod is the newest ISO date written in CHANGELOG.md entries.
+    # Do not use CHANGELOG.md's git date: almost every PR touches that file, and
+    # a squash merge after 19:00 America/New_York would stamp the next UTC day.
+    if stripped == "changelog":
+        return _changelog_content_day()
     # gpu/changes.xml is the changes feed. Its lastmod is that feed's date, so a later edit to a
     # generator script or a CI merge commit does not move it.
     if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:
@@ -1772,7 +1823,12 @@ def sitemap_lastmod_for_loc(loc: str) -> str | None:
 
     candidates: list[str] = []
 
+    feed_backed = _depends_on_deals_feed(url_path) or _depends_on_gpu_feed(url_path)
     for src in _source_paths_for(url_path):
+        # Feed-backed pages take lastmod from the feed stamps below, not from a
+        # generator or data-file git committer date (those jump on a late squash merge).
+        if feed_backed:
+            continue
         day = _git_commit_date(src)
         if day:
             candidates.append(day)

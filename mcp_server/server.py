@@ -201,6 +201,15 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     monthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,
     or first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),
     separate from last_verified. Neither affects ranking.
+    Full results also include batch_due_ledger: each scheduled build (gpu-refresh, lium-collect, scout-import,
+    scout-wider) has expected_at, last_expected_at, and the member_rate_ids it covers, derived only from the
+    workflow schedules. Brief mode omits the ledger.
+    A failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and
+    failure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source
+    does not say; never guessed. Display only.
+    A row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill
+    (true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),
+    backfill_eta and next_check_basis (the schedule it came from).
     include_history=true adds each result's price_history (daily-snapshot change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
@@ -213,6 +222,7 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     evidence stay, labelled unresolved and ranked after the rest. Each result has eligibility {eligible, applied, unmet,
     unknown} from the shared T47 contract; constraints.eligible_rate_ids is the same set estimate_job_cost and price
     watches use. Unknown stock is not confirmed availability.
+    Marketplace median rows (price_status=marketplace) also have marketplace_query (the literal filter used for the median, plus structured filters; null when unknown) next to offer_count and lowest_offer_usd, and composition_flag (composition, price, mixed, unknown, or null) from successive median, minimum and listing count only, not a host intersection. A composition, mixed or unknown flag is not a price move. Missing previous min or n stays unknown, never invented. Stale prices stay flagged as stale.
     model_identity (T61): sourced nominal_memory and usable_memory (vendor-allocatable) for the queried model, each
     with source_url; unknown stays 'unknown'. min_usable_memory_gb (optional) keeps only rows whose SOURCED usable
     memory meets it; rows with unknown usable memory are counted in usable_memory_filter.unknown and never matched
@@ -278,6 +288,8 @@ def get_price_changes(since: str | None = None, gpu: str | None = None, limit: i
                       kinds: list[str] | None = None) -> dict:
     """GPU rental price changes among tracked providers, each with old/new hourly price, change_pct, direction,
     the vendor source_url, a stable event_id (dedupe key) and rate_id.
+    Marketplace median moves also have composition_flag (composition, price, mixed, unknown, or null) from
+    successive median, minimum and listing count; composition, mixed and unknown are not price moves.
 
     since: 'YYYY-MM-DD' returns every change on or after that date, newest first (daily snapshots in
     /api/v1/gpu-prices/history.json); omitted returns the latest day's moves (/api/v1/gpu-price-changes.json).
