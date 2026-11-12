@@ -42,6 +42,57 @@ On every rate in `gpu-prices.json` and every `compare_gpu_prices` result (full m
 | `min_bill_usd_per_hour` | number or null | `min_gpus` x the per-GPU hourly price (`hourly_equiv_usd` in the feed, `hourly_usd` in MCP rows): the least you pay per hour for one allocation. Equals the hourly price when `min_gpus` is 1. Null when either input is missing. Also on `excluded_min_gpus` entries. |
 | `min_bill_basis` | `hourly_rate`, `per_second_rate`, `monthly_equivalent` or null | What the hourly price is: the vendor's own per-GPU hourly rate; its per-second rate x 3600 (billed per second while running); or, for flat monthly servers, a derived equivalent (monthly price / 730 h). A `monthly_equivalent` is not a quoted hourly rate: the vendor bills the month. Marketplace rows use the median offer, as `hourly_equiv_usd` does. |
 
+
+## batch_due_ledger (additive, P39, Nov 2026; MCP, full mode)
+
+`compare_gpu_prices` (full mode) includes `batch_due_ledger`: one entry per scheduled build or collection, derived only from the workflow files and the current feed's membership (`core/batch_ledger.py`). Brief mode omits it (the member id lists would blow the brief-size budget). Ranking never reads it. Tests assert each schedule constant against its workflow file.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `build` | `gpu-refresh`, `lium-collect`, `scout-import`, or `scout-wider` | Which scheduled collection this entry is. `scout-wider` rides the same `scout-import.yml` run as `scout-import`. |
+| `expected_at` | string (ISO-8601 UTC) | The next scheduled slot at or after the request. GitHub cron can start late. |
+| `last_expected_at` | string (ISO-8601 UTC) | The most recently due slot, including a slot that is due now. Compare a row's `checked_at` to this to see "due, not renewed". This is not a claim that the run happened. |
+| `fallback_expected_at` | string (ISO-8601 UTC) or null | For `gpu-refresh` only: the next 14:47 UTC fallback. Null on the other builds (they have no fallback). |
+| `member_rate_ids` | array of `rate_id` | The feed rows this build is scheduled to cover, so "in the batch but failed" is distinguishable from "never in the batch". |
+| `member_count` | integer | `len(member_rate_ids)`. |
+| `schedule_basis` | string | Which workflow or script produced the answer. |
+
+Membership:
+
+- **gpu-refresh**: `price_check` is `daily` or `rotating snapshot`, excluding Lium (Lium has its own collector).
+- **lium-collect**: Lium rows (`.github/workflows/lium-collect.yml`, every 2 h at :40 UTC).
+- **scout-import**: rows whose `availability.origin` is `scout`, except Scout `no_api` (out of scope, not in the batch).
+- **scout-wider**: `price_check` is `batch` (`scripts/import_scout_wider.py` in the same 4-hourly `scout-import.yml` run).
+## failure_reason, failure_reason_detail (additive, P41, Nov 2026; MCP)
+
+`compare_gpu_prices` and `estimate_job_cost` add these to every result's `availability` (and to the row itself). They describe a failed or "no" stock probe with a fixed reason, so a hit ratio can group the nos. Computed at call time from the probe outcome already on the row (`core/probe_reason.py`). A lapsed claim keeps the last no beside `last_known_in_stock` instead of dropping it. Brief rows carry the fields only when `failure_reason` is set. Ranking never reads them.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `failure_reason` | `sold_out`, `region`, `quota`, `other`, or null | `sold_out`: the probe (or the last firm answer on a lapsed claim) said out of stock, and the source did not state region or quota. `region` / `quota`: only when the source itself states that reason. `other`: a recorded probe failure (`check_failed_http` / `check_failed_timeout`) that is not one of those three. Null when the source does not say (unknown, `no_source`, a last-known in-stock, or never probed). Never guessed: `derived_from_regions` or "no confirmed region" is not `region`. |
+| `failure_reason_detail` | string or null | The source or Scout detail, passed through unchanged. Null when there is no source detail (our stale-claim note is not used). |
+
+HTTP-failed probes that never landed in a Scout snapshot cannot be invented here. When such a row does appear, it is `other`.
+## next_check_at, will_backfill, backfill_eta (additive, P40, Nov 2026; MCP only)
+
+`compare_gpu_prices` adds these to every result whose stock is unknown (`in_stock` null, including a lapsed claim) and to every `stale_prices` entry (`core/check_schedule.py`). They are computed when you call the tool, because a "next check" time written into the static feed would go out of date. Brief rows carry `next_check_at` and `will_backfill`. Ranking never reads them.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `next_check_at` | string (ISO-8601 UTC) or null | The next scheduled run, at or after the request, that can re-check this row. Null when no schedule covers it. GitHub cron can start late. |
+| `will_backfill` | boolean or null | `true` ("filling"): a scheduled check covers this row and will try again. `false` ("scope limit"): nothing scheduled re-checks it. `null`: not derivable from our config. `true` does not promise the source will answer, and a missed check is never re-run for the past. |
+| `backfill_eta` | string (ISO-8601 UTC) or null | The last scheduled attempt in that cycle: for daily prices the 14:47 UTC fallback after the 10:23 UTC primary run. Other schedules have no fallback, so this equals `next_check_at`. Null when `will_backfill` is not `true`. |
+| `next_check_basis` | string | Which schedule or config produced the answer. |
+
+How each case is derived (each constant is asserted against its workflow file in `tests/test_p40_next_check.py`):
+
+- **Unknown stock, row has Scout stock data** (`availability.origin` `scout`, including `no_source` reads such as `api_null_signal` / `unconfirmed_two_reads` and lapsed claims): the next 4-hourly import slot of `.github/workflows/scout-import.yml` (00/04/08/12/16/20 UTC, from :10). A new Scout push can import sooner. `will_backfill: true`.
+- **Unknown stock, no Scout stock source** (no Scout row, or Scout `no_api`): scope limit. `will_backfill: false`, `next_check_at: null`.
+- **Stale price, `price_check` `daily`** (also `rotating snapshot`): `.github/workflows/gpu-refresh.yml`, 10:23 UTC, fallback 14:47 UTC.
+- **Stale price, Lium**: `.github/workflows/lium-collect.yml`, every 2 h at :40 UTC (`scripts/collect_lium.py`). Lium is marked `manual snapshot` in the feed but has this scheduled collector.
+- **Stale price, `price_check` `batch`** (Scout wider-GPU batch): `scripts/import_scout_wider.py` in the next 4-hourly `scout-import.yml` run (from :10 UTC), when Scout has published a batch.
+- **Stale price, any other `manual snapshot`** (for example Clore.ai, Cirrascale): scope limit. `will_backfill: false`, `next_check_at: null`.
+- **Anything else**: all null, with basis "not derivable".
 ## last_verified_before and gap_days on price changes (additive, P46, Nov 2026)
 
 On every up/down change in `/api/v1/gpu-price-changes.json` and in `changes` of `/api/v1/gpu-prices/history.json`, and on `get_price_changes` rows and `compare_gpu_prices` `history.recent_changes` (`core.gpu_history.change_gap`).
@@ -76,6 +127,18 @@ the vendor record already has them. Older snapshots do not have these fields and
 | `availability_reason` | string or null | Scout's machine-readable reason for the status (e.g. `no_source`), unchanged. |
 | `availability_reason_detail` | string or null | Scout's finer reason (e.g. `no_api`), unchanged. |
 
+
+## machine_ids and listing_ids (additive, P44, Nov 2026)
+
+Vendor-native identifiers recorded by Scout on availability rows and inside `available_regions_detail`. Null when the vendor did not provide one, or when Scout has no availability collector for that vendor. Never invented. Schema 3.2 is unchanged.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `machine_ids` | array of integers, or null | Vast.ai `machine_id` values from the offers that made up this snapshot row (overall or region). |
+| `listing_ids` | array of integers, or null | Clore.ai marketplace listing `servers[].id` values for the unrented servers in this snapshot row. |
+
+Lium node ids are not in this import yet: Scout has no Lium availability collector.
+
 ## T116: stock frequency is not a dollar cost
 
 `expected_cost_usd` is **deprecated and always null**. `expected_cost_label` explicitly marks the deprecation.
@@ -86,7 +149,13 @@ Use `hourly_equiv_usd` and the existing whole-instance/minimum-GPU rules for com
 `availability_rate_7d` remains a descriptive observation: `rate` (stocked / known checks, null with zero known),
 `checks` (legacy known count), `known_checks`, `unknown_checks`, `total_checks`, `in_stock_checks`,
 `window_start`, `window_end`, `window_days`, and first/last observation timestamps. Unknown observations
-are excluded from the share, but not hidden from the counts. Legacy captures without unknown counts emit null,
+are excluded from the share, but not hidden from the counts. P38 (additive) splits `unknown_checks` by why each check had no stock answer, using the row's own
+`availability_reason` (Scout T113 enum): `never_ran_checks` = no stock reading was taken (`check_failed_timeout`,
+`check_failed_http`, or `stale`/backoff); `no_source_checks` = the probe ran but the source gives no stock signal
+(`no_source`: the vendor API returned no stock field, two reads did not confirm, no matching API row, or no API).
+`unknown_checks` is unchanged and always equals `never_ran_checks + no_source_checks` when both are set. Both are null
+when any unknown check in the window has no recorded reason, or when the source does not carry the split yet
+(`source: scout_t112` rows until Scout's T112 build emits `never_ran_checks_7d` / `no_source_checks_7d`); never a guessed split. Legacy captures without unknown counts emit null,
 not an invented zero. `sample_status` distinguishes observed, insufficient_sample (<6 known), and all_unknown;
 `window_stale` flags windows whose last observation is older than 24h or undated. Sparse/old data remains
 labelled historical description, never a probability forecast. `source` is `scout_t112` or `git_history`.

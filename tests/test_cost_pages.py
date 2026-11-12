@@ -344,10 +344,28 @@ def test_scout_v25_lambda_clore_render():
         assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
     av = json.loads((ROOT / "data/gpu_availability/latest.json").read_text())
     assert av["imported_rows"] == len(av["rows"]) >= 25
+    # RunPod in_stock-null rows: exact "unknown" while the claim is within the stale cut;
+    # the full stale form once it is past the cut (checked_at vs the effective build clock,
+    # LW_AVAIL_NOW + 25-min horizon — the same cut the generator uses). A wall-clock
+    # LW_AVAIL_NOW from check_latest_scout_import.sh overrides the autouse pin, so this
+    # must not demand the fresh wording after the claim has aged.
+    stale_status = re.compile(r"^unknown \(stale availability, last checked .+ ET\)$")
+    from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours, build_now, _parse
+    now = build_now()  # honors LW_AVAIL_NOW and LW_BUILD_HORIZON_MIN
     for r in feed["rates"]:  # every row Scout checked shows its checked_at, unknown included
         a = r["availability"]
         if a.get("source") and "runpod" in a["source"] and a["in_stock"] is None:
-            assert a["status"] == "unknown" and a["checked_at"]
+            assert a["checked_at"]
+            h = age_hours(a.get("checked_at"), now)
+            x = _parse(a.get("availability_expires_at"))
+            past_cut = not (
+                (h is not None and h <= AVAIL_MAX_AGE_H and not (x and now > x))
+                or (h is None and not x)
+            )
+            if past_cut:
+                assert stale_status.match(a.get("status") or ""), a.get("status")
+            else:
+                assert a["status"] == "unknown"
 
 
 def test_k2_mcp_a100_summary_names_cheapest_80gb():

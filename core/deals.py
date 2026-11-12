@@ -586,6 +586,12 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         raise DealError("invalid_argument", "gpus must be an integer 1-1024")
     from .gpu import min_gpus_unmet
     from .rate_dates import min_bill as _min_bill
+    from . import data_age
+    from .batch_ledger import ledger as _batch_ledger
+    from .check_schedule import price as _next_price
+    def _due(out: dict) -> dict:
+        out["batch_due_ledger"] = _batch_ledger(data, data_age._clock(now))
+        return out
     assumptions = [] if gpus is not None else [COMPARE_NO_GPU_COUNT]
     n_gpus = gpus or 1
     rows = [r for r in data.get("rates") or []
@@ -599,11 +605,11 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     rows = [r for r in rows if not is_held(r.get("advertiser"))]
     if not rows:
         if held_owner:
-            return {"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
+            return _due({"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
                     "summary": (f"No current price for '{gpu}': {len(held_owner)} tracked rate(s) are temporarily held "
                                 "(owner_hold) and are not ranked."),
                     "held_owner": held_owner, "data_source": GPU_PRICES_URL,
-                    "feed_updated_at": data.get("feed_updated_at"), "scope": "cheapest among tracked providers"}
+                    "feed_updated_at": data.get("feed_updated_at"), "scope": "cheapest among tracked providers"})
         raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
     from . import data_age
     try:
@@ -628,15 +634,16 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         # Gauge re28: by default a price older than 168 h never ranks or heads the summary; listed separately
         rows, stale_rows = data_age.split_current(rows, None, now)
         if not rows:
-            sv = sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or ""))
-            return {"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
+            sv = sorted(({**data_age.stale_view(r, now), **_next_price(r, data_age._clock(now))} for r in stale_rows),
+                        key=lambda x: (x["price"], x["vendor"] or ""))  # P40 (additive)
+            return _due({"gpu": gpu, "ok_current": False, "count": 0, "results": [], "total": 0,
                     "summary": (f"No current price for '{gpu}': all {len(sv)} tracked rates are older than "
                                 f"{data_age.CURRENT_MAX_HOURS} h (stale), so no current cheapest is named. Stale rows are in "
                                 "stale_prices; pass max_data_age_hours to rank them anyway, and confirm on the vendor page."),
                     "stale_prices": sv, "excluded_stale": len(sv), "max_data_age_hours": None,
                     "current_max_age_hours": data_age.CURRENT_MAX_HOURS,
                     "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at"),
-                    "scope": "cheapest among tracked providers"}
+                    "scope": "cheapest among tracked providers"})
     # T63 (Gauge/Bjorn 1108): serverless / per-second prices are held in EVERY pricing mode (never ranked as an hourly
     # rate); they stay visible in held_serverless with the reason.
     from . import serverless as _sl
@@ -707,7 +714,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             ufilter["identity_unavailable"] = True
         rows = f["matched"]
         if not rows:
-            return {"gpu": gpu, "summary": (f"No tracked '{gpu}' rate has a sourced usable memory meeting the filter "
+            return _due({"gpu": gpu, "summary": (f"No tracked '{gpu}' rate has a sourced usable memory meeting the filter "
                                             f"({ufilter['unknown']} unknown, {ufilter['below']} below). Nominal memory is not used as usable memory."),
                     "on_demand_only": bool(on_demand_only), "excluded_non_on_demand": excluded,
                     "include_reserved": bool(include_reserved), "excluded_reserved": excluded_reserved,
@@ -716,7 +723,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                     "scope": "cheapest among tracked providers", "total": 0, "count": 0, "results": [],
                     "usable_memory_filter": ufilter, "excluded_serverless": len(held_serverless),
                     "held_serverless": [{k: v for k, v in h.items() if k != "_row"} for h in held_serverless],
-                    "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at")}
+                    "data_source": GPU_PRICES_URL, "feed_updated_at": data.get("feed_updated_at")})
     unresolved = lambda r: any(u["constraint"] == "region" for u in elig[id(r)]["unknown"])
     # Reserved rows (only with include_reserved) sort after pay-as-you-go rows: never reported as "cheapest".
     # E5: rows the feed marks out of stock sort after in-stock/unknown rows (kept, flagged), so never "cheapest".
@@ -765,6 +772,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
             out["availability_note"] = oos_note(r) + "; ranked after in-stock/unknown rows"
         out["eligibility"] = elig[id(r)]  # T47: applied / unmet / unknown constraints for this row
         out["rate_id"] = rate_id(r)  # T39: stable across sort order and label renames (core.ids)
+        # P40 (additive): unknown stock -> next scheduled stock check and whether it can fill (core.check_schedule)
+        from .check_schedule import stock as _next_stock
+        out.update(_next_stock(out, data_age._clock(now)))
         out.update(data_age.age_fields(r, now))
         from .report_issue import report_issue_url
         out["report_issue_url"] = report_issue_url(out)  # T40: give this to the user if the row looks wrong
@@ -800,7 +810,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     lo_ok = isinstance(lo, (int, float)) and not isinstance(lo, bool)
     mkt_note = ((f"; variable marketplace median, lowest offer ${lo:g}/hr" if lo_ok else "; variable marketplace median")
                 if c.get("price_status") == "marketplace" else "")
-    return {
+    return _due({
         "gpu": gpu,
         "summary": region_note + (f"Cheapest{' regardless of region' if region_note and not elig[id(rows[0])]['eligible'] else ''}{' (not marked out of stock)' if oos_msg and not out_of_stock(c) else ''} among tracked providers: {c_who} {c['gpu']}"
                     + (f" {c['vram_gb']}GB" if c.get("vram_gb") and f"{c['vram_gb']}GB" not in (c.get("gpu") or "") else "")
@@ -824,7 +834,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         "max_data_age_hours": max_h, "excluded_too_old": excluded_too_old,
         "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h,
         "excluded_stale": len(stale_rows),
-        "stale_prices": sorted((data_age.stale_view(r, now) for r in stale_rows), key=lambda x: (x["price"], x["vendor"] or "")),
+        # P40 (additive): each stale price says when it is next re-read and whether that can fill it (core.check_schedule)
+        "stale_prices": sorted(({**data_age.stale_view(r, now), **_next_price(r, data_age._clock(now))} for r in stale_rows),
+                               key=lambda x: (x["price"], x["vendor"] or "")),
         "stale_fallback": stale_fallback,
         "region": cons.get("region"), "excluded_other_region": excluded_region,
         "region_unresolved": sum(1 for r in rows if cons.get("region") and unresolved(r)),
@@ -845,7 +857,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                 "Excludes storage, egress and taxes; confirm on the vendor page before spending.",
         **extra,
         **({"usable_memory_filter": ufilter} if ufilter is not None else {}),
-    }
+    })
 
 
 def public_view(deal: dict, fields: tuple[str, ...] = PUBLIC_FIELDS) -> dict:
