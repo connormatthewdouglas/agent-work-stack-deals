@@ -201,6 +201,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     monthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,
     or first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),
     separate from last_verified. Neither affects ranking.
+    Full results also include batch_due_ledger: each scheduled build (gpu-refresh, lium-collect, scout-import,
+    scout-wider) has expected_at, last_expected_at, and the member_rate_ids it covers, derived only from the
+    workflow schedules. Brief mode omits the ledger.
     A failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and
     failure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source
     does not say; never guessed. Display only.
