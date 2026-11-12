@@ -201,6 +201,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     monthly_equivalent) and effective_at, when the vendor started charging this price (effective_at_basis vendor_stated,
     or first_observed = first daily snapshot showing it after a different price, an upper bound; null when not datable),
     separate from last_verified. Neither affects ranking.
+    A failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and
+    failure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source
+    does not say; never guessed. Display only.
     A row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill
     (true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),
     backfill_eta and next_check_basis (the schedule it came from).

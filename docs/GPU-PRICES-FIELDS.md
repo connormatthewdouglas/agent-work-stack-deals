@@ -42,6 +42,17 @@ On every rate in `gpu-prices.json` and every `compare_gpu_prices` result (full m
 | `min_bill_usd_per_hour` | number or null | `min_gpus` x the per-GPU hourly price (`hourly_equiv_usd` in the feed, `hourly_usd` in MCP rows): the least you pay per hour for one allocation. Equals the hourly price when `min_gpus` is 1. Null when either input is missing. Also on `excluded_min_gpus` entries. |
 | `min_bill_basis` | `hourly_rate`, `per_second_rate`, `monthly_equivalent` or null | What the hourly price is: the vendor's own per-GPU hourly rate; its per-second rate x 3600 (billed per second while running); or, for flat monthly servers, a derived equivalent (monthly price / 730 h). A `monthly_equivalent` is not a quoted hourly rate: the vendor bills the month. Marketplace rows use the median offer, as `hourly_equiv_usd` does. |
 
+
+## failure_reason, failure_reason_detail (additive, P41, Nov 2026; MCP)
+
+`compare_gpu_prices` and `estimate_job_cost` add these to every result's `availability` (and to the row itself). They describe a failed or "no" stock probe with a fixed reason, so a hit ratio can group the nos. Computed at call time from the probe outcome already on the row (`core/probe_reason.py`). A lapsed claim keeps the last no beside `last_known_in_stock` instead of dropping it. Brief rows carry the fields only when `failure_reason` is set. Ranking never reads them.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `failure_reason` | `sold_out`, `region`, `quota`, `other`, or null | `sold_out`: the probe (or the last firm answer on a lapsed claim) said out of stock, and the source did not state region or quota. `region` / `quota`: only when the source itself states that reason. `other`: a recorded probe failure (`check_failed_http` / `check_failed_timeout`) that is not one of those three. Null when the source does not say (unknown, `no_source`, a last-known in-stock, or never probed). Never guessed: `derived_from_regions` or "no confirmed region" is not `region`. |
+| `failure_reason_detail` | string or null | The source or Scout detail, passed through unchanged. Null when there is no source detail (our stale-claim note is not used). |
+
+HTTP-failed probes that never landed in a Scout snapshot cannot be invented here. When such a row does appear, it is `other`.
 ## next_check_at, will_backfill, backfill_eta (additive, P40, Nov 2026; MCP only)
 
 `compare_gpu_prices` adds these to every result whose stock is unknown (`in_stock` null, including a lapsed claim) and to every `stale_prices` entry (`core/check_schedule.py`). They are computed when you call the tool, because a "next check" time written into the static feed would go out of date. Brief rows carry `next_check_at` and `will_backfill`. Ranking never reads them.
