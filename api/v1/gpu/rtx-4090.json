@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-12T02:53:21Z",
+  "last_checked": "2026-11-12T06:56:21Z",
   "row_count": 11,
   "providers": [
     "Clore.ai",
@@ -83,50 +83,138 @@
         "availability": {
           "status": "available when checked",
           "in_stock": true,
-          "checked_at": "2026-11-12T02:45:59Z",
+          "checked_at": "2026-11-12T06:49:26Z",
           "refresh": "automated check, time shown (prices checked daily)",
           "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
           "origin": "scout",
-          "availability_expires_at": "2026-11-12T03:45:59Z",
+          "availability_expires_at": "2026-11-12T07:49:26Z",
           "max_age_hours": 1.0,
           "derived_from_regions": true,
-          "stock_level": "Low",
+          "stock_level": "High",
           "available_regions": [
-            "EU-RO-1 (Europe)"
+            "EU-CZ-1 (Europe)",
+            "EU-RO-1 (Europe)",
+            "EUR-IS-1 (Europe)",
+            "EUR-IS-2 (Europe)",
+            "US-IL-1 (United States)"
           ],
           "available_regions_detail": [
             {
-              "region": "EU-RO-1 (Europe)",
+              "region": "EU-CZ-1 (Europe)",
               "stock_level": "Low",
-              "checked_at": "2026-11-12T02:46:46Z",
-              "availability_expires_at": "2026-11-12T03:46:46Z",
+              "checked_at": "2026-11-12T06:50:02Z",
+              "availability_expires_at": "2026-11-12T07:50:02Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-12T02:46:46Z",
-              "second_read_at": "2026-11-12T02:51:53Z",
-              "second_read_gap_s": 307.0
+              "first_read_at": "2026-11-12T06:50:02Z",
+              "second_read_at": "2026-11-12T06:54:50Z",
+              "second_read_gap_s": 288.0
+            },
+            {
+              "region": "EU-RO-1 (Europe)",
+              "stock_level": "Medium",
+              "checked_at": "2026-11-12T06:50:19Z",
+              "availability_expires_at": "2026-11-12T07:50:19Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": "Medium",
+              "first_read_at": "2026-11-12T06:50:19Z",
+              "second_read_at": "2026-11-12T06:54:51Z",
+              "second_read_gap_s": 272.0
+            },
+            {
+              "region": "EUR-IS-1 (Europe)",
+              "stock_level": "Low",
+              "checked_at": "2026-11-12T06:50:21Z",
+              "availability_expires_at": "2026-11-12T07:50:21Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": "Low",
+              "first_read_at": "2026-11-12T06:50:21Z",
+              "second_read_at": "2026-11-12T06:54:52Z",
+              "second_read_gap_s": 271.0
+            },
+            {
+              "region": "EUR-IS-2 (Europe)",
+              "stock_level": "Low",
+              "checked_at": "2026-11-12T06:50:22Z",
+              "availability_expires_at": "2026-11-12T07:50:22Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": "Low",
+              "first_read_at": "2026-11-12T06:50:22Z",
+              "second_read_at": "2026-11-12T06:54:52Z",
+              "second_read_gap_s": 270.0
+            },
+            {
+              "region": "US-IL-1 (United States)",
+              "stock_level": "Low",
+              "checked_at": "2026-11-12T06:51:05Z",
+              "availability_expires_at": "2026-11-12T07:51:05Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": "Low",
+              "first_read_at": "2026-11-12T06:51:05Z",
+              "second_read_at": "2026-11-12T06:54:54Z",
+              "second_read_gap_s": 229.0
+            },
+            {
+              "region": "US-NC-1 (United States)",
+              "stock_level": "Low",
+              "checked_at": "2026-11-12T06:51:17Z",
+              "availability_expires_at": "2026-11-12T07:51:17Z",
+              "confirmed": false,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "first_read_at": "2026-11-12T06:51:17Z",
+              "second_read_at": "2026-11-12T06:54:57Z",
+              "second_read_gap_s": 220.0
             }
           ],
           "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-          "first_read_at": "2026-11-12T02:46:46Z",
-          "second_read_at": "2026-11-12T02:51:53Z",
-          "second_read_gap_s": 307.0,
-          "second_read_basis": "region EU-RO-1 (Europe)",
+          "first_read_at": "2026-11-12T06:50:02Z",
+          "second_read_at": "2026-11-12T06:54:50Z",
+          "second_read_gap_s": 288.0,
+          "second_read_basis": "region EU-CZ-1 (Europe)",
           "two_read_gap_ok": true,
           "available_regions_normalized": [
+            {
+              "label": "EU-CZ-1 (Europe)",
+              "zone": "EU-CZ-1",
+              "country": "CZ",
+              "group": "EU"
+            },
             {
               "label": "EU-RO-1 (Europe)",
               "zone": "EU-RO-1",
               "country": "RO",
               "group": "EU"
+            },
+            {
+              "label": "EUR-IS-1 (Europe)",
+              "zone": "EUR-IS-1",
+              "country": "IS",
+              "group": "EU"
+            },
+            {
+              "label": "EUR-IS-2 (Europe)",
+              "zone": "EUR-IS-2",
+              "country": "IS",
+              "group": "EU"
+            },
+            {
+              "label": "US-IL-1 (United States)",
+              "zone": "US-IL-1",
+              "country": "US",
+              "group": "NA"
             }
           ],
-          "regions_expires_at": "2026-11-12T03:46:46Z",
+          "regions_expires_at": "2026-11-12T07:50:02Z",
           "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
-          "stock_read_at": "2026-11-12T02:45:59Z",
+          "stock_read_at": "2026-11-12T06:49:26Z",
           "price_read_at": "2026-11-11T22:11:20+00:00",
           "price_at_claim_usd": 0.89,
           "gpu_count": 1
@@ -192,7 +280,7 @@
         "availability": {
           "status": "unknown",
           "in_stock": null,
-          "checked_at": "2026-11-12T02:46:01Z",
+          "checked_at": "2026-11-12T06:49:28Z",
           "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
           "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
           "origin": "scout",
@@ -314,398 +402,361 @@
         "availability": {
           "status": "available when checked",
           "in_stock": true,
-          "checked_at": "2026-11-12T02:45:57Z",
+          "checked_at": "2026-11-12T06:49:23Z",
           "refresh": "automated check, time shown (prices checked daily)",
           "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
           "origin": "scout",
-          "availability_expires_at": "2026-11-12T03:45:57Z",
+          "availability_expires_at": "2026-11-12T07:49:23Z",
           "max_age_hours": 1.0,
-          "offer_count": 46,
+          "offer_count": 43,
           "available_regions": [
-            "BG",
-            "BR",
             "CA",
             "CN",
+            "DK",
             "ES",
+            "FI",
             "FR",
             "GB",
-            "HK",
             "IE",
-            "JP",
-            "KR",
-            "NL",
+            "MY",
             "NO",
-            "PL",
             "SE",
-            "TW",
             "US",
             "VN"
           ],
           "available_regions_detail": [
             {
-              "region": "BG",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 2,
-              "machine_ids": [
-                30512
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
               "region": "BR",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                153714
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "CA",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 5,
-              "second_read_offer_count": 4,
-              "machine_ids": [
-                10029,
-                24573,
-                147509,
-                154787,
-                156144
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "CN",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 5,
-              "second_read_offer_count": 6,
-              "machine_ids": [
-                140297,
-                140968
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "ES",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 2,
-              "second_read_offer_count": 2,
-              "machine_ids": [
-                11851,
-                34591
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "FR",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 3,
-              "second_read_offer_count": 2,
-              "machine_ids": [
-                141767,
-                154732
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "GB",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 2,
-              "second_read_offer_count": 2,
-              "machine_ids": [
-                67873,
-                155335
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "HK",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                137510
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "IE",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 2,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                15489,
-                15969
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "JP",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 2,
-              "machine_ids": [
-                26191
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "KR",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 2,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                13068,
-                21038
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "NL",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 2,
-              "machine_ids": [
-                155440
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "NO",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 6,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                2217,
-                4590,
-                5741,
-                56108,
-                59314
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "PL",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                138839
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "SE",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 3,
-              "second_read_offer_count": 4,
-              "machine_ids": [
-                24199,
-                152461,
-                152552
-              ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
-            },
-            {
-              "region": "TR",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
               "confirmed": false,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "offer_count": 1,
               "second_read_offer_count": 0,
               "machine_ids": [
-                59798
+                137818
               ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
             },
             {
-              "region": "TW",
+              "region": "CA",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 1,
+              "offer_count": 7,
+              "second_read_offer_count": 4,
               "machine_ids": [
-                21899
+                8634,
+                10029,
+                15037,
+                145506,
+                147509,
+                154787
               ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
             },
             {
-              "region": "US",
+              "region": "CN",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
-              "offer_count": 5,
+              "offer_count": 3,
               "second_read_offer_count": 6,
               "machine_ids": [
-                31726,
-                136818,
-                150717,
-                151443,
-                155713
+                140968,
+                148361
               ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
             },
             {
-              "region": "VN",
+              "region": "DK",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:45:57Z",
-              "availability_expires_at": "2026-11-12T03:45:57Z",
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "offer_count": 3,
               "second_read_offer_count": 2,
               "machine_ids": [
-                51178,
-                52470
+                12976,
+                150282
               ],
-              "first_read_at": "2026-11-12T02:45:57Z",
-              "second_read_at": "2026-11-12T02:52:14Z",
-              "second_read_gap_s": 377.0
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "ES",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 4,
+              "second_read_offer_count": 4,
+              "machine_ids": [
+                11851,
+                13450,
+                34873
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "FI",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 2,
+              "second_read_offer_count": 1,
+              "machine_ids": [
+                31087
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "FR",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 2,
+              "machine_ids": [
+                154732
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "GB",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 1,
+              "machine_ids": [
+                67873
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "IE",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 1,
+              "machine_ids": [
+                15489
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "JP",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": false,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 0,
+              "machine_ids": [
+                148731
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "KR",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": false,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 0,
+              "machine_ids": [
+                21038
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "MY",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 1,
+              "machine_ids": [
+                138228
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "NL",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": false,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 0,
+              "machine_ids": [
+                155483
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "NO",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 5,
+              "second_read_offer_count": 4,
+              "machine_ids": [
+                838,
+                4590,
+                5741,
+                29846,
+                151085
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "SE",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 3,
+              "second_read_offer_count": 3,
+              "machine_ids": [
+                14825,
+                152552
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "TH",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": false,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 1,
+              "second_read_offer_count": 0,
+              "machine_ids": [
+                152387
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "US",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 4,
+              "second_read_offer_count": 7,
+              "machine_ids": [
+                9204,
+                18857,
+                150323,
+                150695
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
+            },
+            {
+              "region": "VN",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:49:23Z",
+              "availability_expires_at": "2026-11-12T07:49:23Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "offer_count": 3,
+              "second_read_offer_count": 3,
+              "machine_ids": [
+                9955,
+                51178
+              ],
+              "first_read_at": "2026-11-12T06:49:23Z",
+              "second_read_at": "2026-11-12T06:55:17Z",
+              "second_read_gap_s": 354.0
             }
           ],
           "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-          "first_read_at": "2026-11-12T02:45:57Z",
-          "second_read_at": "2026-11-12T02:52:14Z",
-          "second_read_gap_s": 377.0,
-          "second_read_basis": "region BG",
+          "first_read_at": "2026-11-12T06:49:23Z",
+          "second_read_at": "2026-11-12T06:55:17Z",
+          "second_read_gap_s": 354.0,
+          "second_read_basis": "region BR",
           "two_read_gap_ok": true,
           "available_regions_normalized": [
-            {
-              "label": "BG",
-              "zone": "BG",
-              "country": "BG",
-              "group": null
-            },
-            {
-              "label": "BR",
-              "zone": "BR",
-              "country": "BR",
-              "group": null
-            },
             {
               "label": "CA",
               "zone": "CA",
@@ -719,9 +770,21 @@
               "group": null
             },
             {
+              "label": "DK",
+              "zone": "DK",
+              "country": "DK",
+              "group": null
+            },
+            {
               "label": "ES",
               "zone": "ES",
               "country": "ES",
+              "group": "EU"
+            },
+            {
+              "label": "FI",
+              "zone": "FI",
+              "country": "FI",
               "group": "EU"
             },
             {
@@ -737,34 +800,16 @@
               "group": "EU"
             },
             {
-              "label": "HK",
-              "zone": "HK",
-              "country": "HK",
-              "group": null
-            },
-            {
               "label": "IE",
               "zone": "IE",
               "country": "IE",
               "group": "EU"
             },
             {
-              "label": "JP",
-              "zone": "JP",
-              "country": "JP",
-              "group": "APAC"
-            },
-            {
-              "label": "KR",
-              "zone": "KR",
-              "country": "KR",
-              "group": "APAC"
-            },
-            {
-              "label": "NL",
-              "zone": "NL",
-              "country": "NL",
-              "group": "EU"
+              "label": "MY",
+              "zone": "MY",
+              "country": "MY",
+              "group": null
             },
             {
               "label": "NO",
@@ -773,22 +818,10 @@
               "group": "EU"
             },
             {
-              "label": "PL",
-              "zone": "PL",
-              "country": "PL",
-              "group": "EU"
-            },
-            {
               "label": "SE",
               "zone": "SE",
               "country": "SE",
               "group": "EU"
-            },
-            {
-              "label": "TW",
-              "zone": "TW",
-              "country": "TW",
-              "group": "APAC"
             },
             {
               "label": "US",
@@ -803,12 +836,12 @@
               "group": null
             }
           ],
-          "regions_expires_at": "2026-11-12T03:45:57Z",
+          "regions_expires_at": "2026-11-12T07:49:23Z",
           "source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
           "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
-          "stock_read_at": "2026-11-12T02:45:57Z",
+          "stock_read_at": "2026-11-12T06:49:23Z",
           "price_read_at": "2026-11-11T22:12:05+00:00",
           "price_at_claim_usd": 0.4681,
           "gpu_count": 1
@@ -841,13 +874,13 @@
         "availability": {
           "status": "available when checked",
           "in_stock": true,
-          "checked_at": "2026-11-12T02:52:00Z",
+          "checked_at": "2026-11-12T06:55:03Z",
           "refresh": "manual snapshot, time shown (prices checked daily)",
           "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
           "origin": "scout",
-          "availability_expires_at": "2026-11-12T03:52:00Z",
+          "availability_expires_at": "2026-11-12T07:55:03Z",
           "max_age_hours": 1.0,
-          "unrented_servers": 136,
+          "unrented_servers": 139,
           "available_regions": [
             "AR",
             "BA",
@@ -858,16 +891,17 @@
             "EE",
             "FI",
             "FR",
+            "GB",
             "HR",
             "IL",
             "KG",
-            "LV",
             "MD",
             "MT",
             "NL",
             "PL",
             "RU",
             "SE",
+            "TR",
             "UA",
             "US"
           ],
@@ -875,54 +909,55 @@
             {
               "region": "AR",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 106807,
-                122039
+                122039,
+                122041
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "BA",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 87833
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "BR",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 113962
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "BY",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -931,30 +966,30 @@
                 104458,
                 119708
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "CN",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 120465
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "DE",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -969,30 +1004,31 @@
                 119133,
                 119141
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "EE",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
-                68888
+                68888,
+                99256
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "FI",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1002,15 +1038,15 @@
                 76553,
                 77100
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "FR",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1018,15 +1054,30 @@
                 118550,
                 120872
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
+              "second_read_gap_s": 63.0
+            },
+            {
+              "region": "GB",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "listing_ids": [
+                85652
+              ],
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "HR",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1035,60 +1086,45 @@
                 87636,
                 96533
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "IL",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 98682
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "KG",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 122634
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
-              "second_read_gap_s": 63.0
-            },
-            {
-              "region": "LV",
-              "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "listing_ids": [
-                118318
-              ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "MD",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1109,30 +1145,30 @@
                 99469,
                 104064
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "MT",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 113799
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "NL",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1142,30 +1178,30 @@
                 115141,
                 124147
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "PL",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
                 84835
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "RU",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1175,18 +1211,17 @@
                 30268,
                 31727,
                 37884,
+                43855,
                 50256,
                 73528,
                 78014,
                 79721,
                 79789,
                 84157,
-                88773,
                 90937,
                 95878,
                 96468,
                 97981,
-                99256,
                 104082,
                 106425,
                 113190,
@@ -1199,10 +1234,10 @@
                 119174,
                 119237,
                 119496,
-                119548,
                 119550,
                 119552,
                 119554,
+                119682,
                 120231,
                 122214,
                 122387,
@@ -1210,15 +1245,15 @@
                 123574,
                 123587
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "SE",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1229,19 +1264,36 @@
                 118437,
                 118453
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
+              "second_read_gap_s": 63.0
+            },
+            {
+              "region": "TR",
+              "stock_level": null,
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": null,
+              "listing_ids": [
+                118318
+              ],
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "UA",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
               "listing_ids": [
+                22480,
+                28630,
                 29167,
                 29169,
                 33459,
@@ -1249,6 +1301,8 @@
                 68495,
                 87343,
                 100123,
+                100724,
+                107334,
                 107491,
                 111237,
                 113063,
@@ -1259,36 +1313,33 @@
                 114509,
                 114512,
                 118263,
-                118264,
                 118265,
                 118266,
                 118267,
-                118268,
                 118269,
                 118272,
                 118273,
+                118275,
                 118276,
                 118279,
                 118556,
                 118691,
                 118734,
                 119369,
-                120921,
-                120923,
                 122005,
                 122534,
                 123557,
                 124227
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             },
             {
               "region": "US",
               "stock_level": null,
-              "checked_at": "2026-11-12T02:52:00Z",
-              "availability_expires_at": "2026-11-12T03:52:00Z",
+              "checked_at": "2026-11-12T06:55:03Z",
+              "availability_expires_at": "2026-11-12T07:55:03Z",
               "confirmed": true,
               "confirmation": "two_reads",
               "second_read_stock_level": null,
@@ -1298,14 +1349,14 @@
                 101028,
                 124009
               ],
-              "first_read_at": "2026-11-12T02:52:00Z",
-              "second_read_at": "2026-11-12T02:53:03Z",
+              "first_read_at": "2026-11-12T06:55:03Z",
+              "second_read_at": "2026-11-12T06:56:06Z",
               "second_read_gap_s": 63.0
             }
           ],
           "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-          "first_read_at": "2026-11-12T02:52:00Z",
-          "second_read_at": "2026-11-12T02:53:03Z",
+          "first_read_at": "2026-11-12T06:55:03Z",
+          "second_read_at": "2026-11-12T06:56:06Z",
           "second_read_gap_s": 63.0,
           "second_read_basis": "region AR",
           "two_read_gap_ok": true,
@@ -1365,6 +1416,12 @@
               "group": "EU"
             },
             {
+              "label": "GB",
+              "zone": "GB",
+              "country": "GB",
+              "group": "EU"
+            },
+            {
               "label": "HR",
               "zone": "HR",
               "country": "HR",
@@ -1380,12 +1437,6 @@
               "label": "KG",
               "zone": "KG",
               "country": "KG",
-              "group": null
-            },
-            {
-              "label": "LV",
-              "zone": "LV",
-              "country": "LV",
               "group": null
             },
             {
@@ -1425,6 +1476,12 @@
               "group": "EU"
             },
             {
+              "label": "TR",
+              "zone": "TR",
+              "country": "TR",
+              "group": null
+            },
+            {
               "label": "UA",
               "zone": "UA",
               "country": "UA",
@@ -1437,13 +1494,13 @@
               "group": "NA"
             }
           ],
-          "regions_expires_at": "2026-11-12T03:52:00Z",
+          "regions_expires_at": "2026-11-12T07:55:03Z",
           "unrented_servers_note": "unrented servers (one server may hold several GPUs)",
           "source": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
           "detail": "Unrented servers (one server may hold several GPUs), any currency",
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
-          "stock_read_at": "2026-11-12T02:52:00Z",
+          "stock_read_at": "2026-11-12T06:55:03Z",
           "price_read_at": "2026-11-09T03:51:49+00:00",
           "price_at_claim_usd": 0.5104,
           "gpu_count": 1
@@ -1505,7 +1562,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-12T02:46:01Z",
+        "checked_at": "2026-11-12T06:49:28Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout",
@@ -1667,398 +1724,361 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-12T02:45:57Z",
+        "checked_at": "2026-11-12T06:49:23Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-12T03:45:57Z",
+        "availability_expires_at": "2026-11-12T07:49:23Z",
         "max_age_hours": 1.0,
-        "offer_count": 46,
+        "offer_count": 43,
         "available_regions": [
-          "BG",
-          "BR",
           "CA",
           "CN",
+          "DK",
           "ES",
+          "FI",
           "FR",
           "GB",
-          "HK",
           "IE",
-          "JP",
-          "KR",
-          "NL",
+          "MY",
           "NO",
-          "PL",
           "SE",
-          "TW",
           "US",
           "VN"
         ],
         "available_regions_detail": [
           {
-            "region": "BG",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 2,
-            "machine_ids": [
-              30512
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
             "region": "BR",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              153714
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "CA",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 5,
-            "second_read_offer_count": 4,
-            "machine_ids": [
-              10029,
-              24573,
-              147509,
-              154787,
-              156144
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "CN",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 5,
-            "second_read_offer_count": 6,
-            "machine_ids": [
-              140297,
-              140968
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "ES",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2,
-            "machine_ids": [
-              11851,
-              34591
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "FR",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 3,
-            "second_read_offer_count": 2,
-            "machine_ids": [
-              141767,
-              154732
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "GB",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2,
-            "machine_ids": [
-              67873,
-              155335
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "HK",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              137510
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "IE",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              15489,
-              15969
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "JP",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 2,
-            "machine_ids": [
-              26191
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "KR",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              13068,
-              21038
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "NL",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 2,
-            "machine_ids": [
-              155440
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "NO",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 6,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              2217,
-              4590,
-              5741,
-              56108,
-              59314
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "PL",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              138839
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "SE",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 3,
-            "second_read_offer_count": 4,
-            "machine_ids": [
-              24199,
-              152461,
-              152552
-            ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
-          },
-          {
-            "region": "TR",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
             "confirmed": false,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "offer_count": 1,
             "second_read_offer_count": 0,
             "machine_ids": [
-              59798
+              137818
             ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
           },
           {
-            "region": "TW",
+            "region": "CA",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1,
+            "offer_count": 7,
+            "second_read_offer_count": 4,
             "machine_ids": [
-              21899
+              8634,
+              10029,
+              15037,
+              145506,
+              147509,
+              154787
             ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
           },
           {
-            "region": "US",
+            "region": "CN",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
-            "offer_count": 5,
+            "offer_count": 3,
             "second_read_offer_count": 6,
             "machine_ids": [
-              31726,
-              136818,
-              150717,
-              151443,
-              155713
+              140968,
+              148361
             ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
           },
           {
-            "region": "VN",
+            "region": "DK",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:45:57Z",
-            "availability_expires_at": "2026-11-12T03:45:57Z",
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "offer_count": 3,
             "second_read_offer_count": 2,
             "machine_ids": [
-              51178,
-              52470
+              12976,
+              150282
             ],
-            "first_read_at": "2026-11-12T02:45:57Z",
-            "second_read_at": "2026-11-12T02:52:14Z",
-            "second_read_gap_s": 377.0
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "ES",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 4,
+            "second_read_offer_count": 4,
+            "machine_ids": [
+              11851,
+              13450,
+              34873
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "FI",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 2,
+            "second_read_offer_count": 1,
+            "machine_ids": [
+              31087
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "FR",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 2,
+            "machine_ids": [
+              154732
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "GB",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 1,
+            "machine_ids": [
+              67873
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "IE",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 1,
+            "machine_ids": [
+              15489
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "JP",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0,
+            "machine_ids": [
+              148731
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "KR",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0,
+            "machine_ids": [
+              21038
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "MY",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 1,
+            "machine_ids": [
+              138228
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "NL",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0,
+            "machine_ids": [
+              155483
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "NO",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 5,
+            "second_read_offer_count": 4,
+            "machine_ids": [
+              838,
+              4590,
+              5741,
+              29846,
+              151085
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "SE",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 3,
+            "second_read_offer_count": 3,
+            "machine_ids": [
+              14825,
+              152552
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "TH",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 1,
+            "second_read_offer_count": 0,
+            "machine_ids": [
+              152387
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "US",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 4,
+            "second_read_offer_count": 7,
+            "machine_ids": [
+              9204,
+              18857,
+              150323,
+              150695
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
+          },
+          {
+            "region": "VN",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:49:23Z",
+            "availability_expires_at": "2026-11-12T07:49:23Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "offer_count": 3,
+            "second_read_offer_count": 3,
+            "machine_ids": [
+              9955,
+              51178
+            ],
+            "first_read_at": "2026-11-12T06:49:23Z",
+            "second_read_at": "2026-11-12T06:55:17Z",
+            "second_read_gap_s": 354.0
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "first_read_at": "2026-11-12T02:45:57Z",
-        "second_read_at": "2026-11-12T02:52:14Z",
-        "second_read_gap_s": 377.0,
-        "second_read_basis": "region BG",
+        "first_read_at": "2026-11-12T06:49:23Z",
+        "second_read_at": "2026-11-12T06:55:17Z",
+        "second_read_gap_s": 354.0,
+        "second_read_basis": "region BR",
         "two_read_gap_ok": true,
         "available_regions_normalized": [
-          {
-            "label": "BG",
-            "zone": "BG",
-            "country": "BG",
-            "group": null
-          },
-          {
-            "label": "BR",
-            "zone": "BR",
-            "country": "BR",
-            "group": null
-          },
           {
             "label": "CA",
             "zone": "CA",
@@ -2072,9 +2092,21 @@
             "group": null
           },
           {
+            "label": "DK",
+            "zone": "DK",
+            "country": "DK",
+            "group": null
+          },
+          {
             "label": "ES",
             "zone": "ES",
             "country": "ES",
+            "group": "EU"
+          },
+          {
+            "label": "FI",
+            "zone": "FI",
+            "country": "FI",
             "group": "EU"
           },
           {
@@ -2090,34 +2122,16 @@
             "group": "EU"
           },
           {
-            "label": "HK",
-            "zone": "HK",
-            "country": "HK",
-            "group": null
-          },
-          {
             "label": "IE",
             "zone": "IE",
             "country": "IE",
             "group": "EU"
           },
           {
-            "label": "JP",
-            "zone": "JP",
-            "country": "JP",
-            "group": "APAC"
-          },
-          {
-            "label": "KR",
-            "zone": "KR",
-            "country": "KR",
-            "group": "APAC"
-          },
-          {
-            "label": "NL",
-            "zone": "NL",
-            "country": "NL",
-            "group": "EU"
+            "label": "MY",
+            "zone": "MY",
+            "country": "MY",
+            "group": null
           },
           {
             "label": "NO",
@@ -2126,22 +2140,10 @@
             "group": "EU"
           },
           {
-            "label": "PL",
-            "zone": "PL",
-            "country": "PL",
-            "group": "EU"
-          },
-          {
             "label": "SE",
             "zone": "SE",
             "country": "SE",
             "group": "EU"
-          },
-          {
-            "label": "TW",
-            "zone": "TW",
-            "country": "TW",
-            "group": "APAC"
           },
           {
             "label": "US",
@@ -2156,12 +2158,12 @@
             "group": null
           }
         ],
-        "regions_expires_at": "2026-11-12T03:45:57Z",
+        "regions_expires_at": "2026-11-12T07:49:23Z",
         "source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
         "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
-        "stock_read_at": "2026-11-12T02:45:57Z",
+        "stock_read_at": "2026-11-12T06:49:23Z",
         "price_read_at": "2026-11-11T22:12:05+00:00",
         "price_at_claim_usd": 0.4681,
         "gpu_count": 1
@@ -2189,13 +2191,13 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-12T02:52:00Z",
+        "checked_at": "2026-11-12T06:55:03Z",
         "refresh": "manual snapshot, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-12T03:52:00Z",
+        "availability_expires_at": "2026-11-12T07:55:03Z",
         "max_age_hours": 1.0,
-        "unrented_servers": 136,
+        "unrented_servers": 139,
         "available_regions": [
           "AR",
           "BA",
@@ -2206,16 +2208,17 @@
           "EE",
           "FI",
           "FR",
+          "GB",
           "HR",
           "IL",
           "KG",
-          "LV",
           "MD",
           "MT",
           "NL",
           "PL",
           "RU",
           "SE",
+          "TR",
           "UA",
           "US"
         ],
@@ -2223,54 +2226,55 @@
           {
             "region": "AR",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               106807,
-              122039
+              122039,
+              122041
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "BA",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               87833
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "BR",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               113962
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "BY",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2279,30 +2283,30 @@
               104458,
               119708
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "CN",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               120465
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "DE",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2317,30 +2321,31 @@
               119133,
               119141
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "EE",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
-              68888
+              68888,
+              99256
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "FI",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2350,15 +2355,15 @@
               76553,
               77100
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "FR",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2366,15 +2371,30 @@
               118550,
               120872
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
+            "second_read_gap_s": 63.0
+          },
+          {
+            "region": "GB",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "listing_ids": [
+              85652
+            ],
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "HR",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2383,60 +2403,45 @@
               87636,
               96533
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "IL",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               98682
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "KG",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               122634
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
-            "second_read_gap_s": 63.0
-          },
-          {
-            "region": "LV",
-            "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "listing_ids": [
-              118318
-            ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "MD",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2457,30 +2462,30 @@
               99469,
               104064
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "MT",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               113799
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "NL",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2490,30 +2495,30 @@
               115141,
               124147
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "PL",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
               84835
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "RU",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2523,18 +2528,17 @@
               30268,
               31727,
               37884,
+              43855,
               50256,
               73528,
               78014,
               79721,
               79789,
               84157,
-              88773,
               90937,
               95878,
               96468,
               97981,
-              99256,
               104082,
               106425,
               113190,
@@ -2547,10 +2551,10 @@
               119174,
               119237,
               119496,
-              119548,
               119550,
               119552,
               119554,
+              119682,
               120231,
               122214,
               122387,
@@ -2558,15 +2562,15 @@
               123574,
               123587
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "SE",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2577,19 +2581,36 @@
               118437,
               118453
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
+            "second_read_gap_s": 63.0
+          },
+          {
+            "region": "TR",
+            "stock_level": null,
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "listing_ids": [
+              118318
+            ],
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "UA",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
             "listing_ids": [
+              22480,
+              28630,
               29167,
               29169,
               33459,
@@ -2597,6 +2618,8 @@
               68495,
               87343,
               100123,
+              100724,
+              107334,
               107491,
               111237,
               113063,
@@ -2607,36 +2630,33 @@
               114509,
               114512,
               118263,
-              118264,
               118265,
               118266,
               118267,
-              118268,
               118269,
               118272,
               118273,
+              118275,
               118276,
               118279,
               118556,
               118691,
               118734,
               119369,
-              120921,
-              120923,
               122005,
               122534,
               123557,
               124227
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           },
           {
             "region": "US",
             "stock_level": null,
-            "checked_at": "2026-11-12T02:52:00Z",
-            "availability_expires_at": "2026-11-12T03:52:00Z",
+            "checked_at": "2026-11-12T06:55:03Z",
+            "availability_expires_at": "2026-11-12T07:55:03Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": null,
@@ -2646,14 +2666,14 @@
               101028,
               124009
             ],
-            "first_read_at": "2026-11-12T02:52:00Z",
-            "second_read_at": "2026-11-12T02:53:03Z",
+            "first_read_at": "2026-11-12T06:55:03Z",
+            "second_read_at": "2026-11-12T06:56:06Z",
             "second_read_gap_s": 63.0
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "first_read_at": "2026-11-12T02:52:00Z",
-        "second_read_at": "2026-11-12T02:53:03Z",
+        "first_read_at": "2026-11-12T06:55:03Z",
+        "second_read_at": "2026-11-12T06:56:06Z",
         "second_read_gap_s": 63.0,
         "second_read_basis": "region AR",
         "two_read_gap_ok": true,
@@ -2713,6 +2733,12 @@
             "group": "EU"
           },
           {
+            "label": "GB",
+            "zone": "GB",
+            "country": "GB",
+            "group": "EU"
+          },
+          {
             "label": "HR",
             "zone": "HR",
             "country": "HR",
@@ -2728,12 +2754,6 @@
             "label": "KG",
             "zone": "KG",
             "country": "KG",
-            "group": null
-          },
-          {
-            "label": "LV",
-            "zone": "LV",
-            "country": "LV",
             "group": null
           },
           {
@@ -2773,6 +2793,12 @@
             "group": "EU"
           },
           {
+            "label": "TR",
+            "zone": "TR",
+            "country": "TR",
+            "group": null
+          },
+          {
             "label": "UA",
             "zone": "UA",
             "country": "UA",
@@ -2785,13 +2811,13 @@
             "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-12T03:52:00Z",
+        "regions_expires_at": "2026-11-12T07:55:03Z",
         "unrented_servers_note": "unrented servers (one server may hold several GPUs)",
         "source": "https://api.clore.ai/v1/marketplace (servers[].rented == false)",
         "detail": "Unrented servers (one server may hold several GPUs), any currency",
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
-        "stock_read_at": "2026-11-12T02:52:00Z",
+        "stock_read_at": "2026-11-12T06:55:03Z",
         "price_read_at": "2026-11-09T03:51:49+00:00",
         "price_at_claim_usd": 0.5104,
         "gpu_count": 1
@@ -2813,7 +2839,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-12T02:53:21Z",
+      "verified_at": "2026-11-12T06:56:21Z",
       "source_url": "https://oblivus.com/pricing/",
       "quote": "RTX 4090 ... On-Demand: $0.64/hr",
       "availability": {
@@ -2845,50 +2871,138 @@
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-12T02:45:59Z",
+        "checked_at": "2026-11-12T06:49:26Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-12T03:45:59Z",
+        "availability_expires_at": "2026-11-12T07:49:26Z",
         "max_age_hours": 1.0,
         "derived_from_regions": true,
-        "stock_level": "Low",
+        "stock_level": "High",
         "available_regions": [
-          "EU-RO-1 (Europe)"
+          "EU-CZ-1 (Europe)",
+          "EU-RO-1 (Europe)",
+          "EUR-IS-1 (Europe)",
+          "EUR-IS-2 (Europe)",
+          "US-IL-1 (United States)"
         ],
         "available_regions_detail": [
           {
-            "region": "EU-RO-1 (Europe)",
+            "region": "EU-CZ-1 (Europe)",
             "stock_level": "Low",
-            "checked_at": "2026-11-12T02:46:46Z",
-            "availability_expires_at": "2026-11-12T03:46:46Z",
+            "checked_at": "2026-11-12T06:50:02Z",
+            "availability_expires_at": "2026-11-12T07:50:02Z",
             "confirmed": true,
             "confirmation": "two_reads",
             "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-12T02:46:46Z",
-            "second_read_at": "2026-11-12T02:51:53Z",
-            "second_read_gap_s": 307.0
+            "first_read_at": "2026-11-12T06:50:02Z",
+            "second_read_at": "2026-11-12T06:54:50Z",
+            "second_read_gap_s": 288.0
+          },
+          {
+            "region": "EU-RO-1 (Europe)",
+            "stock_level": "Medium",
+            "checked_at": "2026-11-12T06:50:19Z",
+            "availability_expires_at": "2026-11-12T07:50:19Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Medium",
+            "first_read_at": "2026-11-12T06:50:19Z",
+            "second_read_at": "2026-11-12T06:54:51Z",
+            "second_read_gap_s": 272.0
+          },
+          {
+            "region": "EUR-IS-1 (Europe)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-12T06:50:21Z",
+            "availability_expires_at": "2026-11-12T07:50:21Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low",
+            "first_read_at": "2026-11-12T06:50:21Z",
+            "second_read_at": "2026-11-12T06:54:52Z",
+            "second_read_gap_s": 271.0
+          },
+          {
+            "region": "EUR-IS-2 (Europe)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-12T06:50:22Z",
+            "availability_expires_at": "2026-11-12T07:50:22Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low",
+            "first_read_at": "2026-11-12T06:50:22Z",
+            "second_read_at": "2026-11-12T06:54:52Z",
+            "second_read_gap_s": 270.0
+          },
+          {
+            "region": "US-IL-1 (United States)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-12T06:51:05Z",
+            "availability_expires_at": "2026-11-12T07:51:05Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low",
+            "first_read_at": "2026-11-12T06:51:05Z",
+            "second_read_at": "2026-11-12T06:54:54Z",
+            "second_read_gap_s": 229.0
+          },
+          {
+            "region": "US-NC-1 (United States)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-12T06:51:17Z",
+            "availability_expires_at": "2026-11-12T07:51:17Z",
+            "confirmed": false,
+            "confirmation": "two_reads",
+            "second_read_stock_level": null,
+            "first_read_at": "2026-11-12T06:51:17Z",
+            "second_read_at": "2026-11-12T06:54:57Z",
+            "second_read_gap_s": 220.0
           }
         ],
         "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
-        "first_read_at": "2026-11-12T02:46:46Z",
-        "second_read_at": "2026-11-12T02:51:53Z",
-        "second_read_gap_s": 307.0,
-        "second_read_basis": "region EU-RO-1 (Europe)",
+        "first_read_at": "2026-11-12T06:50:02Z",
+        "second_read_at": "2026-11-12T06:54:50Z",
+        "second_read_gap_s": 288.0,
+        "second_read_basis": "region EU-CZ-1 (Europe)",
         "two_read_gap_ok": true,
         "available_regions_normalized": [
+          {
+            "label": "EU-CZ-1 (Europe)",
+            "zone": "EU-CZ-1",
+            "country": "CZ",
+            "group": "EU"
+          },
           {
             "label": "EU-RO-1 (Europe)",
             "zone": "EU-RO-1",
             "country": "RO",
             "group": "EU"
+          },
+          {
+            "label": "EUR-IS-1 (Europe)",
+            "zone": "EUR-IS-1",
+            "country": "IS",
+            "group": "EU"
+          },
+          {
+            "label": "EUR-IS-2 (Europe)",
+            "zone": "EUR-IS-2",
+            "country": "IS",
+            "group": "EU"
+          },
+          {
+            "label": "US-IL-1 (United States)",
+            "zone": "US-IL-1",
+            "country": "US",
+            "group": "NA"
           }
         ],
-        "regions_expires_at": "2026-11-12T03:46:46Z",
+        "regions_expires_at": "2026-11-12T07:50:02Z",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
-        "stock_read_at": "2026-11-12T02:45:59Z",
+        "stock_read_at": "2026-11-12T06:49:26Z",
         "price_read_at": "2026-11-11T22:11:20+00:00",
         "price_at_claim_usd": 0.89,
         "gpu_count": 1
@@ -2916,14 +3030,14 @@
       "availability": {
         "status": "out of stock when checked",
         "in_stock": false,
-        "checked_at": "2026-11-12T02:52:08Z",
+        "checked_at": "2026-11-12T06:55:11Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_expires_at": "2026-11-12T03:52:08Z",
+        "availability_expires_at": "2026-11-12T07:55:11Z",
         "max_age_hours": 1.0,
-        "first_read_at": "2026-11-12T02:52:08Z",
-        "second_read_at": "2026-11-12T02:53:12Z",
+        "first_read_at": "2026-11-12T06:55:11Z",
+        "second_read_at": "2026-11-12T06:56:15Z",
         "second_read_gap_s": 64.0,
         "second_read_basis": "overall",
         "two_read_gap_ok": true,
@@ -2931,7 +3045,7 @@
         "detail": "Novita products API (gpuNum=1, billingMethod=onDemand): in stock = availableDeploy true AND inventoryState low/normal/high; out of stock = availableDeploy false AND inventoryState none for every matching product; mixed/other -> unknown. Region rows only for a deployable product that lists exactly one cluster (multi-cluster lists don't say which cluster has stock)",
         "availability_status": "out_of_stock",
         "availability_reason": "out_of_stock",
-        "stock_read_at": "2026-11-12T02:52:08Z",
+        "stock_read_at": "2026-11-12T06:55:11Z",
         "price_read_at": "2026-11-11T22:10:55+00:00",
         "price_at_claim_usd": 0.67,
         "gpu_count": 1
@@ -2942,6 +3056,6 @@
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261112T025327Z-033a0584",
-  "feed_updated_at": "2026-11-12T02:53:27Z"
+  "generation_id": "20261112T065628Z-8fafd4a2",
+  "feed_updated_at": "2026-11-12T06:56:28Z"
 }
