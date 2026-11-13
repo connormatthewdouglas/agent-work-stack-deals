@@ -134,3 +134,23 @@ def test_sitemap_lastmod_drift_passes_but_url_changes_fail(tmp_path):
         assert chk.check(dest) != 0
     finally:
         _remove(dest)
+
+
+def test_gpu_refresh_workflow_pins_one_clock_for_generate_and_pytest():
+    """#220: generate and the pages-match check must share one LW_AVAIL_NOW.
+
+    The refresh job used to call generate_seo_pages.py with no pin (wall-clock
+    expiry) and then pytest, whose check() falls back to feed_updated_at, which
+    is kept when ranked prices are unchanged. Those clocks diverge, so
+    test_committed_pages_match_pinned_generator fails and the refresh never
+    publishes. The pin must be exported in run_refresh before generate, so
+    pytest inherits it.
+    """
+    text = (ROOT / ".github" / "workflows" / "gpu-refresh.yml").read_text(encoding="utf-8")
+    pin = text.find("export LW_AVAIL_NOW=")
+    assert pin != -1 and "run_refresh()" in text[:pin]
+    rest = text[pin:]
+    close = rest.find("\n          }")
+    gen = rest.find("scripts/generate_seo_pages.py")
+    pytest_at = rest.find("pytest")
+    assert close != -1 and 0 <= gen < pytest_at < close

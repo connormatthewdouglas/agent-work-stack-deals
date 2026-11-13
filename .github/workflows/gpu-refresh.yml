@@ -74,6 +74,11 @@ jobs:
               # stack_pricing: bump checked_at only when every quoted price is on the visible page; misses are flagged, never rewritten
               python3 scripts/refresh_stack_quotes.py --report /tmp/stack.md > /dev/null && cat /tmp/stack.md >> /tmp/refresh.md
             fi
+            # One build clock for generate + pytest. generate_seo_pages uses wall-clock now_utc()
+            # for claim expiry when LW_AVAIL_NOW is unset, but test_committed_pages_match then
+            # pins to feed_updated_at (which is kept when ranked prices are unchanged). The two
+            # clocks diverge, pages-match fails, and the refresh never publishes (#220).
+            export LW_AVAIL_NOW="${LW_AVAIL_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
             python3 scripts/generate_seo_pages.py > /dev/null
             python3 scripts/check_gpu_changes.py --base HEAD
             python3 -m pytest -q tests
