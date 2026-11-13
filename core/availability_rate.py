@@ -56,6 +56,22 @@ def _split(unknown, never_ran, no_source) -> tuple:
     return (never_ran, no_source) if ok and never_ran + no_source == unknown else (None, None)
 
 
+def _observed_hours(first, last, end) -> float | None:
+    """P58: hours from first_check_at to last_check_at (else window_end), 1 decimal; null if no usable stamps."""
+    if not first:
+        return None
+    end_stamp = last or end
+    if not end_stamp:
+        return None
+    try:
+        a = datetime.fromisoformat(str(first).replace("Z", "+00:00"))
+        b = datetime.fromisoformat(str(end_stamp).replace("Z", "+00:00"))
+        hours = (b - a).total_seconds() / 3600
+        return round(hours, 1) if hours >= 0 else None
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
 def _describe(known, stocked, unknown, start, end, source, first=None, last=None, never_ran=None, no_source=None) -> dict | None:
     """Counts and their observed window; no price weighting or probability forecast."""
     if not isinstance(known, int) or isinstance(known, bool) or known < 0:
@@ -78,6 +94,7 @@ def _describe(known, stocked, unknown, start, end, source, first=None, last=None
             "total_checks": known + unknown if unknown is not None else None,
             "in_stock_checks": stocked, "window_start": start, "window_end": end,
             "window_days": 7, "first_check_at": first, "last_check_at": last,
+            "observed_hours": _observed_hours(first, last, end),  # P58: real coverage next to the nominal 7d window
             "source": source, "sample_status": status, "sufficient_sample": known >= MIN_CHECKS,
             "window_stale": stale,
             "interpretation": "observed share of known stock checks, not a forecast or monetary estimate"}
