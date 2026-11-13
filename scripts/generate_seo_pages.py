@@ -2299,6 +2299,15 @@ def main() -> None:
     curated_gotchas = load_curated_gotchas()
     twin_index = build_twin_index(deals)
 
+    # Write the GPU price feed before any page that reads feed_updated_at for the
+    # "read ago" / badge clocks (those clocks are cached on first use). A refresh
+    # that moves the stamp would otherwise render compare/gpu "read ago" labels
+    # against the previous feed time, while check() regenerates against the new
+    # one — test_committed_pages_match_pinned_generator fails and the job never
+    # publishes. Same rule as writing the price-changes feed before spec_pages.
+    import gpu_calculator
+    tool_paths = [gpu_calculator.write(sys.modules[__name__], deals, feed_updated)]
+
     deal_paths = []
     deal_slugs = []
     for d in deals:
@@ -2328,9 +2337,7 @@ def main() -> None:
 
     import compare_pages
     compare_paths = compare_pages.write_compare_pages(sys.modules[__name__], deals)
-    import gpu_calculator
     import gpu_pages
-    tool_paths = [gpu_calculator.write(sys.modules[__name__], deals, feed_updated)]
     import stack_optimizer
     tool_paths.append(stack_optimizer.write(sys.modules[__name__], deals, feed_updated))
     import stack_page

@@ -112,9 +112,15 @@ def test_feed_commit_provenance_lag_passes_but_other_index_edits_fail(tmp_path):
             days = [doc]
         days[-1]["feed_commit_for_listing_counts"] = "0" * 40
         index.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
-        assert chk.check(dest) == 0
-        index.write_text(text.replace('"median_usd_per_gpu_hour": ', '"median_usd_per_gpu_hour": 9', 1), encoding="utf-8")
-        assert chk.check(dest) != 0
+        # Parent LW_AVAIL_NOW (e.g. the GPU refresh job) must not override dest's feed stamp.
+        saved = os.environ.pop("LW_AVAIL_NOW", None)
+        try:
+            assert chk.check(dest) == 0
+            index.write_text(text.replace('"median_usd_per_gpu_hour": ', '"median_usd_per_gpu_hour": 9', 1), encoding="utf-8")
+            assert chk.check(dest) != 0
+        finally:
+            if saved is not None:
+                os.environ["LW_AVAIL_NOW"] = saved
     finally:
         _remove(dest)
 
@@ -128,12 +134,34 @@ def test_sitemap_lastmod_drift_passes_but_url_changes_fail(tmp_path):
         sm = dest / "sitemap.xml"
         text = sm.read_text(encoding="utf-8")
         sm.write_text(_re.sub(r"<lastmod>[^<]*</lastmod>", "<lastmod>2000-01-01</lastmod>", text), encoding="utf-8")
-        assert chk.check(dest) == 0
-        first = _re.search(r"<url>.*?</url>\s*", text, _re.S).group(0)
-        sm.write_text(text.replace(first, "", 1), encoding="utf-8")
-        assert chk.check(dest) != 0
+        # Parent LW_AVAIL_NOW (e.g. the GPU refresh job) must not override dest's feed stamp.
+        saved = os.environ.pop("LW_AVAIL_NOW", None)
+        try:
+            assert chk.check(dest) == 0
+            first = _re.search(r"<url>.*?</url>\s*", text, _re.S).group(0)
+            sm.write_text(text.replace(first, "", 1), encoding="utf-8")
+            assert chk.check(dest) != 0
+        finally:
+            if saved is not None:
+                os.environ["LW_AVAIL_NOW"] = saved
     finally:
         _remove(dest)
+
+
+def test_generate_writes_gpu_price_feed_before_pages_that_read_it():
+    """A refresh that moves feed_updated_at must already match after ONE generate.
+
+    compare pages and the deal/badge and 'read ago' clocks read api/v1/gpu-prices.json.
+    If gpu_calculator.write() runs after those pages, the first generate paints
+    'read ago' from the previous stamp and check() rebuilds from the new one.
+    """
+    text = (ROOT / "scripts" / "generate_seo_pages.py").read_text(encoding="utf-8")
+    body = text[text.find("def main()"):]
+    write_at = body.find("gpu_calculator.write(")
+    compare_at = body.find("write_compare_pages(")
+    deal_at = body.find("write_deal_page(")
+    assert 0 <= write_at < compare_at, "write GPU price feed before compare pages"
+    assert 0 <= write_at < deal_at, "write GPU price feed before deal pages (badge clock)"
 
 
 def test_gpu_refresh_workflow_pins_one_clock_for_generate_and_pytest():
