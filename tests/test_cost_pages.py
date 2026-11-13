@@ -207,8 +207,16 @@ def test_0327_new_h100_a100_rows_live_and_sourced():
                 assert r["availability"]["in_stock"] is None
             if r["advertiser"] == "Civo":
                 # Public product-page statusText is a firm In stock / Out of stock signal (gigawatt).
-                assert r["availability"]["in_stock"] is not None
-                assert r["availability"]["source"].startswith("https://www.civo.com/ai/")
+                # When the claim is still live at the build clock, in_stock must be present.
+                # When it has aged past the stale cut, the stale label must stay visible (exact
+                # 'unknown' would hide it). Do not invent stock; source stays the product page.
+                a = r["availability"]
+                assert (a.get("source") or "").startswith("https://www.civo.com/ai/")
+                if a.get("availability_stale"):
+                    assert a["in_stock"] is None
+                    assert str(a.get("status") or "").startswith("unknown (stale availability, last checked")
+                else:
+                    assert a["in_stock"] is not None
     ob = [r for r in feed["rates"] if r["advertiser"] == "Oblivus"]
     assert ob
     for r in ob:  # J6: quote and stock count from the same capture
