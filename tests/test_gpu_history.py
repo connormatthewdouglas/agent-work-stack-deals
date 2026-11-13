@@ -229,24 +229,104 @@ def test_freshness_check_warns_then_fails():
     from datetime import timedelta
     spec = importlib.util.spec_from_file_location("fresh", Path(__file__).resolve().parents[1] / "scripts" / "check_gpu_freshness.py")
     F = importlib.util.module_from_spec(spec); spec.loader.exec_module(F)
-    from core.gpu import load_vendor_files
-    from core.owner_hold import is_held
-    last = min(datetime.fromisoformat(r["checked_at"]) for d in load_vendor_files() if not d.get("stale") and not d.get("manual_snapshot") and not is_held(d.get("vendor")) for r in d["records"] if not r.get("stale") and not is_held(r.get("vendor")) and r.get("checked_at"))
-    assert F.status(last + timedelta(hours=1))[0] == 0
-    code, msgs = F.status(last + timedelta(hours=25))
-    assert code == 0 and any("::warning::" in m for m in msgs)
-    assert F.status(last + timedelta(hours=27))[0] == 1
+    # Isolated successful row so the 24/26 h bars are not entangled with the 72 h ceiling on other rows.
+    last = datetime.fromisoformat("2026-11-13T21:16:54+00:00")
+    ok = [{"vendor": "Ok", "records": [{"checked_at": last.isoformat(), "gpu": "H100", "tier": "On-demand"}]}]
+    orig = F.load_vendor_files
+    F.load_vendor_files = lambda: ok
+    try:
+        assert F.status(last + timedelta(hours=1))[0] == 0
+        code, msgs = F.status(last + timedelta(hours=25))
+        assert code == 0 and any("::warning::" in m for m in msgs)
+        assert F.status(last + timedelta(hours=27))[0] == 1
+        assert any("0 unverified row(s) (failed re-read)" in m for m in msgs)
+    finally:
+        F.load_vendor_files = orig
     # A failed attempt must not make a stale successful check look fresh. The fail bar stays 26 h.
     import check_gpu_freshness as gate
     stale = "2026-11-01T00:00:00+00:00"
     failed = "2026-11-09T12:00:00+00:00"
-    monkey_docs = [{"vendor": "V", "records": [{"checked_at": stale, "last_failed_check_at": failed}]}]
+    monkey_docs = [{"vendor": "V", "records": [{"checked_at": stale, "last_failed_check_at": failed, "gpu": "H100", "tier": "reserved"}]}]
     orig = gate.load_vendor_files
     gate.load_vendor_files = lambda: monkey_docs
     try:
         assert gate.status(datetime.fromisoformat(failed) + timedelta(hours=1), 26)[0] == 1
-        monkey_docs[0]["records"][0]["checked_at"] = failed
-        assert gate.status(datetime.fromisoformat(failed) + timedelta(hours=1), 26)[0] == 0
+        # A later successful re-read (checked_at after last_failed_check_at) makes the gate fresh.
+        later = "2026-11-09T13:00:00+00:00"
+        monkey_docs[0]["records"][0]["checked_at"] = later
+        assert gate.status(datetime.fromisoformat(later) + timedelta(hours=1), 26)[0] == 0
+    finally:
+        gate.load_vendor_files = orig
+
+
+def test_freshness_check_ignores_failed_reread_when_others_succeeded():
+    """A successful refresh that cannot re-verify some rows must still look fresh.
+
+    Those rows keep their previous checked_at (failed collection must not restamp
+    verification) and record last_failed_check_at. The gate uses the oldest
+    successful re-read, not the stale stamp on a failed row. 24/26 h bars stay.
+    The failed row here is well under the 72 h ceiling even at +27 h.
+    """
+    import sys
+    from datetime import timedelta
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import check_gpu_freshness as gate
+    fresh = "2026-11-13T21:16:54+00:00"
+    stale = "2026-11-12T09:16:54+00:00"  # 36 h before the successful re-read; 63 h at +27 h
+    failed = "2026-11-13T21:16:54+00:00"
+    docs = [
+        {"vendor": "Ok", "records": [{"checked_at": fresh, "gpu": "H100", "tier": "On-demand"}]},
+        {"vendor": "Civo", "records": [{"checked_at": stale, "last_failed_check_at": failed, "gpu": "H100 SXM", "tier": "6-month commitment"}]},
+    ]
+    orig = gate.load_vendor_files
+    gate.load_vendor_files = lambda: docs
+    try:
+        now = datetime.fromisoformat(fresh) + timedelta(hours=1)
+        code, msgs = gate.status(now, 26)
+        assert code == 0, msgs
+        assert "2026-11-13T21:16:54" in msgs[0]
+        assert any("1 unverified row(s) (failed re-read)" in m and "Civo|H100 SXM|6-month commitment" in m for m in msgs)
+        assert gate.status(datetime.fromisoformat(fresh) + timedelta(hours=25), 26)[0] == 0
+        assert gate.status(datetime.fromisoformat(fresh) + timedelta(hours=27), 26)[0] == 1
+        # Every auto-refresh row failed: the previous successful stamps must not count.
+        docs[:] = [{"vendor": "Civo", "records": [{"checked_at": stale, "last_failed_check_at": failed, "gpu": "H100 SXM", "tier": "6-month commitment"}]}]
+        assert gate.status(now, 26)[0] == 1
+    finally:
+        gate.load_vendor_files = orig
+
+
+def test_freshness_ceiling_lists_unverified_and_fails_at_73h():
+    """A 48 h failed re-read is listed but does not fail; a 73 h one trips the 72 h hard ceiling.
+
+    24/26 h bars stay on the successful re-read. Feed stamps are not rewritten.
+    """
+    import sys
+    from datetime import timedelta
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import check_gpu_freshness as gate
+    fresh = datetime.fromisoformat("2026-11-13T21:16:54+00:00")
+    now = fresh + timedelta(hours=1)
+
+    def docs_at(age_h):
+        stale = (now - timedelta(hours=age_h)).isoformat()
+        return [
+            {"vendor": "Ok", "records": [{"checked_at": fresh.isoformat(), "gpu": "H100", "tier": "On-demand"}]},
+            {"vendor": "Civo", "records": [{"checked_at": stale, "last_failed_check_at": fresh.isoformat(),
+                                            "gpu": "H100 SXM", "tier": "6-month commitment"}]},
+        ]
+
+    orig = gate.load_vendor_files
+    try:
+        gate.load_vendor_files = lambda: docs_at(48)
+        code, msgs = gate.status(now, 26)
+        assert code == 0, msgs
+        assert any("1 unverified row(s) (failed re-read)" in m and "Civo|H100 SXM|6-month commitment" in m for m in msgs)
+        assert "hard ceiling" not in "\n".join(msgs)
+        gate.load_vendor_files = lambda: docs_at(73)
+        code, msgs = gate.status(now, 26)
+        assert code == 1, msgs
+        assert any("1 unverified row(s) (failed re-read)" in m and "Civo|H100 SXM|6-month commitment" in m for m in msgs)
+        assert any("older than 72 h" in m and "hard ceiling" in m and "Civo|H100 SXM|6-month commitment" in m for m in msgs)
     finally:
         gate.load_vendor_files = orig
 
