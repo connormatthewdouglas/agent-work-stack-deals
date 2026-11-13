@@ -39,6 +39,21 @@ def _regenerate(path: Path) -> None:
     )
 
 
+
+def _pop_parent_clock_if_root_dirty() -> str | None:
+    """A parent LW_AVAIL_NOW belongs to this checkout's generate, not to a HEAD worktree.
+
+    The GPU refresh job is dirty when pytest runs (new prices, uncommitted pages), so a
+    HEAD worktree still has the previous feed stamp and must not inherit the job pin.
+    latest-scout-import commits the rebuild first, so dest is that same HEAD and must
+    keep the pin. Sibling dest tests that regenerate dest themselves always pop.
+    """
+    dirty = subprocess.check_output(["git", "-C", str(ROOT), "status", "--porcelain"])
+    if dirty.strip():
+        return os.environ.pop("LW_AVAIL_NOW", None)
+    return None
+
+
 def test_committed_pages_match_pinned_generator():
     assert chk.check(ROOT) == 0
 
@@ -112,8 +127,7 @@ def test_feed_commit_provenance_lag_passes_but_other_index_edits_fail(tmp_path):
             days = [doc]
         days[-1]["feed_commit_for_listing_counts"] = "0" * 40
         index.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
-        # Parent LW_AVAIL_NOW (e.g. the GPU refresh job) must not override dest's feed stamp.
-        saved = os.environ.pop("LW_AVAIL_NOW", None)
+        saved = _pop_parent_clock_if_root_dirty()
         try:
             assert chk.check(dest) == 0
             index.write_text(text.replace('"median_usd_per_gpu_hour": ', '"median_usd_per_gpu_hour": 9', 1), encoding="utf-8")
@@ -134,8 +148,7 @@ def test_sitemap_lastmod_drift_passes_but_url_changes_fail(tmp_path):
         sm = dest / "sitemap.xml"
         text = sm.read_text(encoding="utf-8")
         sm.write_text(_re.sub(r"<lastmod>[^<]*</lastmod>", "<lastmod>2000-01-01</lastmod>", text), encoding="utf-8")
-        # Parent LW_AVAIL_NOW (e.g. the GPU refresh job) must not override dest's feed stamp.
-        saved = os.environ.pop("LW_AVAIL_NOW", None)
+        saved = _pop_parent_clock_if_root_dirty()
         try:
             assert chk.check(dest) == 0
             first = _re.search(r"<url>.*?</url>\s*", text, _re.S).group(0)
