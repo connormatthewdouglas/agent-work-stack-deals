@@ -151,7 +151,7 @@ def test_estimate_ranks_rows_that_fit_the_gpu_count_first():
 def test_agent_stack_gpu_choice_honors_min_gpus_and_states_assumption():
     opts = stack._gpu_options(_data(), 100, "H100", set())
     assert opts[0].get("min_gpus_unmet") is not True and any(o.get("min_gpus_unmet") for o in opts)
-    r = agent_stack.plan("fine-tune on H100 100 gpu hours", [], {}, _data())
+    r = agent_stack.plan("fine-tune on H100 100 gpu hours", [], {}, _data(), now=NOW)
     line = next(l for l in r["lines"] if l["component"] == "gpu")
     assert line["choice"]["gpus_billed"] == 1 and line["choice"]["monthly_cost_usd"] == 205.0  # not the 2-GPU $100 allocation
     assert any("treated as 1 GPU" in a for a in r["assumptions"])
