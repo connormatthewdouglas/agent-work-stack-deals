@@ -156,7 +156,7 @@ Use `hourly_equiv_usd` and the existing whole-instance/minimum-GPU rules for com
 
 `availability_rate_7d` remains a descriptive observation: `rate` (stocked / known checks, null with zero known),
 `checks` (legacy known count), `known_checks`, `unknown_checks`, `total_checks`, `in_stock_checks`,
-`window_start`, `window_end`, `window_days`, and first/last observation timestamps. Unknown observations
+`window_start`, `window_end`, `window_days`, and first/last observation timestamps. P58 (additive) also publishes `first_check_at` (ISO timestamp of the earliest check actually in the window, null if none) and `observed_hours` (hours from `first_check_at` to `last_check_at`, or to `window_end` when last is missing, rounded to 1 decimal; null if no usable first stamp). `window_days` stays 7 and the rate is unchanged; callers can see when the checks only cover part of the nominal window. Unknown observations
 are excluded from the share, but not hidden from the counts. P38 (additive) splits `unknown_checks` by why each check had no stock answer, using the row's own
 `availability_reason` (Scout T113 enum): `never_ran_checks` = no stock reading was taken (`check_failed_timeout`,
 `check_failed_http`, or `stale`/backoff); `no_source_checks` = the probe ran but the source gives no stock signal
