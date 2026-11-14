@@ -41,7 +41,7 @@ Tool counts: **9** in the local package (stdio, below); **13** on the hosted end
 
 | Tool | What it does |
 |---|---|
-| `compare_gpu_prices` | Hourly rental prices for a GPU model across tracked providers, cheapest first. |
+| `compare_gpu_prices` | Hourly rental prices for a GPU model across tracked providers, cheapest first. When a result includes `availability_rate_7d`, `window_days` is the planned window and `observed_hours` is the actual coverage (`coverage_note` when coverage is shorter). |
 | `get_price_changes` | GPU price moves among tracked providers, newest first. |
 | `optimize_stack` | Cheapest tracked plan per usage line, with sources. |
 | `optimize_agent_stack` | Cheapest cited option per component from a plain-text agent description. |
@@ -92,5 +92,5 @@ See a price that doesn't match the vendor's page, or an offer you can't rent? [O
 ## License
 
 - Code: MIT, see [LICENSE](LICENSE).
-- Field reference for `canonical_model` and `form_factor` in `gpu-prices.json`: [docs/GPU-PRICES-FIELDS.md](docs/GPU-PRICES-FIELDS.md).
+- Field reference for `canonical_model`, `form_factor`, and `availability_rate_7d` (`window_days` = planned window, `observed_hours` = actual coverage) in `gpu-prices.json`: [docs/GPU-PRICES-FIELDS.md](docs/GPU-PRICES-FIELDS.md).
 - Price and deal data (`deals.json`, `api/v1/*.json` including `gpu-prices.json`, the price history and change feed, `data/gpu_pricing/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), see [LICENSE-DATA](LICENSE-DATA). Attribution: "Lantern Works" with a link to https://thelanternworks.com. Every JSON feed carries these terms in its `license` field.
