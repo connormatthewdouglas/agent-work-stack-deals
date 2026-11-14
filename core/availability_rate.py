@@ -6,6 +6,7 @@ Stock observations do not predict a bill, time-to-capacity, or a budget verdict.
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -17,6 +18,7 @@ LABEL = ("deprecated (T116): expected_cost_usd is always null; observed stock fr
          "a quote, bill, or budget. Use the published hourly rate for compute costs.")
 _CACHE: dict | None = None
 _SCOUT: dict | None = None
+_SCOUT_PIN: str | None = object()  # type: ignore[assignment]
 
 
 def _vkey(vendor) -> str:
@@ -25,19 +27,21 @@ def _vkey(vendor) -> str:
 
 def _scout_index() -> dict:
     """Scout's T112 rows keyed (vendor first word, gpu_model, vram_gb, tier); {} when missing, unreadable or stale."""
-    global _SCOUT
-    if _SCOUT is None:
+    global _SCOUT, _SCOUT_PIN
+    pin = os.environ.get("LW_AVAIL_NOW")
+    if _SCOUT is not None and _SCOUT_PIN == pin:
+        return _SCOUT
+    _SCOUT, _SCOUT_PIN = {}, pin
+    try:
+        doc = json.loads(SCOUT_PATH.read_text(encoding="utf-8")) if SCOUT_PATH.exists() else {}
+        gen = doc.get("generated_at")
+        from core.gpu_availability import now_utc
+        age = (now_utc() - datetime.fromisoformat(gen.replace("Z", "+00:00"))).total_seconds() / 3600 if gen else None
+        if doc.get("kind") == "t112_availability_rate_inputs" and age is not None and 0 <= age <= SCOUT_MAX_AGE_H:
+            for r in doc.get("rows") or []:
+                _SCOUT[(_vkey(r.get("vendor")), r.get("gpu_model"), r.get("vram_gb"), r.get("tier"))] = (r, gen)
+    except (ValueError, TypeError, AttributeError, OSError):
         _SCOUT = {}
-        try:
-            doc = json.loads(SCOUT_PATH.read_text(encoding="utf-8")) if SCOUT_PATH.exists() else {}
-            gen = doc.get("generated_at")
-            from core.gpu_availability import now_utc
-            age = (now_utc() - datetime.fromisoformat(gen.replace("Z", "+00:00"))).total_seconds() / 3600 if gen else None
-            if doc.get("kind") == "t112_availability_rate_inputs" and age is not None and 0 <= age <= SCOUT_MAX_AGE_H:
-                for r in doc.get("rows") or []:
-                    _SCOUT[(_vkey(r.get("vendor")), r.get("gpu_model"), r.get("vram_gb"), r.get("tier"))] = (r, gen)
-        except (ValueError, TypeError, AttributeError, OSError):
-            _SCOUT = {}
     return _SCOUT
 
 
