@@ -45,5 +45,8 @@ if ! git diff --quiet -- deals.json api/v1/deals.json; then echo "deals.json cha
 # the index pins the commit that last changed gpu-prices.json; in a throwaway tree that is "uncommitted": commit locally
 git -c user.name=ci -c user.email=ci@localhost commit -qam "ci: latest scout snapshot (throwaway)" || true
 python3 scripts/gpu_index.py . api/v1 > /dev/null && python3 scripts/generate_seo_pages.py > /dev/null
+# Commit the index pin before pytest so dest pages-match tests (which worktree HEAD) see
+# the same tree the generator just wrote. A dirty pin only was enough to mismatch dest.
+if [ -n "$(git status --porcelain)" ]; then git add -A && git -c user.name=ci -c user.email=ci@localhost commit -qm "ci: pin GPU index to the feed commit"; fi
 LANTERN_DEALS_FILE=api/v1/deals.json python3 -m pytest -q tests
 echo LATEST_SCOUT_IMPORT_OK

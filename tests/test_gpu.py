@@ -15,9 +15,9 @@ def _rec(vendor, gpu, tier=None):
 
 def _multi_gpu_doc():
     """Fixed multi-GPU server fixture (not a live vendor row): 2x A100 + RTX 4090 monthly servers, stamped fresh."""
-    from datetime import datetime, timezone
+    from core.gpu_availability import now_utc
     doc = json.loads((Path(__file__).resolve().parent / "fixtures" / "multi_gpu_server_vendor.json").read_text())
-    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    now = now_utc().isoformat(timespec="seconds")
     doc["checked_at"] = now
     for r in doc["records"]:
         r["checked_at"] = r["verified_at"] = r["evidence"]["checked_at"] = now
@@ -216,10 +216,20 @@ def test_compare_tool_and_optimizer_rank_ucartz_per_gpu(monkeypatch):
     from core.deals import compare_gpu_prices
     from core.stack import _gpu_options
     data = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
-    # Live A100 rows age past DEGRADED_HOURS (48h) when the last refresh is stale; the Ucartz
-    # fixture is stamped "now" and would lead solely because it is fresher. E5 is about
-    # out-of-stock last among current prices, so pin to the published feed clock.
-    monkeypatch.setenv("LW_AVAIL_NOW", data["feed_updated_at"])
+    # E5 is out-of-stock last among current prices. Pin to the last daily A100 check so a
+    # later feed_updated_at (import/generate at wall clock) cannot mark live rows degraded
+    # while the Ucartz fixture, stamped via now_utc(), stays fresh and jumps to the front.
+    from core.gpu import _is_batch
+    pins = []
+    for d in load_vendor_files():
+        if d.get("vendor") == "Ucartz":
+            continue
+        for r in d.get("records") or []:
+            if str(r.get("gpu") or "").startswith("A100") and not r.get("stale") and not _is_batch(r):
+                pins.append(r.get("verified_at") or r.get("checked_at"))
+    if not pins:
+        raise AssertionError("no daily A100 rows to pin the E5 clock")
+    monkeypatch.setenv("LW_AVAIL_NOW", max(pins))
     data = {**data, "rates": build_rates(FEED, _fixture_docs())["rates"]}
     res = compare_gpu_prices(data, "A100", limit=25, gpus=2)["results"]  # Bjorn 1109: Ucartz sells 2-GPU servers; ranks for gpus >= 2
     uc = next(r for r in res if r["advertiser"] == "Ucartz")
