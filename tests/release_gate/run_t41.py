@@ -634,8 +634,10 @@ def _(f, ev):
     if not cell.startswith("unknown (stale availability, last checked "): f.append(f"site cell for 9h-old check renders {cell!r}")
     txt, _at = fetch(f"{BASE}/gpu/cheapest-a100-rental/")
     claims = re.findall(r"<td[^>]*>((?:(?!</td>).)*?(?:available when checked|out of stock when checked|not observed in stock in)(?:(?!</td>).)*)</td>", txt, re.S)
-    naked = [c[:80] for c in claims if "data-av-checked" not in c and "stale availability" not in c]
-    if claims and "<!-- av-stale -->" not in txt: f.append("page has stock claims but no expiry script")
+    # Trailing 0/N notes on stale/unknown cells are historical; only a current claim needs the expiry script.
+    current = [c for c in claims if "stale availability" not in c and "unknown (no signal)" not in c and "unmeasurable" not in c]
+    naked = [c[:80] for c in current if "data-av-checked" not in c]
+    if current and "<!-- av-stale -->" not in txt: f.append("page has stock claims but no expiry script")
     if naked: f.append(f"stock claims without data-av-checked: {naked[:3]}")
     ev.update(fixture_checked_at=old, limit_hours=AVAIL_MAX_AGE_H, fixture_rows=n, summary=out["summary"][:220],
               site_cell=cell, page_claims=len(claims))
