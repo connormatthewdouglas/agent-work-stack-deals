@@ -29,9 +29,13 @@ def _scout_index() -> dict:
     if _SCOUT is None:
         _SCOUT = {}
         try:
+            # Age is against the pinned build clock (LW_AVAIL_NOW / now_utc), not wall clock.
+            # Otherwise a regenerate after the 24h window flips scout_t112 to git_history and
+            # pages-match dest tests (HEAD still has the scout_t112 feed) fail during refresh.
+            from core.gpu_availability import now_utc
             doc = json.loads(SCOUT_PATH.read_text(encoding="utf-8")) if SCOUT_PATH.exists() else {}
             gen = doc.get("generated_at")
-            age = (datetime.now(timezone.utc) - datetime.fromisoformat(gen.replace("Z", "+00:00"))).total_seconds() / 3600 if gen else None
+            age = (now_utc() - datetime.fromisoformat(gen.replace("Z", "+00:00"))).total_seconds() / 3600 if gen else None
             if doc.get("kind") == "t112_availability_rate_inputs" and age is not None and 0 <= age <= SCOUT_MAX_AGE_H:
                 for r in doc.get("rows") or []:
                     _SCOUT[(_vkey(r.get("vendor")), r.get("gpu_model"), r.get("vram_gb"), r.get("tier"))] = (r, gen)

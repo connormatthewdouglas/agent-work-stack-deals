@@ -80,3 +80,36 @@ def test_compute_budget_ignores_legacy_availability_dollars():
 def test_feed_legacy_field_is_explicitly_deprecated():
     rates = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())["rates"]
     assert all(r["expected_cost_usd"] is None and "deprecated" in r["expected_cost_label"] for r in rates)
+
+
+def test_scout_t112_age_uses_pinned_clock_not_wall_clock(monkeypatch, tmp_path):
+    """The T112 24h freshness window must follow LW_AVAIL_NOW, not datetime.now().
+
+    After a later merge moves feed_updated_at (e.g. Lium), a refresh job pins
+    LW_AVAIL_NOW to now and regenerates. Dest-worktree pages-match tests then
+    rebuild HEAD at the committed feed stamp. If T112 age used wall clock, a
+    file still inside the 24h window at that stamp would flip to git_history
+    and the provenance/sitemap tests would fail (refresh run 43616682835).
+    """
+    import json
+    gen = "2026-11-13T14:59:21Z"
+    pin_inside = "2026-11-14T07:00:07Z"  # 16h later, still inside 24h
+    pin_outside = "2026-11-14T15:00:00Z"  # just over 24h
+    doc = {"kind": "t112_availability_rate_inputs", "generated_at": gen, "rows": [
+        {"vendor": "Civo", "gpu_model": "H100 SXM", "vram_gb": 80, "tier": "On-demand",
+         "checks_7d": 16, "known_checks_7d": 16, "in_stock_checks_7d": 16,
+         "first_check_at": "2026-11-11T22:53:00Z", "last_check_at": "2026-11-13T14:57:59Z"}]}
+    path = tmp_path / "scout_rate_7d.json"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    monkeypatch.setattr(A, "SCOUT_PATH", path)
+    monkeypatch.setattr(A, "_CACHE", {"window_start": None, "window_end": None, "rows": {}})
+    monkeypatch.setattr(A, "_SCOUT", None)
+    monkeypatch.setenv("LW_AVAIL_NOW", pin_inside)
+    f = A.fields("Civo", "H100 SXM", 80, "On-demand", 2)
+    assert f["availability_rate_7d"]["source"] == "scout_t112"
+    assert f["availability_rate_7d"]["checks"] == 16
+    monkeypatch.setattr(A, "_SCOUT", None)
+    monkeypatch.setenv("LW_AVAIL_NOW", pin_outside)
+    f = A.fields("Civo", "H100 SXM", 80, "On-demand", 2)
+    assert f["availability_rate_7d"] is None
+
