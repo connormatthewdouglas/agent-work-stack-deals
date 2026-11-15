@@ -5,6 +5,7 @@ For each tracked record in data/gpu_pricing/<vendor>.json, re-read the vendor's 
 update the price ONLY where it was actually parsed:
 
 * AWS Price List (data/gpu_pricing/aws.json, collector=aws_price_list): the public no-auth regional offer CSV on pricing.us-east-1.amazonaws.com is streamed and filtered to Linux, shared tenancy, on-demand, CapacityStatus Used, unit Hrs; the matching instance type's PricePerUnit is the live rate. Offer Version, Publication Date and RateCode are stored on evidence. Fetch or parse failure leaves the row (and its verified timestamps) unchanged.
+* Civo reserved (6/12/24-month commitment) rows: scripts/civo_probe.py reads the public /ai/<gpu>-gpu product page (statusText + commitmentN hourly prices). The general /pricing page is not used for these rows — its visible ladder no longer matches the stored quote context. A missed cell leaves verified_at / checked_at unchanged and records last_failed_check_at.
 * Listed prices: the record's last evidence quote is turned into a pattern (its words must appear in the same
   order on today's page, prices become capture groups). The record's price is updated only if that context is
   found and gives exactly one value. The new evidence {source_url, quote, checked_at} is the matched page text.
@@ -42,10 +43,12 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "scripts"))
 from core.gpu import HOURS_PER_MONTH, MAX_QUOTE, MIN_MARKET_OFFERS, PRICING_DIR, STALE_DAYS  # noqa: E402
 from core.owner_hold import is_held  # noqa: E402
 from core import gpu_history  # noqa: E402
 from core import aws_price_list  # noqa: E402
+import civo_probe  # noqa: E402  (scripts/ is on path when this file is run or tests import it)
 
 UA = "LanternWorksPriceCheck/1.1 (+https://github.com/connormatthewdouglas/agent-work-stack-deals)"
 REQUEST_GAP_S = 3.0
@@ -223,6 +226,8 @@ LABEL_ALIASES = {
     "lambda.ai/pricing": [("NVIDIA B200 SXM6 180 GB 208", "NVIDIA HGX B200 180 GB 208"),  # 2026-11-02: 8x plans -> "HGX"
                           ("NVIDIA H100 SXM 80 GB 208", "NVIDIA HGX H100 80 GB 208"),
                           ("NVIDIA A100 SXM 80 GB 240", "NVIDIA HGX A100 80 GB 240")],
+    # 2026-11-15: same l40s-90 SKU and $1.8 / $1,296 prices; page corrected "HBM2" to "GDDR6".
+    "ovhcloud.com/public-cloud/prices": [("1x L40S ( 48 GB HBM2)", "1x L40S ( 48 GB GDDR6)")],
 }
 
 
@@ -464,6 +469,31 @@ def _confirmation_ref(entry: dict) -> dict:
     return out
 
 
+
+def _civo_reserved_reread(doc: dict, r: dict, fetcher, prev_msg: str) -> tuple[str | None, str | None, str, datetime | None]:
+    """Fall back to the Civo product page when /pricing no longer matches a reserved quote.
+
+    Returns (price, quote, message, fetched_at). fetched_at is set only when the product
+    page was fetched; the caller uses it as checked_at / verified_at. Misses leave those
+    stamps unchanged.
+    """
+    if (doc.get("vendor") or r.get("vendor")) != "Civo":
+        return None, None, prev_msg, None
+    if (r.get("tier") or "") not in civo_probe.COMMITMENT_TIERS:
+        return None, None, prev_msg, None
+    url = civo_probe.CIVO_PRODUCT_PAGES.get(r.get("gpu") or "")
+    if not url:
+        return None, None, "no Civo product page for this GPU", None
+    st, body = fetcher.get(url)
+    fat = (getattr(fetcher, "fetched_at", None) or {}).get(url)
+    if st != 200:
+        return None, None, f"Civo product page unreachable ({st or body})", fat
+    price, quote, msg = civo_probe.commitment_price(r, body)
+    if price is not None:
+        r["source_url"] = url
+    return price, quote, msg, fat
+
+
 def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DAYS,
              confirmations: list[dict] | None = None) -> list[dict]:
     """Mutates docs in place. Returns one result row per record (for the run report)."""
@@ -548,6 +578,10 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     msg = NO_CAPACITY_REASON
                 else:
                     new_s, quote, msg = parse_listed({**r, "vendor": doc["vendor"]}, text)
+                    if new_s is None:
+                        new_s, quote, msg, prod_at = _civo_reserved_reread(doc, r, fetcher, msg)
+                        if prod_at is not None:
+                            fstamp = _iso(prod_at)
                     if new_s is not None and is_rotating(r, doc["vendor"]) and abs(float(new_s) - r["price_usd"]) > 1e-9:
                         # Gauge spheron84: the page flips values between reads; change only when a second read
                         # >= ROTATING_CONFIRM_S later agrees (no second read available -> not applied)

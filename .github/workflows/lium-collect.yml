@@ -47,6 +47,12 @@ jobs:
             python3 scripts/collect_lium.py >> "$S" 2>&1 || { echo "collector refused; current data kept" >> "$S"; git checkout -q -- data/gpu_pricing; return 1; }
             python3 scripts/availability_rate_7d.py >> "$S" 2>&1 || return 3  # T112: 7-day in-stock share from Scout import history
             python3 scripts/sync_today_snapshot.py >> "$S" 2>&1 || return 3
+            # Same #220 pin as gpu-refresh.yml: generate + pytest must share one clock.
+            # Without it, generate uses wall-clock now_utc() and test_committed_pages_match
+            # pins to feed_updated_at (kept when ranked prices are unchanged), so the pin
+            # commit (below) leaves pages/API/homepage out of sync and the follow-up
+            # validate-and-deploy run fails pytest.
+            export LW_AVAIL_NOW="${LW_AVAIL_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
             python3 scripts/gpu_index.py . api/v1 > /dev/null || return 3
             python3 scripts/generate_seo_pages.py > /dev/null || return 3
@@ -62,6 +68,9 @@ jobs:
             git commit -qm "data: Lium collector $(python3 -c 'import json;print(json.load(open("data/gpu_pricing/lium.json"))["checked_at"])')"
             python3 scripts/gpu_index.py . api/v1 > /dev/null && python3 scripts/generate_seo_pages.py > /dev/null
             if [ -n "$(git status --porcelain)" ]; then git add -A && git commit -qm "data: pin GPU index to the feed commit"; fi
+            # Pin commit is part of what gets pushed; it must pass the same gates as build().
+            python3 scripts/validate_feed.py > /dev/null || exit 1
+            python3 -m pytest -q tests || exit 1
             if sh scripts/rebase_push_main.sh; then pushed=1; break; fi
             echo "push rejected; resetting to origin/main and re-collecting (attempt $i)"
             git rebase --abort 2>/dev/null || true
