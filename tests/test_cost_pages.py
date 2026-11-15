@@ -67,9 +67,23 @@ def _page(slug, h):
     return (ROOT / f"cost/{slug}-{h}-hours/index.html").read_text(encoding="utf-8")
 
 
-def _oos_marked(html: str) -> bool:
-    """A row is marked unavailable either as a single check or as a trailing 0/N reading."""
-    return "out of stock when checked" in html or "not observed in stock in " in html
+
+def _row_marked_unavailable(html: str) -> bool:
+    """Current out-of-stock snapshot, or a 0/N trailing reading used as the current claim.
+
+    A trailing "not observed in stock in N checks" note on a stale or unknown cell is
+    historical observation only and must not be treated as an out-of-stock rank mark.
+    """
+    if "out of stock when checked" in html:
+        return True
+    if "not observed in stock in " not in html:
+        return False
+    if "unknown (stale" in html or "unknown (no signal)" in html or "unmeasurable" in html:
+        return False
+    return True
+
+
+_oos_marked = _row_marked_unavailable
 
 
 def test_out_of_stock_ranked_last_and_excluded():

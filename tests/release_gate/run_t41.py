@@ -598,7 +598,8 @@ def _(f, ev):
         for tb in txt.split("<tbody>")[1:]:
             oos_seen = False
             for i, tr in enumerate(re.findall(r"<tr.*?</tr>", tb.split("</tbody>")[0], re.S), 1):
-                o = "out of stock when checked" in tr or "not observed in stock in " in tr
+                stale_note = "unknown (stale" in tr or "unknown (no signal)" in tr or "unmeasurable" in tr
+                o = "out of stock when checked" in tr or ("not observed in stock in " in tr and not stale_note)
                 n_oos += o
                 if oos_seen and not o: f.append(f"{slug}: row #{i} not marked out of stock is ranked below an out-of-stock row")
                 oos_seen |= o

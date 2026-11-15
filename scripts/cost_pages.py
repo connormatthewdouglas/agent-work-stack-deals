@@ -66,9 +66,14 @@ def _tax_note(r: dict) -> str:
 def _oos_label(r: dict) -> str:
     a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
     if a.get("availability_stale"):
-        return f' <small class="av">({html.escape(a["status"])})</small>'
+        extra = rate_phrase(r.get("availability_rate_7d"))
+        tail = f"; {html.escape(extra)}" if extra else ""
+        return f' <small class="av">({html.escape(a["status"])}{tail})</small>'
     if a.get("in_stock") is None:
-        return ""
+        extra = rate_phrase(r.get("availability_rate_7d"))
+        if not extra:
+            return ""
+        return f' <small class="av">({html.escape(extra)})</small>'
     # 0.3.30/re17: every stock claim shows its check time and its expiry (checked_at + 8 h); stale_js flips it after that
     from core.gpu_availability import et_hm
     t, exp = a.get("checked_at"), a.get("availability_expires_at") or ""
