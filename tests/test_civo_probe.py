@@ -204,6 +204,7 @@ def test_refresh_rereads_civo_reserved_from_product_page_not_pricing():
     assert rec["source_url"] == "https://www.civo.com/ai/h100-gpu"
     assert rec["evidence"]["source_url"] == "https://www.civo.com/ai/h100-gpu"
     assert "6-month commitment $2.79" in rec["evidence"]["quote"]
+    assert rec["quote"] == rec["evidence"]["quote"]  # T41-01: basis amounts come from r["quote"]
     assert rec.get("last_failed_check_at") == "2026-11-15T22:51:14+00:00"  # not overwritten on success
 
 

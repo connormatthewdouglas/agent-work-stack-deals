@@ -626,6 +626,10 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         r["quote"] = quote  # count/median/min all from this one API snapshot (Vast basis drifted 2026-10-29)
                     if quote and (aws_price_list.is_doc(doc) or aws_price_list.is_offer_url(r.get("source_url"))):
                         r["quote"] = quote  # Price List identity (version, publication date, RateCode) lives in this allowed field
+                    if quote and msg.startswith("parsed (Civo product page)"):
+                        # T41-01: basis is r["quote"]; it must not keep the old /pricing ladder
+                        # after the evidence quote moves to the product-page cell for this row.
+                        r["quote"] = quote
                     eq = quote
                     if quote and re.search(r"\.\.\.|…", r["evidence"]["quote"]):  # keep the elided form (stays matchable)
                         eq = r["evidence"]["quote"]
