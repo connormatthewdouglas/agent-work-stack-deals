@@ -6,7 +6,6 @@ Stock observations do not predict a bill, time-to-capacity, or a budget verdict.
 from __future__ import annotations
 
 import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,7 +17,7 @@ LABEL = ("deprecated (T116): expected_cost_usd is always null; observed stock fr
          "a quote, bill, or budget. Use the published hourly rate for compute costs.")
 _CACHE: dict | None = None
 _SCOUT: dict | None = None
-_SCOUT_PIN: str | None = object()  # type: ignore[assignment]
+_SCOUT_AT = None  # now_utc() used when _SCOUT was built from the T112 file; None = test-injected
 
 
 def _vkey(vendor) -> str:
@@ -26,17 +25,28 @@ def _vkey(vendor) -> str:
 
 
 def _scout_index() -> dict:
-    """Scout's T112 rows keyed (vendor first word, gpu_model, vram_gb, tier); {} when missing, unreadable or stale."""
-    global _SCOUT, _SCOUT_PIN
-    pin = os.environ.get("LW_AVAIL_NOW")
-    if _SCOUT is not None and _SCOUT_PIN == pin:
+    """Scout's T112 rows keyed (vendor first word, gpu_model, vram_gb, tier); {} when missing, unreadable or stale.
+
+    The 24h window follows the pinned build clock (LW_AVAIL_NOW / now_utc), not wall clock.
+    Otherwise a regenerate after the window flips scout_t112 to git_history and pages-match
+    dest tests (HEAD still has the scout_t112 feed) fail during GPU refresh (run 43616682835).
+    A cached index is rebuilt when the clock changes; otherwise a stale load in the same
+    process (tests, or generate then a later pin) would keep the empty map.
+    """
+    global _SCOUT, _SCOUT_AT
+    from core.gpu_availability import now_utc
+    clock = now_utc()
+    # Tests inject a ready-made index by setting _SCOUT without a clock tag.
+    if _SCOUT is not None and _SCOUT_AT is None:
         return _SCOUT
-    _SCOUT, _SCOUT_PIN = {}, pin
+    if _SCOUT is not None and _SCOUT_AT == clock:
+        return _SCOUT
+    _SCOUT = {}
+    _SCOUT_AT = clock
     try:
         doc = json.loads(SCOUT_PATH.read_text(encoding="utf-8")) if SCOUT_PATH.exists() else {}
         gen = doc.get("generated_at")
-        from core.gpu_availability import now_utc
-        age = (now_utc() - datetime.fromisoformat(gen.replace("Z", "+00:00"))).total_seconds() / 3600 if gen else None
+        age = (clock - datetime.fromisoformat(gen.replace("Z", "+00:00"))).total_seconds() / 3600 if gen else None
         if doc.get("kind") == "t112_availability_rate_inputs" and age is not None and 0 <= age <= SCOUT_MAX_AGE_H:
             for r in doc.get("rows") or []:
                 _SCOUT[(_vkey(r.get("vendor")), r.get("gpu_model"), r.get("vram_gb"), r.get("tier"))] = (r, gen)

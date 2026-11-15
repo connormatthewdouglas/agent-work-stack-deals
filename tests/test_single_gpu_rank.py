@@ -27,6 +27,14 @@ from gpu_model_json import build  # noqa: E402
 NOW = datetime(2026, 11, 9, tzinfo=timezone.utc)
 
 
+@pytest.fixture(autouse=True)
+def _pin_fixture_clock(monkeypatch):
+    """Fixture rows are stamped NOW-2h. compare_gpu_prices / _pick_cheapest drop prices older
+    than STALE_HOURS (168h), so without a pin these tests fail once wall clock passes NOW+166h.
+    """
+    monkeypatch.setenv("LW_AVAIL_NOW", NOW.isoformat())
+
+
 def _row(vendor, price, *, min_gpus=1, tier="On-demand", tier_class="on-demand", affiliate=False,
          in_stock=None, gpu="H100 SXM", billing_unit="hourly"):
     r = {

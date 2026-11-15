@@ -143,3 +143,108 @@ def test_availability_rows_cover_ondemand_and_6_12_24_month_tiers():
     }
     assert all(r["vendor"] == "Civo" and r["price_usd_hr"] is None for r in rows)
     assert all(r["source_url"] == "https://www.civo.com/ai/h100-gpu" for r in rows)
+
+
+def test_commitment_price_matches_fixture_ladder():
+    html = (FIXTURES / "civo-h100-page.html").read_text(encoding="utf-8")
+    rec = {"gpu": "H100 SXM", "vram_gb": 80, "tier": "6-month commitment"}
+    price, quote, msg = C.commitment_price(rec, html)
+    assert price == "2.79" and "parsed" in msg and "6-month commitment $2.79" in quote
+    rec12 = {**rec, "tier": "12-month commitment"}
+    assert C.commitment_price(rec12, html)[0] == "2.69"
+    rec24 = {**rec, "tier": "24-month commitment"}
+    assert C.commitment_price(rec24, html)[0] == "2.59"
+
+
+def test_commitment_price_missing_cell_stays_unreadable():
+    rec = {"gpu": "H100 SXM", "vram_gb": 80, "tier": "24-month commitment"}
+    price, quote, msg = C.commitment_price(rec, _row(c24=None, c36=None))
+    assert price is None and quote is None and "not on product page" in msg
+
+
+# Verbatim visible /pricing text through the 6-month hourly cell (same style as on-demand quotes).
+_PRICING_QUOTE_H100_6MO = (
+    "Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE $2.99 per hour $2,182.70 per month "
+    "$2.79 per hour"
+)
+_PRICING_HTML = (
+    "<html><body>Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE "
+    "$2.99 per hour $2,182.70 per month $2.79 per hour $2,036.70 per month "
+    "$2.69 per hour $1,963.70 per month $2.59 per hour $1,890.70 per month "
+    "$2.49 per hour $1,817.70 per month</body></html>"
+)
+
+
+def test_refresh_rereads_civo_reserved_from_pricing_visible_ladder():
+    """Reserved Civo rows are confirmed on /pricing visible text, not the product-page flight payload.
+
+    The /ai/h100-gpu no-JS page only shows on-demand and 36-month cells; 6/12/24-month
+    amounts live in script JSON and are invisible to the live source check. verified_at
+    moves only on a successful /pricing parse. last_failed_check_at is left in place.
+    """
+    import refresh_gpu_prices as R
+    from datetime import datetime, timezone
+
+    now = datetime(2026, 11, 15, 23, 10, tzinfo=timezone.utc)
+    rec = {
+        "gpu": "H100 SXM", "vram_gb": 80, "tier": "6-month commitment",
+        "hourly_usd": 2.79, "price_usd": 2.79, "billing_unit": "hourly",
+        "source_url": "https://www.civo.com/pricing",
+        "verified_at": "2026-11-11T21:51:06+00:00",
+        "checked_at": "2026-11-11T21:51:06+00:00",
+        "last_failed_check_at": "2026-11-15T22:51:14+00:00",
+        "quote": _PRICING_QUOTE_H100_6MO,
+        "evidence": {"source_url": "https://www.civo.com/pricing",
+                     "quote": _PRICING_QUOTE_H100_6MO,
+                     "checked_at": "2026-11-11T21:51:06+00:00"},
+    }
+    doc = {"vendor": "Civo", "checked_at": "2026-11-11T22:09:21+00:00", "records": [rec]}
+
+    class Fetcher:
+        def __init__(self):
+            self.fetched_at = {}
+        def get(self, url):
+            self.fetched_at[url] = now
+            if url == "https://www.civo.com/pricing":
+                return 200, _PRICING_HTML
+            raise AssertionError(f"reserved reread must not fetch {url}")
+
+    rep = R.refresh([doc], Fetcher(), now)
+    assert rep[0]["result"] == "unchanged"  # price still 2.79
+    assert rec["verified_at"] == rec["checked_at"] == "2026-11-15T23:10:00+00:00"
+    assert rec["source_url"] == "https://www.civo.com/pricing"
+    assert rec["evidence"]["source_url"] == "https://www.civo.com/pricing"
+    assert rec["quote"] == rec["evidence"]["quote"] == _PRICING_QUOTE_H100_6MO
+    assert rec.get("last_failed_check_at") == "2026-11-15T22:51:14+00:00"  # not overwritten on success
+
+
+def test_refresh_civo_reserved_miss_does_not_restamp():
+    import refresh_gpu_prices as R
+    from datetime import datetime, timezone
+
+    now = datetime(2026, 11, 15, 23, 10, tzinfo=timezone.utc)
+    rec = {
+        "gpu": "H100 SXM", "vram_gb": 80, "tier": "6-month commitment",
+        "hourly_usd": 2.79, "price_usd": 2.79, "billing_unit": "hourly",
+        "source_url": "https://www.civo.com/pricing",
+        "verified_at": "2026-11-11T21:51:06+00:00",
+        "checked_at": "2026-11-11T21:51:06+00:00",
+        "quote": "Small H100 SXM 1 x NVIDIA H100 - 80GB On demand $2.99; Commitment 6 months $2.79 per hour",
+        "evidence": {"source_url": "https://www.civo.com/pricing",
+                     "quote": "Small H100 SXM 1 x NVIDIA H100 - 80GB On demand $2.99; Commitment 6 months $2.79 per hour",
+                     "checked_at": "2026-11-11T21:51:06+00:00"},
+    }
+    doc = {"vendor": "Civo", "records": [rec]}
+
+    class Fetcher:
+        def __init__(self):
+            self.fetched_at = {}
+        def get(self, url):
+            self.fetched_at[url] = now
+            # Product pages are not a listed-price fallback; a /pricing miss must not restamp.
+            return 200, "<html><body>no prices</body></html>"
+
+    R.refresh([doc], Fetcher(), now)
+    assert rec["verified_at"] == rec["checked_at"] == "2026-11-11T21:51:06+00:00"
+    assert rec["last_failed_check_at"] == "2026-11-15T23:10:00+00:00"
+    assert rec["source_url"] == "https://www.civo.com/pricing"
