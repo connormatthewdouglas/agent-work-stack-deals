@@ -184,6 +184,31 @@ def test_generate_writes_gpu_price_feed_before_pages_that_read_it():
     assert 0 <= write_at < deal_at, "write GPU price feed before deal pages (badge clock)"
 
 
+
+def test_validate_and_release_gate_pin_generator_to_feed_clock():
+    """validate and release-gate must generate at the committed feed_updated_at.
+
+    A wall-clock generate after the 48h batch-hold (or 24h T112) window drops
+    sitemap rental-page URLs and fails `git diff --exit-code -- sitemap.xml`
+    even when the checkout matches its own feed clock. Same pin as pages-match.
+    """
+    text = (ROOT / ".github" / "workflows" / "validate-and-deploy.yml").read_text(encoding="utf-8")
+    assert 'export LW_AVAIL_NOW=' in text
+    assert 'json.load(open("api/v1/gpu-prices.json"))["feed_updated_at"]' in text
+    # The pin appears immediately before each generate used by those two jobs.
+    idx = 0
+    hits = 0
+    while True:
+        g = text.find("scripts/generate_seo_pages.py", idx)
+        if g < 0:
+            break
+        window = text[max(0, g - 400):g]
+        if "export LW_AVAIL_NOW=" in window:
+            hits += 1
+        idx = g + 1
+    assert hits >= 2, hits
+
+
 def test_gpu_refresh_workflow_pins_one_clock_for_generate_and_pytest():
     """#220: generate and the pages-match check must share one LW_AVAIL_NOW.
 

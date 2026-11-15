@@ -67,6 +67,10 @@ jobs:
       - run: pip install "jsonschema[format]==4.*"
       - name: Generator runs cleanly (guard + public-output leak scan, no private file in CI)
         run: |
+          # Pin to the committed feed clock so sitemap URLs (and deals) match what was published.
+          # Wall clock after the 48h batch-hold / 24h T112 window drops pages and fails this diff
+          # even when the checkout itself is consistent (refresh run 43616682835 / PR validate).
+          export LW_AVAIL_NOW="${LW_AVAIL_NOW:-$(python3 -c 'import json; print(json.load(open("api/v1/gpu-prices.json"))["feed_updated_at"])')}"
           python3 scripts/generate_seo_pages.py
           # deals.json, api/v1 and sitemap must match what is committed (HTML may differ by freshness date)
           git diff --exit-code -- deals.json api/v1/deals.json sitemap.xml schema.json
@@ -234,7 +238,9 @@ jobs:
           python-version: "3.12"
       - run: pip install "mcp>=1.10,<2"
       - name: Build the feed/site the same way validate does
-        run: python3 scripts/generate_seo_pages.py
+        run: |
+          export LW_AVAIL_NOW="${LW_AVAIL_NOW:-$(python3 -c 'import json; print(json.load(open("api/v1/gpu-prices.json"))["feed_updated_at"])')}"
+          python3 scripts/generate_seo_pages.py
       - name: T41 release gate (local build; exits 1 on any failing case)
         run: python3 tests/release_gate/run_t41.py --source local t41-results.json
       - if: always()
