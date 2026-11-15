@@ -212,10 +212,14 @@ def test_multi_gpu_server_is_per_gpu():
     assert (rate["hourly_equiv_usd"], rate["price_usd"], rate["server_price_usd"]) == (a100["hourly_usd"], round(p / 2, 2), p)
 
 
-def test_compare_tool_and_optimizer_rank_ucartz_per_gpu():
+def test_compare_tool_and_optimizer_rank_ucartz_per_gpu(monkeypatch):
     from core.deals import compare_gpu_prices
     from core.stack import _gpu_options
     data = json.loads((Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json").read_text())
+    # Live A100 rows age past DEGRADED_HOURS (48h) when the last refresh is stale; the Ucartz
+    # fixture is stamped "now" and would lead solely because it is fresher. E5 is about
+    # out-of-stock last among current prices, so pin to the published feed clock.
+    monkeypatch.setenv("LW_AVAIL_NOW", data["feed_updated_at"])
     data = {**data, "rates": build_rates(FEED, _fixture_docs())["rates"]}
     res = compare_gpu_prices(data, "A100", limit=25, gpus=2)["results"]  # Bjorn 1109: Ucartz sells 2-GPU servers; ranks for gpus >= 2
     uc = next(r for r in res if r["advertiser"] == "Ucartz")
