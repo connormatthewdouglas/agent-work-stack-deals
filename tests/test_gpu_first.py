@@ -23,8 +23,15 @@ def _live():
 def _pin_feed_clock(monkeypatch):
     """Match the committed feed to the clock it was built with. The live 26h/36h gates do not use this.
     A caller that already set LW_AVAIL_NOW (the scout-import rebuild) keeps that clock, so the count
-    includes the same held rows the pages were just built with."""
+    includes the same held rows the pages were just built with.
+
+    Also pin LW_BUILD_HORIZON_MIN=25, the same horizon scripts/generate_seo_pages.py setdefaults
+    when it writes the feed and homepage. Without it, a claim that expires before the next rebuild
+    is still treated as in-stock/out-of-stock in this test while the page already shows unknown,
+    so the spread min (e.g. H100 $2.8767 vs $2.50) disagrees with the committed homepage.
+    """
     import os
+    monkeypatch.setenv("LW_BUILD_HORIZON_MIN", os.environ.get("LW_BUILD_HORIZON_MIN") or "25")
     if os.environ.get("LW_AVAIL_NOW"):
         return
     stamp = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())["feed_updated_at"]

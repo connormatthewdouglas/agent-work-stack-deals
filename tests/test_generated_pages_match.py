@@ -202,3 +202,32 @@ def test_gpu_refresh_workflow_pins_one_clock_for_generate_and_pytest():
     gen = rest.find("scripts/generate_seo_pages.py")
     pytest_at = rest.find("pytest")
     assert close != -1 and 0 <= gen < pytest_at < close
+
+
+def test_lium_collect_workflow_pins_one_build_clock():
+    """Collector generate + pytest must share one LW_AVAIL_NOW, like gpu-refresh (#220).
+
+    The 2026-11-15 Lium collector run (43772056777) generated the pin commit at wall
+    clock while later CI pytest pinned to feed_updated_at, so pages, the published
+    API, and the homepage spread came out of sync.
+    """
+    text = (ROOT / ".github" / "workflows" / "lium-collect.yml").read_text(encoding="utf-8")
+    pin = text.find("export LW_AVAIL_NOW=")
+    assert pin != -1 and "build()" in text[:pin]
+    rest = text[pin:]
+    close = rest.find("\n          }")
+    gen = rest.find("scripts/generate_seo_pages.py")
+    pytest_at = rest.find("pytest")
+    assert close != -1 and 0 <= gen < pytest_at < close
+
+
+def test_lium_collect_pytest_after_pin_commit():
+    """The pin commit is pushed; pytest must run again after it, before rebase_push."""
+    text = (ROOT / ".github" / "workflows" / "lium-collect.yml").read_text(encoding="utf-8")
+    pin = text.find('git commit -qm "data: pin GPU index to the feed commit"')
+    assert pin != -1
+    after = text[pin:]
+    pytest_at = after.find("pytest")
+    push_at = after.find("rebase_push_main.sh")
+    assert 0 <= pytest_at < push_at
+

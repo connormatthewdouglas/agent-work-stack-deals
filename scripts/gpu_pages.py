@@ -815,6 +815,19 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     return out
 
 
+def lowest_payg(rs: list[dict], now=None) -> dict | None:
+    """Named lowest single-GPU pay-as-you-go rate for the price-comparison summary (T41-21).
+
+    Uses core.deals.payg_eligible (168 h stale cut, no lead_key) at now or now_utc(),
+    the same helper and clock as the release gate. _pick_cheapest / compare_gpu_prices
+    still apply lead_key for tool and homepage ranking and must not fill this cell.
+    """
+    from core.deals import payg_eligible
+    from core.gpu_availability import now_utc
+    rows = payg_eligible(rs, now_utc() if now is None else now)
+    return rows[0] if rows else None
+
+
 def _low_cell(gen, lo: dict | None) -> str:
     if lo is None:
         return "no single-GPU pay-as-you-go rate"
@@ -833,7 +846,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         own = [r for r in f["rates"] if family_of(r["gpu"]) == slug]  # H100 NVL counts in its own row here
         if not own:
             continue
-        lo = _pick_cheapest(own)
+        lo = lowest_payg(own)
         link = f'<a href="{gen.BASE}/{pages[slug]}/">{gen.esc(f["name"])}</a>' if slug in pages else gen.esc(f["name"])
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(own)}</td><td>{gen.esc(', '.join(sorted({r['advertiser'] for r in own})))}</td>"
@@ -845,7 +858,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
             others.setdefault(r["gpu"], []).append(r)
     for name in sorted(others):
         rs = others[name]
-        lo = _pick_cheapest(rs)
+        lo = lowest_payg(rs)
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
                        f"<td>{_low_cell(gen, lo)}</td></tr>")

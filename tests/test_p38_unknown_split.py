@@ -45,15 +45,18 @@ def test_describe_only_publishes_a_consistent_split():
 def test_fields_read_both_sources(monkeypatch):
     k = ("V", "H100", 80, "On-demand")
     monkeypatch.setattr(A, "_SCOUT", {})
+    monkeypatch.setattr(A, "_SCOUT_AT", None)
     monkeypatch.setattr(A, "_CACHE", {"window_start": "s", "window_end": "2026-11-10T00:00:00Z", "rows": {k: {
         "checks": 6, "in_stock_checks": 3, "unknown_checks": 5, "never_ran_checks": 2, "no_source_checks": 3}}})
     r = A.fields(*k, 2)["availability_rate_7d"]
     assert (r["unknown_checks"], r["never_ran_checks"], r["no_source_checks"]) == (5, 2, 3)
     sr = {"checks_7d": 10, "known_checks_7d": 7, "in_stock_checks_7d": 7, "last_check_at": "2026-11-10T00:00:00Z"}
     monkeypatch.setattr(A, "_SCOUT", {("v", "H100", 80, "On-demand"): (sr, "2026-11-10T00:00:00Z")})
+    monkeypatch.setattr(A, "_SCOUT_AT", None)
     r = A.fields(*k, 2)["availability_rate_7d"]
     assert r["unknown_checks"] == 3 and r["never_ran_checks"] is None and r["no_source_checks"] is None  # Scout has no split yet
     monkeypatch.setattr(A, "_SCOUT", {("v", "H100", 80, "On-demand"): (
         {**sr, "never_ran_checks_7d": 1, "no_source_checks_7d": 2}, "2026-11-10T00:00:00Z")})
+    monkeypatch.setattr(A, "_SCOUT_AT", None)
     r = A.fields(*k, 2)["availability_rate_7d"]
     assert (r["never_ran_checks"], r["no_source_checks"]) == (1, 2)

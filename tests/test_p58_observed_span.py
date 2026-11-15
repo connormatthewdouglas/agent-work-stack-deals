@@ -40,6 +40,7 @@ def test_fields_scout_path_publishes_observed_hours(monkeypatch):
         "first_check_at": FIRST, "last_check_at": LAST,
         "never_ran_checks_7d": 1, "no_source_checks_7d": 2,
     }, LAST)})
+    monkeypatch.setattr(A, "_SCOUT_AT", None)
     r = A.fields("V", "H100", 80, "On-demand", 2)["availability_rate_7d"]
     assert r["first_check_at"] == FIRST and r["observed_hours"] == 24.2
     assert r["window_days"] == 7 and (r["never_ran_checks"], r["no_source_checks"]) == (1, 2)

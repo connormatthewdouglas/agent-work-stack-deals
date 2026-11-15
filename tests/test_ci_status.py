@@ -44,3 +44,16 @@ def test_workflow_has_gate_job_without_continue_on_error():
     assert j["if"] == "always()" and "continue-on-error" not in j
     assert {"tests", "latest-scout-import", "deploy", "validate", "live-checks"} <= set(j["needs"])
     assert "ci_status.py" in j["steps"][-1]["run"]
+
+
+def test_premerge_scout_import_check_includes_wider_and_t112():
+    """The PR import gate must merge the same Scout extras as the live scout-import.yml job.
+
+    A check that only imported availability left 48h-old wider-GPU batch rows held, so
+    V100 / rental-page tests failed even when the live importer (which merges wider)
+    would have been green after a fresh snapshot.
+    """
+    chk = (ROOT / "scripts" / "check_latest_scout_import.sh").read_text(encoding="utf-8")
+    live = (ROOT / ".github" / "workflows" / "scout-import.yml").read_text(encoding="utf-8")
+    for token in ("import_scout_wider.py", "t112_availability_rate_7d.json", "normalize_gpu_sources.py"):
+        assert token in chk and token in live, token

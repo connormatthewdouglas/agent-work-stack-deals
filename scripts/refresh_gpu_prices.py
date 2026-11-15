@@ -5,6 +5,7 @@ For each tracked record in data/gpu_pricing/<vendor>.json, re-read the vendor's 
 update the price ONLY where it was actually parsed:
 
 * AWS Price List (data/gpu_pricing/aws.json, collector=aws_price_list): the public no-auth regional offer CSV on pricing.us-east-1.amazonaws.com is streamed and filtered to Linux, shared tenancy, on-demand, CapacityStatus Used, unit Hrs; the matching instance type's PricePerUnit is the live rate. Offer Version, Publication Date and RateCode are stored on evidence. Fetch or parse failure leaves the row (and its verified timestamps) unchanged.
+* Civo reserved (6/12/24-month commitment) rows: re-read on https://www.civo.com/pricing from the verbatim visible Small-row ladder (the same table the live source check sees). Product-page flight JSON is not used as a listed-price source: those 6/12/24-month cells are not in the no-JS visible HTML. A missed parse leaves verified_at / checked_at unchanged and records last_failed_check_at.
 * Listed prices: the record's last evidence quote is turned into a pattern (its words must appear in the same
   order on today's page, prices become capture groups). The record's price is updated only if that context is
   found and gives exactly one value. The new evidence {source_url, quote, checked_at} is the matched page text.
@@ -42,6 +43,7 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "scripts"))
 from core.gpu import HOURS_PER_MONTH, MAX_QUOTE, MIN_MARKET_OFFERS, PRICING_DIR, STALE_DAYS  # noqa: E402
 from core.owner_hold import is_held  # noqa: E402
 from core import gpu_history  # noqa: E402
@@ -223,6 +225,8 @@ LABEL_ALIASES = {
     "lambda.ai/pricing": [("NVIDIA B200 SXM6 180 GB 208", "NVIDIA HGX B200 180 GB 208"),  # 2026-11-02: 8x plans -> "HGX"
                           ("NVIDIA H100 SXM 80 GB 208", "NVIDIA HGX H100 80 GB 208"),
                           ("NVIDIA A100 SXM 80 GB 240", "NVIDIA HGX A100 80 GB 240")],
+    # 2026-11-15: same l40s-90 SKU and $1.8 / $1,296 prices; page corrected "HBM2" to "GDDR6".
+    "ovhcloud.com/public-cloud/prices": [("1x L40S ( 48 GB HBM2)", "1x L40S ( 48 GB GDDR6)")],
 }
 
 
@@ -462,6 +466,7 @@ def _confirmation_ref(entry: dict) -> dict:
         if entry.get(k) is not None and entry.get(k) != "":
             out[k] = entry[k]
     return out
+
 
 
 def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DAYS,
