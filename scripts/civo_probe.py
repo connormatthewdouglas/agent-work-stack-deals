@@ -206,6 +206,41 @@ def parse_civo_product_page(source: Any) -> list[dict]:
     return rows
 
 
+# Tracked reserved tiers in the feed (36-month is parsed but not a required feed row).
+COMMITMENT_TIERS = {
+    "6-month commitment": 6,
+    "12-month commitment": 12,
+    "24-month commitment": 24,
+}
+
+
+def commitment_price(record: dict, html: str) -> tuple[str | None, str | None, str]:
+    """Match one Civo reserved row to a product-page commitment cell.
+
+    Returns (price_string, evidence_quote, message). price is None when the tier is
+    missing, ambiguous, or unreadable; the caller must leave verified_at alone.
+    """
+    months = COMMITMENT_TIERS.get(record.get("tier") or "")
+    if months is None:
+        return None, None, "not a tracked Civo commitment tier"
+    rows = parse_civo_product_page(html)
+    gpu, vram = record.get("gpu"), record.get("vram_gb")
+    hits = [p for p in rows if p.get("gpu") == gpu and p.get("vram_gb") == vram]
+    if not hits:
+        return None, None, "GPU/VRAM not found on Civo product page"
+    if len(hits) != 1:
+        return None, None, "ambiguous GPU/VRAM rows on Civo product page"
+    cell = (hits[0].get("commitments") or {}).get(months)
+    if not cell or cell.get("hourly_usd") is None:
+        return None, None, f"{months}-month commitment price not on product page"
+    price = cell["hourly_usd"]
+    name = hits[0].get("primary_text") or gpu
+    if vram and f"{vram}GB" not in (name or ""):
+        name = f"{name} {vram}GB"
+    quote = f"{name} {record['tier']} ${price} per hour"
+    return f"{price:g}", quote, "parsed (Civo product page)"
+
+
 def availability_rows(parsed: list[dict], source_url: str, collected_at: str,
                       tiers: tuple[str, ...] = ("On-demand",
                                                 "6-month commitment",
