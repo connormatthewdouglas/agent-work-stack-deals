@@ -11,7 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import HOURS_PER_MONTH, PRICE_SCOPE, build_rates  # noqa: E402
+from core.gpu import HOURS_PER_MONTH, HOURS_PER_MONTH_NOTE, PRICE_SCOPE, build_rates  # noqa: E402
+from core.availability_rate import RATE_FOOTNOTE  # noqa: E402
 from core.data_age import CURRENT_MAX_HOURS as CURRENT_MAX_H  # noqa: E402
 from core.stack import MAX_GPU_HOURS_MONTH  # noqa: E402
 from core.gpu_availability import AVAIL_MAX_AGE_H  # noqa: E402
@@ -113,6 +114,8 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "held_stale": data["held_stale"],
         "price_scope": PRICE_SCOPE,
     }
+    from core.availability_rate import overlay_published_rates
+    payload["rates"] = overlay_published_rates(payload["rates"], API_PATH)
     gen.assert_public_clean(payload)
     return payload
 
@@ -173,7 +176,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   <h1>GPU cost calculator</h1>
   <p>Estimate monthly GPU cost from prices published by vendors in the Lantern Works feed. Choose a GPU model and enter workload hours and GPU count to see a comparable quote; nothing is named until those are set. The default price tier is on-demand, the same default as the MCP <code>compare_gpu_prices</code> tool. Spot/interruptible rates (the vendor may preempt the job) and marketplace rates are opt-in and labelled. Every row shows how its cost was calculated and the vendor quote it came from. Results are sorted by your estimated cost, cheapest among tracked providers first (vendors we don't track may cost less). The named rate is a single-GPU instance; serverless and multi-GPU minimum rows stay in the table and are not named. Referral links don't change the order.</p>
   <form id="calc" onsubmit="return false" aria-label="GPU cost inputs">
-    <label>GPU hours per month <input id="hours" type="number" min="0.01" max="{MAX_GPU_HOURS_MONTH}" step="1" value="" placeholder="e.g. 100" inputmode="numeric"></label>
+    <label>GPU hours per month <input id="hours" type="number" min="0.01" max="{MAX_GPU_HOURS_MONTH}" step="1" value="" placeholder="e.g. 100" inputmode="numeric"></label> <small>A full average month is {HOURS_PER_MONTH} hours ({HOURS_PER_MONTH_NOTE}). Enter 720 for a 30-day month such as November.</small>
     <label>GPUs <input id="gpus" type="number" min="1" max="64" step="1" value="" placeholder="e.g. 1" inputmode="numeric"></label>
     <label>GPU model <select id="gpu"><option value="">Select a GPU</option>{opts}</select></label>
     <label>Min VRAM (GB) <select id="vram"><option value="">Any</option><option>24</option><option>48</option><option>80</option></select></label>
@@ -182,15 +185,17 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   </form>
   <p><span id="summary" aria-live="polite"></span> <a id="permalink" href="?">Link to this estimate</a></p>
   <section id="quote" class="callout" hidden></section>
-  <div class="tscroll"><table class="howto" id="results"><thead><tr><th>Est. / month</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Link</th></tr></thead><tbody></tbody></table></div>
+  <div class="tscroll"><table class="howto" id="results"><thead><tr><th>Est. / month (for the hours you enter; {HOURS_PER_MONTH} h average month, November = 720 h)</th><th>GPU</th><th>Vendor</th><th>Billing</th><th>Calculation</th><th>Vendor quote (verified)</th><th>Link</th></tr></thead><tbody></tbody></table></div>
   <noscript><p>The calculator needs JavaScript. The same data is at <a href="{api}">{api}</a>.</p></noscript>
 
   <h2>Calculation basis</h2>
   <ul>
     <li>Hourly: rate × hours × GPUs. Billed while the instance runs.</li>
     <li>Marketplace medians are computed from in-stock listings only.</li>
+    <li>Hours per month is a stated parameter: the hours box is the workload you enter. A full month in this calculator is {HOURS_PER_MONTH} hours ({HOURS_PER_MONTH_NOTE}).</li>
     <li>Monthly dedicated servers: flat price × ceil(hours ÷ {HOURS_PER_MONTH}) × GPUs, whatever your usage.</li>
     <li>Excludes storage, egress, extra vCPU, taxes and promo credits. Prices are "from" prices; confirm on the vendor page before spending.</li>
+    <li>{RATE_FOOTNOTE}</li>
   </ul>
 {__import__("gpu_pages").accuracy_html(gen, payload["rates"])}  <p>Model guides and comparisons: <a href="{gen.BASE}/gpu/price-comparison/">all GPU prices</a> · {__import__("gpu_pages").links_html(gen.BASE, deals)}</p>
   <h2>Free GPU-adjacent credits</h2>
@@ -209,6 +214,19 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
   if (q.get("flat")==="0") $("flat").checked=false;
   if (!$("tier").value) $("tier").value="on-demand";
   function esc(s){{return String(s??"").replace(/[&<>"]/g,c=>({{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}}[c]))}}
+  function ratePhrase(r){{
+    const ar=r&&r.availability_rate_7d; if(!ar) return null;
+    const n=ar.known_checks, k=ar.in_stock_checks;
+    if(!(n>0) || k==null || k<0 || k>n) return null;
+    let t=k===0?`not observed in stock in ${{n}} checks`:`observed in stock in ${{k}} of ${{n}} checks`;
+    const small=ar.sample_status==="insufficient_sample"||ar.sufficient_sample===false||n<=10||(Number.isFinite(ar.observed_hours)&&ar.observed_hours<24);
+    if(small) t+=` (small sample, N=${{n}}; treat availability as price-only)`;
+    return t;
+  }}
+  function zeroOfN(r){{
+    const ar=r&&r.availability_rate_7d; if(!ar||ar.in_stock_checks!==0) return null;
+    return ratePhrase(r);
+  }}
   // BILL_START (T42): same billing contract as core.gpu.estimate: whole servers/instances only, never fractional GPUs
   function bill(r,h,g){{
     const per=r.gpu_count||1, servers=Math.ceil(Math.max(g,r.min_gpus||1)/per), gg=servers*per;
@@ -311,8 +329,8 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
     // re28: a price older than {CURRENT_MAX_H} h never ranks or heads the summary; listed separately
     const cur=rows.filter(r=>!r.old&&r.tier_class!=="reserved"), curIn=cur.filter(r=>r.stock!==false), nOld=rows.filter(r=>r.old).length;
     const named=cur.filter(r=>headlineEligible(r, g)), pick=named[0];
-    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}${{r.stock===false?' <small class="oos">(out of stock when checked; ranked after available/unknown rows)</small>':r.stock===true?' <small>(in stock when checked)</small>':' <small>(stock unknown)</small>'}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}${{isServerlessRate(r)&&String(r.tier||"").toLowerCase().indexOf("serverless")<0?" [serverless]":""}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
-    $("summary").textContent=!rows.length?"No priced option matches these filters.":pick?`${{rows.length}} options. Cheapest among tracked providers${{curIn.length?"":" (all matching rows out of stock when checked)"}}: ${{pick.advertiser}} ${{pick.gpu}} at ${{fmt(pick.cost)}}/month.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):cur.length?`${{rows.length}} options. No rate with a GPU minimum of ${{g}} or fewer to name; serverless rows stay in the table.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
+    $("results").tBodies[0].innerHTML=rows.map((r,i)=>(r.old&&(i===0||!rows[i-1].old)?'<tr><th colspan="7" id="stale-rates">Stale prices (older than {CURRENT_MAX_H} h): not ranked; confirm on the vendor page</th></tr>':"")+(!r.old&&r.tier_class==="reserved"&&(i===0||rows[i-1].tier_class!=="reserved")?'<tr><th colspan="7" id="reserved-rates">Reserved and term-commitment prices: need a reservation or minimum term (see Billing), so they are listed separately, sorted by estimated cost</th></tr>':"")+`<tr><td><strong>${{fmt(r.cost)}}</strong>${{r.old?` <em>stale price (${{Number.isFinite(r.ageD)?r.ageD+" days old":"check time unknown"}})</em>`:""}}</td><td>${{esc(r.gpu)}}${{r.vram_gb?` ${{r.vram_gb}} GB`:""}}${{r.stock===false?' <small class="oos">('+(zeroOfN(r)||'out of stock when checked')+(ratePhrase(r)&&!zeroOfN(r)?'; '+ratePhrase(r):'')+'; ranked after available/unknown rows)</small>':r.stock===true?' <small>(in stock when checked'+(ratePhrase(r)?'; '+ratePhrase(r):'')+')</small>':' <small>(stock unknown'+(ratePhrase(r)?'; '+ratePhrase(r):'')+')</small>'}}</td><td><a href="${{esc(r.redeem_url)}}" rel="${{r.affiliate?"nofollow sponsored noopener":"noopener"}}" data-deal="${{esc(r.deal_id)}}">${{esc(r.advertiser)}}</a></td><td>${{esc(r.tier)}}${{isServerlessRate(r)&&String(r.tier||"").toLowerCase().indexOf("serverless")<0?" [serverless]":""}}, ${{esc(r.billing)}}</td><td>${{esc(r.calc)}}</td><td><a href="${{esc(r.source_url)}}" rel="noopener">“${{esc(r.basis)}}”</a> · ${{esc((r.verified_at||"").slice(0,10))}}</td><td>${{r.affiliate?"Referral link":"Direct link"}}</td></tr>`).join("")||'<tr><td colspan="7">No priced option matches.</td></tr>';
+    $("summary").textContent=!rows.length?"No priced option matches these filters.":pick?`${{rows.length}} options. Cheapest among tracked providers${{curIn.length?"":" (all matching rows "+(zeroOfN(pick)||"out of stock when checked")+")"}}: ${{pick.advertiser}} ${{pick.gpu}} at ${{fmt(pick.cost)}} for ${{h}} h/month (hours you entered; a full average month is ${{H}} h, 24 × 365 / 12; a 30-day month such as November is 720 h).`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):cur.length?`${{rows.length}} options. No rate with a GPU minimum of ${{g}} or fewer to name; serverless rows stay in the table.`+(nOld?` ${{nOld}} stale price(s) older than {CURRENT_MAX_H} h are listed separately, not ranked.`:""):nOld?`All ${{nOld}} matching prices are older than {CURRENT_MAX_H} h (stale), so no current cheapest among tracked providers is named.`:`${{rows.length}} options; only reserved or term-commitment prices match, listed separately.`;
     renderQuote(pick,h,g,m,tier,v);
     share();
   }}

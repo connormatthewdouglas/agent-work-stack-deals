@@ -38,7 +38,7 @@ def _rows(html):
 def test_full_month_is_rate_times_730():
     """T1/M2: every full-month cell equals the row's own hourly rate x 730 (or its flat monthly price)."""
     html = (ROOT / "gpu/price-comparison/index.html").read_text()
-    assert "Full month (730 h: rate × 730" in html
+    assert "Full month (730 h average (24 × 365 / 12); a 30-day month such as November is 720 h: rate × 730" in html
     rows = _rows(html)
     assert len(rows) == len(_payload()["rates"])
     for _, c in rows:

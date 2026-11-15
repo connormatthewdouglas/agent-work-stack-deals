@@ -598,7 +598,7 @@ def _(f, ev):
         for tb in txt.split("<tbody>")[1:]:
             oos_seen = False
             for i, tr in enumerate(re.findall(r"<tr.*?</tr>", tb.split("</tbody>")[0], re.S), 1):
-                o = "out of stock when checked" in tr
+                o = "out of stock when checked" in tr or "not observed in stock in " in tr
                 n_oos += o
                 if oos_seen and not o: f.append(f"{slug}: row #{i} not marked out of stock is ranked below an out-of-stock row")
                 oos_seen |= o
@@ -632,7 +632,7 @@ def _(f, ev):
     cell = GP._avail_cell(types.SimpleNamespace(esc=H.escape), {"availability": stale_guard(fx["rates"][0]["availability"] | {"checked_at": old, "origin": "scout", "in_stock": True}, NOW)})
     if not cell.startswith("unknown (stale availability, last checked "): f.append(f"site cell for 9h-old check renders {cell!r}")
     txt, _at = fetch(f"{BASE}/gpu/cheapest-a100-rental/")
-    claims = re.findall(r"<td[^>]*>((?:(?!</td>).)*?(?:available|out of stock) when checked(?:(?!</td>).)*)</td>", txt, re.S)
+    claims = re.findall(r"<td[^>]*>((?:(?!</td>).)*?(?:available when checked|out of stock when checked|not observed in stock in)(?:(?!</td>).)*)</td>", txt, re.S)
     naked = [c[:80] for c in claims if "data-av-checked" not in c and "stale availability" not in c]
     if claims and "<!-- av-stale -->" not in txt: f.append("page has stock claims but no expiry script")
     if naked: f.append(f"stock claims without data-av-checked: {naked[:3]}")

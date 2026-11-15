@@ -155,6 +155,7 @@
     <li>Each need is priced on its own: a plan's monthly price if your volume fits what it includes, plus published overage (rounded up to whole packs), else the plan doesn't qualify.</li>
     <li>Credit-based plans convert your quantity with the vendor's published rate (e.g. 5 credits per JS-rendered page).</li>
     <li>Monthly list prices before tax; free tiers count when your volume fits. Plans that share one credit pool across needs aren't combined.</li>
+    <li>GPU monthly cost uses the feed's hours_per_month parameter (730 hours, an average month of 24 × 365 / 12). A 30-day month such as November is 720 hours.</li>
     <li>Plans marked <strong>Manual signup only</strong> need a human to sign up; agents shouldn't automate it.</li>
     <li>Prices are re-fetched from each source page daily; confirm on the vendor page before you spend.</li>
   </ul>
@@ -221,7 +222,7 @@
       if(!c){unk.push(l.need.label);return `<tr>${head}<td><strong>No published price</strong></td><td colspan="3">No tracked provider publishes a price that covers this volume.${more}</td></tr>`}
       tot+=c.monthly_cost_usd;
       return `<tr>${head}<td><strong>${fmt(c.monthly_cost_usd)}</strong></td><td><a href="${esc(c.redeem_url||c.deal_url)}" rel="nofollow sponsored noopener" data-deal="${esc(c.deal_id)}">${esc(c.vendor)}</a> ${esc(c.plan)}${c.manual_signup_only?" <strong>Manual signup only</strong>":""}<br><small>${esc(c.calc)}</small>${more}</td><td>${src(c)}</td><td><small>${esc(c.assumptions.join(" "))}</small></td></tr>`}).join("");
-    $("out").innerHTML=`<p><strong>Estimated ${fmt(tot)}/month</strong> for the priced lines${unk.length?`; no published price for: ${esc(unk.join(", "))}`:""}. Cheapest among tracked providers per need.</p><div class="tscroll"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Plan (calculation)</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    $("out").innerHTML=`<p><strong>Estimated ${fmt(tot)}/month</strong> (GPU hours use the feed's hours_per_month, ${H} h average: 24 × 365 / 12; a 30-day month such as November is 720 h) for the priced lines${unk.length?`; no published price for: ${esc(unk.join(", "))}`:""}. Cheapest among tracked providers per need.</p><div class="tscroll"><table class="howto"><thead><tr><th>Need</th><th>Est. / month</th><th>Plan (calculation)</th><th>Vendor quote</th><th>Assumptions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
   const DEF=["gpu_hours"];
   function read(){const q={},more=$("showmore").checked;for(const k of N)q[k]=(DEF.includes(k)||more)?Math.max(0,+$("n-"+k).value||0):0;return q}
