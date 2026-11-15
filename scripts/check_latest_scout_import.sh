@@ -21,6 +21,23 @@ cd "$W"
 LW_AVAIL_NOW=${LW_AVAIL_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}; export LW_AVAIL_NOW
 LW_SCOUT_MANIFESTS="$T/manifest.json:$T/latest_manifest.json" LW_SCOUT_AVAIL="$T/availability_v2_latest.json" \
   python3 scripts/import_scout_availability.py "$T/feed_enriched_v2_latest.json"
+# Same extras as .github/workflows/scout-import.yml: T112 rates + wider-GPU batch.
+# Without the wider import, 48h batch holds drop V100 / rental pages and this gate
+# would fail even when the live import (which does merge wider) would be green.
+if git -C "$ROOT" show origin/scout-data:latest/t112_availability_rate_7d.json > "$T/t112.json" 2>/dev/null \
+   && [ -s "$T/t112.json" ] \
+   && python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d.get("kind")=="t112_availability_rate_inputs" else 1)' "$T/t112.json"; then
+  cp "$T/t112.json" data/gpu_availability/scout_rate_7d.json
+fi
+if git -C "$ROOT" show origin/scout-data:latest/wider_gpu_prices_latest.json > "$T/wider.json" 2>/dev/null; then
+  LW_WIDER_GEN="$(git -C "$ROOT" log -1 --format=%s origin/scout-data -- latest/wider_gpu_prices_latest.json | grep -o 'gen [^ ]*' | cut -c5- || true)" \
+    python3 scripts/import_scout_wider.py "$T/wider.json" || {
+      git checkout -q -- data/gpu_pricing
+      echo "wider-gpu import refused, current records kept"
+    }
+  python3 scripts/sync_today_snapshot.py || exit 1
+fi
+python3 scripts/normalize_gpu_sources.py || exit 1
 python3 scripts/generate_seo_pages.py > /dev/null
 python3 scripts/gpu_index.py . api/v1 > /dev/null
 python3 scripts/generate_seo_pages.py > /dev/null
