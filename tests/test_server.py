@@ -239,7 +239,14 @@ def test_i3_i5_region_field_and_tie_named(monkeypatch):
     assert "region" in D.RATE_FIELDS
     props = contract.EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]
     assert props["region"]["type"] == ["string", "null"]
-    monkeypatch.setenv("LANTERN_GPU_PRICES_FILE", str(Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json"))
+    feed_path = Path(__file__).resolve().parents[1] / "api/v1/gpu-prices.json"
+    feed = json.loads(feed_path.read_text(encoding="utf-8"))
+    pins = [r.get("verified_at") or r.get("checked_at") for r in feed["rates"]
+            if r.get("advertiser") in ("Nova Cloud", "RunC.AI") and "4090" in (r.get("gpu") or "")]
+    if not pins:
+        raise AssertionError("Nova Cloud / RunC.AI RTX 4090 rows missing from the feed")
+    monkeypatch.setenv("LW_AVAIL_NOW", min(pins))
+    monkeypatch.setenv("LANTERN_GPU_PRICES_FILE", str(feed_path))
     from mcp_server import server as s
     out = s.compare_gpu_prices("RTX 4090", on_demand_only=True, mode="full")
     assert "Nova Cloud and RunC.AI (tie) RTX 4090 24GB at $0.42/hr" in out["summary"]

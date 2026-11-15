@@ -447,6 +447,32 @@ def out_of_stock(r: dict) -> bool:
     return isinstance(a, dict) and a.get("in_stock") is False
 
 
+def payg_eligible(rs: list, now: datetime | None = None) -> list:
+    """Single-GPU pay-as-you-go rows for the named lowest rate (T41-21 / price-comparison summary).
+
+    min_gpus <= 1, not reserved, not serverless, has hourly_equiv_usd, and inside the default
+    168 h stale cut (split_current) at `now` (or LW_AVAIL_NOW / wall clock). Age is not a lead
+    criterion: a cheaper degraded (48–168 h) row still ranks ahead of a dearer fresh row.
+    Sorted out of stock last, then price, advertiser, gpu. compare_gpu_prices still uses
+    lead_key for tool ranking and must not be used for this lowest-rate cell.
+    """
+    from . import data_age
+    from .serverless import rate_reason
+
+    def _n(r):
+        n = r.get("min_gpus") or 1
+        return 1 if isinstance(n, bool) or not isinstance(n, int) or n < 1 else n
+
+    eligible = [
+        r for r in rs
+        if _n(r) <= 1 and tier_class(r) != "reserved" and not rate_reason(r)
+        and r.get("hourly_equiv_usd") is not None
+    ]
+    eligible = data_age.split_current(eligible, None, now)[0]
+    eligible.sort(key=lambda r: (out_of_stock(r), r["hourly_equiv_usd"], r.get("advertiser") or "", r.get("gpu") or ""))
+    return eligible
+
+
 NVLINK_FORM_NOTE = ("Rows named 'NVLink' (e.g. Hyperstack 'H100 NVLink', 'A100 NVLink') count as form 'not stated': NVLink names the "
                     "GPU-to-GPU bridge, and the vendor page does not say SXM or PCIe. A row maps to SXM only where the vendor says SXM or HGX.")
 
