@@ -99,7 +99,11 @@ def test_out_of_stock_ranked_last_and_excluded():
     assert flags == sorted(flags)  # stock-independent
     for i in items:  # every out-of-stock row shows its check time (order itself is asserted above)
         if "not observed in stock in " in i:
-            assert "last check " in i
+            # Current 0/N claims use "last check"; trailing 0/N notes on stale/unknown cells already carry "last checked".
+            if "stale availability" in i or "unknown (no signal)" in i or "unmeasurable" in i:
+                assert "last checked" in i or "checked " in i
+            else:
+                assert "last check " in i
         elif "out of stock when checked" in i:
             assert "out of stock when checked at" in i
     h = _page("h100", 100).split("<h2>H100 SXM 80GB</h2>")[1].split("</table>")[0]
