@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +39,12 @@ def write_history(gen) -> dict:
 
 
 from core.deals import latest_checked_at  # noqa: E402
+from core.gpu_availability import now_utc  # noqa: E402
+
+
+def _build_clock_iso() -> str:
+    """Generate clock as UTC Z, the same pin pages-match applies to feed_updated_at."""
+    return now_utc().astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _held_paragraph(esc, held: list[dict]) -> str:
@@ -125,6 +132,34 @@ def _prices_unchanged(prev: dict, payload: dict) -> bool:
     return all(prev.get(k) == payload.get(k) for k in ("rates", "held_stale", "vendors", "unpriced"))
 
 
+def _finalize_feed_updated_at(payload: dict, prev: dict | None, clock: str, rows_at=None) -> None:
+    """Keep feed_updated_at a clock that reproduces the published rows.
+
+    price_stamp (newest ranked verified_at) must not move for an availability-only
+    collected_at. But when published rows change — including an availability stale
+    flip — the stamp must advance to at least the generate clock (LW_AVAIL_NOW).
+    The 2026-11-16 Lium collector wrote 07:15:31Z (Lium checked_at) while generate
+    ran ~07:16:26Z and flipped Vast A100 stale at the 25-minute horizon; pages-match
+    pins LW_AVAIL_NOW to feed_updated_at, so the committed rows did not match.
+
+    When rows look unchanged, still advance if the kept stamp would not reproduce
+    them (the inconsistent file already on disk).
+    """
+    price_stamp = payload.get("feed_updated_at")
+    if isinstance(prev, dict) and _prices_unchanged(prev, payload) and prev.get("feed_updated_at"):
+        stamp = prev["feed_updated_at"]
+        reproducible = True
+        if rows_at is not None and stamp != clock:
+            reproducible = _prices_unchanged(rows_at(stamp), payload)
+        if reproducible:
+            payload["feed_updated_at"] = stamp
+            if prev.get("prices_verified_through"):
+                payload["prices_verified_through"] = prev["prices_verified_through"]
+            return
+    # Rows changed, or the previous stamp would not produce these rows.
+    payload["feed_updated_at"] = latest_checked_at([price_stamp, clock]) or clock
+
+
 def write(gen, deals: list[dict], feed_updated: str) -> str:
     payload = build_payload(gen, deals, feed_updated)
     if API_PATH.is_file():
@@ -132,10 +167,19 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
             prev = json.loads(API_PATH.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             prev = None
-        if isinstance(prev, dict) and _prices_unchanged(prev, payload) and prev.get("feed_updated_at"):
-            payload["feed_updated_at"] = prev["feed_updated_at"]
-            if prev.get("prices_verified_through"):
-                payload["prices_verified_through"] = prev["prices_verified_through"]
+        if isinstance(prev, dict):
+            def _rows_at(stamp: str):
+                import os
+                saved = os.environ.get("LW_AVAIL_NOW")
+                try:
+                    os.environ["LW_AVAIL_NOW"] = stamp
+                    return build_payload(gen, deals, feed_updated)
+                finally:
+                    if saved is None:
+                        os.environ.pop("LW_AVAIL_NOW", None)
+                    else:
+                        os.environ["LW_AVAIL_NOW"] = saved
+            _finalize_feed_updated_at(payload, prev, _build_clock_iso(), rows_at=_rows_at)
     write_history(gen)
     API_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     esc = gen.esc
