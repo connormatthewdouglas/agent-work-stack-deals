@@ -23,7 +23,13 @@ def test_referral_label_on_every_code_carrying_row():
     assert all(any(is_held(v, [n]) for v in owners) for n in live) and all(is_held(v, live) for v in owners)
     assert not any(is_held(r["advertiser"], live) for r in FEED["rates"])
     labelled = {r["advertiser"] for r in FEED["rates"] if r.get("referral_label")}
-    assert {"Vast.ai", "Ucartz", "Clore.ai", "Novita AI", "RunPod", "Thunder Compute"} <= labelled
+    # Clore.ai is in this lock only while it still has a published (not held) rate.
+    # After 2026-11-16 the remaining Clore marketplace rows were auto-held (> 7 day
+    # manual snapshot); a held vendor must not be required to appear as a current rate.
+    required = {"Vast.ai", "Ucartz", "Novita AI", "RunPod", "Thunder Compute"}
+    if any(r["advertiser"] == "Clore.ai" for r in FEED["rates"]):
+        required.add("Clore.ai")
+    assert required <= labelled
     # 99Stack's /a/<uuid> referral drops the token on redirect. Price rows stay; the link is the vendor page.
     rows_99 = [r for r in FEED["rates"] if r["advertiser"] == "99Stack Cloud"]
     assert rows_99 and all(

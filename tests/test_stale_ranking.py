@@ -103,3 +103,25 @@ def test_build_rates_holds_aged_record(monkeypatch):
 
 def test_default_is_168():
     assert data_age.CURRENT_MAX_HOURS == 168
+
+
+def test_manual_snapshot_past_hold_after_is_held_without_stale_auto(monkeypatch):
+    """Generate-time hold: a manual snapshot older than STALE_DAYS must go to held_stale
+    even if refresh() has not yet written stale.auto on the record."""
+    docs = copy.deepcopy(load_vendor_files())
+    doc = next(d for d in docs if d.get("vendor", "").startswith("Cirrascale") and d.get("manual_snapshot"))
+    rec = doc["records"][0]
+    rec.pop("stale", None)
+    rec["verified_at"] = rec["checked_at"] = "2026-11-09T04:33:11+00:00"
+    # Exactly 7 days: still published (refresh uses a strict > STALE_DAYS cutoff).
+    monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-16T04:33:11Z")
+    out = build_rates(DEALS, docs)
+    assert any(r["advertiser"] == doc["vendor"] and r["gpu"] == rec["gpu"] for r in out["rates"])
+    assert not any(h["vendor"] == doc["vendor"] and any(x.get("gpu") == rec["gpu"] for x in h.get("records") or [])
+                   for h in out["held_stale"])
+    # One second past the cutoff: held, not ranked, verified_at unchanged.
+    monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-16T04:33:12Z")
+    out = build_rates(DEALS, docs)
+    assert not any(r["advertiser"] == doc["vendor"] and r["gpu"] == rec["gpu"] for r in out["rates"])
+    assert any(h["vendor"] == doc["vendor"] and any(x.get("gpu") == rec["gpu"] for x in h.get("records") or [])
+               for h in out["held_stale"])
