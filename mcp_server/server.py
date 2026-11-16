@@ -227,6 +227,7 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     with source_url; unknown stays 'unknown'. min_usable_memory_gb (optional) keeps only rows whose SOURCED usable
     memory meets it; rows with unknown usable memory are counted in usable_memory_filter.unknown and never matched
     on nominal memory or vram_gb.
+    availability_rate_7d (when present): window_days is the planned window (7, not the observed span); observed_hours is the actual coverage from first_check_at to last_check_at (or window_end). coverage_note is set only when observed_hours is shorter than the planned window (e.g. "Covers 24.1h of the planned 7-day window."); otherwise null.
     """
     if min_usable_memory_gb is not None and (not isinstance(min_usable_memory_gb, (int, float)) or isinstance(min_usable_memory_gb, bool)
                                              or not 0 < min_usable_memory_gb <= 4096):

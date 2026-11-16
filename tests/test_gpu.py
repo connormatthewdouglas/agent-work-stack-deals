@@ -291,15 +291,22 @@ def test_new_vendor_flags():
     from datetime import datetime, timezone
     recs = next(d for d in load_vendor_files() if d["vendor"] == "Lambda")["records"]
     assert len(recs) == 13
-    # Same clock build_rates uses: LW_AVAIL_NOW when the import gate (or a pin) sets it, else the feed stamp.
+    # Judge eligibility at LW_AVAIL_NOW when the import gate (or a pin) sets it (P60).
+    # Otherwise judge the feed on disk, not wall clock or feed_updated_at
+    # (a newest-ranked verified_at, not the build clock).
+    # Lambda takes effect 2026-11-16T00:00:00Z: a pre-effective feed holds those rows; a later rebuild ranks them.
     import os
-    pin = os.environ.get("LW_AVAIL_NOW") or api["feed_updated_at"]
-    clock = datetime.fromisoformat(pin.replace("Z", "+00:00"))
-    if any(price_not_yet_effective(r, now=clock) for r in recs):
+    pending = [h for h in api["held_stale"] if h["vendor"] == "Lambda"
+               and str(h.get("reason") or "").startswith("not yet in effect:")]
+    pin = os.environ.get("LW_AVAIL_NOW")
+    if pin:
+        clock = datetime.fromisoformat(pin.replace("Z", "+00:00"))
+        still_pending = any(price_not_yet_effective(r, now=clock) for r in recs)
+    else:
+        still_pending = bool(pending)
+    if still_pending:
         assert [r for r in rates if r["advertiser"] == "Lambda"] == []
-        pending = [h for h in api["held_stale"] if h["vendor"] == "Lambda"
-                   and str(h.get("reason") or "").startswith("not yet in effect:")]
-        assert pending and all((h.get("records") or [{}])[0].get("price_effective_at") for h in pending)
+        assert all((h.get("records") or [{}])[0].get("price_effective_at") for h in pending)
         later_rates = build_rates(FEED, now=datetime(2026, 11, 16, 0, 0, tzinfo=timezone.utc))["rates"]
         lam = [r for r in later_rates if r["advertiser"] == "Lambda"]
     else:
