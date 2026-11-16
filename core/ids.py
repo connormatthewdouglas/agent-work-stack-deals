@@ -78,3 +78,33 @@ def decode_cursor(cursor: str) -> dict | None:
         return {"seq": d["seq"], "eid": d.get("eid")}
     except Exception:
         return None
+
+
+# Keys that are timestamps, time-derived coverage, or identifiers. A rebuild that only
+# restamps rows must keep the same content_build_id; a price change must not.
+_CONTENT_SKIP = frozenset({
+    "last_verified", "fx_date", "observed_hours", "coverage_note", "data_age_hours",
+    "feed_updated_at", "prices_verified_through", "availability_collected_at",
+    "deal_feed_updated_at", "generation_id", "wider_generation_id", "content_build_id",
+})
+
+
+def _skip_content_key(key: str) -> bool:
+    k = str(key)
+    if k in _CONTENT_SKIP or k.endswith("_at") or k.endswith("_id") or k in ("window_start", "window_end"):
+        return True
+    return False
+
+
+def _content_view(obj):
+    if isinstance(obj, dict):
+        return {k: _content_view(v) for k, v in obj.items() if not _skip_content_key(k)}
+    if isinstance(obj, list):
+        return [_content_view(v) for v in obj]
+    return obj
+
+
+def content_build_id(rates) -> str:
+    """sha256 prefix of canonicalized ranked-row content, excluding timestamps and ids."""
+    canon = json.dumps(_content_view(rates), sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
+    return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:16]
