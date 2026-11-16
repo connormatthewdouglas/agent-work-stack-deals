@@ -158,3 +158,28 @@ def test_pages_show_not_yet_effective_note():
     g = (h.get("records") or [{}])[0]
     note = f"{G.esc(h['vendor'])} {G.esc(g.get('gpu') or '')} not ranked as a current price: {G.esc(h['reason'])}"
     assert "Lambda B200" in note and "not yet in effect" in note
+
+
+def test_effective_date_eligibility_follows_lw_avail_now(monkeypatch):
+    """Generate and pages-match pin LW_AVAIL_NOW; price_effective_at must use that clock, not wall clock.
+
+    Unpinned wall-clock eligibility is what made CI after 2026-11-16T00:00Z emit 10 newly
+    ranked Lambda rates and /gpu/v100-rental-price/ while a regenerate pinned to the previous
+    feed_updated_at still expected the held set (326 vs 327 sitemap URLs).
+    """
+    rec = dict(copy.deepcopy(REC), price_effective_at="2026-11-16T00:00:00+00:00")
+    doc = _doc(rec)
+    monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-15T23:39:40Z")
+    assert price_not_yet_effective(rec) is True
+    before = build_rates([], [doc])  # no explicit now: must honor the pin
+    assert [x for x in before["rates"] if x["advertiser"] == "Lambda"] == []
+    assert any(str(h.get("reason") or "").startswith("not yet in effect:")
+               for h in before["held_stale"] if h["vendor"] == "Lambda")
+
+    monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-16T00:00:00Z")
+    assert price_not_yet_effective(rec) is False
+    after = build_rates([], [doc])
+    rates = [x for x in after["rates"] if x["advertiser"] == "Lambda"]
+    assert len(rates) == 1 and rates[0]["price_usd"] == 7.99
+    assert not [h for h in after["held_stale"]
+                if h["vendor"] == "Lambda" and str(h.get("reason") or "").startswith("not yet in effect:")]
