@@ -43,7 +43,9 @@ from core import golinks
 
 CALLS = {
     "compare_gpu_prices": {"gpu": "H100"},
-    "get_price_changes": {"limit": 20},
+    # History window, not the latest daily file: after UTC midnight, scout-import writes
+    # today's snapshot and a quiet day has zero latest-file moves.
+    "get_price_changes": {"limit": 20, "since": json.loads((ROOT / "api/v1/gpu-prices/history.json").read_text())["first_snapshot"]},
     "estimate_job_cost": {"gpu_family": "H100", "job_hours": 10},
     "optimize_stack": {"scrape_pages": 1000, "proxy_gb": 5, "emails_sent": 1000},
     "optimize_agent_stack": {"description": "scrapes 20k JS pages via 5 GB residential proxies, 100 GPU hours on an H100"},
