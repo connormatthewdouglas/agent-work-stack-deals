@@ -6708,8 +6708,8 @@
   {
    "date": "2026-11-16",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-16.json",
-   "snapshot_sha256": "531ded9e77329e8e26ce4db483b7c1de2be5cda2ec76529235e5341f91edc8eb",
-   "feed_commit_for_listing_counts": "47eca3c9fc3b2b79c2743eabd97ebb116b337e6b",
+   "snapshot_sha256": "dc24833b7fa8306c8cc58a6f683c804434748da62140f7a8901f86d9043ac562",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.5,
@@ -6729,7 +6729,7 @@
       "Oblivus": 3.5,
       "RunPod": 1.99,
       "Thunder Compute": 3.2,
-      "Verda (formerly DataCrunch)": 5.241
+      "Verda (formerly DataCrunch)": 5.293
      },
      "low_coverage": false
     },
@@ -6748,7 +6748,7 @@
       "RunPod": 1.19,
       "Thunder Compute": 1.09,
       "Vast.ai": 1.1304,
-      "Verda (formerly DataCrunch)": 2.386
+      "Verda (formerly DataCrunch)": 2.398
      },
      "low_coverage": false
     },
@@ -6763,7 +6763,7 @@
       "Hyperstack": 3.99,
       "Nebius": 5.4,
       "RunPod": 3.59,
-      "Verda (formerly DataCrunch)": 6.701
+      "Verda (formerly DataCrunch)": 6.768
      },
      "low_coverage": false
     },
@@ -6779,17 +6779,16 @@
       "Nebius": 1.55,
       "OVHcloud (US)": 1.8,
       "RunPod": 0.79,
-      "Verda (formerly DataCrunch)": 2.018
+      "Verda (formerly DataCrunch)": 2.038
      },
      "low_coverage": false
     },
     "RTX 4090": {
-     "median_usd_per_gpu_hour": 0.4859,
-     "monthly_basis_usd": 354.71,
+     "median_usd_per_gpu_hour": 0.4529,
+     "monthly_basis_usd": 330.62,
      "min_usd_per_gpu_hour": 0.34,
-     "vendors": 7,
+     "vendors": 6,
      "vendor_prices": {
-      "Clore.ai": 0.5104,
       "Nova Cloud": 0.42,
       "Novita AI": 0.67,
       "Oblivus": 0.64,
@@ -6800,24 +6799,21 @@
      "low_coverage": false
     },
     "RTX 5090": {
-     "median_usd_per_gpu_hour": 0.69,
-     "monthly_basis_usd": 503.7,
+     "median_usd_per_gpu_hour": 0.67,
+     "monthly_basis_usd": 489.1,
      "min_usd_per_gpu_hour": 0.65,
-     "vendors": 3,
+     "vendors": 2,
      "vendor_prices": {
-      "Clore.ai": 0.7104,
       "CloudRift": 0.65,
       "RunPod": 0.69
      },
-     "low_coverage": false
+     "low_coverage": true
     }
    },
    "rows_included": [
     "99Stack Cloud|H100|On-demand|80|1",
     "Civo|A100|On-demand|80|1",
     "Civo|H100 SXM|On-demand|80|1",
-    "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
-    "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
     "CloudRift|L40S|On-demand|48|1",
     "CloudRift|RTX 5090|On-demand|32|1",
     "CoreWeave|A100|On-demand, 8-GPU instance|80|8",
@@ -6903,6 +6899,14 @@
     {
      "key": "Civo|H100 SXM|6-month commitment|80|1",
      "excluded_because": "reserved/committed"
+    },
+    {
+     "key": "Clore.ai|RTX 4090|Marketplace on-demand (host USD listings; median per GPU)|24|1",
+     "excluded_because": "held"
+    },
+    {
+     "key": "Clore.ai|RTX 5090|Marketplace on-demand (host USD listings; median per GPU)|32|1",
+     "excluded_because": "held"
     },
     {
      "key": "CloudRift|A100 SXM|1-month commitment|80|1",
@@ -7107,20 +7111,24 @@
      "vendors_dropped": []
     },
     "RTX 4090": {
-     "matched_vendors": 7,
-     "matched_median_prev": 0.4859,
-     "matched_median_cur": 0.4859,
+     "matched_vendors": 6,
+     "matched_median_prev": 0.4529,
+     "matched_median_cur": 0.4529,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": []
+     "vendors_dropped": [
+      "Clore.ai"
+     ]
     },
     "RTX 5090": {
-     "matched_vendors": 3,
-     "matched_median_prev": 0.69,
-     "matched_median_cur": 0.69,
+     "matched_vendors": 2,
+     "matched_median_prev": 0.67,
+     "matched_median_cur": 0.67,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": []
+     "vendors_dropped": [
+      "Clore.ai"
+     ]
     }
    }
   }

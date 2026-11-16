@@ -376,7 +376,19 @@ def _is_batch(r: dict) -> bool:
 
 def _price_too_old(r: dict, doc: dict) -> bool:
     if doc.get("manual_snapshot"):
-        return False  # manual snapshots have their own hold_after rule
+        # Same cutoff refresh() uses: verified_at + STALE_DAYS. Returning False here
+        # used to leave hold_after as an annotation only, so a missed refresh
+        # (2026-11-16 gpu-refresh failed after Cirrascale/Clore crossed 7 days)
+        # still published those rows as current.
+        from .gpu_availability import now_utc
+        v = r.get("verified_at") or r.get("checked_at")
+        if not v:
+            return False
+        try:
+            t = datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+        except ValueError:
+            return False
+        return now_utc() - t > timedelta(days=STALE_DAYS)
     from .data_age import STALE_HOURS, age_fields
     h = age_fields(r)["data_age_hours"]
     return h is not None and h > (BATCH_HOLD_HOURS if _is_batch(r) else STALE_HOURS)
