@@ -182,8 +182,9 @@ def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack(fixed_
              "availability": {"in_stock": None}, "gpu_count": 1, "min_gpus": 1}
     other = {**cheap, "advertiser": "RunPod", "hourly_equiv_usd": 2.5, "price_usd": 2.5,
              "source_url": "https://example.test/r"}
-    # Fixture stamps are 2026-11-09; pin now= so the 168h stale cut does not hide the owner-hold assertion.
-    now = datetime(2026, 11, 9, 12, tzinfo=timezone.utc)
+    # Fixture stamps are 2026-11-09; pin the eligibility clock so a 168h stale cut at wall clock
+    # cannot drop RunPod and hide the owner-hold assertion (the cut crossed 2026-11-16T00:00Z).
+    now = datetime(2026, 11, 9, 12, 0, tzinfo=timezone.utc)
     out = compare_gpu_prices({"rates": [cheap, other], "feed_updated_at": "2026-11-09T00:00:00Z"}, "H100", limit=5, now=now)
     assert [r["advertiser"] for r in out["results"]] == ["RunPod"]
     assert out["held_owner"][0]["reason"] == "owner_hold" and out["held_owner"][0]["vendor"] == "Hyperstack"

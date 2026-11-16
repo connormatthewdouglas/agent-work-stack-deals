@@ -246,7 +246,9 @@ function headlineEligible(r, gpus) {
       const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!stat.length||!lo)continue;
       const v=stat.map(r=>r.hourly_equiv_usd).sort((a,b)=>a-b),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
       (row.querySelector(".lo strong")||row.querySelector(".lo")).textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
-      const x=universe.length-stat.length;row.querySelector(".n").textContent=stat.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=lo.advertiser+" ("+lo.gpu+", "+(lo.tier||"")+")";
+      const excluded=universe.filter(r=>!stat.includes(r));
+      const allZero=excluded.length&&excluded.every(r=>{const ar=r.availability_rate_7d;return ar&&ar.in_stock_checks===0&&ar.known_checks>0;});
+      const x=universe.length-stat.length;row.querySelector(".n").textContent=stat.length+(x?" ("+x+(allZero?" not observed in stock in trailing checks, excluded":" out of stock excluded")+")":"");row.querySelector(".who").textContent=lo.advertiser+" ("+lo.gpu+", "+(lo.tier||"")+")";
     }
   }).catch(()=>{});
   })();

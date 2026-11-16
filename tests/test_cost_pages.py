@@ -67,6 +67,25 @@ def _page(slug, h):
     return (ROOT / f"cost/{slug}-{h}-hours/index.html").read_text(encoding="utf-8")
 
 
+
+def _row_marked_unavailable(html: str) -> bool:
+    """Current out-of-stock snapshot, or a 0/N trailing reading used as the current claim.
+
+    A trailing "not observed in stock in N checks" note on a stale or unknown cell is
+    historical observation only and must not be treated as an out-of-stock rank mark.
+    """
+    if "out of stock when checked" in html:
+        return True
+    if "not observed in stock in " not in html:
+        return False
+    if "unknown (stale" in html or "unknown (no signal)" in html or "unmeasurable" in html or "unknown;" in html:
+        return False
+    return True
+
+
+_oos_marked = _row_marked_unavailable
+
+
 def test_out_of_stock_ranked_last_and_excluded():
     if not _fresh():
         import pytest
@@ -76,14 +95,20 @@ def test_out_of_stock_ranked_last_and_excluded():
     # Scout v2.5 (01:14Z): Lambda A100 SXM/PCIe 40GB out of stock, Verda A100 SXM 40GB available -> out-of-stock items listed last
     sec = s.split("Other variants (not compared)")[1].split("</ul>")[0]
     items = sec.split("<li>")[1:]
-    flags = ["out of stock when checked" in i for i in items]
+    flags = [_oos_marked(i) for i in items]
     assert flags == sorted(flags)  # stock-independent
     for i in items:  # every out-of-stock row shows its check time (order itself is asserted above)
-        if "out of stock when checked" in i:
+        if "not observed in stock in " in i:
+            # Current 0/N claims use "last check"; trailing 0/N notes on stale/unknown cells already carry "last checked".
+            if "stale availability" in i or "unknown (no signal)" in i or "unmeasurable" in i:
+                assert "last checked" in i or "checked " in i
+            else:
+                assert "last check " in i
+        elif "out of stock when checked" in i:
             assert "out of stock when checked at" in i
     h = _page("h100", 100).split("<h2>H100 SXM 80GB</h2>")[1].split("</table>")[0]
     rows = h.split("<tr>")[2:]  # stock-independent: out-of-stock rows rank after every other row
-    oos = ["out of stock when checked" in r for r in rows]
+    oos = [_oos_marked(r) for r in rows]
     assert oos == sorted(oos)
 
 
@@ -135,7 +160,9 @@ def test_h1_scoped_cheapest_and_page_lowest():
 def test_h2_availability_wording_all_pages():
     for slug in ("h100", "a100", "l40s", "rtx-4090"):
         for h in (10, 100, 730):
-            assert "Not an availability claim, except rows marked out of stock when checked." in _page(slug, h)
+            assert "except rows whose current reading is out of stock when checked" in _page(slug, h)
+            if h == 730:
+                assert "730 h on 1 GPU (730 h average (24 × 365 / 12); a 30-day month such as November is 720 h)" in _page(slug, h)
 
 
 def test_i1_rtx4090_page_lowest_line_from_feed():
@@ -302,7 +329,7 @@ def test_k1_cheapest_pages_rank_out_of_stock_last():
         for table in _ranked_rows(slug):
             seen = False
             for r in table:
-                o = "out of stock when checked" in r
+                o = _oos_marked(r)
                 assert not (seen and not o), (slug, r[:200])
                 seen |= o
 

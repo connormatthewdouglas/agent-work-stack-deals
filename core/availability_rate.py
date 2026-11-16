@@ -139,3 +139,93 @@ def fields(vendor: str, gpu: str, vram_gb, tier: str, hourly) -> dict:
             ix.get("window_start"), ix.get("window_end"), "git_history", r.get("first_check_at"), r.get("last_check_at"),
             r.get("never_ran_checks"), r.get("no_source_checks"))
     return out
+
+
+# Display-only thresholds for site copy (P60). Not feed fields. A sample is small when
+# the feed already marks it insufficient (< MIN_CHECKS), or when N is about 5-10 checks,
+# or when observed coverage is under a day.
+SMALL_SAMPLE_MAX_CHECKS = 10
+SMALL_SAMPLE_MAX_HOURS = 24
+# Typical spacing in the live trailing window: observed_hours / (known_checks - 1) is about 2.7 h.
+TYPICAL_CHECK_GAP_H = 2.7
+RATE_FOOTNOTE = (
+    f"A 0/N reading means not observed in stock in N checks. Checks in this window typically run "
+    f"about every {TYPICAL_CHECK_GAP_H:g} hours, so a short restock can be missed. Availability "
+    f"comparisons with a small sample (about 5–10 checks, or less than {SMALL_SAMPLE_MAX_HOURS} hours "
+    f"of coverage) are labelled as such and should be read as price-only; N is stated."
+)
+
+
+def _count(value) -> int | None:
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return None
+
+
+def known_count(ar) -> int | None:
+    if not isinstance(ar, dict):
+        return None
+    return _count(ar.get("known_checks", ar.get("checks")))
+
+
+def stocked_count(ar) -> int | None:
+    if not isinstance(ar, dict):
+        return None
+    return _count(ar.get("in_stock_checks"))
+
+
+def is_small_sample(ar) -> bool:
+    """True when a trailing availability reading is too small to treat as a firm comparison."""
+    n = known_count(ar)
+    if not n:
+        return False
+    if ar.get("sample_status") == "insufficient_sample" or ar.get("sufficient_sample") is False:
+        return True
+    if n <= SMALL_SAMPLE_MAX_CHECKS:
+        return True
+    hours = ar.get("observed_hours")
+    return isinstance(hours, (int, float)) and not isinstance(hours, bool) and 0 <= hours < SMALL_SAMPLE_MAX_HOURS
+
+
+def rate_phrase(ar) -> str | None:
+    """Site wording for a trailing 0/N or K/N availability reading. None when the feed has no usable counts."""
+    n, k = known_count(ar), stocked_count(ar)
+    if n is None or k is None or n == 0:
+        return None
+    unit = "check" if n == 1 else "checks"
+    if k == 0:
+        text = f"not observed in stock in {n} {unit}"
+    else:
+        text = f"observed in stock in {k} of {n} {unit}"
+    if is_small_sample(ar):
+        text += f" (small sample, N={n}; treat availability as price-only)"
+    return text
+
+
+def zero_of_n_phrase(ar) -> str | None:
+    """The 0/N wording only, when the trailing reading is zero in-stock checks over N known checks."""
+    phrase = rate_phrase(ar)
+    if phrase and stocked_count(ar) == 0:
+        return phrase
+    return None
+
+
+def overlay_published_rates(rows: list[dict], published_path: Path | None = None) -> list[dict]:
+    """Keep the already-published trailing rate when a generate would silently
+    fall back from a fresh Scout T112 series to sparser git history because the
+    Scout file is older than SCOUT_MAX_AGE_H. Copy/page regenerations must not
+    rewrite the public feed's observations. Ranking is unchanged.
+    """
+    path = published_path or Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json"
+    try:
+        prev = { (r.get("advertiser"), r.get("gpu"), r.get("vram_gb"), r.get("tier")): r.get("availability_rate_7d")
+                 for r in json.loads(path.read_text(encoding="utf-8")).get("rates") or [] }
+    except (OSError, ValueError, TypeError, AttributeError):
+        return rows
+    for r in rows:
+        old = prev.get((r.get("advertiser"), r.get("gpu"), r.get("vram_gb"), r.get("tier")))
+        new = r.get("availability_rate_7d")
+        if isinstance(old, dict) and old.get("source") == "scout_t112" and (
+                not isinstance(new, dict) or new.get("source") == "git_history"):
+            r["availability_rate_7d"] = old
+    return rows

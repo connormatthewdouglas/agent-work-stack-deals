@@ -84,6 +84,38 @@ def test_feed_legacy_field_is_explicitly_deprecated():
     assert all(r["expected_cost_usd"] is None and "deprecated" in r["expected_cost_label"] for r in rates)
 
 
+def test_rate_phrase_zero_of_n_and_small_sample():
+    # 0/16 with a 40 h window is a firm 0/N reading, not "out of stock" / "sold out".
+    ar = {"known_checks": 16, "in_stock_checks": 0, "sample_status": "observed",
+          "sufficient_sample": True, "observed_hours": 40.1}
+    assert A.rate_phrase(ar) == "not observed in stock in 16 checks"
+    assert A.zero_of_n_phrase(ar) == "not observed in stock in 16 checks"
+    one = {**ar, "known_checks": 1, "sufficient_sample": False, "sample_status": "insufficient_sample", "observed_hours": 0}
+    assert A.rate_phrase(one) == (
+        "not observed in stock in 1 check (small sample, N=1; treat availability as price-only)")
+
+    assert not A.is_small_sample(ar)
+    # K/N is descriptive; a 2-check window is flagged as a small sample / price-only.
+    small = {"known_checks": 2, "in_stock_checks": 2, "sample_status": "insufficient_sample",
+             "sufficient_sample": False, "observed_hours": 2.7}
+    assert A.rate_phrase(small) == (
+        "observed in stock in 2 of 2 checks (small sample, N=2; treat availability as price-only)")
+    assert A.zero_of_n_phrase(small) is None
+    assert A.is_small_sample(small)
+    # 8 checks over a short window is also a small sample.
+    mid = {"known_checks": 8, "in_stock_checks": 0, "sample_status": "observed",
+           "sufficient_sample": True, "observed_hours": 18}
+    assert A.is_small_sample(mid)
+    assert "not observed in stock in 8 checks" in A.rate_phrase(mid)
+    assert "small sample, N=8" in A.rate_phrase(mid)
+    assert A.rate_phrase(None) is None
+    assert A.rate_phrase({"known_checks": 0, "in_stock_checks": 0}) is None
+    assert "2.7 hours" in A.RATE_FOOTNOTE and "price-only" in A.RATE_FOOTNOTE
+    # Footnote must not use the old 0/N wording the pages are retiring.
+    assert "out of stock" not in A.RATE_FOOTNOTE.lower()
+    assert "sold out" not in A.RATE_FOOTNOTE.lower()
+
+
 def test_scout_t112_age_uses_pinned_clock_not_wall_clock(monkeypatch, tmp_path):
     """The T112 24h freshness window must follow LW_AVAIL_NOW, not datetime.now().
 

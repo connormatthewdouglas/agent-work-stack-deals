@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from core.availability_rate import overlay_published_rates, rate_phrase, zero_of_n_phrase  # noqa: E402
 HERO = "GPU rental prices, compared across tracked providers"
 TITLE = "Cheapest GPU rental prices today | Lantern Works"
 DESC = ("Cheapest H100, A100 and RTX 4090 rentals today, compared across tracked providers. "
@@ -54,15 +56,25 @@ def spread(rates: list[dict]) -> list[dict]:
         caveat = ""
         if skipped is not None:
             ca = skipped["availability"].get("checked_at")
-            caveat = (f'{skipped["advertiser"]} {usd(skipped["hourly_equiv_usd"])} out of stock when checked'
-                      + (f" at {ca}" if ca else ""))
+            zero = zero_of_n_phrase(skipped.get("availability_rate_7d"))
+            caveat = (f'{skipped["advertiser"]} {usd(skipped["hourly_equiv_usd"])} '
+                      + (zero or "out of stock when checked")
+                      + (f" at {ca}" if ca and not zero else (f" (last check {ca})" if ca and zero else "")))
         vals = sorted(r["hourly_equiv_usd"] for r in stat_rows)
         n_oos = len(universe) - len(stat_rows)
+        excluded = [r for r in universe if r not in stat_rows]
+        zeros = [zero_of_n_phrase(r.get("availability_rate_7d")) for r in excluded]
+        if n_oos and zeros and all(zeros):
+            oos_n_label = f"{n_oos} not observed in stock in trailing checks, excluded"
+        elif n_oos:
+            oos_n_label = f"{n_oos} out of stock excluded"
+        else:
+            oos_n_label = ""
         out.append({"slug": slug, "name": name, "n": len(vals), "n_oos": n_oos, "vendors": len({r["advertiser"] for r in universe}),
                     "min": vals[0], "median": statistics.median(vals), "max": vals[-1],
                     "cheapest_vendor": lo["advertiser"], "cheapest_gpu": lo["gpu"], "cheapest_tier": lo.get("tier"),
                     "checked": (lo.get("verified_at") or lo.get("checked_at") or "")[:10], "source_url": lo.get("source_url"),
-                    "oos_caveat": caveat, "cheapest_price": lo["hourly_equiv_usd"]})
+                    "oos_caveat": caveat, "cheapest_price": lo["hourly_equiv_usd"], "oos_n_label": oos_n_label})
     return out
 
 
@@ -89,7 +101,9 @@ JS = """  <script>
       const row=document.querySelector(`tr[data-fam="${k}"]`);if(!row||!stat.length||!lo)continue;
       const v=stat.map(r=>r.hourly_equiv_usd).sort((a,b)=>a-b),mid=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
       (row.querySelector(".lo strong")||row.querySelector(".lo")).textContent=m(v[0]);row.querySelector(".med").textContent=m(mid);row.querySelector(".hi").textContent=m(v[v.length-1]);
-      const x=universe.length-stat.length;row.querySelector(".n").textContent=stat.length+(x?" ("+x+" out of stock excluded)":"");row.querySelector(".who").textContent=lo.advertiser+" ("+lo.gpu+", "+(lo.tier||"")+")";
+      const excluded=universe.filter(r=>!stat.includes(r));
+      const allZero=excluded.length&&excluded.every(r=>{const ar=r.availability_rate_7d;return ar&&ar.in_stock_checks===0&&ar.known_checks>0;});
+      const x=universe.length-stat.length;row.querySelector(".n").textContent=stat.length+(x?" ("+x+(allZero?" not observed in stock in trailing checks, excluded":" out of stock excluded")+")":"");row.querySelector(".who").textContent=lo.advertiser+" ("+lo.gpu+", "+(lo.tier||"")+")";
     }
   }).catch(()=>{});
   })();
@@ -109,7 +123,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     from core.gpu import build_rates
     from core.gpu_changes import build_changes, change_title
     esc, BASE = gen.esc, gen.BASE
-    rates = build_rates(deals)["rates"]
+    rates = overlay_published_rates(build_rates(deals)["rates"])
     count = gen.live_rate_count()
     from core.gpu import vendor_counts_label
     vendors = vendor_counts_label(rates)  # T76: "25 priced sources (23 instance vendors; ...)"
@@ -117,7 +131,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     rows = "".join(
         f'<tr data-fam="{s["slug"]}"><th scope="row"><a href="{BASE}/gpu/{("cheapest-" + s["slug"] + "-rental/") if (ROOT / "gpu" / ("cheapest-" + s["slug"] + "-rental")).is_dir() else "price-comparison/"}">{esc(s["name"])}</a></th>'
         f'<td class="lo"><strong>{usd(s["min"])}</strong>{f' <small class="oos">(excl. {esc(s["oos_caveat"])})</small>' if s["oos_caveat"] else ""}</td><td class="med">${s["median"]:.2f}</td><td class="hi">${s["max"]:.2f}</td>'
-        f'<td class="n">{s["n"]}{f" ({s['n_oos']} out of stock excluded)" if s["n_oos"] else ""}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
+        f'<td class="n">{s["n"]}{f" ({esc(s['oos_n_label'])})" if s.get("oos_n_label") else ""}</td><td class="who">{esc(s["cheapest_vendor"])} ({esc(s["cheapest_gpu"])}, {esc(s["cheapest_tier"] or "")})</td></tr>'
         for s in spread(rates))
     ch = build_changes()
     moved = [c for c in ch["changes"] if c["change"] in ("down", "up")][:5]

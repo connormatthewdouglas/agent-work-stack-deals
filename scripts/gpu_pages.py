@@ -16,7 +16,12 @@ from urllib.parse import urlencode
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from core.gpu import vendor_counts_label, PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
+from core.gpu import vendor_counts_label, PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, HOURS_PER_MONTH_NOTE, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
+from core.availability_rate import RATE_FOOTNOTE, overlay_published_rates, rate_phrase, zero_of_n_phrase  # noqa: E402
+FEED_RATES = Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json"
+
+def _page_rates(deals):
+    return overlay_published_rates(build_rates(deals)["rates"], FEED_RATES)
 from install_page import link_snippet as install_link_snippet
 
 CALC = "tools/gpu-cost-calculator"
@@ -267,20 +272,37 @@ def _quote_html(esc, r: dict, n: int = 70) -> str:
             f"<a href=\"{src}\" rel=\"noopener\">\u201c{esc(q)}\u201d</a></details>")
 
 
+def _rate_tail(r: dict) -> str:
+    """Trailing 7d observation, when the feed already has counts."""
+    p = rate_phrase(r.get("availability_rate_7d"))
+    return f"; {p}" if p else ""
+
+
 def _avail_cell(gen, r: dict) -> str:
     a = r.get("availability") or {}
+    tail = _rate_tail(r)
     if a.get("basis") == "vendor_static_label":
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
-        return gen.esc(a["status"] + (f", seen {t} UTC" if t else ""))
+        return gen.esc(a["status"] + (f", seen {t} UTC" if t else "") + tail)
     if a.get("availability_stale"):
-        return gen.esc(a["status"])
+        return gen.esc(a["status"] + tail)
     if a.get("in_stock") is None:
         from core.gpu import NO_STOCK_COLLECTION, NO_STOCK_COLLECTION_LABEL
+        from core.gpu_availability import et_time
         if any(str(r.get("advertiser") or "").startswith(p) for p in NO_STOCK_COLLECTION):
-            return gen.esc(NO_STOCK_COLLECTION_LABEL)
+            return gen.esc(NO_STOCK_COLLECTION_LABEL + tail)
+        # Historical trailing 0/N or K/N: unknown prefix + check time, never a bare phrase that looks like a current claim.
+        p = rate_phrase(r.get("availability_rate_7d"))
+        when = a.get("checked_at") or (r.get("availability_rate_7d") or {}).get("last_check_at")
+        if p:
+            return gen.esc(f"unknown; {p}, last check {et_time(when)}")
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
-        return gen.esc(f"unknown (no signal), checked {t} UTC") if t else "—"
-    bits = [a["status"]]
+        if t:
+            return gen.esc(f"unknown (no signal), checked {t} UTC")
+        return "—"
+    # 0/N trailing reading: say "not observed in stock in N checks", not "out of stock" / "sold out".
+    status = zero_of_n_phrase(r.get("availability_rate_7d")) or a["status"]
+    bits = [status]
     if a.get("stock_level"):
         bits.append(f"stock {a['stock_level']}")
     if a.get("offer_count") is not None:
@@ -301,6 +323,10 @@ def _avail_cell(gen, r: dict) -> str:
         bits.append(a.get("regions_note") or "region list expired")
     if a.get("source_label"):
         bits.append(a["source_label"])
+    # For a non-zero trailing reading, append K/N (and any small-sample label). 0/N already replaced status.
+    if not zero_of_n_phrase(r.get("availability_rate_7d")):
+        if p := rate_phrase(r.get("availability_rate_7d")):
+            bits.append(p)
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     sep = " (separate check, time shown)" if r.get("advertiser") == "Vast.ai" else ""
     exp = a.get("availability_expires_at")
@@ -499,6 +525,7 @@ def _form_split(gen, rows) -> str:
                   f"{gen.esc(r['advertiser'])} ({gen.esc(r.get('tier') or '')}) at {gen.esc(_rate_str(r))}{cost}{tags}</li>")
     return (f"  <h2>Cheapest among tracked providers, by form factor</h2>\n  <p>SXM, PCIe and NVL {gen.esc(model)}s differ in memory bandwidth, interconnect and power, so compare within one form factor. "
             "Each line is the cheapest single-GPU, non-reserved, non-serverless offer among tracked providers for that form, preferring offers not marked out of stock. "
+            "Availability comparisons built on a small sample (about 5–10 checks, or less than 24 hours of coverage) are labelled in the Availability column and should be read as price-only; N is stated. "
             "A form with only multi-GPU minimums or serverless rates says no single-GPU rate. "
             "\u201cForm not stated\u201d means the vendor page doesn't say which. " + gen.esc(NVLINK_FORM_NOTE) + "</p>\n  <ul>" + items + "</ul>\n")
 
@@ -541,16 +568,16 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
     if not show_filter:
         filt = ""
     return (filt + f"<div class=\"tscroll rates-cards\"><table class=\"howto\" id=\"{tid}\"><thead><tr><th>#</th><th>GPU</th><th>Vendor</th><th>Type</th>"
-            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h (x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH} h: rate × {HOURS_PER_MONTH}; × GPUs for whole multi-GPU instances; flat plans as listed)</th><th>Vendor quote</th>"
+            f"<th>Rate</th><th>{DEFAULT_HOURS} h/month</th><th title=\"hourly rate x {HOURS_PER_MONTH} h ({HOURS_PER_MONTH_NOTE}; x GPUs billed); monthly plans at their flat price\">Full month ({HOURS_PER_MONTH_NOTE}: rate × {HOURS_PER_MONTH}; × GPUs for whole multi-GPU instances; flat plans as listed)</th><th>Vendor quote</th>"
             "<th>Price verified</th><th>Read</th>" + (f"<th>Availability ({av_head}, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             + median_footnote_html(rows) + no_stock_note_html(rows)
             + "<p class=\"meta\"><strong>Prices are GPU-hour only</strong>: they exclude storage, data egress and taxes. "
             "Each Vendor quote links that vendor's pricing page, where those costs are listed if published. <strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
             + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. "
-               + STOCK_EXPLAINER + " " + REGIONS_NOTE + " " if has_av else
+               + STOCK_EXPLAINER + " " + RATE_FOOTNOTE + " " + REGIONS_NOTE + " " if has_av else
                "<strong>Availability</strong> is hidden because no vendor in this table publishes a stock signal yet; once one does, it shows as an automated check "
-               "(" + STOCK_EXPLAINER + ") ")
+               "(" + STOCK_EXPLAINER + " " + RATE_FOOTNOTE + ") ")
             + "Vast.ai offer counts come from a separate check at the time shown, not the price-quote check, so counts and minimums can differ.</p>")
 
 
@@ -667,7 +694,7 @@ def _od_note(gen, rows, cheapest) -> str:
 def _full_map(rates):
     """Full-month cost per row, keyed by the row's full identity. (deal_id, gpu, tier) was NOT unique: vendors without a
     deal_id (Lambda, Verda, DigitalOcean...) collided, so a row could show another row's monthly total. Per row:
-    hourly rate x 730 h x GPUs billed (min_gpus when sold only as multi-GPU instances); flat monthly = monthly price."""
+    hourly rate x 730 h (average month, 24 × 365 / 12; a 30-day month such as November is 720 h) x GPUs billed (min_gpus when sold only as multi-GPU instances); flat monthly = monthly price."""
     out = {}
     for r in rates:
         k = _key(r)
@@ -707,7 +734,7 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     f0 = first_single(by_full)
     if f0 is not None:
         faqs.append((f"What does a full month of {name} cost?",
-                     f"Running one GPU all month ({HOURS_PER_MONTH} h), the lowest verified option among tracked providers is {f0['advertiser']} {f0['gpu']} "
+                     f"Running one GPU all month ({HOURS_PER_MONTH_NOTE}), the lowest verified option among tracked providers is {f0['advertiser']} {f0['gpu']} "
                      f"({f0['tier']}) at about {_money(full[_key(f0)])}."))
     if any(r["tier"] == "On-demand (Community Cloud)" for r in rows):
         faqs.append(("What is the difference between RunPod Community Cloud and Secure Cloud?",
@@ -994,7 +1021,7 @@ def write_h100_vs(gen, rates):
     for ff in sorted({form_of(r) for r in rows}, key=lambda f: FORM_FACTOR_ORDER.index(f) if f in FORM_FACTOR_ORDER else 99):
         fr = [r for r in rows if form_of(r) == ff]
         t1 += f"  <h2>H100 {gen.esc('form not stated' if ff == 'not stated' else ff)}</h2>\n" + _simple_table(
-            ["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH} h)", "Vendor quote", "Read"],
+            ["#", "Vendor", "H100 option", "Rate", f"{DEFAULT_HOURS} h/month", f"Full month ({HOURS_PER_MONTH_NOTE})", "Vendor quote", "Read"],
             [[i, _vendor_cell(gen, r), f"{gen.esc(r['gpu'])} · {gen.esc(r['tier'])}", gen.esc(_rate_str(r)),
               f"<strong>{_hours_cell(r, r['monthly_cost_usd'], DEFAULT_HOURS)}</strong>", _total_cell(r, full[_key(r)], HOURS_PER_MONTH), _quote_cell(gen, r),
               read_time_html(r, gen.esc) + (stock_label_html() if not has_stock_reading(r) else "")]
@@ -1054,7 +1081,7 @@ def write_runpod_tiers(gen, rates):
     sec = {r["gpu"]: r for r in rp if r["tier"] == "On-demand (Secure Cloud)"}
     pairs = sorted(((sec[r["gpu"]], r) for r in rp if r["tier"] == "On-demand (Community Cloud)" and r["gpu"] in sec),
                    key=lambda p: -(1 - p[1]["price_usd"] / p[0]["price_usd"]))
-    t = _simple_table(["GPU", "Secure Cloud", "Community Cloud", "Saving", f"Saving over {HOURS_PER_MONTH} h"],
+    t = _simple_table(["GPU", "Secure Cloud", "Community Cloud", "Saving", f"Saving over {HOURS_PER_MONTH} h ({HOURS_PER_MONTH_NOTE})"],
                       [[f"{gen.esc(s['gpu'])} {s['vram_gb']} GB",
                         gen.esc(_rate_str(s)) + " " + read_time_html(s, gen.esc),
                         gen.esc(_rate_str(c)) + " " + read_time_html(c, gen.esc),
@@ -1094,7 +1121,7 @@ def _has_page(slug: str, f: dict, rates: list[dict]) -> bool:
 
 def page_links(deals: list[dict]) -> list[tuple[str, str]]:
     """(path, label) for every GPU landing page and comparison, for hubs and nav."""
-    rates = build_rates(deals)["rates"]
+    rates = _page_rates(deals)
     fams = families(rates)
     out = [(f"gpu/cheapest-{slug}-rental", f"{f['name']}: cheapest among tracked providers") for slug, f in fams.items() if _has_page(slug, f, rates)]
     return out + [(H100_VS, "RunPod vs Thunder Compute vs Modal (H100)"), (PER_VRAM, "GPU price per GB of VRAM"),
@@ -1110,7 +1137,7 @@ _DEALS: list[dict] = []
 
 def write_all(gen, deals: list[dict]) -> list[str]:
     _DEALS[:] = deals
-    rates = build_rates(deals)["rates"]
+    rates = _page_rates(deals)
     import gpu_model_json
     gpu_model_json.write(gen, rates)
     fams = families(rates)
