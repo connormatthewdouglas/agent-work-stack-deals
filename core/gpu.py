@@ -29,6 +29,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 HOURS_PER_MONTH = 730  # 24 * 365 / 12
+HOURS_30_DAY_MONTH = 720  # 24 * 30; a 30-day month such as November (display only, never used as the month factor)
+HOURS_PER_MONTH_NOTE = (
+    f"{HOURS_PER_MONTH} h average (24 × 365 / 12); a 30-day month such as November is {HOURS_30_DAY_MONTH} h"
+)
 
 SERVERLESS = "Serverless, preemptible (per second)"
 
