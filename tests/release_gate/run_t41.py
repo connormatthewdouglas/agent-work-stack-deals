@@ -598,7 +598,7 @@ def _(f, ev):
         for tb in txt.split("<tbody>")[1:]:
             oos_seen = False
             for i, tr in enumerate(re.findall(r"<tr.*?</tr>", tb.split("</tbody>")[0], re.S), 1):
-                stale_note = "unknown (stale" in tr or "unknown (no signal)" in tr or "unmeasurable" in tr
+                stale_note = "unknown (stale" in tr or "unknown (no signal)" in tr or "unmeasurable" in tr or "unknown;" in tr
                 o = "out of stock when checked" in tr or ("not observed in stock in " in tr and not stale_note)
                 n_oos += o
                 if oos_seen and not o: f.append(f"{slug}: row #{i} not marked out of stock is ranked below an out-of-stock row")
@@ -635,7 +635,7 @@ def _(f, ev):
     txt, _at = fetch(f"{BASE}/gpu/cheapest-a100-rental/")
     claims = re.findall(r"<td[^>]*>((?:(?!</td>).)*?(?:available when checked|out of stock when checked|not observed in stock in)(?:(?!</td>).)*)</td>", txt, re.S)
     # Trailing 0/N notes on stale/unknown cells are historical; only a current claim needs the expiry script.
-    current = [c for c in claims if "stale availability" not in c and "unknown (no signal)" not in c and "unmeasurable" not in c]
+    current = [c for c in claims if "stale availability" not in c and "unknown (no signal)" not in c and "unmeasurable" not in c and "unknown;" not in c]
     naked = [c[:80] for c in current if "data-av-checked" not in c]
     if current and "<!-- av-stale -->" not in txt: f.append("page has stock claims but no expiry script")
     if naked: f.append(f"stock claims without data-av-checked: {naked[:3]}")

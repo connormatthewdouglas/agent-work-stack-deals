@@ -291,10 +291,11 @@ def test_new_vendor_flags():
     from datetime import datetime, timezone
     recs = next(d for d in load_vendor_files() if d["vendor"] == "Lambda")["records"]
     assert len(recs) == 13
-    # Judge the committed feed at its own build stamp, not wall clock. Lambda's list
-    # takes effect 2026-11-16T00:00:00Z; a feed built at 23:39Z is still pre-effective.
-    feed_clock = datetime.fromisoformat(api["feed_updated_at"].replace("Z", "+00:00"))
-    if any(price_not_yet_effective(r, now=feed_clock) for r in recs):
+    # Same clock build_rates uses: LW_AVAIL_NOW when the import gate (or a pin) sets it, else the feed stamp.
+    import os
+    pin = os.environ.get("LW_AVAIL_NOW") or api["feed_updated_at"]
+    clock = datetime.fromisoformat(pin.replace("Z", "+00:00"))
+    if any(price_not_yet_effective(r, now=clock) for r in recs):
         assert [r for r in rates if r["advertiser"] == "Lambda"] == []
         pending = [h for h in api["held_stale"] if h["vendor"] == "Lambda"
                    and str(h.get("reason") or "").startswith("not yet in effect:")]

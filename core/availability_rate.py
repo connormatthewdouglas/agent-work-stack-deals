@@ -188,10 +188,11 @@ def rate_phrase(ar) -> str | None:
     n, k = known_count(ar), stocked_count(ar)
     if n is None or k is None or n == 0:
         return None
+    unit = "check" if n == 1 else "checks"
     if k == 0:
-        text = f"not observed in stock in {n} checks"
+        text = f"not observed in stock in {n} {unit}"
     else:
-        text = f"observed in stock in {k} of {n} checks"
+        text = f"observed in stock in {k} of {n} {unit}"
     if is_small_sample(ar):
         text += f" (small sample, N={n}; treat availability as price-only)"
     return text

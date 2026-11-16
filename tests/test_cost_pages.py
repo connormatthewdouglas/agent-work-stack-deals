@@ -78,7 +78,7 @@ def _row_marked_unavailable(html: str) -> bool:
         return True
     if "not observed in stock in " not in html:
         return False
-    if "unknown (stale" in html or "unknown (no signal)" in html or "unmeasurable" in html:
+    if "unknown (stale" in html or "unknown (no signal)" in html or "unmeasurable" in html or "unknown;" in html:
         return False
     return True
 
@@ -160,7 +160,7 @@ def test_h1_scoped_cheapest_and_page_lowest():
 def test_h2_availability_wording_all_pages():
     for slug in ("h100", "a100", "l40s", "rtx-4090"):
         for h in (10, 100, 730):
-            assert "Not an availability claim, except rows marked out of stock when checked or not observed in stock in N checks." in _page(slug, h)
+            assert "except rows whose current reading is out of stock when checked" in _page(slug, h)
             if h == 730:
                 assert "730 h on 1 GPU (730 h average (24 × 365 / 12); a 30-day month such as November is 720 h)" in _page(slug, h)
 

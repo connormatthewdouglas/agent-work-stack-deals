@@ -288,12 +288,18 @@ def _avail_cell(gen, r: dict) -> str:
         return gen.esc(a["status"] + tail)
     if a.get("in_stock") is None:
         from core.gpu import NO_STOCK_COLLECTION, NO_STOCK_COLLECTION_LABEL
+        from core.gpu_availability import et_time
         if any(str(r.get("advertiser") or "").startswith(p) for p in NO_STOCK_COLLECTION):
             return gen.esc(NO_STOCK_COLLECTION_LABEL + tail)
+        # Historical trailing 0/N or K/N: unknown prefix + check time, never a bare phrase that looks like a current claim.
+        p = rate_phrase(r.get("availability_rate_7d"))
+        when = a.get("checked_at") or (r.get("availability_rate_7d") or {}).get("last_check_at")
+        if p:
+            return gen.esc(f"unknown; {p}, last check {et_time(when)}")
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         if t:
-            return gen.esc(f"unknown (no signal), checked {t} UTC" + tail)
-        return gen.esc(tail.lstrip("; ").strip() or "—") if tail else "—"
+            return gen.esc(f"unknown (no signal), checked {t} UTC")
+        return "—"
     # 0/N trailing reading: say "not observed in stock in N checks", not "out of stock" / "sold out".
     status = zero_of_n_phrase(r.get("availability_rate_7d")) or a["status"]
     bits = [status]

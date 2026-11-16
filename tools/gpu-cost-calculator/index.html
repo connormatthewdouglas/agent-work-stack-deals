@@ -240,7 +240,8 @@ function headlineEligible(r, gpus) {
     const ar=r&&r.availability_rate_7d; if(!ar) return null;
     const n=ar.known_checks, k=ar.in_stock_checks;
     if(!(n>0) || k==null || k<0 || k>n) return null;
-    let t=k===0?`not observed in stock in ${n} checks`:`observed in stock in ${k} of ${n} checks`;
+    const unit=n===1?"check":"checks";
+    let t=k===0?`not observed in stock in ${n} ${unit}`:`observed in stock in ${k} of ${n} ${unit}`;
     const small=ar.sample_status==="insufficient_sample"||ar.sufficient_sample===false||n<=10||(Number.isFinite(ar.observed_hours)&&ar.observed_hours<24);
     if(small) t+=` (small sample, N=${n}; treat availability as price-only)`;
     return t;

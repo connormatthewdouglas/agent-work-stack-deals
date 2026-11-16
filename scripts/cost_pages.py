@@ -24,7 +24,7 @@ def _hours_param(h: int) -> str:
     return f"{h} h on 1 GPU"
 
 LABEL = ("Compute subtotal only, excludes storage, egress, vCPU, tax. Among tracked providers. "
-         "Not an availability claim, except rows marked out of stock when checked or not observed in stock in N checks. "
+         "Not an availability claim, except rows whose current reading is out of stock when checked (those rank last and are excluded from lowest, median and cheapest). A trailing 0/N note on an unknown row is historical and does not change rank. "
          "Assumes {hours_param}.")
 
 
@@ -73,7 +73,9 @@ def _oos_label(r: dict) -> str:
         extra = rate_phrase(r.get("availability_rate_7d"))
         if not extra:
             return ""
-        return f' <small class="av">({html.escape(extra)})</small>'
+        # Historical 0/N or K/N on an unknown current reading: not a current out-of-stock claim, so oos() does not rank it last.
+        when = a.get("checked_at") or (r.get("availability_rate_7d") or {}).get("last_check_at")
+        return (f' <small class="av">(unknown; {html.escape(extra)}, last check {html.escape(_et(when))})</small>')
     # 0.3.30/re17: every stock claim shows its check time and its expiry (checked_at + 8 h); stale_js flips it after that
     from core.gpu_availability import et_hm
     t, exp = a.get("checked_at"), a.get("availability_expires_at") or ""
@@ -177,7 +179,7 @@ def page(g, feed: dict, slug: str, hours: int) -> str:
     other = " · ".join(f'<a href="{base}/cost/{slug}-{h}-hours/">{h} h</a>' for h in HOURS if h != hours)
     parts.append(
         "<h2>What's not included</h2><p>Storage, egress, vCPU/RAM add-ons, region and tax. Availability is an automated check at the time shown: "
-        "rows marked out of stock when checked, or not observed in stock in N checks, are listed last and left out of lowest, median and cheapest; other rows are "
+        "only rows whose current reading is out of stock when checked are listed last and left out of lowest, median and cheapest; a trailing not-observed-in-N-checks note on an unknown row is historical and does not change rank; other rows are "
         "not an availability claim. " + RATE_FOOTNOTE + " Multi-GPU and 8-GPU-only offers are left out: multi-GPU quotes need whole-instance pricing, coming later. "
         "Spot, community, marketplace, serverless, reserved and held or thin prices are never shown here.</p>")
     owners = sorted({h.get("vendor") for h in feed.get("held_stale") or [] if h.get("reason") == "owner_hold"
@@ -220,8 +222,8 @@ def write_all(g) -> list[str]:
                    + "</li>" for slug in GPUS)
     body = ("<h1>GPU rental cost for a fixed number of hours</h1><p>Compute subtotal for 10, 100 or 730 GPU-hours on one GPU, "
             f"from published on-demand rates among tracked providers, recomputed from the daily feed. 730 hours is the "
-            f"stated full-month parameter ({HOURS_PER_MONTH_NOTE}). Rows not observed in stock in N checks, or out of stock when checked, rank last "
-            "and are excluded from lowest, median and cheapest.</p>" f"<ul>{rows}</ul>"
+            f"stated full-month parameter ({HOURS_PER_MONTH_NOTE}). Only rows whose current reading is out of stock when checked "
+            "rank last and are excluded from lowest, median and cheapest.</p>" f"<ul>{rows}</ul>"
             f'<p>Full price lists: <a href="{g.BASE}/gpu/">GPU prices</a>.</p>\n')
     (root / "cost").mkdir(exist_ok=True)
     (root / "cost" / "index.html").write_text(g.page_shell("GPU rental cost by hours", "Cost of 10, 100 or 730 GPU-hours on H100, A100, L40S and RTX 4090 across tracked providers.",

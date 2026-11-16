@@ -37,6 +37,23 @@ def test_avail_cell_zero_of_n_replaces_out_of_stock():
     assert "data-av-checked=" in cell
 
 
+
+def test_avail_cell_instock_none_is_historical_unknown_note():
+    row = {
+        "advertiser": "Lambda",
+        "availability": {"status": "unknown", "in_stock": None, "checked_at": "2026-11-15T22:23:00Z", "origin": "scout"},
+        "availability_rate_7d": {
+            "known_checks": 1, "in_stock_checks": 0, "sample_status": "insufficient_sample",
+            "sufficient_sample": False, "observed_hours": 0, "last_check_at": "2026-11-15T22:23:00Z",
+        },
+    }
+    cell = _cell(row)
+    assert cell.startswith("unknown; not observed in stock in 1 check")
+    assert "last check " in cell
+    assert "small sample, N=1" in cell
+    assert "out of stock" not in cell
+
+
 def test_avail_cell_small_sample_is_price_only():
     row = {
         "advertiser": "RunPod",
@@ -80,7 +97,8 @@ def test_generated_pages_use_zero_of_n_and_month_parameter():
             assert RATE_FOOTNOTE in t
             if zeros:
                 n = zeros[0]["availability_rate_7d"]["known_checks"]
-                assert f"not observed in stock in {n} checks" in t
+                unit = "check" if n == 1 else "checks"
+                assert f"not observed in stock in {n} {unit}" in t
             if small:
                 assert "small sample, N=" in t
         if "730-hours" in str(p):

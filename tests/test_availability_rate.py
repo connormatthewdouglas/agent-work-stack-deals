@@ -90,6 +90,10 @@ def test_rate_phrase_zero_of_n_and_small_sample():
           "sufficient_sample": True, "observed_hours": 40.1}
     assert A.rate_phrase(ar) == "not observed in stock in 16 checks"
     assert A.zero_of_n_phrase(ar) == "not observed in stock in 16 checks"
+    one = {**ar, "known_checks": 1, "sufficient_sample": False, "sample_status": "insufficient_sample", "observed_hours": 0}
+    assert A.rate_phrase(one) == (
+        "not observed in stock in 1 check (small sample, N=1; treat availability as price-only)")
+
     assert not A.is_small_sample(ar)
     # K/N is descriptive; a 2-check window is flagged as a small sample / price-only.
     small = {"known_checks": 2, "in_stock_checks": 2, "sample_status": "insufficient_sample",
