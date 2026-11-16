@@ -102,6 +102,9 @@ def _describe(known, stocked, unknown, start, end, source, first=None, last=None
     except (ValueError, TypeError, AttributeError):
         stale = True
     status = "all_unknown" if known == 0 else "insufficient_sample" if known < MIN_CHECKS else "observed"
+    hours = _observed_hours(first, last, end)
+    # P59: one-line note only when actual coverage is shorter than the planned window; otherwise null
+    note = f"Covers {hours}h of the planned 7-day window." if hours is not None and hours < 7 * 24 else None
     return {"rate": round(stocked / known, 4) if known else None,
             "checks": known, "known_checks": known, "unknown_checks": unknown,
             # P38 (additive): unknown_checks split; null when the source did not record why each check was unknown
@@ -109,7 +112,8 @@ def _describe(known, stocked, unknown, start, end, source, first=None, last=None
             "total_checks": known + unknown if unknown is not None else None,
             "in_stock_checks": stocked, "window_start": start, "window_end": end,
             "window_days": 7, "first_check_at": first, "last_check_at": last,
-            "observed_hours": _observed_hours(first, last, end),  # P58: real coverage next to the nominal 7d window
+            "observed_hours": hours,  # P58: real coverage next to the planned 7d window
+            "coverage_note": note,
             "source": source, "sample_status": status, "sufficient_sample": known >= MIN_CHECKS,
             "window_stale": stale,
             "interpretation": "observed share of known stock checks, not a forecast or monetary estimate"}

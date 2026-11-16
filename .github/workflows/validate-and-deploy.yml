@@ -67,6 +67,9 @@ jobs:
       - run: pip install "jsonschema[format]==4.*"
       - name: Generator runs cleanly (guard + public-output leak scan, no private file in CI)
         run: |
+          # Same #220 pin as pages-match: sitemap/deals must match generate at the committed
+          # feed stamp, not wall clock (a price_effective_at rollover would otherwise rewrite sitemap).
+          export LW_AVAIL_NOW="$(python3 -c "import json; print(json.load(open('api/v1/gpu-prices.json'))['feed_updated_at'])")"
           python3 scripts/generate_seo_pages.py
           # deals.json, api/v1 and sitemap must match what is committed (HTML may differ by freshness date)
           git diff --exit-code -- deals.json api/v1/deals.json sitemap.xml schema.json
