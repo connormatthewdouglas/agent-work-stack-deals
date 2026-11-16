@@ -53,7 +53,12 @@ def test_mcp_rows_and_schema_lockstep():
     latest = json.loads((ROOT / "api/v1/gpu-price-changes.json").read_text())
     for kw in ({"since": hist["first_snapshot"]}, {}):
         out = core.price_changes(latest, hist, limit=200, **kw)
-        assert out["changes"] and all("gap_days" in r and "last_verified_before" in r for r in out["changes"])
+        # since=first_snapshot reads history and must be non-empty. since=None is the latest
+        # daily file, which is empty on a quiet UTC day after sync_today_snapshot.py writes
+        # today's snapshot with no price deltas (latest-scout-import after midnight).
+        if "since" in kw:
+            assert out["changes"], "history window since first_snapshot must have change events"
+        assert all("gap_days" in r and "last_verified_before" in r for r in out["changes"])
         brief = contract.finalize("get_price_changes", out, "brief")
         assert all("gap_days" in r for r in brief["changes"])
     # freshness basis unchanged for history reads (change events still carry no verified_at)
