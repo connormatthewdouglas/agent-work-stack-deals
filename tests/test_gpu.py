@@ -291,7 +291,9 @@ def test_new_vendor_flags():
     from datetime import datetime, timezone
     recs = next(d for d in load_vendor_files() if d["vendor"] == "Lambda")["records"]
     assert len(recs) == 13
-    if any(price_not_yet_effective(r) for r in recs):
+    # The committed feed's stamp, not the wall clock: Lambda takes effect 2026-11-16T00:00:00Z.
+    feed_clock = datetime.fromisoformat(str(api["feed_updated_at"]).replace("Z", "+00:00"))
+    if any(price_not_yet_effective(r, now=feed_clock) for r in recs):
         assert [r for r in rates if r["advertiser"] == "Lambda"] == []
         pending = [h for h in api["held_stale"] if h["vendor"] == "Lambda"
                    and str(h.get("reason") or "").startswith("not yet in effect:")]

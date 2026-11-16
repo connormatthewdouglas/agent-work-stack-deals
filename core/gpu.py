@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from .referrals import referral_fields_for
 from . import availability_rate
+from .gpu_availability import now_utc
 import json
 import math
 import re
@@ -406,7 +407,7 @@ def price_not_yet_effective(r: dict, now: datetime | None = None) -> bool:
     eff = price_effective_at(r)
     if eff is None:
         return False
-    clock = now or datetime.now(timezone.utc)
+    clock = now or now_utc()
     if clock.tzinfo is None:
         clock = clock.replace(tzinfo=timezone.utc)
     return clock.astimezone(timezone.utc) < eff
@@ -430,7 +431,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: d
     by_id = {d["id"]: d for d in deals}
     docs = load_vendor_files() if vendor_docs is None else vendor_docs
     rates, problems, vendors, held = [], [], [], []
-    clock = now or datetime.now(timezone.utc)
+    clock = now or now_utc()
     for doc in docs:
         bad = record_problems(doc)
         if bad:
