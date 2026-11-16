@@ -160,7 +160,10 @@ def test_refresh_does_not_touch_held_vendors_when_the_page_parses(fixed_owner_ho
     assert {r["result"] for r in report if r["vendor"] != "RunPod"} == {"owner hold, untouched"}
 
 
-def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack(fixed_owner_hold):
+def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack(fixed_owner_hold, monkeypatch):
+    # Fixture verified_at is 2026-11-09T00:00Z; wall clock after 2026-11-16T00:00Z is past the 168h PAYG
+    # cut and empties results. Pin the build clock so this test still checks owner-hold ranking.
+    monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-09T12:00:00Z")
     from core.gpu import build_rates
     from core.deals import compare_gpu_prices
     from core import agent_stack
