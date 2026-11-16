@@ -29,10 +29,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 HOURS_PER_MONTH = 730  # 24 * 365 / 12
-HOURS_30_DAY_MONTH = 720  # 24 * 30; a 30-day month such as November (display only, never used as the month factor)
-HOURS_PER_MONTH_NOTE = (
-    f"{HOURS_PER_MONTH} h average (24 × 365 / 12); a 30-day month such as November is {HOURS_30_DAY_MONTH} h"
-)
 
 SERVERLESS = "Serverless, preemptible (per second)"
 
@@ -405,16 +401,30 @@ def price_effective_at(r: dict):
     return dt.astimezone(timezone.utc)
 
 
+def _build_clock(now: datetime | None = None) -> datetime:
+    """Eligibility clock for price_effective_at: explicit `now`, else LW_AVAIL_NOW / now_utc().
+
+    Generate and the pages-match tests pin LW_AVAIL_NOW to feed_updated_at. Using wall clock
+    here made an effective-date switch (Lambda 2026-11-16T00:00Z) flip ranked rates and add
+    a sitemap URL while a regenerate pinned to the previous feed stamp still expected the
+    held set.
+    """
+    if now is not None:
+        dt = now
+    else:
+        from .gpu_availability import now_utc
+        dt = now_utc()
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
 def price_not_yet_effective(r: dict, now: datetime | None = None) -> bool:
     """True when the vendor has dated this listed price in the future."""
     eff = price_effective_at(r)
     if eff is None:
         return False
-    from .gpu_availability import now_utc
-    clock = now or now_utc()
-    if clock.tzinfo is None:
-        clock = clock.replace(tzinfo=timezone.utc)
-    return clock.astimezone(timezone.utc) < eff
+    return _build_clock(now) < eff
 
 
 def not_yet_effective_reason(r: dict) -> str:
@@ -435,8 +445,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: d
     by_id = {d["id"]: d for d in deals}
     docs = load_vendor_files() if vendor_docs is None else vendor_docs
     rates, problems, vendors, held = [], [], [], []
-    from .gpu_availability import now_utc
-    clock = now or now_utc()  # LW_AVAIL_NOW pin (same clock as T112 age / page regen)
+    clock = _build_clock(now)
     for doc in docs:
         bad = record_problems(doc)
         if bad:
