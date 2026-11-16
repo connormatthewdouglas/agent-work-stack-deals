@@ -42,7 +42,7 @@ def test_homepage_and_rental_price_titles_fit_search_limits():
     assert len(title) <= 60 and len(desc) <= 155
     assert "Cheapest" in title and "GPU" in title
     pages = list((ROOT / "gpu").glob("*-rental-price/index.html"))
-    assert len(pages) == 12
+    assert len(pages) == 13  # + /gpu/v100-rental-price/ when Lambda V100 became effective 2026-11-16T00:00Z
     for path in pages:
         t = path.read_text(encoding="utf-8")
         title = re.search(r"<title>(.*?)</title>", t).group(1)
