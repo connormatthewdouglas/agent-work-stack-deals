@@ -84,3 +84,9 @@ def test_content_build_id_changes_when_only_prices_change():
         target["price_usd"] = round(float(target["price_usd"]) + 0.01, 4)
     changed = content_build_id(repriced)
     assert changed != baseline and len(changed) == 16
+    # Gauge: price_effective_at / effective_at are content (when the vendor's price takes effect), not restamps.
+    dated = copy.deepcopy(rates)
+    target = dated[0]
+    target["price_effective_at"] = "2026-12-01T00:00:00Z"
+    target["effective_at"] = "2026-12-01T00:00:00Z"
+    assert content_build_id(dated) != baseline

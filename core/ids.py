@@ -89,8 +89,14 @@ _CONTENT_SKIP = frozenset({
 })
 
 
+# Effective-date fields stay in the digest: a vendor price dated in the future is content, not a restamp.
+_CONTENT_KEEP = frozenset({"price_effective_at", "effective_at"})
+
+
 def _skip_content_key(key: str) -> bool:
     k = str(key)
+    if k in _CONTENT_KEEP:
+        return False
     if k in _CONTENT_SKIP or k.endswith("_at") or k.endswith("_id") or k in ("window_start", "window_end"):
         return True
     return False
