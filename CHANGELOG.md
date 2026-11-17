@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Homepage identity (P10/P11, 2026-11-16): H1 is “Find the cheapest GPU rental, compared across tracked providers”, with an identity line under it, updated Organization and WebSite JSON-LD, and deals moved to the secondary nav as “Other deals”. Receipts are linked as dated MCP-server test summaries, not as proof of GPU prices. The /deals/ title is “Agent tool deals and free tiers | Lantern Works”. The 13 /gpu/*-rental-price/ titles are unchanged.
+
 - P17 terms (Brain #787, 2026-11-16): CleanProxies is now a plain, non-affiliate listing (redeem_url is the public pricing page, no referral code). Chatbase and Apiframe stay pulled (hashed denylist from the 2026-10-27 compliance pull); they are not relisted.
 
 - README and PyPI package docs (T124, 2026-11-16): repo README, mcp_server/README.md (the PyPI long description), and pyproject keywords/URLs now lead with copy-paste client configs and per-placement `?ref=` tags. The phrase "checked daily" / "re-read daily" is not used; the feed rebuild is described as once a day (about 10:23 UTC), and each price keeps its own check time.
