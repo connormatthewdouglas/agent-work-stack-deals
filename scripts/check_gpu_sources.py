@@ -80,6 +80,12 @@ def _fetch(url: str) -> tuple[int | None, str]:
 
 
 MAX_UNRENDERED_AGE_DAYS = 7
+# Hard fail for rows not re-checked on the page this run (manual_snapshot, Scout API
+# batch, geo-variant, no-capacity, offline). Warn at STALE_DAYS, fail past this cap.
+# Brain has no Bjorn-authored numeric cap for #261 / T41-24/26 (same warn-then-hard-fail
+# policy); Gauge #833 suggested 14d. This is the instructed fallback.
+UNCHECKED_FAIL_DAYS = 14
+UNCHECKED_FAIL_HOURS = UNCHECKED_FAIL_DAYS * 24
 
 
 def quote_age_days(doc: dict, now=None) -> float | None:
@@ -142,16 +148,41 @@ def price_tokens(quote: str) -> list[str]:
 
 
 
+def stamp_field(record: dict, doc: dict | None = None) -> tuple[str | None, object]:
+    """The stored field we would use as the verification stamp, and its value. Never invent a stamp."""
+    if record.get("verified_at") not in (None, ""):
+        return "verified_at", record["verified_at"]
+    if record.get("checked_at") not in (None, ""):
+        return "checked_at", record["checked_at"]
+    if doc is not None and doc.get("checked_at") not in (None, ""):
+        return "checked_at", doc["checked_at"]
+    return None, None
+
+
 def record_verified_at(record: dict, doc: dict | None = None) -> str | None:
     """The last verification stamp as stored. Never invent or refresh a timestamp."""
-    v = record.get("verified_at") or record.get("checked_at")
-    if not v and doc is not None:
-        v = doc.get("checked_at")
-    return v
+    _field, v = stamp_field(record, doc)
+    return v if isinstance(v, str) and v else None
 
 
-def stale_age(record: dict, now: datetime, doc: dict | None = None) -> tuple[str, float, bool] | None:
-    """Return (verified_at, hours_old, past_threshold) using the same cut as stale_records (age > STALE_DAYS)."""
+def stamp_failure(label: str, record: dict, doc: dict | None = None) -> str | None:
+    """FAIL message when verified_at/checked_at is missing or unparseable. None if the stamp is usable."""
+    field, v = stamp_field(record, doc)
+    if field is None:
+        return f"missing verified_at/checked_at: {label}"
+    try:
+        datetime.fromisoformat(v)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return f"unparseable {field}: {label}: {v!r}"
+    return None
+
+
+def stale_age(record: dict, now: datetime, doc: dict | None = None) -> tuple[str, float, bool, bool] | None:
+    """Return (verified_at, hours_old, past_STALE_DAYS, past_UNCHECKED_FAIL_DAYS).
+
+    Cuts match stale_records (age > N days). Returns None only when the stamp is
+    missing or unparseable; callers must turn that into a FAIL via stamp_failure.
+    """
     v = record_verified_at(record, doc)
     if not v:
         return None
@@ -160,13 +191,21 @@ def stale_age(record: dict, now: datetime, doc: dict | None = None) -> tuple[str
     except (TypeError, ValueError):
         return None
     age = now - t
-    return v, age.total_seconds() / 3600.0, age > timedelta(days=STALE_DAYS)
+    return (v, age.total_seconds() / 3600.0,
+            age > timedelta(days=STALE_DAYS),
+            age > timedelta(days=UNCHECKED_FAIL_DAYS))
 
 
 def format_stale_warning(label: str, verified_at: str, hours_old: float, kind: str) -> str:
     """Honest stale warning: last verified_at, hours old, and which threshold it passed."""
     return (f"stale ({kind}): {label}: last verified_at {verified_at}, "
             f"{hours_old:.1f} h old, passed {STALE_HOURS:g} h / {STALE_DAYS} day threshold")
+
+
+def format_unchecked_fail(label: str, verified_at: str, hours_old: float) -> str:
+    """Honest hard-fail for a not-re-checked row past UNCHECKED_FAIL_DAYS."""
+    return (f"stale (not re-checked on the page this run): {label}: last verified_at {verified_at}, "
+            f"{hours_old:.1f} h old, passed {UNCHECKED_FAIL_HOURS:g} h / {UNCHECKED_FAIL_DAYS} day unchecked fail cap")
 
 
 def _stale_kind(key: tuple, record: dict, doc: dict, present_keys: set, offline: bool) -> str:
@@ -182,11 +221,12 @@ def evaluate_sources(docs, sdocs, *, offline: bool = False, pages=None,
                      check_schema: bool = True) -> tuple[list[str], list[str], int]:
     """Run the pricing-source check over `docs` / `sdocs`.
 
-    Missing or changed prices stay flags (failures). A row that is only past the
-    STALE_DAYS threshold (price still on the page, or the row is held / not
-    re-checked) is a warning that reports the true verified_at age. Timestamps
-    are never refreshed. `pages` maps URL -> (status, body) so tests can inject
-    fixtures without fetching.
+    Missing or changed prices stay flags (failures). A row past STALE_DAYS
+    whose price is still on the page, or that is held, is a warning at any age.
+    A row not re-checked on the page this run warns past STALE_DAYS and FAILs
+    past UNCHECKED_FAIL_DAYS. Missing or unparseable verified_at/checked_at
+    FAILs. Timestamps are never refreshed. `pages` maps URL -> (status, body)
+    so tests can inject fixtures without fetching.
     """
     now = now or datetime.now(timezone.utc)
     get = fetch_fn or fetch
@@ -371,20 +411,28 @@ def evaluate_sources(docs, sdocs, *, offline: bool = False, pages=None,
 
 
 def add_stale_warnings(docs, sdocs, flags, warnings, now, present_keys, offline, price_fail_keys) -> None:
-    """Recategorize age-only rows as warnings. Missing or changed prices already in flags stay failures."""
+    """Age-only classification: warn, or FAIL not-re-checked rows past UNCHECKED_FAIL_DAYS and bad stamps."""
 
     def emit(doc, record, name, plan, url, quote):
+        label = f"{doc['vendor']} {name} ({plan})"
+        problem = stamp_failure(label, record, doc)
+        if problem:
+            flags.append(problem)
+            return
         info = stale_age(record, now, doc)
         if not info:
+            flags.append(stamp_failure(label, record, doc) or f"missing verified_at/checked_at: {label}")
             return
-        v, hours, past = info
-        if not past:
+        v, hours, past_stale, past_cap = info
+        if not past_stale:
             return
         key = (doc["vendor"], name, plan, quote, url)
         if key in price_fail_keys:
             return  # missing/changed stays a FAIL; do not demote it to a stale warning
         kind = _stale_kind(key, record, doc, present_keys, offline)
-        label = f"{doc['vendor']} {name} ({plan})"
+        if kind == "not re-checked on the page this run" and past_cap:
+            flags.append(format_unchecked_fail(label, v, hours))
+            return
         warnings.append(format_stale_warning(label, v, hours, kind))
 
     for doc in docs:

@@ -143,3 +143,64 @@ def test_stale_row_whose_price_is_also_missing_fails():
     assert not any(w.startswith("stale ") or w.startswith("stale(") for w in warnings)
     assert doc["records"][0]["verified_at"] == before == _STALE_AT
 
+
+def _eval_offline(doc, now=_NOW):
+    return c.evaluate_sources([doc], [], offline=True, now=now, check_schema=False)
+
+
+def test_unchecked_row_warns_at_the_14_day_cap():
+    """A not-re-checked row at exactly UNCHECKED_FAIL_DAYS warns and does not fail (age > cap is required)."""
+    cap_at = "2026-11-02T21:05:05+00:00"  # exactly 14 days before _NOW
+    flags, warnings, _ = _eval_offline(_src_doc(cap_at))
+    assert flags == []
+    assert any(w.startswith("stale (not re-checked on the page this run): TestVendor H100 (On-demand):")
+               and "last verified_at 2026-11-02T21:05:05+00:00" in w
+               and "336.0 h old" in w
+               and "passed 168 h / 7 day threshold" in w for w in warnings)
+    assert c.UNCHECKED_FAIL_DAYS == 14
+    assert c.UNCHECKED_FAIL_HOURS == 336
+
+
+def test_unchecked_row_fails_past_the_14_day_cap():
+    """A not-re-checked row one second past UNCHECKED_FAIL_DAYS is a FAIL, not a warning."""
+    past_at = "2026-11-02T21:05:04+00:00"  # 14 days + 1 s before _NOW
+    flags, warnings, _ = _eval_offline(_src_doc(past_at))
+    assert any(f.startswith("stale (not re-checked on the page this run): TestVendor H100 (On-demand):")
+               and "last verified_at 2026-11-02T21:05:04+00:00" in f
+               and "336.0 h old" in f
+               and "passed 336 h / 14 day unchecked fail cap" in f for f in flags)
+    assert not any(w.startswith("stale (not re-checked on the page this run):") for w in warnings)
+
+
+def test_price_still_on_the_page_past_the_cap_still_warns():
+    """A confirmed on-page price warns at any age, including past the 14-day unchecked cap."""
+    old = "2026-10-27T21:05:05+00:00"  # 20 days before _NOW
+    doc = _src_doc(old)
+    flags, warnings, checked = _eval(doc, _PRESENT)
+    assert flags == []
+    assert checked == 1
+    assert any(w.startswith("stale (price still on the page):") and "480.0 h old" in w for w in warnings)
+
+
+def test_held_row_past_the_cap_still_warns():
+    """A held row warns at any age and does not fail the unchecked cap, because it is not ranked."""
+    old = "2026-10-27T21:05:05+00:00"  # 20 days before _NOW
+    flags, warnings, _ = _eval(_src_doc(old, held=True), _PRESENT)
+    assert flags == []
+    assert any(w.startswith("stale (held):") and "480.0 h old" in w for w in warnings)
+
+
+def test_missing_or_unparseable_verified_at_fails():
+    """A missing or unparseable verified_at/checked_at FAILs and names the row and field."""
+    missing = _src_doc(_FRESH_AT)
+    missing["records"][0]["verified_at"] = None
+    missing["records"][0]["checked_at"] = None
+    missing["checked_at"] = None
+    flags, warnings, _ = _eval(missing, _PRESENT)
+    assert any(f == "missing verified_at/checked_at: TestVendor H100 (On-demand)" for f in flags)
+
+    bad = _src_doc("not-a-date")
+    flags, warnings, _ = _eval(bad, _PRESENT)
+    assert any(f == "unparseable verified_at: TestVendor H100 (On-demand): 'not-a-date'" for f in flags)
+    assert not any("stale (" in w and "not-a-date" in w for w in warnings)
+

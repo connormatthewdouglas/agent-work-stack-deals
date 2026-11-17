@@ -89,7 +89,7 @@ def main() -> int:
     print("\n".join(lines))
     if a.report:
         Path(a.report).write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return 0  # flags are reported, not fatal: the 7-day stale check in check_gpu_sources warns on an unverified quote (missing/changed prices still fail)
+    return 0  # flags are reported, not fatal: check_gpu_sources warns on an unverified quote past 7 days and fails it past UNCHECKED_FAIL_DAYS (14); missing/changed prices still fail
 
 
 if __name__ == "__main__":
