@@ -65,7 +65,12 @@ def test_billed_count_and_subtotal_on_billed():
         "deal_id": "coreweave", "basis": "listed", "affiliate": False, "interruptible": False,
     }
     js = "const R=" + json.dumps([row]) + js[end:]
-    stub = STUB + js + "\nconsole.log(JSON.stringify({quote:els.quote.innerHTML,summary:els.summary.textContent}));"
+    # Pin Date.now 12 h after the frozen verified_at, same as render().
+    # The synthetic 2026-11-10T12:00:00+00:00 stamp aged out of CURRENT_MAX_HOURS
+    # (168 h) at 2026-11-17T12:00:00Z; without a pin, the calculator correctly
+    # omits the named quote and only the MCP snippet remains (scout-import 44086759905).
+    pin = "Date.now=()=>Date.parse(%s)+12*3600e3;\n" % json.dumps(fresh)
+    stub = pin + STUB + js + "\nconsole.log(JSON.stringify({quote:els.quote.innerHTML,summary:els.summary.textContent}));"
     got = json.loads(subprocess.run([NODE, "-", "?hours=10&gpus=9&gpu=H100+SXM&flat=0"],
                                     input=stub, capture_output=True, text=True, check=True).stdout)
     got["quote"] = html.unescape(got.get("quote") or "")
@@ -102,9 +107,10 @@ def test_unknown_billing_increment_and_sourced_increment():
         "deal_id": "runpod", "basis": "listed", "affiliate": False, "interruptible": False,
     }
     js = "const R=" + json.dumps([row]) + rest
+    pin = "Date.now=()=>Date.parse(%s)+12*3600e3;\n" % json.dumps(fresh)
     got = json.loads(subprocess.run(
         [NODE, "-", "?hours=100&gpus=1&gpu=H100+PCIe&flat=0"],
-        input=STUB + js + "\nconsole.log(JSON.stringify({quote:els.quote.innerHTML}));",
+        input=pin + STUB + js + "\nconsole.log(JSON.stringify({quote:els.quote.innerHTML}));",
         capture_output=True, text=True, check=True,
     ).stdout)
     got["quote"] = html.unescape(got.get("quote") or "")
