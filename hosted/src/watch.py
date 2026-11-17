@@ -95,6 +95,21 @@ def verify(secret: str, header: str, body: str, now: int, tolerance: int = 300) 
     return abs(now - ts) <= tolerance and hmac.compare_digest(sign(secret, ts, body), header)
 
 
+# Exact canary receiver. deliver() short-circuits this one destination in-process so the Worker never
+# fetches its own workers.dev URL (Cloudflare may block or loop same-zone subrequests). Private-IP
+# and DNS checks are not relaxed for any other URL.
+CANARY_WEBHOOK_URL = "https://lantern-works-mcp.lantern-works.workers.dev/internal/watch-canary"
+
+
+def is_canary_url(url) -> bool:
+    return str(url or "").strip() == CANARY_WEBHOOK_URL
+
+
+def canary_watch_hash(master: str, watch_id: str) -> str:
+    """Keyed hash of a watch_id for canary receipts (not the raw id, not a signing secret)."""
+    return hmac.new((master or "").encode(), f"canary-watch|{watch_id}".encode(), hashlib.sha256).hexdigest()[:16]
+
+
 # ---- webhook URL safety --------------------------------------------------------------------------------------------
 def _ip_literal(host: str):
     h = host.strip("[]")
