@@ -15,10 +15,9 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-16T07:15:31+00:00",
-  "row_count": 10,
+  "last_checked": "2026-11-16T23:35:07+00:00",
+  "row_count": 9,
   "providers": [
-    "Clore.ai",
     "CloudRift",
     "Lium",
     "RunPod",
@@ -41,7 +40,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-15T22:51:34+00:00",
+        "verified_at": "2026-11-16T23:32:55+00:00",
         "source_url": "https://www.cloudrift.ai/pricing",
         "quote": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
         "availability": {
@@ -72,7 +71,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-15T22:53:13+00:00",
+        "verified_at": "2026-11-16T23:34:35+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.39/hr.",
         "availability": {
@@ -105,7 +104,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-15T22:53:13+00:00",
+        "verified_at": "2026-11-16T23:34:35+00:00",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.39/hr.",
         "availability": {
@@ -124,42 +123,6 @@
       },
       {
         "vram_gb": 32,
-        "provider": "Clore.ai",
-        "gpu": "RTX 5090",
-        "tier": "Marketplace on-demand (host USD listings; median per GPU)",
-        "tier_class": "marketplace",
-        "bucket": "spot-community",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 0.7104,
-        "unit": "hour",
-        "price_usd": 0.7104,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "marketplace",
-        "verified_at": "2026-11-09T03:51:49+00:00",
-        "source_url": "https://api.clore.ai/v1/marketplace",
-        "quote": "Clore.ai API: 108 available RTX 5090 32GB host USD listings, range $0.3333-$1.25; per-GPU median $0.7104/hr, min $0.3333/hr",
-        "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": "2026-11-09T03:51:49+00:00",
-          "source": "https://api.clore.ai/v1/marketplace",
-          "note": "Clore.ai API snapshot: 114 available RTX 5090 32GB listings (status available, any currency); single read, so in_stock is unknown (needs a second read >= 60 s later)",
-          "first_read_at": "2026-11-09T03:51:49+00:00",
-          "second_read_at": null,
-          "second_read_gap_s": null,
-          "two_read_gap_ok": false
-        },
-        "form_factor": "unknown",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "unknown",
-          "tier": "Marketplace on-demand (host USD listings; median per GPU)",
-          "vram_gb": 32
-        }
-      },
-      {
-        "vram_gb": 32,
         "provider": "Spheron",
         "gpu": "RTX 5090",
         "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
@@ -172,7 +135,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-15T22:53:30+00:00",
+        "verified_at": "2026-11-16T23:34:52+00:00",
         "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
         "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
         "availability": {
@@ -205,7 +168,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-15T22:53:45+00:00",
+        "verified_at": "2026-11-16T23:35:07+00:00",
         "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
         "quote": "RTX 5090 servers from $1,019.99",
         "availability": {
@@ -244,22 +207,21 @@
       "source_url": "https://lium.io/api/public/v1/nodes",
       "quote": "Lium nodes API 2026-11-16T07:15:31+00:00: 24 available RTX 5090 secure nodes, 106 GPUs free; lowest price_per_gpu_hour $0.5 (min 8 GPUs = $4/hr, Chiyoda City, Japan)",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-16 02:15 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-16T07:15:31+00:00",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "max_age_hours": 8.0,
         "origin": "record",
-        "max_age_hours": 8,
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://lium.io/api/public/v1/nodes",
         "availability_expires_at": "2026-11-16T15:15:31Z",
-        "stock_level": "106 GPUs free on 24 nodes",
-        "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 106 available GPUs (secure tier)",
         "stock_read_at": "2026-11-16T07:15:31+00:00",
         "price_read_at": "2026-11-16T07:15:31+00:00",
         "price_at_claim_usd": 0.5,
-        "gpu_count": 8
+        "gpu_count": 8,
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-16T07:15:31+00:00"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -283,22 +245,21 @@
       "source_url": "https://lium.io/api/public/v1/nodes",
       "quote": "Lium nodes API 2026-11-16T07:15:31+00:00: 20 available RTX 5090 spot nodes, 71 GPUs free; lowest price_per_gpu_hour $0.55 (min 7 GPUs = $3.85/hr, Paris, France)",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-16 02:15 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-16T07:15:31+00:00",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "max_age_hours": 8.0,
         "origin": "record",
-        "max_age_hours": 8,
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://lium.io/api/public/v1/nodes",
         "availability_expires_at": "2026-11-16T15:15:31Z",
-        "stock_level": "71 GPUs free on 20 nodes",
-        "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 71 available GPUs (spot tier)",
         "stock_read_at": "2026-11-16T07:15:31+00:00",
         "price_read_at": "2026-11-16T07:15:31+00:00",
         "price_at_claim_usd": 0.55,
-        "gpu_count": 7
+        "gpu_count": 7,
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-16T07:15:31+00:00"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -317,7 +278,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-15T22:51:34+00:00",
+      "verified_at": "2026-11-16T23:32:55+00:00",
       "source_url": "https://www.cloudrift.ai/pricing",
       "quote": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
       "availability": {
@@ -343,7 +304,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-15T22:53:13+00:00",
+      "verified_at": "2026-11-16T23:34:35+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.39/hr.",
       "availability": {
@@ -351,37 +312,6 @@
         "in_stock": null,
         "checked_at": null,
         "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "form_factor": "unknown",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Clore.ai",
-      "gpu": "RTX 5090",
-      "vram_gb": 32,
-      "tier": "Marketplace on-demand (host USD listings; median per GPU)",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 0.7104,
-      "unit": "hour",
-      "price_usd": 0.7104,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "marketplace",
-      "verified_at": "2026-11-09T03:51:49+00:00",
-      "source_url": "https://api.clore.ai/v1/marketplace",
-      "quote": "Clore.ai API: 108 available RTX 5090 32GB host USD listings, range $0.3333-$1.25; per-GPU median $0.7104/hr, min $0.3333/hr",
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": "2026-11-09T03:51:49+00:00",
-        "source": "https://api.clore.ai/v1/marketplace",
-        "note": "Clore.ai API snapshot: 114 available RTX 5090 32GB listings (status available, any currency); single read, so in_stock is unknown (needs a second read >= 60 s later)",
-        "first_read_at": "2026-11-09T03:51:49+00:00",
-        "second_read_at": null,
-        "second_read_gap_s": null,
-        "two_read_gap_ok": false
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -400,7 +330,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-15T22:53:30+00:00",
+      "verified_at": "2026-11-16T23:34:52+00:00",
       "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
       "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
       "availability": {
@@ -426,7 +356,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-15T22:53:13+00:00",
+      "verified_at": "2026-11-16T23:34:35+00:00",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 5090 cloud GPU rental on Runpod. Community Cloud $0.69/hr, Secure Cloud $1.39/hr.",
       "availability": {
@@ -452,7 +382,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-15T22:53:45+00:00",
+      "verified_at": "2026-11-16T23:35:07+00:00",
       "source_url": "https://www.ucartz.com/gpu-dedicated-servers",
       "quote": "RTX 5090 servers from $1,019.99",
       "availability": {
@@ -478,7 +408,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-15T22:51:34+00:00",
+      "verified_at": "2026-11-16T23:32:55+00:00",
       "source_url": "https://www.cloudrift.ai/pricing",
       "quote": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
       "availability": {
@@ -504,7 +434,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-15T22:51:34+00:00",
+      "verified_at": "2026-11-16T23:32:55+00:00",
       "source_url": "https://www.cloudrift.ai/pricing",
       "quote": "RTX 5090 NVIDIA On‑Demand $0.65 1 mo $0.59 3 mo $0.55 32 GB VRAM",
       "availability": {
@@ -520,5 +450,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261116T064829Z-6d2ad926",
-  "feed_updated_at": "2026-11-16T07:15:31Z"
+  "feed_updated_at": "2026-11-16T23:35:51Z"
 }
