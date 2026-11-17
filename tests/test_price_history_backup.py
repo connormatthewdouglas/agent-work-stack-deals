@@ -71,6 +71,6 @@ def test_backup_workflow_is_daily_read_only_90_day_artifact_with_restore_test():
     wf = (ROOT / ".github/workflows/price-history-backup.yml").read_text(encoding="utf-8")
     assert 'cron: "37 6 * * *"' in wf and "workflow_dispatch" in wf
     assert "contents: read" in wf and "contents: write" not in wf
-    assert "retention-days: 90" in wf and "restore_price_history.py restored --verify --require-git" in wf
+    assert "retention-days: 90" in wf and "restore_price_history.py restored --verify --require-git --expect-commit \"$GITHUB_SHA\"" in wf
     assert "--remote --output" in wf and "> /dev/null 2>&1" in wf  # presigned export URL never reaches the log
     assert "--symmetric" in wf and "shred -u" in wf                 # D1 exports encrypted before upload

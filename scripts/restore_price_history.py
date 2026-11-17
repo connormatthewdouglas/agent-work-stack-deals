@@ -80,7 +80,8 @@ def git_problems(man: dict, work: Path, root: Path, require: bool) -> tuple[list
     return problems, f"compared {len(want)} files with {commit[:12]}"
 
 
-def verify(tar_path: Path, work: Path, db_path: Path, root: Path | None = None, require_git: bool = False) -> dict:
+def verify(tar_path: Path, work: Path, db_path: Path, root: Path | None = None, require_git: bool = False,
+           expect_commit: str | None = None) -> dict:
     with tarfile.open(tar_path, "r:gz") as tf:
         for m in tf.getmembers():
             if m.name.startswith("/") or ".." in Path(m.name).parts or not m.isfile():
@@ -91,6 +92,11 @@ def verify(tar_path: Path, work: Path, db_path: Path, root: Path | None = None, 
             tf.extractall(work)  # noqa: S202
     man = json.loads((work / "manifest.json").read_text(encoding="utf-8"))
     problems = []
+    if expect_commit is not None:  # CI: the backup must be pinned to the commit this run checked out
+        got = str(man.get("commit") or "").lower()
+        want = expect_commit.strip().lower()
+        if not want or not got or not (got.startswith(want) or want.startswith(got)) or min(len(got), len(want)) < 7:
+            problems.append(f"manifest commit {got[:12] or '(none)'} != expected {want[:12] or '(none)'}")
     if man.get("schema") != B.SCHEMA:
         problems.append(f"manifest schema {man.get('schema')!r} != {B.SCHEMA!r}")
     files = man.get("files") if isinstance(man.get("files"), dict) else {}
@@ -180,6 +186,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--verify", action="store_true", help="verify only (default when --into is not given)")
     ap.add_argument("--db", help="scratch sqlite path (default: inside a temp dir)")
     ap.add_argument("--into", help="after verifying, copy the restored files under this directory")
+    ap.add_argument("--expect-commit", help="fail unless manifest.commit is this commit (CI passes $GITHUB_SHA)")
     ap.add_argument("--require-git", action="store_true",
                     help="fail when manifest.commit cannot be compared (CI); default skips that comparison")
     a = ap.parse_args(argv)
@@ -193,7 +200,8 @@ def main(argv: list[str] | None = None) -> int:
     with tempfile.TemporaryDirectory() as t:
         work = Path(t) / "restore"
         work.mkdir()
-        res = verify(src, work, Path(a.db) if a.db else Path(t) / "scratch.sqlite", require_git=a.require_git)
+        res = verify(src, work, Path(a.db) if a.db else Path(t) / "scratch.sqlite", require_git=a.require_git,
+                     expect_commit=a.expect_commit)
         print(json.dumps({"backup": src.name, **res}, indent=1))
         if res["problems"]:
             print("RESTORE TEST FAILED")

@@ -96,4 +96,4 @@ jobs:
           BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
         run: |
           set -o pipefail
-          python3 scripts/restore_price_history.py restored --verify --require-git | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 scripts/restore_price_history.py restored --verify --require-git --expect-commit "$GITHUB_SHA" | tee -a "$GITHUB_STEP_SUMMARY"
