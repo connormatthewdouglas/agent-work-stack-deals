@@ -14,10 +14,15 @@ exported as well, gpg-encrypted, but only when the repo secrets `CLOUDFLARE_API_
 account), `CLOUDFLARE_ACCOUNT_ID`, and `BACKUP_PASSPHRASE` exist. Without them the job backs up the data files
 only and posts a notice. Adding the secrets is a Bjorn/Frosty step.
 
-**Tested restore:** the `restore-test` job restores the artifact just made into a scratch sqlite. It checks
-every file's sha256, the snapshot count and row count, the newest snapshot, and the history series count,
-and it loads each D1 dump. Any mismatch fails the run. The freshness watchdog flags a last successful backup
-older than 30h.
+**Tested restore:** the `restore-test` job restores the artifact just made into a scratch sqlite. A run fails when:
+- the manifest schema is not `lantern-works-price-history-backup/1`;
+- any fixed file (feed, history, feed state) is missing;
+- any count is 0, or the snapshot file count, rows, newest snapshot or history series differ from the manifest;
+- the newest snapshot is more than 2 days older than the backup;
+- any restored repo file is missing or differs from the backup's commit (`--require-git`: compared with
+  `git show <manifest.commit>:<path>` by blob id).
+
+D1 dumps are also loaded. The freshness watchdog flags a last successful backup older than 30h.
 
 **Restore by hand:**
 ```sh
