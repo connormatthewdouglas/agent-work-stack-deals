@@ -45,8 +45,14 @@ def test_deployed_descends_uses_git_ancestry():
         version, sha = W.expected_from_checkout()
     except Exception:  # shallow clone without the version commit
         return
-    head = _git("rev-parse", "HEAD")
-    assert W.deployed_descends(head, sha)                       # main HEAD descends from the version commit
+    try:
+        head = _git("rev-parse", "origin/main")
+    except subprocess.CalledProcessError:  # no origin/main ref: the check must alarm, never pass
+        assert not W.deployed_descends(sha, sha)
+        return
+    if subprocess.call(["git", "merge-base", "--is-ancestor", sha, head], cwd=ROOT) != 0:
+        return  # version commit not on origin/main (a release branch checkout)
+    assert W.deployed_descends(head, sha)                       # origin/main tip descends from the version commit
     assert W.deployed_descends(sha, sha)
     parents = _git("rev-list", "--parents", "-n", "1", sha).split()[1:]
     if parents:

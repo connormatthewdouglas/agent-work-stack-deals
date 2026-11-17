@@ -163,6 +163,7 @@ def _h100_buckets():
 
 
 from t41_counts import payg_eligible, ranked_after_min_gpus  # noqa: E402
+import t41_staleness as STL  # noqa: E402  (Bjorn 2026-11-17: warn >36h, hard fail >7d; empty or zero-row = fail)
 
 
 @case("T41-03")
@@ -349,15 +350,16 @@ def _(f, ev):
     fu = ts(FEED["feed_updated_at"])
     # Owner-held prices are held, not ranked. They must not set the row-age warning.
     # Frosty/Bjorn 2026-11-09: row-age (48h oldest verified / degraded|stale on compare) is a
-    # printed WARNING, not a deploy blocker. feed_updated_at 36h stays a hard fail.
+    # printed WARNING, not a deploy blocker.
+    # Bjorn 2026-11-17: warn >36h, hard fail >7d; empty or zero-row = fail (feed_updated_at age; replaces the 36h hard fail).
     pool = [r for r in RATES if not is_held(r.get("advertiser"))]
     mx = max((ts(r["verified_at"]) for r in pool), default=None)
     if mx is not None and fu + timedelta(seconds=1) < mx: f.append(f"feed_updated_at {fu} < newest verified_at {mx}")
-    if NOW - fu > timedelta(hours=36):
-        # Sturdiness pass (Relay, 2026-11-17): an old checkout feed is stale data, not a code failure. It warns
-        # and is routed to the freshness-watchdog issue (which also holds the live 26h bar); it no longer fails
-        # the gate. The feed_updated_at < newest verified_at consistency check above stays a hard fail.
-        stale_feed = f"T41-12: checkout feed_updated_at {fu.isoformat()} is {(NOW - fu).total_seconds() / 3600:.1f}h old (> 36h)"
+    # Bjorn 2026-11-17: warn >36h, hard fail >7d; empty or zero-row = fail (tests/release_gate/t41_staleness.py).
+    ff, ww = STL.feed_age(fu, NOW)
+    f.extend(ff)
+    if not pool: f.append("zero non-held ranked rows (missing data, not stale)")
+    for stale_feed in ww:
         print(f"WARNING: {stale_feed}")
         print(f"::warning title=Stale checkout feed::{stale_feed}")
         ev["stale_feed"] = stale_feed
@@ -661,18 +663,12 @@ def _(f, ev):
     from core.gpu_availability import AVAIL_MAX_AGE_H
     lim = timedelta(hours=AVAIL_MAX_AGE_H)
     checked = 0
+    stale = []
     def chk_json(name, rates):
+        # Bjorn 2026-11-17: warn >36h, hard fail >7d; empty or zero-row = fail (expired claim warns up to 168h).
         nonlocal checked
-        for r in rates:
-            a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
-            if a.get("in_stock") is not True:
-                continue
-            checked += 1
-            if not a.get("checked_at"): f.append(f"{name}: {rid(r)} in stock with no checked_at"); continue
-            exp = ts(a["availability_expires_at"]) if a.get("availability_expires_at") else ts(a["checked_at"]) + lim
-            if not a.get("availability_expires_at"): f.append(f"{name}: {rid(r)} in stock without availability_expires_at")
-            if NOW > exp or NOW - ts(a["checked_at"]) > lim:
-                f.append(f"{name}: {rid(r)} in stock, checked {a['checked_at']}, expired {exp.isoformat()}")
+        ff, ww, n = STL.claims_t41_24(name, rates, NOW, lim, ts, rid)
+        f.extend(ff); stale.extend(ww); checked += n
     chk_json("gpu-prices.json", RATES)
     idx = json.loads(fetch(f"{BASE}/api/v1/gpu/index.json")[0])
     fams = sorted(m["url"].rsplit("/", 1)[1] for m in idx["models"])
@@ -687,9 +683,13 @@ def _(f, ev):
             if "available when checked" not in m.group(2):
                 continue
             n_html += 1
-            if NOW - ts(m.group(1)) > lim:
-                f.append(f"/gpu/cheapest-{slug}-rental/: in-stock claim checked {m.group(1)} is past {AVAIL_MAX_AGE_H} h (no JS)")
-    ev.update(json_in_stock_claims=checked, html_in_stock_claims=n_html, families=fams, pages=len(pages))
+            ff, ww = STL.past_expiry(f"/gpu/cheapest-{slug}-rental/: in-stock claim checked {m.group(1)} (no JS),",
+                                     ts(m.group(1)) + lim, NOW)
+            f.extend(ff); stale.extend(ww)
+    for x in stale[:20]:
+        print(f"WARNING: T41-24 {x}")
+    STL.note("T41-24", stale)
+    ev.update(json_in_stock_claims=checked, html_in_stock_claims=n_html, families=fams, pages=len(pages), stale_claims=stale)
 
 
 @case("T41-25")
@@ -733,22 +733,13 @@ def _(f, ev):
 def _(f, ev):
     # re19 N1/N2: no in-stock claim past its own expiry; a claim derived from regions ends with its regions;
     # a RunPod overall claim needs a confirmed region (the GPU-type-wide lowestPrice hint alone is not stock).
-    n = 0
-    for r in RATES:
-        a = r.get("availability") if isinstance(r.get("availability"), dict) else {}
-        if a.get("in_stock") is not True:
-            continue
-        n += 1
-        if a.get("availability_expires_at") and NOW > ts(a["availability_expires_at"]):
-            f.append(f"{rid(r)} in stock past availability_expires_at {a['availability_expires_at']}")
-        if a.get("derived_from_regions") and (not a.get("regions_expires_at") or NOW > ts(a["regions_expires_at"])):
-            f.append(f"{rid(r)} region-derived claim in stock without live regions")
-        if (str(r.get("advertiser")).startswith(("Lambda", "Verda")) or a.get("derived_from_regions")) and a.get("checked_at") \
-                and a.get("availability_expires_at") and (ts(a["availability_expires_at"]) - ts(a["checked_at"])).total_seconds() > 3600:
-            f.append(f"{rid(r)} vendor-API/derived claim lasts longer than 1 h (re20 P3)")
-        if r.get("advertiser") == "RunPod" and a.get("origin") == "scout" and not a.get("available_regions"):
-            f.append(f"{rid(r)} RunPod in stock with no confirmed region")
-    ev.update(in_stock_claims=n)
+    # Bjorn 2026-11-17: warn >36h, hard fail >7d; empty or zero-row = fail (an expired claim warns up to 168h).
+    ff, ww, n = STL.claims_t41_26(RATES, NOW, ts, rid)
+    f.extend(ff)
+    for x in ww[:20]:
+        print(f"WARNING: T41-26 {x}")
+    STL.note("T41-26", ww)
+    ev.update(in_stock_claims=n, stale_claims=ww)
 
 
 passed = sum(r["status"] == "PASS" for r in results)

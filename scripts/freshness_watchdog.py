@@ -119,9 +119,10 @@ def hold_lines(feed: dict, now: datetime) -> list[str]:
     return lines
 
 
-def deployed_descends(hosted_build: str, version_sha: str, root: Path | None = None) -> bool:
-    """#816: True when the hosted build is a commit on HEAD's history (main, in the scheduled run) that has the
-    version commit as an ancestor. git errors (unknown commit, shallow clone) are False, so they still alarm."""
+def deployed_descends(hosted_build: str, version_sha: str, root: Path | None = None, base: str = "origin/main") -> bool:
+    """#816: True when the hosted build is a commit on origin/main's history that has the version commit as an
+    ancestor. The baseline is origin/main explicitly (not HEAD), so a workflow_dispatch from another branch cannot
+    move it. git errors (unknown commit, missing origin/main, shallow clone) are False, so they still alarm."""
     root = root or ROOT
     got, want = _hex_build(hosted_build), _hex_build(version_sha)
     if not got or not want:
@@ -129,7 +130,7 @@ def deployed_descends(hosted_build: str, version_sha: str, root: Path | None = N
     try:
         full = subprocess.check_output(["git", "rev-parse", "--verify", "--quiet", f"{got}^{{commit}}"],
                                        cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
-        for anc, desc in ((want, full), (full, "HEAD")):
+        for anc, desc in ((want, full), (full, base)):
             if subprocess.call(["git", "merge-base", "--is-ancestor", anc, desc], cwd=root,
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 0:
                 return False
