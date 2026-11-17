@@ -135,6 +135,9 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>README and PyPI package docs (T124, 2026-11-16): repo README, mcp_server/README.md (the PyPI long description), and pyproject keywords/URLs now lead with copy-paste client configs and per-placement <code>?ref=</code> tags. The phrase &quot;checked daily&quot; / &quot;re-read daily&quot; is not used; the feed rebuild is described as once a day (about 10:23 UTC), and each price keeps its own check time.</li>
+</ul>
+<ul>
 <li>Availability wording (P60, 2026-11-15; requested by gigawatt): a trailing 0/N stock reading is written “not observed in stock in N checks”, not “out of stock” or “sold out”. A short note says checks in this window typically run about every 2.7 hours, so a short restock can be missed. Availability comparisons built on a small sample (about 5–10 checks, or less than 24 hours of coverage) are labelled as such, with N stated, and should be read as price-only. Uses existing <code>availability_rate_7d</code> counts only; ranking and feed fields are unchanged. Wherever a page computes a monthly cost, hours per month is stated as a parameter: 730 hours (average month, 24 × 365 / 12); a 30-day month such as November is 720 hours.</li>
 </ul>
 <ul>
