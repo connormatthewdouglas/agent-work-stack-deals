@@ -274,7 +274,7 @@ jobs:
       - run: python3 scripts/check_public_raw_data.py   # re21: raw data 404 / no stock claims; latest.json 404
       - name: GPU refresh freshness (warn if no snapshot today / > 24 h; fail if last refresh > 26 h)
         run: python3 scripts/check_gpu_freshness.py
-      - name: GPU pricing sources (daily via schedule; stale > 7 days, unreachable, or quoted price missing => fail). Never edits prices.
+      - name: GPU pricing sources (daily via schedule; stale > 7 days is a warning with the true age; unreachable, or quoted price missing or changed => fail). Never edits prices or timestamps.
         id: gpusrc
         run: python3 scripts/check_gpu_sources.py --report gpu-sources-report.md
       - name: Open or update a GitHub issue for flagged GPU pricing records
