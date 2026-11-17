@@ -821,6 +821,20 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     return out
 
 
+def t41_21_rates(rates: list[dict], name: str) -> list[dict]:
+    """Rate set T41-21 uses for one price-comparison summary row.
+
+    If `name` is a tracked family, include prefix variants at a word boundary
+    (`H200 NVL` on the H200 row). Otherwise exact gpu match only. Mirrors
+    tests/release_gate/run_t41.py (T41-21). family_of / PAGE_ALSO are unchanged:
+    H200 NVL still has its own row, and offer counts stay family-exact.
+    """
+    from core.gpu import family_of
+    if family_of(name):
+        return [r for r in rates if r["gpu"] == name or r["gpu"].startswith(name + " ")]
+    return [r for r in rates if r["gpu"] == name]
+
+
 def lowest_payg(rs: list[dict], now=None) -> dict | None:
     """Named lowest single-GPU pay-as-you-go rate for the price-comparison summary (T41-21).
 
@@ -852,7 +866,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
         own = [r for r in f["rates"] if family_of(r["gpu"]) == slug]  # H100 NVL counts in its own row here
         if not own:
             continue
-        lo = lowest_payg(own)
+        lo = lowest_payg(t41_21_rates(rates, f["name"]))  # T41-21: H200 NVL counts toward the H200 lowest cell
         link = f'<a href="{gen.BASE}/{pages[slug]}/">{gen.esc(f["name"])}</a>' if slug in pages else gen.esc(f["name"])
         note = "" if f["page"] else " <em>(few verified offers)</em>"
         summary.append(f"<tr><td>{link}{note}</td><td>{len(own)}</td><td>{gen.esc(', '.join(sorted({r['advertiser'] for r in own})))}</td>"
@@ -864,7 +878,7 @@ def write_overview(gen, rates: list[dict], fams: dict, pages: dict[str, str]) ->
             others.setdefault(r["gpu"], []).append(r)
     for name in sorted(others):
         rs = others[name]
-        lo = lowest_payg(rs)
+        lo = lowest_payg(t41_21_rates(rates, name))
         summary.append(f"<tr><td>{gen.esc(name)} <em>(few verified offers)</em></td><td>{len(rs)}</td>"
                        f"<td>{gen.esc(', '.join(sorted({r['advertiser'] for r in rs})))}</td>"
                        f"<td>{_low_cell(gen, lo)}</td></tr>")
