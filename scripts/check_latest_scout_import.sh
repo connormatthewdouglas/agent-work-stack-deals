@@ -21,7 +21,7 @@ cd "$W"
 LW_AVAIL_NOW=${LW_AVAIL_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}; export LW_AVAIL_NOW
 # Gauge B1 / Bjorn 2026-11-17: empty or zero-row = fail. Zero rows, no parseable checked_at, or a source with rows
 # on main and none in the snapshot is missing data and hard-fails here, before the stale check below.
-python3 scripts/check_scout_snapshot_rows.py "$T/feed_enriched_v2_latest.json" || exit 1
+python3 scripts/check_scout_snapshot_rows.py "$T/feed_enriched_v2_latest.json" --avail "$T/availability_v2_latest.json" || exit 1
 # Sturdiness pass (Relay, 2026-11-17): a snapshot that is merely too OLD to import is stale data, not a code
 # failure. It warns, is written to $LW_STALE_NOTES (routed to the freshness-watchdog issue on main), and exits 0,
 # so it never blocks a PR or a merge. Only a numeric age matches ("is ?h old" = unparseable = fail). Any other import refusal (manifest sha256, version, parse) or any test
@@ -30,6 +30,12 @@ if ! LW_SCOUT_MANIFESTS="$T/manifest.json:$T/latest_manifest.json" LW_SCOUT_AVAI
   python3 scripts/import_scout_availability.py "$T/feed_enriched_v2_latest.json" > "$T/import.log" 2>&1; then
   cat "$T/import.log"
   if grep -Eq '^Scout snapshot .* is [0-9.]+h old \(> [0-9.]+h\); refusing to import$' "$T/import.log"; then
+    # Bjorn 2026-11-17: 7-day cap. A snapshot older than 168h is no longer "merely stale": hard fail.
+    age=$(grep -E '^Scout snapshot ' "$T/import.log" | tail -1 | sed -n 's/.* is \([0-9.]*\)h old .*/\1/p')
+    if awk -v a="$age" 'BEGIN{exit !(a+0 > 168)}'; then
+      echo "::error title=Scout snapshot past 7-day cap::latest-scout-import: Scout snapshot is ${age}h old (> 168h hard cap)"
+      exit 1
+    fi
     msg="latest-scout-import: $(grep -E '^Scout snapshot ' "$T/import.log" | tail -1) (skipped, not a code failure)"
     echo "::warning title=Stale Scout snapshot::$msg"
     [ -n "${LW_STALE_NOTES:-}" ] && echo "$msg" >> "$LW_STALE_NOTES"
