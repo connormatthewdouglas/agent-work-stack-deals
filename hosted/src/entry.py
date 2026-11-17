@@ -329,7 +329,11 @@ class Default(WorkerEntrypoint):
             except W.WatchError as e:
                 code = {"unauthorized": 401, "unavailable": 503}.get(e.code, 400)
                 return Response(json.dumps({"ok": False, "error": e.code}), status=code, headers={"content-type": "application/json", **SEC})
-            r = await watch_store.deliver(self.env, events, regions, fetch)
+            try:
+                r = await watch_store.deliver(self.env, events, regions, fetch)
+            except Exception as e:  # type name only: never webhook URLs, keys, or a traceback
+                return Response(json.dumps({"ok": False, "error": "internal_error", "detail": type(e).__name__}),
+                                status=500, headers={"content-type": "application/json", **SEC})
             return Response(json.dumps({"ok": True, **r}), headers={"content-type": "application/json", **SEC})
         if path in ("/mcp", "/mcp/"):
             if request.method == "GET":
