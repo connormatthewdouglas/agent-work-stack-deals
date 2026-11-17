@@ -27,7 +27,7 @@ OFFICIAL_VRAM = {"B200": 180,  # Mart option A (rev 5): B200 = 180GB as vendors 
 # for this figure. RunPod B300 still publishes 288, so vram_gb stays 288 there.
 VENDOR_VRAM = {"B300"}
 PAGES = {"RunPod": "https://www.runpod.io/pricing", "Vast.ai": "https://vast.ai/pricing", "Clore.ai": "https://clore.ai/marketplace",
-         "Oblivus": "https://oblivus.com/availability/", "Verda": "https://verda.com/pricing", "Lambda": "https://lambda.ai/pricing"}
+         "Oblivus": "https://oblivus.com/availability/", "Verda": "https://verda.com/pricing", "Lambda": "https://lambda.com/pricing"}
 FAMILY_SCOPE = ("B200", "B300", "GH200", "MI300X", "A40", "L4", "T4", "V100", "A10", "RTX 6000 Ada", "RTX PRO 6000", "RTX A4000", "GB300", "Quadro RTX 6000", "RTX PRO 5000", "RTX PRO 4500", "RTX PRO 4000", "RTX 5090", "H100")
 
 VRAM_EXCEPTIONS = {"B200": "B200 is the one exception to the official-spec rule: 180GB (as vendors expose it) is used, not NVIDIA's 192GB"} if OFFICIAL_VRAM["B200"] == 180 else {}
