@@ -95,6 +95,21 @@ def verify(secret: str, header: str, body: str, now: int, tolerance: int = 300) 
     return abs(now - ts) <= tolerance and hmac.compare_digest(sign(secret, ts, body), header)
 
 
+# Exact canary receiver. deliver() short-circuits this one destination in-process so the Worker never
+# fetches its own workers.dev URL (Cloudflare may block or loop same-zone subrequests). Private-IP
+# and DNS checks are not relaxed for any other URL.
+CANARY_WEBHOOK_URL = "https://lantern-works-mcp.lantern-works.workers.dev/internal/watch-canary"
+
+
+def is_canary_url(url) -> bool:
+    return str(url or "").strip() == CANARY_WEBHOOK_URL
+
+
+def canary_watch_hash(master: str, watch_id: str) -> str:
+    """Keyed hash of a watch_id for canary receipts (not the raw id, not a signing secret)."""
+    return hmac.new((master or "").encode(), f"canary-watch|{watch_id}".encode(), hashlib.sha256).hexdigest()[:16]
+
+
 # ---- webhook URL safety --------------------------------------------------------------------------------------------
 def _ip_literal(host: str):
     h = host.strip("[]")
@@ -209,14 +224,32 @@ def check_known_gpu(prices_doc: dict, spec: dict) -> None:
                      + f". Tracked models: {', '.join(models)}")
 
 
+def _sql_null(v) -> bool:
+    """True when a D1 LEFT JOIN produced a SQL NULL. workerd exposes that as JsNull (falsy, `is not None`,
+    not an int/float), so eligibility.normalize must not treat it as a provided value."""
+    if v is None or v == "":
+        return True
+    if isinstance(v, (int, float, bool, str, list, tuple, dict, bytes)):
+        return False
+    return not v
+
+
 def constraints(spec: dict) -> dict:
     """The eligibility constraints of a stored watch (older watches: gpu/region only; reserved never matches)."""
-    tiers = spec.get("tiers")
-    if isinstance(tiers, str):
+    tiers, vram, region, stock = spec.get("tiers"), spec.get("vram_gb"), spec.get("region"), spec.get("in_stock")
+    if _sql_null(tiers):
+        tiers = None
+    elif isinstance(tiers, str):
         tiers = [t for t in tiers.split(",") if t]
-    return EL.normalize(gpu=spec["gpu"], vram_gb=spec.get("vram_gb"),
+    if _sql_null(vram):
+        vram = None
+    if _sql_null(region):
+        region = None
+    if _sql_null(stock):
+        stock = None
+    return EL.normalize(gpu=spec["gpu"], vram_gb=vram,
                         tiers=tiers or [t for t in EL.TIER_CLASSES if t != "reserved"],
-                        region=spec.get("region"), in_stock=spec.get("in_stock") or "exclude_sold_out")
+                        region=region, in_stock=stock or "exclude_sold_out")
 
 
 def rate_facts(prices_doc: dict, now=None) -> dict:
@@ -294,7 +327,11 @@ def match(spec: dict, ev: dict, facts: dict) -> str | None:
     (legacy pushes: rate_id -> region list)."""
     if not after_baseline(spec, ev):
         return None
-    if not EL.check(_ev_facts(ev, facts), constraints(spec))["eligible"]:
+    try:
+        c = constraints(spec)
+    except EL.EligibilityError:
+        return None  # invalid stored watch: skip it; do not 500 the whole batch
+    if not EL.check(_ev_facts(ev, facts), c)["eligible"]:
         return None
     to, frm, mx, d = ev.get("to_hourly_usd"), ev.get("from_hourly_usd"), spec["max_hourly_usd"], ev.get("direction")
     if to is None or to > mx:

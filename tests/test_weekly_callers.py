@@ -42,7 +42,7 @@ class FakeD1:
         self.c.row_factory = sqlite3.Row
         self.c.executescript((ROOT / "hosted" / "schema.sql").read_text())
         if migrate:
-            self.c.executescript((ROOT / "hosted" / "migrations" / "0006_weekly_callers.sql").read_text())
+            self.c.executescript((ROOT / "hosted" / "migrations" / "0007_weekly_callers.sql").read_text())
 
     def prepare(self, sql):
         return _Stmt(self.c, sql)
@@ -170,4 +170,4 @@ def test_stats_json_and_initialize_hook():
         assert k in blk
     assert "weekly_callers.record(" in src
     assert "CALLER_ID_SECRET" in (ROOT / "hosted/wrangler.toml").read_text()
-    assert "0006_weekly_callers.sql" in (ROOT / "hosted/migrations/0006_weekly_callers.sql").read_text()
+    assert "0007_weekly_callers.sql" in (ROOT / "hosted/migrations/0007_weekly_callers.sql").read_text()

@@ -12,10 +12,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core.availability_rate import overlay_published_rates, rate_phrase, zero_of_n_phrase  # noqa: E402
-HERO = "GPU rental prices, compared across tracked providers"
+HERO = "Find the cheapest GPU rental, compared across tracked providers"
+IDENTITY = (
+    "Lantern Works tracks GPU rental prices from cloud providers, links each one to the vendor's own page, "
+    "and shows how old every price is. Agents can query the same data through a free JSON API and MCP server."
+)
 TITLE = "Cheapest GPU rental prices today | Lantern Works"
-DESC = ("Cheapest H100, A100 and RTX 4090 rentals today, compared across tracked providers. "
-        "Each listed price shows its age.")
+DESC = ("Cheapest H100, A100 and RTX 4090 rentals today, compared across tracked cloud providers. "
+        "Each price links the vendor and shows its age.")
 SPREAD = (("h100", "H100"), ("a100", "A100"), ("rtx-4090", "RTX 4090"))
 INSTALL_UVX = "uvx lantern-works-deals-mcp"
 INSTALL_PIP = "pip install lantern-works-deals-mcp"
@@ -150,7 +154,8 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
     desc = DESC
     body = f"""  <header>
     <h1>{esc(HERO)}</h1>
-    <p>Hourly GPU rental prices re-read every day from each vendor's own pricing page, with the quote, source link and check date for every rate. <strong><span data-live-count>{count}</span> rates</strong> from {esc(vendors)}, newest check {esc(fresh)}. "Cheapest" always means cheapest among tracked providers.</p>
+    <p>{esc(IDENTITY)}</p>
+    <p>Hourly GPU rental prices, with the quote, source link and check date for every rate. <strong><span data-live-count>{count}</span> rates</strong> from {esc(vendors)}, newest check {esc(fresh)}. "Cheapest" always means cheapest among tracked providers.</p>
     <p class="meta"><small>{__import__("gpu_pages").rate_count_note(gen, deals)}</small></p>
   </header>
   <main id="content">
@@ -175,6 +180,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
   <section aria-labelledby="more">
     <h2 id="more">Also on Lantern Works</h2>
     <p><a href="{BASE}/deals/">Agent work-stack deals</a>: compute, scraping and unblock, search APIs, email, hosting. <a href="{BASE}/tools/stack-optimizer/">Stack optimizer</a> · <a href="{BASE}/for-agents/">For agents</a> (JSON feed, schema).</p>
+    <p><a href="{BASE}/receipts/">Receipts: dated test summaries of MCP servers, with methods and limits.</a></p>
   </section>
   </main>
 """

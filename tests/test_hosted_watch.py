@@ -416,3 +416,171 @@ def test_deliver_with_immutable_d1_rows():
     assert out.get("ok") is not False
     assert out["sent"] == 1
     assert p.calls, "expected one signed webhook POST"
+
+
+class _JsNull:
+    """workerd D1 SQL NULL: falsy, not Python None, not an int/float. Repr matches the live isolate."""
+    def __bool__(self):
+        return False
+
+    def __repr__(self):
+        return "jsnull"
+
+
+def test_d1_rows_coerce_jsnull_to_none():
+    """LEFT JOIN NULLs arrive as JsNull and must become Python None before payload JSON."""
+    row = {"watch_id": "w1", "vram_gb": _JsNull(), "region": _JsNull(), "gpu": "H100", "max_hourly_usd": 100}
+    out = S._rows(types.SimpleNamespace(results=[row]))
+    assert out[0]["vram_gb"] is None and out[0]["region"] is None
+    assert out[0]["gpu"] == "H100" and out[0]["max_hourly_usd"] == 100
+
+
+def test_constraints_treats_d1_jsnull_as_absent():
+    """LEFT JOIN watch_constraints NULLs must not raise EligibilityError (live /internal/watch-events bug)."""
+    c = W.constraints({"gpu": "H100", "vram_gb": _JsNull(), "region": _JsNull(), "tiers": _JsNull(),
+                       "in_stock": _JsNull()})
+    assert c.get("vram_gb") is None
+    assert c.get("region") is None
+    assert c["in_stock"] == "exclude_sold_out"
+
+
+def test_constraints_keeps_real_vram():
+    c = W.constraints({"gpu": "H100", "vram_gb": 80})
+    assert c["vram_gb"] == 80
+
+
+def test_match_skips_invalid_stored_watch():
+    spec = {"gpu": "H100", "max_hourly_usd": 2.0, "kinds": ["down", "up", "new"], "region": "not a region",
+            "baseline_day": "2026-10-01", "baseline_seq": 0}
+    ev = {"event_id": "e-bad", "date": "2026-11-16", "gpu": "H100", "tier": "On-demand", "direction": "down",
+          "from_hourly_usd": 2.5, "to_hourly_usd": 1.9, "rate_id": "r1"}
+    assert W.match(spec, ev, {}) is None
+
+
+def _jsnull_watch_rows(orig_all):
+    async def jsnull_all(self):
+        cur = self.db.execute(self.sql, self.args)
+        rows = []
+        for r in cur.fetchall():
+            d = dict(r)
+            for k in ("vram_gb", "tiers", "in_stock", "region"):
+                if d.get(k) is None:
+                    d[k] = _JsNull()
+            rows.append(d)
+        return types.SimpleNamespace(results=rows)
+    return jsnull_all
+
+
+def test_deliver_with_d1_jsnull_vram_does_not_500():
+    """A valid H100 watch with no watch_constraints row must still match when D1 LEFT JOIN NULLs are JsNull."""
+    e = env()
+    key = signup(e)
+    api, secret = key["api_key"], key["webhook_signing_secret"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    # Prod-like: no constraints row (older watch). sqlite None becomes JsNull on workerd.
+    e.WATCH_DB.c.execute("DELETE FROM watch_constraints")
+    e.WATCH_DB.c.commit()
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    orig = _Stmt.all
+    _Stmt.all = _jsnull_watch_rows(orig)
+    try:
+        p = Poster()
+        out = run(S.deliver(e, evs, regs, p, now=7000))
+    finally:
+        _Stmt.all = orig
+    assert out.get("ok") is not False
+    assert out["sent"] == 1
+    assert p.calls, "expected one signed webhook POST for the eligible H100 crossing"
+    assert W.verify(secret, p.calls[0][1]["x-lantern-signature"], p.calls[0][2], 7000)
+
+
+def test_deliver_skips_invalid_stored_watch_without_500():
+    """A genuinely invalid stored spec is skipped (no alert) and must not 500 the batch."""
+    e = env()
+    key = signup(e)
+    api = key["api_key"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    e.WATCH_DB.c.execute("UPDATE watches SET region = 'not a region'")
+    e.WATCH_DB.c.commit()
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    p = Poster()
+    out = run(S.deliver(e, evs, regs, p, now=7000))
+    assert out.get("ok") is not False
+    assert out["sent"] == 0
+    assert p.calls == []
+
+
+def test_canary_url_is_exact_only():
+    assert W.is_canary_url(W.CANARY_WEBHOOK_URL)
+    assert not W.is_canary_url(W.CANARY_WEBHOOK_URL + "/")
+    assert not W.is_canary_url(W.CANARY_WEBHOOK_URL + "?x=1")
+    assert not W.is_canary_url("https://example.com/internal/watch-canary")
+    W.validate_webhook_url(W.CANARY_WEBHOOK_URL)
+
+
+def test_canary_ingest_verifies_signature_and_hides_ids():
+    e = env()
+    key = signup(e)
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    wr = run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": key["api_key"]}, e, None, f1))
+    assert wr["ok"], wr
+    wid = wr["watch"]["watch_id"]
+    body = '{"type":"lantern_works.price_watch.alert"}'
+    ts = 7000
+    bad = {"x-lantern-event-id": "ev-canary-1", "x-lantern-watch-id": wid,
+           "x-lantern-signature": W.sign("whsec_not-the-real-secret", ts, body)}
+    status, _ = run(S.canary_ingest(e, body, bad, now=ts))
+    assert status == 401
+    assert run(S.canary_stats(e))["received"] == 0
+    hdr = {"x-lantern-event-id": "ev-canary-1", "x-lantern-watch-id": wid,
+           "x-lantern-signature": W.sign(key["webhook_signing_secret"], ts, body)}
+    status, out = run(S.canary_ingest(e, body, hdr, now=ts))
+    assert status == 200 and out == {"ok": True}
+    st = run(S.canary_stats(e))
+    assert st["received"] == 1 and st["ok"] is True and st["last_received_at"]
+    dumped = json.dumps(st)
+    assert set(st) == {"ok", "received", "last_received_at"}
+    assert wid not in dumped and "ev-canary-1" not in dumped
+    assert "lantern_works" not in dumped
+
+
+def test_canary_deliver_is_acked_in_process():
+    """deliver() must ack the exact canary URL in-process and never fetch (avoids same-zone subrequests)."""
+    e = env()
+    key = signup(e)
+    api = key["api_key"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    wr = run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    assert wr["ok"], wr
+    e.WATCH_DB.c.execute("UPDATE watch_keys SET webhook_url = ?", (W.CANARY_WEBHOOK_URL,))
+    e.WATCH_DB.c.commit()
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    p = Poster()
+    out = run(S.deliver(e, evs, regs, p, now=7000))
+    assert p.calls == [] and p.lookups == []
+    assert out.get("ok") is not False
+    assert out["sent"] == 1 and out["failed"] == 0 and out["outcomes"]["acked"] == 1
+    st = run(S.canary_stats(e))
+    assert st["received"] == 1 and st["last_received_at"]
+
+
+def test_non_canary_webhook_still_fetched():
+    e = env()
+    key = signup(e)
+    api = key["api_key"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    p = Poster()
+    out = run(S.deliver(e, evs, regs, p, now=7000))
+    assert out["sent"] == 1 and p.calls, "ordinary webhooks must still go through fetch"
