@@ -28,4 +28,6 @@ def test_privacy_mentions_go_vendor_links_and_ua_class():
         # #177 demand wording, checked against hosted/src/demand.py
         assert "missing value is stored as" in s and "`any`" in s.replace("<code>", "`").replace("</code>", "`")
         assert "`none` when there was none" in s.replace("<code>", "`").replace("</code>", "`")
+        assert "ISO week" in s or "iso week" in s.lower()
+        assert "HMAC" in s or "hmac" in s.lower()
 

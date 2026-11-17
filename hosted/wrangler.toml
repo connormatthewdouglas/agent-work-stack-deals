@@ -5,6 +5,10 @@ compatibility_date = "2025-10-16"  # rel054: newer Python runtime with dedicated
 compatibility_flags = ["python_workers"]
 workers_dev = true
 
+# Weekly repeat-caller IDs (optional): npx wrangler secret put CALLER_ID_SECRET
+# If unset, weekly_callers.py is a no-op and never fails a request. Apply the D1 table once:
+#   npx wrangler d1 execute lantern-works-hosted-mcp-stats --remote --file=migrations/0007_weekly_callers.sql
+
 [[d1_databases]]
 binding = "DB"
 database_name = "lantern-works-hosted-mcp-stats"
