@@ -372,3 +372,47 @@ def test_push_script_batches_are_small_and_valid():
         body = json.dumps(b, separators=(",", ":"), sort_keys=True)
         assert len(b["events"]) <= P.BATCH <= W.MAX_PUSH_EVENTS
         W.parse_push(body, W.sign(PUSH, 1, body), PUSH, 1)
+
+def test_d1_rows_copied_to_plain_mutable_dicts():
+    """Python Worker D1 rows can be dict-like JsProxy objects that raise on item assignment."""
+    class FrozenRow(dict):
+        def __setitem__(self, k, v):
+            raise TypeError("D1 row is frozen")
+
+    row = FrozenRow(watch_id="w1", kinds="down,up,new", gpu="H100")
+    out = S._rows(types.SimpleNamespace(results=[row]))
+    assert len(out) == 1 and type(out[0]) is dict
+    out[0]["kinds"] = ["down"]
+    assert out[0]["kinds"] == ["down"]
+    assert row["kinds"] == "down,up,new"  # original left alone
+
+
+def test_deliver_with_immutable_d1_rows():
+    """A watch-events push must not 500 when D1 returns frozen rows (the live /internal/watch-events bug)."""
+    class FrozenRow(dict):
+        def __setitem__(self, k, v):
+            raise TypeError("D1 row is frozen")
+
+    orig = _Stmt.all
+
+    async def frozen_all(self):
+        cur = self.db.execute(self.sql, self.args)
+        return types.SimpleNamespace(results=[FrozenRow(dict(r)) for r in cur.fetchall()])
+
+    e = env()
+    key = signup(e)
+    api = key["api_key"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    _Stmt.all = frozen_all
+    try:
+        p = Poster()
+        out = run(S.deliver(e, evs, regs, p, now=7000))
+    finally:
+        _Stmt.all = orig
+    assert out.get("ok") is not False
+    assert out["sent"] == 1
+    assert p.calls, "expected one signed webhook POST"

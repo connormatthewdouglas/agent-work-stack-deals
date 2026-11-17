@@ -69,9 +69,16 @@ def main() -> int:
                 problems.append(f"ok={res.get('ok')!r} error={res.get('error')!r}")
             if res.get("persist_error"):
                 problems.append(f"persist_error={res['persist_error']}")
-        except Exception as e:  # report status only
+        except Exception as e:  # report status and a short body (error code/type only; never print secrets)
             bad += 1
-            print(f"batch failed: {getattr(e, 'code', type(e).__name__)}")
+            extra = ""
+            try:
+                raw = e.read().decode("utf-8", "replace")[:200] if hasattr(e, "read") else ""
+                if raw:
+                    extra = f" {raw}"
+            except Exception:
+                extra = ""
+            print(f"batch failed: {getattr(e, 'code', type(e).__name__)}{extra}")
     print(f"pushed {len(bs) - bad}/{len(bs)} batches: " + ", ".join(f"{k}={v}" for k, v in tot.items()))
     if tot["failed"]:
         problems.append(f"{tot['failed']} delivery attempt(s) failed (retried with backoff by later pushes; see stats.delivery)")
