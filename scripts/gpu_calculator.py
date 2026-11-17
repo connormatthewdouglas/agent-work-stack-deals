@@ -121,8 +121,12 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "held_stale": data["held_stale"],
         "price_scope": PRICE_SCOPE,
     }
-    from core.availability_rate import overlay_published_rates
+    from core.availability_rate import overlay_published_rates, window_summary
+    from core.ids import content_build_id
     payload["rates"] = overlay_published_rates(payload["rates"], API_PATH)
+    # P61 (additive): file-level window counts and a content digest; generation_id is unchanged.
+    payload["availability_window_summary"] = window_summary(payload["rates"])
+    payload["content_build_id"] = content_build_id(payload["rates"])
     gen.assert_public_clean(payload)
     return payload
 

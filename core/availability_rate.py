@@ -229,3 +229,40 @@ def overlay_published_rates(rows: list[dict], published_path: Path | None = None
                 not isinstance(new, dict) or new.get("source") == "git_history"):
             r["availability_rate_7d"] = old
     return rows
+
+
+def window_summary(rates: list[dict] | None) -> dict:
+    """File-level counts of ranked rates with no 7-day stock window, plus when current windows began.
+
+    Computed only from row data. A rate has a window when availability_rate_7d is an object
+    (including a P38 null rate: checks exist, none were known). Otherwise:
+    - signal_no_window_yet: a usable in_stock true/false is present, but no 7d window yet
+    - read_no_usable_signal: a stock source was read (source, origin, or checked_at) but in_stock is null
+    - no_stock_source: no stock source was read
+    earliest_first_check_at is the earliest first_check_at among current windows; null if none.
+    """
+    no_source = read_no_signal = signal_no_window = 0
+    firsts: list[str] = []
+    for r in rates or []:
+        if not isinstance(r, dict):
+            continue
+        ar = r.get("availability_rate_7d")
+        if isinstance(ar, dict):
+            ts = ar.get("first_check_at")
+            if isinstance(ts, str) and ts:
+                firsts.append(ts)
+            continue
+        av = r.get("availability") if isinstance(r.get("availability"), dict) else {}
+        if av.get("in_stock") is True or av.get("in_stock") is False:
+            signal_no_window += 1
+        elif av.get("source") or av.get("origin") or av.get("checked_at"):
+            read_no_signal += 1
+        else:
+            no_source += 1
+    return {
+        "no_window_count": no_source + read_no_signal + signal_no_window,
+        "no_stock_source": no_source,
+        "read_no_usable_signal": read_no_signal,
+        "signal_no_window_yet": signal_no_window,
+        "earliest_first_check_at": min(firsts) if firsts else None,
+    }

@@ -594,6 +594,21 @@ def gpu_history_view(history: dict, gpu: str, results: list[dict], days: int = H
                     "composition, mixed and unknown are not price moves."}
 
 
+def _feed_window_fields(data: dict | None) -> dict:
+    """P61 (additive): pass through file-level window summary and content_build_id, or compute from rates."""
+    from .availability_rate import window_summary
+    from .ids import content_build_id
+    src = data or {}
+    rates = src.get("rates") if isinstance(src.get("rates"), list) else []
+    summary = src.get("availability_window_summary")
+    if not isinstance(summary, dict):
+        summary = window_summary(rates)
+    digest = src.get("content_build_id")
+    if not isinstance(digest, str) or not digest:
+        digest = content_build_id(rates)
+    return {"availability_window_summary": summary, "content_build_id": digest}
+
+
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
                        on_demand_only: bool = False, include_reserved: bool = False,
                        max_data_age_hours: float | None = None, now: datetime | None = None, region: str | None = None,
@@ -617,6 +632,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     from .check_schedule import price as _next_price
     def _due(out: dict) -> dict:
         out["batch_due_ledger"] = _batch_ledger(data, data_age._clock(now))
+        out.update(_feed_window_fields(data))
         return out
     assumptions = [] if gpus is not None else [COMPARE_NO_GPU_COUNT]
     n_gpus = gpus or 1
