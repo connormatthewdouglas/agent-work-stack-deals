@@ -207,22 +207,21 @@
       "source_url": "https://lium.io/api/public/v1/nodes",
       "quote": "Lium nodes API 2026-11-17T03:09:45+00:00: 25 available RTX 5090 secure nodes, 72 GPUs free; lowest price_per_gpu_hour $0.5 (min 3 GPUs = $1.5/hr, Vologda, Russia)",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-16 22:09 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-17T03:09:45+00:00",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "max_age_hours": 8.0,
         "origin": "record",
-        "max_age_hours": 8,
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://lium.io/api/public/v1/nodes",
         "availability_expires_at": "2026-11-17T11:09:45Z",
-        "stock_level": "72 GPUs free on 25 nodes",
-        "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 72 available GPUs (secure tier)",
         "stock_read_at": "2026-11-17T03:09:45+00:00",
         "price_read_at": "2026-11-17T03:09:45+00:00",
         "price_at_claim_usd": 0.5,
-        "gpu_count": 3
+        "gpu_count": 3,
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-17T03:09:45+00:00"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -246,22 +245,21 @@
       "source_url": "https://lium.io/api/public/v1/nodes",
       "quote": "Lium nodes API 2026-11-17T03:09:45+00:00: 11 available RTX 5090 spot nodes, 47 GPUs free; lowest price_per_gpu_hour $0.55 (min 7 GPUs = $3.85/hr, Pantin, France)",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-16 22:09 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-17T03:09:45+00:00",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "max_age_hours": 8.0,
         "origin": "record",
-        "max_age_hours": 8,
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://lium.io/api/public/v1/nodes",
         "availability_expires_at": "2026-11-17T11:09:45Z",
-        "stock_level": "47 GPUs free on 11 nodes",
-        "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 47 available GPUs (spot tier)",
         "stock_read_at": "2026-11-17T03:09:45+00:00",
         "price_read_at": "2026-11-17T03:09:45+00:00",
         "price_at_claim_usd": 0.55,
-        "gpu_count": 7
+        "gpu_count": 7,
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-17T03:09:45+00:00"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -451,6 +449,6 @@
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261117T064747Z-97d502d9",
-  "feed_updated_at": "2026-11-17T09:48:09Z"
+  "generation_id": "20261117T124917Z-133f502b",
+  "feed_updated_at": "2026-11-17T13:35:19Z"
 }
