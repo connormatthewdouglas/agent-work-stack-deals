@@ -56,10 +56,17 @@ def _now_iso():
 
 
 def _rows(res):
+    """Plain mutable dicts only. Python Worker D1 rows can look like dicts (JsProxy) but reject item
+    assignment; deliver() and list_watches write kinds/tiers on the row, which becomes an uncaught 500."""
     rows = getattr(res, "results", res) or []
     if hasattr(rows, "to_py"):
         rows = rows.to_py()
-    return [r if isinstance(r, dict) else (r.to_py() if hasattr(r, "to_py") else dict(r)) for r in rows]
+    out = []
+    for r in rows:
+        if hasattr(r, "to_py"):
+            r = r.to_py()
+        out.append(dict(r))
+    return out
 
 
 def _stmt(db, sql, a):
