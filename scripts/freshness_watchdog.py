@@ -8,8 +8,10 @@ Fails, and opens or updates one GitHub issue labeled freshness-watchdog, when an
     not ranked, and do not fail this bar.
   * a timestamp is in the future
   * the rates list is empty or has shrunk to under half the committed feed
-  * hosted /version is not pyproject's version, or its build is not a >=7 hex prefix of the
-    commit that last changed that version line
+  * hosted /version is not pyproject's version, or its build is neither the commit that last changed
+    that version line nor a later commit on main that descends from it (#816: hosted/build.sh stamps
+    the commit it was built from, so a code-only hotfix redeploy between releases is not a mismatch;
+    a build older than the version commit, off main, or unknown still fails)
   * the latest gpu-refresh, scout-import, or lium-collect run is not success
   * that collector's last successful run is older than twice its schedule interval
   * the daily price-history backup (price-history-backup.yml) has no successful run in the last 30h
@@ -27,6 +29,7 @@ import sys
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -116,8 +119,29 @@ def hold_lines(feed: dict, now: datetime) -> list[str]:
     return lines
 
 
+def deployed_descends(hosted_build: str, version_sha: str, root: Path | None = None, base: str = "origin/main") -> bool:
+    """#816: True when the hosted build is a commit on origin/main's history that has the version commit as an
+    ancestor. The baseline is origin/main explicitly (not HEAD), so a workflow_dispatch from another branch cannot
+    move it. git errors (unknown commit, missing origin/main, shallow clone) are False, so they still alarm."""
+    root = root or ROOT
+    got, want = _hex_build(hosted_build), _hex_build(version_sha)
+    if not got or not want:
+        return False
+    try:
+        full = subprocess.check_output(["git", "rev-parse", "--verify", "--quiet", f"{got}^{{commit}}"],
+                                       cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+        for anc, desc in ((want, full), (full, base)):
+            if subprocess.call(["git", "merge-base", "--is-ancestor", anc, desc], cwd=root,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 0:
+                return False
+    except (subprocess.CalledProcessError, OSError):
+        return False
+    return True
+
+
 def evaluate(feed: dict, hosted: dict, *, now: datetime, expected_version: str, expected_build: str | None,
-             committed_rate_count: int | None = None, workflow_notes: list[str] | None = None) -> list[str]:
+             committed_rate_count: int | None = None, workflow_notes: list[str] | None = None,
+             deployed_ok: Callable[[str, str], bool] | None = None) -> list[str]:
     """Problems that fail the run. Empty means the checked surfaces are fresh."""
     out: list[str] = []
     for note in workflow_notes or []:
@@ -167,13 +191,16 @@ def evaluate(feed: dict, hosted: dict, *, now: datetime, expected_version: str, 
     got_version = str(hosted.get("version") or "").strip()
     if got_version != expected_version:
         out.append(f"hosted MCP version {got_version or '(missing)'} != pyproject {expected_version or '(missing)'}")
-    if not builds_match(hosted.get("build"), expected_build):
+    later_ok = (deployed_ok is not None and bool(_hex_build(hosted.get("build"))) and bool(_hex_build(expected_build))
+                and deployed_ok(str(hosted.get("build")), str(expected_build)))
+    if not builds_match(hosted.get("build"), expected_build) and not later_ok:
         if not _hex_build(expected_build):
             out.append(f"expected build is unresolvable ({expected_build!r}); a build check requires a hex prefix of at least 7")
         elif not _hex_build(hosted.get("build")):
             out.append(f"hosted MCP build is unresolvable ({hosted.get('build')!r}); need a hex prefix of at least 7")
         else:
-            out.append(f"hosted MCP build {hosted.get('build')} != version commit {expected_build}")
+            out.append(f"hosted MCP build {hosted.get('build')} is neither version commit {expected_build} "
+                       "nor a later commit on main descending from it")
     return out
 
 
@@ -297,6 +324,38 @@ def publish(repo: str, problems: list[str], run_url: str, holds: list[str]) -> N
                                "--label", LABEL, "--body", body])
 
 
+CI_STALE_HEADER = "CI staleness (non-blocking: a stale-data check in validate-and-deploy warned instead of failing):"
+
+
+def publish_ci_stale(repo: str, notes: list[str], run_url: str) -> bool:
+    """Route a CI stale-data warning to the freshness-watchdog issue. Deduped: skipped when one of the open issue's
+    last 10 comments (or its body) already carries the same notes. Returns True when it posted."""
+    notes = [n.strip() for n in notes if n.strip()]
+    if not notes:
+        return False
+    text = CI_STALE_HEADER + "\n" + "\n".join(f"- {n}" for n in notes)
+    listed = _gh("issue", "list", "-R", repo, "--label", LABEL, "--state", "open",
+                 "--json", "number", "-q", ".[0].number // empty")
+    if listed:
+        seen = json.loads(_gh("issue", "view", listed, "-R", repo, "--json", "body,comments"))
+        bodies = [seen.get("body") or ""] + [c.get("body") or "" for c in (seen.get("comments") or [])[-10:]]
+        if any(text in b for b in bodies):
+            print(f"freshness-watchdog issue #{listed} already has these notes; not posting again")
+            return False
+    body = text + (f"\n\nRun: {run_url}" if run_url else "")
+    try:
+        subprocess.check_call(["gh", "label", "create", LABEL, "--repo", repo, "--color", "B60205",
+                               "--description", "Live feed, availability, or hosted MCP is stale"])
+    except subprocess.CalledProcessError:
+        pass
+    if listed:
+        subprocess.check_call(["gh", "issue", "comment", listed, "-R", repo, "--body", body])
+    else:
+        subprocess.check_call(["gh", "issue", "create", "-R", repo, "--title", ISSUE_TITLE, "--label", LABEL,
+                               "--body", body])
+    return True
+
+
 def close_open(repo: str, run_url: str) -> None:
     listed = _gh("issue", "list", "-R", repo, "--label", LABEL, "--state", "open",
                  "--json", "number", "-q", ".[0].number // empty")
@@ -311,7 +370,19 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--now", help="ISO time for tests; default is UTC now")
     ap.add_argument("--dry-run", action="store_true", help="print problems, do not open an issue")
+    ap.add_argument("--ci-stale", metavar="FILE",
+                    help="post the stale-data notes in FILE (one per line) to the issue and exit; never fails CI")
     a = ap.parse_args(argv)
+    if a.ci_stale:
+        repo = os.environ.get("GH_REPO") or os.environ.get("GITHUB_REPOSITORY") or ""
+        try:
+            notes = Path(a.ci_stale).read_text(encoding="utf-8").splitlines() if Path(a.ci_stale).is_file() else []
+            print("\n".join(notes) or "no stale-data notes")
+            if notes and repo and not a.dry_run:
+                publish_ci_stale(repo, notes, os.environ.get("RUN_URL") or "")
+        except Exception as e:  # noqa: BLE001  (routing a warning must never turn CI red)
+            print(f"::warning::could not route stale-data notes to the freshness-watchdog issue: {type(e).__name__}")
+        return 0
     now = _parse(a.now) if a.now else datetime.now(timezone.utc)
     if now is None:
         print("bad --now")
@@ -348,7 +419,8 @@ def main(argv: list[str] | None = None) -> int:
             baseline = None
             problems.append(f"committed gpu-prices.json unreadable: {type(e).__name__}")
         problems.extend(evaluate(feed, hosted, now=now, expected_version=version, expected_build=sha,
-                                 committed_rate_count=baseline, workflow_notes=[]))
+                                 committed_rate_count=baseline, workflow_notes=[],
+                                 deployed_ok=deployed_descends))
         holds = hold_lines(feed, now)
     elif feed is not None:
         holds = hold_lines(feed, now)
