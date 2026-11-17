@@ -319,6 +319,17 @@ class Default(WorkerEntrypoint):
                                         **await callers.stats(self.env.DB),
                                         "demand_note": "P8: daily aggregate demand per UTC day x tool x GPU family (fixed list, else other) x region group x price tier x cheapest provider in our answer; no caller IDs, raw arguments or free text; house traffic and known bots not counted",
                                         **await demand.stats(self.env.DB)}), headers={"content-type": "application/json", **CORS})
+        if path == "/internal/watch-canary":
+            # Signed-alert canary: POST verifies x-lantern-signature and records event_id + watch_id hash + time only.
+            # GET returns counts and last-received-at (no ids or payloads).
+            if request.method == "GET":
+                return Response(json.dumps(await watch_store.canary_stats(self.env)),
+                                headers={"content-type": "application/json", **SEC})
+            if request.method == "POST":
+                body = await request.text()
+                status, r = await watch_store.canary_ingest(self.env, body, request.headers)
+                return Response(json.dumps(r), status=status, headers={"content-type": "application/json", **SEC})
+            return Response("", status=405, headers={"allow": "GET, POST", **SEC})
         if path == "/internal/watch-events" and request.method == "POST":
             # Daily GitHub Actions build pushes precomputed events; this only matches, signs and sends (free-plan CPU).
             import watch as W

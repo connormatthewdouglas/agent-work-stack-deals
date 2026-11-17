@@ -514,3 +514,73 @@ def test_deliver_skips_invalid_stored_watch_without_500():
     assert out.get("ok") is not False
     assert out["sent"] == 0
     assert p.calls == []
+
+
+def test_canary_url_is_exact_only():
+    assert W.is_canary_url(W.CANARY_WEBHOOK_URL)
+    assert not W.is_canary_url(W.CANARY_WEBHOOK_URL + "/")
+    assert not W.is_canary_url(W.CANARY_WEBHOOK_URL + "?x=1")
+    assert not W.is_canary_url("https://example.com/internal/watch-canary")
+    W.validate_webhook_url(W.CANARY_WEBHOOK_URL)
+
+
+def test_canary_ingest_verifies_signature_and_hides_ids():
+    e = env()
+    key = signup(e)
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    wr = run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": key["api_key"]}, e, None, f1))
+    assert wr["ok"], wr
+    wid = wr["watch"]["watch_id"]
+    body = '{"type":"lantern_works.price_watch.alert"}'
+    ts = 7000
+    bad = {"x-lantern-event-id": "ev-canary-1", "x-lantern-watch-id": wid,
+           "x-lantern-signature": W.sign("whsec_not-the-real-secret", ts, body)}
+    status, _ = run(S.canary_ingest(e, body, bad, now=ts))
+    assert status == 401
+    assert run(S.canary_stats(e))["received"] == 0
+    hdr = {"x-lantern-event-id": "ev-canary-1", "x-lantern-watch-id": wid,
+           "x-lantern-signature": W.sign(key["webhook_signing_secret"], ts, body)}
+    status, out = run(S.canary_ingest(e, body, hdr, now=ts))
+    assert status == 200 and out == {"ok": True}
+    st = run(S.canary_stats(e))
+    assert st["received"] == 1 and st["ok"] is True and st["last_received_at"]
+    dumped = json.dumps(st)
+    assert set(st) == {"ok", "received", "last_received_at"}
+    assert wid not in dumped and "ev-canary-1" not in dumped
+    assert "lantern_works" not in dumped
+
+
+def test_canary_deliver_is_acked_in_process():
+    """deliver() must ack the exact canary URL in-process and never fetch (avoids same-zone subrequests)."""
+    e = env()
+    key = signup(e)
+    api = key["api_key"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    wr = run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    assert wr["ok"], wr
+    e.WATCH_DB.c.execute("UPDATE watch_keys SET webhook_url = ?", (W.CANARY_WEBHOOK_URL,))
+    e.WATCH_DB.c.commit()
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    p = Poster()
+    out = run(S.deliver(e, evs, regs, p, now=7000))
+    assert p.calls == [] and p.lookups == []
+    assert out.get("ok") is not False
+    assert out["sent"] == 1 and out["failed"] == 0 and out["outcomes"]["acked"] == 1
+    st = run(S.canary_stats(e))
+    assert st["received"] == 1 and st["last_received_at"]
+
+
+def test_non_canary_webhook_still_fetched():
+    e = env()
+    key = signup(e)
+    api = key["api_key"]
+    f1 = feeds_for([snap("2026-11-01", DAY1)], prices_doc(DAY1))
+    run(S.call("watch_price", {"gpu": "H100", "max_hourly_usd": 2.0, "api_key": api}, e, None, f1))
+    f2 = feeds_for([snap("2026-11-01", DAY1), snap("2026-11-02", DAY2)], prices_doc(DAY2))
+    body = _pushed(f2)
+    evs, regs = W.parse_push(body, W.sign(PUSH, 7000, body), PUSH, 7000)
+    p = Poster()
+    out = run(S.deliver(e, evs, regs, p, now=7000))
+    assert out["sent"] == 1 and p.calls, "ordinary webhooks must still go through fetch"
