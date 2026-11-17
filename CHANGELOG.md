@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Weekly repeat-caller IDs (2026-11-16; approved via Bjorn): on hosted MCP `initialize`, when `CALLER_ID_SECRET` is set, the worker stores only `(iso_week, hash, days_seen)` — a 16-hex HMAC-SHA256 of `clientInfo.name | version |` IPv4 /24 or IPv6 /48 prefix, keyed by the secret and the ISO week. Raw IP, prefix and client name are never stored or logged. `/stats.json` gains per-week `distinct_callers` and `callers_3plus_days`. House, CI, known bots, GitHub Actions and MCP Registry health checks are excluded; a missing secret is a no-op. Additive. Uses the existing stats D1 database.
+
 - Privacy page (2026-11-16): `/privacy/` describes the hosted weekly repeat-caller id as a pseudonymous, weekly-rotating 16-character HMAC-SHA256 (not anonymous). The page must ship in the same release as the worker change and must not go live before it.
 
 - README and PyPI package docs (T124, 2026-11-16): repo README, mcp_server/README.md (the PyPI long description), and pyproject keywords/URLs now lead with copy-paste client configs and per-placement `?ref=` tags. The phrase "checked daily" / "re-read daily" is not used; the feed rebuild is described as once a day (about 10:23 UTC), and each price keeps its own check time.
