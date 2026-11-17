@@ -48,6 +48,7 @@ from core.gpu import HOURS_PER_MONTH, MAX_QUOTE, MIN_MARKET_OFFERS, PRICING_DIR,
 from core.owner_hold import is_held  # noqa: E402
 from core import gpu_history  # noqa: E402
 from core import aws_price_list  # noqa: E402
+from core import http_fetch  # noqa: E402
 
 UA = "LanternWorksPriceCheck/1.1 (+https://github.com/connormatthewdouglas/agent-work-stack-deals)"
 REQUEST_GAP_S = 3.0
@@ -310,14 +311,11 @@ class Fetcher:
         self.last = time.monotonic()
         if aws_price_list.is_offer_url(url):
             return aws_price_list.fetch_filtered_csv(url, ua=UA, timeout=aws_price_list.DEFAULT_TIMEOUT_S)
-        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,application/json,*/*"})
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                return resp.status, resp.read().decode("utf-8", "ignore")
-        except urllib.error.HTTPError as e:
-            return e.code, ""
-        except Exception as e:
-            return None, f"{type(e).__name__}"
+        return http_fetch.get(
+            url,
+            headers={"User-Agent": UA, "Accept": "text/html,application/json,*/*"},
+            timeout=30,
+        )
 
     def get(self, url: str) -> tuple[int | None, str]:
         if url not in self.cache:

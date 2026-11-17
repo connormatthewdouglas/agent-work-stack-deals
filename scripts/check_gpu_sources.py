@@ -55,7 +55,7 @@ CLIENT_RENDERED = {
 sys.path.insert(0, str(ROOT))
 from core.gpu import MIN_MARKET_OFFERS, STALE_DAYS, load_vendor_files, record_problems  # noqa: E402
 from core.data_age import STALE_HOURS  # noqa: E402
-from core import stack  # noqa: E402
+from core import http_fetch, stack  # noqa: E402
 
 UA = "Mozilla/5.0 (compatible; LanternWorksPriceCheck/1.0; +https://thelanternworks.com/for-agents/)"
 
@@ -71,14 +71,12 @@ def fetch(url: str) -> tuple[int | None, str]:
 
 
 def _fetch(url: str) -> tuple[int | None, str]:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,*/*"})
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return r.status, r.read().decode("utf-8", "ignore")
-    except urllib.error.HTTPError as e:
-        return e.code, ""
-    except Exception as e:  # DNS, TLS, timeout, refused
-        return None, f"{type(e).__name__}: {e}"
+    # Cookie-aware, host-bounded redirects: OVH's CDN 307s the same URL once
+    # to set a cookie; urllib alone reports 307 and the live-check flags
+    # unreachable even when the pricing page is unchanged (runs 44096997549,
+    # 44097812689). Unsafe or exhausted redirects still return the last status
+    # so the flag is not suppressed.
+    return http_fetch.get(url, headers={"User-Agent": UA, "Accept": "text/html,*/*"}, timeout=30)
 
 
 MAX_UNRENDERED_AGE_DAYS = 7
