@@ -135,6 +135,9 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>README and PyPI package docs (T124, 2026-11-16): repo README, mcp_server/README.md (the PyPI long description), and pyproject keywords/URLs now lead with copy-paste client configs and per-placement <code>?ref=</code> tags. The phrase &quot;checked daily&quot; / &quot;re-read daily&quot; is not used; the feed rebuild is described as once a day (about 10:23 UTC), and each price keeps its own check time.</li>
+</ul>
+<ul>
 <li>File-level 7d window summary (P61, 2026-11-16; requested by fieldnotes_ai, #760): <code>gpu-prices.json</code> and <code>compare_gpu_prices</code> gain <code>availability_window_summary</code> — <code>no_window_count</code> split by <code>no_stock_source</code>, <code>read_no_usable_signal</code>, and <code>signal_no_window_yet</code>, plus <code>earliest_first_check_at</code> among current windows. <code>content_build_id</code> is a sha256 prefix of canonicalized ranked-row content (timestamps and ids excluded); <code>generation_id</code> is unchanged. Additive. Computed from row data.</li>
 </ul>
 <ul>

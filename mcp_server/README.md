@@ -10,26 +10,46 @@ Free, read-only, no API key. **GPU price comparison for agents, refreshed regula
 uvx lantern-works-deals-mcp
 ```
 
-Claude Code:
+Hosted URL: `https://lantern-works-mcp.lantern-works.workers.dev/mcp` (`?ref=` only tags which snippet was used). Local command: `uvx lantern-works-deals-mcp` (or `pip install lantern-works-deals-mcp`, then `lantern-works-deals-mcp`).
 
+**Claude Code**
 ```bash
+claude mcp add --transport http lantern-works-gpu-prices "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-claude-code"
+# or local stdio:
 claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
 ```
 
-Cursor (`.cursor/mcp.json`), Cline (`cline_mcp_settings.json`) and Claude Desktop (`claude_desktop_config.json`):
-
+**Claude Desktop**: `claude_desktop_config.json` (Settings → Developer → Edit Config). Or add the hosted URL under Settings → Connectors → Add custom connector: `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-claude-desktop`
 ```json
-{
-  "mcpServers": {
-    "lantern-works-deals": {
-      "command": "uvx",
-      "args": ["lantern-works-deals-mcp"]
-    }
-  }
-}
+{ "mcpServers": { "lantern-works-deals": { "command": "uvx", "args": ["lantern-works-deals-mcp"] } } }
 ```
 
-Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Docker (from the repo root; installs the pinned PyPI release): `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp`. More clients: https://thelanternworks.com/install/
+**Cursor**: `~/.cursor/mcp.json` or `.cursor/mcp.json`
+```json
+{ "mcpServers": { "lantern-works-gpu-prices": { "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-cursor" } } }
+```
+
+**VS Code (GitHub Copilot agent mode)**: `.vscode/mcp.json`
+```json
+{ "servers": { "lantern-works-gpu-prices": { "type": "http", "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-vscode" } } }
+```
+
+**Windsurf (now Devin Desktop)**: `~/.config/devin/mcp_config.json` (older Windsurf builds: `~/.codeium/windsurf/mcp_config.json`)
+```json
+{ "mcpServers": { "lantern-works-gpu-prices": { "serverUrl": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-windsurf" } } }
+```
+
+**Cline**: `cline_mcp_settings.json` (MCP Servers → Configure)
+```json
+{ "mcpServers": { "lantern-works-gpu-prices": { "type": "streamableHttp", "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-cline" } } }
+```
+
+**OpenAI Codex CLI**
+```bash
+codex mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
+```
+
+**Any other MCP client**: stdio `uvx lantern-works-deals-mcp`, or Streamable HTTP `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-other`. Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Docker (from the repo root; installs the pinned PyPI release): `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp`. More clients: https://thelanternworks.com/install/
 
 ### Hosted endpoint (no install)
 
@@ -50,7 +70,7 @@ Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.
 | `compare_deals` | `ids` (2-5) | `{order, deals[], note}` best value first |
 | `get_deal` | `id` | the deal's public record |
 
-`compare_gpu_prices` uses exactly the data published at https://thelanternworks.com/api/v1/gpu-prices.json (history: https://thelanternworks.com/api/v1/gpu-prices/history.json). Prices are re-read daily from each vendor's own page or API and change only where a price was parsed; a rate not re-verified for 7 days is held out of rankings. Model matching is by whole tokens (`H100` matches `H100 SXM`; `L40` does not match `L40S`). "Cheapest" means cheapest among tracked providers, not the whole market.
+`compare_gpu_prices` uses exactly the data published at https://thelanternworks.com/api/v1/gpu-prices.json (history: https://thelanternworks.com/api/v1/gpu-prices/history.json). Each price is read from the vendor's own page or API and carries its own check time; it changes only where a price was parsed; a rate not re-verified for 7 days is held out of rankings. Model matching is by whole tokens (`H100` matches `H100 SXM`; `L40` does not match `L40S`). "Cheapest" means cheapest among tracked providers, not the whole market.
 
 Errors: `{"error": {"code": "invalid_argument|invalid_cursor|not_found|feed_unavailable|feed_invalid", "message": ...}}`.
 
