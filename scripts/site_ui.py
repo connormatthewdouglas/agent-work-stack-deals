@@ -21,7 +21,7 @@ NAV_ITEMS = [
 ]
 
 DEALS_NAV_ITEMS = [
-    ("deals/", "Deals"),
+    ("deals/", "Other deals"),
     ("ai-agent-tool-deals/", "Deal categories"),
 ]
 

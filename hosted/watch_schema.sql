@@ -10,3 +10,4 @@ CREATE TABLE IF NOT EXISTS watch_metrics (day TEXT NOT NULL, metric TEXT NOT NUL
 CREATE TABLE IF NOT EXISTS watch_constraints (watch_id TEXT PRIMARY KEY, vram_gb INTEGER, tiers TEXT, in_stock TEXT);
 CREATE TABLE IF NOT EXISTS watch_attempts (watch_id TEXT NOT NULL, event_id TEXT NOT NULL, attempts INTEGER NOT NULL, first_at TEXT NOT NULL, last_at TEXT NOT NULL, last_outcome TEXT NOT NULL, next_at TEXT, done INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (watch_id, event_id));
 CREATE TABLE IF NOT EXISTS watch_ops (k TEXT PRIMARY KEY, v TEXT);
+CREATE TABLE IF NOT EXISTS watch_canary (event_id TEXT NOT NULL, watch_id_hash TEXT NOT NULL, received_at TEXT NOT NULL, PRIMARY KEY (event_id, watch_id_hash));

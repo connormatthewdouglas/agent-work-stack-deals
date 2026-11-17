@@ -56,10 +56,23 @@ def _now_iso():
 
 
 def _rows(res):
+    """Plain mutable dicts only. Python Worker D1 rows can look like dicts (JsProxy) but reject item
+    assignment; deliver() and list_watches write kinds/tiers on the row, which becomes an uncaught 500."""
     rows = getattr(res, "results", res) or []
     if hasattr(rows, "to_py"):
         rows = rows.to_py()
-    return [r if isinstance(r, dict) else (r.to_py() if hasattr(r, "to_py") else dict(r)) for r in rows]
+    out = []
+    for r in rows:
+        if hasattr(r, "to_py"):
+            r = r.to_py()
+        d = dict(r)
+        # workerd D1 SQL NULL is JsNull (falsy, not Python None). Coerce to None so
+        # json.dumps of an alert payload does not TypeError after a match.
+        for k, v in d.items():
+            if v is not None and W._sql_null(v) and not isinstance(v, str):
+                d[k] = None
+        out.append(d)
+    return out
 
 
 def _stmt(db, sql, a):
@@ -85,6 +98,51 @@ ATTEMPTS_DDL = ("CREATE TABLE IF NOT EXISTS watch_attempts (watch_id TEXT NOT NU
                 "first_at TEXT NOT NULL, last_at TEXT NOT NULL, last_outcome TEXT NOT NULL, next_at TEXT, done INTEGER NOT NULL DEFAULT 0, "
                 "PRIMARY KEY (watch_id, event_id))")
 OPS_DDL = "CREATE TABLE IF NOT EXISTS watch_ops (k TEXT PRIMARY KEY, v TEXT)"
+CANARY_DDL = ("CREATE TABLE IF NOT EXISTS watch_canary (event_id TEXT NOT NULL, watch_id_hash TEXT NOT NULL, "
+              "received_at TEXT NOT NULL, PRIMARY KEY (event_id, watch_id_hash))")
+
+
+def _hdr(headers, name: str) -> str:
+    if headers is None:
+        return ""
+    get = getattr(headers, "get", None)
+    if not callable(get):
+        return ""
+    return (get(name) or get(name.lower()) or get(name.title()) or "") if name else ""
+
+
+async def canary_ingest(env, body: str, headers, now=None) -> tuple[int, dict]:
+    """Verify a signed watch alert and record event_id + watch_id hash + timestamp only. No payload stored."""
+    db = env.WATCH_DB
+    master = getattr(env, "WATCH_SIGNING_MASTER", None)
+    if not master:
+        return 503, {"ok": False, "error": "unavailable"}
+    await _run(db, CANARY_DDL)
+    body = body if isinstance(body, str) else ""
+    watch_id = _hdr(headers, "x-lantern-watch-id")
+    event_id = _hdr(headers, "x-lantern-event-id")
+    sig = _hdr(headers, "x-lantern-signature")
+    if not watch_id or not event_id or not isinstance(watch_id, str) or not isinstance(event_id, str):
+        return 400, {"ok": False, "error": "invalid_argument"}
+    row = await _first(db, "SELECT key_id FROM watches WHERE watch_id = ?", watch_id)
+    if not row:
+        return 401, {"ok": False, "error": "unauthorized"}
+    ts = int(now if now is not None else time.time())
+    if not W.verify(W.signing_secret(master, row["key_id"]), sig, body, ts):
+        return 401, {"ok": False, "error": "unauthorized"}
+    received_at = datetime.fromtimestamp(ts, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    await _run(db, "INSERT INTO watch_canary(event_id, watch_id_hash, received_at) VALUES (?, ?, ?) "
+               "ON CONFLICT(event_id, watch_id_hash) DO UPDATE SET received_at = excluded.received_at",
+               event_id, W.canary_watch_hash(master, watch_id), received_at)
+    return 200, {"ok": True}
+
+
+async def canary_stats(env) -> dict:
+    """Counts and last-received-at only: no event ids, watch ids, hashes, or payloads."""
+    db = env.WATCH_DB
+    await _run(db, CANARY_DDL)
+    row = await _first(db, "SELECT COUNT(*) AS n, MAX(received_at) AS last_received_at FROM watch_canary") or {}
+    return {"ok": True, "received": int(row.get("n") or 0), "last_received_at": row.get("last_received_at")}
 
 
 async def _all(db, sql, *a):
@@ -289,6 +347,21 @@ async def deliver(env, events, regions, fetch_fn, now=None) -> dict:
             W.validate_webhook_url(w["webhook_url"])  # https-only + literal/suffix checks again at send time
         except W.WatchError:
             record(w, ev, "blocked")
+            continue
+        if W.is_canary_url(w["webhook_url"]):
+            # In-process: do not fetch our own workers.dev URL (same-zone subrequests are unreliable).
+            body = W.dumps(W.payload(w, ev, reason, _now_iso()))
+            ts = int(now if now is not None else time.time())
+            headers = {"content-type": "application/json", "user-agent": "LanternWorks-PriceWatch/1",
+                       "x-lantern-event-id": ev["event_id"], "x-lantern-watch-id": w["watch_id"],
+                       "x-lantern-signature": W.sign(W.signing_secret(master, w["key_id"]), ts, body)}
+            status, _ = await canary_ingest(env, body, headers, now=ts)
+            if 200 <= int(status) < 300:
+                ok_rows.append((w["watch_id"], ev["event_id"], today))
+                per_key[w["key_id"]] = per_key.get(w["key_id"], 0) + 1
+                outcomes["acked"] += 1
+            else:
+                record(w, ev, W.classify(status, False))
             continue
         if host in host_down:  # this receiver already failed in this run: defer, do not burn budget or an attempt
             backlog += 1

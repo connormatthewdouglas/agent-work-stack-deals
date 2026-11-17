@@ -8,6 +8,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - Weekly repeat-caller IDs (2026-11-16; approved via Bjorn): on hosted MCP `initialize`, when `CALLER_ID_SECRET` is set, the worker stores only `(iso_week, hash, days_seen)` — a 16-hex HMAC-SHA256 of `clientInfo.name | version |` IPv4 /24 or IPv6 /48 prefix, keyed by the secret and the ISO week. Raw IP, prefix and client name are never stored or logged. `/stats.json` gains per-week `distinct_callers` and `callers_3plus_days`. House, CI, known bots, GitHub Actions and MCP Registry health checks are excluded; a missing secret is a no-op. Additive. Uses the existing stats D1 database.
 
+- Homepage identity (P10/P11, 2026-11-16): H1 is “Find the cheapest GPU rental, compared across tracked providers”, with an identity line under it, updated Organization and WebSite JSON-LD, and deals moved to the secondary nav as “Other deals”. Receipts are linked as dated MCP-server test summaries, not as proof of GPU prices. The /deals/ title is “Agent tool deals and free tiers | Lantern Works”. The 13 /gpu/*-rental-price/ titles are unchanged.
+
+- P17 terms (Brain #787, 2026-11-16): CleanProxies is now a plain, non-affiliate listing (redeem_url is the public pricing page, no referral code). Chatbase and Apiframe stay pulled (hashed denylist from the 2026-10-27 compliance pull); they are not relisted.
+
 - README and PyPI package docs (T124, 2026-11-16): repo README, mcp_server/README.md (the PyPI long description), and pyproject keywords/URLs now lead with copy-paste client configs and per-placement `?ref=` tags. The phrase "checked daily" / "re-read daily" is not used; the feed rebuild is described as once a day (about 10:23 UTC), and each price keeps its own check time.
 
 - File-level 7d window summary (P61, 2026-11-16; requested by fieldnotes_ai, #760): `gpu-prices.json` and `compare_gpu_prices` gain `availability_window_summary` — `no_window_count` split by `no_stock_source`, `read_no_usable_signal`, and `signal_no_window_yet`, plus `earliest_first_check_at` among current windows. `content_build_id` is a sha256 prefix of canonicalized ranked-row content (timestamps and ids excluded); `generation_id` is unchanged. Additive. Computed from row data.
@@ -38,6 +42,22 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 - GPU feed (T69, broader hardware): first-party DigitalOcean rows for AMD MI325X 256GB ($3.80/GPU-hr on-demand) and MI355X 288GB ($4.50/GPU-hr spot, interruptible), quoted from digitalocean.com/pricing/gpu-droplets; model families added for MI325X, MI355X, RTX PRO 5000 (48GB and 72GB kept as separate rows), RTX PRO 4000 and RTX PRO 4500.
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
+
+## 0.6.5 (2026-11-16, PyPI)
+
+- Publish the current package so the PyPI wheel and hosted Worker match main (package version plus `serverInfo.build` SHA). 0.6.4 stayed at `dbdde26e` while later hosted watch and site fixes landed on main.
+- Hosted `watch-events`: frozen D1 rows no longer 500 the batch (#246); D1 LEFT JOIN NULLs arriving as JsNull are coerced to None so a valid watch still matches, and a genuinely invalid stored spec is skipped instead of failing the batch (#251).
+- Hosted watch-canary receiver at `/internal/watch-canary` so the test watch can prove delivery with counts only (#253).
+- H200 price-comparison "lowest" includes cheaper H200 NVL, fixing T41-21 after the Lium collector priced H200 NVL below the H200 page's Verda rate (#255).
+
+## 0.6.4 (2026-11-16, PyPI)
+
+- Publish the current package so the PyPI wheel and hosted Worker match main (package version plus `serverInfo.build` SHA). 0.6.3 stayed at `f30d731c` while later feed, MCP and docs changes landed on main.
+- T124: README and PyPI long description lead with client install snippets; the package summary says prices are "refreshed regularly, with each price's age shown", not "checked daily" (#245, #164).
+- `compare_gpu_prices` additive fields: `availability_window_summary` and `content_build_id` (P61, #240); `availability_rate_7d.observed_hours`, planned-window docs and `coverage_note` (P58/P59, #223, #231); `never_ran_checks` / `no_source_checks` (P38, #199); `last_known_in_stock` / `last_known_at` (P36, #188, #211); `effective_at` and `min_bill_usd_per_hour` (P37/P43, #193); `last_verified_before` / `gap_days` (P46, #197); marketplace `marketplace_query` / `composition_flag` (P45, #208); `batch_due_ledger` (P39, #203); `failure_reason` (P41, #202); `next_check_at` / `will_backfill` / `backfill_eta` (P40, #200).
+- T112: the 7-day availability window is restored from the probe archive and Scout history/probes after `out/` reseeds (#244).
+- Availability wording (P60): a trailing 0/N stock reading is written "not observed in stock in N checks", not "out of stock" (#232).
+- `estimate_job_cost` accepts a gpu alias, defaults `gpus_per_job` to 1, ranks fresh rows first, and no longer crashes when a marketplace row has no `lowest_offer_usd` (#163, #165).
 
 ## 0.6.3 (2026-11-10, PyPI)
 

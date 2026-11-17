@@ -324,6 +324,17 @@ class Default(WorkerEntrypoint):
                                         **await demand.stats(self.env.DB),
                                         "weekly_callers_note": "per ISO week: distinct_callers and callers_3plus_days (hashes seen on 3 or more distinct UTC days). id is a 16-hex HMAC-SHA256 of clientInfo.name|version|IPv4 /24 or IPv6 /48 prefix, keyed by CALLER_ID_SECRET + the ISO week; raw IP, prefix and client name are never stored or logged; house, CI, known bots, GitHub Actions and MCP Registry health checks are not counted; missing secret is a no-op",
                                         **await weekly_callers.stats(self.env.DB)}), headers={"content-type": "application/json", **CORS})
+        if path == "/internal/watch-canary":
+            # Signed-alert canary: POST verifies x-lantern-signature and records event_id + watch_id hash + time only.
+            # GET returns counts and last-received-at (no ids or payloads).
+            if request.method == "GET":
+                return Response(json.dumps(await watch_store.canary_stats(self.env)),
+                                headers={"content-type": "application/json", **SEC})
+            if request.method == "POST":
+                body = await request.text()
+                status, r = await watch_store.canary_ingest(self.env, body, request.headers)
+                return Response(json.dumps(r), status=status, headers={"content-type": "application/json", **SEC})
+            return Response("", status=405, headers={"allow": "GET, POST", **SEC})
         if path == "/internal/watch-events" and request.method == "POST":
             # Daily GitHub Actions build pushes precomputed events; this only matches, signs and sends (free-plan CPU).
             import watch as W
@@ -334,7 +345,11 @@ class Default(WorkerEntrypoint):
             except W.WatchError as e:
                 code = {"unauthorized": 401, "unavailable": 503}.get(e.code, 400)
                 return Response(json.dumps({"ok": False, "error": e.code}), status=code, headers={"content-type": "application/json", **SEC})
-            r = await watch_store.deliver(self.env, events, regions, fetch)
+            try:
+                r = await watch_store.deliver(self.env, events, regions, fetch)
+            except Exception as e:  # type name only: never webhook URLs, keys, or a traceback
+                return Response(json.dumps({"ok": False, "error": "internal_error", "detail": type(e).__name__}),
+                                status=500, headers={"content-type": "application/json", **SEC})
             return Response(json.dumps({"ok": True, **r}), headers={"content-type": "application/json", **SEC})
         if path in ("/mcp", "/mcp/"):
             if request.method == "GET":

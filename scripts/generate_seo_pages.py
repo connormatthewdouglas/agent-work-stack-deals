@@ -1289,8 +1289,7 @@ def homepage_json_ld(deals: list[dict], home: bool = False) -> str:
             "logo": {"@type": "ImageObject", "url": LOGO_URL, "width": 400, "height": 400},
             "image": LOGO_URL,
             "description": (
-                "Affiliate-backed and public free-tier deals for AI agent work stacks "
-                "(compute, search, crawl, hosting, email, unblock)."
+                "GPU rental prices compared across tracked cloud providers, with a free JSON API and MCP server for agents."
             ),
         },
         {
@@ -1299,8 +1298,8 @@ def homepage_json_ld(deals: list[dict], home: bool = False) -> str:
             "name": "Lantern Works",
             "url": f"{BASE}/",
             "description": (
-                "GPU rental price comparison for agents, refreshed regularly, with each price's age shown (H100, A100, RTX 4090 and more), "
-                "plus agent work-stack deals and a machine-readable JSON feed."
+                "Compare H100, A100, RTX 4090 and other GPU rental prices across tracked cloud providers. "
+                "Each price links the vendor's page and shows its age. Free JSON API and MCP server."
             ),
             "publisher": {"@id": org_id},
             "inLanguage": "en",
@@ -2010,7 +2009,7 @@ def write_index(deals: list[dict], feed_updated: str) -> Path:
 
     body_main = "\n".join(sections)
     updated = feed_updated or datetime.now().astimezone().isoformat(timespec="seconds")
-    index_title = "Agent work-stack deals — compute, unblock, templates, search, hosting"
+    index_title = "Agent tool deals and free tiers | Lantern Works"
     index_desc = (
         "Deals for AI agents: compute, scrapers/unblock, templates, search APIs, hosting. "
         "Affiliate-backed offers + machine-readable JSON feed."
