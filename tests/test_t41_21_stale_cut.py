@@ -92,3 +92,60 @@ def test_lowest_payg_follows_pinned_clock_not_lead_key(monkeypatch):
     # Same rows past the 168 h cut for the cheaper row only: then the dearer fresh/current wins.
     late = datetime(2026, 11, 21, 0, 0, tzinfo=timezone.utc)  # cheap ~171 h, dear ~161 h
     assert gpu_pages.lowest_payg([dear, cheap], late)["advertiser"] == "Lium"
+
+
+def test_h200_lowest_includes_cheaper_h200_nvl():
+    """T41-21 includes prefix variants (H200 NVL) in the H200 summary lowest cell.
+
+    The Lium H200 NVL $2.99 row is mapped as 'H200 NVL' (its own family, own table
+    row and offer count). The H200 lowest cell must still name it when it is the
+    eligible min, same rule as the release gate. L4 must not pick L40S.
+    """
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import gpu_pages
+
+    clock = datetime(2026, 11, 17, 1, 28, 56, tzinfo=timezone.utc)
+    verda = _row("Verda (formerly DataCrunch)", 3.384, "2026-11-16T21:09:06+00:00", gpu="H200")
+    lium_h200 = _row("Lium", 3.80, "2026-11-17T01:28:56+00:00", gpu="H200")
+    lium_nvl = _row("Lium", 2.99, "2026-11-17T01:28:56+00:00", gpu="H200 NVL")
+    rows = [verda, lium_h200, lium_nvl]
+    h200 = gpu_pages.t41_21_rates(rows, "H200")
+    assert {r["gpu"] for r in h200} == {"H200", "H200 NVL"}
+    lo = gpu_pages.lowest_payg(h200, clock)
+    assert lo["advertiser"] == "Lium" and lo["gpu"] == "H200 NVL" and lo["hourly_equiv_usd"] == 2.99
+    nvl = gpu_pages.lowest_payg(gpu_pages.t41_21_rates(rows, "H200 NVL"), clock)
+    assert nvl["hourly_equiv_usd"] == 2.99 and nvl["gpu"] == "H200 NVL"
+    # Word boundary: L4 must not swallow L40S (same startswith rule as the gate).
+    l4 = _row("Vendor A", 0.80, "2026-11-17T01:28:56+00:00", gpu="L4")
+    l40s = _row("Vendor B", 0.40, "2026-11-17T01:28:56+00:00", gpu="L40S")
+    assert [r["gpu"] for r in gpu_pages.t41_21_rates([l4, l40s], "L4")] == ["L4"]
+    assert gpu_pages.lowest_payg(gpu_pages.t41_21_rates([l4, l40s], "L4"), clock)["hourly_equiv_usd"] == 0.80
+
+
+def test_low_cell_names_prefix_variant_minimum():
+    """A prefix-variant minimum (H200 NVL on the H200 row) must name the variant."""
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import gpu_pages
+
+    class _Esc:
+        @staticmethod
+        def esc(s):
+            return s
+
+    clock = datetime(2026, 11, 17, 1, 28, 56, tzinfo=timezone.utc)
+    verda = {**_row("Verda (formerly DataCrunch)", 3.384, "2026-11-16T21:09:06+00:00", gpu="H200"),
+             "unit": "hour", "price_usd": 3.384}
+    lium_h200 = {**_row("Lium", 3.80, "2026-11-17T01:28:56+00:00", gpu="H200"),
+                 "unit": "hour", "price_usd": 3.80}
+    lium_nvl = {**_row("Lium", 2.99, "2026-11-17T01:28:56+00:00", gpu="H200 NVL"),
+                "unit": "hour", "price_usd": 2.99}
+    lo = gpu_pages.lowest_payg(gpu_pages.t41_21_rates([verda, lium_h200, lium_nvl], "H200"), clock)
+    assert lo["gpu"] == "H200 NVL"
+    assert gpu_pages._low_cell(_Esc, lo, "H200") == "Lium $2.99/hr (H200 NVL)"
+    # Same quote on its own H200 NVL row is not re-labelled.
+    assert gpu_pages._low_cell(_Esc, lo, "H200 NVL") == "Lium $2.99/hr"
+    # Matching name and a missing lo stay unlabelled / fallback.
+    assert gpu_pages._low_cell(_Esc, lium_h200, "H200") == "Lium $3.80/hr"
+    assert gpu_pages._low_cell(_Esc, None, "H200") == "no single-GPU pay-as-you-go rate"
