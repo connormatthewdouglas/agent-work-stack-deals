@@ -313,7 +313,7 @@ def test_new_vendor_flags():
         lam = [r for r in rates if r["advertiser"] == "Lambda"]
         later_rates = rates
     assert len(lam) == 13 - sum(1 for r in recs if r.get("stale")) and all(
-        r["deal_id"] is None and not r["affiliate"] and r["redeem_url"] == "https://lambda.ai/pricing" for r in lam)
+        r["deal_id"] is None and not r["affiliate"] and r["redeem_url"] == "https://lambda.com/pricing" for r in lam)
     e = estimate(later_rates, 100, gpu_filter="V100")
     v100 = next(x for x in e if x["advertiser"] == "Lambda")
     assert v100["monthly_cost_usd"] == round(_rec("Lambda", "V100")["hourly_usd"] * 100 * 8, 2) and "8-GPU" in v100["calc"]

@@ -51,6 +51,7 @@ def test_has_ref_code_detects_common_params():
     for u in ("https://x.com/?ref=a", "https://x.com/?ref_id=1", "https://x.com/aff.php?aff=5", "https://x.com/a/abc", "https://x.com/?via=lw", "https://x.com/?fpr=lw"):
         assert has_ref_code(u), u
     assert not has_ref_code("https://lambda.ai/pricing")
+    assert not has_ref_code("https://lambda.com/pricing")
 
 
 def test_additive_currency_fields():

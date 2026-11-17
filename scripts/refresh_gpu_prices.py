@@ -223,7 +223,12 @@ def parse_rotating(r: dict, text: str) -> tuple[str | None, str | None, str]:
 # Vendor relabelled a plan on its page (same row, same specs, same per-GPU price). Tried only when the original
 # context is not found; the new evidence quote is the matched page text, as usual. Prices are never mapped.
 LABEL_ALIASES = {
-    "lambda.ai/pricing": [("NVIDIA B200 SXM6 180 GB 208", "NVIDIA HGX B200 180 GB 208"),  # 2026-11-02: 8x plans -> "HGX"
+    "lambda.com/pricing": [("NVIDIA B200 SXM6 180 GB 208", "NVIDIA HGX B200 180 GB 208"),  # 2026-11-02: 8x plans -> "HGX"
+                           ("NVIDIA H100 SXM 80 GB 208", "NVIDIA HGX H100 80 GB 208"),
+                           ("NVIDIA A100 SXM 80 GB 240", "NVIDIA HGX A100 80 GB 240")],
+    # 2026-11-17: lambda.ai/pricing permanently 301s to lambda.com/pricing; keep the old host key
+    # so a leftover citation still gets the same label aliases.
+    "lambda.ai/pricing": [("NVIDIA B200 SXM6 180 GB 208", "NVIDIA HGX B200 180 GB 208"),
                           ("NVIDIA H100 SXM 80 GB 208", "NVIDIA HGX H100 80 GB 208"),
                           ("NVIDIA A100 SXM 80 GB 240", "NVIDIA HGX A100 80 GB 240")],
     # 2026-11-15: same l40s-90 SKU and $1.8 / $1,296 prices; page corrected "HBM2" to "GDDR6".
@@ -362,7 +367,7 @@ def _set_price(r: dict, new: float) -> None:
         r["server_hourly_usd"] = round(new * FACTOR[r["billing_unit"]], 4)
 
 
-# Public-page disclaimer used by Lambda (lambda.ai/pricing, also served at lambda.com/pricing):
+# Public-page disclaimer used by Lambda (canonical URL https://lambda.com/pricing; lambda.ai/pricing 301s there):
 # "These prices take effect November 16, 2026, at 00:00 UTC. Until then, log in to your
 # Lambda Cloud account to see current pricing." The collector is GET-only and reads that
 # public page, so the parsed figures are the future list, not the login-only current list.
