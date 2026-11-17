@@ -1,4 +1,4 @@
-"""A4: outside watchdog. 26h and 4h bars stay put; T41-12's 48h bar applies per ranked row."""
+"""A4: outside watchdog. 26h and 8h bars stay put; T41-12's 48h bar applies per ranked row."""
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,7 +21,7 @@ EXPECT = "21684cc5ca768c928e4ecc1d3c957b71c091efbe"
 
 def test_thresholds_are_the_existing_bars():
     assert W.FEED_MAX_HOURS == 26
-    assert W.AVAIL_MAX_HOURS == 4
+    assert W.AVAIL_MAX_HOURS == 8
     assert W.ROW_MAX_HOURS == 48
 
 
@@ -32,7 +32,7 @@ def test_stale_live_surfaces():
     hosted = {"version": "0.6.0", "build": "2767db56"}
     probs = W.evaluate(feed, hosted, now=NOW, expected_version="0.6.2", expected_build=EXPECT)
     assert any(p.startswith("feed_updated_at") and "26h" in p for p in probs)
-    assert any(p.startswith("availability_collected_at") and "4h" in p for p in probs)
+    assert any(p.startswith("availability_collected_at") and "8h" in p for p in probs)
     assert any("0.6.0" in p and "0.6.2" in p for p in probs)
     assert any("48h" in p for p in probs)
 
@@ -107,7 +107,7 @@ def test_owner_hold_json_is_not_a_ranked_staleness_failure(fixed_owner_hold):
 
 def test_last_success_older_than_twice_the_schedule():
     assert W.SUCCESS_WINDOW == 2
-    assert W.FEED_MAX_HOURS == 26 and W.AVAIL_MAX_HOURS == 4 and W.ROW_MAX_HOURS == 48
+    assert W.FEED_MAX_HOURS == 26 and W.AVAIL_MAX_HOURS == 8 and W.ROW_MAX_HOURS == 48
     assert W.COLLECTORS == (("gpu-refresh.yml", 24), ("lium-collect.yml", 2), ("scout-import.yml", 4))
     bodies = {name: (ROOT / ".github/workflows" / name).read_text(encoding="utf-8") for name, _h in W.COLLECTORS}
     assert 'cron: "23 10 * * *"' in bodies["gpu-refresh.yml"] and 'cron: "47 14 * * *"' in bodies["gpu-refresh.yml"]
@@ -138,4 +138,4 @@ def test_workflow_schedule_label_and_node24_actions():
     assert "freshness-watchdog" in text
     assert "actions/checkout@v5" in text and "actions/setup-python@v6" in text
     assert "fetch-depth: 0" in text
-    assert W.FEED_MAX_HOURS == 26 and W.AVAIL_MAX_HOURS == 4
+    assert W.FEED_MAX_HOURS == 26 and W.AVAIL_MAX_HOURS == 8

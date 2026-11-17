@@ -3,19 +3,23 @@
 
 Also covers data/stack_pricing/<vendor>.json (Agent Stack Optimizer offers) the same way.
 
-For every data/gpu_pricing/<vendor>.json: validates the records, flags records whose checked_at is
-older than 7 days, fetches each source_url and flags pages that are unreachable, and flags records whose
-quoted price no longer appears on the fetched page (possible price change: a human must re-check and
-update the record by hand). Exit 1 if anything is flagged. --report FILE writes a Markdown summary
-(used as the GitHub issue body by the scheduled workflow).
+For every data/gpu_pricing/<vendor>.json: validates the records, fetches each source_url and flags
+pages that are unreachable, and flags records whose quoted price no longer appears on the fetched page
+(possible price change: a human must re-check and update the record by hand). A record whose verified_at
+is older than STALE_DAYS is a warning when the price is still on the page or the row is held — the
+warning shows the last verified_at, hours old, and the threshold it passed. A stale row whose price is
+also missing or has changed still fails, as strict as a fresh missing/changed row. This check never
+edits prices or refreshes timestamps. Exit 1 if anything is flagged. --report FILE writes a Markdown
+summary (used as the GitHub issue body by the scheduled workflow).
 
 Geo-variant vendors (GEO_VARIANT below): some vendors serve a regional pricing page to cloud CI
 runners, so a quoted price can be absent from CI while present from other networks. For a vendor listed
 there ONLY, a "price not found" result is a warning ("unverifiable from CI"), not a failure, and only while
 at least one other quoted price for that vendor is still found on the same page (so a broken, blocked or
-redesigned page still fails). Unreachable pages, invalid records and staleness still fail as usual.
+redesigned page still fails). Unreachable pages and invalid records still fail as usual; staleness
+alone is a warning (missing or changed prices still fail).
 Vendors with a top-level "manual_snapshot" (e.g. Clore.ai) are not re-checked here: unreachable is a warning,
-and staleness still holds them after STALE_DAYS.
+and a row that has passed STALE_DAYS is a warning with its true age unless the price is also missing.
 A ranked marketplace record that is momentarily below MIN_MARKET_OFFERS is also only a warning: the daily
 refresh auto-holds it (and releases it again at 5+ offers). Warnings appear in the output and report; re-check them from a non-CI network
 (`python3 scripts/check_gpu_sources.py` on another machine) before changing any price.
@@ -28,6 +32,7 @@ import re
 import statistics
 import sys
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,8 +53,9 @@ CLIENT_RENDERED = {
     "9Proxy": "pricing page renders client-side (Next.js); server HTML has only the title/meta, the plan prices are script strings",
 }
 sys.path.insert(0, str(ROOT))
-from core.gpu import MIN_MARKET_OFFERS, STALE_DAYS, load_vendor_files, record_problems, stale_records  # noqa: E402
-from core import stack  # noqa: E402
+from core.gpu import MIN_MARKET_OFFERS, STALE_DAYS, load_vendor_files, record_problems  # noqa: E402
+from core.data_age import STALE_HOURS  # noqa: E402
+from core import http_fetch, stack  # noqa: E402
 
 UA = "Mozilla/5.0 (compatible; LanternWorksPriceCheck/1.0; +https://thelanternworks.com/for-agents/)"
 
@@ -65,17 +71,21 @@ def fetch(url: str) -> tuple[int | None, str]:
 
 
 def _fetch(url: str) -> tuple[int | None, str]:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,*/*"})
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return r.status, r.read().decode("utf-8", "ignore")
-    except urllib.error.HTTPError as e:
-        return e.code, ""
-    except Exception as e:  # DNS, TLS, timeout, refused
-        return None, f"{type(e).__name__}: {e}"
+    # Cookie-aware, host-bounded redirects: OVH's CDN 307s the same URL once
+    # to set a cookie; urllib alone reports 307 and the live-check flags
+    # unreachable even when the pricing page is unchanged (runs 44096997549,
+    # 44097812689). Unsafe or exhausted redirects still return the last status
+    # so the flag is not suppressed.
+    return http_fetch.get(url, headers={"User-Agent": UA, "Accept": "text/html,*/*"}, timeout=30)
 
 
 MAX_UNRENDERED_AGE_DAYS = 7
+# Hard fail for rows not re-checked on the page this run (manual_snapshot, Scout API
+# batch, geo-variant, no-capacity, offline). Warn at STALE_DAYS, fail past this cap.
+# Brain has no Bjorn-authored numeric cap for #261 / T41-24/26 (same warn-then-hard-fail
+# policy); Gauge #833 suggested 14d. This is the instructed fallback.
+UNCHECKED_FAIL_DAYS = 14
+UNCHECKED_FAIL_HOURS = UNCHECKED_FAIL_DAYS * 24
 
 
 def quote_age_days(doc: dict, now=None) -> float | None:
@@ -137,32 +147,119 @@ def price_tokens(quote: str) -> list[str]:
     return re.findall(r"\$\s?([\d,]*\.?\d+)", quote)
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--report")
-    ap.add_argument("--offline", action="store_true", help="schema + staleness only, no fetches")
-    a = ap.parse_args()
-    docs = load_vendor_files()
+
+def stamp_field(record: dict, doc: dict | None = None) -> tuple[str | None, object]:
+    """The stored field we would use as the verification stamp, and its value. Never invent a stamp."""
+    if record.get("verified_at") not in (None, ""):
+        return "verified_at", record["verified_at"]
+    if record.get("checked_at") not in (None, ""):
+        return "checked_at", record["checked_at"]
+    if doc is not None and doc.get("checked_at") not in (None, ""):
+        return "checked_at", doc["checked_at"]
+    return None, None
+
+
+def record_verified_at(record: dict, doc: dict | None = None) -> str | None:
+    """The last verification stamp as stored. Never invent or refresh a timestamp."""
+    _field, v = stamp_field(record, doc)
+    return v if isinstance(v, str) and v else None
+
+
+def stamp_failure(label: str, record: dict, doc: dict | None = None) -> str | None:
+    """FAIL message when verified_at/checked_at is missing or unparseable. None if the stamp is usable."""
+    field, v = stamp_field(record, doc)
+    if field is None:
+        return f"missing verified_at/checked_at: {label}"
+    try:
+        datetime.fromisoformat(v)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return f"unparseable {field}: {label}: {v!r}"
+    return None
+
+
+def stale_age(record: dict, now: datetime, doc: dict | None = None) -> tuple[str, float, bool, bool] | None:
+    """Return (verified_at, hours_old, past_STALE_DAYS, past_UNCHECKED_FAIL_DAYS).
+
+    Cuts match stale_records (age > N days). Returns None only when the stamp is
+    missing or unparseable; callers must turn that into a FAIL via stamp_failure.
+    """
+    v = record_verified_at(record, doc)
+    if not v:
+        return None
+    try:
+        t = datetime.fromisoformat(v)
+    except (TypeError, ValueError):
+        return None
+    age = now - t
+    return (v, age.total_seconds() / 3600.0,
+            age > timedelta(days=STALE_DAYS),
+            age > timedelta(days=UNCHECKED_FAIL_DAYS))
+
+
+def format_stale_warning(label: str, verified_at: str, hours_old: float, kind: str) -> str:
+    """Honest stale warning: last verified_at, hours old, and which threshold it passed."""
+    return (f"stale ({kind}): {label}: last verified_at {verified_at}, "
+            f"{hours_old:.1f} h old, passed {STALE_HOURS:g} h / {STALE_DAYS} day threshold")
+
+
+def format_unchecked_fail(label: str, verified_at: str, hours_old: float) -> str:
+    """Honest hard-fail for a not-re-checked row past UNCHECKED_FAIL_DAYS."""
+    return (f"stale (not re-checked on the page this run): {label}: last verified_at {verified_at}, "
+            f"{hours_old:.1f} h old, passed {UNCHECKED_FAIL_HOURS:g} h / {UNCHECKED_FAIL_DAYS} day unchecked fail cap")
+
+
+def _stale_kind(key: tuple, record: dict, doc: dict, present_keys: set, offline: bool) -> str:
+    if record.get("stale") or doc.get("stale"):
+        return "held"
+    if key in present_keys:
+        return "price still on the page"
+    return "not re-checked on the page this run"
+
+
+def evaluate_sources(docs, sdocs, *, offline: bool = False, pages=None,
+                     now: datetime | None = None, fetch_fn=None,
+                     check_schema: bool = True) -> tuple[list[str], list[str], int]:
+    """Run the pricing-source check over `docs` / `sdocs`.
+
+    Missing or changed prices stay flags (failures). A row past STALE_DAYS
+    whose price is still on the page, or that is held, is a warning at any age.
+    A row not re-checked on the page this run warns past STALE_DAYS and FAILs
+    past UNCHECKED_FAIL_DAYS. Missing or unparseable verified_at/checked_at
+    FAILs. Timestamps are never refreshed. `pages` maps URL -> (status, body)
+    so tests can inject fixtures without fetching.
+    """
+    now = now or datetime.now(timezone.utc)
+    get = fetch_fn or fetch
     flags: list[str] = []
     warnings: list[str] = []
-    for doc in docs:
-        flags += [f"invalid record: {p}" for p in record_problems(doc)]
-    # Vendors held out as stale (doc["stale"]) are never ranked, so their record age isn't a live-site failure.
-    flags += [f"stale (> {STALE_DAYS} days): {s}" for s in stale_records([d for d in docs if not d.get("stale")])]
+    present_keys: set[tuple] = set()
+    price_fail_keys: set[tuple] = set()
+    if check_schema:
+        for doc in docs:
+            flags += [f"invalid record: {p}" for p in record_problems(doc)]
     checked = 0
-    if not a.offline:
-        pages: dict[str, tuple[int | None, str]] = {}
+    injected = set((pages or {}))
+    pages = dict(pages or {})
+    if not offline:
         for doc in docs:
             urls = {doc["source_url"]} | {r["source_url"] for r in doc["records"] if r.get("batch") != "wider-gpu"}  # API calls, not pages
             for u in sorted(urls):
-                if u not in pages:
-                    pages[u] = fetch(u)
-                    st, body = pages[u]
+                first = u not in pages
+                if first:
+                    pages[u] = get(u)
+                st, body = pages[u]
+                if first:
                     print(f"{doc['vendor']}: {u} -> {st if st else body}")
-                    if st != 200:
-                        (warnings if doc.get("manual_snapshot") else flags).append(
-                            f"unreachable: {doc['vendor']} {u} -> {st if st else body}")
+                # Same as before on a live fetch: only the first vendor to request a URL is flagged.
+                # Fixture pages (tests) start already in `pages`, so still record unreachable for that vendor.
+                if st != 200 and (first or u in injected):
+                    msg = f"unreachable: {doc['vendor']} {u} -> {st if st else body}"
+                    if msg not in flags and msg not in warnings:
+                        (warnings if doc.get("manual_snapshot") else flags).append(msg)
+                    if u in injected:
+                        injected.discard(u)  # one flag per injected URL, matching live first-writer behavior
             for r in doc["records"]:
+                key = (doc["vendor"], r.get("gpu"), r.get("tier"), r.get("quote"), r.get("source_url"))
                 if r.get("batch") == "wider-gpu":
                     warnings.append(f"Scout API batch, not re-checked on page: {doc['vendor']} {r['gpu']} (verified {r['checked_at']})")
                     continue
@@ -176,8 +273,9 @@ def main() -> int:
                     warnings.append(f"Scout API batch, not re-checked on page: {doc['vendor']} {r['gpu']} (verified {r['checked_at']})")
                     continue
                 if doc.get("manual_snapshot"):
-                    # Manual snapshot (e.g. Clore.ai, whose API 401s CI runners): not re-checked here; the record
-                    # auto-holds after STALE_DAYS unless a person re-snapshots it.
+                    # Manual snapshot (e.g. Clore.ai, whose API 401s CI runners): not re-checked here; a row past
+                    # STALE_DAYS is a warning with its true age (add_stale_warnings), not a failure, unless a
+                    # missing/changed price is also detected on a path that does re-check.
                     warnings.append(f"manual snapshot, not re-checked from CI: {doc['vendor']} {r['gpu']} (checked {r['checked_at']})")
                     continue
                 if r.get("price_status") == "marketplace":
@@ -231,24 +329,25 @@ def main() -> int:
                 cv = CAPACITY_VARIANT.get(doc["vendor"])
                 if missing and cv and re.search(cv.format(gpu=re.escape(r["gpu"])), text):
                     # the vendor's page swaps its rate line for a no-capacity line while capacity is out; that is
-                    # a stock signal, not a price change (the refresh keeps the last sourced price; > 7 days still fails)
+                    # a stock signal, not a price change (the refresh keeps the last sourced price; age past
+                    # STALE_DAYS is a warning via add_stale_warnings, not a silent pass)
                     warnings.append(f"vendor page shows no capacity right now, rate line absent: {doc['vendor']} {r['gpu']} "
                                     f"quote {r['quote']!r} (verified {r.get('verified_at') or r['checked_at']}) at {r['source_url']}")
                     continue
                 if missing:
                     flags.append(f"price not found on page (re-check by hand): {doc['vendor']} {r['gpu']} "
                                  f"({r['tier']}) quote {r['quote']!r} missing {missing} at {r['source_url']}")
-    sdocs = stack.load_vendor_files()
-    for doc in sdocs:
-        flags += [f"invalid stack record: {p}" for p in stack.record_problems(doc)]
-    flags += [f"stale (> {STALE_DAYS} days): {s}" for s in stale_records(
-        [{"vendor": d["vendor"], "checked_at": d["checked_at"], "records": [{**o, "gpu": o["need"], "tier": o["plan"],
-          "checked_at": o.get("checked_at") or d["checked_at"]} for o in d["offers"]]} for d in sdocs])]
-    if not a.offline:
+                    price_fail_keys.add(key)
+                else:
+                    present_keys.add(key)
+    if check_schema:
+        for doc in sdocs:
+            flags += [f"invalid stack record: {p}" for p in stack.record_problems(doc)]
+    if not offline:
         for doc in sdocs:
             u = doc["source_url"]
             if u not in pages:
-                pages[u] = fetch(u)
+                pages[u] = get(u)
                 print(f"{doc['vendor']}: {u} -> {pages[u][0] or pages[u][1]}")
             st, body = pages[u]
             if st != 200:
@@ -256,12 +355,16 @@ def main() -> int:
                 continue
             text = visible_text(body)
             miss = []
+            found = []
             for o in doc["offers"]:
                 checked += 1
+                key = (doc["vendor"], o.get("need"), o.get("plan"), o.get("quote"), u)
                 missing = [t for t in price_tokens(o["quote"]) if not price_found(t, o["quote"], text)]
                 if missing:
                     miss.append(f"price not found on page (re-check by hand): {doc['vendor']} {o['need']} "
                                 f"({o['plan']}) quote {o['quote']!r} missing {missing} at {u}")
+                else:
+                    found.append(key)
             if miss and doc["vendor"] in CLIENT_RENDERED:
                 # Gauge T73 F1-F6 #7: render the page headless and read the prices a visitor sees; the i18n script
                 # strings alone are labels, not plan data, so they never pass a quote on their own
@@ -271,12 +374,13 @@ def main() -> int:
                             and any(not price_found(t, o["quote"], rtext) for t in price_tokens(o["quote"]))]
                     if not miss:
                         print(f"{doc['vendor']}: prices found in the rendered page (headless Chrome)")
+                        found = [(doc["vendor"], o.get("need"), o.get("plan"), o.get("quote"), u) for o in doc["offers"]]
                 else:
                     # Gauge T73 fix7 #2: a render error is a failure, never a silent fallback to the server HTML
                     flags.append(f"headless render failed (empty DOM or client-side error page): {doc['vendor']} {u}")
                     miss = []
             if miss and doc["vendor"] in CLIENT_RENDERED:
-                age = quote_age_days(doc)
+                age = quote_age_days(doc, now)
                 if age is not None and age > MAX_UNRENDERED_AGE_DAYS:  # warning-only stops at 7 days
                     flags += [f"client-rendered quote not re-verified for {age:.1f} days (> {MAX_UNRENDERED_AGE_DAYS}; "
                               f"checked_at {doc['checked_at']}) and not found in a headless render: {m}" for m in miss]
@@ -289,11 +393,65 @@ def main() -> int:
                 warnings += [f"unverifiable from CI ({GEO_VARIANT[doc['vendor']]}): {m}" for m in miss]
             else:
                 flags += miss
+                for m, o in ((m, o) for o in doc["offers"] for m in miss if o["quote"] in m):
+                    price_fail_keys.add((doc["vendor"], o.get("need"), o.get("plan"), o.get("quote"), u))
+            present_keys.update(found)
+            # offers that ended in miss were not present
+            for o in doc["offers"]:
+                key = (doc["vendor"], o.get("need"), o.get("plan"), o.get("quote"), u)
+                if any(o["quote"] in m for m in miss):
+                    present_keys.discard(key)
     # Gauge re32: a single vendor timing out (after the retry) is a warning, not a failure; two or more still fail.
     tmo = [f for f in flags if f.startswith("unreachable:") and re.search(r"time(d)? ?out", f, re.I)]
     if len({(re.search(r"https?://([^/ ]+)", f) or re.search(r"(.*)", f)).group(1) for f in tmo}) == 1:
         flags = [f for f in flags if f not in tmo]
         warnings += [f"single vendor timeout tolerated: {f}" for f in tmo]
+    add_stale_warnings(docs, sdocs, flags, warnings, now, present_keys, offline, price_fail_keys)
+    return flags, warnings, checked
+
+
+def add_stale_warnings(docs, sdocs, flags, warnings, now, present_keys, offline, price_fail_keys) -> None:
+    """Age-only classification: warn, or FAIL not-re-checked rows past UNCHECKED_FAIL_DAYS and bad stamps."""
+
+    def emit(doc, record, name, plan, url, quote):
+        label = f"{doc['vendor']} {name} ({plan})"
+        problem = stamp_failure(label, record, doc)
+        if problem:
+            flags.append(problem)
+            return
+        info = stale_age(record, now, doc)
+        if not info:
+            flags.append(stamp_failure(label, record, doc) or f"missing verified_at/checked_at: {label}")
+            return
+        v, hours, past_stale, past_cap = info
+        if not past_stale:
+            return
+        key = (doc["vendor"], name, plan, quote, url)
+        if key in price_fail_keys:
+            return  # missing/changed stays a FAIL; do not demote it to a stale warning
+        kind = _stale_kind(key, record, doc, present_keys, offline)
+        if kind == "not re-checked on the page this run" and past_cap:
+            flags.append(format_unchecked_fail(label, v, hours))
+            return
+        warnings.append(format_stale_warning(label, v, hours, kind))
+
+    for doc in docs:
+        for r in doc.get("records") or []:
+            emit(doc, r, r.get("gpu"), r.get("tier"), r.get("source_url"), r.get("quote"))
+    for doc in sdocs:
+        for o in doc.get("offers") or []:
+            rec = {**o, "gpu": o["need"], "tier": o["plan"], "checked_at": o.get("checked_at") or doc["checked_at"]}
+            emit(doc, rec, o.get("need"), o.get("plan"), doc.get("source_url"), o.get("quote"))
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--report")
+    ap.add_argument("--offline", action="store_true", help="schema + staleness only, no fetches")
+    a = ap.parse_args()
+    docs = load_vendor_files()
+    sdocs = stack.load_vendor_files()
+    flags, warnings, checked = evaluate_sources(docs, sdocs, offline=a.offline)
     n = sum(len(d["records"]) for d in docs) + sum(len(d["offers"]) for d in sdocs)
     summary = f"{len(docs) + len(sdocs)} vendor files, {n} records, {checked} prices re-found on live pages, {len(flags)} flag(s), {len(warnings)} warning(s)"
     print(summary)
@@ -304,12 +462,13 @@ def main() -> int:
     if a.report:
         body = [f"Daily GPU pricing source check: {summary}.", "",
                 "Prices change only where scripts/refresh_gpu_prices.py parses them (daily). Re-check each flagged record on its source page, then update "
-                "`data/gpu_pricing/<vendor>.json` (price and `checked_at`) by hand.", ""]
+                "`data/gpu_pricing/<vendor>.json` (price and `checked_at`) by hand. A stale warning reports the last verified_at and hours old; it is not a failure unless the price is also missing or has changed.", ""]
         body += [f"- {f}" for f in flags] or ["- none"]
         if warnings:
-            body += ["", "Warnings (not failures; geo-variant vendors, re-check from a non-CI network):"] + [f"- {w}" for w in warnings]
+            body += ["", "Warnings (not failures; stale rows whose price is still on the page or held, geo-variant vendors, re-check from a non-CI network):"] + [f"- {w}" for w in warnings]
         Path(a.report).write_text("\n".join(body) + "\n", encoding="utf-8")
     return 1 if flags else 0
+
 
 
 if __name__ == "__main__":

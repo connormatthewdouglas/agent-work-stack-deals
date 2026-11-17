@@ -3,7 +3,7 @@
 
 Fails, and opens or updates one GitHub issue labeled freshness-watchdog, when any of these is true:
   * feed_updated_at older than 26h (same bar as scripts/check_gpu_freshness.py; not loosened)
-  * availability_collected_at older than 4h (not loosened)
+  * availability_collected_at older than 8h (2x the 4-hour availability slot)
   * any ranked row's verified_at/checked_at older than 48h (T41-12). Owner-held rows are held,
     not ranked, and do not fail this bar.
   * a timestamp is in the future
@@ -38,14 +38,14 @@ if str(ROOT) not in sys.path:
 FEED_URL = "https://thelanternworks.com/api/v1/gpu-prices.json"
 HOSTED_VERSION_URL = "https://lantern-works-mcp.lantern-works.workers.dev/version"
 FEED_MAX_HOURS = 26
-AVAIL_MAX_HOURS = 4
+AVAIL_MAX_HOURS = 8  # availability refreshes on a 4-hour slot; 2x slot so normal scheduling lag does not false-alarm
 ROW_MAX_HOURS = 48  # T41-12: oldest verified row
 SHRINK_RATIO = 0.5
 ISSUE_TITLE = "Freshness watchdog: live feed, availability, or hosted MCP is stale"
 LABEL = "freshness-watchdog"
 # Hours between expected successful runs. gpu-refresh's 14:47 cron is the same-day fallback, not a
 # second required success (daily). scout-import's */10 cron is a backstop; the import runs on a 4-hour slot.
-# A last success older than 2x this interval fails the watchdog. The 26h/4h/48h bars are unchanged.
+# A last success older than 2x this interval fails the watchdog. The 26h/8h/48h bars are unchanged.
 COLLECTORS = (("gpu-refresh.yml", 24), ("lium-collect.yml", 2), ("scout-import.yml", 4))
 SUCCESS_WINDOW = 2
 WORKFLOWS = tuple(name for name, _h in COLLECTORS)
