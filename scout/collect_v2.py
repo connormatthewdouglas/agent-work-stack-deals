@@ -179,12 +179,22 @@ def verda():
     return rows
 
 CLORE = "https://api.clore.ai/v1/marketplace"  # public, no auth
+CLORE_TRIES = 3; CLORE_RETRY_DELAYS = (2, 5)
+def clore_get(sleep=None):
+    """Bounded retry (3 tries, 2s/5s waits) for the Clore GET: an intermittent 401 on the first read used to be fatal. After the last try the
+    last error is raised; the callers route it to meta.nonfatal_errors (holds only Clore, no fresh Clore timestamps)."""
+    sleep = sleep or time.sleep
+    for i in range(CLORE_TRIES):
+        try: return get(CLORE)
+        except Exception:
+            if i == CLORE_TRIES - 1: raise
+            sleep(CLORE_RETRY_DELAYS[min(i, len(CLORE_RETRY_DELAYS) - 1)])
 CLORE_GPU = {"NVIDIA A100SXM440GB": ("A100 SXM", 40), "NVIDIA GeForce RTX 4090": ("RTX 4090", 24), "NVIDIA H100 NVL": ("H100 NVL", 94)}
 CLORE_NOTE = "unrented servers (one server may hold several GPUs), any currency"
 def clore():
     """Clore.ai public marketplace. v2.5: emits unrented_servers (NOT offer_count: the feed's Clore offer_count counts USD-listed offers). Exact GPU names only (4090 D / Laptop excluded);
     VRAM must equal the model's VRAM (e.g. hosts reporting 23 or 48 GB for a 4090 are skipped, not coerced)."""
-    servers = get(CLORE)["servers"]; FIRST_READ["Clore.ai"] = time.time(); ts = NOW()
+    servers = clore_get()["servers"]; FIRST_READ["Clore.ai"] = time.time(); ts = NOW()
     by = _clore_count(servers); seen = by.pop("_seen")
     rows = []
     for (model, vram) in sorted(set(CLORE_GPU.values())):
@@ -542,7 +552,7 @@ def second_reads(rows, first_read_at=None, sleep=time.sleep, clock=time.time, fi
                     in2 = bool(loc_has.get(r["region"], set()) & its) if r["region"] in loc_has else None
                     r.update(confirmation="two_reads", confirmed=bool(r["in_stock"]) and in2 is True, second_read_in_stock=in2, second_read_at=ts)
             elif kind == "clore":
-                by2 = _clore_count(get(CLORE)["servers"]); ts = NOW(); gap(key, t0)
+                by2 = _clore_count(clore_get()["servers"]); ts = NOW(); gap(key, t0)
                 for r in rows:
                     if r["vendor"] == "Clore.ai" and r["region"] != "all":
                         n2 = by2.get(((r["gpu_model"], r["vram_gb"]), r["region"]), 0)
@@ -682,7 +692,7 @@ if __name__ == "__main__":
     try: r = verda(); rows += r; print("verda", len(r))
     except Exception as e: errs["verda"] = type(e).__name__ + ": " + str(e)[:200]
     try: r = clore(); rows += r; print("clore", len(r))
-    except Exception as e: errs["clore"] = repr(e)
+    except Exception as e: meta["nonfatal_errors"] = dict(meta.get("nonfatal_errors") or {}, **{"Clore.ai": type(e).__name__ + ": " + str(e)[:200]})  # Clore is non-fatal: held, other vendors publish
     _lam = None
     try:  # T113 fix: the 4h cycle now takes Lambda's second read too (same code as refresh_multi); without it every Lambda
         # claim was nulled by scout_io.rederive_overall (regions unconfirmed, sold-out rows lack zero_capacity_two_reads)
