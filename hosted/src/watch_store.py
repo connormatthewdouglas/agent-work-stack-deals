@@ -65,7 +65,13 @@ def _rows(res):
     for r in rows:
         if hasattr(r, "to_py"):
             r = r.to_py()
-        out.append(dict(r))
+        d = dict(r)
+        # workerd D1 SQL NULL is JsNull (falsy, not Python None). Coerce to None so
+        # json.dumps of an alert payload does not TypeError after a match.
+        for k, v in d.items():
+            if v is not None and W._sql_null(v) and not isinstance(v, str):
+                d[k] = None
+        out.append(d)
     return out
 
 
