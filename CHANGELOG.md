@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Privacy page (2026-11-16): `/privacy/` describes the hosted weekly repeat-caller id as a pseudonymous, weekly-rotating 16-character HMAC-SHA256 (not anonymous). The page must ship in the same release as the worker change and must not go live before it.
+
 - README and PyPI package docs (T124, 2026-11-16): repo README, mcp_server/README.md (the PyPI long description), and pyproject keywords/URLs now lead with copy-paste client configs and per-placement `?ref=` tags. The phrase "checked daily" / "re-read daily" is not used; the feed rebuild is described as once a day (about 10:23 UTC), and each price keeps its own check time.
 
 - File-level 7d window summary (P61, 2026-11-16; requested by fieldnotes_ai, #760): `gpu-prices.json` and `compare_gpu_prices` gain `availability_window_summary` — `no_window_count` split by `no_stock_source`, `read_no_usable_signal`, and `signal_no_window_yet`, plus `earliest_first_check_at` among current windows. `content_build_id` is a sha256 prefix of canonicalized ranked-row content (timestamps and ids excluded); `generation_id` is unchanged. Additive. Computed from row data.

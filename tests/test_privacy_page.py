@@ -29,3 +29,21 @@ def test_privacy_mentions_go_vendor_links_and_ua_class():
         assert "missing value is stored as" in s and "`any`" in s.replace("<code>", "`").replace("</code>", "`")
         assert "`none` when there was none" in s.replace("<code>", "`").replace("</code>", "`")
 
+
+def test_privacy_weekly_repeat_caller_id():
+    """The hosted weekly id is described as pseudonymous and weekly-rotating, never anonymous."""
+    page = (ROOT / "privacy" / "index.html").read_text(encoding="utf-8")
+    md = (ROOT / "PRIVACY.md").read_text(encoding="utf-8")
+    for s in (page, md):
+        assert "pseudonymous, weekly-rotating" in s
+        assert "HMAC-SHA256" in s or "hmac-sha256" in s.lower()
+        assert "ISO week" in s
+        assert "distinct_callers" in s
+        assert "callers_3plus_days" in s
+        start = s.lower().find("weekly repeat-caller")
+        if start < 0:
+            start = s.lower().find("weekly repeat callers")
+        assert start >= 0, "weekly repeat-caller section missing"
+        chunk = s[start:start + 1600]
+        assert "anonymous" not in chunk.lower()
+        assert "Frosty" not in s
