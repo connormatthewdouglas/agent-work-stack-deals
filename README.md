@@ -1,14 +1,64 @@
-# Lantern Works
+# Lantern Works GPU Prices: MCP server for cloud GPU rental prices
 
-Lantern Works compares live GPU rental prices across tracked providers, for agents and people, through a free MCP server and the site.
+Free, read-only MCP server that compares live cloud GPU rental prices (H100, H200, A100, L40S, RTX 4090/5090 and more) across tracked providers, cheapest first, with each price's vendor source page and check time. No API key.
+
+[![PyPI](https://img.shields.io/pypi/v/lantern-works-deals-mcp)](https://pypi.org/project/lantern-works-deals-mcp/) [![Python](https://img.shields.io/pypi/pyversions/lantern-works-deals-mcp)](https://pypi.org/project/lantern-works-deals-mcp/) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE) [![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.connormatthewdouglas%2Flantern--works--deals-blue)](https://registry.modelcontextprotocol.io/v0/servers?search=lantern-works-deals) [![Data: CC BY 4.0](https://img.shields.io/badge/data-CC_BY_4.0-lightgrey)](LICENSE-DATA)
+
+[![Install in Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=lantern-works-gpu-prices&config=eyJ1cmwiOiJodHRwczovL2xhbnRlcm4td29ya3MtbWNwLmxhbnRlcm4td29ya3Mud29ya2Vycy5kZXYvbWNwP3JlZj1yZWFkbWUtY3Vyc29yLWJ1dHRvbiJ9) [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_MCP_server-0098FF)](https://vscode.dev/redirect/mcp/install?name=lantern-works-gpu-prices&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A//lantern-works-mcp.lantern-works.workers.dev/mcp%3Fref%3Dreadme-vscode-button%22%7D)
+
+**Connect in one line**
+
+- Hosted, no install (Streamable HTTP): `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme`
+- Local (stdio, Python 3.10+): `uvx lantern-works-deals-mcp`
+
+Then ask: *"What's the cheapest H100 to rent for 100 hours? Show sources."*
 
 ![Lantern Works: live GPU rental prices compared across tracked providers](docs/assets/demo.gif)
 
+[thelanternworks.com](https://thelanternworks.com/?ref=readme) · [Receipts](https://lantern-works-mcp.lantern-works.workers.dev/receipts/?ref=receipts-readme)
+
+## Connect your client
+
+Hosted URL: `https://lantern-works-mcp.lantern-works.workers.dev/mcp` (`?ref=` only tags which snippet was used). Local command: `uvx lantern-works-deals-mcp` (or `pip install lantern-works-deals-mcp`, then `lantern-works-deals-mcp`).
+
+**Claude Code**
 ```bash
-uvx lantern-works-deals-mcp
+claude mcp add --transport http lantern-works-gpu-prices "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme-claude-code"
+# or local stdio:
+claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
 ```
 
-[thelanternworks.com](https://thelanternworks.com) · [Receipts](https://lantern-works-mcp.lantern-works.workers.dev/receipts/?ref=receipts-readme)
+**Claude Desktop**: `claude_desktop_config.json` (Settings → Developer → Edit Config). Or add the hosted URL under Settings → Connectors → Add custom connector: `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme-claude-desktop`
+```json
+{ "mcpServers": { "lantern-works-deals": { "command": "uvx", "args": ["lantern-works-deals-mcp"] } } }
+```
+
+**Cursor**: `~/.cursor/mcp.json` or `.cursor/mcp.json` (or use the button above)
+```json
+{ "mcpServers": { "lantern-works-gpu-prices": { "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme-cursor" } } }
+```
+
+**VS Code (GitHub Copilot agent mode)**: `.vscode/mcp.json`
+```json
+{ "servers": { "lantern-works-gpu-prices": { "type": "http", "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme-vscode" } } }
+```
+
+**Windsurf (now Devin Desktop)**: `~/.config/devin/mcp_config.json` (older Windsurf builds: `~/.codeium/windsurf/mcp_config.json`)
+```json
+{ "mcpServers": { "lantern-works-gpu-prices": { "serverUrl": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme-windsurf" } } }
+```
+
+**Cline**: `cline_mcp_settings.json` (MCP Servers → Configure)
+```json
+{ "mcpServers": { "lantern-works-gpu-prices": { "type": "streamableHttp", "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme-cline" } } }
+```
+
+**OpenAI Codex CLI**
+```bash
+codex mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
+```
+
+**Any other MCP client**: stdio `uvx lantern-works-deals-mcp`, or Streamable HTTP `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme-other`. More clients: https://thelanternworks.com/install/?ref=readme
 
 ## Get your first quote — no installation or API key
 
@@ -39,6 +89,10 @@ Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.or
 
 Tool counts: **9** in the local package (stdio, below); **13** on the hosted endpoint (the same 9 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`).
 
+The full tool contracts, eligibility and stale-price rules, hosted endpoint, alert delivery, throughput data, and the feed contract and deploy gate are in [docs/CONTRACT.md](docs/CONTRACT.md). Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
+
+## Tools (9, read-only)
+
 | Tool | What it does |
 |---|---|
 | `compare_gpu_prices` | Hourly rental prices for a GPU model across tracked providers, cheapest first. When a result includes `availability_rate_7d`, `window_days` is the planned window and `observed_hours` is the actual coverage (`coverage_note` when coverage is shorter). The output also carries file-level `availability_window_summary` (no-window counts by reason, plus when current windows began) and `content_build_id`. |
@@ -51,27 +105,11 @@ Tool counts: **9** in the local package (stdio, below); **13** on the hosted end
 | `compare_deals` | Compare 2-5 deals by id, best customer value first. |
 | `get_deal` | Return the full public record for one deal id. |
 
-The full tool contracts, eligibility and stale-price rules, hosted endpoint, alert delivery, throughput data, and the feed contract and deploy gate are in [docs/CONTRACT.md](docs/CONTRACT.md). Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
+Keywords: MCP server, Model Context Protocol, GPU prices, cloud GPU pricing, GPU rental price comparison, H100 / H200 / A100 / L40S / RTX 4090 / RTX 5090 hourly price, GPU cost estimate, price history, AI infrastructure costs, Claude, Cursor, VS Code Copilot, Windsurf, Cline.
 
-### Install
+Quickstart: ask for `compare_gpu_prices(gpu="H100")`, then the next day call `get_price_changes(since="<data_checked_at date>")` to see what moved. The feed rebuilds once a day (about 10:23 UTC). Every price shows its own `checked_at`/`verified_at`, and `compare_gpu_prices` and `optimize_agent_stack` return `data_checked_at` and `next_refresh_utc`.
 
-```bash
-uvx lantern-works-deals-mcp
-```
-
-Quickstart: ask for `compare_gpu_prices(gpu="H100")`, then the next day call `get_price_changes(since="<data_checked_at date>")` to see what moved. Prices refresh daily at about 10:23 UTC; `compare_gpu_prices` and `optimize_agent_stack` return `data_checked_at` and `next_refresh_utc`.
-
-Claude Code:
-
-```bash
-claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
-```
-
-Cursor (`.cursor/mcp.json`) and Cline (`cline_mcp_settings.json`, via MCP Servers → Configure) use the same entry:
-
-```json
-{ "mcpServers": { "lantern-works-deals": { "command": "uvx", "args": ["lantern-works-deals-mcp"] } } }
-```
+## Run locally / Docker / privacy
 
 Docker: `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp` (the root [`Dockerfile`](Dockerfile) installs the pinned PyPI release and runs the stdio server). Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Other clients: https://thelanternworks.com/install/?ref=readme · Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`.
 

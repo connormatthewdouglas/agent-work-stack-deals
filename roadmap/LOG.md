@@ -2,6 +2,32 @@
 
 Ships with commits, CI runs, URLs and versions (newest first).
 
+## 2026-11-16 — T124 README / PyPI README channel refs (Atrium)
+
+New `?ref=` tags on the repo README, `mcp_server/README.md` (PyPI long description) and pyproject `[project.urls]`. Existing refs (`readme`, `receipts-readme`, `pypi-readme`, `install`) are unchanged. GitHub About, homepage and topics were set by Bjorn and are not changed in this PR (homepage is `https://thelanternworks.com`, without `?ref=github-about`).
+
+| ref | Listing | Status |
+| --- | --- | --- |
+| readme-cursor-button | Repo README Cursor install button | in T124 PR |
+| readme-vscode-button | Repo README VS Code install button | in T124 PR |
+| readme-claude-code | Repo README Claude Code hosted snippet | in T124 PR |
+| readme-claude-desktop | Repo README Claude Desktop hosted connector | in T124 PR |
+| readme-cursor | Repo README Cursor mcp.json snippet | in T124 PR |
+| readme-vscode | Repo README VS Code mcp.json snippet | in T124 PR |
+| readme-windsurf | Repo README Windsurf/Devin Desktop snippet | in T124 PR |
+| readme-cline | Repo README Cline snippet | in T124 PR |
+| readme-other | Repo README any-other-client hosted URL | in T124 PR |
+| pypi-readme-claude-code | mcp_server/README.md Claude Code hosted snippet | in T124 PR |
+| pypi-readme-claude-desktop | mcp_server/README.md Claude Desktop hosted connector | in T124 PR |
+| pypi-readme-cursor | mcp_server/README.md Cursor snippet | in T124 PR |
+| pypi-readme-vscode | mcp_server/README.md VS Code snippet | in T124 PR |
+| pypi-readme-windsurf | mcp_server/README.md Windsurf/Devin Desktop snippet | in T124 PR |
+| pypi-readme-cline | mcp_server/README.md Cline snippet | in T124 PR |
+| pypi-readme-other | mcp_server/README.md any-other-client hosted URL | in T124 PR |
+| pypi-urls | pyproject `[project.urls]` "Hosted MCP" | in T124 PR |
+
+`pypi-readme-claude-desktop` is an extra per-placement tag (section 8 of the audit listed the Claude Desktop ref only for the repo README). `github-about` was reserved for the GitHub website field and was not applied.
+
 ## 2026-10-29 — 0.3.24: F1 (#46) + Gauge re-audit F2–F6; T24; T12; Web Analytics check
 - T24 (fcfad56a): 12 /cost/{h100,a100,l40s,rtx-4090}-{10,100,730}-hours/ pages, 1 GPU, on-demand only, held/reserved/thin/marketplace/serverless/multi-GPU excluded, variants unmixed, ties named; H100 SXM 100 h reproduces T34 ($320 tie Hyperstack/Thunder, median $399, max $474.60, 5 vendors). In sitemap (Part A is indexable per spec); Part B calculators not built.
 - T12 (31e468b2, worker 30cf9d74): /stats.json watches.weekly_per_key: ISO-week calls/alerts per opt-in key, labelled by HMAC(key id, server secret), 90-day window; counters never pruned earlier.
