@@ -41,6 +41,15 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
+## 0.6.4 (2026-11-16, PyPI)
+
+- Publish the current package so the PyPI wheel and hosted Worker match main (package version plus `serverInfo.build` SHA). 0.6.3 stayed at `f30d731c` while later feed, MCP and docs changes landed on main.
+- T124: README and PyPI long description lead with client install snippets; the package summary says prices are "refreshed regularly, with each price's age shown", not "checked daily" (#245, #164).
+- `compare_gpu_prices` additive fields: `availability_window_summary` and `content_build_id` (P61, #240); `availability_rate_7d.observed_hours`, planned-window docs and `coverage_note` (P58/P59, #223, #231); `never_ran_checks` / `no_source_checks` (P38, #199); `last_known_in_stock` / `last_known_at` (P36, #188, #211); `effective_at` and `min_bill_usd_per_hour` (P37/P43, #193); `last_verified_before` / `gap_days` (P46, #197); marketplace `marketplace_query` / `composition_flag` (P45, #208); `batch_due_ledger` (P39, #203); `failure_reason` (P41, #202); `next_check_at` / `will_backfill` / `backfill_eta` (P40, #200).
+- T112: the 7-day availability window is restored from the probe archive and Scout history/probes after `out/` reseeds (#244).
+- Availability wording (P60): a trailing 0/N stock reading is written "not observed in stock in N checks", not "out of stock" (#232).
+- `estimate_job_cost` accepts a gpu alias, defaults `gpus_per_job` to 1, ranks fresh rows first, and no longer crashes when a marketplace row has no `lowest_offer_usd` (#163, #165).
+
 ## 0.6.3 (2026-11-10, PyPI)
 
 - T118: publish the current agent contract so the PyPI wheel and hosted Worker match main (package version plus `serverInfo.build` SHA). 0.6.2 stayed at `21684cc5` while later contract behavior landed on main.
