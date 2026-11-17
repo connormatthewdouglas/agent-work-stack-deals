@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Privacy: what Lantern Works stores</title>
-  <meta name="description" content="What Lantern Works stores: opt-in MCP telemetry, hosted daily-salted SHA-256 hashes of IP and user agent for distinct-caller counts, and cookie-free site analytics." />
+  <meta name="description" content="What Lantern Works stores: opt-in MCP telemetry, hosted daily-salted SHA-256 hashes of IP and user agent for distinct-caller counts, a pseudonymous weekly-rotating repeat-caller id on hosted initialize, and cookie-free site analytics." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://thelanternworks.com/privacy/" />
   <meta property="og:title" content="Privacy: what Lantern Works stores" />
-  <meta property="og:description" content="What Lantern Works stores: opt-in MCP telemetry, hosted daily-salted SHA-256 hashes of IP and user agent for distinct-caller counts, and cookie-free site analytics." />
+  <meta property="og:description" content="What Lantern Works stores: opt-in MCP telemetry, hosted daily-salted SHA-256 hashes of IP and user agent for distinct-caller counts, a pseudonymous weekly-rotating repeat-caller id on hosted initialize, and cookie-free site analytics." />
   <meta property="og:url" content="https://thelanternworks.com/privacy/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Lantern Works" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Privacy: what Lantern Works stores" />
-  <meta name="twitter:description" content="What Lantern Works stores: opt-in MCP telemetry, hosted daily-salted SHA-256 hashes of IP and user agent for distinct-caller counts, and cookie-free site analytics." />
+  <meta name="twitter:description" content="What Lantern Works stores: opt-in MCP telemetry, hosted daily-salted SHA-256 hashes of IP and user agent for distinct-caller counts, a pseudonymous weekly-rotating repeat-caller id on hosted initialize, and cookie-free site analytics." />
   <style>
     :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
     body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
@@ -135,11 +135,11 @@
   <p>The collector stores only the total per (day, tool, version). Its rate limiter keeps an in-memory hash and does not write IP addresses to storage. Aggregate totals are public at the collector&rsquo;s <code>/v1/stats</code>. To turn telemetry off, unset <code>LANTERN_TELEMETRY</code> or set it to anything other than <code>1</code>.</p>
 
   <h2 id="hosted">The hosted MCP endpoint</h2>
-  <p>The hosted worker at <code>https://lantern-works-mcp.lantern-works.workers.dev</code> keeps anonymous daily counters, public at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats.json">/stats.json</a>.</p>
+  <p>The hosted worker at <code>https://lantern-works-mcp.lantern-works.workers.dev</code> publishes counts at <a href="https://lantern-works-mcp.lantern-works.workers.dev/stats.json">/stats.json</a>. Call counts are anonymous daily totals. Distinct-caller counts use a daily-salted hash. Weekly repeat-caller counts use a pseudonymous, weekly-rotating id, described below.</p>
   <ul>
     <li><strong>Call counts</strong> are totals per UTC day, kind (feed, tool or initialize), path or tool name, <code>ref</code> tag, user-agent class and source class. Those rows do not include an IP address or the raw user agent.</li>
     <li><strong>Distinct-caller counts</strong> (for <code>/mcp</code> POSTs and successful feed fetches) store only a <strong>daily-salted SHA-256 hash of the IP address and user agent</strong>, together with the same coarse buckets. The raw IP and user agent are never stored, logged or returned. A random salt is created for each UTC day and deleted when that day ends, so hashes from different days cannot be linked. The hashes themselves are kept for 120 days, then deleted. House and CI traffic is not counted.</li>
-    <li><strong>Weekly repeat-caller counts</strong> (for MCP <code>initialize</code> only, when a Worker secret is set) store a 16-character HMAC of the MCP client name, client version and a coarse network prefix (IPv4 /24 or IPv6 /48), keyed by the secret and the ISO week. The raw IP, the prefix and the client name are never stored, logged or returned. Each row is only the ISO week, the hash and the distinct UTC days that hash was seen (kept about 18 weeks). Public counts at <code>/stats.json</code> are the number of distinct hashes per week and how many of those returned on 3 or more days. House and CI traffic, known bots, GitHub Actions and MCP Registry health checks are not counted. If the secret is not set, nothing is recorded.</li>
+    <li><strong>Weekly repeat-caller counts</strong> (for MCP <code>initialize</code> only, and only when a Worker secret is set) store a <strong>pseudonymous, weekly-rotating</strong> id: a 16-character HMAC-SHA256 of the MCP client name, the client version and a coarse network prefix (IPv4 /24 or IPv6 /48), keyed by that secret plus the ISO week, so the same client on the same network keeps the same id within a week, and stored ids cannot be linked across weeks. The raw IP, the prefix, the client name and the client version are never stored, logged or returned. Each stored row holds only the ISO week, the hash and the UTC days that hash was seen; stored ids are deleted after about 18 weeks. Public counts at <code>/stats.json</code> are, per ISO week, <code>distinct_callers</code> (how many distinct hashes) and <code>callers_3plus_days</code> (how many of those hashes were seen on 3 or more distinct UTC days). Our own traffic, CI, known bots, GitHub Actions and MCP Registry health checks (the <code>mcp-registry</code> ref tag, or a registry-like client name) are not counted. If the secret is not set, or no usable network prefix is available, nothing is recorded and the request is unchanged.</li>
     <li><strong>Demand counts</strong> (for hosted GPU tool calls) are totals per UTC day, tool, GPU family, region group, price tier and cheapest provider. The GPU family and region group are bucketed to fixed lists: a missing value is stored as <code>any</code>, and anything else as <code>other</code>. The price tier and provider describe the first result in our own answer, or <code>none</code> when there was none. These rows do not include an IP address, the raw user agent, a caller hash, the tool arguments or any free text. They are kept for 120 days. House and CI traffic and known bots are not counted.</li>
     <li><strong>Opt-in price watches:</strong> if you create a watch key, the worker stores a hash of the key, the webhook URL, an optional email, your watches and per-key daily counts. Call arguments are not stored.</li>
   </ul>

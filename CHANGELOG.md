@@ -8,6 +8,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 - Weekly repeat-caller IDs (2026-11-16; approved via Bjorn): on hosted MCP `initialize`, when `CALLER_ID_SECRET` is set, the worker stores only `(iso_week, hash, days_seen)` — a 16-hex HMAC-SHA256 of `clientInfo.name | version |` IPv4 /24 or IPv6 /48 prefix, keyed by the secret and the ISO week. Raw IP, prefix and client name are never stored or logged. `/stats.json` gains per-week `distinct_callers` and `callers_3plus_days`. House, CI, known bots, GitHub Actions and MCP Registry health checks are excluded; a missing secret is a no-op. Additive. Uses the existing stats D1 database.
 
+- Privacy page (2026-11-16): `/privacy/` describes the hosted weekly repeat-caller id as a pseudonymous, weekly-rotating 16-character HMAC-SHA256 (not anonymous). The page must ship in the same release as the worker change and must not go live before it.
+
 - Homepage identity (P10/P11, 2026-11-16): H1 is “Find the cheapest GPU rental, compared across tracked providers”, with an identity line under it, updated Organization and WebSite JSON-LD, and deals moved to the secondary nav as “Other deals”. Receipts are linked as dated MCP-server test summaries, not as proof of GPU prices. The /deals/ title is “Agent tool deals and free tiers | Lantern Works”. The 13 /gpu/*-rental-price/ titles are unchanged.
 
 - P17 terms (Brain #787, 2026-11-16): CleanProxies is now a plain, non-affiliate listing (redeem_url is the public pricing page, no referral code). Chatbase and Apiframe stay pulled (hashed denylist from the 2026-10-27 compliance pull); they are not relisted.

@@ -31,3 +31,30 @@ def test_privacy_mentions_go_vendor_links_and_ua_class():
         assert "ISO week" in s or "iso week" in s.lower()
         assert "HMAC" in s or "hmac" in s.lower()
 
+
+def test_privacy_weekly_repeat_caller_id():
+    """The hosted weekly id is described as pseudonymous and weekly-rotating, never anonymous."""
+    page = (ROOT / "privacy" / "index.html").read_text(encoding="utf-8")
+    md = (ROOT / "PRIVACY.md").read_text(encoding="utf-8")
+    for s in (page, md):
+        assert "pseudonymous, weekly-rotating" in s
+        assert "HMAC-SHA256" in s or "hmac-sha256" in s.lower()
+        assert "ISO week" in s
+        assert "distinct_callers" in s
+        assert "callers_3plus_days" in s
+        import re
+        html_items = re.findall(r"<li><strong>Weekly repeat-caller counts</strong>", s)
+        md_items = re.findall(r"^- \*\*Weekly repeat callers", s, re.M)
+        if s.lstrip().startswith("<"):
+            assert len(html_items) == 1, html_items
+        else:
+            assert len(md_items) == 1, md_items
+        start = s.lower().find("weekly repeat-caller")
+        if start < 0:
+            start = s.lower().find("weekly repeat callers")
+        assert start >= 0, "weekly repeat-caller section missing"
+        chunk = s[start:start + 1600]
+        assert "anonymous" not in chunk.lower()
+        assert "stored ids cannot be linked across weeks" in s
+        assert "deleted after about 18 weeks" in s
+        assert "Frosty" not in s
