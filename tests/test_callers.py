@@ -125,4 +125,4 @@ def test_stats_json_keeps_existing_fields_and_adds_callers():
     blk = src[src.index('if path == "/stats.json"'):src.index('if path == "/internal/watch-events"')]
     for k in ('"schema"', '"note"', '"rows"', '"watches"', '"hits_note"', '"hits"', '"callers_note"', "callers.stats("):
         assert k in blk
-    assert src.count("callers.record(") == 2
+    assert src.count("await callers.record(") == 2
