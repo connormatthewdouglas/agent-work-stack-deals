@@ -12,6 +12,7 @@ Fails, and opens or updates one GitHub issue labeled freshness-watchdog, when an
     commit that last changed that version line
   * the latest gpu-refresh, scout-import, or lium-collect run is not success
   * that collector's last successful run is older than twice its schedule interval
+  * the daily price-history backup (price-history-backup.yml) has no successful run in the last 30h
 
 A fetch or gh error is itself a failure and still updates the issue. Does not edit prices.
 """
@@ -247,6 +248,30 @@ def workflow_notes(repo: str, now: datetime | None = None) -> list[str]:
     return notes
 
 
+BACKUP_WORKFLOW = "price-history-backup.yml"
+BACKUP_MAX_HOURS = 30  # daily backup plus 6h slack
+
+
+def backup_problems(last_success_at: str | None, now: datetime) -> list[str]:
+    ts = _parse(last_success_at)
+    if ts is None:
+        return [f"{BACKUP_WORKFLOW}: no successful backup run (limit {BACKUP_MAX_HOURS}h)"]
+    age = (now - ts).total_seconds() / 3600
+    if age > BACKUP_MAX_HOURS:
+        return [f"{BACKUP_WORKFLOW}: last successful backup is {age:.1f}h old (limit {BACKUP_MAX_HOURS}h)"]
+    return []
+
+
+def backup_notes(repo: str, now: datetime) -> list[str]:
+    try:
+        raw = subprocess.check_output(["gh", "run", "list", "-R", repo, "--workflow", BACKUP_WORKFLOW, "--limit", "1",
+                                       "--status", "success", "--json", "updatedAt"], text=True)
+        ok = (json.loads(raw) or [None])[0]
+    except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as e:
+        return [f"{BACKUP_WORKFLOW}: could not read the latest successful run ({type(e).__name__})"]
+    return backup_problems((ok or {}).get("updatedAt"), now)
+
+
 def _gh(*args: str) -> str:
     return subprocess.check_output(["gh", *args], text=True).strip()
 
@@ -313,6 +338,8 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as e:  # noqa: BLE001
         notes = [f"workflow run lookup failed: {type(e).__name__}: {e}"]
     problems.extend(notes)
+    if repo:
+        problems.extend(backup_notes(repo, now))
     holds: list[str] = []
     if feed is not None and hosted is not None and version and sha:
         try:
