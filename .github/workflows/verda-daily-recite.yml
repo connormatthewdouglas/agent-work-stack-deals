@@ -1,0 +1,171 @@
+name: Verda daily re-cite
+
+# Re-read only Verda's verda.com/pricing rows (official refresh()+Fetcher(), robots.txt
+# honoured), then generate_seo_pages.py, and open or update one PR for Mart when prices
+# move (or a new #265 stale hold is applied). Does not change the live-check, does not
+# push to main, and does not auto-merge.
+#
+# PRs opened with GITHUB_TOKEN do not trigger pull_request workflows. This job therefore
+# (1) runs the test suite itself and writes the result into the PR body, and (2) dispatches
+# validate-and-deploy.yml on the daily branch (workflow_dispatch is allowed with GITHUB_TOKEN;
+# that run does not deploy — deploy is main-only). No new secrets or credentials.
+on:
+  schedule:
+    - cron: "30 10 * * *"    # 10:30 UTC (5:30 AM ET on standard time, 6:30 AM ET on daylight time); before live-checks at 17 11 * * * UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write   # only to dispatch validate-and-deploy on the daily branch; still the repo GITHUB_TOKEN
+
+concurrency:
+  group: verda-daily-recite
+  cancel-in-progress: false
+
+jobs:
+  recite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRANCH: scout/verda-daily-recite
+      LANTERN_DEALS_FILE: api/v1/deals.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
+
+      - name: Prepare the fixed daily branch (no push yet)
+        id: prep
+        run: |
+          set -euo pipefail
+          git fetch -q origin main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          open=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number // empty')
+          echo "open_pr=$open" >> "$GITHUB_OUTPUT"
+          if [ -n "$open" ]; then
+            git fetch -q origin "$BRANCH"
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+            git merge --no-edit origin/main
+          else
+            git checkout -B "$BRANCH" origin/main
+          fi
+
+      - name: Official Verda pricing-page re-cite
+        id: recite
+        run: |
+          set -euo pipefail
+          python3 scripts/recite_verda_prices.py --report "$RUNNER_TEMP/recite.json"
+          python3 -c "
+          import json, os
+          from pathlib import Path
+          d = json.loads(Path(os.environ['RUNNER_TEMP'], 'recite.json').read_text())
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write('should_write=%s\n' % ('true' if d.get('should_write') else 'false'))
+              f.write('stamp=%s\n' % (d.get('stamp') or ''))
+          keys = ('should_write', 'prices_moved', 'new_holds', 'stamp')
+          print(json.dumps({k: d.get(k) for k in keys}, indent=2))
+          "
+
+      - name: Nothing moved — exit clean with no PR
+        if: steps.recite.outputs.should_write != 'true'
+        run: echo "No Verda pricing-page move or new stale hold. No PR." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Generate site/API with the recitation clock
+        if: steps.recite.outputs.should_write == 'true'
+        env:
+          LW_AVAIL_NOW: ${{ steps.recite.outputs.stamp }}
+        run: python3 scripts/generate_seo_pages.py
+
+      - name: Test suite (in-job; GITHUB_TOKEN PRs do not trigger pull_request CI)
+        if: steps.recite.outputs.should_write == 'true'
+        env:
+          LW_AVAIL_NOW: ${{ steps.recite.outputs.stamp }}
+        run: |
+          set -euo pipefail
+          python3 -m pytest -q tests --tb=line | tee "$RUNNER_TEMP/pytest.txt"
+          python3 tests/release_gate/run_t41.py --source local "$RUNNER_TEMP/t41.json" | tee "$RUNNER_TEMP/t41.txt"
+
+      - name: Commit, push the fixed branch, and open or update the Mart PR
+        if: steps.recite.outputs.should_write == 'true'
+        env:
+          OPEN_PR: ${{ steps.prep.outputs.open_pr }}
+          STAMP: ${{ steps.recite.outputs.stamp }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Refresh reported a write, but the tree is clean. No PR."
+            exit 0
+          fi
+          git add -A
+          git commit -m "data: daily Verda pricing re-cite $(date -u +%F)"
+          if [ -n "${OPEN_PR:-}" ]; then
+            git push origin "$BRANCH"
+          elif git ls-remote --exit-code origin "refs/heads/$BRANCH" >/dev/null; then
+            git fetch -q origin "$BRANCH"
+            git push --force-with-lease origin "$BRANCH"
+          else
+            git push -u origin "$BRANCH"
+          fi
+
+          python3 -c "
+          import json, os
+          from pathlib import Path
+          d = json.loads(Path(os.environ['RUNNER_TEMP'], 'recite.json').read_text())
+          lines = []
+          lines.append('For Mart: official Verda pricing-page re-cite only (refresh()+Fetcher() on verda.com/pricing rows, then generate_seo_pages.py). Not auto-merged; main was not pushed.')
+          lines.append('')
+          lines.append('Job run: ' + os.environ.get('RUN_URL', ''))
+          lines.append('Clock: LW_AVAIL_NOW=' + os.environ.get('STAMP', ''))
+          lines.append('')
+          lines.append('## Recite report')
+          lines.append('prices_moved: %s  new_holds: %s' % (d.get('prices_moved'), d.get('new_holds')))
+          lines.append('')
+          for r in d.get('changed') or []:
+              lines.append('- changed %s (%s): %s -> %s' % (r.get('gpu'), r.get('tier'), r.get('old'), r.get('new')))
+          for r in d.get('unreadable') or []:
+              lines.append('- unreadable %s (%s): %s (old price kept; no value invented)' % (r.get('gpu'), r.get('tier'), r.get('result')))
+          lines.append('')
+          lines.append('## In-job tests')
+          lines.append('pytest:')
+          lines.append(chr(96) * 3)
+          lines.extend(Path(os.environ['RUNNER_TEMP'], 'pytest.txt').read_text(errors='replace').splitlines()[-20:])
+          lines.append(chr(96) * 3)
+          lines.append('T41:')
+          lines.append(chr(96) * 3)
+          t41 = Path(os.environ['RUNNER_TEMP'], 't41.txt')
+          if t41.exists():
+              lines.extend(t41.read_text(errors='replace').splitlines()[-30:])
+          lines.append(chr(96) * 3)
+          lines.append('')
+          lines.append('## How to get CI green')
+          lines.append('A PR opened or updated with GITHUB_TOKEN does not start pull_request workflows. This job already ran pytest and the T41 release gate on the generated tree (see above). It also dispatches Validate/deploy on \`%s\` (workflow_dispatch; deploy is main-only, so Pages will not go out from that run). If required PR status checks still wait on a pull_request event, use the dispatched run plus the in-job results, or run Workflow dispatch → Validate feed and deploy Pages → this branch from the Actions tab.' % os.environ.get('BRANCH', ''))
+          Path(os.environ['RUNNER_TEMP'], 'pr-body.md').write_text('\n'.join(lines) + '\n')
+          "
+
+          if [ -n "${OPEN_PR:-}" ]; then
+            gh pr edit "$OPEN_PR" --body-file "$RUNNER_TEMP/pr-body.md"
+            pr="$OPEN_PR"
+          else
+            gh pr create --base main --head "$BRANCH" \
+              --title "data: daily Verda pricing re-cite $(date -u +%F)" \
+              --body-file "$RUNNER_TEMP/pr-body.md"
+            pr=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number')
+          fi
+          echo "PR #$pr" >> "$GITHUB_STEP_SUMMARY"
+          cat "$RUNNER_TEMP/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+          gh workflow run validate-and-deploy.yml --ref "$BRANCH"
+          echo "Dispatched validate-and-deploy.yml on $BRANCH." >> "$GITHUB_STEP_SUMMARY"
