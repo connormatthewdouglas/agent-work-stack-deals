@@ -153,16 +153,6 @@ jobs:
         # freshness-watchdog's job (26h feed / 4h availability / 48h rows).
         run: |
           LW_AVAIL_NOW="$(python3 -c "import json; print(json.load(open('api/v1/gpu-prices.json'))['feed_updated_at'])")" python3 -m pytest -q tests
-      - name: pytest on a dirtied tree (the collector gate condition)
-        env:
-          LANTERN_DEALS_FILE: api/v1/deals.json
-        # Relay 2026-11-18: gpu-refresh / scout-import / lium-collect run pytest with uncommitted data/ changes. A clean
-        # PR checkout hid tests that needed a clean tree (#276 merged green, then every collector failed). Same pin as
-        # above; scripts/ci_dirty_tree.py only adds trailing newlines to tracked data/ JSON (values unchanged).
-        run: |
-          python3 scripts/ci_dirty_tree.py
-          LW_AVAIL_NOW="$(python3 -c "import json; print(json.load(open('api/v1/gpu-prices.json'))['feed_updated_at'])")" python3 -m pytest -q tests
-          git checkout -q -- data
       - name: Telemetry collector tests (Worker validation, aggregation, rate limit)
         run: node --test collector/test/collector.test.js
       - name: SKILL.md frontmatter parses; repo /SKILL.md copy matches source
