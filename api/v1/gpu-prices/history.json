@@ -32,9 +32,9 @@
     "2026-11-15.c5811dd8",
     "2026-11-16.546c275a",
     "2026-11-17.6de4c6c9",
-    "2026-11-18.bfb4d333"
+    "2026-11-18.35767ea7"
   ],
-  "last_seq": 332,
+  "last_seq": 334,
   "note": "points are change points: each point is the first snapshot date at that price/status; status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors).",
   "series": [
     {
@@ -6356,6 +6356,15 @@
           "verified_at": "2026-11-16T23:35:13+00:00",
           "lowest_offer_usd": 0.5222,
           "offer_count": 17
+        },
+        {
+          "date": "2026-11-18",
+          "price_usd": 1.1893,
+          "hourly_usd": 1.1893,
+          "status": "ranked",
+          "verified_at": "2026-11-18T02:48:04+00:00",
+          "lowest_offer_usd": 0.8011,
+          "offer_count": 23
         }
       ],
       "last_seen": "2026-11-18"
@@ -6524,6 +6533,15 @@
           "status": "ranked",
           "verified_at": "2026-11-16T23:35:19+00:00",
           "lowest_offer_usd": 0.3356,
+          "offer_count": 45
+        },
+        {
+          "date": "2026-11-18",
+          "price_usd": 0.4807,
+          "hourly_usd": 0.4807,
+          "status": "ranked",
+          "verified_at": "2026-11-18T02:48:10+00:00",
+          "lowest_offer_usd": 0.3611,
           "offer_count": 45
         }
       ],
@@ -8664,7 +8682,7 @@
       "key": "Lium|B200|Marketplace spot node (interruptible)|180|8",
       "rate_id": "r_f505a55ac5e3",
       "event_id": "2026-11-18:r_f505a55ac5e3:down",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "B200",
       "tier": "Marketplace spot node (interruptible)",
@@ -8677,14 +8695,38 @@
       "last_verified_before": "2026-11-17T13:53:32+00:00",
       "gap_days": 0.52,
       "composition_flag": null,
-      "seq": 332
+      "seq": 334
+    },
+    {
+      "date": "2026-11-18",
+      "key": "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
+      "rate_id": "r_d92acb858f8f",
+      "event_id": "2026-11-18:r_d92acb858f8f:down",
+      "snapshot_id": "2026-11-18.35767ea7",
+      "vendor": "Vast.ai",
+      "gpu": "A100 SXM",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "vram_gb": 80,
+      "from_hourly_usd": 1.459,
+      "to_hourly_usd": 1.1893,
+      "change_pct": -18.5,
+      "status": "ranked",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "last_verified_before": "2026-11-16T23:35:13+00:00",
+      "gap_days": 1.13,
+      "composition_flag": "mixed",
+      "lowest_offer_usd": 0.8011,
+      "offer_count": 23,
+      "previous_lowest_offer_usd": 0.5222,
+      "previous_offer_count": 17,
+      "seq": 333
     },
     {
       "date": "2026-11-18",
       "key": "Lium|RTX 4090|Marketplace spot node (interruptible)|24|1",
       "rate_id": "r_cde4d13ac9ff",
       "event_id": "2026-11-18:r_cde4d13ac9ff:up",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "RTX 4090",
       "tier": "Marketplace spot node (interruptible)",
@@ -8697,14 +8739,14 @@
       "last_verified_before": "2026-11-17T13:53:32+00:00",
       "gap_days": 0.52,
       "composition_flag": null,
-      "seq": 331
+      "seq": 332
     },
     {
       "date": "2026-11-18",
       "key": "Lium|RTX 3090|Marketplace secure node|24|1",
       "rate_id": "r_9ea4f05e31a0",
       "event_id": "2026-11-18:r_9ea4f05e31a0:down",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "RTX 3090",
       "tier": "Marketplace secure node",
@@ -8717,14 +8759,14 @@
       "last_verified_before": "2026-11-17T13:53:32+00:00",
       "gap_days": 0.52,
       "composition_flag": null,
-      "seq": 330
+      "seq": 331
     },
     {
       "date": "2026-11-18",
       "key": "Lium|RTX 3090|Marketplace spot node (interruptible)|24|1",
       "rate_id": "r_7e06711583ea",
       "event_id": "2026-11-18:r_7e06711583ea:down",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "RTX 3090",
       "tier": "Marketplace spot node (interruptible)",
@@ -8737,14 +8779,14 @@
       "last_verified_before": "2026-11-17T13:53:32+00:00",
       "gap_days": 0.52,
       "composition_flag": null,
-      "seq": 329
+      "seq": 330
     },
     {
       "date": "2026-11-18",
       "key": "Lium|H200|Marketplace spot node (interruptible)|141|8",
       "rate_id": "r_795cb234e720",
       "event_id": "2026-11-18:r_795cb234e720:up",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "H200",
       "tier": "Marketplace spot node (interruptible)",
@@ -8757,6 +8799,30 @@
       "last_verified_before": "2026-11-17T13:53:32+00:00",
       "gap_days": 0.52,
       "composition_flag": null,
+      "seq": 329
+    },
+    {
+      "date": "2026-11-18",
+      "key": "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
+      "rate_id": "r_67f379013921",
+      "event_id": "2026-11-18:r_67f379013921:down",
+      "snapshot_id": "2026-11-18.35767ea7",
+      "vendor": "Vast.ai",
+      "gpu": "RTX 4090",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "vram_gb": 24,
+      "from_hourly_usd": 0.5086,
+      "to_hourly_usd": 0.4807,
+      "change_pct": -5.5,
+      "status": "ranked",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "last_verified_before": "2026-11-16T23:35:19+00:00",
+      "gap_days": 1.13,
+      "composition_flag": "composition",
+      "lowest_offer_usd": 0.3611,
+      "offer_count": 45,
+      "previous_lowest_offer_usd": 0.3356,
+      "previous_offer_count": 45,
       "seq": 328
     },
     {
@@ -8764,7 +8830,7 @@
       "key": "Lium|H100 SXM|Marketplace spot node (interruptible)|80|1",
       "rate_id": "r_4fd95b2c29a0",
       "event_id": "2026-11-18:r_4fd95b2c29a0:down",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "H100 SXM",
       "tier": "Marketplace spot node (interruptible)",
@@ -8784,7 +8850,7 @@
       "key": "Lium|RTX 6000 Ada|Marketplace secure node|48|1",
       "rate_id": "r_19538ed15621",
       "event_id": "2026-11-18:r_19538ed15621:down",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "RTX 6000 Ada",
       "tier": "Marketplace secure node",
@@ -8804,7 +8870,7 @@
       "key": "Lium|B200|Marketplace secure node|180|1",
       "rate_id": "r_07275a123c62",
       "event_id": "2026-11-18:r_07275a123c62:down",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "B200",
       "tier": "Marketplace secure node",
@@ -8824,7 +8890,7 @@
       "key": "Lium|H200 NVL|Marketplace secure node|141|1",
       "rate_id": "r_039b97f0dccf",
       "event_id": "2026-11-18:r_039b97f0dccf:down",
-      "snapshot_id": "2026-11-18.bfb4d333",
+      "snapshot_id": "2026-11-18.35767ea7",
       "vendor": "Lium",
       "gpu": "H200 NVL",
       "tier": "Marketplace secure node",
