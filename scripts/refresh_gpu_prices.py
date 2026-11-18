@@ -235,11 +235,33 @@ LABEL_ALIASES = {
     "ovhcloud.com/public-cloud/prices": [("1x L40S ( 48 GB HBM2)", "1x L40S ( 48 GB GDDR6)")],
 }
 
+# Vendor moved the same listed prices to a new URL; the old evidence sentence is gone.
+# Tried only when the original context is not found; the new evidence quote is the
+# matched page text, as usual. Prices are never mapped. Each string must appear as
+# visible text on the new page.
+ALTERNATE_QUOTES = {
+    # 2026-11-17: L40S dropped off https://www.cloudrift.ai/pricing (Pages 44163509151 /
+    # issue #273). Same $0.69 / $0.62 / $0.59 figures are on https://www.cloudrift.ai/l40
+    # (a 1-week $0.66 term is also visible there; it is not a tracked row).
+    "cloudrift.ai/l40": [
+        "Yes, on demand at $0.69 per GPU-hour, billed by the second, in instances of up to eight GPUs. Reserved terms bring it to $0.66/hr for 1 week, $0.62/hr for 1 month, and $0.59/hr for 3 months.",
+    ],
+}
+
 
 def _aliased_quotes(r: dict, quote: str) -> list[str]:
     q = " ".join(quote.split())
     return [q.replace(old, new) for src, pairs in LABEL_ALIASES.items() if src in (r.get("source_url") or "")
             for old, new in pairs if old in q]
+
+
+def _alternate_quotes(r: dict) -> list[str]:
+    src = r.get("source_url") or ""
+    out = []
+    for key, alts in ALTERNATE_QUOTES.items():
+        if key in src:
+            out.extend(alts)
+    return out
 
 
 def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
@@ -269,6 +291,22 @@ def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
                     vals.add(_num(m.group(i + 1)))
                     quotes.append(" ".join(m.group(0).split()))
                 break
+    if not vals:
+        # Full replacement quotes (URL move). Re-index: the new sentence may list
+        # extra terms (CloudRift L40S added a 1-week $0.66).
+        for aq in _alternate_quotes(r):
+            ai = price_index(r, aq)
+            if ai is None:
+                continue
+            arx, _ = quote_pattern(aq)
+            found = list(arx.finditer(text))
+            if not found:
+                continue
+            rx, i = arx, ai
+            for m in found:
+                vals.add(_num(m.group(i + 1)))
+                quotes.append(" ".join(m.group(0).split()))
+            break
     if not vals:
         return None, None, "quoted context not found on page"
     if len(vals) > 1:
@@ -596,6 +634,14 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                         _set_price(r, new)
                     if abs(new - old) <= 1e-9:
                         r["quote"] = _current_quote(r["quote"], quote, old, new_s)  # sibling prices on the line may move
+                        # URL move: the stored display line is gone, so adopt the matched
+                        # visible sentence even if the price is unchanged. Not for rotating
+                        # snapshots, which keep the last display line when the price is the same.
+                        if (quote and not is_rotating(r, doc["vendor"])
+                                and not r_shape_eq(r.get("quote") or "", quote)):
+                            rx, _ = quote_pattern(r.get("quote") or "")
+                            if not rx.search(text or ""):
+                                r["quote"] = quote[:MAX_QUOTE]
                     if quote and r.get("price_status") == "marketplace":
                         r["quote"] = quote  # count/median/min all from this one API snapshot (Vast basis drifted 2026-10-29)
                     if quote and (aws_price_list.is_doc(doc) or aws_price_list.is_offer_url(r.get("source_url"))):
