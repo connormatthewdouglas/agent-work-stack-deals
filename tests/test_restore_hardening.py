@@ -1,10 +1,9 @@
 """Gauge probes on the merged backup restore (#263) that wrongly passed; each must now fail."""
 import io
 import json
-import subprocess
 import sys
 import tarfile
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,19 +11,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import backup_price_history as B  # noqa: E402
 import restore_price_history as R  # noqa: E402
 
-SNAPS = sorted((ROOT / "data/gpu_pricing/snapshots").glob("*.json"))
-NOW = datetime.fromisoformat(SNAPS[-1].stem).replace(tzinfo=timezone.utc) + timedelta(hours=12)
+sys.path.insert(0, str(ROOT / "tests"))
+from _backup_fixture import NOW, make_repo, snaps  # noqa: E402
+
+# Fixed, committed repo + fixed clock (tests/_backup_fixture.py), never the live checkout or the wall clock:
+# the git comparison and the snapshot-lag probe now always run instead of depending on collector state.
 HISTORY = "api/v1/gpu-prices/history.json"
 
 
-def _git_ok() -> bool:
-    return subprocess.call(["git", "rev-parse", "--verify", "-q", "HEAD"], cwd=ROOT,
-                           stdout=subprocess.DEVNULL) == 0 and not subprocess.check_output(
-        ["git", "status", "--porcelain", "--", "api/v1", "data"], cwd=ROOT, text=True).strip()
+def _repo(tmp_path) -> Path:
+    return tmp_path / "repo" if (tmp_path / "repo").is_dir() else make_repo(tmp_path)
 
 
 def _base(tmp_path) -> Path:
-    return B.build(ROOT, tmp_path / "out", None, None, NOW)
+    return B.build(_repo(tmp_path), tmp_path / "out", None, None, NOW)
 
 
 def _rewrite(tar: Path, dest: Path, drop=(), manifest=None) -> Path:
@@ -48,14 +48,13 @@ def _rewrite(tar: Path, dest: Path, drop=(), manifest=None) -> Path:
 def _verify(tar, tmp_path, require_git=False):
     w = tmp_path / f"w{len(list(tmp_path.iterdir()))}"
     w.mkdir()
-    return R.verify(tar, w, w / "s.sqlite", require_git=require_git)
+    return R.verify(tar, w, w / "s.sqlite", root=_repo(tmp_path), require_git=require_git)
 
 
 def test_clean_backup_passes_including_the_git_comparison(tmp_path):
-    res = _verify(_base(tmp_path), tmp_path, require_git=_git_ok())
+    res = _verify(_base(tmp_path), tmp_path, require_git=True)
     assert res["problems"] == [], res["problems"]
-    if _git_ok():
-        assert res["git"].startswith("compared ")
+    assert res["git"].startswith("compared ")
 
 
 def test_probe_no_history_json_in_archive(tmp_path):
@@ -81,6 +80,7 @@ def test_probe_wrong_manifest_schema(tmp_path):
 
 
 def test_probe_newest_five_snapshots_missing_consistently(tmp_path):
+    SNAPS = snaps(_repo(tmp_path))
     gone = [f"data/gpu_pricing/snapshots/{p.name}" for p in SNAPS[-5:]]
     keep = SNAPS[:-5]
 
@@ -93,14 +93,14 @@ def test_probe_newest_five_snapshots_missing_consistently(tmp_path):
     bad = _rewrite(_base(tmp_path), tmp_path / "p4.tar.gz", drop=set(gone), manifest=m)
     res = _verify(bad, tmp_path)
     lag = (NOW.date() - datetime.fromisoformat(keep[-1].stem).date()).days
-    if lag > R.NEWEST_MAX_LAG_DAYS:
-        assert any("days before the backup" in p for p in res["problems"])
-    if _git_ok():
-        assert any(p == f"{gone[-1]} is in the commit" or "not in the backup" in p for p in res["problems"])
+    assert lag > R.NEWEST_MAX_LAG_DAYS  # fixed fixture: 2026-11-12 vs 2026-11-17
+    assert any("days before the backup" in p for p in res["problems"])
+    assert any(p == f"{gone[-1]} is in the commit" or "not in the backup" in p for p in res["problems"])
     assert res["problems"]
 
 
 def test_empty_snapshot_file_still_counts(tmp_path):
+    SNAPS = snaps(_repo(tmp_path))
     name = "data/gpu_pricing/snapshots/" + SNAPS[0].name
     empty = json.dumps({"schema": "lantern-works-gpu-snapshot/1", "date": SNAPS[0].stem, "rows": []}).encode()
     tar = _base(tmp_path)
@@ -122,8 +122,6 @@ def test_empty_snapshot_file_still_counts(tmp_path):
 
 
 def test_tampered_bytes_differ_from_commit(tmp_path):
-    if not _git_ok():
-        return
     import hashlib
     rel = "data/gpu_pricing/aws.json"
     tar = _base(tmp_path)

@@ -73,20 +73,48 @@ def summary(files: dict[str, bytes]) -> dict:
     return s
 
 
+def _backed_up_path(rel: str, files: dict[str, bytes]) -> bool:
+    """A repo path this backup carries (or would carry if it still existed): FILES + GLOBS."""
+    if rel in files or rel in FILES:
+        return True
+    if rel.startswith("data/gpu_pricing/") and rel.endswith(".json"):
+        return True
+    return rel.startswith("data/gpu_availability/") and rel.endswith(".json") and rel.count("/") == 2
+
+
+def _clean_commit(root: Path, files: dict[str, bytes]) -> tuple[str | None, list[str]]:
+    """(HEAD, []) when every backed-up path matches HEAD; (None, changed paths) when the working tree differs.
+
+    Relay 2026-11-17: the manifest used to stamp HEAD even when a collector had just rewritten data/ and api/v1
+    without committing, so the archive claimed a commit its bytes did not match and the restore's git
+    comparison failed. A dirty backup now records no commit (and --require-git / --expect-commit fail on it)."""
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True,
+                                         stderr=subprocess.DEVNULL).strip()
+        out = subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=all", "--", "api/v1", "data"],
+                                      cwd=root, text=True, stderr=subprocess.DEVNULL)
+    except (subprocess.CalledProcessError, OSError):
+        return None, []
+    changed = set()
+    for line in out.splitlines():
+        for rel in line[3:].split(" -> "):
+            rel = rel.strip().strip('"')
+            if _backed_up_path(rel, files):
+                changed.add(rel)
+    return (None, sorted(changed)) if changed else (commit or None, [])
+
+
 def build(root: Path, out_dir: Path, scout_ref: str | None, d1_dir: Path | None, now: datetime) -> Path:
     files = collect(root, scout_ref)
     if d1_dir and d1_dir.is_dir():
         for p in sorted(d1_dir.iterdir()):
             if p.is_file() and (p.name.endswith(".sql") or p.name.endswith(".sql.gpg")):
                 files[f"d1/{p.name}"] = p.read_bytes()
-    try:
-        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
-    except (subprocess.CalledProcessError, OSError):
-        commit = None
+    commit, uncommitted = _clean_commit(root, files)
     stamp = now.strftime("%Y%m%dT%H%M%SZ")
     manifest = {
         "schema": SCHEMA, "created_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "commit": commit,
-        "scout_ref": scout_ref, **summary(files),
+        "uncommitted_files": uncommitted, "scout_ref": scout_ref, **summary(files),
         "d1": sorted(k for k in files if k.startswith("d1/")),
         "files": {k: {"sha256": _sha(v), "bytes": len(v)} for k, v in sorted(files.items())},
     }
