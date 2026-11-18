@@ -13,6 +13,7 @@ name: Scout availability import
 on:
   schedule:
     - cron: "*/10 * * * *"  # backstop (GitHub's shortest is 5 min; runs may be delayed): gated, does work only on a 4-hourly slot, a new snapshot or an expired claim
+    - cron: "5-55/10 * * * *"  # fallback: GitHub dropped most scheduled runs since Nov 17; same gate, so extra ticks do nothing unless due
   workflow_dispatch:
     inputs:
       gated:
