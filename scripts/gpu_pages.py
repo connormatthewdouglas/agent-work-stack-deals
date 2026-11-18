@@ -572,7 +572,7 @@ def _table_one(gen, rows: list[dict], full: dict[tuple, float], show_filter: boo
             "<th>Price verified</th><th>Read</th>" + (f"<th>Availability ({av_head}, time shown)</th>" if has_av else "") + "<th>Link</th></tr></thead><tbody>\n" + "\n".join(trs) + "\n</tbody></table></div>"
             + median_footnote_html(rows) + no_stock_note_html(rows)
             + "<p class=\"meta\"><strong>Prices are GPU-hour only</strong>: they exclude storage, data egress and taxes. "
-            "Each Vendor quote links that vendor's pricing page, where those costs are listed if published. <strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
+            "Each Vendor quote links that vendor's pricing page, where those costs are listed if published. <strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn a commission if you sign up through it; \u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. "
             "<strong>Vendor quote:</strong> a short excerpt of the vendor's pricing page; open it for the full text and source. "
             + ("<strong>Availability:</strong> \u201c\u2014\u201d means no availability signal from this vendor for that offer. "
                + STOCK_EXPLAINER + " " + RATE_FOOTNOTE + " " + REGIONS_NOTE + " " if has_av else
