@@ -9,6 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "tests"))
+from _backup_fixture import NOW as FIXTURE_NOW, make_repo  # noqa: E402
 import backup_price_history as B  # noqa: E402
 import check_scout_snapshot_rows as C  # noqa: E402
 import restore_price_history as R  # noqa: E402
@@ -70,14 +72,15 @@ def test_scout_snapshot_at_200h_fails_and_40h_warns(tmp_path):
 
 
 def test_restore_with_mismatched_commit_fails(tmp_path):
-    snaps = sorted((ROOT / "data/gpu_pricing/snapshots").glob("*.json"))
-    now = datetime.fromisoformat(snaps[-1].stem).replace(tzinfo=timezone.utc) + timedelta(hours=12)
-    tar = B.build(ROOT, tmp_path / "out", None, None, now)
-    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    # Fixed committed repo + clock (tests/_backup_fixture.py), never the live checkout: the collector gates run
+    # pytest on a dirty tree, where the backup correctly records no commit (#276).
+    repo = make_repo(tmp_path)
+    tar = B.build(repo, tmp_path / "out", None, None, FIXTURE_NOW)
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
     for i, (want, ok) in enumerate(((commit, True), ("0" * 40, False), ("", False))):
         w = tmp_path / f"w{i}"
         w.mkdir()
-        res = R.verify(tar, w, w / "s.sqlite", expect_commit=want)
+        res = R.verify(tar, w, w / "s.sqlite", root=repo, expect_commit=want)
         mism = [p for p in res["problems"] if p.startswith("manifest commit")]
         assert (not mism) if ok else mism, (want, res["problems"])
     assert re.search(r'--expect-commit "\$GITHUB_SHA"',

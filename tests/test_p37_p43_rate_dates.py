@@ -68,8 +68,14 @@ def test_committed_feed_matches_history_and_inputs():
     assert any(r["min_bill_basis"] == "monthly_equivalent" for r in feed["rates"])
 
 
+# Fixed feed (Relay 2026-11-18): reading the live api/v1/gpu-prices.json made this test depend on collector output.
+# The H100 gpus=8 check needs CoreWeave's 8x row inside limit=25; on 2026-11-17 it was the 25th of exactly 25, so one
+# more cheap 1x H100 row from lium-collect pushed it out and the test failed without any min_bill/ranking bug.
+RATE_DATES_FEED = ROOT / "tests/fixtures/gpu-prices-rate-dates-2026-11-17.json"
+
+
 def test_mcp_rows_full_brief_and_ranking_unchanged():
-    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
+    feed = json.loads(RATE_DATES_FEED.read_text())
     stripped = copy.deepcopy(feed)
     for r in stripped["rates"]:
         for k in KEYS:

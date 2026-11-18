@@ -2,6 +2,7 @@ import os
 import pytest
 import json
 from pathlib import Path
+from datetime import datetime, timezone
 from core.gpu import build_rates, estimate, load_vendor_files
 
 FEED = json.loads((Path(__file__).resolve().parents[1] / "deals.json").read_text())["deals"]
@@ -13,11 +14,12 @@ def _rec(vendor, gpu, tier=None):
                 if r["gpu"] == gpu and (tier is None or r["tier"] == tier))
 
 
-def _multi_gpu_doc():
-    """Fixed multi-GPU server fixture (not a live vendor row): 2x A100 + RTX 4090 monthly servers, stamped fresh."""
+def _multi_gpu_doc(at=None):
+    """Fixed multi-GPU server fixture (not a live vendor row): 2x A100 + RTX 4090 monthly servers, stamped fresh
+    (at `at` when a test pins its clock, else now_utc())."""
     from core.gpu_availability import now_utc
     doc = json.loads((Path(__file__).resolve().parent / "fixtures" / "multi_gpu_server_vendor.json").read_text())
-    now = now_utc().isoformat(timespec="seconds")
+    now = (at or now_utc()).isoformat(timespec="seconds")
     doc["checked_at"] = now
     for r in doc["records"]:
         r["checked_at"] = r["verified_at"] = r["evidence"]["checked_at"] = now
@@ -43,13 +45,29 @@ def test_all_specs_verified_against_feed():
     assert r["problems"] == [] and len(r["rates"]) == publishable
 
 
+# Frozen A100 / RTX 4090 vendor records + fixed clock (Relay 2026-11-18). With live data/gpu_pricing this test broke
+# whenever a collector changed the RTX 4090 rows: estimate() correctly ranks a row whose minimum exceeds the request
+# after every row that fits (min_gpus_unmet). On 2026-11-17 the only such row (Lium 8x, $2400/1000 h) was also the
+# dearest, so the plain cost-order check held; lium-collect on 2026-11-18 brought a min-2 row ($840) below RunPod's
+# $890 and the check failed with no ranking bug. Fixed inputs keep it deterministic; the documented key is checked too.
+ESTIMATE_DOCS = Path(__file__).resolve().parent / "fixtures" / "vendor-docs-a100-4090-2026-11-17.json"
+ESTIMATE_NOW = datetime(2026, 11, 17, 14, 0, tzinfo=timezone.utc)
+
+
+def _estimate_docs():
+    docs = json.loads(ESTIMATE_DOCS.read_text())["docs"]
+    return docs + [_multi_gpu_doc(ESTIMATE_NOW)]
+
+
 def test_estimate_hourly_vs_flat_and_rank():
-    rates = build_rates(FEED, _fixture_docs())["rates"]
+    docs = _estimate_docs()
+    rates = build_rates(FEED, docs, now=ESTIMATE_NOW)["rates"]
     e = estimate(rates, 100, gpu_filter="A100")
     key = [(x["tier_class"] == "reserved", x["monthly_cost_usd"]) for x in e]
     assert key == sorted(key) and e[0]["tier_class"] != "reserved"  # reservations never rank first
     th = next(x for x in e if x["deal_id"] == "deal-thundercompute-001")
-    assert th["monthly_cost_usd"] == round(_rec("Thunder Compute", "A100")["hourly_usd"] * 100, 2)
+    th_rec = next(r for d in docs if d["vendor"] == "Thunder Compute" for r in d["records"] if r["gpu"] == "A100")
+    assert th["monthly_cost_usd"] == round(th_rec["hourly_usd"] * 100, 2)
     uc = next(x for x in e if x["deal_id"] == "deal-ucartz-001")
     a100 = _fx("A100")
     # T35: whole servers only. 1 GPU on a 2x A100 monthly server bills the full server (2 GPUs), not half of it.
@@ -57,6 +75,9 @@ def test_estimate_hourly_vs_flat_and_rank():
     e4090 = estimate(rates, 1000, gpu_filter="4090")
     assert next(x for x in e4090 if x["deal_id"] == "deal-ucartz-001")["monthly_cost_usd"] == round(_fx("RTX 4090")["price_usd"] * 2, 2)
     assert [x["monthly_cost_usd"] for x in e4090] == sorted(x["monthly_cost_usd"] for x in e4090)
+    from core.gpu import _tier_class, min_gpus_unmet
+    k4090 = [(_tier_class(x) == "reserved", min_gpus_unmet(x, None), x["monthly_cost_usd"]) for x in e4090]
+    assert k4090 == sorted(k4090) and any(k[1] for k in k4090)  # min-rental rows rank after every fitting row
 
 
 def test_affiliate_not_rank_input():
