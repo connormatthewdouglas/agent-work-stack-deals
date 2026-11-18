@@ -135,6 +135,9 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>Affiliate disclosure (Brain #829, 2026-11-18): <code>/disclosure/</code> states that Lantern Works may earn a commission from some vendor links; this never changes prices shown or ranking order. The homepage footer and site footers link to it. GPU pages say “earn a commission” (not “earn credit”). TrueProxies deal pages say “we may earn a commission from TrueProxies”.</li>
+</ul>
+<ul>
 <li>Weekly repeat-caller IDs (2026-11-16; approved via Bjorn): on hosted MCP <code>initialize</code>, when <code>CALLER_ID_SECRET</code> is set, the worker stores only <code>(iso_week, hash, days_seen)</code> — a 16-hex HMAC-SHA256 of <code>clientInfo.name | version |</code> IPv4 /24 or IPv6 /48 prefix, keyed by the secret and the ISO week. Raw IP, prefix and client name are never stored or logged. <code>/stats.json</code> gains per-week <code>distinct_callers</code> and <code>callers_3plus_days</code>. House, CI, known bots, GitHub Actions and MCP Registry health checks are excluded; a missing secret is a no-op. Additive. Uses the existing stats D1 database.</li>
 </ul>
 <ul>
@@ -1198,7 +1201,7 @@
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
     <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/reports/">Reports</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · <a href="https://thelanternworks.com/privacy/">Privacy</a> · Contact <a href="https://thelanternworks.com/report-price/">report a price or correction</a></p>
-    <p>Affiliate disclosure: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+    <p><a href="https://thelanternworks.com/disclosure/">Affiliate disclosure</a>: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "327dc277f310484b93db8d3156c54a0f"}'></script>
   <script>

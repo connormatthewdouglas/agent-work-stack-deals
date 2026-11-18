@@ -29,7 +29,7 @@ MIN_VENDORS = 3
 ALWAYS_PAGE = {"B300", "MI300X", "L4"}  # Pulse report 2026-11-02: page these models whenever the feed has rows, even under MIN_VENDORS
 PAIRS = [("RunPod", "Verda (formerly DataCrunch)"), ("Lambda", "RunPod"), ("CoreWeave", "Nebius")]
 MIN_SHARED = 3
-DISCLOSURE = "Some links are referral links; Lantern Works may earn credit. Affiliate status is not a ranking factor."
+DISCLOSURE = "Some links are referral links; Lantern Works may earn a commission. Affiliate status is not a ranking factor."
 ET = timezone(timedelta(hours=-4))  # display only; label says ET
 SPEC_PATHS: list[str] = []
 # Near-duplicate of an older page: rel=canonical points there and the URL stays out of the sitemap.
@@ -148,7 +148,7 @@ def link_cell(gen, r) -> str:
     return f'<a href="{gen.esc(r["redeem_url"])}" rel="sponsored nofollow noopener">{w}</a>' if r.get("redeem_url") else w
 
 
-LEGEND = ("<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn credit if you sign up through it; "
+LEGEND = ("<p class=\"meta\"><strong>Link:</strong> \u201cReferral link\u201d means Lantern Works may earn a commission if you sign up through it; "
           "\u201cDirect link\u201d goes to the vendor with no referral. Neither affects order. ")
 
 
