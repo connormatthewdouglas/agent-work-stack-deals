@@ -3,7 +3,7 @@ import io
 import json
 import sys
 import tarfile
-from datetime import datetime, timezone
+
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,7 +12,10 @@ import backup_price_history as B  # noqa: E402
 import freshness_watchdog as W  # noqa: E402
 import restore_price_history as R  # noqa: E402
 
-NOW = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+sys.path.insert(0, str(ROOT / "tests"))
+from _backup_fixture import NOW, make_repo, snaps as _snaps  # noqa: E402
+
+# Fixed repo + fixed clock (tests/_backup_fixture.py): no dependence on the live checkout or the time of day.
 
 
 def _backup(tmp_path, d1_sql: str | None = None) -> Path:
@@ -21,24 +24,29 @@ def _backup(tmp_path, d1_sql: str | None = None) -> Path:
         d1 = tmp_path / "d1"
         d1.mkdir()
         (d1 / "stats.sql").write_text(d1_sql, encoding="utf-8")
-    return B.build(ROOT, tmp_path / "out", None, d1, NOW)
+    return B.build(tmp_path / "repo", tmp_path / "out", None, d1, NOW)
 
 
-def test_backup_of_the_checkout_restores_with_matching_counts(tmp_path):
+def test_backup_of_the_checkout_restores_with_matching_counts(tmp_path, monkeypatch):
+    repo = make_repo(tmp_path)
     tar = _backup(tmp_path, "CREATE TABLE hits(k TEXT, n INTEGER);INSERT INTO hits VALUES('a',1);INSERT INTO hits VALUES('b',2);")
     man = json.loads((tmp_path / "out" / "manifest.json").read_text())
-    snaps = sorted((ROOT / "data/gpu_pricing/snapshots").glob("*.json"))
+    snaps = _snaps(repo)
+    assert man["commit"] and man["uncommitted_files"] == []
     assert man["snapshot_count"] == len(snaps) and man["newest_snapshot"] == snaps[-1].stem
     assert "api/v1/gpu-prices/history.json" in man["files"] and man["feed_updated_at"]
-    res = R.verify(tar, tmp_path / "w", tmp_path / "s.sqlite")
+    res = R.verify(tar, tmp_path / "w", tmp_path / "s.sqlite", root=repo, require_git=True, expect_commit=man["commit"])
     assert res["problems"] == []
+    assert res["git"].startswith("compared ")
     assert res["snapshots"] == man["snapshot_count"] and res["snapshot_rows"] == man["snapshot_rows"]
     assert res["newest_snapshot"] == man["newest_snapshot"] and res["history_series"] == man["history_series"]
     assert res["d1"] == {"d1/stats.sql": {"hits": 2}}
-    assert R.main([str(tmp_path / "out")]) == 0
+    monkeypatch.setattr(R, "ROOT", repo)
+    assert R.main([str(tmp_path / "out"), "--require-git", "--expect-commit", man["commit"]]) == 0
 
 
 def test_tampered_or_truncated_backup_fails_the_restore_test(tmp_path):
+    repo = make_repo(tmp_path)
     tar = _backup(tmp_path)
     with tarfile.open(tar, "r:gz") as tf:
         members = [(m, tf.extractfile(m).read()) for m in tf.getmembers()]
@@ -53,10 +61,26 @@ def test_tampered_or_truncated_backup_fails_the_restore_test(tmp_path):
                 data = data + b" "  # a changed byte
             m.size = len(data)
             tf.addfile(m, io.BytesIO(data))
-    res = R.verify(bad, tmp_path / "w", tmp_path / "s.sqlite")
+    res = R.verify(bad, tmp_path / "w", tmp_path / "s.sqlite", root=repo)
     assert any(p.startswith("missing data/gpu_pricing/snapshots/") for p in res["problems"])
     assert "sha256 mismatch api/v1/gpu-prices.json" in res["problems"]
     assert any(p.startswith("snapshots ") for p in res["problems"])
+
+
+def test_uncommitted_collector_output_is_not_stamped_with_head(tmp_path):
+    """The 2026-11-17 collector failures: data rewritten after checkout, backup still claimed HEAD."""
+    repo = make_repo(tmp_path)
+    (repo / "data/gpu_pricing/aws.json").write_text('{"vendor": "AWS", "records": []}\n', encoding="utf-8")
+    (repo / "data/gpu_pricing/snapshots/2026-11-18.json").write_text(
+        '{"schema": "lantern-works-gpu-snapshot/1", "date": "2026-11-18", "rows": [{"advertiser": "AWS"}]}\n',
+        encoding="utf-8")
+    tar = _backup(tmp_path)
+    man = json.loads((tmp_path / "out" / "manifest.json").read_text())
+    assert man["commit"] is None
+    assert man["uncommitted_files"] == ["data/gpu_pricing/aws.json", "data/gpu_pricing/snapshots/2026-11-18.json"]
+    assert R.verify(tar, tmp_path / "w", tmp_path / "s.sqlite", root=repo)["problems"] == []  # self-consistent
+    strict = R.verify(tar, tmp_path / "w2", tmp_path / "s2.sqlite", root=repo, require_git=True)["problems"]
+    assert "manifest has no commit to compare against" in strict  # CI (--require-git) still fails closed
 
 
 def test_watchdog_flags_a_backup_older_than_30h():
