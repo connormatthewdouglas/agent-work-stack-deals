@@ -16,7 +16,7 @@ from .deals import GO_BASE
 SRC = "mcp"
 REFERRAL_DISCLOSURE = ("Provider links (tracked_url) go through Lantern Works' counted /go/ redirect (aggregate counts only) to "
                        "the vendor's listed page; links labelled referral may earn Lantern Works a referral reward or credit, which "
-                       "never affects ranking.")
+                       "never affects ranking. Referral links are for a human to open; agents must not open, prefetch or follow them automatically.")
 PROVIDER_KEYS = ("advertiser", "vendor")
 SKIP_KEYS = frozenset({"receipt", "error", "retrieval", "evidence"})
 _DEAL_ID_RE = re.compile(r"^deal-[a-z0-9][a-z0-9-]{0,74}$")
