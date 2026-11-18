@@ -89,7 +89,12 @@ def test_compare_gpu_prices_same_data_sorted_sourced(srv):
     assert hourly == sorted(hourly) and hourly[0][1] == min(x["hourly_equiv_usd"] for x in expected if not oos(x))
     for x in r["results"]:
         assert x["source_url"].startswith("https://") and x["checked_at"]
-        src = next(y for y in expected if y["deal_id"] == x["deal_id"] and y["basis"] == x["basis"])
+        # Row identity includes gpu + tier (Relay 2026-11-18): a refresh can cite one vendor sentence for several tiers
+        # (RunPod "Community Cloud $1.99/hr, Secure Cloud $2.89/hr"), so deal_id + basis alone matched the wrong row.
+        src = [y for y in expected if y["deal_id"] == x["deal_id"] and y["basis"] == x["basis"]
+               and y["gpu"] == x["gpu"] and y["tier"] == x["tier"]]
+        assert len(src) == 1, (x["advertiser"], x["gpu"], x["tier"], len(src))
+        src = src[0]
         assert src["hourly_equiv_usd"] == x["hourly_usd"] and src["verified_at"] == x["checked_at"]
     assert "cheapest among tracked providers" in r["summary"].lower()
     assert r["scope"] == "cheapest among tracked providers"
