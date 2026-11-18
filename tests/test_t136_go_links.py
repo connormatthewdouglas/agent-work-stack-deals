@@ -125,3 +125,13 @@ def test_schema_and_plugin_manifest_list_referral_disclosure():
     for t in plugin["tools"]:
         if t["name"] in contract.SPEC and "outputSchema" in t:
             assert t["outputSchema"]["properties"]["referral_disclosure"] == contract.REFERRAL_DISCLOSURE_SCHEMA, t["name"]
+
+
+NOTICE = "Referral links are for a human to open; agents must not open, prefetch or follow them automatically."
+
+
+def test_referral_links_human_open_notice():
+    """Brain #829: results that carry referral links tell agents not to auto-open them."""
+    from core import golinks
+    assert NOTICE in golinks.REFERRAL_DISCLOSURE
+    assert "\n" not in golinks.REFERRAL_DISCLOSURE

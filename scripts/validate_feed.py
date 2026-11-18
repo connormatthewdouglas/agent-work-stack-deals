@@ -7,7 +7,7 @@ Checks:
   - /api/v1/deals.json is /deals.json with core.deals.cite_guard applied (unsourced prices null)
   - sitemap.xml URLs are on https://thelanternworks.com, no github.io hardcodes in public files
   --gist   : gist mirror raw deals.json is byte-identical to api/v1/deals.json (the served, cite-guarded feed)
-  --links  : redeem_url link check (403/429/405/timeouts = warning; 404/410/DNS/5xx-after-retries = error)
+  --links  : redeem_url link check, excluding referral/affiliate URLs (403/429/405/timeouts = warning; 404/410/DNS/5xx-after-retries = error)
 """
 from __future__ import annotations
 
@@ -24,8 +24,10 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 import generate_seo_pages as gen  # noqa: E402
+from core.referrals import has_ref_code  # noqa: E402
 
 GIST_RAW = "https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36 LanternWorksLinkCheck/1.0"
@@ -204,8 +206,16 @@ def check_link(url: str) -> tuple[str, str, str]:
     return ("error" if (last and last[:1] == "5") or "NameResolution" in last or "gaierror" in last else "soft"), url, last
 
 
+def _is_referral_redeem(deal: dict) -> bool:
+    """True when redeem_url is a disclosed affiliate/referral link (must not be auto-fetched)."""
+    url = deal.get("redeem_url") or ""
+    return bool(deal.get("affiliate") or deal.get("referral_url") or has_ref_code(url))
+
+
 def check_links(feed: dict) -> None:
-    urls = sorted({d["redeem_url"] for d in feed["deals"] if d.get("redeem_url")})
+    # Brain #829: never GET/HEAD referral or affiliate URLs (auto-loading can count as cookie stuffing).
+    urls = sorted({d["redeem_url"] for d in feed["deals"] if d.get("redeem_url") and not _is_referral_redeem(d)})
+    skipped = sum(1 for d in feed["deals"] if d.get("redeem_url") and _is_referral_redeem(d))
     with cf.ThreadPoolExecutor(max_workers=8) as ex:
         results = list(ex.map(check_link, urls))
     n_ok = sum(1 for r in results if r[0] == "ok")
@@ -214,7 +224,7 @@ def check_links(feed: dict) -> None:
             warn(f"link {why}: {url}")
         elif kind == "error":
             err(f"link {why}: {url}")
-    print(f"links_checked={len(urls)} ok={n_ok} soft={sum(r[0]=='soft' for r in results)} errors={sum(r[0]=='error' for r in results)}")
+    print(f"links_checked={len(urls)} skipped_referral={skipped} ok={n_ok} soft={sum(r[0]=='soft' for r in results)} errors={sum(r[0]=='error' for r in results)}")
 
 
 def check_gpu_index() -> None:
@@ -275,7 +285,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gist", action="store_true", help="check gist mirror byte parity")
     ap.add_argument("--gist-strict", action="store_true", help="with --gist: a failed gist fetch is an error (release runs)")
-    ap.add_argument("--links", action="store_true", help="link-check redeem URLs")
+    ap.add_argument("--links", action="store_true", help="link-check non-referral redeem URLs")
     a = ap.parse_args()
     feed = json.loads((ROOT / "deals.json").read_text(encoding="utf-8"))
     print(f"deals={len(feed.get('deals', []))}")
