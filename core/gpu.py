@@ -374,13 +374,18 @@ def _is_batch(r: dict) -> bool:
     return r.get("price_check") == "batch" or bool(r.get("batch"))
 
 
-def _price_too_old(r: dict, doc: dict) -> bool:
+def _price_too_old(r: dict, doc: dict, now: datetime | None = None) -> bool:
+    # Use the same eligibility clock as price_effective_at / build_rates(now=...):
+    # an explicit `now`, else LW_AVAIL_NOW, else wall clock. Using now_utc() here
+    # ignored build_rates(..., now=AFTER) and held Lambda's Nov 10 fixture as
+    # "stale price (7 days old)" once wall clock passed 2026-11-17T18:31:05Z
+    # (scout-import 44214985294, gpu-refresh 44192471151, lium-collect 44192029513).
+    clock = _build_clock(now)
     if doc.get("manual_snapshot"):
         # Same cutoff refresh() uses: verified_at + STALE_DAYS. Returning False here
         # used to leave hold_after as an annotation only, so a missed refresh
         # (2026-11-16 gpu-refresh failed after Cirrascale/Clore crossed 7 days)
         # still published those rows as current.
-        from .gpu_availability import now_utc
         v = r.get("verified_at") or r.get("checked_at")
         if not v:
             return False
@@ -388,9 +393,9 @@ def _price_too_old(r: dict, doc: dict) -> bool:
             t = datetime.fromisoformat(str(v).replace("Z", "+00:00"))
         except ValueError:
             return False
-        return now_utc() - t > timedelta(days=STALE_DAYS)
+        return clock - t > timedelta(days=STALE_DAYS)
     from .data_age import STALE_HOURS, age_fields
-    h = age_fields(r)["data_age_hours"]
+    h = age_fields(r, clock)["data_age_hours"]
     return h is not None and h > (BATCH_HOLD_HOURS if _is_batch(r) else STALE_HOURS)
 
 
@@ -515,11 +520,11 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: d
                              "page_last_updated": None, "scope": "record",
                              "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}]})
                 continue
-            if _price_too_old(r, doc):
+            if _price_too_old(r, doc, clock):
                 # Gauge re28: a price not re-verified for STALE_DAYS never ranks on any page; listed in held_stale.
                 from .data_age import stale_label
                 held.append({"vendor": doc["vendor"], "deal_id": doc["deal_id"], "source_url": r["source_url"],
-                             "checked_at": r["checked_at"], "reason": stale_label(r), "page_last_updated": None, "scope": "record",
+                             "checked_at": r["checked_at"], "reason": stale_label(r, clock), "page_last_updated": None, "scope": "record",
                              "records": [{**{k: r.get(k) for k in ("gpu", "vram_gb", "hourly_usd", "tier", "quote", "evidence")}, **_vram_note(r), **_effective_field(r)}]})
                 continue
             monthly = r["billing_unit"] == "monthly"

@@ -2,7 +2,7 @@
 import copy
 import importlib.util
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -183,3 +183,28 @@ def test_effective_date_eligibility_follows_lw_avail_now(monkeypatch):
     assert len(rates) == 1 and rates[0]["price_usd"] == 7.99
     assert not [h for h in after["held_stale"]
                 if h["vendor"] == "Lambda" and str(h.get("reason") or "").startswith("not yet in effect:")]
+
+
+def test_build_rates_stale_cutoff_uses_injected_now():
+    """Stale hold must follow build_rates(..., now=), not the wall clock.
+
+    REC.verified_at is 2026-11-10T18:31:05Z. AFTER (the Nov 16 effective instant)
+    is only ~5.2 days later, so the rate ranks. The same fixture was held as
+    stale in CI once the wall clock passed 7 days (2026-11-17T18:31:05Z).
+    """
+    rec = dict(copy.deepcopy(REC), price_effective_at="2026-11-16T00:00:00+00:00")
+    doc = _doc(rec)
+    at = build_rates([], [doc], now=AFTER)
+    rates = [x for x in at["rates"] if x["advertiser"] == "Lambda"]
+    assert len(rates) == 1 and rates[0]["price_usd"] == 7.99
+    # Exactly 7 days is not past the cutoff; one hour later is held as stale.
+    edge = datetime(2026, 11, 17, 18, 31, 5, tzinfo=timezone.utc)
+    still = build_rates([], [doc], now=edge)
+    assert len([x for x in still["rates"] if x["advertiser"] == "Lambda"]) == 1
+    past = edge + timedelta(hours=1)
+    old = build_rates([], [doc], now=past)
+    assert [x for x in old["rates"] if x["advertiser"] == "Lambda"] == []
+    h = [x for x in old["held_stale"] if x["vendor"] == "Lambda"]
+    assert len(h) == 1 and h[0]["reason"].startswith("stale price")
+    # Hold does not invent a new stamp on the source record.
+    assert rec["verified_at"] == REC["verified_at"]
