@@ -10,6 +10,7 @@ name: Price history backup
 on:
   schedule:
     - cron: "37 6 * * *"   # daily 06:37 UTC (1:37 AM ET), after the overnight data runs
+    - cron: "37 18 * * *"  # fallback 18:37 UTC (1:37 PM ET): GitHub drops many scheduled events on this repo; a second daily slot is harmless (idempotent, own concurrency group)
   workflow_dispatch:
 
 permissions:
