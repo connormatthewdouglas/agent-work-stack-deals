@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT))
 
 import refresh_gpu_prices as R  # noqa: E402
 from core import gpu_history as H  # noqa: E402
-from core.gpu import build_rates, load_vendor_files, record_problems  # noqa: E402
+from core.gpu import STALE_DAYS, build_rates, load_vendor_files, record_problems  # noqa: E402
 from core import deals as core  # noqa: E402
 
 NOW = datetime(2026, 11, 3, 12, 0, tzinfo=timezone.utc)
@@ -78,13 +78,45 @@ def test_unreadable_keeps_old_price_and_verified_at():
 
 def test_unreadable_for_more_than_stale_days_is_held_and_unranked_then_released():
     d = doc(rec())
-    R.refresh([d], Fake("", status=503), NOW + timedelta(days=8))
+    hold_at = NOW + timedelta(days=8)
+    release_at = NOW + timedelta(days=9)
+    R.refresh([d], Fake("", status=503), hold_at)
     r = d["records"][0]
     assert r["stale"]["auto"] is True and r["price_usd"] == 1.99
-    out = build_rates([], [d])
+    out = build_rates([], [d], now=hold_at)
     assert out["rates"] == [] and out["held_stale"][0]["records"][0]["gpu"] == "A100 SXM"
-    R.refresh([d], Fake(PAGE), NOW + timedelta(days=9))
-    assert "stale" not in d["records"][0] and build_rates([], [d])["rates"][0]["price_usd"] == 1.89
+    R.refresh([d], Fake(PAGE), release_at)
+    assert "stale" not in d["records"][0] and build_rates([], [d], now=release_at)["rates"][0]["price_usd"] == 1.89
+
+
+def test_released_hold_ranks_on_the_refresh_clock_when_import_pin_is_later(monkeypatch):
+    """scout-import pins LW_AVAIL_NOW to the import wall clock, then runs pytest.
+
+    This test's release stamp is NOW+9d = 2026-11-12T12:00:00Z. Run 44528708506 set
+    that pin to ~2026-11-19T12:12Z, so build_rates() without now= treated the
+    just-released row as a stale price and the held-then-released assertion
+    hit IndexError on an empty rates list. Pass the refresh clock explicitly.
+    The STALE_DAYS hold itself stays strict: past that cutoff on the same
+    injected clock, the row is held and unranked.
+    """
+    d = doc(rec())
+    hold_at = NOW + timedelta(days=8)
+    release_at = NOW + timedelta(days=9)
+    # The exact scout-import shape that broke the sibling test.
+    monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-19T12:12:00Z")
+    R.refresh([d], Fake("", status=503), hold_at)
+    held = build_rates([], [d], now=hold_at)
+    assert held["rates"] == [] and held["held_stale"][0]["records"][0]["gpu"] == "A100 SXM"
+    R.refresh([d], Fake(PAGE), release_at)
+    released = build_rates([], [d], now=release_at)
+    assert "stale" not in d["records"][0]
+    assert released["rates"][0]["price_usd"] == 1.89
+    assert released["held_stale"] == []
+    # age_fields rounds to 0.1 h; the first whole hour past STALE_DAYS is honestly held.
+    past = release_at + timedelta(hours=STALE_DAYS * 24 + 1)
+    aged = build_rates([], [d], now=past)
+    assert aged["rates"] == [] and aged["held_stale"][0]["records"][0]["gpu"] == "A100 SXM"
+    assert d["records"][0]["verified_at"] == release_at.replace(microsecond=0).isoformat()
 
 
 def test_ambiguous_context_is_unreadable():
