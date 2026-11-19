@@ -202,11 +202,20 @@ def test_cli_writes_only_when_prices_moved(tmp_path: Path):
     assert written["records"][0]["verified_at"] == "2026-04-02T10:30:00+00:00"
 
 
+def _workflow_permissions():
+    import yaml
+    wf = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    return wf.get("permissions") or {}, (wf["jobs"]["recite"].get("permissions") or {})
+
+
 def test_workflow_is_scheduled_before_live_checks_and_does_not_touch_the_gate():
     text = WORKFLOW.read_text(encoding="utf-8")
     assert "cron: \"30 10 * * *\"" in text  # 10:30 UTC, before validate-and-deploy live-checks at 17 11 * * *
     assert "workflow_dispatch:" in text
-    assert "contents: write" in text and "pull-requests: write" in text
+    assert "contents: write" in text
+    top, job = _workflow_permissions()
+    assert "contents" in top and "actions" in top
+    assert "contents" in job and "actions" in job
     assert "scout/verda-daily-recite" in text
     assert "recite_verda_prices.py" in text
     assert "generate_seo_pages.py" in text
@@ -217,3 +226,27 @@ def test_workflow_is_scheduled_before_live_checks_and_does_not_touch_the_gate():
     assert "--ref main" not in text
     assert "validate-and-deploy.yml" in text
     assert "rebase_push_main" not in text
+
+
+def test_workflow_pushes_the_branch_and_notices_without_opening_a_pr():
+    """The daily job pushes the branch and dispatches CI; it must not open a PR.
+
+    Run 44515575500 pushed the branch, then failed at gh pr create with
+    'GitHub Actions is not permitted to create or approve pull requests'.
+    The repo setting is left as-is; this job no longer needs that permission.
+    """
+    text = WORKFLOW.read_text(encoding="utf-8")
+    top, job = _workflow_permissions()
+    assert "pull-requests" not in top and "pull-requests" not in job
+    assert "gh pr create" not in text
+    assert "gh pr edit" not in text
+    assert "gh pr list" not in text
+    assert "gh pr merge" not in text
+    assert "compare/main...scout/verda-daily-recite" in text
+    assert "GITHUB_STEP_SUMMARY" in text
+    assert "This job does not open a pull request" in text
+    assert "does not need pull-requests: write" in text
+    assert "## Moved rows" in text
+    assert "gh workflow run validate-and-deploy.yml --ref \"$BRANCH\"" in text
+    # Force-pushing would clobber a daily branch Mart is handling by hand.
+    assert "force-with-lease" not in text and "git push --force" not in text
