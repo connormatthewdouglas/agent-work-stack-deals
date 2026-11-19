@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Public API docs (2026-11-19): `/api/` documents the public JSON feeds and the hosted MCP URL, with authentication, CORS and rate-limit facts as checked live. Also folds Gauge's #288 nits: the TrueProxies disclosure names the vendor once instead of repeating the commission sentence, and deal copy no longer says “the the sign-up link”.
+
 - Affiliate disclosure (Brain #829, 2026-11-18): `/disclosure/` states that Lantern Works may earn a commission from some vendor links; this never changes prices shown or ranking order. The homepage footer and site footers link to it. GPU pages say “earn a commission” (not “earn credit”). TrueProxies deal pages say “we may earn a commission from TrueProxies”.
 
 - Weekly repeat-caller IDs (2026-11-16; approved via Bjorn): on hosted MCP `initialize`, when `CALLER_ID_SECRET` is set, the worker stores only `(iso_week, hash, days_seen)` — a 16-hex HMAC-SHA256 of `clientInfo.name | version |` IPv4 /24 or IPv6 /48 prefix, keyed by the secret and the ISO week. Raw IP, prefix and client name are never stored or logged. `/stats.json` gains per-week `distinct_callers` and `callers_3plus_days`. House, CI, known bots, GitHub Actions and MCP Registry health checks are excluded; a missing secret is a no-op. Additive. Uses the existing stats D1 database.

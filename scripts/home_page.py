@@ -205,7 +205,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> Path:
 <body>
 {gen.site_ui.nav_html(BASE, BASE + "/")}{body}
 {JS}  <footer><p>Prices are refreshed regularly, with each price's age shown; confirm on the vendor page before you rent. Some result links are referral links (marked); Lantern Works may earn a commission. That never changes ranking or your price. <a href="{BASE}/disclosure/">Affiliate disclosure</a>.</p>
-    <p><strong>Lantern Works</strong> · <a href="{BASE}/gpu/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/privacy/">Privacy</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
+    <p><strong>Lantern Works</strong> · <a href="{BASE}/gpu/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/privacy/">Privacy</a> · <a href="{BASE}/api/">API</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
   </footer>
 {gen.analytics_snippet()}</body>
 </html>
