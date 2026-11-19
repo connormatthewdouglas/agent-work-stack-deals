@@ -113,6 +113,7 @@ def test_last_success_older_than_twice_the_schedule():
     assert 'cron: "23 10 * * *"' in bodies["gpu-refresh.yml"] and 'cron: "47 14 * * *"' in bodies["gpu-refresh.yml"]
     assert 'cron: "40 */2 * * *"' in bodies["lium-collect.yml"]
     assert 'cron: "*/10 * * * *"' in bodies["scout-import.yml"] and "4-hourly" in bodies["scout-import.yml"]
+    assert "Dispatch lium-collect if last success is older than 3h" in bodies["scout-import.yml"]
     assert W.collector_problems({"conclusion": "success", "url": "u"}, "2026-11-09T09:00:00Z",
                                 name="lium-collect.yml", interval_h=2, now=NOW) == []
     late = W.collector_problems({"conclusion": "success", "url": "u"}, "2026-11-09T07:00:00Z",

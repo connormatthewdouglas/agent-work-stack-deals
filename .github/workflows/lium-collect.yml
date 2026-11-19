@@ -10,6 +10,8 @@ on:
   schedule:
     - cron: "40 */2 * * *"
     - cron: "10 1-23/2 * * *"  # fallback: GitHub dropped most scheduled runs since Nov 17; same concurrency group, no-change runs exit 0
+    # Both slots can still be dropped for hours (Nov 19: no events 04:10–13:23 UTC). scout-import.yml
+    # dispatches this workflow when the last success is older than 3h (Scout pushes are not GitHub cron).
   workflow_dispatch:
 
 permissions:
