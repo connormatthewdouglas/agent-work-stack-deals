@@ -145,6 +145,15 @@ jobs:
           base="${BASE_PR:-$BEFORE}"
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then base=HEAD~1; fi
           python3 scripts/check_gpu_changes.py --base "$base"
+      - name: Restamp generated pages if only the feed clock moved
+        # A collector commit can land on main between a PR generate and merge. The merge
+        # ref then has the new feed_updated_at but pages still bake the old stamp, and
+        # pages-match fails. If the only diffs are feed-clock display, restamp with the
+        # pinned generator (LW_AVAIL_NOW=feed_updated_at) and make a local commit so the
+        # strict match test (including HEAD worktree cases) sees the restamp. Real drift
+        # is not overwritten; the tree is left unchanged and pages-match still fails.
+        # The local commit is never pushed (this job has contents: read).
+        run: python3 scripts/restamp_pages_to_feed_clock.py --commit
       - name: pytest (entire tests/ directory incl. test_gpu.py)
         env:
           LANTERN_DEALS_FILE: api/v1/deals.json
@@ -349,6 +358,15 @@ jobs:
           if [ "${{ github.event_name }}" = push ] && [ -n "$H" ] && [ "$H" != "${{ github.sha }}" ]; then echo "superseded by $H; skipping deploy"; echo go=false >> "$GITHUB_OUTPUT"; else echo go=true >> "$GITHUB_OUTPUT"; fi
       - uses: actions/checkout@v4
         if: steps.head.outputs.go == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.head.outputs.go == 'true'
+        with:
+          python-version: "3.12"
+      - name: Regenerate pages at the committed feed clock (never ship a stale feed-timestamp line)
+        if: steps.head.outputs.go == 'true'
+        run: |
+          export LW_AVAIL_NOW="$(python3 -c "import json; print(json.load(open('api/v1/gpu-prices.json'))['feed_updated_at'])")"
+          python3 scripts/generate_seo_pages.py
       - uses: actions/configure-pages@v5
         if: steps.head.outputs.go == 'true'
       # Same Jekyll build GitHub's branch deploy used, so URLs are unchanged. CNAME is copied into _site.
