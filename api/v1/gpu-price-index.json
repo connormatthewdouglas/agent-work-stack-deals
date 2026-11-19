@@ -8005,8 +8005,8 @@
   {
    "date": "2026-11-19",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-19.json",
-   "snapshot_sha256": "771aa8de71e6e8d280f96a06946920438b2a43b26251afcff9989de5440e1850",
-   "feed_commit_for_listing_counts": "08ab5286e92b25966ada7f3a8b669668e847b412",
+   "snapshot_sha256": "d47323d5645b1d52c5ad00c17a805ee5f824d684a1fc981f2c882e1c992d3d05",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.5,
@@ -8264,6 +8264,10 @@
     {
      "key": "Lambda|H100 SXM|On-demand instance (8x GPU)|80|8",
      "excluded_because": "held"
+    },
+    {
+     "key": "Lium|H100 SXM|Marketplace spot node (interruptible)|80|8",
+     "excluded_because": "spot/interruptible"
     },
     {
      "key": "Lium|H200|Marketplace secure node|141|1",
