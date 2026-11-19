@@ -1125,7 +1125,7 @@ _PLAIN = [
     (re.compile(r"redeem_url is an affiliate \(referral\) link; see disclosure\.?"), "The sign-up link is a referral link (see the disclosure)."),
     (re.compile(r"plain_url \(when set\) is the direct vendor link\.?"), "A direct vendor link without referral tracking is listed under it."),
     (re.compile(r"\(unverified\)"), "(not yet verified)"),
-    (re.compile(r"\bredeem_url\b"), "the sign-up link"),
+    (re.compile(r"(?:the\s+)?\bredeem_url\b"), "the sign-up link"),
     (re.compile(r"\bplain_url\b"), "the direct vendor link"),
     (re.compile(r"\bpromo_code\b"), "promo code"),
     (re.compile(r"\bdocs_url\b"), "the vendor docs"),
@@ -1188,7 +1188,10 @@ def cta_html(deal: dict) -> str:
                   if pu else "")
         inline = INLINE
         if (deal.get("advertiser") or "").strip().lower() == "trueproxies":
-            inline = inline.rstrip(".") + "; we may earn a commission from TrueProxies."
+            inline = INLINE.replace(
+                "if you sign up through this link.",
+                "if you sign up through this link from TrueProxies.",
+            )
         extra += f'<br><small class="disclosure">{inline}{direct}</small>'
     return f'<a class="cta" {rel} href="{esc(url)}" data-deal="{esc(deal["id"])}">{label}</a>{extra}'
 
@@ -1346,7 +1349,7 @@ def page_shell(title: str, description: str, canonical: str, body: str, robots: 
 </div>
   <footer>
     <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
-    <p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · <a href="{BASE}/privacy/">Privacy</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
+    <p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/for-agents/">For agents</a> · <a href="{BASE}/privacy/">Privacy</a> · <a href="{BASE}/api/">API</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
     <p><a href="{BASE}/disclosure/">Affiliate disclosure</a>: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
@@ -1563,6 +1566,8 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("gpu/price-comparison", ("scripts/gpu_pages.py",)),
     ("docs/watch-gpu-prices", ("scripts/agent_growth_pages.py",)),
     ("api/v1/gpu-price-changes", ("scripts/gpu_changes_feed.py",)),
+    # Exact /api/ docs page. Keep this after the api/v1/ prefix so feed lastmods are unchanged.
+    ("api", ("scripts/api_docs_page.py",)),
     ("report-price", ("scripts/report_price_page.py",)),
     ("methodology", ("scripts/methodology_page.py",)),
     ("privacy", ("scripts/privacy_page.py",)),
@@ -2057,7 +2062,7 @@ if(t){{const d=t.closest("details")||t.querySelector("details");if(d)d.open=true
 addEventListener("hashchange",op);op();
 const f=document.getElementById("filters");if(f)f.addEventListener("input",()=>document.querySelectorAll("section.catsec details").forEach(d=>d.open=true));}})();
 </script>
-  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/privacy/">Privacy</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
+  <footer><p>Updated {esc(updated)} Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p><p><strong>Lantern Works</strong> · <a href="{BASE}/">GPU prices</a> · <a href="{BASE}/deals/">Deals</a> · <a href="{BASE}/lanternworks/">About</a> · <a href="{BASE}/reports/">Reports</a> · <a href="{BASE}/changelog/">Changelog</a> · <a href="{BASE}/privacy/">Privacy</a> · <a href="{BASE}/api/">API</a> · Contact <a href="{BASE}/report-price/">report a price or correction</a></p>
     <p><a href="{BASE}/disclosure/">Affiliate disclosure</a>: we may earn a commission when you sign up through our links. That never changes the price you pay.</p>
   </footer>
 {analytics_snippet()}</body>
@@ -2363,6 +2368,8 @@ def main() -> None:
     tool_paths.append(privacy_page.write(sys.modules[__name__]))
     import disclosure_page
     tool_paths.append(disclosure_page.write(sys.modules[__name__]))
+    import api_docs_page
+    tool_paths.append(api_docs_page.write(sys.modules[__name__]))
     import free_credits_page
     tool_paths.append(free_credits_page.write(sys.modules[__name__]))
     import report_price_page
