@@ -394,67 +394,27 @@
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $2.09/hr.",
         "availability": {
-          "status": "available when checked",
-          "in_stock": true,
+          "status": "unknown (stale availability, last checked 2026-11-18 22:04 ET)",
+          "in_stock": null,
+          "availability_stale": true,
           "checked_at": "2026-11-19T03:04:58Z",
-          "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-          "origin": "scout",
-          "availability_expires_at": "2026-11-19T04:04:58Z",
           "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
           "derived_from_regions": true,
-          "stock_level": "Low",
-          "available_regions": [
-            "EU-RO-1 (Europe)"
-          ],
-          "available_regions_detail": [
-            {
-              "region": "CA-MTL-3 (Canada)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-19T03:05:27Z",
-              "availability_expires_at": "2026-11-19T04:05:27Z",
-              "confirmed": false,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "first_read_at": "2026-11-19T03:05:27Z",
-              "second_read_at": "2026-11-19T03:10:22Z",
-              "second_read_gap_s": 295.0
-            },
-            {
-              "region": "EU-RO-1 (Europe)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-19T03:05:52Z",
-              "availability_expires_at": "2026-11-19T04:05:52Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-19T03:05:52Z",
-              "second_read_at": "2026-11-19T03:10:23Z",
-              "second_read_gap_s": 271.0
-            }
-          ],
-          "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "availability_expires_at": "2026-11-19T04:04:58Z",
+          "stock_read_at": "2026-11-19T03:04:58Z",
+          "price_read_at": "2026-11-18T19:01:10+00:00",
+          "price_at_claim_usd": 2.09,
+          "gpu_count": 1,
           "first_read_at": "2026-11-19T03:05:27Z",
           "second_read_at": "2026-11-19T03:10:22Z",
           "second_read_gap_s": 295.0,
           "second_read_basis": "region CA-MTL-3 (Canada)",
           "two_read_gap_ok": true,
-          "available_regions_normalized": [
-            {
-              "label": "EU-RO-1 (Europe)",
-              "zone": "EU-RO-1",
-              "country": "RO",
-              "group": "EU"
-            }
-          ],
-          "regions_expires_at": "2026-11-19T04:05:27Z",
-          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-          "availability_status": "in_stock",
-          "availability_reason": "in_stock",
-          "stock_read_at": "2026-11-19T03:04:58Z",
-          "price_read_at": "2026-11-18T19:01:10+00:00",
-          "price_at_claim_usd": 2.09,
-          "gpu_count": 1
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-19T03:04:58Z"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -482,131 +442,27 @@
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $2.19/hr.",
         "availability": {
-          "status": "available when checked",
-          "in_stock": true,
+          "status": "unknown (stale availability, last checked 2026-11-18 22:04 ET)",
+          "in_stock": null,
+          "availability_stale": true,
           "checked_at": "2026-11-19T03:04:58Z",
-          "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-          "origin": "scout",
-          "availability_expires_at": "2026-11-19T04:04:58Z",
           "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
           "derived_from_regions": true,
-          "stock_level": "Medium",
-          "available_regions": [
-            "EUR-IS-1 (Europe)",
-            "US-KS-2 (United States)",
-            "US-MD-1 (United States)",
-            "US-MO-1 (United States)",
-            "US-WA-1 (United States)"
-          ],
-          "available_regions_detail": [
-            {
-              "region": "EUR-IS-1 (Europe)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-19T03:05:55Z",
-              "availability_expires_at": "2026-11-19T04:05:55Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-19T03:05:55Z",
-              "second_read_at": "2026-11-19T03:10:23Z",
-              "second_read_gap_s": 268.0
-            },
-            {
-              "region": "US-KS-2 (United States)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-19T03:06:34Z",
-              "availability_expires_at": "2026-11-19T04:06:34Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-19T03:06:34Z",
-              "second_read_at": "2026-11-19T03:10:29Z",
-              "second_read_gap_s": 235.0
-            },
-            {
-              "region": "US-MD-1 (United States)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-19T03:06:36Z",
-              "availability_expires_at": "2026-11-19T04:06:36Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-19T03:06:36Z",
-              "second_read_at": "2026-11-19T03:10:30Z",
-              "second_read_gap_s": 234.0
-            },
-            {
-              "region": "US-MO-1 (United States)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-19T03:06:43Z",
-              "availability_expires_at": "2026-11-19T04:06:43Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-19T03:06:43Z",
-              "second_read_at": "2026-11-19T03:10:30Z",
-              "second_read_gap_s": 227.0
-            },
-            {
-              "region": "US-WA-1 (United States)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-19T03:07:02Z",
-              "availability_expires_at": "2026-11-19T04:07:02Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-19T03:07:02Z",
-              "second_read_at": "2026-11-19T03:10:33Z",
-              "second_read_gap_s": 211.0
-            }
-          ],
-          "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "availability_expires_at": "2026-11-19T04:04:58Z",
+          "stock_read_at": "2026-11-19T03:04:58Z",
+          "price_read_at": "2026-11-18T19:01:10+00:00",
+          "price_at_claim_usd": 2.19,
+          "gpu_count": 1,
           "first_read_at": "2026-11-19T03:05:55Z",
           "second_read_at": "2026-11-19T03:10:23Z",
           "second_read_gap_s": 268.0,
           "second_read_basis": "region EUR-IS-1 (Europe)",
           "two_read_gap_ok": true,
-          "available_regions_normalized": [
-            {
-              "label": "EUR-IS-1 (Europe)",
-              "zone": "EUR-IS-1",
-              "country": "IS",
-              "group": "EU"
-            },
-            {
-              "label": "US-KS-2 (United States)",
-              "zone": "US-KS-2",
-              "country": "US",
-              "group": "NA"
-            },
-            {
-              "label": "US-MD-1 (United States)",
-              "zone": "US-MD-1",
-              "country": "US",
-              "group": "NA"
-            },
-            {
-              "label": "US-MO-1 (United States)",
-              "zone": "US-MO-1",
-              "country": "US",
-              "group": "NA"
-            },
-            {
-              "label": "US-WA-1 (United States)",
-              "zone": "US-WA-1",
-              "country": "US",
-              "group": "NA"
-            }
-          ],
-          "regions_expires_at": "2026-11-19T04:05:55Z",
-          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-          "availability_status": "in_stock",
-          "availability_reason": "in_stock",
-          "stock_read_at": "2026-11-19T03:04:58Z",
-          "price_read_at": "2026-11-18T19:01:10+00:00",
-          "price_at_claim_usd": 2.19,
-          "gpu_count": 1
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-19T03:04:58Z"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -2069,67 +1925,27 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 PCIe cloud GPU rental on Runpod. Community Cloud $1.19/hr, Secure Cloud $2.09/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-18 22:04 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-19T03:04:58Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-19T04:04:58Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "stock_level": "Low",
-        "available_regions": [
-          "EU-RO-1 (Europe)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "CA-MTL-3 (Canada)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-19T03:05:27Z",
-            "availability_expires_at": "2026-11-19T04:05:27Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "first_read_at": "2026-11-19T03:05:27Z",
-            "second_read_at": "2026-11-19T03:10:22Z",
-            "second_read_gap_s": 295.0
-          },
-          {
-            "region": "EU-RO-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-19T03:05:52Z",
-            "availability_expires_at": "2026-11-19T04:05:52Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-19T03:05:52Z",
-            "second_read_at": "2026-11-19T03:10:23Z",
-            "second_read_gap_s": 271.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "availability_expires_at": "2026-11-19T04:04:58Z",
+        "stock_read_at": "2026-11-19T03:04:58Z",
+        "price_read_at": "2026-11-18T19:01:10+00:00",
+        "price_at_claim_usd": 2.09,
+        "gpu_count": 1,
         "first_read_at": "2026-11-19T03:05:27Z",
         "second_read_at": "2026-11-19T03:10:22Z",
         "second_read_gap_s": 295.0,
         "second_read_basis": "region CA-MTL-3 (Canada)",
         "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "EU-RO-1 (Europe)",
-            "zone": "EU-RO-1",
-            "country": "RO",
-            "group": "EU"
-          }
-        ],
-        "regions_expires_at": "2026-11-19T04:05:27Z",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-        "availability_status": "in_stock",
-        "availability_reason": "in_stock",
-        "stock_read_at": "2026-11-19T03:04:58Z",
-        "price_read_at": "2026-11-18T19:01:10+00:00",
-        "price_at_claim_usd": 2.09,
-        "gpu_count": 1
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-19T03:04:58Z"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2179,131 +1995,27 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand A100 SXM cloud GPU rental on Runpod. Community Cloud $1.39/hr, Secure Cloud $2.19/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-18 22:04 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-19T03:04:58Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-19T04:04:58Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "stock_level": "Medium",
-        "available_regions": [
-          "EUR-IS-1 (Europe)",
-          "US-KS-2 (United States)",
-          "US-MD-1 (United States)",
-          "US-MO-1 (United States)",
-          "US-WA-1 (United States)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "EUR-IS-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-19T03:05:55Z",
-            "availability_expires_at": "2026-11-19T04:05:55Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-19T03:05:55Z",
-            "second_read_at": "2026-11-19T03:10:23Z",
-            "second_read_gap_s": 268.0
-          },
-          {
-            "region": "US-KS-2 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-19T03:06:34Z",
-            "availability_expires_at": "2026-11-19T04:06:34Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-19T03:06:34Z",
-            "second_read_at": "2026-11-19T03:10:29Z",
-            "second_read_gap_s": 235.0
-          },
-          {
-            "region": "US-MD-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-19T03:06:36Z",
-            "availability_expires_at": "2026-11-19T04:06:36Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-19T03:06:36Z",
-            "second_read_at": "2026-11-19T03:10:30Z",
-            "second_read_gap_s": 234.0
-          },
-          {
-            "region": "US-MO-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-19T03:06:43Z",
-            "availability_expires_at": "2026-11-19T04:06:43Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-19T03:06:43Z",
-            "second_read_at": "2026-11-19T03:10:30Z",
-            "second_read_gap_s": 227.0
-          },
-          {
-            "region": "US-WA-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-19T03:07:02Z",
-            "availability_expires_at": "2026-11-19T04:07:02Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-19T03:07:02Z",
-            "second_read_at": "2026-11-19T03:10:33Z",
-            "second_read_gap_s": 211.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "availability_expires_at": "2026-11-19T04:04:58Z",
+        "stock_read_at": "2026-11-19T03:04:58Z",
+        "price_read_at": "2026-11-18T19:01:10+00:00",
+        "price_at_claim_usd": 2.19,
+        "gpu_count": 1,
         "first_read_at": "2026-11-19T03:05:55Z",
         "second_read_at": "2026-11-19T03:10:23Z",
         "second_read_gap_s": 268.0,
         "second_read_basis": "region EUR-IS-1 (Europe)",
         "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "EUR-IS-1 (Europe)",
-            "zone": "EUR-IS-1",
-            "country": "IS",
-            "group": "EU"
-          },
-          {
-            "label": "US-KS-2 (United States)",
-            "zone": "US-KS-2",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-MD-1 (United States)",
-            "zone": "US-MD-1",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-MO-1 (United States)",
-            "zone": "US-MO-1",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "US-WA-1 (United States)",
-            "zone": "US-WA-1",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-11-19T04:05:55Z",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-        "availability_status": "in_stock",
-        "availability_reason": "in_stock",
-        "stock_read_at": "2026-11-19T03:04:58Z",
-        "price_read_at": "2026-11-18T19:01:10+00:00",
-        "price_at_claim_usd": 2.19,
-        "gpu_count": 1
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-19T03:04:58Z"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2872,5 +2584,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261119T031202Z-7242e2c2",
-  "feed_updated_at": "2026-11-19T03:12:29Z"
+  "feed_updated_at": "2026-11-19T03:42:40Z"
 }
