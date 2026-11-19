@@ -43,6 +43,67 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      # GitHub can drop both lium-collect crons for hours (Nov 19 04:10–13:23 UTC: no events created).
+      # This runs even when the import gate is closed. Scout snapshot pushes already dispatch this
+      # workflow, so the heal is independent of GitHub's scheduler. Repeat dispatches are safe:
+      # lium-collect concurrency does not cancel, a no-change run exits 0, and pushes rebase.
+      # A 60-minute cooldown after any attempt avoids a retry storm if collect is failing tests.
+      - name: Dispatch lium-collect if last success is older than 3h
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import json, os, subprocess, sys
+          from datetime import datetime, timezone, timedelta
+
+          def gh(*args):
+              r = subprocess.run(["gh", *args], check=False, capture_output=True, text=True)
+              return r.returncode, r.stdout, r.stderr
+
+          try:
+              repo = os.environ["GITHUB_REPOSITORY"]
+              now = datetime.now(timezone.utc)
+
+              def parse(ts):
+                  return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+
+              code, out, err = gh(
+                  "run", "list", "--workflow", "lium-collect.yml", "--repo", repo,
+                  "--limit", "20", "--json", "status,conclusion,createdAt,updatedAt",
+              )
+              if code != 0:
+                  print(f"lium-collect self-heal: could not list runs ({(err or str(code)).strip()}); skipped")
+                  sys.exit(0)
+              runs = json.loads(out or "[]")
+              active = [r for r in runs if r.get("status") in ("in_progress", "queued", "waiting", "pending", "requested")]
+              if active:
+                  print(f"lium-collect self-heal: not dispatching; a run is already {active[0]['status']}")
+                  sys.exit(0)
+              if runs and (now - parse(runs[0]["createdAt"])) < timedelta(minutes=60):
+                  print(f"lium-collect self-heal: not dispatching; last attempt was at {runs[0]['createdAt']}")
+                  sys.exit(0)
+              code, out, err = gh(
+                  "run", "list", "--workflow", "lium-collect.yml", "--repo", repo,
+                  "--status", "success", "--limit", "1", "--json", "updatedAt,createdAt",
+              )
+              if code != 0:
+                  print(f"lium-collect self-heal: could not list successes ({(err or str(code)).strip()}); skipped")
+                  sys.exit(0)
+              successes = json.loads(out or "[]")
+              last_ts = (successes[0].get("updatedAt") or successes[0].get("createdAt")) if successes else None
+              last_at = parse(last_ts) if last_ts else None
+              if last_at and now - last_at < timedelta(hours=3):
+                  print(f"lium-collect self-heal: last success {last_ts} is fresh")
+                  sys.exit(0)
+              age = f"{(now - last_at).total_seconds() / 3600:.1f}h ago" if last_at else "no successful run found"
+              print(f"lium-collect self-heal: last success {age}; dispatching")
+              code, out, err = gh("workflow", "run", "lium-collect.yml", "--repo", repo, "--ref", "main")
+              if code != 0:
+                  print(f"lium-collect self-heal: dispatch failed ({(err or str(code)).strip()})")
+          except Exception as e:
+              print(f"lium-collect self-heal: skipped ({type(e).__name__}: {e})")
+              sys.exit(0)
+          PY
       - name: Gate (stdlib only)
         id: gate
         env:
