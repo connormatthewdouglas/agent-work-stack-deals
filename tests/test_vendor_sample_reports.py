@@ -241,6 +241,85 @@ def test_held_vendor_is_not_given_a_live_rank(tmp_path):
     assert "Owner hold until 2026-11-16" in page
     assert "H100" in page and "$2.99" in page
     assert "1 of " not in page
+    assert "Stale" in page
+
+
+def test_held_only_vendor_gets_a_stale_labelled_page(tmp_path):
+    """A vendor that is only in held_stale (not in vendors[]) still gets a report
+    that serves the last cited prices with an honest stale/age label."""
+    prices = {
+        "feed_updated_at": "2026-11-18T00:00:00Z",
+        "prices_verified_through": "2026-11-18T00:00:00Z",
+        "vendors": [{"vendor": "RunPod", "source_url": "https://www.runpod.io/pricing"}],
+        "rates": [],
+        "held_stale": [{
+            "vendor": "Beam",
+            "reason": "Held: machine price is a 'from' rate.",
+            "source_url": "https://www.beam.cloud/pricing",
+            "records": [{
+                "gpu": "RTX 4090",
+                "hourly_usd": 0.44,
+                "tier": "Machine (from)",
+                "quote": "RTX 4090 from $0.44/hr",
+                "source_url": "https://www.beam.cloud/pricing",
+                "verified_at": "2026-10-29T23:14:39+00:00",
+                "evidence": {
+                    "source_url": "https://www.beam.cloud/pricing",
+                    "quote": "RTX 4090 from $0.44/hr",
+                    "checked_at": "2026-10-29T23:14:39+00:00",
+                    "quote_id": "q_beam_fixture",
+                },
+            }],
+        }],
+        "unpriced": [{
+            "deal_id": "deal-alphavps-001",
+            "advertiser": "AlphaVPS",
+            "reason": "no structured GPU pricing record",
+            "source_url": "https://alphavps.com/",
+        }],
+    }
+    root = _mini_root(tmp_path, prices, [_snap("2026-11-11", [])])
+    bundle = vsr.build_all(root)
+    names = [r["vendor"] for r in bundle["reports"]]
+    assert "Beam" in names
+    assert "AlphaVPS" not in names
+    assert "GigaGPU" not in names
+    vsr.write_pages(_Gen(), bundle, root)
+    page = (root / "reports" / "vendors" / "beam" / "index.html").read_text()
+    assert "Currently unranked (stale)" in page
+    assert "Stale" in page
+    assert "last verified 2026-10-29 23:14:39 UTC" in page
+    assert "read 19d ago" in page  # 2026-10-29 to 2026-11-18
+    assert "$0.44" in page
+    assert "RTX 4090 from $0.44/hr" in page
+    assert "https://www.beam.cloud/pricing" in page
+    assert "quote_id=q_beam_fixture" in page
+    assert "1 of " not in page
+    assert not (root / "reports" / "vendors" / "alphavps" / "index.html").exists()
+    index = (root / "reports" / "vendors" / "index.html").read_text()
+    assert "Beam" in index and "held / unranked" in index
+    assert "AlphaVPS" not in index
+
+
+def test_unpriced_advertiser_without_cited_prices_is_not_given_a_page(tmp_path):
+    prices = {
+        "feed_updated_at": "2026-11-18T00:00:00Z",
+        "prices_verified_through": "2026-11-18T00:00:00Z",
+        "vendors": [],
+        "rates": [],
+        "held_stale": [],
+        "unpriced": [
+            {"advertiser": "AlphaVPS", "reason": "no structured GPU pricing record",
+             "source_url": "https://alphavps.com/"},
+            {"advertiser": "GigaGPU", "reason": "no structured GPU pricing record",
+             "source_url": None},
+        ],
+    }
+    root = _mini_root(tmp_path, prices, [_snap("2026-11-11", [])])
+    bundle = vsr.build_all(root)
+    assert bundle["reports"] == []
+    assert "AlphaVPS" not in vsr.tracked_vendors(prices)
+    assert "GigaGPU" not in vsr.tracked_vendors(prices)
 
 
 def test_robots_allow_and_disallow():
