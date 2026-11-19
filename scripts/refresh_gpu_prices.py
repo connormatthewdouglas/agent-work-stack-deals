@@ -246,6 +246,13 @@ ALTERNATE_QUOTES = {
     "cloudrift.ai/l40": [
         "Yes, on demand at $0.69 per GPU-hour, billed by the second, in instances of up to eight GPUs. Reserved terms bring it to $0.66/hr for 1 week, $0.62/hr for 1 month, and $0.59/hr for 3 months.",
     ],
+    # 2026-11-18: RTX 5090 chart labels on https://www.cloudrift.ai/pricing changed
+    # from "1 mo" / "3 mo" / "On-Demand" (unicode hyphen) to "1 Month" /
+    # "3 Month" / "On-Demand"; the same $0.65 / $0.59 / $0.55 figures remain
+    # as visible text (robots Allow: /).
+    "cloudrift.ai/pricing": [
+        "NVIDIA RTX 5090 32 GB VRAM On-Demand $0.65 1 Month $0.59 3 Month $0.55",
+    ],
 }
 
 
