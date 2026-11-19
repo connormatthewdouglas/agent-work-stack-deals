@@ -79,6 +79,10 @@ VENDOR_SLUGS = {
     "Ucartz": "ucartz",
     "Vast.ai": "vast",
     "Verda (formerly DataCrunch)": "verda",
+    "Beam": "beam",
+    "Runcrate": "runcrate",
+    "SimplePod": "simplepod",
+    "TensorDock": "tensordock",
 }
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
@@ -252,6 +256,20 @@ def best_comparable_by_gpu(rates: list[dict], predicate) -> dict[str, list[tuple
     return out
 
 
+def _held_record_is_cited(rec: dict) -> bool:
+    """True when a held row already has a sourced price, quote, or source URL. Never invents one."""
+    ev = rec.get("evidence") or {}
+    return bool(
+        rec.get("hourly_usd") is not None
+        or rec.get("price_usd") is not None
+        or rec.get("hourly_equiv_usd") is not None
+        or rec.get("quote")
+        or ev.get("quote")
+        or rec.get("source_url")
+        or ev.get("source_url")
+    )
+
+
 def tracked_vendors(prices: dict) -> list[str]:
     names = []
     seen = set()
@@ -260,6 +278,19 @@ def tracked_vendors(prices: dict) -> list[str]:
         if name and name not in seen:
             seen.add(name)
             names.append(name)
+    # Held-only vendors that already have source-cited prices also get a
+    # sample report (stale-labelled, never ranked). Unpriced advertisers
+    # without a structured GPU pricing record are not added.
+    held_only = []
+    for item in prices.get("held_stale") or []:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("vendor")
+        recs = [r for r in (item.get("records") or []) if isinstance(r, dict)]
+        if name and name not in seen and any(_held_record_is_cited(r) for r in recs):
+            seen.add(name)
+            held_only.append(name)
+    names.extend(sorted(held_only, key=str.lower))
     return names
 
 
@@ -585,6 +616,37 @@ def _verification_for(bundle: dict, slug: str) -> dict | None:
     return None
 
 
+def _held_age_html(gen, rec: dict, now) -> str:
+    """Visible stale label plus last-verified date and age. Never invents a timestamp."""
+    from datetime import timezone
+    import gpu_pages as gp
+    raw = gp.row_checked_at(rec)
+    stale = '<strong class="stale-label">Stale</strong>'
+    if not raw:
+        return f'{stale} · last-verified date not recorded · age unknown'
+    ts = gp.parse_row_time(raw)
+    if ts is None:
+        return f'{stale} · last verified {_esc(gen, _fmt_ts(raw))} · age unknown'
+    date_txt = ts.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    ago = gp.format_read_ago(ts, now) if now is not None else None
+    if ago:
+        return f'{stale} · last verified {_esc(gen, date_txt)} · {_esc(gen, ago)}'
+    iso = ts.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return f'{stale} · last verified {_esc(gen, date_txt)} · read at {_esc(gen, iso)}'
+
+
+def _held_record_for_evidence(rec: dict, held: dict | None) -> dict:
+    ev = dict(rec.get("evidence") or {})
+    if rec.get("quote") and not ev.get("quote"):
+        ev["quote"] = rec["quote"]
+    src = rec.get("source_url") or ev.get("source_url") or (held or {}).get("source_url") or ""
+    out = {**rec, "evidence": ev, "source_url": src}
+    qid = rec.get("quote_id") or ev.get("quote_id")
+    if qid:
+        out["quote_id"] = qid
+    return out
+
+
 def _evidence_html(gen, row: dict) -> str:
     ev = row.get("evidence") or {}
     quote = ev.get("quote") or ""
@@ -614,7 +676,9 @@ def vendor_body(gen, bundle: dict, report: dict) -> str:
     under = report["undercuts"]
     ranks = report["ranks"]
     held = report["held"]
-    src = meta.get("source_url") or (ranks[0]["source_url"] if ranks else None)
+    src = (meta.get("source_url")
+           or (ranks[0]["source_url"] if ranks else None)
+           or (held or {}).get("source_url"))
     feed_ts = bundle.get("feed_updated_at") or "not recorded"
     verified_through = bundle.get("prices_verified_through") or "not recorded"
     crumbs = (
@@ -641,22 +705,30 @@ def vendor_body(gen, bundle: dict, report: dict) -> str:
         )
 
     if held and not report["has_current_rates"]:
+        import gpu_pages as gp
         reason = held.get("reason") or "held / unranked"
+        clock = gp.parse_row_time(str(bundle.get("feed_updated_at") or "")) or gp.read_clock()
         parts.append(
-            f'  <p><strong>Currently unranked.</strong> This vendor is on the tracked list but its '
+            f'  <p><strong>Currently unranked (stale).</strong> This vendor is on the tracked list but its '
             f'published rows are held and not used in live rankings ({e(reason)}). '
-            f'Held figures below are the last recorded values; they are not a current rank.</p>\n'
+            f'Prices below are the last recorded values; they are not a current rank. '
+            f'Each row is labelled stale and shows its last-verified date and age. '
+            f'Timestamps are not refreshed when a page is published.</p>\n'
         )
         recs = held.get("records") or []
         if recs:
             parts.append("  <h2>Last held records</h2>\n  <div class=\"tscroll\"><table>\n")
-            parts.append("    <thead><tr><th>GPU</th><th>Tier</th><th>$/GPU-hr (held)</th><th>Read</th><th>Source quote</th></tr></thead>\n    <tbody>\n")
-            import gpu_pages as gp
+            parts.append(
+                "    <thead><tr><th>GPU</th><th>Tier</th><th>$/GPU-hr (held)</th>"
+                "<th>Last verified / age</th><th>Source evidence</th></tr></thead>\n    <tbody>\n"
+            )
             for rec in recs:
-                q = rec.get("quote") or (rec.get("evidence") or {}).get("quote") or "No quote recorded"
+                ev_row = _held_record_for_evidence(rec, held)
                 parts.append(
-                    f'    <tr><td>{e(rec.get("gpu"))}</td><td>{e(rec.get("tier"))}</td>'
-                    f'<td>{e(money(rec.get("hourly_usd")))}</td><td>{gp.read_time_html(rec, e)}</td><td>{e(q)}</td></tr>\n'
+                    f'    <tr class="stale-held"><td>{e(rec.get("gpu"))}</td><td>{e(rec.get("tier"))}</td>'
+                    f'<td>{e(money(rec.get("hourly_usd")))}</td>'
+                    f'<td>{_held_age_html(gen, ev_row, clock)}</td>'
+                    f'<td>{_evidence_html(gen, ev_row)}</td></tr>\n'
                 )
             parts.append("    </tbody></table></div>\n")
 

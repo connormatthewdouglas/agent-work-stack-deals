@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import home_page  # noqa: E402
+import spec_pages  # noqa: E402
 
 
 def _row(vendor, price, tier_class, hours_old, gpu="H100 SXM", tier=None):
@@ -41,8 +42,25 @@ def test_homepage_and_rental_price_titles_fit_search_limits():
     desc = re.search(r'name="description" content="(.*?)"', home).group(1)
     assert len(title) <= 60 and len(desc) <= 155
     assert "Cheapest" in title and "GPU" in title
+    # Derive the expected /gpu/<model>-rental-price/ set from the current feed
+    # (same qualifying_families rule the generator uses). Do not pin a live
+    # count: a collector rebuild can add a page (e.g. L40 once a third vendor
+    # qualifies) and must not fail this title-limit check, but a missing page
+    # for a still-qualifying family is a regression.
+    feeds = spec_pages.load_feeds()
+    expected = {
+        ROOT / "gpu" / f"{spec_pages.slug(fam)}-rental-price" / "index.html"
+        for fam in spec_pages.qualifying_families(spec_pages.rankable(feeds["prices"]))
+    }
     pages = list((ROOT / "gpu").glob("*-rental-price/index.html"))
-    assert len(pages) == 13  # + /gpu/v100-rental-price/ when Lambda V100 became effective 2026-11-16T00:00Z
+    got = set(pages)
+    assert expected, "feed produced no rental-price families"
+    assert got == expected, (
+        "missing pages "
+        + str(sorted(p.relative_to(ROOT).as_posix() for p in expected - got))
+        + "; unexpected pages "
+        + str(sorted(p.relative_to(ROOT).as_posix() for p in got - expected))
+    )
     for path in pages:
         t = path.read_text(encoding="utf-8")
         title = re.search(r"<title>(.*?)</title>", t).group(1)
