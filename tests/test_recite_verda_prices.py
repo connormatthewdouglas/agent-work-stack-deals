@@ -216,7 +216,7 @@ def test_workflow_is_scheduled_before_live_checks_and_does_not_touch_the_gate():
     top, job = _workflow_permissions()
     assert "contents" in top and "actions" in top
     assert "contents" in job and "actions" in job
-    assert "scout/verda-daily-recite" in text
+    assert "scout/verda-daily-recite-" in text  # dated branch prefix, not a reused fixed branch
     assert "recite_verda_prices.py" in text
     assert "generate_seo_pages.py" in text
     assert "check_gpu_sources.py" not in text
@@ -242,7 +242,8 @@ def test_workflow_pushes_the_branch_and_notices_without_opening_a_pr():
     assert "gh pr edit" not in text
     assert "gh pr list" not in text
     assert "gh pr merge" not in text
-    assert "compare/main...scout/verda-daily-recite" in text
+    assert "compare/main..." in text
+    assert "steps.prep.outputs.branch" in text
     assert "GITHUB_STEP_SUMMARY" in text
     assert "This job does not open a pull request" in text
     assert "does not need pull-requests: write" in text
@@ -250,3 +251,24 @@ def test_workflow_pushes_the_branch_and_notices_without_opening_a_pr():
     assert "gh workflow run validate-and-deploy.yml --ref \"$BRANCH\"" in text
     # Force-pushing would clobber a daily branch Mart is handling by hand.
     assert "force-with-lease" not in text and "git push --force" not in text
+
+
+def test_workflow_starts_a_fresh_dated_branch_from_main_and_does_not_merge():
+    """Run 44595048039 merged origin/main into the reused scout/verda-daily-recite
+    branch and hit generated-file conflicts once later collector commits had
+    regenerated the same HTML on main. Each run must start from current
+    origin/main on a dated branch, with a suffix for same-day reruns, and
+    must not merge or force-push an older daily branch.
+    """
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "scout/verda-daily-recite-$date" in text or 'scout/verda-daily-recite-$date' in text.replace('"', "")
+    assert 'branch="${base}-${n}"' in text or "branch=\"${base}-${n}\"" in text
+    assert 'git checkout -B "$branch" origin/main' in text
+    assert "git merge --no-edit origin/main" not in text
+    assert "git merge " not in text
+    assert "force-with-lease" not in text and "git push --force" not in text
+    # Recite still only writes verda.json; generate + dispatch + summary stay from #297.
+    assert "recite_verda_prices.py" in text
+    assert "generate_seo_pages.py" in text
+    assert "GITHUB_STEP_SUMMARY" in text
+    assert "validate-and-deploy.yml" in text
