@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-20T03:57:01+00:00",
+  "last_checked": "2026-11-20T09:49:44+00:00",
   "row_count": 5,
   "providers": [
     "Lium",
@@ -205,6 +205,45 @@
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
+      "provider": "Lium",
+      "gpu": "B300",
+      "vram_gb": 288,
+      "tier": "Marketplace spot node (interruptible)",
+      "tier_class": "interruptible",
+      "bucket": "spot-community",
+      "interruptible": true,
+      "hourly_usd_per_gpu": 6.5,
+      "unit": "hour",
+      "price_usd": 6.5,
+      "gpu_count": 8,
+      "server_hourly_usd": 52.0,
+      "min_gpus": 8,
+      "price_status": "listed",
+      "verified_at": "2026-11-20T09:49:44+00:00",
+      "source_url": "https://lium.io/api/public/v1/nodes",
+      "quote": "Lium nodes API 2026-11-20T09:49:44+00:00: 3 available B300 SXM6 AC spot nodes, 23 GPUs free; lowest price_per_gpu_hour $6.5 (min 8 GPUs = $52/hr, Jakarta, Indonesia)",
+      "availability": {
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-20T09:49:44+00:00",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "source": "https://lium.io/api/public/v1/nodes",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "origin": "record",
+        "max_age_hours": 8,
+        "availability_expires_at": "2026-11-20T17:49:44Z",
+        "stock_level": "23 GPUs free on 3 nodes",
+        "same_capture_as_price": true,
+        "detail": "Lium public nodes API: 23 available GPUs (spot tier)",
+        "stock_read_at": "2026-11-20T09:49:44+00:00",
+        "price_read_at": "2026-11-20T09:49:44+00:00",
+        "price_at_claim_usd": 6.5,
+        "gpu_count": 8
+      },
+      "form_factor": "unknown",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
       "provider": "RunPod",
       "gpu": "B300",
       "vram_gb": 288,
@@ -233,45 +272,6 @@
         "record_id": "NVIDIA B300 SXM6 AC"
       },
       "form_factor": "SXM6",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Lium",
-      "gpu": "B300",
-      "vram_gb": 288,
-      "tier": "Marketplace spot node (interruptible)",
-      "tier_class": "interruptible",
-      "bucket": "spot-community",
-      "interruptible": true,
-      "hourly_usd_per_gpu": 7.0,
-      "unit": "hour",
-      "price_usd": 7.0,
-      "gpu_count": 8,
-      "server_hourly_usd": 56.0,
-      "min_gpus": 8,
-      "price_status": "listed",
-      "verified_at": "2026-11-20T03:57:01+00:00",
-      "source_url": "https://lium.io/api/public/v1/nodes",
-      "quote": "Lium nodes API 2026-11-20T03:57:01+00:00: 2 available B300 SXM6 AC spot nodes, 16 GPUs free; lowest price_per_gpu_hour $7 (min 8 GPUs = $56/hr, Hyderabad, India)",
-      "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-11-20T03:57:01+00:00",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "record",
-        "max_age_hours": 8,
-        "availability_expires_at": "2026-11-20T11:57:01Z",
-        "stock_level": "16 GPUs free on 2 nodes",
-        "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 16 available GPUs (spot tier)",
-        "stock_read_at": "2026-11-20T03:57:01+00:00",
-        "price_read_at": "2026-11-20T03:57:01+00:00",
-        "price_at_claim_usd": 7.0,
-        "gpu_count": 8
-      },
-      "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
@@ -340,5 +340,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261120T065108Z-44308866",
-  "feed_updated_at": "2026-11-20T09:43:16Z"
+  "feed_updated_at": "2026-11-20T09:49:44Z"
 }
