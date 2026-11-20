@@ -105,7 +105,12 @@ def test_refresh_does_not_invent_a_date_when_the_page_has_none():
 
 
 def test_build_rates_holds_before_effective_and_ranks_after():
-    rec = dict(copy.deepcopy(REC), price_effective_at="2026-11-16T00:00:00+00:00")
+    # verified_at must still be inside the 48h ranking window at AFTER, or the
+    # row is held as stale instead of ranking once price_effective_at arrives.
+    fresh = "2026-11-15T12:00:00+00:00"
+    rec = dict(copy.deepcopy(REC), price_effective_at="2026-11-16T00:00:00+00:00",
+               checked_at=fresh, verified_at=fresh)
+    rec["evidence"] = dict(rec["evidence"], checked_at=fresh)
     doc = _doc(rec)
     held = build_rates([], [doc], now=BEFORE)
     assert not held.get("problems"), held.get("problems")
@@ -167,7 +172,10 @@ def test_effective_date_eligibility_follows_lw_avail_now(monkeypatch):
     ranked Lambda rates and /gpu/v100-rental-price/ while a regenerate pinned to the previous
     feed_updated_at still expected the held set (326 vs 327 sitemap URLs).
     """
-    rec = dict(copy.deepcopy(REC), price_effective_at="2026-11-16T00:00:00+00:00")
+    fresh = "2026-11-15T12:00:00+00:00"
+    rec = dict(copy.deepcopy(REC), price_effective_at="2026-11-16T00:00:00+00:00",
+               checked_at=fresh, verified_at=fresh)
+    rec["evidence"] = dict(rec["evidence"], checked_at=fresh)
     doc = _doc(rec)
     monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-15T23:39:40Z")
     assert price_not_yet_effective(rec) is True

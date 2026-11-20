@@ -79,7 +79,12 @@ def test_spheron_5090_labelled_rotating_marketplace_price():
     feed = json.loads(pathlib.Path("api/v1/gpu-prices.json").read_text())
     rows = [r for r in feed["rates"] if r["advertiser"] == "Spheron" and r["gpu"] == "RTX 5090"]
     if not rows:  # T68: no live row today (e.g. vendor page says no capacity) is data, not a regression
-        assert rec[0].get("no_capacity") or rec[0].get("stale") or rec[0].get("held"), "row missing from feed without a recorded reason"
+        # Generate-time 48h hold lists the row in held_stale and leaves the vendor
+        # record honest (no stale.auto). That is a recorded reason, not a missing row.
+        held = [h for h in feed.get("held_stale") or []
+                if h.get("vendor") == "Spheron"
+                and any(x.get("gpu") == "RTX 5090" for x in (h.get("records") or []))]
+        assert rec[0].get("no_capacity") or rec[0].get("stale") or rec[0].get("held") or held, "row missing from feed without a recorded reason"
         return
     assert rows[0]["price_rotates"]["label"] == "rotating marketplace price"
     assert "rotating marketplace price" in pathlib.Path("gpu/price-comparison/index.html").read_text()
