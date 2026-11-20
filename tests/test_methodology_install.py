@@ -66,8 +66,18 @@ def test_methodology_like_for_like_demo_from_feed():
 
 def test_methodology_customers_buy_data_never_placement():
     s = (ROOT / "methodology" / "index.html").read_text(encoding="utf-8")
+    assert 'id="placement"' in s
     assert "Customers buy data, never placement" in s
     assert "no vendor can pay to rank higher" in s
     assert "never changes the order" in s
+    assert "Paid sponsorships or advertisements of any kind" in s
+    assert "not offered for now" in s
+    assert "Tracked on Lantern Works" in s
     assert "Frosty" not in s
+    assert "Connor" not in s
+    assert "$49" not in s and "$99" not in s
+    assert "P14" not in s and "P15" not in s
+    # Existing anchors on this page stay present.
+    for anchor in ("like-for-like", "placement", "collected", "verified", "held", "reserved", "cadence", "license"):
+        assert f'id="{anchor}"' in s
 
