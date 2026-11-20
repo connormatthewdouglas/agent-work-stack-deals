@@ -40,15 +40,55 @@
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
         "availability": {
-          "status": "unknown",
-          "in_stock": null,
-          "checked_at": "2026-11-20T00:44:51Z",
-          "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "status": "available when checked",
+          "in_stock": true,
+          "checked_at": "2026-11-20T06:44:06Z",
+          "refresh": "automated check, time shown (prices checked daily)",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
           "origin": "scout",
-          "availability_status": "unknown",
-          "availability_reason": "no_source",
-          "availability_reason_detail": "api_null_signal"
+          "availability_expires_at": "2026-11-20T07:44:06Z",
+          "max_age_hours": 1.0,
+          "derived_from_regions": true,
+          "stock_level": "Low",
+          "available_regions": [
+            "US-KS-2 (United States)"
+          ],
+          "available_regions_detail": [
+            {
+              "region": "US-KS-2 (United States)",
+              "stock_level": "Low",
+              "checked_at": "2026-11-20T06:45:34Z",
+              "availability_expires_at": "2026-11-20T07:45:34Z",
+              "confirmed": true,
+              "confirmation": "two_reads",
+              "second_read_stock_level": "Low",
+              "first_read_at": "2026-11-20T06:45:34Z",
+              "second_read_at": "2026-11-20T06:49:33Z",
+              "second_read_gap_s": 239.0
+            }
+          ],
+          "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+          "first_read_at": "2026-11-20T06:45:34Z",
+          "second_read_at": "2026-11-20T06:49:33Z",
+          "second_read_gap_s": 239.0,
+          "second_read_basis": "region US-KS-2 (United States)",
+          "two_read_gap_ok": true,
+          "available_regions_normalized": [
+            {
+              "label": "US-KS-2 (United States)",
+              "zone": "US-KS-2",
+              "country": "US",
+              "group": "NA"
+            }
+          ],
+          "regions_expires_at": "2026-11-20T07:45:34Z",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "availability_status": "in_stock",
+          "availability_reason": "in_stock",
+          "stock_read_at": "2026-11-20T06:44:06Z",
+          "price_read_at": "2026-11-19T19:04:51+00:00",
+          "price_at_claim_usd": 3.19,
+          "gpu_count": 1
         },
         "form_factor": "NVL",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -80,7 +120,7 @@
         "availability": {
           "status": "unknown",
           "in_stock": null,
-          "checked_at": "2026-11-20T00:44:53Z",
+          "checked_at": "2026-11-20T06:44:08Z",
           "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
           "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
           "origin": "scout",
@@ -119,7 +159,7 @@
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-11-20T00:44:53Z",
+        "checked_at": "2026-11-20T06:44:08Z",
         "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:false)",
         "origin": "scout",
@@ -148,15 +188,55 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
       "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": "2026-11-20T00:44:51Z",
-        "note": "RunPod's public API returned no stock status or price for this cloud type at check time",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-20T06:44:06Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "scout",
-        "availability_status": "unknown",
-        "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "availability_expires_at": "2026-11-20T07:44:06Z",
+        "max_age_hours": 1.0,
+        "derived_from_regions": true,
+        "stock_level": "Low",
+        "available_regions": [
+          "US-KS-2 (United States)"
+        ],
+        "available_regions_detail": [
+          {
+            "region": "US-KS-2 (United States)",
+            "stock_level": "Low",
+            "checked_at": "2026-11-20T06:45:34Z",
+            "availability_expires_at": "2026-11-20T07:45:34Z",
+            "confirmed": true,
+            "confirmation": "two_reads",
+            "second_read_stock_level": "Low",
+            "first_read_at": "2026-11-20T06:45:34Z",
+            "second_read_at": "2026-11-20T06:49:33Z",
+            "second_read_gap_s": 239.0
+          }
+        ],
+        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "first_read_at": "2026-11-20T06:45:34Z",
+        "second_read_at": "2026-11-20T06:49:33Z",
+        "second_read_gap_s": 239.0,
+        "second_read_basis": "region US-KS-2 (United States)",
+        "two_read_gap_ok": true,
+        "available_regions_normalized": [
+          {
+            "label": "US-KS-2 (United States)",
+            "zone": "US-KS-2",
+            "country": "US",
+            "group": "NA"
+          }
+        ],
+        "regions_expires_at": "2026-11-20T07:45:34Z",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "availability_status": "in_stock",
+        "availability_reason": "in_stock",
+        "stock_read_at": "2026-11-20T06:44:06Z",
+        "price_read_at": "2026-11-19T19:04:51+00:00",
+        "price_at_claim_usd": 3.19,
+        "gpu_count": 1
       },
       "form_factor": "NVL",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -164,6 +244,6 @@
   ],
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
-  "generation_id": "20261120T005154Z-6167aa94",
-  "feed_updated_at": "2026-11-20T03:58:01Z"
+  "generation_id": "20261120T065108Z-44308866",
+  "feed_updated_at": "2026-11-20T06:51:39Z"
 }
