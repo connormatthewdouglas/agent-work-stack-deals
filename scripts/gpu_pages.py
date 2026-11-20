@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from core.gpu import vendor_counts_label, PRICE_SCOPE, form_class, load_vendor_files, HOURS_PER_MONTH, HOURS_PER_MONTH_NOTE, MIN_OFFERS, MIN_VENDORS, SERVERLESS, build_rates, estimate, families, family_of, PAGE_ALSO  # noqa: E402
-from core.availability_rate import RATE_FOOTNOTE, overlay_published_rates, rate_phrase, zero_of_n_phrase  # noqa: E402
+from core.availability_rate import RATE_FOOTNOTE, lapsed_phrase, overlay_published_rates, rate_phrase, zero_of_n_phrase  # noqa: E402
 FEED_RATES = Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json"
 
 def _page_rates(deals):
@@ -274,7 +274,7 @@ def _quote_html(esc, r: dict, n: int = 70) -> str:
 
 def _rate_tail(r: dict) -> str:
     """Trailing 7d observation, when the feed already has counts."""
-    p = rate_phrase(r.get("availability_rate_7d"))
+    p = rate_phrase(r.get("availability_rate_7d")) or lapsed_phrase(r.get("availability_rate_7d"))
     return f"; {p}" if p else ""
 
 
@@ -296,6 +296,8 @@ def _avail_cell(gen, r: dict) -> str:
         when = a.get("checked_at") or (r.get("availability_rate_7d") or {}).get("last_check_at")
         if p:
             return gen.esc(f"unknown; {p}, last check {et_time(when)}")
+        if lp := lapsed_phrase(r.get("availability_rate_7d")):
+            return gen.esc(lp)
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         if t:
             return gen.esc(f"unknown (no signal), checked {t} UTC")
