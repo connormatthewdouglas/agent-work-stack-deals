@@ -471,11 +471,31 @@ def pick_end_date(prices: dict, history: dict | None, changes: dict | None, snap
     return max(candidates)
 
 
-def held_rows_for(prices: dict, vendor: str) -> dict | None:
-    for item in prices.get("held_stale") or []:
-        if item.get("vendor") == vendor:
-            return item
-    return None
+def held_rows_for(prices: dict, vendor: str) -> list[dict]:
+    """Every held_stale entry for this vendor, in feed order.
+
+    A vendor can have more than one entry (withdrawn plans, evidence holds,
+    no-node holds, and generate-time age holds are stored separately). The
+    Unranked (stale) section loops this list and renders only age holds.
+    """
+    return [item for item in prices.get("held_stale") or [] if item.get("vendor") == vendor]
+
+
+# held_stale reasons that may be served on a mixed-vendor report page.
+# Everything else (withdrawn, withheld/no-node, evidence, owner, not-yet-effective)
+# stays off the HTML, as on main.
+_AGE_HOLD_PREFIXES = (
+    "stale price (",  # generate-time 48h demotion (stale_label)
+    "Price not re-verified on the vendor page since ",  # stale.auto freshness hold
+    "Manual snapshot not re-verified",
+)
+
+
+def _is_age_hold(item: dict) -> bool:
+    """True for a generate-time 48h demotion, stale.auto, or a manual snapshot
+    that was not re-verified. All other holds stay off the report page."""
+    reason = str(item.get("reason") or "")
+    return any(reason.startswith(p) for p in _AGE_HOLD_PREFIXES)
 
 
 def build_all(root: Path | None = None) -> dict:
@@ -503,13 +523,15 @@ def build_all(root: Path | None = None) -> dict:
             verify = None
     reports = []
     for name in vendors:
+        entries = held_rows_for(prices, name)
         reports.append({
             "vendor": name,
             "slug": vendor_slug(name),
             "meta": meta.get(name) or {},
             "ranks": ranks.get(name) or [],
             "undercuts": build_undercuts(snaps, end, name),
-            "held": held_rows_for(prices, name),
+            "held": entries[0] if entries else None,  # vendor-wide banner / source URL
+            "held_entries": entries,
             "has_current_rates": bool(ranks.get(name)),
         })
     return {
@@ -780,6 +802,45 @@ def vendor_body(gen, bundle: dict, report: dict) -> str:
             )
         parts.append("    </tbody></table></div>\n")
         parts.append(gp.median_footnote_html(src_rows) + gp.no_stock_note_html(src_rows))
+
+    # Record-level age holds on a vendor that still has other ranked rates (e.g.
+    # Spheron RTX 5090 past the 48h ranking limit while L40S is current) must still
+    # be served with an honest stale/age label. Loop every held_stale entry and
+    # render only the three age-hold kinds (48h demotion, stale.auto, and manual
+    # snapshot not re-verified). Never render withdrawn, evidence, or no-node
+    # holds, and never their withheld prices or evidence cells. Each row shows
+    # its own reason, verbatim, so a reason that already ends in a period is
+    # not wrapped as ".).". The vendor-wide "Currently unranked" banner above
+    # is only for vendors with no current rates.
+    age_holds = [h for h in (report.get("held_entries") or [])
+                 if _is_age_hold(h) and (h.get("records") or [])]
+    if report["has_current_rates"] and age_holds:
+        import gpu_pages as gp
+        clock = gp.parse_row_time(str(bundle.get("feed_updated_at") or "")) or gp.read_clock()
+        parts.append("  <h2>Unranked (stale)</h2>\n")
+        parts.append(
+            "  <p>These rows are older than the 48h ranking limit, or were not "
+            "re-verified in time, and are not used in live rankings. Last recorded "
+            "prices are shown with their last-verified date, age, and the hold "
+            "reason. Timestamps are not refreshed when a page is published.</p>\n"
+        )
+        parts.append("  <div class=\"tscroll\"><table>\n")
+        parts.append(
+            "    <thead><tr><th>GPU</th><th>Tier</th><th>$/GPU-hr (held)</th>"
+            "<th>Last verified / age</th><th>Source evidence</th></tr></thead>\n    <tbody>\n"
+        )
+        for item in age_holds:
+            reason = item.get("reason") or "stale"
+            for rec in item.get("records") or []:
+                ev_row = _held_record_for_evidence(rec, item)
+                parts.append(
+                    f'    <tr class="stale-held"><td>{e(rec.get("gpu"))}</td><td>{e(rec.get("tier"))}</td>'
+                    f'<td>{e(money(rec.get("hourly_usd")))}</td>'
+                    f'<td>{_held_age_html(gen, ev_row, clock)} · {e(reason)}</td>'
+                    f'<td>{_evidence_html(gen, ev_row)}</td></tr>\n'
+                )
+        parts.append("    </tbody></table></div>\n")
+
 
     parts.append("  <h2>Undercut in the last 14 days</h2>\n")
     missing = under["snapshot_days_missing"]

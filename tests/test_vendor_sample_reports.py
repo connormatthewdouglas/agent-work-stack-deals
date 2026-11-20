@@ -301,6 +301,264 @@ def test_held_only_vendor_gets_a_stale_labelled_page(tmp_path):
     assert "AlphaVPS" not in index
 
 
+
+def test_mixed_vendor_held_record_is_served_with_age_label(tmp_path):
+    """A vendor with a current ranked row and a 48h-held record must still serve the
+    held price with an honest last-verified date and age. The vendor is not given the
+    vendor-wide 'Currently unranked' banner."""
+    prices = {
+        "feed_updated_at": "2026-11-20T00:52:22Z",
+        "prices_verified_through": "2026-11-20T00:51:54Z",
+        "vendors": [{"vendor": "Spheron", "source_url": "https://www.spheron.network/pricing/"}],
+        "rates": [{
+            "advertiser": "Spheron", "gpu": "L40S", "vram_gb": 48, "price_usd": 0.96,
+            "hourly_usd": 0.96, "hourly_equiv_usd": 0.96, "billing_unit": "hourly",
+            "tier": "On-demand", "interruptible": False, "form_factor": "PCIe",
+            "source_url": "https://www.spheron.network/pricing/",
+            "verified_at": "2026-11-19T19:05:14+00:00",
+            "checked_at": "2026-11-19T19:05:14+00:00",
+            "evidence": {"source_url": "https://www.spheron.network/pricing/",
+                         "quote": "L40S $0.96 /hr", "checked_at": "2026-11-19T19:05:14+00:00"},
+        }],
+        "held_stale": [{
+            "vendor": "Spheron",
+            "reason": "stale price (3 days old)",
+            "scope": "record",
+            "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+            "checked_at": "2026-11-16T23:34:52+00:00",
+            "records": [{
+                "gpu": "RTX 5090",
+                "hourly_usd": 0.78,
+                "tier": "Marketplace/aggregator listing (on-demand)",
+                "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+                "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+                "verified_at": "2026-11-16T23:34:52+00:00",
+                "evidence": {
+                    "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+                    "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+                    "checked_at": "2026-11-16T23:34:52+00:00",
+                },
+            }],
+        }],
+    }
+    root = _mini_root(tmp_path, prices, [_snap("2026-11-20", [])])
+    bundle = vsr.build_all(root)
+    vsr.write_pages(_Gen(), bundle, root)
+    page = (root / "reports" / "vendors" / "spheron" / "index.html").read_text()
+    assert "Currently unranked (stale)" not in page
+    assert "Unranked (stale)" in page
+    assert "RTX 5090" in page and "$0.78" in page
+    assert "last verified 2026-11-16 23:34:52 UTC" in page
+    assert "L40S" in page and "$0.96" in page
+    assert "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute" in page
+    assert "https://www.spheron.network/gpu-rental/rtx-5090/" in page
+    # Held row is labelled stale; the current L40S row is not the vendor-wide banner.
+    assert "Stale" in page
+
+
+def test_is_age_hold_matches_only_the_three_allowed_kinds():
+    assert vsr._is_age_hold({"reason": "stale price (3 days old)"})
+    assert vsr._is_age_hold({"reason": "stale price (check time unknown)"})
+    assert vsr._is_age_hold({
+        "reason": "Price not re-verified on the vendor page since 2026-11-10 "
+                  "(> 7 days); held out of rankings until re-verified.",
+    })
+    assert vsr._is_age_hold({"reason": "Manual snapshot not re-verified for > 7 days"})
+    for reason in (
+        "Rate withdrawn on https://www.cloudrift.ai/a100 (page: \"the A100 is priced upon request\"); "
+        "held, not shown or ranked, until a price is published again.",
+        "Changed per-GPU vendor quote cannot substantiate the whole-instance total "
+        "under the current evidence contract; held until re-sourced with supported evidence.",
+        "no available Lium node at 2026-11-19T22:38:47+00:00; price withheld until a node is listed again",
+        "owner_hold",
+        "not yet in effect: 2026-11-16T00:00:00+00:00",
+        "Marketplace too thin to publish: 2 verified rentable on-demand offers",
+    ):
+        assert not vsr._is_age_hold({"reason": reason}), reason
+
+
+def test_held_rows_for_returns_every_entry_for_the_vendor():
+    """B2: Lambda 3, Lium 7, Ucartz 3, CloudRift 3 — all entries, not just the first."""
+    held = []
+    for vendor, n in (("Lambda", 3), ("Lium", 7), ("Ucartz", 3), ("CloudRift", 3)):
+        for i in range(n):
+            held.append({"vendor": vendor, "reason": f"{vendor} hold {i+1}",
+                         "records": [{"gpu": f"GPU{i+1}", "hourly_usd": 1.0 + i}]})
+    prices = {"held_stale": held}
+    assert [len(vsr.held_rows_for(prices, v)) for v in ("Lambda", "Lium", "Ucartz", "CloudRift")] == [3, 7, 3, 3]
+    assert vsr.held_rows_for(prices, "Lambda")[2]["reason"] == "Lambda hold 3"
+    assert vsr.held_rows_for(prices, "Missing") == []
+
+
+def _mix_rate(vendor, gpu, price, url):
+    return {
+        "advertiser": vendor, "gpu": gpu, "vram_gb": 80, "price_usd": price,
+        "hourly_usd": price, "hourly_equiv_usd": price, "billing_unit": "hourly",
+        "tier": "On-demand", "interruptible": False, "form_factor": "SXM",
+        "source_url": url, "verified_at": "2026-11-19T19:00:00+00:00",
+        "checked_at": "2026-11-19T19:00:00+00:00",
+        "evidence": {"source_url": url, "quote": f"{gpu} ${price}/hr",
+                     "checked_at": "2026-11-19T19:00:00+00:00"},
+    }
+
+
+def _mix_held(vendor, gpu, price, reason, quote, url):
+    return {
+        "vendor": vendor, "reason": reason, "scope": "record", "source_url": url,
+        "checked_at": "2026-11-10T00:00:00+00:00",
+        "records": [{
+            "gpu": gpu, "hourly_usd": price, "tier": "On-demand", "quote": quote,
+            "source_url": url, "verified_at": "2026-11-10T00:00:00+00:00",
+            "evidence": {"source_url": url, "quote": quote,
+                         "checked_at": "2026-11-10T00:00:00+00:00"},
+        }],
+    }
+
+
+def test_unranked_stale_section_omits_withdrawn_evidence_and_withheld_holds(tmp_path):
+    """CloudRift A100, Ucartz RTX 4090, Lambda B200 and Lium A100 must not render
+    on the mixed-vendor Unranked (stale) section; Spheron RTX 5090 (48h demotion) must."""
+    clock = "2026-11-20T00:52:22Z"
+    held = [
+        _mix_held("CloudRift", "A100 SXM", 1.05,
+                  "Rate withdrawn on https://www.cloudrift.ai/a100 (page: \"the A100 is priced upon request\") "
+                  "at 2026-11-16T23:32:36+00:00; held, not shown or ranked, until a price is published again.",
+                  "Rent NVIDIA A100 80GB SXM4 GPUs from $1.05/hour.",
+                  "https://www.cloudrift.ai/a100"),
+        _mix_held("CloudRift", "A100 SXM", 0.89,
+                  "3-month commitment A100 SXM rate dropped; held, not shown or ranked",
+                  "A100 SXM4 3 mo $0.89", "https://www.cloudrift.ai/pricing"),
+        _mix_held("CloudRift", "A100 SXM", 0.95,
+                  "1-month commitment A100 SXM rate dropped; held, not shown or ranked",
+                  "A100 SXM4 1 mo $0.95", "https://www.cloudrift.ai/pricing"),
+        _mix_held("Ucartz", "RTX 4090", 1.0941,
+                  "RTX 4090 plan withdrawn: no longer listed; held, not shown or ranked, until a price is published again.",
+                  "RTX 4090 servers from $798.72", "https://www.ucartz.com/gpu-dedicated-servers"),
+        _mix_held("Ucartz", "RTX A5000", 1.1226,
+                  "RTX A5000 plan withdrawn; held, not shown or ranked, until a price is published again.",
+                  "RTX A5000 servers from $819.52", "https://www.ucartz.com/gpu-dedicated-servers"),
+        _mix_held("Ucartz", "A100", 2.1427,
+                  "A100 plan withdrawn; held, not shown or ranked, until a price is published again.",
+                  "2 x A100 80GB", "https://www.ucartz.com/gpu-dedicated-servers"),
+        _mix_held("Lambda", "B200", 6.69,
+                  "Changed per-GPU vendor quote cannot substantiate the whole-instance total "
+                  "under the current evidence contract; held until re-sourced with supported evidence.",
+                  "NVIDIA HGX B200 180 GB $6.69", "https://lambda.ai/pricing"),
+        _mix_held("Lambda", "H100 SXM", 3.99,
+                  "Changed per-GPU vendor quote cannot substantiate the whole-instance total "
+                  "under the current evidence contract; held until re-sourced with supported evidence.",
+                  "NVIDIA HGX H100 $3.99", "https://lambda.ai/pricing"),
+        _mix_held("Lambda", "A100 SXM", 2.79,
+                  "Changed per-GPU vendor quote cannot substantiate the whole-instance total "
+                  "under the current evidence contract; held until re-sourced with supported evidence.",
+                  "NVIDIA HGX A100 $2.79", "https://lambda.ai/pricing"),
+        _mix_held("Lium", "A100 SXM", None,
+                  "no available Lium node at 2026-11-19T22:38:47+00:00; price withheld until a node is listed again",
+                  "Lium nodes API: lowest price_per_gpu_hour $0.999",
+                  "https://lium.io/"),
+    ]
+    # 6 more Lium no-node entries to make the B2 count of 7
+    for gpu in ("B300", "H100 PCIe", "H100 SXM", "H200", "H200 NVL", "L40"):
+        held.append(_mix_held("Lium", gpu, None,
+                              "no available Lium node at 2026-11-19T22:38:47+00:00; price withheld until a node is listed again",
+                              f"Lium nodes API: {gpu} lowest price_per_gpu_hour $0.999",
+                              "https://lium.io/"))
+    held.append(_mix_held(
+        "Spheron", "RTX 5090", 0.78, "stale price (3 days old)",
+        "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+        "https://www.spheron.network/gpu-rental/rtx-5090/",
+    ))
+    prices = {
+        "feed_updated_at": clock, "prices_verified_through": clock,
+        "vendors": [
+            {"vendor": "CloudRift", "source_url": "https://www.cloudrift.ai/pricing"},
+            {"vendor": "Ucartz", "source_url": "https://www.ucartz.com/gpu-dedicated-servers"},
+            {"vendor": "Lambda", "source_url": "https://lambda.ai/pricing"},
+            {"vendor": "Lium", "source_url": "https://lium.io/"},
+            {"vendor": "Spheron", "source_url": "https://www.spheron.network/pricing/"},
+        ],
+        "rates": [
+            _mix_rate("CloudRift", "RTX 5090", 0.50, "https://www.cloudrift.ai/pricing"),
+            _mix_rate("Ucartz", "RTX 5090", 0.60, "https://www.ucartz.com/gpu-dedicated-servers"),
+            _mix_rate("Lambda", "H100 PCIe", 2.49, "https://lambda.ai/pricing"),
+            _mix_rate("Lium", "B200", 2.00, "https://lium.io/"),
+            _mix_rate("Spheron", "L40S", 0.96, "https://www.spheron.network/pricing/"),
+        ],
+        "held_stale": held,
+    }
+    assert [len(vsr.held_rows_for(prices, v)) for v in ("Lambda", "Lium", "Ucartz", "CloudRift")] == [3, 7, 3, 3]
+    root = _mini_root(tmp_path, prices, [_snap("2026-11-20", [])])
+    bundle = vsr.build_all(root)
+    vsr.write_pages(_Gen(), bundle, root)
+
+    def page(slug):
+        return (root / "reports" / "vendors" / slug / "index.html").read_text()
+
+    # Age-hold subset of those four vendors is empty — no Unranked section, no withheld prices.
+    for slug, forbidden in (
+        ("cloudrift", ("Unranked (stale)", "$1.05", "$0.89", "$0.95", "priced upon request")),
+        ("ucartz", ("Unranked (stale)", "$1.0941", "$1.1226", "$2.1427", "plan withdrawn")),
+        ("lambda", ("Unranked (stale)", "$6.69", "$3.99", "$2.79", "supported evidence")),
+        ("lium", ("Unranked (stale)", "$0.999", "price withheld", "no available Lium node")),
+    ):
+        html = page(slug)
+        assert "Currently unranked (stale)" not in html
+        for s in forbidden:
+            assert s not in html, f"{slug} unexpectedly contains {s!r}"
+
+    sph = page("spheron")
+    assert "Currently unranked (stale)" not in sph
+    assert "Unranked (stale)" in sph
+    assert "RTX 5090" in sph and "$0.78" in sph
+    assert "stale price (3 days old)" in sph
+    assert ".)." not in sph
+    assert "L40S" in sph and "$0.96" in sph
+
+
+def test_unranked_stale_section_skips_a_leading_withdrawn_entry_and_shows_each_age_reason(tmp_path):
+    """B2: held_rows_for used to return only the first entry, so a withdrawn plan
+    ahead of age holds would render (and hide the rest). After the fix, only the
+    age-hold subset is served, each with its own reason, and a reason that ends
+    in a period is not wrapped as '.).'."""
+    clock = "2026-11-20T00:52:22Z"
+    auto = ("Price not re-verified on the vendor page since 2026-11-10 "
+            "(> 7 days); held out of rankings until re-verified.")
+    manual = "Manual snapshot not re-verified for > 7 days"
+    withdrawn = ("Rate withdrawn on https://example.com/a100; "
+                 "held, not shown or ranked, until a price is published again.")
+    prices = {
+        "feed_updated_at": clock, "prices_verified_through": clock,
+        "vendors": [{"vendor": "Acme", "source_url": "https://example.com/pricing"}],
+        "rates": [_mix_rate("Acme", "L40S", 0.96, "https://example.com/pricing")],
+        "held_stale": [
+            _mix_held("Acme", "A100", 1.05, withdrawn, "A100 from $1.05/hour.", "https://example.com/a100"),
+            _mix_held("Acme", "RTX 5090", 0.78, "stale price (3 days old)",
+                      "RTX 5090 $0.78/hr", "https://example.com/5090"),
+            _mix_held("Acme", "H100", 2.10, auto, "H100 $2.10/hr", "https://example.com/h100"),
+            _mix_held("Acme", "MI250", 1.50, manual, "MI250 $1.50/hr", "https://example.com/mi250"),
+        ],
+    }
+    assert len(vsr.held_rows_for(prices, "Acme")) == 4
+    root = _mini_root(tmp_path, prices, [_snap("2026-11-20", [])])
+    vsr.write_pages(_Gen(), vsr.build_all(root), root)
+    html = (root / "reports" / "vendors" / "acme" / "index.html").read_text()
+    assert "Unranked (stale)" in html
+    assert "Currently unranked (stale)" not in html
+    assert "$1.05" not in html and "priced upon request" not in html
+    assert "until a price is published again." not in html
+    assert "RTX 5090" in html and "$0.78" in html and "stale price (3 days old)" in html
+    # Reasons that contain ">" are HTML-escaped on the page; match the verbatim
+    # clauses around it so we still check each row's own reason.
+    assert "H100" in html and "$2.10" in html
+    assert "Price not re-verified on the vendor page since 2026-11-10" in html
+    assert "held out of rankings until re-verified." in html
+    assert "MI250" in html and "$1.50" in html
+    assert "Manual snapshot not re-verified for" in html
+    assert ".)." not in html
+    # Ranked L40S is still shown as a current rate.
+    assert "L40S" in html and "$0.96" in html
+
+
 def test_unpriced_advertiser_without_cited_prices_is_not_given_a_page(tmp_path):
     prices = {
         "feed_updated_at": "2026-11-18T00:00:00Z",

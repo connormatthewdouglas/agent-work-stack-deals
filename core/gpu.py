@@ -12,6 +12,7 @@ deal_id may be null for vendors with no deal in the feed (links then go to the v
 scripts/refresh_gpu_prices.py (daily Action) re-reads each source and updates a price only where it parsed it from
 the vendor's own page/API: verified_at = when the price was last parsed, checked_at = last attempt. A rate not
 re-verified for STALE_DAYS gets an automatic record-level hold (stale.auto) and is never ranked until re-verified.
+At generate time, any auto-refresh or batch row older than 48h (T41-12) is listed in held_stale and never ranked, even if refresh() has not yet written stale.auto.
 scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits); scripts/refresh_gpu_prices.py updates parsed prices.
 A record with price_effective_at in the future (the vendor's own stated instant, e.g. Lambda's
 public list taking effect 2026-11-16T00:00:00Z) is listed in held_stale and never ranked as a
@@ -375,7 +376,17 @@ def _is_batch(r: dict) -> bool:
 
 
 def _price_too_old(r: dict, doc: dict, now: datetime | None = None) -> bool:
-    """True when the row's price is past its staleness cutoff, measured on `now` (build_rates' clock).
+    """True when the row is past the generate-time ranking cutoff, measured on `now`.
+
+    Auto-refresh and batch rows drop out of `rates` once they are older than
+    DEGRADED_HOURS (48h, same bar as T41-12 / the freshness watchdog). lead_key
+    used to only sort those rows after fresh ones, so they stayed in `rates` and
+    kept the watchdog red (Spheron RTX 5090 at 74h, 2026-11-19). They are listed
+    in held_stale with an honest age label and are never ranked. refresh() still
+    writes stale.auto only after STALE_DAYS (7d); this hold does not rewrite the
+    vendor file or invent a verified_at.
+
+    Manual snapshots keep the refresh() cutoff (verified_at + STALE_DAYS).
 
     Relay 2026-11-17: both branches used the wall clock even when build_rates(now=...) pinned one, so a
     fixture verified 2026-11-10 flipped to "stale" once real time passed 2026-11-17T18:31Z."""
@@ -395,9 +406,11 @@ def _price_too_old(r: dict, doc: dict, now: datetime | None = None) -> bool:
         if t.tzinfo is None:
             t = t.replace(tzinfo=timezone.utc)
         return clock - t > timedelta(days=STALE_DAYS)
-    from .data_age import STALE_HOURS, age_fields
+    from .data_age import DEGRADED_HOURS, age_fields
     h = age_fields(r, clock)["data_age_hours"]
-    return h is not None and h > (BATCH_HOLD_HOURS if _is_batch(r) else STALE_HOURS)
+    # Batch rows already used BATCH_HOLD_HOURS (48). Auto-refresh rows now use the
+    # same 48h ranking limit so a stale vendor cannot stay ranked until STALE_DAYS.
+    return h is not None and h > DEGRADED_HOURS
 
 
 def _vram_note(r: dict) -> dict:
