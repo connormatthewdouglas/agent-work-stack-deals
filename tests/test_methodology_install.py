@@ -73,6 +73,11 @@ def test_methodology_customers_buy_data_never_placement():
     assert "Paid sponsorships or advertisements of any kind" in s
     assert "not offered for now" in s
     assert "Tracked on Lantern Works" in s
+    assert "If we offer a" in s
+    assert "Every price is copied from the vendor's own page or API" in s
+    assert "money never sets or changes a price" in s
+    assert "Prices are not entered by hand" not in s
+    assert "cheapest tracked" not in s
     assert "Frosty" not in s
     assert "Connor" not in s
     assert "$49" not in s and "$99" not in s

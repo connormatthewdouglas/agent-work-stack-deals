@@ -102,7 +102,7 @@ def write(g) -> str:
   <ul>
     <li>Buying data from us. Paying does not get you different prices, a faster refresh, or a better rank.</li>
     <li>Labelled affiliate or referral links, with a non-affiliate URL alongside where we have one. See our <a href="{base}/disclosure/">affiliate disclosure</a>.</li>
-    <li>A "Tracked on Lantern Works" badge that a listed vendor may place on their own site, linking to their public Lantern Works page. It is not sold as a ranking or quality mark. The wording is not "cheapest tracked."</li>
+    <li>If we offer a "Tracked on Lantern Works" badge for listed vendors to place on their own site, it will link to their public Lantern Works page and will not be sold as a ranking or quality mark.</li>
   </ul>
   <h3>What is not allowed</h3>
   <ul>
@@ -114,7 +114,7 @@ def write(g) -> str:
     <li>Fresher data, different prices, or a different methodology for paying vendors than for everyone else.</li>
     <li>A paid "verified" badge that implies a better rank or a better price. The site's existing "verified" / "unverified" marks are about whether we have a <code>verified_at</code> on an offer, not about payment. Public/non-affiliate badges mark free tiers and vendor-published coupons only.</li>
   </ul>
-  <p>Rankings follow the published methodology on this page. Prices are not entered by hand. Paying is not an input to ranking, freshness, or verdicts.</p>
+  <p>Rankings follow the published methodology on this page. Every price is copied from the vendor's own page or API, with a source link and a check time; money never sets or changes a price. Paying is not an input to ranking, freshness, or verdicts.</p>
 
   <h2 id="collected">How prices are collected</h2>
   <ul>
