@@ -1,16 +1,19 @@
 name: Verda daily re-cite
 
 # Re-read only Verda's verda.com/pricing rows (official refresh()+Fetcher(), robots.txt
-# honoured), then generate_seo_pages.py, and push the daily branch when prices move
-# (or a new #265 stale hold is applied). Does not open a pull request, does not change
-# the live-check, does not push to main, and does not auto-merge. This job does not
-# need pull-requests: write (the repo setting that blocks Actions from opening PRs
-# is left as-is).
+# honoured), then generate_seo_pages.py, and push a fresh dated branch from current
+# origin/main when prices move (or a new #265 stale hold is applied). Does not merge
+# an existing daily branch (run 44595048039 conflicted after later collector commits
+# regenerated the same HTML on main). Does not open a pull request, does not change
+# the live-check, does not push to main, does not force-push, and does not auto-merge.
+# This job does not need pull-requests: write (the repo setting that blocks Actions
+# from opening PRs is left as-is).
 #
-# After a successful push this job dispatches validate-and-deploy.yml on the daily
-# branch (workflow_dispatch is allowed with GITHUB_TOKEN; that run does not deploy —
-# deploy is main-only) and writes a step summary with the branch, a compare link,
-# and the moved rows so a PR can be opened by hand.
+# After a successful push this job dispatches validate-and-deploy.yml on that branch
+# (workflow_dispatch is allowed with GITHUB_TOKEN; that run does not deploy — deploy
+# is main-only) and writes a step summary with the branch, a compare link, and the
+# moved rows so a PR can be opened by hand. Recite itself writes only verda.json;
+# generated pages are the pinned generator's output from that recitation.
 on:
   schedule:
     - cron: "30 10 * * *"    # 10:30 UTC (5:30 AM ET on standard time, 6:30 AM ET on daylight time); before live-checks at 17 11 * * * UTC
@@ -33,7 +36,6 @@ jobs:
       actions: write
     env:
       GH_TOKEN: ${{ github.token }}
-      BRANCH: scout/verda-daily-recite
       LANTERN_DEALS_FILE: api/v1/deals.json
     steps:
       - uses: actions/checkout@v4
@@ -46,19 +48,28 @@ jobs:
 
       - run: pip install -r mcp_server/requirements.txt pytest pyyaml "jsonschema[format]==4.*"
 
-      - name: Prepare the fixed daily branch (no push yet)
+      - name: Prepare a fresh dated branch from current origin/main (no push yet)
+        id: prep
         run: |
           set -euo pipefail
           git fetch -q origin main
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git ls-remote --exit-code origin "refs/heads/$BRANCH" >/dev/null; then
-            git fetch -q origin "$BRANCH"
-            git checkout -B "$BRANCH" "origin/$BRANCH"
-            git merge --no-edit origin/main
-          else
-            git checkout -B "$BRANCH" origin/main
-          fi
+          # Fresh from current main every run. Never merge an older daily branch
+          # (that is what conflicted in 44595048039 once later collector commits
+          # regenerated the same HTML). Same-day reruns get a -2, -3, ... suffix;
+          # no force-push.
+          date=$(date -u +%Y%m%d)
+          base="scout/verda-daily-recite-$date"
+          branch=$base
+          n=2
+          while git ls-remote --exit-code origin "refs/heads/$branch" >/dev/null; do
+            branch="${base}-${n}"
+            n=$((n + 1))
+          done
+          git checkout -B "$branch" origin/main
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "Using branch $branch from origin/main"
 
       - name: Official Verda pricing-page re-cite
         id: recite
@@ -100,9 +111,10 @@ jobs:
       - name: Commit, push the daily branch, dispatch validate-and-deploy, and write the notice
         if: steps.recite.outputs.should_write == 'true'
         env:
+          BRANCH: ${{ steps.prep.outputs.branch }}
           STAMP: ${{ steps.recite.outputs.stamp }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          COMPARE_URL: ${{ github.server_url }}/${{ github.repository }}/compare/main...scout/verda-daily-recite
+          COMPARE_URL: ${{ github.server_url }}/${{ github.repository }}/compare/main...${{ steps.prep.outputs.branch }}
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain)" ]; then
@@ -112,18 +124,15 @@ jobs:
           fi
           git add -A
           git commit -m "data: daily Verda pricing re-cite $(date -u +%F)"
-          if git ls-remote --exit-code origin "refs/heads/$BRANCH" >/dev/null; then
-            git push origin "$BRANCH"
-          else
-            git push -u origin "$BRANCH"
-          fi
+          # Branch name was chosen because it did not exist on origin; regular push only.
+          git push -u origin "$BRANCH"
 
           python3 -c "
           import json, os
           from pathlib import Path
           d = json.loads(Path(os.environ['RUNNER_TEMP'], 'recite.json').read_text())
           compare = os.environ.get('COMPARE_URL', '')
-          branch = os.environ.get('BRANCH', 'scout/verda-daily-recite')
+          branch = os.environ.get('BRANCH', '')
           lines = []
           lines.append('This job does not open a pull request and does not need pull-requests: write.')
           lines.append('')
