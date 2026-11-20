@@ -301,6 +301,61 @@ def test_held_only_vendor_gets_a_stale_labelled_page(tmp_path):
     assert "AlphaVPS" not in index
 
 
+
+def test_mixed_vendor_held_record_is_served_with_age_label(tmp_path):
+    """A vendor with a current ranked row and a 48h-held record must still serve the
+    held price with an honest last-verified date and age. The vendor is not given the
+    vendor-wide 'Currently unranked' banner."""
+    prices = {
+        "feed_updated_at": "2026-11-20T00:52:22Z",
+        "prices_verified_through": "2026-11-20T00:51:54Z",
+        "vendors": [{"vendor": "Spheron", "source_url": "https://www.spheron.network/pricing/"}],
+        "rates": [{
+            "advertiser": "Spheron", "gpu": "L40S", "vram_gb": 48, "price_usd": 0.96,
+            "hourly_usd": 0.96, "hourly_equiv_usd": 0.96, "billing_unit": "hourly",
+            "tier": "On-demand", "interruptible": False, "form_factor": "PCIe",
+            "source_url": "https://www.spheron.network/pricing/",
+            "verified_at": "2026-11-19T19:05:14+00:00",
+            "checked_at": "2026-11-19T19:05:14+00:00",
+            "evidence": {"source_url": "https://www.spheron.network/pricing/",
+                         "quote": "L40S $0.96 /hr", "checked_at": "2026-11-19T19:05:14+00:00"},
+        }],
+        "held_stale": [{
+            "vendor": "Spheron",
+            "reason": "stale price (3 days old)",
+            "scope": "record",
+            "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+            "checked_at": "2026-11-16T23:34:52+00:00",
+            "records": [{
+                "gpu": "RTX 5090",
+                "hourly_usd": 0.78,
+                "tier": "Marketplace/aggregator listing (on-demand)",
+                "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+                "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+                "verified_at": "2026-11-16T23:34:52+00:00",
+                "evidence": {
+                    "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+                    "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+                    "checked_at": "2026-11-16T23:34:52+00:00",
+                },
+            }],
+        }],
+    }
+    root = _mini_root(tmp_path, prices, [_snap("2026-11-20", [])])
+    bundle = vsr.build_all(root)
+    vsr.write_pages(_Gen(), bundle, root)
+    page = (root / "reports" / "vendors" / "spheron" / "index.html").read_text()
+    assert "Currently unranked (stale)" not in page
+    assert "Unranked (stale)" in page
+    assert "RTX 5090" in page and "$0.78" in page
+    assert "last verified 2026-11-16 23:34:52 UTC" in page
+    assert "L40S" in page and "$0.96" in page
+    assert "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute" in page
+    assert "https://www.spheron.network/gpu-rental/rtx-5090/" in page
+    # Held row is labelled stale; the current L40S row is not the vendor-wide banner.
+    assert "Stale" in page
+
+
 def test_unpriced_advertiser_without_cited_prices_is_not_given_a_page(tmp_path):
     prices = {
         "feed_updated_at": "2026-11-18T00:00:00Z",

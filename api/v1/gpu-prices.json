@@ -11777,73 +11777,6 @@
     {
       "deal_id": null,
       "advertiser": "Spheron",
-      "gpu": "RTX 5090",
-      "vram_gb": 32,
-      "price_usd": 0.78,
-      "gpu_count": 1,
-      "server_price_usd": null,
-      "server_hourly_usd": null,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "price_basis": null,
-      "unit": "hour",
-      "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
-      "hourly_equiv_usd": 0.78,
-      "billing": "per hour while running",
-      "billing_unit": "hourly",
-      "price_per_second_usd": null,
-      "interruptible": false,
-      "canonical_model": "RTX 5090",
-      "form_factor": "not stated",
-      "price_scope": "gpu_hour_only",
-      "platform_fee_note": "Spheron aggregates capacity from several providers; the listed rate is the page's single current price, not a median of offers.",
-      "price_rotates": {
-        "label": "rotating marketplace price",
-        "observed_usd_hr": [
-          0.89,
-          0.84,
-          1.62
-        ],
-        "note": "Spheron's RTX 5090 page shows a different marketplace price at different times of day; the listed price is the last one read (see verified_at). The daily live check matches GPU name + VRAM + a $/hr price, not this exact amount."
-      },
-      "price_check": "daily",
-      "tier_class": "marketplace",
-      "offer_type": null,
-      "affiliate": false,
-      "verified_at": "2026-11-16T23:34:52+00:00",
-      "checked_at": "2026-11-16T23:34:52+00:00",
-      "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
-      "quote_currency": "USD",
-      "fx_date": null,
-      "last_verified": "2026-11-16T23:34:52+00:00",
-      "redeem_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
-      "basis": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
-      "evidence": {
-        "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
-        "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
-        "checked_at": "2026-11-16T23:34:52+00:00"
-      },
-      "availability": {
-        "status": "unknown",
-        "in_stock": null,
-        "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
-      },
-      "availability_rate_7d": null,
-      "expected_cost_usd": null,
-      "expected_cost_label": "deprecated (T116): expected_cost_usd is always null; observed stock frequency does not predict a quote, bill, or budget. Use the published hourly rate for compute costs.",
-      "availability_status": null,
-      "availability_reason": null,
-      "availability_reason_detail": null,
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-      "effective_at": "2026-11-09T20:52:19+00:00",
-      "effective_at_basis": "first_observed",
-      "min_bill_usd_per_hour": 0.78,
-      "min_bill_basis": "hourly_rate"
-    },
-    {
-      "deal_id": null,
-      "advertiser": "Spheron",
       "gpu": "L40S",
       "vram_gb": 48,
       "price_usd": 0.96,
@@ -16064,6 +15997,29 @@
       ]
     },
     {
+      "vendor": "Spheron",
+      "deal_id": null,
+      "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+      "checked_at": "2026-11-16T23:34:52+00:00",
+      "reason": "stale price (3 days old)",
+      "page_last_updated": null,
+      "scope": "record",
+      "records": [
+        {
+          "gpu": "RTX 5090",
+          "vram_gb": 32,
+          "hourly_usd": 0.78,
+          "tier": "Marketplace/aggregator listing (page: \"Live rates across 5+ providers\"; on-demand)",
+          "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+          "evidence": {
+            "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+            "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+            "checked_at": "2026-11-16T23:34:52+00:00"
+          }
+        }
+      ]
+    },
+    {
       "vendor": "TensorDock",
       "deal_id": null,
       "source_url": "https://www.tensordock.com/cloud-gpus.html",
@@ -16265,11 +16221,11 @@
   ],
   "price_scope": "GPU-hour price only: excludes storage, data egress, extra vCPU/RAM and taxes. Check the vendor pricing page (source_url) for those; storage/egress fields appear on a rate only where that vendor's own page states them.",
   "availability_window_summary": {
-    "no_window_count": 129,
-    "no_stock_source": 97,
+    "no_window_count": 128,
+    "no_stock_source": 96,
     "read_no_usable_signal": 10,
     "signal_no_window_yet": 22,
     "earliest_first_check_at": "2026-11-12T22:56:27Z"
   },
-  "content_build_id": "720d4af2dfbc1f81"
+  "content_build_id": "dc20da675d910d52"
 }

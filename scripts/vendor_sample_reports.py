@@ -781,6 +781,37 @@ def vendor_body(gen, bundle: dict, report: dict) -> str:
         parts.append("    </tbody></table></div>\n")
         parts.append(gp.median_footnote_html(src_rows) + gp.no_stock_note_html(src_rows))
 
+    # Record-level holds on a vendor that still has other ranked rates (e.g. Spheron
+    # RTX 5090 past the 48h ranking limit while L40S is current) must still be served
+    # with an honest stale/age label. The vendor-wide "Currently unranked" banner
+    # above is only for vendors with no current rates.
+    if held and report["has_current_rates"] and (held.get("records") or []):
+        import gpu_pages as gp
+        clock = gp.parse_row_time(str(bundle.get("feed_updated_at") or "")) or gp.read_clock()
+        reason = held.get("reason") or "held / unranked"
+        parts.append("  <h2>Unranked (stale)</h2>\n")
+        parts.append(
+            "  <p>These rows are older than the 48h ranking limit, or otherwise held, "
+            "and are not used in live rankings"
+            f" ({e(reason)}). Last recorded prices are shown with their last-verified "
+            "date and age. Timestamps are not refreshed when a page is published.</p>\n"
+        )
+        recs = held.get("records") or []
+        parts.append("  <div class=\"tscroll\"><table>\n")
+        parts.append(
+            "    <thead><tr><th>GPU</th><th>Tier</th><th>$/GPU-hr (held)</th>"
+            "<th>Last verified / age</th><th>Source evidence</th></tr></thead>\n    <tbody>\n"
+        )
+        for rec in recs:
+            ev_row = _held_record_for_evidence(rec, held)
+            parts.append(
+                f'    <tr class="stale-held"><td>{e(rec.get("gpu"))}</td><td>{e(rec.get("tier"))}</td>'
+                f'<td>{e(money(rec.get("hourly_usd")))}</td>'
+                f'<td>{_held_age_html(gen, ev_row, clock)}</td>'
+                f'<td>{_evidence_html(gen, ev_row)}</td></tr>\n'
+            )
+        parts.append("    </tbody></table></div>\n")
+
     parts.append("  <h2>Undercut in the last 14 days</h2>\n")
     missing = under["snapshot_days_missing"]
     present_n = len(under["snapshot_days_present"])

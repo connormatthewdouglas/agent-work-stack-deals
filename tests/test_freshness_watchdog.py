@@ -140,3 +140,29 @@ def test_workflow_schedule_label_and_node24_actions():
     assert "actions/checkout@v5" in text and "actions/setup-python@v6" in text
     assert "fetch-depth: 0" in text
     assert W.FEED_MAX_HOURS == 26 and W.AVAIL_MAX_HOURS == 8
+
+
+def test_held_stale_row_older_than_48h_does_not_fail_the_ranked_bar():
+    """A 74h Spheron-shaped row left in `rates` fails T41-12; once generate-time
+    hold lists it only in held_stale, the 48h ranked bar stays quiet. The bar itself
+    is unchanged.
+    """
+    clock = datetime(2026, 11, 20, 0, 53, tzinfo=timezone.utc)
+    old = {"advertiser": "Spheron", "gpu": "RTX 5090",
+           "tier": "Marketplace/aggregator listing (on-demand)",
+           "verified_at": "2026-11-16T23:34:52+00:00",
+           "checked_at": "2026-11-16T23:34:52+00:00"}
+    fresh_rate = {"advertiser": "RunPod", "gpu": "H100", "tier": "On-demand",
+                  "verified_at": "2026-11-20T00:40:00Z", "checked_at": "2026-11-20T00:40:00Z"}
+    stamps = {"feed_updated_at": "2026-11-20T00:52:22Z",
+              "availability_collected_at": "2026-11-20T00:51:54Z"}
+    still = {**FRESH_FEED, **stamps, "rates": [fresh_rate, old], "held_stale": []}
+    bad = W.evaluate(still, HOSTED_OK, now=clock, expected_version="0.6.2", expected_build=EXPECT)
+    assert any("ranked row" in p and "48h" in p and "Spheron" in p for p in bad)
+    held = {**FRESH_FEED, **stamps, "rates": [fresh_rate], "held_stale": [
+        {"vendor": "Spheron", "reason": "stale price (3 days old)", "scope": "record",
+         "checked_at": "2026-11-16T23:34:52+00:00",
+         "records": [{"gpu": "RTX 5090", "hourly_usd": 0.78, "tier": old["tier"]}]}
+    ]}
+    ok = W.evaluate(held, HOSTED_OK, now=clock, expected_version="0.6.2", expected_build=EXPECT)
+    assert not any("ranked row" in p and "48h" in p for p in ok)

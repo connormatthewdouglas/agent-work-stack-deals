@@ -125,3 +125,53 @@ def test_manual_snapshot_past_hold_after_is_held_without_stale_auto(monkeypatch)
     assert not any(r["advertiser"] == doc["vendor"] and r["gpu"] == rec["gpu"] for r in out["rates"])
     assert any(h["vendor"] == doc["vendor"] and any(x.get("gpu") == rec["gpu"] for x in h.get("records") or [])
                for h in out["held_stale"])
+
+
+def test_auto_refresh_row_older_than_48h_is_unranked_at_build():
+    """A daily-refresh row older than T41-12 (48h) must leave `rates` at generate time.
+
+    lead_key only sorted it after fresh rows, so it stayed ranked and the freshness
+    watchdog stayed red (Spheron RTX 5090 at 73.3h, runs 44649405733 / 44649548149).
+    The vendor file is not rewritten: no stale.auto, no fresh verified_at. Past the
+    cutoff the row is held_stale with an honest age label; just inside 48h it still ranks.
+    Clock is injected; no live network and no wall-clock dependence.
+    """
+    from core.data_age import DEGRADED_HOURS, stale_label
+    clock = datetime(2026, 11, 20, 0, 52, 22, tzinfo=timezone.utc)
+    url = "https://example.com/gpu-rental/rtx-5090/"
+    verified = (clock - timedelta(hours=73.3)).replace(microsecond=0).isoformat()
+    failed = (clock - timedelta(hours=6)).replace(microsecond=0).isoformat()
+    rec = {
+        "vendor": "SpheronTest", "gpu": "RTX 5090", "vram_gb": 32, "price_usd": 0.78,
+        "billing_unit": "hourly", "hourly_usd": 0.78, "interruptible": False,
+        "tier": "Marketplace/aggregator listing (on-demand)", "form_factor": "PCIe",
+        "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+        "source_url": url, "checked_at": verified, "verified_at": verified,
+        "last_failed_check_at": failed,
+        "evidence": {"source_url": url, "quote": "On Spheron the NVIDIA RTX 5090 is $0.78/hr per GPU, billed per minute",
+                     "checked_at": verified},
+    }
+    doc = {
+        "vendor": "SpheronTest", "deal_id": None, "source_url": url, "checked_at": verified,
+        "extras": {k: {"status": "unknown", "text": "x", "source_url": url} for k in ("egress", "storage", "interruption")},
+        "records": [rec],
+    }
+    out = build_rates([], [doc], now=clock)
+    assert out["rates"] == []
+    held = out["held_stale"]
+    assert held and held[0]["vendor"] == "SpheronTest"
+    assert held[0]["records"][0]["gpu"] == "RTX 5090"
+    assert held[0]["reason"] == stale_label(rec, clock)
+    # Vendor file shape is unchanged: failed re-read did not mint a verified_at or stale.auto.
+    assert rec.get("stale") is None
+    assert rec["verified_at"] == rec["checked_at"] == verified
+    assert rec["last_failed_check_at"] == failed
+    assert rec["price_usd"] == 0.78
+
+    fresh = dict(rec)
+    fresh["verified_at"] = fresh["checked_at"] = (clock - timedelta(hours=DEGRADED_HOURS - 1)).isoformat()
+    fresh["evidence"] = {**rec["evidence"], "checked_at": fresh["checked_at"]}
+    ranked = build_rates([], [{**doc, "records": [fresh]}], now=clock)
+    assert ranked["rates"] and ranked["rates"][0]["price_usd"] == 0.78
+    assert ranked["held_stale"] == []
+

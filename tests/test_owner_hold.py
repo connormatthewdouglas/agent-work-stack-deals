@@ -198,11 +198,11 @@ def test_owner_held_prices_do_not_rank_in_cheapest_compare_or_agent_stack(fixed_
 
 def test_committed_feed_wall_clock_catches_stale_ranked_rows(monkeypatch, fixed_owner_hold):
     """Outside T41-12, and without the pinned build clock. Owner-held rows are not ranked.
-    A non-held vendor-file row past its existing hold (7 days, or 48h for a batch row) is not ranked either.
-    Thresholds are unchanged. T41-12's 48h bar on the published feed stays in the release gate."""
+    A non-held vendor-file row past the generate-time ranking hold (48h, T41-12) is not ranked either.
+    refresh() still writes stale.auto only after 7 days. The watchdog 48h bar stays unloosened."""
     monkeypatch.delenv("LW_AVAIL_NOW", raising=False)
     from core.gpu import build_rates, load_vendor_files
-    from core.data_age import STALE_HOURS
+    from core.data_age import DEGRADED_HOURS
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     # The committed feed follows the live data/owner_hold.json; the build below uses the fixed hold list.
     from core.owner_hold import hold_names
@@ -223,7 +223,7 @@ def test_committed_feed_wall_clock_catches_stale_ranked_rows(monkeypatch, fixed_
             if rec.get("stale") or rec.get("no_capacity"):
                 continue
             stamp = datetime.fromisoformat(str(rec.get("verified_at") or rec["checked_at"]).replace("Z", "+00:00"))
-            limit = 48 if rec.get("price_check") == "batch" or rec.get("batch") else STALE_HOURS
+            limit = DEGRADED_HOURS
             if (now - stamp).total_seconds() / 3600 <= limit:
                 continue
             assert not any(r["advertiser"] == rec.get("vendor") and r["gpu"] == rec.get("gpu") and r.get("tier") == rec.get("tier")
