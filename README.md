@@ -113,7 +113,7 @@ Quickstart: ask for `compare_gpu_prices(gpu="H100")`, then the next day call `ge
 
 Docker: `docker build -t lantern-works-deals-mcp . && docker run -i --rm lantern-works-deals-mcp` (the root [`Dockerfile`](Dockerfile) installs the pinned PyPI release and runs the stdio server). Without uv: `pip install lantern-works-deals-mcp`, then use `"command": "lantern-works-deals-mcp"`. Other clients: https://thelanternworks.com/install/?ref=readme · Skill: `npx skills add connormatthewdouglas/agent-work-stack-deals`.
 
-Telemetry is **off by default**. `LANTERN_TELEMETRY=1` opts in to an anonymous daily count of tool calls: tool name, version, day and count only. No arguments, IDs or IPs are sent or stored. See [PRIVACY.md](PRIVACY.md).
+Telemetry is **off by default**. `LANTERN_TELEMETRY=1` opts in to an anonymous daily count of tool calls. What is sent: tool name (`t`), package version (`v`), UTC day (`d`), call count (`n`), a random install id (`install_id`) stored locally at `~/.config/lantern-works/install_id` (or `$XDG_CONFIG_HOME/lantern-works/install_id`; deletable), and `ref` from `LANTERN_REF` (or `none`). No arguments, IPs, names or hostnames. See [PRIVACY.md](PRIVACY.md).
 
 Hosted endpoint (no install): `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme`. Privacy and caller-count detail: [docs/CONTRACT.md](docs/CONTRACT.md), [PRIVACY.md](PRIVACY.md) and [/privacy/](https://thelanternworks.com/privacy/).
 

@@ -8,34 +8,37 @@
 
 Set `LANTERN_TELEMETRY=1` to help us see which tools are used. It is enabled only when the value is exactly `1`.
 
-**What is sent:** only aggregate counts, at most once per UTC day, in one request:
+**What is sent:** only these fields, at most once per UTC day, in one request:
 
 ```json
-{"events": [{"t": "compare_gpu_prices", "v": "0.3.3", "d": "2026-10-28", "n": 4}]}
+{"install_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "ref": "readme", "events": [{"t": "compare_gpu_prices", "v": "0.3.3", "d": "2026-10-28", "n": 4}]}
 ```
 
 - `t` is the tool name, `v` the package version, `d` the UTC day and `n` the number of calls that day.
+- `install_id` is a random UUID generated locally the first time telemetry is on. It is stored at `~/.config/lantern-works/install_id` (or `$XDG_CONFIG_HOME/lantern-works/install_id`) with mode 0600. You can delete that file at any time; a new id is created the next time telemetry is on. It is not derived from an IP, name, hostname or any other machine identifier. The file is never created when telemetry is off.
+- `ref` is the value of `LANTERN_REF` if it matches `[a-z0-9][a-z0-9_-]{0,31}`, otherwise `other` if that variable is set to something else, or `none` if it is unset.
 
 **What is never sent:**
 - tool arguments, queries or results
-- user, host, client or install identifiers
-- environment details
+- IP addresses, names, hostnames, or any identifier derived from the machine
+- environment details other than the optional `LANTERN_REF` tag
 
-**Local file:** counts are kept in `~/.cache/lantern-works-deals-mcp/telemetry.json` (or under `$XDG_CACHE_HOME`) until the day is over. The file contains only `{day: {tool|version: count}}` and at most 7 unsent days.
+**Local files:** counts are kept in `~/.cache/lantern-works-deals-mcp/telemetry.json` (or under `$XDG_CACHE_HOME`) until the day is over. The file contains only `{day: {tool|version: count}}` and at most 7 unsent days. The install id is stored separately as described above and is not written when telemetry is off.
 
-**Failure handling:** the request runs in the background with a 2-second timeout. Failures are ignored, so a tool call is never blocked or broken.
+**Failure handling:** the request runs in the background with a 2-second timeout. File and network failures are ignored, so a tool call is never blocked or broken.
 
 **Collector:** the server code is in [`collector/`](collector/), a Cloudflare Worker with a D1 database.
-- It validates the payload: only the fields above, known tool names, version numbers and recent days are accepted.
+- It validates the payload: only the fields above, known tool names, version numbers and recent days are accepted. An `install_id` must be a 36-character UUID (8-4-4-4-12 hex); anything else is ignored and not stored. Invalid or missing `ref` values are stored as `other` or `none`.
 - Requests are rate-limited. The limiter uses an in-memory hash, and IPs are never written to storage.
-- It stores only the total per `(day, tool, version)`, with no request logs.
-- Aggregate totals are public at `GET /v1/stats`.
+- It stores the total per `(day, tool, version)` and, when a valid install id is present, `(day, install_id, ref, tool, version)`, with no request logs and no IP.
+- Aggregate totals are public at `GET /v1/stats`. The `installs` object reports `distinct` (unique install ids in the window), `returning` (an install id seen on two or more distinct UTC days in the stats window) and `by_ref` / `by_week`. Raw install ids are never published.
 
 **Configuration:**
 - `LANTERN_TELEMETRY_URL` overrides the collector address.
+- `LANTERN_REF` is an optional source tag sent as `ref`.
 - Endpoint (0.3.3 and later): `https://lantern-works-telemetry.lantern-works.workers.dev/v1/events`. Public aggregate stats: `https://lantern-works-telemetry.lantern-works.workers.dev/v1/stats`. Versions before 0.3.3 send nothing.
 
-To turn it off, unset `LANTERN_TELEMETRY` or set it to anything other than `1`. You can delete the cache file at any time.
+To turn it off, unset `LANTERN_TELEMETRY` or set it to anything other than `1`. You can delete the cache file and the install-id file at any time.
 
 ## Hosted MCP endpoint
 

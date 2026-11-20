@@ -1,7 +1,9 @@
 // Lantern Works MCP telemetry collector (Cloudflare Worker, free plan, D1).
-// Stores ONLY aggregate counts per (day, tool, version). Never stores IPs, headers or IDs.
-// POST /v1/events  {"events":[{"t":tool,"v":version,"d":"YYYY-MM-DD","n":count}, ...]}
-// GET  /v1/stats?days=30  -> read-only aggregates
+// Stores aggregate counts per (day, tool, version) and, when a valid UUID install_id is present,
+// install rows per (day, install_id, ref, tool, version). Never stores IPs, headers, names or hostnames.
+// Public /v1/stats returns aggregates only (no raw install ids).
+// POST /v1/events  {"install_id":"<uuid>","ref":"<tag>","events":[{"t":tool,"v":version,"d":"YYYY-MM-DD","n":count}, ...]}
+// GET  /v1/stats?days=30  -> read-only aggregates, including installs.distinct / returning / by_ref / by_week
 // GET  /go/<deal-id>?src=site|mcp|feed|readme[-test]&ref=<tag>  -> 302 to that deal's stored redeem_url (looked up in the
 //      served feed; never a caller-supplied URL, so not an open redirect). Counts one click per (day, deal, provider, src, ref).
 // GET  /go/v/<vendor-slug>?src=... -> same, for a provider with no feed deal (T136; target from the served GPU feed only)
@@ -34,10 +36,14 @@ function dayDiff(day, now) {
   return Number.isNaN(t) ? Infinity : Math.round((Date.parse(now.toISOString().slice(0, 10) + "T00:00:00Z") - t) / 86400000);
 }
 
+export const REF_RE = /^[a-z0-9][a-z0-9_-]{0,31}$/;
+export const INSTALL_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const ALLOWED_BODY = new Set(["events", "install_id", "ref"]);
+
 export function validate(body, now = new Date()) {
   if (!body || typeof body !== "object" || Array.isArray(body)) return "body must be an object";
   const keys = Object.keys(body);
-  if (keys.length !== 1 || keys[0] !== "events") return "only 'events' allowed";
+  if (!keys.includes("events") || keys.some((k) => !ALLOWED_BODY.has(k))) return "only events, install_id, ref allowed";
   const ev = body.events;
   if (!Array.isArray(ev) || ev.length === 0 || ev.length > MAX_EVENTS) return `events must be 1-${MAX_EVENTS} items`;
   for (const e of ev) {
@@ -54,10 +60,69 @@ export function validate(body, now = new Date()) {
   return null;
 }
 
+// Valid UUID install_id is kept (lowercased). Anything else is ignored, not rejected, so tool counts still land.
+export function installMeta(body) {
+  const rawId = typeof body.install_id === "string" ? body.install_id.trim() : "";
+  const id = rawId.length <= 36 && INSTALL_ID_RE.test(rawId) ? rawId.toLowerCase() : null;
+  const raw = typeof body.ref === "string" ? body.ref.trim().toLowerCase() : "";
+  const ref = REF_RE.test(raw) ? raw : (raw ? "other" : "none");
+  return { id, ref };
+}
+
+// ISO week YYYY-Www, matching Python date.isocalendar() (UTC day).
+export function isoWeek(day) {
+  const date = new Date(`${day}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return null;
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const year = d.getUTCFullYear();
+  const yearStart = new Date(Date.UTC(year, 0, 1));
+  const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${year}-W${String(week).padStart(2, "0")}`;
+}
+
+// Public aggregates only: never include raw install_id. Returning = seen on 2+ distinct UTC days in the window.
+// Test rows (version 0.0.0) are excluded. by_ref counts distinct ids per ref.
+export function aggregateInstalls(rows) {
+  const days = new Map(); // id -> Set(day)
+  const refs = new Map(); // id -> Set(ref)
+  for (const r of rows || []) {
+    if (!r || r.version === "0.0.0" || !r.install_id || !r.day) continue;
+    if (!days.has(r.install_id)) { days.set(r.install_id, new Set()); refs.set(r.install_id, new Set()); }
+    days.get(r.install_id).add(r.day);
+    refs.get(r.install_id).add(r.ref || "none");
+  }
+  const returningIds = new Set([...days.entries()].filter(([, s]) => s.size >= 2).map(([id]) => id));
+  const byRef = {};
+  for (const [id, rs] of refs) for (const ref of rs) byRef[ref] = (byRef[ref] || 0) + 1;
+  const byWeekMap = new Map();
+  for (const [id, ds] of days) {
+    const weeks = new Set([...ds].map(isoWeek).filter(Boolean));
+    for (const w of weeks) {
+      if (!byWeekMap.has(w)) byWeekMap.set(w, { ids: new Set(), returning: new Set(), byRef: {} });
+      const slot = byWeekMap.get(w);
+      slot.ids.add(id);
+      if (returningIds.has(id)) slot.returning.add(id);
+      for (const ref of refs.get(id)) slot.byRef[ref] = (slot.byRef[ref] || 0) + 1;
+    }
+  }
+  const by_week = [...byWeekMap.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([week, s]) => ({
+    week, distinct: s.ids.size, returning: s.returning.size,
+    by_ref: Object.fromEntries(Object.entries(s.byRef).sort((a, b) => a[0].localeCompare(b[0]))),
+  }));
+  return {
+    distinct: days.size,
+    returning: returningIds.size,
+    by_ref: Object.fromEntries(Object.entries(byRef).sort((a, b) => a[0].localeCompare(b[0]))),
+    by_week,
+    note: "returning = install id seen on 2+ distinct UTC days in this stats window; weekly returning counts ids seen that ISO week that meet the 2+ day definition (the other day may fall outside the week). Aggregates only; raw install ids are not published. version 0.0.0 excluded.",
+  };
+}
+
 export const FEED_URL = "https://thelanternworks.com/api/v1/deals.json";
 export const SRCS = new Set(["site", "mcp", "feed", "readme"].flatMap((x) => [x, x + "-test"]));
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,79}$/;
-const REF_RE = /^[a-z0-9][a-z0-9_-]{0,31}$/;
 let feedCache = { at: 0, byId: null };
 
 // Known crawlers, link-preview fetchers, monitors and headless browsers (never a person clicking).
@@ -154,6 +219,14 @@ export default {
       const stmt = env.DB.prepare(
         "INSERT INTO counts (day, tool, version, n) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(day, tool, version) DO UPDATE SET n = n + excluded.n");
       await env.DB.batch(body.events.map((e) => stmt.bind(e.d, e.t, e.v, e.n)));
+      const { id, ref } = installMeta(body);
+      if (id) {
+        try {
+          const inst = env.DB.prepare(
+            "INSERT INTO installs (day, install_id, ref, tool, version, n) VALUES (?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT(day, install_id, ref, tool, version) DO UPDATE SET n = n + excluded.n");
+          await env.DB.batch(body.events.map((e) => inst.bind(e.d, id, ref, e.t, e.v, e.n)));
+        } catch {}  // ignore if the installs table is not migrated yet; counts already saved
+      }
       return new Response(null, { status: 204 });
     }
     if (url.pathname === "/v1/stats" && request.method === "GET") {
@@ -162,8 +235,15 @@ export default {
       const { results } = await env.DB.prepare(
         "SELECT day, tool, version, n FROM counts WHERE day >= ?1 ORDER BY day, tool, version").bind(since).all();
       const total = results.reduce((s, r) => s + r.n, 0);
-      return json({ since, total_calls: total, rows: results,
-        note: "Opt-in (LANTERN_TELEMETRY=1) aggregate tool-call counts. No IPs or IDs are stored." });
+      let installs = { distinct: 0, returning: 0, by_ref: {}, by_week: [],
+        note: "returning = install id seen on 2+ distinct UTC days in this stats window; weekly returning counts ids seen that ISO week that meet the 2+ day definition (the other day may fall outside the week). Aggregates only; raw install ids are not published. version 0.0.0 excluded." };
+      try {
+        const inst = await env.DB.prepare(
+          "SELECT day, install_id, ref, version FROM installs WHERE day >= ?1").bind(since).all();
+        installs = aggregateInstalls(inst.results || []);
+      } catch {}
+      return json({ since, total_calls: total, rows: results, installs,
+        note: "Opt-in (LANTERN_TELEMETRY=1) aggregate tool-call counts. No IPs are stored. installs are aggregates only (no raw install ids)." });
     }
     if (url.pathname.startsWith("/go/") && (request.method === "GET" || request.method === "HEAD")) {
       let id = url.pathname.slice(4).replace(/\/$/, "").toLowerCase(), deal;

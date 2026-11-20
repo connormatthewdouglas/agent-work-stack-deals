@@ -1,4 +1,4 @@
--- Aggregate counts only. No IPs, no install IDs, no request logs.
+-- Aggregate counts only. No IPs, no request logs. Install ids are stored only in the installs table below.
 CREATE TABLE IF NOT EXISTS counts (
   day TEXT NOT NULL,      -- UTC YYYY-MM-DD reported by the client
   tool TEXT NOT NULL,     -- one of the five MCP tool names
@@ -29,4 +29,16 @@ CREATE TABLE IF NOT EXISTS go_clicks (
   ua_class TEXT NOT NULL,
   n INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (day, deal_id, provider, src, ref, ua_class)
+);
+
+-- Opt-in anonymous install telemetry. install_id is a client-generated UUID, not an IP, name or hostname.
+-- Public /v1/stats returns aggregates only (no raw ids). Apply on an existing DB via migrations/0001_installs.sql.
+CREATE TABLE IF NOT EXISTS installs (
+  day TEXT NOT NULL,          -- UTC YYYY-MM-DD reported by the client
+  install_id TEXT NOT NULL,   -- random UUID; never derived from the machine
+  ref TEXT NOT NULL,          -- LANTERN_REF tag, other, or none
+  tool TEXT NOT NULL,
+  version TEXT NOT NULL,
+  n INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, install_id, ref, tool, version)
 );
