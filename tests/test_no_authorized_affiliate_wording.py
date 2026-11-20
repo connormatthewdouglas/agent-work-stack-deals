@@ -43,5 +43,8 @@ def test_affiliate_pages_show_inline_disclosure_sponsored_and_plain_link():
             continue
         html = page.read_text(encoding="utf-8")
         assert 'rel="nofollow sponsored"' in html, d["id"]
-        assert "Lantern Works may earn a commission if you sign up through this link" in html, d["id"]
+        if (d.get("advertiser") or "").strip().lower() == "trueproxies":
+            assert "Lantern Works may earn a commission if you sign up through this TrueProxies link" in html, d["id"]
+        else:
+            assert "Lantern Works may earn a commission if you sign up through this link" in html, d["id"]
         assert "go straight to the vendor" in html and d["plain_url"].replace("&", "&amp;") in html, d["id"]

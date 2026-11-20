@@ -1125,7 +1125,7 @@ _PLAIN = [
     (re.compile(r"redeem_url is an affiliate \(referral\) link; see disclosure\.?"), "The sign-up link is a referral link (see the disclosure)."),
     (re.compile(r"plain_url \(when set\) is the direct vendor link\.?"), "A direct vendor link without referral tracking is listed under it."),
     (re.compile(r"\(unverified\)"), "(not yet verified)"),
-    (re.compile(r"(?:the\s+)?\bredeem_url\b"), "the sign-up link"),
+    (re.compile(r"(?:the\s+)?\bredeem_url(?:\s+link)?\b"), "the sign-up link"),
     (re.compile(r"\bplain_url\b"), "the direct vendor link"),
     (re.compile(r"\bpromo_code\b"), "promo code"),
     (re.compile(r"\bdocs_url\b"), "the vendor docs"),
@@ -1190,7 +1190,7 @@ def cta_html(deal: dict) -> str:
         if (deal.get("advertiser") or "").strip().lower() == "trueproxies":
             inline = INLINE.replace(
                 "if you sign up through this link.",
-                "if you sign up through this link from TrueProxies.",
+                "if you sign up through this TrueProxies link.",
             )
         extra += f'<br><small class="disclosure">{inline}{direct}</small>'
     return f'<a class="cta" {rel} href="{esc(url)}" data-deal="{esc(deal["id"])}">{label}</a>{extra}'

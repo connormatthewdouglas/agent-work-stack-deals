@@ -12,6 +12,8 @@ def test_disclosure_page_exists_and_mentions_commission():
     assert "Lantern Works" in s
     assert "Frosty" not in s
     assert "/disclosure/" in (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+    assert "https://thelanternworks.com/methodology/#placement" in s
+    assert "not offered" in s
 
 
 def test_homepage_footer_links_disclosure_and_says_commission():

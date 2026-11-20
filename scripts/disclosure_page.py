@@ -12,7 +12,7 @@ def write(g) -> str:
     body = f"""  <nav class="crumbs"><a href="{base}/">Lantern Works</a> › Disclosure</nav>
   <h1>Affiliate disclosure</h1>
   <p>Lantern Works may earn a commission when you buy from some vendors we link to. This never changes the prices shown or the ranking order.</p>
-  <p>Rankings follow the price and freshness rules on our <a href="{base}/methodology/">Methodology</a> page (<a href="{base}/methodology/#placement">Customers buy data, never placement</a>). No vendor can pay to rank higher. Referral links are labelled.</p>
+  <p>Rankings follow the price and freshness rules on our <a href="{base}/methodology/">Methodology</a> page (<a href="{base}/methodology/#placement">Customers buy data, never placement</a>). No vendor can pay to rank higher. Referral links are labelled. The full neutrality rule — what money does not change, what is allowed, and that paid sponsorships or advertisements are not offered — is in that section.</p>
 """
     out = Path(g.ROOT) / PATH / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
