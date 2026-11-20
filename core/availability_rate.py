@@ -13,6 +13,7 @@ PATH = Path(__file__).resolve().parents[1] / "data" / "gpu_availability" / "rate
 SCOUT_PATH = PATH.with_name("scout_rate_7d.json")
 SCOUT_MAX_AGE_H = 24
 MIN_CHECKS = 6
+WINDOW_HOURS = 7 * 24  # planned 7-day stock window; a last_check_at older than this has lapsed
 LABEL = ("deprecated (T116): expected_cost_usd is always null; observed stock frequency does not predict "
          "a quote, bill, or budget. Use the published hourly rate for compute costs.")
 _CACHE: dict | None = None
@@ -85,6 +86,63 @@ def _observed_hours(first, last, end) -> float | None:
         return round(hours, 1) if hours >= 0 else None
     except (ValueError, TypeError, AttributeError):
         return None
+
+
+def _age_hours(ts, now=None) -> float | None:
+    from core.gpu_availability import age_hours
+    return age_hours(ts, now)
+
+
+def _last_observed_rate(ar) -> float | None:
+    """The last published rate value. Never invented: null when the last window had no known checks."""
+    if not isinstance(ar, dict):
+        return None
+    if ar.get("window_status") == "lapsed":
+        v = ar.get("last_observed_rate")
+        return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+    v = ar.get("rate")
+    return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def lapsed_rate(ar, now=None) -> dict | None:
+    """P62: if the 7-day window has no checks in the last 7 days, return a labelled object that keeps
+    last_check_at and last_observed_rate, with the current rate null. None when there is no last_check_at
+    older than 7 days (and the object is not already lapsed with a last_check_at)."""
+    if not isinstance(ar, dict):
+        return None
+    last = ar.get("last_check_at")
+    age = _age_hours(last, now)
+    already = ar.get("window_status") == "lapsed"
+    if age is None or age < 0:
+        return None
+    if not already and age <= WINDOW_HOURS:
+        return None
+    return {
+        "rate": None,  # current window has no checks; do not present the old rate as current
+        "checks": 0, "known_checks": 0, "unknown_checks": None,
+        "never_ran_checks": None, "no_source_checks": None, "total_checks": None,
+        "in_stock_checks": 0,
+        "window_start": ar.get("window_start"), "window_end": ar.get("window_end"),
+        "window_days": 7, "first_check_at": ar.get("first_check_at"), "last_check_at": last,
+        "observed_hours": None, "coverage_note": None, "source": ar.get("source"),
+        "sample_status": "all_unknown", "sufficient_sample": False, "window_stale": True,
+        "interpretation": "observed share of known stock checks, not a forecast or monetary estimate",
+        "last_observed_rate": _last_observed_rate(ar),
+        "window_status": "lapsed",
+        "stale_age_hours": round(age, 1),
+    }
+
+
+def lapsed_phrase(ar) -> str | None:
+    """Site wording for a lapsed 7-day window. None when the rate is current or unlabelled."""
+    if not isinstance(ar, dict) or ar.get("window_status") != "lapsed":
+        return None
+    age = ar.get("stale_age_hours")
+    if isinstance(age, (int, float)) and not isinstance(age, bool) and age >= 0:
+        if age >= 24:
+            return f"lapsed · last checked {round(age / 24, 1):g}d ago"
+        return f"lapsed · last checked {age:g}h ago"
+    return "lapsed"
 
 
 def _describe(known, stocked, unknown, start, end, source, first=None, last=None, never_ran=None, no_source=None) -> dict | None:
@@ -189,6 +247,8 @@ def is_small_sample(ar) -> bool:
 
 def rate_phrase(ar) -> str | None:
     """Site wording for a trailing 0/N or K/N availability reading. None when the feed has no usable counts."""
+    if isinstance(ar, dict) and ar.get("window_status") == "lapsed":
+        return None  # P62: current rate is unknown; use lapsed_phrase for the last check
     n, k = known_count(ar), stocked_count(ar)
     if n is None or k is None or n == 0:
         return None
@@ -225,9 +285,19 @@ def overlay_published_rates(rows: list[dict], published_path: Path | None = None
     for r in rows:
         old = prev.get((r.get("advertiser"), r.get("gpu"), r.get("vram_gb"), r.get("tier")))
         new = r.get("availability_rate_7d")
+        # Keep a fresh published Scout series when generate would fall back to git history,
+        # but a 7-day-lapsed series is labelled (current rate null), not copied as current.
         if isinstance(old, dict) and old.get("source") == "scout_t112" and (
                 not isinstance(new, dict) or new.get("source") == "git_history"):
-            r["availability_rate_7d"] = old
+            r["availability_rate_7d"] = lapsed_rate(old) or old
+            continue
+        if converted := lapsed_rate(new):
+            r["availability_rate_7d"] = converted
+            continue
+        if not isinstance(new, dict):
+            converted = lapsed_rate(old)
+            if converted:
+                r["availability_rate_7d"] = converted
     return rows
 
 
@@ -248,9 +318,11 @@ def window_summary(rates: list[dict] | None) -> dict:
             continue
         ar = r.get("availability_rate_7d")
         if isinstance(ar, dict):
-            ts = ar.get("first_check_at")
-            if isinstance(ts, str) and ts:
-                firsts.append(ts)
+            # P62: a lapsed window stays a window object (not no_window), but is not current.
+            if ar.get("window_status") != "lapsed":
+                ts = ar.get("first_check_at")
+                if isinstance(ts, str) and ts:
+                    firsts.append(ts)
             continue
         av = r.get("availability") if isinstance(r.get("availability"), dict) else {}
         if av.get("in_stock") is True or av.get("in_stock") is False:

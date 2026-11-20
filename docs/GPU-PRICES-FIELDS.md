@@ -167,6 +167,7 @@ when any unknown check in the window has no recorded reason, or when the source 
 not an invented zero. `sample_status` distinguishes observed, insufficient_sample (<6 known), and all_unknown;
 `window_stale` flags windows whose last observation is older than 24h or undated. Sparse/old data remains
 labelled historical description, never a probability forecast. `source` is `scout_t112` or `git_history`.
+P62 (additive): when `last_check_at` is older than the planned 7-day window, the current `rate` is null (not the old share presented as current). The object keeps `last_check_at`, adds `last_observed_rate` (the last computed share, or null when that window had no known checks), `window_status` `lapsed`, and `stale_age_hours` (age of `last_check_at`, 1 decimal). A current window is unchanged and has no `window_status`. Site copy for a lapsed row is "lapsed · last checked <age> ago" instead of a blank cell.
 
 No MCP field was renamed or removed; the legacy dollar field must remain null wherever exposed.
 

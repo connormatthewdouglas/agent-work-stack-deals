@@ -84,6 +84,7 @@ def decode_cursor(cursor: str) -> dict | None:
 # restamps rows must keep the same content_build_id; a price change must not.
 _CONTENT_SKIP = frozenset({
     "last_verified", "fx_date", "observed_hours", "coverage_note", "data_age_hours",
+    "stale_age_hours",
     "feed_updated_at", "prices_verified_through", "availability_collected_at",
     "deal_feed_updated_at", "generation_id", "wider_generation_id", "content_build_id",
 })
