@@ -3,7 +3,8 @@
 
 Sources (all aggregate, no visitor-level data):
   - hosted MCP worker /stats.json: tool calls per UTC day x tool x ref, and feed/initialize hits per day x kind x ref
-  - opt-in telemetry worker /v1/stats: tool calls per day x tool x version (test version 0.0.0 dropped)
+  - opt-in telemetry worker /v1/stats: tool calls per day x tool x version (test version 0.0.0 dropped);
+    when present, installs aggregates (distinct / returning / by_ref / by_week; no raw install ids)
   - Cloudflare Web Analytics beacon (/e/out/<id> virtual page views = outbound clicks): weekly totals only, and only
     when CF_API_TOKEN, CF_ACCOUNT_ID and CF_SITE_TAG are set; otherwise reported as not available
 Rows are rolled up to ISO weeks (YYYY-Www). No per-caller or per-key data is published; /go/ redirect clicks are published per provider x src (aggregate).
@@ -65,8 +66,14 @@ RECEIPTS_JSON_NULL = "not measurable: /api/v1/receipts.json is served by GitHub 
 RECEIPTS_INQ_NULL = "not published: inquiries arrive by email; counts stay private (no PII in stats.json)"
 BEACON_SINCE_WEEK = "2026-W45"  # site b392c8b3... beacon token 327dc277... shipped 2026-11-02
 BEACON_SINCE_REASON = "not measured: this Web Analytics site's beacon went live on 2026-11-02 (ISO week 2026-W45)"
-INSTALLS_NULL_REASON = ("not measurable: the opt-in telemetry worker records day x tool x version only, with no install id "
-                        "or ref; an install id needs the owner's approval. Hosted connects by ref are in mcp_initialize_by_ref.")
+INSTALLS_NULL_REASON = ("not collected yet: the opt-in telemetry worker has not served install aggregates this run "
+                        "(collector migration 0001_installs.sql pending, or no install id in the window). "
+                        "Hosted connects by ref are in mcp_initialize_by_ref.")
+INSTALLS_SOURCE = ("opt-in LANTERN_TELEMETRY=1 collector /v1/stats installs aggregates (no raw install ids). "
+                   "distinct_installs = unique install ids seen that ISO week. returning_installs = install ids seen "
+                   "that week that were also observed on two or more distinct UTC days in the 120-day stats window "
+                   "(the other day may fall outside the week). installs_by_ref = distinct ids per ref that week. "
+                   "version 0.0.0 is excluded. Telemetry is off by default.")
 
 
 RECEIPTS_JSON_PATHS = ("/api/v1/receipts.json", "/api/v1/receipts-proof-pack.json")
@@ -136,6 +143,7 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
                                   "telemetry_tool_calls": 0, "outbound_clicks": None, "beacon_out_events": None,
                                   "page_views": None, "visits_by_ref": None,
                                   "visits_null_reason": rum_reason or None, "installs_by_ref": None,
+                                  "distinct_installs": None, "returning_installs": None,
                                   "installs_null_reason": INSTALLS_NULL_REASON})
 
     for r in hosted.get("rows") or []:
@@ -152,6 +160,11 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
     for r in telemetry.get("rows") or []:
         if r.get("version") != "0.0.0":
             slot(week(r["day"]))["telemetry_tool_calls"] += int(r.get("n") or 0)
+    inst = None if "error" in telemetry else telemetry.get("installs")
+    has_installs = isinstance(inst, dict) and "by_week" in inst
+    byw = {w["week"]: w for w in (inst.get("by_week") or []) if w.get("week")} if has_installs else {}
+    for w in byw:
+        slot(w)
     for w, n in (clicks or {}).items():
         slot(w)["beacon_out_events"] = n
     for w, r in (rum or {}).items():
@@ -179,6 +192,14 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
             "inquiries": None, "inquiries_null_reason": RECEIPTS_INQ_NULL,
             "page_views_null_reason": None if measured else (s["visits_null_reason"] or "Web Analytics not available this run"),
         }
+    if has_installs:
+        for s in out.values():
+            row = byw.get(s["week"]) or {"distinct": 0, "returning": 0, "by_ref": {}}
+            s["installs_by_ref"] = dict(sorted((row.get("by_ref") or {}).items(), key=lambda x: (-int(x[1]), x[0])))
+            s["distinct_installs"] = int(row.get("distinct") or 0)
+            s["returning_installs"] = int(row.get("returning") or 0)
+            s["installs_null_reason"] = None
+
     rows = sorted(out.values(), key=lambda s: s["week"], reverse=True)[:weeks]
     for s in rows:
         for k in ("mcp_tool_calls_by_ref", "feed_fetches_by_ref", "mcp_initialize_by_ref"):
@@ -205,7 +226,7 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
                            else f"null: {rum_reason}"),
             "visits_by_ref": ("Cloudflare Web Analytics /e/ref/<ref>/ virtual views, sent once per landing with ?ref= by pages built "
                               "from 2026-11-02 (rel055) on; earlier weeks cannot show refs" if rum is not None else f"null: {rum_reason}"),
-            "installs_by_ref": "null: " + INSTALLS_NULL_REASON,
+            "installs_by_ref": INSTALLS_SOURCE if has_installs else ("null: " + INSTALLS_NULL_REASON),
             "receipts_funnel": RECEIPTS_FUNNEL_NOTE,
         },
         "weeks": rows,

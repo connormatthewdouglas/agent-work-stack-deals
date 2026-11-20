@@ -16,9 +16,11 @@ from mcp_server import telemetry  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def _iso(tmp_path, monkeypatch):
-    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path))
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "cache"))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     monkeypatch.delenv("LANTERN_TELEMETRY", raising=False)
     monkeypatch.delenv("LANTERN_TELEMETRY_URL", raising=False)
+    monkeypatch.delenv("LANTERN_REF", raising=False)
 
 
 def _no_network(monkeypatch):
@@ -54,6 +56,10 @@ def test_payload_shape_only_tool_version_day_count():
     assert p == {"events": [{"t": "search_deals", "v": "0.3.3", "d": "2026-10-27", "n": 4}]}
     for e in p["events"]:
         assert set(e) == {"t", "v", "d", "n"}
+    full = telemetry.build_payload({"2026-10-27": {"search_deals|0.3.3": 4}},
+                                   "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee", "readme")
+    assert set(full) == {"events", "install_id", "ref"}
+    assert set(full["events"][0]) == {"t", "v", "d", "n"}
 
 
 def test_counts_locally_and_state_has_no_ids(monkeypatch):
@@ -95,7 +101,12 @@ def test_sends_completed_days_once_per_day(monkeypatch):
     telemetry.record("get_deal", "0.3.3")  # same day: no second send
     time.sleep(0.3)
     srv.shutdown()
-    assert _H.got == [{"events": [{"t": "get_deal", "v": "0.3.3", "d": "2000-01-01", "n": 2}]}]
+    assert len(_H.got) == 1
+    got = _H.got[0]
+    assert got["events"] == [{"t": "get_deal", "v": "0.3.3", "d": "2000-01-01", "n": 2}]
+    assert set(got) == {"events", "install_id", "ref"}
+    assert got["ref"] == "none"
+    assert telemetry.INSTALL_ID_RE.fullmatch(got["install_id"])
     left = json.loads(st.read_text())
     assert "2000-01-01" not in left["counts"] and list(left["counts"].values())[0]["get_deal|0.3.3"] == 2
 

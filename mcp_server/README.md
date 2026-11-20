@@ -107,7 +107,7 @@ degraded state. Price verification times (`checked_at`, `verified_at`) are separ
 
 Deals: `https://thelanternworks.com/api/v1/deals.json`; stack pricing: `https://thelanternworks.com/api/v1/stack-pricing.json`; GPU prices: `https://thelanternworks.com/api/v1/gpu-prices.json`. Each is cached 5 min (a stale copy is served if a refetch fails). Requests send only `User-Agent: lantern-works-deals-mcp/<version>` (no user, host or install identifiers). Overrides: `LANTERN_DEALS_FILE` / `LANTERN_DEALS_URL`, `LANTERN_GPU_PRICES_FILE` / `LANTERN_GPU_PRICES_URL`, `LANTERN_STACK_PRICING_FILE` / `LANTERN_STACK_PRICING_URL`. Only an allow-list of public fields is returned.
 
-**Telemetry: off by default.** Opt in with `LANTERN_TELEMETRY=1` to send an anonymous daily count of tool calls. Each count is only the tool name, package version, UTC day and number of calls. No arguments, IDs or IPs are sent or stored. It is batched to at most one request per day and never blocks or breaks a tool call. Details: [PRIVACY.md](https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/PRIVACY.md).
+**Telemetry: off by default.** Opt in with `LANTERN_TELEMETRY=1` to send an anonymous daily count of tool calls. What is sent: tool name (`t`), package version (`v`), UTC day (`d`), call count (`n`), a random install id (`install_id`) stored locally at `~/.config/lantern-works/install_id` (or `$XDG_CONFIG_HOME/lantern-works/install_id`; deletable), and `ref` from `LANTERN_REF` (or `none`). No arguments, IPs, names or hostnames. It is batched to at most one request per day and never blocks or breaks a tool call. Details: [PRIVACY.md](https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/PRIVACY.md).
 
 ## From git (fallback)
 
