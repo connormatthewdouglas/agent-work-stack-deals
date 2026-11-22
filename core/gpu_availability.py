@@ -330,6 +330,15 @@ def _age_last_known(av: dict, now: datetime | None = None) -> dict:
     out["in_stock"] = None
     out["last_known_in_stock"], out["last_known_at"] = v, t
     out.setdefault("max_age_hours", AVAIL_MAX_AGE_H)
+    # P64: last_known is marked stale on last_known_at's 8h clock; keep the same
+    # "unknown (stale availability, last checked ...)" label _stale_guard uses for a
+    # lapsed firm claim (PR #323). Do not leave a bare "unknown" next to availability_stale.
+    if g.get("status"):
+        out["status"] = g["status"]
+    if g.get("note"):
+        out["note"] = g["note"]
+    if g.get("max_age_hours") is not None:
+        out["max_age_hours"] = g["max_age_hours"]
     return out
 
 

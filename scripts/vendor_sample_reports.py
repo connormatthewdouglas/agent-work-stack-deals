@@ -1023,7 +1023,10 @@ def verification_body(gen, bundle: dict) -> str:
     return "".join(parts)
 
 
-PERSONAL_RE = re.compile(r"Connor|Frosty|Douglas|connormatthew|/workspace/|/home/", re.I)
+# Name tokens are whole words: a vendor city in a visible quote (Lium: "Douglasville, GA")
+# must not be treated as the author last name. Path prefixes and the GitHub handle stay
+# substring matches. Do not drop /workspace/, /home/, or connormatthew.
+PERSONAL_RE = re.compile(r"\bConnor\b|\bFrosty\b|\bDouglas\b|connormatthew|/workspace/|/home/", re.I)
 
 
 def _assert_clean(text: str, label: str) -> None:

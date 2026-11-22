@@ -6,7 +6,7 @@ clock as an in_stock true reading: AVAIL_MAX_AGE_H hours after last_known_at.
 """
 from datetime import datetime, timedelta, timezone
 
-from core.gpu_availability import AVAIL_MAX_AGE_H, apply_probe, carry_scout_row, last_known, stale_guard
+from core.gpu_availability import AVAIL_MAX_AGE_H, apply_probe, carry_scout_row, et_time, last_known, stale_guard
 from core.probe_reason import is_quota_or_region_failure
 
 T0 = datetime(2026, 11, 11, 12, 0, tzinfo=timezone.utc)
@@ -111,6 +111,9 @@ def test_sold_out_and_in_stock_last_known_go_stale_on_the_same_clock():
         assert aged["last_known_in_stock"] is firm and aged["last_known_at"] == CHECK
         assert aged["checked_at"] == LATER
         assert aged["in_stock"] is None
+        # #323: last_known stays visible beside the stale mark; status is not a bare "unknown"
+        assert aged["status"].startswith("unknown (stale availability, last checked ")
+        assert et_time(CHECK) in aged["status"] and et_time(LATER) not in aged["status"]
 
 
 def test_each_failure_reason_ageing():
