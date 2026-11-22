@@ -5,7 +5,7 @@ date: 2026-11-20
 
 # GPU prices that moved: week to 2026-11-20
 
-Every week we compare a snapshot of our GPU price feed with the one from seven days earlier and list the biggest moves. This is the first edition, comparing the **2026-11-20** snapshot with the **2026-11-13** snapshot. Prices are USD per GPU-hour. Figures below were recomputed from the live public feeds; the current feed's `feed_updated_at` was **2026-11-22T03:09:50Z**. The prices in the tables are the last ranked hourly price on or before each snapshot date, so later re-checks of the same rate do not change the comparison.
+Every week we compare a snapshot of our GPU price feed with the one from seven days earlier and list the biggest moves. This is the first edition, comparing the **2026-11-20** snapshot with the **2026-11-13** snapshot. Prices are USD per GPU-hour. Figures below were recomputed from the live public feeds; the current feed's `feed_updated_at` was **2026-11-22T05:39:23Z**. The prices in the tables are the last ranked hourly price on or before each snapshot date, so later re-checks of the same rate do not change the comparison.
 
 **Scope:** tracked providers only, not the whole market. "Cheapest" anywhere on this site means cheapest among the providers we track. Spot/interruptible and on-demand prices are never mixed: each row says which it is. Vendors whose data is currently held as stale in this live feed are excluded, as are reserved, community, marketplace and monthly-billed rows.
 

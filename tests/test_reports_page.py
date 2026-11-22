@@ -77,7 +77,7 @@ def test_moved_report_copy_chart_and_no_private_links():
     assert "creativecommons.org/licenses/by/4.0/" in t and "CC BY 4.0" in t
     assert "may earn a commission" in t
     assert "None of the five rows above carries a referral link" in t
-    assert "2026-11-22T03:09:50Z" in t
+    assert "2026-11-22T05:39:23Z" in t
     assert "Frosty" not in t and "Connor" not in t
     assert not re.search(r"github\.com|connormatthewdouglas|/workspace/", t, re.I)
     # top-5 figures in the rendered page
@@ -92,7 +92,7 @@ def test_moved_report_recomputes_from_cited_live_fixture():
     import gpu_moved_report as g
     fx = json.loads((ROOT / "tests/fixtures/gpu-moved-2026-11-20.json").read_text(encoding="utf-8"))
     fig = g.figures(fx["current"], fx["history"], fx["start"], fx["end"])
-    assert fig["feed_updated_at"] == "2026-11-22T03:09:50Z"
+    assert fig["feed_updated_at"] == "2026-11-22T05:39:23Z"
     assert fig["n_moved"] == 24
     assert fig["top5"][0]["gpu"] == "B300" and fig["top5"][0]["pct"] == 6.2
     assert fig["top5"][0]["old"] == 12.29 and fig["top5"][0]["new"] == 13.05
