@@ -169,7 +169,7 @@ def main() -> None:
         if row["vendor"] == "Clore.ai" and row.get("offer_count") is not None:
             raise SystemExit("Clore availability must be unrented_servers, never offer_count")
         carry_scout_row(row, prev_by_key.get((row["vendor"], row["gpu"], row.get("vram_gb"), row["tier"])))
-        if any(row[k] is not None for k in ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note", "last_known_in_stock")):
+        if any(row.get(k) is not None for k in ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note", "last_known_in_stock")):
             rows.append(row)
     rows.extend(carried)  # previous Hyperstack/Verda rows, same objects, no new timestamps
     doc = {"schema": "lantern-works-gpu-availability/1", "source": f"Lantern Scout availability collector v{d.get('version')} (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",

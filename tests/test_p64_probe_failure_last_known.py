@@ -152,6 +152,8 @@ def test_carry_scout_row_keeps_last_known_only_when_current_is_not_firm():
     out = carry_scout_row(dict(firm), prev)
     assert "last_known_in_stock" not in out and "last_known_at" not in out
     assert out["in_stock"] is True
+    keep = ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note", "last_known_in_stock")
+    assert any(out.get(k) is not None for k in keep)
     fail = {"vendor": "RunPod", "gpu": "H100", "tier": "Secure", "in_stock": False,
             "availability_checked_at": LATER, "availability_reason": "quota",
             "availability_reason_detail": "quota_exceeded"}
