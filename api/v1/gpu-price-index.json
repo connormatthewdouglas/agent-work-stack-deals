@@ -9302,8 +9302,8 @@
   {
    "date": "2026-11-22",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-22.json",
-   "snapshot_sha256": "d4186433bc194da9f7af60f0654c7ea499ee6d1d7d7310fc05d688157e199c16",
-   "feed_commit_for_listing_counts": "7d8f837ac9978209083b7a7a750bfc2c7853c7c8",
+   "snapshot_sha256": "37afdcf3408f7deed380195c10c9b3dab98997656f566f6ec91c77d29a065322",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.5,
@@ -9563,15 +9563,19 @@
      "excluded_because": "held"
     },
     {
-     "key": "Lium|H100 PCIe|Marketplace secure node|80|1",
-     "excluded_because": "marketplace, listing count unknown"
+     "key": "Lium|H100 PCIe|Marketplace spot node (interruptible)|80|1",
+     "excluded_because": "spot/interruptible"
     },
     {
      "key": "Lium|H200|Marketplace secure node|141|1",
      "excluded_because": "marketplace, listing count unknown"
     },
     {
-     "key": "Lium|L40S|Marketplace secure node|48|1",
+     "key": "Lium|H200|Marketplace spot node (interruptible)|141|1",
+     "excluded_because": "spot/interruptible"
+    },
+    {
+     "key": "Lium|L40S|Marketplace secure node|48|8",
      "excluded_because": "marketplace, listing count unknown"
     },
     {
@@ -9587,7 +9591,7 @@
      "excluded_because": "marketplace, listing count unknown"
     },
     {
-     "key": "Lium|RTX 5090|Marketplace spot node (interruptible)|32|7",
+     "key": "Lium|RTX 5090|Marketplace spot node (interruptible)|32|1",
      "excluded_because": "spot/interruptible"
     },
     {
