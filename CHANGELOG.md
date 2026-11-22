@@ -51,6 +51,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
 
+## 0.6.6 (2026-11-22, PyPI)
+
+- Opt-in install ID (`LANTERN_TELEMETRY=1` only).
+
 ## 0.6.5 (2026-11-16, PyPI)
 
 - Publish the current package so the PyPI wheel and hosted Worker match main (package version plus `serverInfo.build` SHA). 0.6.4 stayed at `dbdde26e` while later hosted watch and site fixes landed on main.
