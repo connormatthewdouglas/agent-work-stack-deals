@@ -182,25 +182,155 @@ CLAIM_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "gpu
 LAST_KNOWN_KEYS = ("last_known_in_stock", "last_known_at")
 
 
+def _check_ts(src: dict) -> str | None:
+    """Observation / check time on an availability dict or a Scout latest.json row."""
+    for k in ("checked_at", "availability_checked_at", "last_check_at"):
+        v = src.get(k)
+        if isinstance(v, str) and v:
+            return v
+    return None
+
+
+def is_firm_observation(src: dict) -> bool:
+    """P64: a real successful stock reading (in_stock true or false) with a check time.
+
+    Quota, region, rate-limit and recorded check failures are not firm observations, even if in_stock
+    was stored as false. Display only; ranking still reads in_stock after apply_probe_outcome nulls those.
+    """
+    if not isinstance(src, dict) or not isinstance(src.get("in_stock"), bool) or not _check_ts(src):
+        return False
+    from .probe_reason import is_quota_or_region_failure, _FAILED
+    if is_quota_or_region_failure(src):
+        return False
+    reason = src.get("availability_reason")
+    if reason is None and isinstance(src.get("availability"), dict):
+        reason = src["availability"].get("availability_reason")
+    if isinstance(reason, str) and (reason.startswith("check_failed") or reason in _FAILED):
+        return False
+    return True
+
+
 def last_known(src: dict) -> tuple[bool | None, str | None]:
-    """P36: the most recent firm stock answer (in_stock true/false) and its checked_at. A current firm claim is its own last
-    known value; an unknown or lapsed claim keeps whatever an earlier pass recorded. Never invented: both null when no firm
-    claim with a check time was ever seen. Display only; ranking reads in_stock, never these."""
-    if isinstance(src.get("in_stock"), bool) and src.get("checked_at"):
-        return src["in_stock"], src["checked_at"]
+    """P36/P64: the most recent firm stock answer and its check time. A current firm claim (in_stock true/false
+    that is not a quota/region/rate-limit or check failure) is its own last known value; an unknown, failed, or
+    lapsed claim keeps whatever an earlier pass recorded. Never invented: both null when no firm, dated claim
+    was ever seen. Display only; ranking reads in_stock, never these."""
+    if is_firm_observation(src):
+        return src["in_stock"], src.get("checked_at") or _check_ts(src)
     v, t = src.get("last_known_in_stock"), src.get("last_known_at")
     return (v, t) if isinstance(v, bool) and isinstance(t, str) and t else (None, None)
 
 
+def apply_probe_outcome(av: dict, previous: dict | None = None) -> dict:
+    """P64: last_known_* updates only on a firm observation. A quota/region (or rate-limit) failure sets
+    the current reading to unknown (in_stock null) and keeps the previous last_known value and time.
+    Check time (checked_at, and last_check_at when present) comes from the current probe and moves forward."""
+    if not isinstance(av, dict):
+        return av
+    out = dict(av)
+    ts = out.get("checked_at") or _check_ts(out)
+    if ts:
+        out["checked_at"] = ts
+    if "last_check_at" in out or (previous and "last_check_at" in previous):
+        if ts:
+            out["last_check_at"] = ts
+    if is_firm_observation(out):
+        out["last_known_in_stock"], out["last_known_at"] = out["in_stock"], out["checked_at"]
+        return out
+    from .probe_reason import is_quota_or_region_failure
+    if is_quota_or_region_failure(out):
+        out["in_stock"] = None
+        st = out.get("status")
+        if isinstance(st, str) and (st.startswith("out of stock") or st.startswith("available when checked")):
+            out["status"] = "unknown"
+    prior = last_known(previous) if previous is not None else last_known(out)
+    if isinstance(prior[0], bool) and prior[1]:
+        out["last_known_in_stock"], out["last_known_at"] = prior
+    else:
+        for k in LAST_KNOWN_KEYS:
+            out.pop(k, None)
+    return out
+
+
+def apply_probe(previous: dict | None, current: dict, now: datetime | None = None) -> dict:
+    """Apply a new probe onto previous availability state (P64). Used by tests and Scout import."""
+    cur = dict(current)
+    if previous and not cur.get("origin") and previous.get("origin"):
+        cur["origin"] = previous["origin"]
+    out = apply_probe_outcome(cur, previous)
+    if out.get("origin") in ("scout", "record"):
+        return stale_guard(out, now)
+    return out
+
+
+def carry_scout_row(row: dict, previous: dict | None) -> dict:
+    """Write last_known_* onto a data/gpu_availability/latest.json row from the previous snapshot."""
+    cur = {**row, "checked_at": row.get("availability_checked_at") or row.get("checked_at")}
+    prev = None
+    if previous:
+        prev = {**previous, "checked_at": previous.get("availability_checked_at") or previous.get("checked_at")
+                or previous.get("last_known_at")}
+    out = apply_probe_outcome(cur, prev)
+    if is_firm_observation(out):
+        # Current in_stock is the last firm answer; do not duplicate it as last_known_* on a firm snapshot row.
+        for k in LAST_KNOWN_KEYS:
+            row.pop(k, None)
+        return row
+    v, ts = out.get("last_known_in_stock"), out.get("last_known_at")
+    if isinstance(v, bool) and ts:
+        row["last_known_in_stock"], row["last_known_at"] = v, ts
+    else:
+        for k in LAST_KNOWN_KEYS:
+            row.pop(k, None)
+    if out.get("in_stock") is None and is_firm_observation(cur) is False and cur.get("in_stock") is not None:
+        # quota/region: current reading is unknown; do not persist a false as a stock claim
+        from .probe_reason import is_quota_or_region_failure
+        if is_quota_or_region_failure(cur):
+            row["in_stock"] = None
+    return row
+
+
 def stale_guard(a, now: datetime | None = None):
-    """_stale_guard plus P36: when a claim lapses here, the stale result also carries last_known_in_stock / last_known_at,
-    taken from the claim BEFORE it lapsed. Current claims are returned unchanged (their in_stock is the firm value)."""
+    """_stale_guard plus P36/P64: when a firm claim lapses, keep last_known_* from before the lapse.
+    A last_known true and a last_known false (sold_out) use the same clock: marked stale
+    AVAIL_MAX_AGE_H hours after last_known_at (or sooner if a live claim's own expiry already lapsed it).
+    When the current reading is a failed check, checked_at may be newer; last_known still ages from last_known_at."""
     out = _stale_guard(a, now)
-    if not isinstance(a, dict) or not isinstance(out, dict) or out is a or not out.get("availability_stale") \
-            or a.get("availability_stale"):
-        return out  # current claims and already-lapsed ones pass through unchanged (same object, same fields)
-    v, t = last_known(a)  # lapsing now: keep the answer it gave before it lapsed (null when it never gave one)
-    return {**out, "last_known_in_stock": v, "last_known_at": t}
+    if not isinstance(a, dict) or not isinstance(out, dict):
+        return out
+    if out is not a and out.get("availability_stale") and not a.get("availability_stale"):
+        v, t = last_known(a)
+        out = {**out, "last_known_in_stock": v, "last_known_at": t}
+    return _age_last_known(out, now)
+
+
+def _age_last_known(av: dict, now: datetime | None = None) -> dict:
+    """If the current reading is not a firm observation, mark last_known stale on the same AVAIL_MAX_AGE_H
+    clock as a live in_stock true or sold_out claim, without moving checked_at back."""
+    if is_firm_observation(av) or av.get("availability_stale"):
+        # Firm claims already went through _stale_guard on checked_at (== last_known_at). Already-lapsed
+        # objects keep last_known (P36) and stay stale.
+        if av.get("availability_stale"):
+            v, t = last_known(av)
+            if v is not None and (av.get("last_known_in_stock") is not v or av.get("last_known_at") != t):
+                return {**av, "last_known_in_stock": v, "last_known_at": t}
+        return av
+    v, t = last_known(av)
+    if not isinstance(v, bool) or not t:
+        return av
+    ghost = {"in_stock": v, "checked_at": t, "origin": av.get("origin") or "scout",
+             "availability_expires_at": expires_at(t)}
+    g = _stale_guard(ghost, now)
+    if not g.get("availability_stale"):
+        if av.get("last_known_in_stock") is v and av.get("last_known_at") == t:
+            return av
+        return {**av, "last_known_in_stock": v, "last_known_at": t}
+    out = dict(av)
+    out["availability_stale"] = True
+    out["in_stock"] = None
+    out["last_known_in_stock"], out["last_known_at"] = v, t
+    out.setdefault("max_age_hours", AVAIL_MAX_AGE_H)
+    return out
 
 
 def _stale_guard(a, now: datetime | None = None):
@@ -367,6 +497,17 @@ def _scout(vendor: str, r: dict | None) -> dict:
     for k in SCOUT_STATUS_KEYS:
         if r and r.get(k) is not None:
             out[k] = r[k]
+    if r:
+        for k in LAST_KNOWN_KEYS:
+            if r.get(k) is not None and k not in out:
+                out[k] = r[k]
+        prev = r if any(r.get(k) is not None for k in LAST_KNOWN_KEYS) else None
+        if prev is not None or not is_firm_observation(out):
+            out = apply_probe_outcome(out, prev)
+            # Fresh firm claims keep the P36 feed shape (no last_known keys); MCP full mode fills them.
+            if is_firm_observation(out):
+                for k in LAST_KNOWN_KEYS:
+                    out.pop(k, None)
     return out
 
 

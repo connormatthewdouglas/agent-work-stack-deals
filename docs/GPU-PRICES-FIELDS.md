@@ -109,8 +109,20 @@ On every GPU rate's `availability` in `gpu-prices.json` and in `compare_gpu_pric
 
 | Field | Type | Meaning |
 |---|---|---|
-| `last_known_in_stock` | boolean or null | The last firm true/false stock answer. Set when a claim lapses (expired) or is dropped because the price changed after the stock check (`price_join_guard`). A current firm claim reports itself in full mode. Null when there was never a firm, dated claim. Never invented. |
-| `last_known_at` | string (date-time) or null | The `checked_at` of that firm claim (ISO UTC). Null when `last_known_in_stock` is null. |
+| `last_known_in_stock` | boolean or null | The last firm true/false stock answer. Set when a claim lapses (expired) or is dropped because the price changed after the stock check (`price_join_guard`). A current firm claim reports itself in full mode. A quota, region, or rate-limit failure, or a recorded check failure, does not overwrite it (P64): the current reading is unknown (`in_stock` null) and the previous last_known value and time stay put. Null when there was never a firm, dated claim. Never invented. |
+| `last_known_at` | string (date-time) or null | The `checked_at` of that firm claim (ISO UTC). Null when `last_known_in_stock` is null. Not updated when a later check fails. |
+
+last_known is marked stale **8 hours** after `last_known_at`. That number is `AVAIL_MAX_AGE_H` in `core/gpu_availability.py`. An `in_stock` true reading and a sold_out (`in_stock` false) last_known use this same clock. last_known stays visible beside the stale mark and is not dropped. A live firm claim may still lapse sooner under existing claim lifetimes (1 hour for Lambda, Verda, and region-derived claims; 15 minutes for Verda spot); those lifetimes apply equally to true and false.
+
+| Failure / outcome | Keeps last_known? | Ageing |
+|---|---|---|
+| `quota` (source-stated rate limited, quota exhausted, quota exceeded, and similar) | Yes. Current reading is unknown (`in_stock` null). `checked_at` / `last_check_at` move to this check. | Marked stale 8 hours after `last_known_at` (`AVAIL_MAX_AGE_H` in `core/gpu_availability.py`). Still shown, not dropped. |
+| `region` (source-stated region unavailable, not in region, not served, and similar) | Yes, same as quota. Current reading is unknown. `checked_at` / `last_check_at` move to this check. | Same 8-hour clock (`AVAIL_MAX_AGE_H`). |
+| `sold_out` (firm `in_stock` false, and the source did not state region or quota) | This is a real observation: it updates last_known to false at this check time. | Same 8-hour clock from that observation (`AVAIL_MAX_AGE_H`). Same clock as `in_stock` true. |
+| `other` (`check_failed_http`, `check_failed_timeout`) | Yes (not a firm observation; last_known is not updated). Current reading is unknown. | Same 8-hour clock on the prior last_known, if any. No separate ageing rule for the failed check itself. |
+| `no_source` / unknown with no prior firm claim | Nothing to keep; last_known is not invented. | No last_known is shown. If a prior last_known exists, it is kept and ages on the same 8-hour clock. |
+| Price-join drop (`price_join_guard`, #211) | Yes: last_known is the firm, dated claim that was dropped. `in_stock` is null. | Then the same 8-hour clock (`AVAIL_MAX_AGE_H`) as any other last_known. |
+| Claim lapse (time / `availability_expires_at`) | Yes (P36): last_known is the firm claim that just lapsed. | Marked stale at lapse; last_known is still shown, not dropped. Live claims may lapse sooner than 8 hours under the existing lifetimes above, equally for true and false. |
 ## marketplace_query and composition_flag (additive, P45, Nov 2026)
 
 On marketplace-median rates (`price_status=marketplace`) in `gpu-prices.json` and `compare_gpu_prices`, and on

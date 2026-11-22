@@ -15,13 +15,14 @@ KEYS = ("failure_reason", "failure_reason_detail")
 # Only source-stated codes or phrases. derived_from_regions, "no confirmed region", and a blank
 # region list are not a `region` reason (those are unknown / no_source, never guessed).
 _REGION_CODES = frozenset({"region", "region_unavailable", "not_in_region", "no_capacity_in_region", "wrong_region"})
-_QUOTA_CODES = frozenset({"quota", "quota_exceeded", "over_quota", "out_of_quota"})
+_QUOTA_CODES = frozenset({"quota", "quota_exceeded", "over_quota", "out_of_quota", "quota_exhausted",
+                         "rate_limited", "rate_limit", "ratelimited"})
 _REGION_PHRASE = re.compile(
     r"\b(region[ _]unavailable|not available in (this |the |requested )?region|"
     r"wrong region|region (not available|unavailable|excluded))\b",
     re.I,
 )
-_QUOTA_PHRASE = re.compile(r"\b(quota exceeded|over[_ ]quota|out of quota|quota[_ ]exceeded)\b", re.I)
+_QUOTA_PHRASE = re.compile(r"\b(quota exceeded|over[_ ]quota|out of quota|quota[_ ]exceeded|quota exhausted|rate[_ ]limited|rate limit(?:ed)?)\b", re.I)
 _FAILED = ("check_failed_http", "check_failed_timeout")
 _OURS = "this availability check is past its availability_expires_at"
 
@@ -117,3 +118,9 @@ def apply(av: dict, row: dict | None = None) -> dict:
     src = {**(row or {}), "availability": av} if row is not None else av
     av.update(classify(src))
     return av
+
+
+def is_quota_or_region_failure(src: dict) -> bool:
+    """True when the source itself states a quota or region failure (including rate-limited / quota exhausted
+    and region unavailable / not served). Never guessed. These are not firm stock observations (P64)."""
+    return isinstance(src, dict) and _explicit(src) in ("quota", "region")
