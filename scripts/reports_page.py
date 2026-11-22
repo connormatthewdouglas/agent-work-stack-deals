@@ -98,6 +98,15 @@ def render(gen, md: str) -> str:
             flush()
         if not s.strip():
             flush(); continue
+        mimg = re.match(r"^!\[([^\]]*)\]\(([^)]+)\)$", s.strip())
+        if mimg:
+            flush()
+            alt, src = mimg.group(1), mimg.group(2).strip()
+            if re.search(r"://|^/|\\|\.\.", src):
+                raise ValueError(f"report image src must be a same-directory relative file, got {src!r}")
+            esc = gen.esc
+            out.append(f'<p><img src="{esc(src)}" alt="{esc(alt)}" /></p>')
+            continue
         m = re.match(r"^(#{1,4})\s+(.*)", s)
         if m:
             flush(); n = len(m.group(1)) + 1
@@ -111,8 +120,51 @@ def render(gen, md: str) -> str:
     return "\n  ".join(out)
 
 
+def _report_date(p: Path) -> str:
+    """Sort key: front-matter date, else a YYYY-MM-DD stamp in the filename."""
+    meta, _ = front_matter(p.read_text(encoding="utf-8"))
+    m = re.search(r"(\d{4}-\d{2}-\d{2})", meta.get("date") or "") or re.search(r"(\d{4}-\d{2}-\d{2})", p.stem)
+    return m.group(1) if m else ""
+
+
 def reports():
-    return sorted(SRC.glob("*.md"), reverse=True)
+    return sorted(SRC.glob("*.md"), key=lambda p: (_report_date(p), p.stem), reverse=True)
+
+
+
+def _llms_update(root: Path | None = None) -> None:
+    """Keep weekly report bullets in llms.txt in date order (newest first)."""
+    path = (root or ROOT) / "llms.txt"
+    if not path.is_file():
+        return
+    text = path.read_text(encoding="utf-8")
+    bullets = []
+    for p in reports():
+        meta, _ = front_matter(p.read_text(encoding="utf-8"))
+        title = meta.get("title") or p.stem
+        bullets.append(f"- [{title}](https://thelanternworks.com/reports/{p.stem}/)")
+    weekly = "\n".join(bullets)
+    text = re.sub(
+        r"\n- \[[^\]]+\]\(https://thelanternworks\.com/reports/(?!vendors/)[^/]+/\)[^\n]*",
+        "",
+        text,
+    )
+    marker = "- [Vendor sample reports]"
+    if marker in text:
+        def repl(m):
+            return m.group(0) + (("\n" + weekly) if weekly else "")
+        text, n = re.subn(r"^- \[Vendor sample reports\][^\n]*$", repl, text, count=1, flags=re.M)
+        if n != 1:
+            return
+    elif "- [GPU price reports]" in text:
+        text = text.replace(
+            "- [GPU price reports](https://thelanternworks.com/reports/): weekly, newest first",
+            "- [GPU price reports](https://thelanternworks.com/reports/): weekly, newest first\n" + weekly,
+            1,
+        )
+    else:
+        return
+    path.write_text(text, encoding="utf-8")
 
 
 def write_all(gen) -> list[str]:
@@ -131,6 +183,11 @@ def write_all(gen) -> list[str]:
         out = ROOT / "reports" / slug
         out.mkdir(parents=True, exist_ok=True)
         (out / "index.html").write_text(gen.page_shell(f"{title} | Lantern Works", desc, url, body))
+        asset_dir = SRC / slug
+        if asset_dir.is_dir():
+            for f in asset_dir.iterdir():
+                if f.is_file() and f.suffix.lower() in {".svg", ".png", ".json", ".csv"}:
+                    (out / f.name).write_bytes(f.read_bytes())
         paths.append(f"reports/{slug}")
         items.append((slug, title))
     url = f"{gen.BASE}/reports/"
@@ -146,4 +203,5 @@ def write_all(gen) -> list[str]:
     (ROOT / "reports").mkdir(exist_ok=True)
     (ROOT / "reports" / "index.html").write_text(gen.page_shell("GPU price reports | Lantern Works",
                                                                 "Weekly GPU rental price reports from Lantern Works, newest first.", url, body))
+    _llms_update(ROOT)
     return ["reports"] + paths

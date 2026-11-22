@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- GPU prices that moved (P30, week to 2026-11-20): `/reports/gpu-prices-that-moved-2026-11-20/` is the first weekly moves post. Figures were recomputed from the live `gpu-prices.json` and `gpu-prices/history.json` feeds (`feed_updated_at` 2026-11-22T05:39:23Z): 24 eligible hourly rows moved, all Verda (formerly DataCrunch) and all increases (2.5% to 6.2%). A chart, the full move list, and `moves.json` ship with the page.
+
 - Neutrality rule (2026-11-20): `/methodology/#placement` expands “Customers buy data, never placement” to say what money does not change, what is allowed, and that paid sponsorships or advertisements are not offered. `/disclosure/` points to that section. Also folds Gauge nits: deal copy no longer says “sign-up link link”, and the TrueProxies disclosure reads “this TrueProxies link”.
 
 - Public API docs (2026-11-19): `/api/` documents the public JSON feeds and the hosted MCP URL, with authentication, CORS and rate-limit facts as checked live. Also folds Gauge's #288 nits: the TrueProxies disclosure names the vendor once instead of repeating the commission sentence, and deal copy no longer says “the the sign-up link”.
