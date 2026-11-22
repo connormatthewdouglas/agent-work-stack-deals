@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SRC = Path(sys.argv[1] if len(sys.argv) > 1 else "/workspace/lantern-scout/out/feed_enriched_v2_latest.json")
 sys.path.insert(0, str(ROOT))
-from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours  # noqa: E402
+from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours, carry_scout_row  # noqa: E402
 from core.owner_hold import hold_names, is_held  # noqa: E402
 
 OUT = ROOT / "data" / "gpu_availability" / "latest.json"
@@ -23,7 +23,8 @@ KEEP = ("vendor", "gpu", "vram_gb", "tier", "region", "available_regions", "in_s
         "available_regions_detail", "available_regions_label",  # v2.9: per-region checked_at/expiry (1 h), confirmation
         "feed_status", "feed_min_offers", "derived_from_regions", "availability_expires_at",  # v3.2: carried through unchanged
         "availability_status", "availability_reason", "availability_reason_detail",  # v3.2 (8fb30d76): carried through unchanged
-        "machine_ids", "listing_ids")  # P44: vendor-native ids from Scout (Vast machine_id, Clore listing id); null when missing
+        "machine_ids", "listing_ids",  # P44: vendor-native ids from Scout (Vast machine_id, Clore listing id); null when missing
+        "last_known_in_stock", "last_known_at")  # P64: last firm stock answer; not overwritten by quota/region failures
 
 
 def verify_manifests(raw: bytes, name: str = "feed_enriched_v2_latest.json") -> int:
@@ -108,6 +109,10 @@ def _carried_held_rows(names: list[str]) -> list[dict]:
 def main() -> None:
     names = hold_names()
     carried = _carried_held_rows(names)
+    prev_by_key = {}
+    if OUT.is_file():
+        for pr in json.loads(OUT.read_text(encoding="utf-8")).get("rows") or []:
+            prev_by_key[(pr.get("vendor"), pr.get("gpu"), pr.get("vram_gb"), pr.get("tier"))] = pr
     raw = SRC.read_bytes()
     checked = verify_manifests(raw)
     d = json.loads(raw.decode("utf-8"))
@@ -163,7 +168,8 @@ def main() -> None:
             raise SystemExit(f"availability without timestamp: {row['vendor']} {row['gpu']}")
         if row["vendor"] == "Clore.ai" and row.get("offer_count") is not None:
             raise SystemExit("Clore availability must be unrented_servers, never offer_count")
-        if any(row[k] is not None for k in ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note")):
+        carry_scout_row(row, prev_by_key.get((row["vendor"], row["gpu"], row.get("vram_gb"), row["tier"])))
+        if any(row.get(k) is not None for k in ("in_stock", "offer_count", "unrented_servers", "stock_level", "available_regions", "availability_note", "last_known_in_stock")):
             rows.append(row)
     rows.extend(carried)  # previous Hyperstack/Verda rows, same objects, no new timestamps
     doc = {"schema": "lantern-works-gpu-availability/1", "source": f"Lantern Scout availability collector v{d.get('version')} (public no-auth APIs; Verda and Lambda via authenticated vendor APIs, labelled per row)",
