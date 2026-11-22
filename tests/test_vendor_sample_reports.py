@@ -596,3 +596,28 @@ def test_body_has_price_formats():
     assert vsr._body_has_price("On-demand H100 $1.80 per hour", 1.80)
     assert vsr._body_has_price('{"price": "1.0060000000"}', 1.006)
     assert not vsr._body_has_price("no figures here", 2.99)
+
+
+def test_leak_check_allows_douglasville_city_and_still_rejects_compound_names():
+    """Lium quotes may cite Douglasville, GA. Connor and Frosty stay substring matches."""
+    vsr._assert_clean(
+        "Lium nodes API: 1 available H200 secure nodes; lowest price_per_gpu_hour $1.826 "
+        "(min rental 1 GPU, Douglasville, United States)",
+        "lium-quote",
+    )
+    for text in (
+        "@frostycondor",
+        "FrostyCondor",
+        "ConnorDouglas",
+        "connor_douglas",
+        "connordouglas@",
+        "personal path /home/runner/work/agent-work-stack-deals/reports/vendors/lium",
+        "box path /workspace/lantern-scout/out",
+        "https://github.com/connormatthewdouglas/agent-work-stack-deals",
+    ):
+        try:
+            vsr._assert_clean(text, "should-reject")
+        except SystemExit as exc:
+            assert "personal or private path leaked" in str(exc)
+        else:
+            raise AssertionError(f"leak check accepted personal or private text: {text}")

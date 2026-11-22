@@ -1023,7 +1023,9 @@ def verification_body(gen, bundle: dict) -> str:
     return "".join(parts)
 
 
-PERSONAL_RE = re.compile(r"Connor|Frosty|Douglas|connormatthew|/workspace/|/home/", re.I)
+# Connor and Frosty stay substring matches. Only Douglas is narrowed so a Lium
+# quote citing Douglasville, GA is not treated as the author last name.
+PERSONAL_RE = re.compile(r"Connor|Frosty|Douglas(?!ville)|connormatthew|/workspace/|/home/", re.I)
 
 
 def _assert_clean(text: str, label: str) -> None:
