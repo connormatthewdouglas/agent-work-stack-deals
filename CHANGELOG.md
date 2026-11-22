@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- GPU prices that moved (P30, week to 2026-11-20): `/reports/gpu-prices-that-moved-2026-11-20/` is the first weekly moves post. Figures were recomputed from the live `gpu-prices.json` and `gpu-prices/history.json` feeds (`feed_updated_at` 2026-11-22T05:39:23Z): 24 eligible hourly rows moved, all Verda (formerly DataCrunch) and all increases (2.5% to 6.2%). A chart, the full move list, and `moves.json` ship with the page.
+
 - Neutrality rule (2026-11-20): `/methodology/#placement` expands “Customers buy data, never placement” to say what money does not change, what is allowed, and that paid sponsorships or advertisements are not offered. `/disclosure/` points to that section. Also folds Gauge nits: deal copy no longer says “sign-up link link”, and the TrueProxies disclosure reads “this TrueProxies link”.
 
 - Public API docs (2026-11-19): `/api/` documents the public JSON feeds and the hosted MCP URL, with authentication, CORS and rate-limit facts as checked live. Also folds Gauge's #288 nits: the TrueProxies disclosure names the vendor once instead of repeating the commission sentence, and deal copy no longer says “the the sign-up link”.
@@ -50,6 +52,10 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 - GPU feed (T69, broader hardware): first-party DigitalOcean rows for AMD MI325X 256GB ($3.80/GPU-hr on-demand) and MI355X 288GB ($4.50/GPU-hr spot, interruptible), quoted from digitalocean.com/pricing/gpu-droplets; model families added for MI325X, MI355X, RTX PRO 5000 (48GB and 72GB kept as separate rows), RTX PRO 4000 and RTX PRO 4500.
 - GPU feed (T62): new vendor Lium (GPU marketplace) from its public nodes API: per model and tier (secure / spot, kept separate), the lowest ask among available nodes with free-GPU stock, node count and minimum rental size. Lium's pricing.json reference prices are never used; unknown model strings are quarantined; a model/tier with no available node is held with no price. Collected every 2 hours by the Lium collector workflow.
 - /gpu/: availability coverage per model (measured share of rows from vendors with a free stock signal; target 80%), with unmeasurable vendors labelled (no public stock signal / account required). CloudRift stock is counted (T73 rev 4 passed); Hyperstack and Novita count once their rows carry a stock reading; Thunder Compute stays labelled account required.
+
+## 0.6.6 (2026-11-22, PyPI)
+
+- Opt-in install ID (`LANTERN_TELEMETRY=1` only).
 
 ## 0.6.5 (2026-11-16, PyPI)
 
