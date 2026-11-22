@@ -6,6 +6,9 @@ P38 (additive): unknown checks are also split by the row's own availability_reas
 never_ran_checks = no stock reading was taken (check_failed_timeout, check_failed_http, stale/backoff);
 no_source_checks = the probe ran but the source gives no stock signal (no_source). unknown_checks stays the total; both
 are null for a row when any of its unknown checks has no recorded reason (older captures), never a guessed split.
+Lium (collected by scripts/collect_lium.py, not by Scout, so absent from latest.json) is counted from the git history of
+data/gpu_pricing/lium.json: each record's availability.in_stock at its own availability.checked_at is one check; a capture
+stamp seen in several commits counts once; a record with no availability object adds no check (no invented checks).
 Writes data/gpu_availability/rate_7d.json, read by core/availability_rate.py. Needs full git history (fetch-depth 0).
 Usage: availability_rate_7d.py [--days 7]"""
 from __future__ import annotations
@@ -18,6 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = "data/gpu_availability/latest.json"
+LIUM_SRC = "data/gpu_pricing/lium.json"
 OUT = ROOT / "data" / "gpu_availability" / "rate_7d.json"
 # P38: availability_reason (Scout T113 enum) of an unknown check -> which split count it adds to
 UNKNOWN_SPLIT = {"check_failed_timeout": "never_ran_checks", "check_failed_http": "never_ran_checks",
@@ -56,23 +60,45 @@ def rows_from_docs(docs: list) -> tuple[list, int]:
     return rows, len(seen)
 
 
-def main() -> int:
-    days = int(sys.argv[sys.argv.index("--days") + 1]) if "--days" in sys.argv else 7
-    now = datetime.now(timezone.utc).replace(microsecond=0)
-    since = now - timedelta(days=days)
-    shas = subprocess.run(["git", "log", f"--since={since.isoformat()}", "--format=%H", "--", SRC], cwd=ROOT,
+def lium_docs_as_scout(docs: list) -> list:
+    """Adapt lium.json docs to the Scout import shape: one pseudo-doc per distinct availability.checked_at capture."""
+    out = []
+    for doc in docs:
+        by_stamp: dict = {}
+        for r in doc.get("records") or []:
+            av = r.get("availability")
+            stamp = av.get("checked_at") if isinstance(av, dict) else None
+            if not stamp:
+                continue  # no availability reading recorded: not a check
+            by_stamp.setdefault(stamp, []).append(
+                {"vendor": r.get("vendor") or doc.get("vendor") or "Lium", "gpu": r["gpu"], "vram_gb": r.get("vram_gb"),
+                 "tier": r["tier"], "in_stock": av.get("in_stock"), "checked_at": stamp})
+        out += [{"generation_id": f"lium:{s}", "collected_at": s, "rows": rows} for s, rows in by_stamp.items()]
+    return out
+
+
+def _history(src: str, since, root=ROOT) -> list:
+    shas = subprocess.run(["git", "log", f"--since={since.isoformat()}", "--format=%H", "--", src], cwd=root,
                           capture_output=True, text=True, check=True).stdout.split()
     docs = []
     for sha in shas:
         try:
-            docs.append(json.loads(subprocess.run(["git", "show", f"{sha}:{SRC}"], cwd=ROOT, capture_output=True, text=True, check=True).stdout))
+            docs.append(json.loads(subprocess.run(["git", "show", f"{sha}:{src}"], cwd=root, capture_output=True, text=True, check=True).stdout))
         except (subprocess.CalledProcessError, json.JSONDecodeError):
             continue
+    return docs
+
+
+def main() -> int:
+    days = int(sys.argv[sys.argv.index("--days") + 1]) if "--days" in sys.argv else 7
+    now = datetime.now(timezone.utc).replace(microsecond=0)
+    since = now - timedelta(days=days)
+    docs = _history(SRC, since) + lium_docs_as_scout(_history(LIUM_SRC, since))
     rows, n_gen = rows_from_docs(docs)
     OUT.write_text(json.dumps({"schema": "lantern-works-availability-rate/1", "window_days": days,
                                "window_start": since.isoformat(), "window_end": now.isoformat(),
                                "generations": n_gen, "rows": rows}, indent=1) + "\n", encoding="utf-8")
-    print(f"{n_gen} Scout generations in {days}d; {len(rows)} rows")
+    print(f"{n_gen} generations (Scout imports + Lium captures) in {days}d; {len(rows)} rows")
     return 0
 
 
