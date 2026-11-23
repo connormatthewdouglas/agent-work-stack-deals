@@ -37,9 +37,9 @@
     "2026-11-20.86a9f6ef",
     "2026-11-21.0946f696",
     "2026-11-22.07e6dd97",
-    "2026-11-23.4db5ee51"
+    "2026-11-23.44ab7957"
   ],
-  "last_seq": 451,
+  "last_seq": 453,
   "note": "points are change points: each point is the first snapshot date at that price/status; status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors).",
   "series": [
     {
@@ -6633,6 +6633,13 @@
           "hourly_usd": 1.87,
           "status": "held",
           "verified_at": "2026-11-20T01:55:07+00:00"
+        },
+        {
+          "date": "2026-11-23",
+          "price_usd": 1.87,
+          "hourly_usd": 1.87,
+          "status": "ranked",
+          "verified_at": "2026-11-23T22:08:11+00:00"
         }
       ],
       "last_seen": "2026-11-23"
@@ -7246,6 +7253,15 @@
           "verified_at": "2026-11-22T17:55:53+00:00",
           "lowest_offer_usd": 0.5211,
           "offer_count": 26
+        },
+        {
+          "date": "2026-11-23",
+          "price_usd": 1.136,
+          "hourly_usd": 1.136,
+          "status": "ranked",
+          "verified_at": "2026-11-23T22:08:32+00:00",
+          "lowest_offer_usd": 0.9611,
+          "offer_count": 27
         }
       ],
       "last_seen": "2026-11-23"
@@ -7460,6 +7476,15 @@
           "verified_at": "2026-11-22T17:55:59+00:00",
           "lowest_offer_usd": 0.3725,
           "offer_count": 36
+        },
+        {
+          "date": "2026-11-23",
+          "price_usd": 0.523,
+          "hourly_usd": 0.523,
+          "status": "ranked",
+          "verified_at": "2026-11-23T22:08:37+00:00",
+          "lowest_offer_usd": 0.4289,
+          "offer_count": 37
         }
       ],
       "last_seen": "2026-11-23"
@@ -8768,7 +8793,7 @@
           "price_usd": 5.563,
           "hourly_usd": 5.563,
           "status": "ranked",
-          "verified_at": "2026-11-23T09:58:20+00:00"
+          "verified_at": "2026-11-23T22:08:41+00:00"
         }
       ],
       "last_seen": "2026-11-23"
@@ -8887,7 +8912,7 @@
           "price_usd": 2.782,
           "hourly_usd": 2.782,
           "status": "ranked",
-          "verified_at": "2026-11-23T09:58:20+00:00"
+          "verified_at": "2026-11-23T22:08:41+00:00"
         }
       ],
       "last_seen": "2026-11-23"
@@ -9006,7 +9031,7 @@
           "price_usd": 7.113,
           "hourly_usd": 7.113,
           "status": "ranked",
-          "verified_at": "2026-11-23T09:58:20+00:00"
+          "verified_at": "2026-11-23T22:08:41+00:00"
         }
       ],
       "last_seen": "2026-11-23"
@@ -9125,7 +9150,7 @@
           "price_usd": 3.557,
           "hourly_usd": 3.557,
           "status": "ranked",
-          "verified_at": "2026-11-23T09:58:20+00:00"
+          "verified_at": "2026-11-23T22:08:41+00:00"
         }
       ],
       "last_seen": "2026-11-23"
@@ -9622,7 +9647,7 @@
           "price_usd": 0.942,
           "hourly_usd": 0.942,
           "status": "ranked",
-          "verified_at": "2026-11-23T09:58:20+00:00"
+          "verified_at": "2026-11-23T22:08:41+00:00"
         }
       ],
       "last_seen": "2026-11-23"
@@ -9741,7 +9766,7 @@
           "price_usd": 0.471,
           "hourly_usd": 0.471,
           "status": "ranked",
-          "verified_at": "2026-11-23T09:58:20+00:00"
+          "verified_at": "2026-11-23T22:08:41+00:00"
         }
       ],
       "last_seen": "2026-11-23"
@@ -10117,7 +10142,7 @@
       "key": "Lium|B200|Marketplace spot node (interruptible)|180|8",
       "rate_id": "r_f505a55ac5e3",
       "event_id": "2026-11-23:r_f505a55ac5e3:down",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Lium",
       "gpu": "B200",
       "tier": "Marketplace spot node (interruptible)",
@@ -10130,14 +10155,38 @@
       "last_verified_before": "2026-11-22T23:49:39+00:00",
       "gap_days": 0.91,
       "composition_flag": null,
-      "seq": 451
+      "seq": 453
+    },
+    {
+      "date": "2026-11-23",
+      "key": "Vast.ai|A100 SXM|Marketplace on-demand (verified; median per GPU)|80|1",
+      "rate_id": "r_d92acb858f8f",
+      "event_id": "2026-11-23:r_d92acb858f8f:up",
+      "snapshot_id": "2026-11-23.44ab7957",
+      "vendor": "Vast.ai",
+      "gpu": "A100 SXM",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "vram_gb": 80,
+      "from_hourly_usd": 1.1354,
+      "to_hourly_usd": 1.136,
+      "change_pct": 0.1,
+      "status": "ranked",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22A100%20SXM4%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "last_verified_before": "2026-11-22T17:55:53+00:00",
+      "gap_days": 1.18,
+      "composition_flag": "mixed",
+      "lowest_offer_usd": 0.9611,
+      "offer_count": 27,
+      "previous_lowest_offer_usd": 0.5211,
+      "previous_offer_count": 26,
+      "seq": 452
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|RTX 6000 Ada|On-demand instance (1x GPU)|48|1",
       "rate_id": "r_c78b64104520",
       "event_id": "2026-11-23:r_c78b64104520:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "RTX 6000 Ada",
       "tier": "On-demand instance (1x GPU)",
@@ -10150,14 +10199,14 @@
       "last_verified_before": "2026-11-22T00:50:17Z",
       "gap_days": 1.5,
       "composition_flag": null,
-      "seq": 450
+      "seq": 451
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|GB300|Spot instance (1x GPU)|288|1",
       "rate_id": "r_b8bcdaf30a26",
       "event_id": "2026-11-23:r_b8bcdaf30a26:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "GB300",
       "tier": "Spot instance (1x GPU)",
@@ -10170,14 +10219,14 @@
       "last_verified_before": "2026-11-22T00:50:17Z",
       "gap_days": 1.5,
       "composition_flag": null,
-      "seq": 449
+      "seq": 450
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|RTX A6000|Spot instance (1x GPU)|48|1",
       "rate_id": "r_9cf3aa490cbd",
       "event_id": "2026-11-23:r_9cf3aa490cbd:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "RTX A6000",
       "tier": "Spot instance (1x GPU)",
@@ -10188,16 +10237,16 @@
       "status": "ranked",
       "source_url": "https://verda.com/pricing",
       "last_verified_before": "2026-11-22T17:56:02+00:00",
-      "gap_days": 0.67,
+      "gap_days": 1.18,
       "composition_flag": null,
-      "seq": 448
+      "seq": 449
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|RTX PRO 6000|Spot instance (1x GPU)|96|1",
       "rate_id": "r_99e45644aef5",
       "event_id": "2026-11-23:r_99e45644aef5:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "RTX PRO 6000",
       "tier": "Spot instance (1x GPU)",
@@ -10210,14 +10259,14 @@
       "last_verified_before": "2026-11-22T00:50:17Z",
       "gap_days": 1.5,
       "composition_flag": null,
-      "seq": 447
+      "seq": 448
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|B200|On-demand instance (1x GPU)|180|1",
       "rate_id": "r_924f370474fa",
       "event_id": "2026-11-23:r_924f370474fa:down",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "B200",
       "tier": "On-demand instance (1x GPU)",
@@ -10230,14 +10279,14 @@
       "last_verified_before": "2026-11-22T00:50:17Z",
       "gap_days": 1.5,
       "composition_flag": null,
-      "seq": 446
+      "seq": 447
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|RTX A6000|On-demand instance (1x GPU)|48|1",
       "rate_id": "r_8ffd02792a2c",
       "event_id": "2026-11-23:r_8ffd02792a2c:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "RTX A6000",
       "tier": "On-demand instance (1x GPU)",
@@ -10248,16 +10297,16 @@
       "status": "ranked",
       "source_url": "https://verda.com/pricing",
       "last_verified_before": "2026-11-22T17:56:02+00:00",
-      "gap_days": 0.67,
+      "gap_days": 1.18,
       "composition_flag": null,
-      "seq": 445
+      "seq": 446
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|H200 SXM|On-demand instance (1x GPU)|141|1",
       "rate_id": "r_8a53f173b557",
       "event_id": "2026-11-23:r_8a53f173b557:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "H200 SXM",
       "tier": "On-demand instance (1x GPU)",
@@ -10268,16 +10317,16 @@
       "status": "ranked",
       "source_url": "https://verda.com/pricing",
       "last_verified_before": "2026-11-22T17:56:02+00:00",
-      "gap_days": 0.67,
+      "gap_days": 1.18,
       "composition_flag": null,
-      "seq": 444
+      "seq": 445
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|B200|Spot instance (1x GPU)|180|1",
       "rate_id": "r_873e293f53cc",
       "event_id": "2026-11-23:r_873e293f53cc:down",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "B200",
       "tier": "Spot instance (1x GPU)",
@@ -10290,14 +10339,14 @@
       "last_verified_before": "2026-11-22T00:50:17Z",
       "gap_days": 1.5,
       "composition_flag": null,
-      "seq": 443
+      "seq": 444
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|H200 SXM|Spot instance (1x GPU)|141|1",
       "rate_id": "r_7a8fbbb84a0b",
       "event_id": "2026-11-23:r_7a8fbbb84a0b:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "H200 SXM",
       "tier": "Spot instance (1x GPU)",
@@ -10308,16 +10357,16 @@
       "status": "ranked",
       "source_url": "https://verda.com/pricing",
       "last_verified_before": "2026-11-22T17:56:02+00:00",
-      "gap_days": 0.67,
+      "gap_days": 1.18,
       "composition_flag": null,
-      "seq": 442
+      "seq": 443
     },
     {
       "date": "2026-11-23",
       "key": "Lium|RTX PRO 6000 Server|Marketplace secure node|96|1",
       "rate_id": "r_71544ce0641f",
       "event_id": "2026-11-23:r_71544ce0641f:down",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Lium",
       "gpu": "RTX PRO 6000 Server",
       "tier": "Marketplace secure node",
@@ -10330,14 +10379,14 @@
       "last_verified_before": "2026-11-22T23:49:39+00:00",
       "gap_days": 0.91,
       "composition_flag": null,
-      "seq": 441
+      "seq": 442
     },
     {
       "date": "2026-11-23",
       "key": "Verda (formerly DataCrunch)|GB300|On-demand instance (1x GPU)|288|1",
       "rate_id": "r_710b7f91575b",
       "event_id": "2026-11-23:r_710b7f91575b:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "GB300",
       "tier": "On-demand instance (1x GPU)",
@@ -10350,6 +10399,30 @@
       "last_verified_before": "2026-11-22T00:50:17Z",
       "gap_days": 1.5,
       "composition_flag": null,
+      "seq": 441
+    },
+    {
+      "date": "2026-11-23",
+      "key": "Vast.ai|RTX 4090|Marketplace on-demand (verified; median per GPU)|24|1",
+      "rate_id": "r_67f379013921",
+      "event_id": "2026-11-23:r_67f379013921:up",
+      "snapshot_id": "2026-11-23.44ab7957",
+      "vendor": "Vast.ai",
+      "gpu": "RTX 4090",
+      "tier": "Marketplace on-demand (verified; median per GPU)",
+      "vram_gb": 24,
+      "from_hourly_usd": 0.4704,
+      "to_hourly_usd": 0.523,
+      "change_pct": 11.2,
+      "status": "ranked",
+      "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+      "last_verified_before": "2026-11-22T17:55:59+00:00",
+      "gap_days": 1.18,
+      "composition_flag": "mixed",
+      "lowest_offer_usd": 0.4289,
+      "offer_count": 37,
+      "previous_lowest_offer_usd": 0.3725,
+      "previous_offer_count": 36,
       "seq": 440
     },
     {
@@ -10357,7 +10430,7 @@
       "key": "Lium|B300|Marketplace spot node (interruptible)|288|8",
       "rate_id": "r_654d0d82c847",
       "event_id": "2026-11-23:r_654d0d82c847:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Lium",
       "gpu": "B300",
       "tier": "Marketplace spot node (interruptible)",
@@ -10377,7 +10450,7 @@
       "key": "Verda (formerly DataCrunch)|RTX 6000 Ada|Spot instance (1x GPU)|48|1",
       "rate_id": "r_561293e5c86d",
       "event_id": "2026-11-23:r_561293e5c86d:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "RTX 6000 Ada",
       "tier": "Spot instance (1x GPU)",
@@ -10397,7 +10470,7 @@
       "key": "Verda (formerly DataCrunch)|RTX PRO 6000|On-demand instance (1x GPU)|96|1",
       "rate_id": "r_49dd4c9990c6",
       "event_id": "2026-11-23:r_49dd4c9990c6:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "RTX PRO 6000",
       "tier": "On-demand instance (1x GPU)",
@@ -10417,7 +10490,7 @@
       "key": "Verda (formerly DataCrunch)|H100 SXM|Spot instance (1x GPU)|80|1",
       "rate_id": "r_3ffd8e728cfa",
       "event_id": "2026-11-23:r_3ffd8e728cfa:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "H100 SXM",
       "tier": "Spot instance (1x GPU)",
@@ -10428,7 +10501,7 @@
       "status": "ranked",
       "source_url": "https://verda.com/pricing",
       "last_verified_before": "2026-11-22T17:56:02+00:00",
-      "gap_days": 0.67,
+      "gap_days": 1.18,
       "composition_flag": null,
       "seq": 436
     },
@@ -10437,7 +10510,7 @@
       "key": "Verda (formerly DataCrunch)|H100 SXM|On-demand instance (1x GPU)|80|1",
       "rate_id": "r_3d4b6a7c3dcf",
       "event_id": "2026-11-23:r_3d4b6a7c3dcf:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "H100 SXM",
       "tier": "On-demand instance (1x GPU)",
@@ -10448,7 +10521,7 @@
       "status": "ranked",
       "source_url": "https://verda.com/pricing",
       "last_verified_before": "2026-11-22T17:56:02+00:00",
-      "gap_days": 0.67,
+      "gap_days": 1.18,
       "composition_flag": null,
       "seq": 435
     },
@@ -10457,7 +10530,7 @@
       "key": "Lium|H200|Marketplace spot node (interruptible)|141|1",
       "rate_id": "r_340a96d2cb9f",
       "event_id": "2026-11-23:r_340a96d2cb9f:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Lium",
       "gpu": "H200",
       "tier": "Marketplace spot node (interruptible)",
@@ -10477,7 +10550,7 @@
       "key": "Verda (formerly DataCrunch)|B300|On-demand instance (1x GPU)|268|1",
       "rate_id": "r_2b9bfb7f29ce",
       "event_id": "2026-11-23:r_2b9bfb7f29ce:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "B300",
       "tier": "On-demand instance (1x GPU)",
@@ -10497,7 +10570,7 @@
       "key": "Lium|RTX 4090|Marketplace secure node|24|1",
       "rate_id": "r_17ae3aa6a411",
       "event_id": "2026-11-23:r_17ae3aa6a411:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Lium",
       "gpu": "RTX 4090",
       "tier": "Marketplace secure node",
@@ -10517,7 +10590,7 @@
       "key": "Verda (formerly DataCrunch)|B300|Spot instance (1x GPU)|268|1",
       "rate_id": "r_0c721d5508a0",
       "event_id": "2026-11-23:r_0c721d5508a0:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Verda (formerly DataCrunch)",
       "gpu": "B300",
       "tier": "Spot instance (1x GPU)",
@@ -10537,7 +10610,7 @@
       "key": "Lium|B200|Marketplace secure node|180|1",
       "rate_id": "r_07275a123c62",
       "event_id": "2026-11-23:r_07275a123c62:up",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Lium",
       "gpu": "B200",
       "tier": "Marketplace secure node",
@@ -10557,7 +10630,7 @@
       "key": "Lium|RTX 5090|Marketplace secure node|32|8",
       "rate_id": "r_0672c2c2bd8d",
       "event_id": "2026-11-23:r_0672c2c2bd8d:down",
-      "snapshot_id": "2026-11-23.4db5ee51",
+      "snapshot_id": "2026-11-23.44ab7957",
       "vendor": "Lium",
       "gpu": "RTX 5090",
       "tier": "Marketplace secure node",
