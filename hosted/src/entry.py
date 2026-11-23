@@ -51,6 +51,7 @@ from core import deals as core_deals  # noqa: E402
 import mcp_server  # noqa: E402,F401
 from mcp_server import server  # noqa: E402
 import watch_store  # noqa: E402
+import alerts  # noqa: E402  (F1 poll-only price alerts; hashed token, no PII)
 import callers  # noqa: E402  (anonymized distinct callers: daily-salted hash only)
 import weekly_callers  # noqa: E402  (weekly HMAC repeat-caller id; no-op without CALLER_ID_SECRET)
 import demand  # noqa: E402  (P8: daily aggregate demand counters, bucketed; no raw arguments)
@@ -130,7 +131,15 @@ def _schema(fn):
 def _tool_list():
     return [{"name": fn.__name__, "description": inspect.getdoc(fn) or "", "inputSchema": _schema(fn),
              **({"outputSchema": fn.output_schema} if getattr(fn, "output_schema", None) else {}),
-             "annotations": ann} for fn, ann in TOOLS] + watch_store.tool_list()
+             "annotations": ann} for fn, ann in TOOLS] + watch_store.tool_list() + alerts.tool_list()
+
+
+async def _alert_prices():
+    await _feeds()
+    hit = _cache.get(core_deals.GPU_PRICES_URL)
+    if not hit:
+        raise core_deals.DealError("upstream_unavailable", "GPU prices feed could not be retrieved")
+    return hit[1]
 
 
 async def _watch_feeds():
@@ -240,6 +249,14 @@ async def _handle(msg, env, ref, bearer=None, cls=("other", "other"), ip=""):
                 out = {"ok": False, "error": {"code": e.code, "message": e.message}}
             await _count(env, name, ref)
             await _hit(env, "tool", name, ref, *cls)  # known watch tool names only
+            return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": server.contract.is_error(out)})
+        if name in alerts.NAMES:
+            try:
+                out = await alerts.call(name, args, env, bearer, _alert_prices, ip)
+            except core_deals.DealError as e:
+                out = {"ok": False, "error": {"code": e.code, "message": e.message}}
+            await _count(env, name, ref)
+            await _hit(env, "tool", name, ref, *cls)  # known alert tool names only
             return _ok(i, {"content": [{"type": "text", "text": json.dumps(out)}], "structuredContent": out, "isError": server.contract.is_error(out)})
         fn = next((f for f, _ in TOOLS if f.__name__ == name), None)
         if fn is None:

@@ -4,7 +4,7 @@ This page is the contract and API detail that previously lived in the [README](.
 
 ### Tools
 
-Tool counts: **9** in the local package (stdio, below); **13** on the hosted endpoint (the same 9 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`).
+Tool counts: **9** in the local package (stdio, below); **16** on the hosted endpoint (the same 9 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
 
 | Tool | What it does |
 |---|---|
@@ -24,6 +24,18 @@ Note on `rebuild_quote`: a receipt issued from an earlier feed generation on a d
 
 Streamable HTTP, same read-only tools: `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme`
 (`claude mcp add --transport http lantern-works-deals https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme`). Free Cloudflare Worker; it stores anonymous daily call counts per tool (no arguments) and, for distinct-caller counts, a daily-salted SHA-256 hash of IP + user agent (raw IP and user agent are never stored; the day's salt is deleted when the UTC day ends; hashes are kept 120 days). Counts are public at https://lantern-works-mcp.lantern-works.workers.dev/stats. See [PRIVACY.md](../PRIVACY.md) and [/privacy/](https://thelanternworks.com/privacy/). `?ref=` only tags which link was used.
+
+## Price alerts (hosted, poll-only; F1, Brain #1028)
+
+Hosted only, opt-in, free. No webhook, no email, no account, no cron. Delivery is the agent calling `check_alerts` after the feed refresh (daily ~10:23 UTC, plus mid-day Scout and Lium rebuilds).
+
+- `create_alert(threshold_usd, direction="below", rate_id | gpu [, vendor, vram_gb, tiers], alert_token?)`: target one stable `rate_id` (from `compare_gpu_prices`) or a gpu filter (all words must match the model; same eligibility words as compare). `direction` is `below` (at or below) or `above` (at or above). Returns an `alert_token` once when none is passed; only its SHA-256 is stored. Unknown `rate_id` is `not_found`. Stock is not part of an alert (price only); each fired row shows `in_stock`.
+- `check_alerts(alert_token, renew=false)`: each alert is `fired`, `not_triggered`, `skipped_stale`, `not_in_feed` or `expired`; `new` is false when the same best price was already reported. `renew=true` extends every unexpired alert to 30 days from now.
+- `delete_alert(alert_id, alert_token)`.
+- TTL 30 days; an expired alert stays visible (`expired`, not renewable) for 7 days, then is purged.
+- Limits: 10 active alerts per token; 60 checks per token per hour and 500 per day; 10 creates per caller per UTC day (keyed per-day hash of the IP, never stored raw) and 100 creates per day overall; arguments over 4 KB are rejected.
+- Stale rule: an alert never fires on a `held_stale` row or a row whose price check is older than 48 hours (or undated). Those rows are listed in `skipped_stale` with `hold` (`held_stale` or `older_than_48h`) and `would_have_crossed`; a crossing on stale data is not a fire. Every response carries this rule as `stale_rule`.
+- Storage: watches D1 tables `price_alert_tokens`, `price_alerts`, `price_alert_counters` (`hosted/migrations/0008_price_alerts.sql`). No email, webhook URL, raw IP or raw token. Until the migration is applied the tools answer `alerts_unavailable`.
 
 ## Alert delivery (hosted watches)
 

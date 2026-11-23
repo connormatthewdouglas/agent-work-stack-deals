@@ -21,7 +21,7 @@ Every timestamp in `api/v1/gpu-prices.json` is UTC with a trailing `Z` (e.g. `20
 | `availability_collected_at` | string (ISO-8601 UTC, `Z`) or null | When the imported Scout availability snapshot was collected. |
 | `deal_feed_updated_at` | string (ISO-8601 UTC, `Z`) | When the served deal catalog (`api/v1/deals.json`, also `source_feed`) last changed. Taken from that file's `updated_at`, which is the later of the source `deals.json` `updated_at` and `data/feed_state.json` (set when served deal content changes). It is not a GPU price-check time. It can lag `feed_updated_at` when GPU prices move and the deal catalog does not; that lag is left visible and is never advanced to hide staleness. |
 
-`held_stale[].deal_id` is the public deal catalog id for that vendor when one exists in `deals.json` (the same id as on the vendor pricing record). It is null when no such deal exists — the vendor is tracked for GPU prices only, and links go to the vendor's own page. Ids are never invented.
+`held_stale[].deal_id` is the public deal catalog id for that vendor when one exists in `deals.json` (the same id as on the vendor pricing record). It is null when no such deal exists — the vendor is tracked for GPU prices only, and links go to the vendor's own page. Ids are never invented. A null `deal_id` means the vendor has no row in the deal catalog; it does not mean a value is missing or failed to load.
 
 ## price_basis_label, form_factor and cheapest grouping (additive, Nov 2026)
 

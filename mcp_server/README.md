@@ -132,3 +132,7 @@ python3 scripts/test_pypi_install.py --uvx   # clean venv + uvx install from PyP
 ## License
 
 The package code is MIT. The price and deal data it reads (the Lantern Works feeds) is CC BY 4.0: credit "Lantern Works" and link to https://thelanternworks.com. See https://thelanternworks.com/methodology/#license.
+
+## Hosted-only price alerts
+
+The hosted endpoint (not this stdio package) also offers poll-only `create_alert`, `check_alerts` (with `renew`) and `delete_alert`: a secret `alert_token`, a `rate_id` or gpu filter with a threshold and direction, a 30-day TTL, no webhook, email or account, and never a fire on `held_stale` or rows older than 48 hours (reported as `skipped_stale`). Full contract: [docs/CONTRACT.md](../docs/CONTRACT.md#price-alerts-hosted-poll-only-f1-brain-1028).
