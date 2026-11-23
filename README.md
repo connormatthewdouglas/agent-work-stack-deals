@@ -87,7 +87,7 @@ Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
-Tool counts: **10** in the local package (stdio, below); **17** on the hosted endpoint (the same 10 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
+Tool counts: **11** in the local package (stdio, below); **18** on the hosted endpoint (the same 11 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
 
 The full tool contracts, eligibility and stale-price rules, hosted endpoint, alert delivery, throughput data, and the feed contract and deploy gate are in [docs/CONTRACT.md](docs/CONTRACT.md). Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
 
@@ -98,6 +98,7 @@ The full tool contracts, eligibility and stale-price rules, hosted endpoint, ale
 | `compare_gpu_prices` | Hourly rental prices for a GPU model across tracked providers, cheapest first. When a result includes `availability_rate_7d`, `window_days` is the planned window and `observed_hours` is the actual coverage (`coverage_note` when coverage is shorter). The output also carries file-level `availability_window_summary` (no-window counts by reason, plus when current windows began) and `content_build_id`. |
 | `get_price_changes` | GPU price moves among tracked providers, newest first. |
 | `get_price_trend` | 7-day and 30-day price trend for one `rate_id` (existing snapshots; never from stale/held/sold_out/no_source rows). |
+| `find_available_gpus` | Who has N × GPU confirmed in stock right now (never from stale, static-label, no_source, or 7-day stock rates). |
 | `optimize_stack` | Cheapest tracked plan per usage line, with sources. |
 | `optimize_agent_stack` | Cheapest cited option per component from a plain-text agent description. |
 | `estimate_job_cost` | Cost of one GPU job among tracked providers, cheapest first. |

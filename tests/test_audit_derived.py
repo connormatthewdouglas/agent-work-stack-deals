@@ -143,7 +143,7 @@ def test_install_page_tool_count_matches_server():
     n = len(re.findall(r"@mcp\.tool\(", src))
     assert len(install_page.TOOLS) == n and "get_price_changes" in install_page.TOOLS
     html = (ROOT / "install/index.html").read_text()
-    # Gauge nov1_mart3: current counts are the server's (10 + 7 = 17); an older tested count appears only as history
+    # Gauge nov1_mart3: current counts are the server's (11 + 7 = 18); an older tested count appears only as history
     assert install_page.TESTED_TOOLS <= n and f"({n} tools in the package)" in html
     hp = n - len(install_page.HOSTED_MISSING)
     assert f"The current package has {n} tools; on {install_page.TESTED_ON} the hosted endpoint listed" in html
