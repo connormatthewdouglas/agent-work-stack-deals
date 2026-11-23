@@ -89,6 +89,8 @@ def classify(src: dict) -> dict:
     region / quota: only when the source states that reason.
     other: a recorded probe failure (check_failed_http / check_failed_timeout) that is not those three.
     null: the source does not say (unknown, no_source, a last-known in-stock, or never probed).
+    failure_reason follows the current reading: a no_source current probe is null even when a
+    carried last_known_in_stock is false. last_known_* stays on the row (P64); it is history.
     """
     if not isinstance(src, dict):
         return {"failure_reason": None, "failure_reason_detail": None}
@@ -99,6 +101,10 @@ def classify(src: dict) -> dict:
     detail = _detail(src)
 
     if in_stock is True:
+        return {"failure_reason": None, "failure_reason_detail": None}
+
+    # Current reading wins. no_source is not a classified failure (top-level or nested).
+    if reason == "no_source":
         return {"failure_reason": None, "failure_reason_detail": None}
 
     if explicit and (in_stock is False or last is False or (isinstance(reason, str) and reason.startswith("check_failed"))):
