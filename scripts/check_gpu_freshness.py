@@ -67,7 +67,10 @@ def _is_auto_refresh_doc(d: dict) -> bool:
 
 
 def _is_auto_refresh_row(d: dict, r: dict) -> bool:
-    return _is_auto_refresh_doc(d) and not r.get("stale") and not is_held(r.get("vendor")) and bool(r.get("checked_at"))
+    # no_capacity is already a record-level hold: core/gpu.py lists it in held_stale and never ranks it.
+    # Its last sourced checked_at must not trip the 72 h ceiling (same as stale / owner holds).
+    return (_is_auto_refresh_doc(d) and not r.get("stale") and not r.get("no_capacity")
+            and not is_held(r.get("vendor")) and bool(r.get("checked_at")))
 
 
 def iter_auto_refresh_rows(docs: list[dict] | None = None):

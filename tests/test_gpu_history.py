@@ -363,6 +363,53 @@ def test_freshness_ceiling_lists_unverified_and_fails_at_73h():
         gate.load_vendor_files = orig
 
 
+def test_freshness_ceiling_skips_no_capacity_hold_but_still_fails_unverified():
+    """A no_capacity row (generator already lists it in held_stale) is held, not an unverified auto-refresh row.
+
+    A 75.9 h last sourced checked_at must not trip the 72 h ceiling. A sibling failed re-read without
+    no_capacity still fails at 73 h. The 24/26 h bars stay on the successful re-read.
+    """
+    import sys
+    from datetime import timedelta
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import check_gpu_freshness as gate
+    fresh = datetime.fromisoformat("2026-11-20T01:55:07+00:00")
+    now = fresh + timedelta(hours=75.9)
+    ok_stamp = (now - timedelta(hours=1)).isoformat()
+    docs = [
+        {"vendor": "Ok", "records": [{"checked_at": ok_stamp, "gpu": "H100", "tier": "On-demand"}]},
+        {"vendor": "Spheron", "records": [{
+            "checked_at": fresh.isoformat(),
+            "last_failed_check_at": ok_stamp,
+            "gpu": "RTX 5090",
+            "tier": 'Marketplace/aggregator listing (page: "Live rates across 5+ providers"; on-demand)',
+            "no_capacity": {"reason": "no capacity per vendor page", "read_at": ok_stamp,
+                            "source_url": "https://www.spheron.network/gpu-rental/rtx-5090/",
+                            "page_text": "Spheron Your price $0.84/hr Last known - No capacity now"},
+        }]},
+    ]
+    orig = gate.load_vendor_files
+    try:
+        gate.load_vendor_files = lambda: docs
+        code, msgs = gate.status(now, 26)
+        assert code == 0, msgs
+        assert any("0 unverified row(s) (failed re-read)" in m for m in msgs)
+        assert "hard ceiling" not in "\n".join(msgs)
+        assert "Spheron|RTX 5090" not in "\n".join(msgs)
+        # A plain failed re-read at 73 h still trips the ceiling; the gate is not loosened.
+        docs.append({"vendor": "Civo", "records": [{
+            "checked_at": (now - timedelta(hours=73)).isoformat(),
+            "last_failed_check_at": ok_stamp,
+            "gpu": "H100 SXM", "tier": "6-month commitment",
+        }]})
+        code, msgs = gate.status(now, 26)
+        assert code == 1, msgs
+        assert any("older than 72 h" in m and "hard ceiling" in m and "Civo|H100 SXM|6-month commitment" in m for m in msgs)
+        assert "Spheron|RTX 5090" not in "\n".join(msgs)
+    finally:
+        gate.load_vendor_files = orig
+
+
 def test_marketplace_filter_units_and_variants():
     """Per-GPU price = machine dph_total / num_gpus; only the record's VRAM size; no bids, no unverified offers."""
     gb = 1024
