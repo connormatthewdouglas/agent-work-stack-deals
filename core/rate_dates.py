@@ -23,6 +23,7 @@ Both are null when min_gpus or the hourly price is missing. Ranking never reads 
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from .deals import to_utc_z
 
 EFFECTIVE_KEYS = ("effective_at", "effective_at_basis")
 MIN_BILL_KEYS = ("min_bill_usd_per_hour", "min_bill_basis")
@@ -68,8 +69,8 @@ def effective_at(row: dict, series: dict | None) -> tuple[str | None, str | None
     stated = row.get("price_effective_at")
     st = _ts(stated)
     if st is not None and (seen is None or _ts(seen) <= st):
-        return stated, "vendor_stated"  # a later observed change would mean the stated date belongs to an older price
-    return (seen, "first_observed") if seen else (None, None)
+        return to_utc_z(stated), "vendor_stated"  # a later observed change would mean the stated date belongs to an older price
+    return (to_utc_z(seen), "first_observed") if seen else (None, None)
 
 
 def min_bill(row: dict) -> tuple[float | None, str | None]:

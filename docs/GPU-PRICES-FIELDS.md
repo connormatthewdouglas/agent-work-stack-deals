@@ -1,6 +1,7 @@
 # gpu-prices.json: model and form fields
 
-Every rate in `api/v1/gpu-prices.json` carries these fields (since 0.5.0, T75):
+Every rate in `api/v1/gpu-prices.json` carries these fields (since 0.5.0, T75). File-level timestamps and `held_stale` fields are documented below.
+
 
 | Field | Type | Meaning |
 |---|---|---|
@@ -8,6 +9,19 @@ Every rate in `api/v1/gpu-prices.json` carries these fields (since 0.5.0, T75):
 | `canonical_model` | string | The tracked model this row belongs to, so consumers don't re-derive families: `H100`, `H100 SXM`, `H100 PCIe` and `H100 NVLink` are all `H100`; `A100*` is `A100`; the four `RTX PRO 6000*` strings are `RTX PRO 6000`. `H100 NVL` (94 GB) is its own model. Same grouping as the /gpu/ pages. |
 | `form_factor` | string, never null | `SXM`, `SXM2`..., `PCIe`, `NVL`, or `not stated`. Taken from the vendor record when it states one, otherwise from the form named in the GPU string or in the vendor's own GPU id cited in the source (e.g. RunPod `NVIDIA B300 SXM6 AC` → `SXM6`) (an HGX board in the vendor quote counts as SXM). `NVLink` names the bridge, not the form, so it is `not stated`. Never guessed from the model alone. |
 | `form_class` | string, H100 rows only | Ranking split used on the H100 pages: `SXM`, `PCIe`, `NVL` or `form not stated`. Unchanged. |
+
+## Feed-level timestamps and held_stale.deal_id (P66 / P67, Nov 2026)
+
+Every timestamp in `api/v1/gpu-prices.json` is UTC with a trailing `Z` (e.g. `2026-11-22T18:51:23Z`). The generator rewrites them at write time (`core.deals.apply_utc_z`). Parsers still accept a trailing `Z`, `+00:00`, and other numeric offsets.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `feed_updated_at` | string (ISO-8601 UTC, `Z`) | When the ranked GPU price rows in this file last changed. Independent of the deal catalog. |
+| `prices_verified_through` | string (ISO-8601 UTC, `Z`) | Newest `verified_at` among ranked rates. |
+| `availability_collected_at` | string (ISO-8601 UTC, `Z`) or null | When the imported Scout availability snapshot was collected. |
+| `deal_feed_updated_at` | string (ISO-8601 UTC, `Z`) | When the served deal catalog (`api/v1/deals.json`, also `source_feed`) last changed. Taken from that file's `updated_at`, which is the later of the source `deals.json` `updated_at` and `data/feed_state.json` (set when served deal content changes). It is not a GPU price-check time. It can lag `feed_updated_at` when GPU prices move and the deal catalog does not; that lag is left visible and is never advanced to hide staleness. |
+
+`held_stale[].deal_id` is the public deal catalog id for that vendor when one exists in `deals.json` (the same id as on the vendor pricing record). It is null when no such deal exists — the vendor is tracked for GPU prices only, and links go to the vendor's own page. Ids are never invented.
 
 ## price_basis_label, form_factor and cheapest grouping (additive, Nov 2026)
 
@@ -112,7 +126,7 @@ On every GPU rate's `availability` in `gpu-prices.json` and in `compare_gpu_pric
 | `last_known_in_stock` | boolean or null | The last firm true/false stock answer. Set when a claim lapses (expired) or is dropped because the price changed after the stock check (`price_join_guard`). A current firm claim reports itself in full mode. A quota, region, or rate-limit failure, or a recorded check failure, does not overwrite it (P64): the current reading is unknown (`in_stock` null) and the previous last_known value and time stay put. Null when there was never a firm, dated claim. Never invented. |
 | `last_known_at` | string (date-time) or null | The `checked_at` of that firm claim (ISO UTC). Null when `last_known_in_stock` is null. Not updated when a later check fails. |
 
-last_known is marked stale **8 hours** after `last_known_at`. That number is `AVAIL_MAX_AGE_H` in `core/gpu_availability.py`. An `in_stock` true reading and a sold_out (`in_stock` false) last_known use this same clock. last_known stays visible beside the stale mark and is not dropped. A live firm claim may still lapse sooner under existing claim lifetimes (1 hour for Lambda, Verda, and region-derived claims; 15 minutes for Verda spot); those lifetimes apply equally to true and false.
+last_known is marked stale **8 hours** after `last_known_at`. That number is `AVAIL_MAX_AGE_H` in `core/gpu_availability.py`. An `in_stock` true reading and a sold_out (`in_stock` false) last_known use this same clock. last_known stays visible beside the stale mark and is not dropped. A live firm claim may still lapse sooner under existing claim lifetimes (1 hour for Lambda, Verda, RunPod/Oblivus overall, and region-derived claims; 15 minutes for Verda spot); those lifetimes apply equally to true and false.
 
 | Failure / outcome | Keeps last_known? | Ageing |
 |---|---|---|

@@ -15,7 +15,7 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-22T23:49:39+00:00",
+  "last_checked": "2026-11-22T23:49:39Z",
   "row_count": 29,
   "providers": [
     "99Stack Cloud",
@@ -50,7 +50,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:53:12+00:00",
+        "verified_at": "2026-11-22T17:53:12Z",
         "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
         "quote": "G4-gpu-h100-240m-12c 4800 GiB 240 GB 12 vCPUs 50 TB $2.8767 /hr $2 100 /mo",
         "availability": {
@@ -81,7 +81,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:55:15+00:00",
+        "verified_at": "2026-11-22T17:55:15Z",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.",
         "availability": {
@@ -117,7 +117,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:53:28+00:00",
+        "verified_at": "2026-11-22T17:53:28Z",
         "source_url": "https://www.civo.com/pricing",
         "quote": "Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE $2.99 per hour",
         "availability": {
@@ -138,7 +138,7 @@
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
           "stock_read_at": "2026-11-23T00:55:03Z",
-          "price_read_at": "2026-11-22T17:53:28+00:00",
+          "price_read_at": "2026-11-22T17:53:28Z",
           "price_at_claim_usd": 2.99,
           "gpu_count": 1
         },
@@ -164,7 +164,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:54:25+00:00",
+        "verified_at": "2026-11-22T17:54:25Z",
         "source_url": "https://lambda.com/pricing",
         "quote": "NVIDIA H100 PCIe 80 GB 26 225 GiB 1 TiB SSD $3.79",
         "availability": {
@@ -215,7 +215,7 @@
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
           "stock_read_at": "2026-11-23T00:55:02Z",
-          "price_read_at": "2026-11-22T17:54:25+00:00",
+          "price_read_at": "2026-11-22T17:54:25Z",
           "price_at_claim_usd": 3.79,
           "gpu_count": 1
         },
@@ -241,7 +241,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:55:15+00:00",
+        "verified_at": "2026-11-22T17:55:15Z",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $4.39/hr.",
         "availability": {
@@ -443,7 +443,7 @@
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
           "stock_read_at": "2026-11-23T00:49:27Z",
-          "price_read_at": "2026-11-22T17:55:15+00:00",
+          "price_read_at": "2026-11-22T17:55:15Z",
           "price_at_claim_usd": 4.39,
           "gpu_count": 1
         },
@@ -469,7 +469,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:54:25+00:00",
+        "verified_at": "2026-11-22T17:54:25Z",
         "source_url": "https://lambda.com/pricing",
         "quote": "NVIDIA H100 SXM 80 GB 26 225 GiB 2.75 TiB SSD $4.89",
         "availability": {
@@ -539,7 +539,7 @@
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
           "stock_read_at": "2026-11-23T00:55:02Z",
-          "price_read_at": "2026-11-22T17:54:25+00:00",
+          "price_read_at": "2026-11-22T17:54:25Z",
           "price_at_claim_usd": 4.89,
           "gpu_count": 1
         },
@@ -565,7 +565,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:54:07+00:00",
+        "verified_at": "2026-11-22T17:54:07Z",
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
         "quote": "NVIDIA H100 80 28 180 $2.50",
         "availability": {
@@ -589,7 +589,7 @@
           "availability_status": "out_of_stock",
           "availability_reason": "out_of_stock",
           "stock_read_at": "2026-11-23T00:55:07Z",
-          "price_read_at": "2026-11-22T17:54:07+00:00",
+          "price_read_at": "2026-11-22T17:54:07Z",
           "price_at_claim_usd": 2.5,
           "gpu_count": 1
         },
@@ -615,7 +615,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:55:15+00:00",
+        "verified_at": "2026-11-22T17:55:15Z",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
         "availability": {
@@ -653,13 +653,13 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T23:49:39+00:00",
+        "verified_at": "2026-11-22T23:49:39Z",
         "source_url": "https://lium.io/api/public/v1/nodes",
         "quote": "Lium nodes API 2026-11-22T23:49:39+00:00: 1 available H100 PCIe spot nodes, 1 GPUs free; lowest price_per_gpu_hour $1.98 (min rental 1 GPU, Bluffdale, United States)",
         "availability": {
           "status": "available when checked",
           "in_stock": true,
-          "checked_at": "2026-11-22T23:49:39+00:00",
+          "checked_at": "2026-11-22T23:49:39Z",
           "refresh": "automated check, time shown (prices checked daily)",
           "source": "https://lium.io/api/public/v1/nodes",
           "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
@@ -669,8 +669,8 @@
           "stock_level": "1 GPUs free on 1 nodes",
           "same_capture_as_price": true,
           "detail": "Lium public nodes API: 1 available GPUs (spot tier)",
-          "stock_read_at": "2026-11-22T23:49:39+00:00",
-          "price_read_at": "2026-11-22T23:49:39+00:00",
+          "stock_read_at": "2026-11-22T23:49:39Z",
+          "price_read_at": "2026-11-22T23:49:39Z",
           "price_at_claim_usd": 1.98,
           "gpu_count": 1
         },
@@ -696,7 +696,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:55:15+00:00",
+        "verified_at": "2026-11-22T17:55:15Z",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.",
         "availability": {
@@ -732,7 +732,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:54:07+00:00",
+        "verified_at": "2026-11-22T17:54:07Z",
         "source_url": "https://www.hyperstack.cloud/gpu-pricing",
         "quote": "Spot VM Pricing Learn More GPU Model Spot VM NVIDIA H100 PCIe $2.00",
         "availability": {
@@ -782,7 +782,7 @@
           "availability_status": "in_stock",
           "availability_reason": "in_stock",
           "stock_read_at": "2026-11-23T00:55:07Z",
-          "price_read_at": "2026-11-22T17:54:07+00:00",
+          "price_read_at": "2026-11-22T17:54:07Z",
           "price_at_claim_usd": 2.0,
           "gpu_count": 1
         },
@@ -808,7 +808,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:55:15+00:00",
+        "verified_at": "2026-11-22T17:55:15Z",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $4.39/hr.",
         "availability": {
@@ -844,7 +844,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:56:02+00:00",
+        "verified_at": "2026-11-22T17:56:02Z",
         "source_url": "https://verda.com/pricing",
         "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $5.508/h $2.754/h",
         "availability": {
@@ -860,7 +860,7 @@
           "source_label": "authenticated vendor API (not publicly reproducible)",
           "availability_expires_at": "2026-11-23T01:10:01Z",
           "stock_read_at": "2026-11-23T00:55:01Z",
-          "price_read_at": "2026-11-22T17:56:02+00:00",
+          "price_read_at": "2026-11-22T17:56:02Z",
           "price_at_claim_usd": 2.754,
           "gpu_count": 1,
           "first_read_at": "2026-11-23T00:55:01Z",
@@ -893,7 +893,7 @@
         "gpu_count": 1,
         "min_gpus": 1,
         "price_status": "listed",
-        "verified_at": "2026-11-22T17:55:15+00:00",
+        "verified_at": "2026-11-22T17:55:15Z",
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
         "availability": {
@@ -932,13 +932,13 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T23:49:39+00:00",
+      "verified_at": "2026-11-22T23:49:39Z",
       "source_url": "https://lium.io/api/public/v1/nodes",
       "quote": "Lium nodes API 2026-11-22T23:49:39+00:00: 1 available H100 PCIe spot nodes, 1 GPUs free; lowest price_per_gpu_hour $1.98 (min rental 1 GPU, Bluffdale, United States)",
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-22T23:49:39+00:00",
+        "checked_at": "2026-11-22T23:49:39Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "source": "https://lium.io/api/public/v1/nodes",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
@@ -948,8 +948,8 @@
         "stock_level": "1 GPUs free on 1 nodes",
         "same_capture_as_price": true,
         "detail": "Lium public nodes API: 1 available GPUs (spot tier)",
-        "stock_read_at": "2026-11-22T23:49:39+00:00",
-        "price_read_at": "2026-11-22T23:49:39+00:00",
+        "stock_read_at": "2026-11-22T23:49:39Z",
+        "price_read_at": "2026-11-22T23:49:39Z",
         "price_at_claim_usd": 1.98,
         "gpu_count": 1
       },
@@ -970,7 +970,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:55:15+00:00",
+      "verified_at": "2026-11-22T17:55:15Z",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.",
       "availability": {
@@ -1001,7 +1001,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:07+00:00",
+      "verified_at": "2026-11-22T17:54:07Z",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "Spot VM Pricing Learn More GPU Model Spot VM NVIDIA H100 PCIe $2.00",
       "availability": {
@@ -1051,7 +1051,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:55:07Z",
-        "price_read_at": "2026-11-22T17:54:07+00:00",
+        "price_read_at": "2026-11-22T17:54:07Z",
         "price_at_claim_usd": 2.0,
         "gpu_count": 1
       },
@@ -1072,7 +1072,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:55:15+00:00",
+      "verified_at": "2026-11-22T17:55:15Z",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
       "availability": {
@@ -1103,7 +1103,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:55:15+00:00",
+      "verified_at": "2026-11-22T17:55:15Z",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $4.39/hr.",
       "availability": {
@@ -1134,7 +1134,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:56:02+00:00",
+      "verified_at": "2026-11-22T17:56:02Z",
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $5.508/h $2.754/h",
       "availability": {
@@ -1150,7 +1150,7 @@
         "source_label": "authenticated vendor API (not publicly reproducible)",
         "availability_expires_at": "2026-11-23T01:10:01Z",
         "stock_read_at": "2026-11-23T00:55:01Z",
-        "price_read_at": "2026-11-22T17:56:02+00:00",
+        "price_read_at": "2026-11-22T17:56:02Z",
         "price_at_claim_usd": 2.754,
         "gpu_count": 1,
         "first_read_at": "2026-11-23T00:55:01Z",
@@ -1178,7 +1178,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:12+00:00",
+      "verified_at": "2026-11-22T17:53:12Z",
       "source_url": "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100",
       "quote": "G4-gpu-h100-240m-12c 4800 GiB 240 GB 12 vCPUs 50 TB $2.8767 /hr $2 100 /mo",
       "availability": {
@@ -1204,7 +1204,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:55:15+00:00",
+      "verified_at": "2026-11-22T17:55:15Z",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 PCIe cloud GPU rental on Runpod. Community Cloud $1.99/hr, Secure Cloud $2.89/hr.",
       "availability": {
@@ -1235,7 +1235,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:28+00:00",
+      "verified_at": "2026-11-22T17:53:28Z",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE $2.99 per hour",
       "availability": {
@@ -1256,7 +1256,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:55:03Z",
-        "price_read_at": "2026-11-22T17:53:28+00:00",
+        "price_read_at": "2026-11-22T17:53:28Z",
         "price_at_claim_usd": 2.99,
         "gpu_count": 1
       },
@@ -1277,7 +1277,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:55:15+00:00",
+      "verified_at": "2026-11-22T17:55:15Z",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 NVL cloud GPU rental on Runpod. Community Cloud $2.59/hr, Secure Cloud $3.19/hr.",
       "availability": {
@@ -1308,7 +1308,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:55:41+00:00",
+      "verified_at": "2026-11-22T17:55:41Z",
       "source_url": "https://www.thundercompute.com/pricing",
       "quote": "H100 SXM 80 GB 4 included · 16 max 32–128 GB 100–500 GB $3.20 /hr",
       "availability": {
@@ -1334,13 +1334,13 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:13+00:00",
+      "verified_at": "2026-11-22T17:54:13Z",
       "source_url": "https://jarvislabs.ai/pricing",
       "quote": "NVIDIA H100 SXM 80 GB VRAM · 16 vCPU · 200 GB RAM On-demand / hr $3.49",
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T00:05:46+00:00",
+        "checked_at": "2026-10-30T00:05:46Z",
         "source": "https://jarvislabs.ai/pricing",
         "note": "The public pricing page publishes no stock signal"
       },
@@ -1361,7 +1361,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:25+00:00",
+      "verified_at": "2026-11-22T17:54:25Z",
       "source_url": "https://lambda.com/pricing",
       "quote": "NVIDIA H100 PCIe 80 GB 26 225 GiB 1 TiB SSD $3.79",
       "availability": {
@@ -1412,7 +1412,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:55:02Z",
-        "price_read_at": "2026-11-22T17:54:25+00:00",
+        "price_read_at": "2026-11-22T17:54:25Z",
         "price_at_claim_usd": 3.79,
         "gpu_count": 1
       },
@@ -1433,7 +1433,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:31+00:00",
+      "verified_at": "2026-11-22T17:54:31Z",
       "source_url": "https://modal.com/pricing",
       "quote": "Nvidia H100 SXM5 $ 0.001097 / sec",
       "interruption_quote": "Modal Functions are subject to preemption by default; while interruptions are rare, they can happen.",
@@ -1460,13 +1460,13 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:55+00:00",
+      "verified_at": "2026-11-22T17:53:55Z",
       "source_url": "https://www.e2enetworks.com/pricing",
       "quote": "GPU vRAM vCPUs RAM, GB Hourly/On-Demand ... NVIDIA H100 80 26 250 $3.99",
       "availability": {
         "status": "unknown",
         "in_stock": null,
-        "checked_at": "2026-10-30T00:07:06+00:00",
+        "checked_at": "2026-10-30T00:07:06Z",
         "source": "https://www.e2enetworks.com/pricing",
         "note": "The public pricing page publishes no stock signal"
       },
@@ -1487,7 +1487,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:55:15+00:00",
+      "verified_at": "2026-11-22T17:55:15Z",
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand H100 SXM cloud GPU rental on Runpod. Community Cloud $2.69/hr, Secure Cloud $4.39/hr.",
       "availability": {
@@ -1689,7 +1689,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:49:27Z",
-        "price_read_at": "2026-11-22T17:55:15+00:00",
+        "price_read_at": "2026-11-22T17:55:15Z",
         "price_at_claim_usd": 4.39,
         "gpu_count": 1
       },
@@ -1710,7 +1710,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:49+00:00",
+      "verified_at": "2026-11-22T17:53:49Z",
       "source_url": "https://www.digitalocean.com/pricing/gpu-droplets",
       "quote": "NVIDIA HGX H100 $4.41 /GPU/hour On-Demand Price",
       "availability": {
@@ -1736,7 +1736,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:37+00:00",
+      "verified_at": "2026-11-22T17:54:37Z",
       "source_url": "https://nebius.com/prices",
       "quote": "NVIDIA HGX H100 16 200 from $0.79 $4.50",
       "availability": {
@@ -1762,7 +1762,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:25+00:00",
+      "verified_at": "2026-11-22T17:54:25Z",
       "source_url": "https://lambda.com/pricing",
       "quote": "NVIDIA H100 SXM 80 GB 26 225 GiB 2.75 TiB SSD $4.89",
       "availability": {
@@ -1832,7 +1832,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:55:02Z",
-        "price_read_at": "2026-11-22T17:54:25+00:00",
+        "price_read_at": "2026-11-22T17:54:25Z",
         "price_at_claim_usd": 4.89,
         "gpu_count": 1
       },
@@ -1854,7 +1854,7 @@
       "server_hourly_usd": 49.24,
       "min_gpus": 8,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:43+00:00",
+      "verified_at": "2026-11-22T17:53:43Z",
       "source_url": "https://www.coreweave.com/pricing",
       "quote": "NVIDIA HGX H100 On-Demand Price: $49.24 / Hour",
       "availability": {
@@ -1880,7 +1880,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:07+00:00",
+      "verified_at": "2026-11-22T17:54:07Z",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA H100 80 28 180 $2.50",
       "availability": {
@@ -1904,7 +1904,7 @@
         "availability_status": "out_of_stock",
         "availability_reason": "out_of_stock",
         "stock_read_at": "2026-11-23T00:55:07Z",
-        "price_read_at": "2026-11-22T17:54:07+00:00",
+        "price_read_at": "2026-11-22T17:54:07Z",
         "price_at_claim_usd": 2.5,
         "gpu_count": 1
       },
@@ -1925,7 +1925,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:07+00:00",
+      "verified_at": "2026-11-22T17:54:07Z",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA H100 NVLink 80 31 180 $2.60",
       "availability": {
@@ -1949,7 +1949,7 @@
         "availability_status": "out_of_stock",
         "availability_reason": "out_of_stock",
         "stock_read_at": "2026-11-23T00:55:07Z",
-        "price_read_at": "2026-11-22T17:54:07+00:00",
+        "price_read_at": "2026-11-22T17:54:07Z",
         "price_at_claim_usd": 2.6,
         "gpu_count": 1
       },
@@ -1970,7 +1970,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:07+00:00",
+      "verified_at": "2026-11-22T17:54:07Z",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA H100 SXM 80 24 240 $3.20",
       "availability": {
@@ -1994,7 +1994,7 @@
         "availability_status": "out_of_stock",
         "availability_reason": "out_of_stock",
         "stock_read_at": "2026-11-23T00:55:07Z",
-        "price_read_at": "2026-11-22T17:54:07+00:00",
+        "price_read_at": "2026-11-22T17:54:07Z",
         "price_at_claim_usd": 3.2,
         "gpu_count": 1
       },
@@ -2015,7 +2015,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:55+00:00",
+      "verified_at": "2026-11-22T17:54:55Z",
       "source_url": "https://oblivus.com/pricing/",
       "quote": "H100 80GB PCIE 28 vCPU 180GB RAM 850GB NVMe On-Demand: $3.5/hr",
       "availability": {
@@ -2039,7 +2039,7 @@
         "availability_status": "out_of_stock",
         "availability_reason": "out_of_stock",
         "stock_read_at": "2026-11-23T00:55:03Z",
-        "price_read_at": "2026-11-22T17:54:55+00:00",
+        "price_read_at": "2026-11-22T17:54:55Z",
         "price_at_claim_usd": 3.5,
         "gpu_count": 1
       },
@@ -2060,7 +2060,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:56:02+00:00",
+      "verified_at": "2026-11-22T17:56:02Z",
       "source_url": "https://verda.com/pricing",
       "quote": "1x H100 SXM5 80GB 30 120 GB 80 GB $5.508/h",
       "availability": {
@@ -2085,7 +2085,7 @@
         "availability_status": "out_of_stock",
         "availability_reason": "out_of_stock",
         "stock_read_at": "2026-11-23T00:54:59Z",
-        "price_read_at": "2026-11-22T17:56:02+00:00",
+        "price_read_at": "2026-11-22T17:56:02Z",
         "price_at_claim_usd": 5.508,
         "gpu_count": 1
       },
@@ -2106,7 +2106,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:28+00:00",
+      "verified_at": "2026-11-22T17:53:28Z",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE $2.99 per hour $2,182.70 per month $2.79 per hour $2,036.70 per month $2.69 per hour $1,963.70 per month $2.59 per hour",
       "availability": {
@@ -2127,7 +2127,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:55:03Z",
-        "price_read_at": "2026-11-22T17:53:28+00:00",
+        "price_read_at": "2026-11-22T17:53:28Z",
         "price_at_claim_usd": 2.59,
         "gpu_count": 1
       },
@@ -2148,7 +2148,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:28+00:00",
+      "verified_at": "2026-11-22T17:53:28Z",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE $2.99 per hour $2,182.70 per month $2.79 per hour $2,036.70 per month $2.69 per hour",
       "availability": {
@@ -2169,7 +2169,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:55:03Z",
-        "price_read_at": "2026-11-22T17:53:28+00:00",
+        "price_read_at": "2026-11-22T17:53:28Z",
         "price_at_claim_usd": 2.69,
         "gpu_count": 1
       },
@@ -2190,7 +2190,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:54:07+00:00",
+      "verified_at": "2026-11-22T17:54:07Z",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
       "quote": "NVIDIA H100 SXM $2.72 Reserve here",
       "availability": {
@@ -2216,7 +2216,7 @@
       "gpu_count": 1,
       "min_gpus": 1,
       "price_status": "listed",
-      "verified_at": "2026-11-22T17:53:28+00:00",
+      "verified_at": "2026-11-22T17:53:28Z",
       "source_url": "https://www.civo.com/pricing",
       "quote": "Small 1 x NVIDIA H100 - 80GB 184 GB 23 200GB NVMe FREE $2.99 per hour $2,182.70 per month $2.79 per hour",
       "availability": {
@@ -2237,7 +2237,7 @@
         "availability_status": "in_stock",
         "availability_reason": "in_stock",
         "stock_read_at": "2026-11-23T00:55:03Z",
-        "price_read_at": "2026-11-22T17:53:28+00:00",
+        "price_read_at": "2026-11-22T17:53:28Z",
         "price_at_claim_usd": 2.79,
         "gpu_count": 1
       },

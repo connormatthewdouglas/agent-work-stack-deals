@@ -117,14 +117,14 @@ def test_build_rates_holds_before_effective_and_ranks_after():
     assert [x for x in held["rates"] if x["advertiser"] == "Lambda"] == []
     h = [x for x in held["held_stale"] if x["vendor"] == "Lambda"]
     assert len(h) == 1 and h[0]["reason"].startswith("not yet in effect:")
-    assert h[0]["records"][0]["price_effective_at"] == "2026-11-16T00:00:00+00:00"
+    assert h[0]["records"][0]["price_effective_at"] == "2026-11-16T00:00:00Z"
     assert "2026-11-16T00:00:00+00:00" in h[0]["reason"]
 
     at = build_rates([], [doc], now=AFTER)
     assert not at.get("problems")
     rates = [x for x in at["rates"] if x["advertiser"] == "Lambda"]
     assert len(rates) == 1 and rates[0]["price_usd"] == 7.99
-    assert rates[0]["price_effective_at"] == "2026-11-16T00:00:00+00:00"
+    assert rates[0]["price_effective_at"] == "2026-11-16T00:00:00Z"
     assert not [x for x in at["held_stale"] if x["vendor"] == "Lambda" and str(x.get("reason","")).startswith("not yet in effect:")]
 
     later = build_rates([], [doc], now=LATER)

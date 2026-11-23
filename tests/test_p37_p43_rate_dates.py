@@ -19,7 +19,7 @@ def _pt(day, price, status="ranked", t=None):
 
 def test_first_observed_after_a_real_change_only():
     pts = [_pt("2026-10-27", 2.0), _pt("2026-11-04", 2.5), _pt("2026-11-06", 2.5, "held")]  # status change keeps the run
-    assert rate_dates.effective_at({"hourly_equiv_usd": 2.5}, {"points": pts}) == ("2026-11-04T18:00:00+00:00", "first_observed")
+    assert rate_dates.effective_at({"hourly_equiv_usd": 2.5}, {"points": pts}) == ("2026-11-04T18:00:00Z", "first_observed")
     # first price ever recorded: predates tracking -> null, never the tracking start date
     assert rate_dates.effective_at({"hourly_equiv_usd": 2.0}, {"points": [_pt("2026-10-27", 2.0)]}) == (None, None)
     # price moved after the latest snapshot -> not datable from history
@@ -30,7 +30,7 @@ def test_first_observed_after_a_real_change_only():
     assert rate_dates.effective_at({"hourly_equiv_usd": 2.5}, None) == (None, None)
     # A -> B -> A: dated from the return to A, not the first A
     aba = [_pt("2026-10-27", 2.0), _pt("2026-11-01", 2.2), _pt("2026-11-05", 2.0)]
-    assert rate_dates.effective_at({"hourly_equiv_usd": 2.0}, {"points": aba})[0] == "2026-11-05T18:00:00+00:00"
+    assert rate_dates.effective_at({"hourly_equiv_usd": 2.0}, {"points": aba})[0] == "2026-11-05T18:00:00Z"
 
 
 def test_vendor_stated_wins_unless_a_later_change_was_observed():
@@ -39,7 +39,7 @@ def test_vendor_stated_wins_unless_a_later_change_was_observed():
     assert rate_dates.effective_at(row, {"points": pts}) == ("2026-11-16T00:00:00Z", "vendor_stated")
     assert rate_dates.effective_at(row, None) == ("2026-11-16T00:00:00Z", "vendor_stated")
     later = pts + [_pt("2026-12-01", 8.49)]
-    assert rate_dates.effective_at({**row, "hourly_equiv_usd": 8.49}, {"points": later}) == ("2026-12-01T18:00:00+00:00", "first_observed")
+    assert rate_dates.effective_at({**row, "hourly_equiv_usd": 8.49}, {"points": later}) == ("2026-12-01T18:00:00Z", "first_observed")
     assert rate_dates.effective_at({**row, "price_effective_at": "not a date"}, None) == (None, None)
 
 
