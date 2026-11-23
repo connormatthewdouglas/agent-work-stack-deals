@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from .ids import event_id, rate_id, snapshot_id
@@ -262,3 +262,149 @@ def base_from_docs(docs: list[dict]) -> dict[str, dict]:
 
 def base_from_snapshot(snap: dict) -> dict[str, dict]:
     return {row["key"]: {"price_usd": row["price_usd"], "checked_at": row["verified_at"]} for row in snap.get("rows") or []}
+
+
+# F2 (Brain #1029): trend signal from existing history. No new collection, no invented days or prices.
+FLAT_BAND = 2.0  # |pct| < 2 is flat; pct >= 2 is up; pct <= -2 is down
+DEFAULT_WINDOWS = (7, 30)
+MIN_RANKED_DAYS = {7: 4, 30: 10}
+
+
+def snapshot_dates(history: dict | None) -> list[str]:
+    """Existing snapshot days, from history snapshot_ids (`YYYY-MM-DD.<hash>`). Missing days are not invented."""
+    out = []
+    for sid in (history or {}).get("snapshot_ids") or []:
+        if isinstance(sid, str) and len(sid) >= 10 and sid[4] == "-" and sid[7] == "-":
+            out.append(sid[:10])
+    return out
+
+
+def min_ranked_days(window: int) -> int:
+    return MIN_RANKED_DAYS.get(window, max(2, round(window * 4 / 7)))
+
+
+def _z(ts) -> str | None:
+    """UTC Z timestamp. Date-only values become midnight UTC. Unparseable values are returned unchanged if strings."""
+    if ts is None or ts == "":
+        return None
+    if isinstance(ts, datetime):
+        dt = ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    s = str(ts)
+    if "T" not in s and len(s) >= 10 and s[4] == "-":
+        return s[:10] + "T00:00:00Z"
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return s
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def live_trend_block(row: dict | None, *, held: bool = False, now: datetime | None = None) -> str | None:
+    """Reason the live feed row cannot support a trend, or None if it can."""
+    if held:
+        return "held_stale"
+    if not isinstance(row, dict):
+        return None
+    av = row.get("availability") if isinstance(row.get("availability"), dict) else {}
+    reason = row.get("availability_reason") or av.get("availability_reason")
+    if reason == "no_source":
+        return "no_source"
+    stock = row.get("in_stock")
+    if stock is None:
+        stock = av.get("in_stock")
+    fr = row.get("failure_reason") or av.get("failure_reason")
+    if stock is False or fr == "sold_out" or reason == "sold_out":
+        return "sold_out"
+    from . import data_age
+    age = data_age.age_fields(row, now)
+    if age["data_age_hours"] is None:
+        return "undated"
+    if age["degraded"]:
+        return "stale"
+    return None
+
+
+def _point_on(points: list, day: str) -> dict | None:
+    """The ranked change point in force on snapshot day `day`, or None if held, removed, or absent."""
+    last = None
+    for p in points:
+        if (p.get("date") or "") <= day:
+            last = p
+        else:
+            break
+    if not last or last.get("status") != "ranked":
+        return None
+    h = last.get("hourly_usd")
+    if isinstance(h, bool) or not isinstance(h, (int, float)):
+        return None
+    return last
+
+
+def _one_window(points: list, dates: list[str], first: str, last: str, days: int) -> dict:
+    last_d, first_d = date.fromisoformat(last), date.fromisoformat(first)
+    start_d = last_d - timedelta(days=days - 1)  # inclusive window of `days` calendar days
+    if start_d < first_d:
+        return {"days": days, "reason": "window_exceeds_history"}
+    start, end = start_d.isoformat(), last
+    in_win = [d for d in dates if start <= d <= end]
+    ranked = [(d, pt) for d in in_win if (pt := _point_on(points, d))]
+    need = min_ranked_days(days)
+    if len(ranked) < need:
+        return {"days": days, "reason": "insufficient_points", "ranked_days": len(ranked)}
+    first_in = next((d for d in dates if d >= start), None)
+    start_pt = _point_on(points, first_in) if first_in else None
+    end_pt = _point_on(points, end)
+    if not start_pt or not end_pt or not start_pt["hourly_usd"]:
+        return {"days": days, "reason": "insufficient_points", "ranked_days": len(ranked)}
+    start_usd, end_usd = start_pt["hourly_usd"], end_pt["hourly_usd"]
+    pct = round((end_usd - start_usd) / start_usd * 100, 1)
+    direction = "up" if pct >= FLAT_BAND else "down" if pct <= -FLAT_BAND else "flat"
+    return {"days": days, "start_at": _z(start_pt.get("verified_at") or start_pt.get("date")),
+            "end_at": _z(end_pt.get("verified_at") or end_pt.get("date")),
+            "start_usd": start_usd, "end_usd": end_usd, "pct": pct, "direction": direction,
+            "ranked_days": len(ranked)}
+
+
+def price_trend(series: dict | None, *, history: dict | None = None, live: dict | None = None,
+                held: bool = False, windows=None, now: datetime | None = None) -> dict:
+    """% change, direction and ranked-day count over 7d/30d (or `windows`) from existing change points.
+
+    Never uses held/removed points, never invents missing snapshot days, and never computes a trend from a
+    live row that is held_stale, no_source, sold_out, older than 48 h, or undated. All timestamps are UTC Z.
+    """
+    first = (history or {}).get("first_snapshot")
+    last = (history or {}).get("last_snapshot")
+    dates = snapshot_dates(history)
+    as_of = None
+    if last:
+        pts = (series or {}).get("points") or []
+        end_pt = _point_on(sorted(pts, key=lambda p: p.get("date") or ""), last)
+        as_of = _z((end_pt or {}).get("verified_at") or last)
+    base = {"windows": [], "as_of": as_of, "first_snapshot": first, "last_snapshot": last,
+            "trend": None, "trend_reason": None}
+    reason = live_trend_block(live, held=held, now=now)
+    if reason:
+        return {**base, "trend_reason": reason}
+    if (history or {}).get("error"):
+        return {**base, "trend_reason": "history_unavailable"}
+    if not series or not first or not last or not dates:
+        return {**base, "trend_reason": "insufficient_points"}
+    wins = list(windows) if windows is not None else list(DEFAULT_WINDOWS)
+    points = sorted((series.get("points") or []), key=lambda p: p.get("date") or "")
+    out_w = [_one_window(points, dates, first, last, int(d)) for d in wins]
+    usable = [w for w in out_w if "reason" not in w]
+    if not usable:
+        # If every window failed, still return the window reasons; trend stays a container (not a whole-row block).
+        return {**base, "windows": out_w, "trend": {"windows": out_w, "as_of": as_of, "first_snapshot": first, "last_snapshot": last}}
+    trend = {"windows": out_w, "as_of": as_of, "first_snapshot": first, "last_snapshot": last}
+    return {**base, "windows": out_w, "trend": trend}
+
+
+def series_for_rate(history: dict | None, rid: str) -> dict | None:
+    found = [s for s in (history or {}).get("series") or [] if isinstance(s, dict) and s.get("rate_id") == rid]
+    if not found:
+        return None
+    return max(found, key=lambda s: s.get("last_seen") or "")

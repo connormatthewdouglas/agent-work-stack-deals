@@ -22,7 +22,7 @@ def _server_tools() -> tuple[str, ...]:
     import re
     src = (Path(__file__).resolve().parents[1] / "mcp_server" / "server.py").read_text(encoding="utf-8")
     names = re.findall(r"@mcp\.tool\([^)]*\)\n(?:@\w+\n)*def (\w+)\(", src)
-    order = ["compare_gpu_prices", "get_price_changes", "optimize_stack", "optimize_agent_stack", "estimate_job_cost", "search_deals", "compare_deals", "get_deal", "rebuild_quote"]
+    order = ["compare_gpu_prices", "get_price_changes", "get_price_trend", "optimize_stack", "optimize_agent_stack", "estimate_job_cost", "search_deals", "compare_deals", "get_deal", "rebuild_quote"]
     return tuple(sorted(names, key=lambda n: (order.index(n) if n in order else len(order), n)))
 
 
@@ -39,9 +39,12 @@ HOSTED_MISSING: tuple[str, ...] = ()
 
 
 def _hosted_extra_tools() -> tuple[str, ...]:
-    """Hosted-only opt-in tools, read from hosted/src/watch_store.py TOOL_SPECS so the count can't drift."""
-    src = (Path(__file__).resolve().parents[1] / "hosted" / "src" / "watch_store.py").read_text(encoding="utf-8")
-    return tuple(re.findall(r'^    \("(\w+)",', src, re.M))
+    """Hosted-only opt-in tools, read from watch_store.py and alerts.py TOOL_SPECS so the count can't drift."""
+    root = Path(__file__).resolve().parents[1]
+    names = []
+    for rel in ("hosted/src/watch_store.py", "hosted/src/alerts.py"):
+        names.extend(re.findall(r'^    \("(\w+)",', (root / rel).read_text(encoding="utf-8"), re.M))
+    return tuple(names)
 
 
 HOSTED_EXTRA = _hosted_extra_tools()

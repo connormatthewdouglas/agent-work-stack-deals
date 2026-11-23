@@ -22,6 +22,7 @@
     "read_only_tools": [
       "compare_gpu_prices",
       "get_price_changes",
+      "get_price_trend",
       "optimize_stack",
       "optimize_agent_stack",
       "estimate_job_cost",
@@ -34,7 +35,10 @@
       "create_watch_key",
       "watch_price",
       "list_watches",
-      "delete_watch"
+      "delete_watch",
+      "create_alert",
+      "check_alerts",
+      "delete_alert"
     ],
     "watch_note": "Watch tools create/manage state and require explicit opt-in; they are not read-only."
   },
@@ -91,6 +95,11 @@
     },
     {
       "name": "get_price_changes",
+      "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=agent-manifest",
+      "protocol": "mcp"
+    },
+    {
+      "name": "get_price_trend",
       "url": "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=agent-manifest",
       "protocol": "mcp"
     },

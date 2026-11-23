@@ -49,12 +49,18 @@ SPEC = {
                             # #122 (additive): the row's allocation minimum (rows above the requested gpus are excluded, #130)
                             "min_gpus",
                             # P45 (additive): literal marketplace query + composition flag (brief helper may drop empties)
-                            "marketplace_query", "composition_flag"]),
+                            "marketplace_query", "composition_flag",
+                            # F2 (additive): 7d/30d trend signal, or null with trend_reason
+                            "trend", "trend_reason"]),
     "get_price_changes": (["total", "count", "changes"], "changes",
                           ["vendor", "gpu", "direction"],
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
                           ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
                            "change_pct", "source_url", "last_verified_before", "gap_days", "composition_flag"]),
+    "get_price_trend": (["rate_id", "as_of", "first_snapshot", "last_snapshot"], "windows",
+                        ["days"],
+                        ["rate_id", "trend", "trend_reason", "windows", "as_of", "first_snapshot", "last_snapshot"],
+                        ["days", "start_at", "end_at", "start_usd", "end_usd", "pct", "direction", "ranked_days", "reason"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -173,6 +179,19 @@ _LEDGER_ITEM = {"type": "object", "required": ["build", "expected_at", "last_exp
 EXTRA_PROPS["compare_gpu_prices"]["batch_due_ledger"] = {"type": "array", "items": _LEDGER_ITEM}
 # P40 (additive): each stale price says when it is next re-read and whether that can fill it
 EXTRA_PROPS["compare_gpu_prices"]["stale_prices"] = {"type": "array", "items": {"type": "object", "properties": dict(_NEXT_CHECK)}}
+_TREND_WIN = {"type": "object", "required": ["days"],
+              "properties": {"days": {"type": "integer"}, "start_at": _str, "end_at": _str, "start_usd": _num, "end_usd": _num,
+                             "pct": _num, "direction": {"type": ["string", "null"], "enum": ["up", "down", "flat", None]},
+                             "ranked_days": {"type": ["integer", "null"]}, "reason": _str}}
+_TREND = {"type": ["object", "null"],
+          "properties": {"windows": {"type": "array", "items": _TREND_WIN}, "as_of": _str,
+                         "first_snapshot": _str, "last_snapshot": _str}}
+EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend"] = _TREND
+EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend_reason"] = _str
+EXTRA_PROPS["get_price_trend"] = {"windows": {"type": "array", "items": _TREND_WIN}, "trend": _TREND, "trend_reason": _str,
+                                  "rate_id": {"type": "string"}, "vendor": _str, "gpu": _str, "tier": _str,
+                                  "vram_gb": {"type": ["integer", "null"]}, "gpu_count": {"type": ["integer", "null"]},
+                                  "as_of": _str, "first_snapshot": _str, "last_snapshot": _str}
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {

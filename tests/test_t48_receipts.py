@@ -117,7 +117,7 @@ def test_manifest_tool_count_equals_server_tools():
     import re
     m = json.loads((ROOT / "mcp/tools.manifest.json").read_text())
     n = len(re.findall(r"^@mcp\.tool", (ROOT / "mcp_server/server.py").read_text(), re.M))
-    assert n == 9
+    assert n == 10
     assert m["mcp_server"]["tool_count"] == n == len(m["mcp_server"]["tools"])
     assert f"these {n} tools" in m["mcp_server"]["note"]
 
