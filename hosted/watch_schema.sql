@@ -11,3 +11,7 @@ CREATE TABLE IF NOT EXISTS watch_constraints (watch_id TEXT PRIMARY KEY, vram_gb
 CREATE TABLE IF NOT EXISTS watch_attempts (watch_id TEXT NOT NULL, event_id TEXT NOT NULL, attempts INTEGER NOT NULL, first_at TEXT NOT NULL, last_at TEXT NOT NULL, last_outcome TEXT NOT NULL, next_at TEXT, done INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (watch_id, event_id));
 CREATE TABLE IF NOT EXISTS watch_ops (k TEXT PRIMARY KEY, v TEXT);
 CREATE TABLE IF NOT EXISTS watch_canary (event_id TEXT NOT NULL, watch_id_hash TEXT NOT NULL, received_at TEXT NOT NULL, PRIMARY KEY (event_id, watch_id_hash));
+CREATE TABLE IF NOT EXISTS price_alert_tokens (token_id TEXT PRIMARY KEY, token_hash TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS price_alerts (alert_id TEXT PRIMARY KEY, token_id TEXT NOT NULL, rate_id TEXT, gpu TEXT, vendor TEXT, vram_gb INTEGER, tiers TEXT, threshold_usd REAL NOT NULL, direction TEXT NOT NULL, created_at TEXT NOT NULL, expires_at TEXT NOT NULL, last_evaluated_at TEXT, last_fired_at TEXT, last_fired_price REAL);
+CREATE INDEX IF NOT EXISTS price_alerts_token ON price_alerts(token_id);
+CREATE TABLE IF NOT EXISTS price_alert_counters (bucket TEXT NOT NULL, scope TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (bucket, scope));
