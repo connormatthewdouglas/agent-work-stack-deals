@@ -303,7 +303,12 @@ def _avail_cell(gen, r: dict) -> str:
             return gen.esc(f"unknown (no signal), checked {t} UTC")
         return "—"
     # 0/N trailing reading: say "not observed in stock in N checks", not "out of stock" / "sold out".
-    status = zero_of_n_phrase(r.get("availability_rate_7d")) or a["status"]
+    # Only when the current snapshot is out of stock. A live in-stock row must not take a lagging
+    # 0/N series as the current claim (rate_7d is built from git history, so a capture just written
+    # in the same lium-collect job is not in the series until the successful commit).
+    ar = r.get("availability_rate_7d")
+    zero = zero_of_n_phrase(ar) if a.get("in_stock") is False else None
+    status = zero or a["status"]
     bits = [status]
     if a.get("stock_level"):
         bits.append(f"stock {a['stock_level']}")
@@ -326,9 +331,11 @@ def _avail_cell(gen, r: dict) -> str:
     if a.get("source_label"):
         bits.append(a["source_label"])
     # For a non-zero trailing reading, append K/N (and any small-sample label). 0/N already replaced status.
-    if not zero_of_n_phrase(r.get("availability_rate_7d")):
-        if p := rate_phrase(r.get("availability_rate_7d")):
-            bits.append(p)
+    # A lagging 0/N on an in-stock row is omitted — it is not a current claim.
+    if not zero:
+        if p := rate_phrase(ar):
+            if not (a.get("in_stock") is True and zero_of_n_phrase(ar)):
+                bits.append(p)
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     sep = " (separate check, time shown)" if r.get("advertiser") == "Vast.ai" else ""
     exp = a.get("availability_expires_at")

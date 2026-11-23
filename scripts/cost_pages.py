@@ -79,7 +79,9 @@ def _oos_label(r: dict) -> str:
     # 0.3.30/re17: every stock claim shows its check time and its expiry (checked_at + 8 h); stale_js flips it after that
     from core.gpu_availability import et_hm
     t, exp = a.get("checked_at"), a.get("availability_expires_at") or ""
-    phrase = zero_of_n_phrase(r.get("availability_rate_7d"))
+    # 0/N is the current claim only when this snapshot is out of stock; a live in-stock
+    # row must not inherit a lagging 0/N series (same rule as cheapest-page cells).
+    phrase = zero_of_n_phrase(r.get("availability_rate_7d")) if a.get("in_stock") is False else None
     if phrase:
         word, cls, when = phrase, "oos", f"; last check {html.escape(_et(t))}"
     elif a["in_stock"]:
@@ -87,7 +89,7 @@ def _oos_label(r: dict) -> str:
     else:
         word, cls, when = "out of stock", "oos", f" when checked at {html.escape(_et(t))}"
     if p := rate_phrase(r.get("availability_rate_7d")):
-        if not phrase:
+        if not phrase and not (a.get("in_stock") is True and zero_of_n_phrase(r.get("availability_rate_7d"))):
             when += f"; {html.escape(p)}"
     tail = f"; valid until {et_hm(exp)}; after that treat as unknown" if exp else ""
     return (f' <small class="{cls}" data-av-checked="{html.escape(t or "")}" data-av-expires="{html.escape(exp)}">({html.escape(word)}'

@@ -54,6 +54,29 @@ def test_avail_cell_instock_none_is_historical_unknown_note():
     assert "out of stock" not in cell
 
 
+
+def test_avail_cell_instock_true_does_not_use_lagging_zero_of_n_as_current_claim():
+    """A live in-stock snapshot must not be shown as 0/N just because the git-history
+    7-day series has not yet counted this capture (lium-collect K1 failure)."""
+    row = {
+        "advertiser": "Lium",
+        "availability": {
+            "status": "available when checked", "in_stock": True,
+            "checked_at": "2026-11-23T13:30:15Z",
+            "stock_level": "8 GPUs free on 1 nodes",
+        },
+        "availability_rate_7d": {
+            "known_checks": 44, "in_stock_checks": 0, "sample_status": "observed",
+            "sufficient_sample": True, "observed_hours": 40,
+        },
+    }
+    cell = _cell(row)
+    assert "available when checked" in cell
+    assert "not observed in stock in " not in cell
+    assert "8 GPUs free" in cell
+    assert "out of stock" not in cell
+
+
 def test_avail_cell_small_sample_is_price_only():
     row = {
         "advertiser": "RunPod",
