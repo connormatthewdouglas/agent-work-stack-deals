@@ -93,10 +93,16 @@ def test_ranking_unchanged_on_the_committed_feed():
 def test_live_feed_lapsed_no_is_sold_out_and_no_source_is_null():
     feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     out = contract.finalize("compare_gpu_prices", core.compare_gpu_prices(copy.deepcopy(feed), "H100", limit=25, now=T0), "full")
-    sold = [r for r in out["results"] if (r.get("availability") or {}).get("last_known_in_stock") is False]
+    sold = [r for r in out["results"] if (r.get("availability") or {}).get("last_known_in_stock") is False
+            and r.get("availability_reason") != "no_source" and (r.get("availability") or {}).get("availability_reason") != "no_source"]
     assert sold and all(r["failure_reason"] == "sold_out" for r in sold)
     nosrc = [r for r in out["results"] if r.get("availability_reason") == "no_source" or (r.get("availability") or {}).get("availability_reason") == "no_source"]
     assert all(r.get("failure_reason") is None for r in nosrc)
+    # P64: last_known on a no_source row is history, not current state.
+    for r in nosrc:
+        av = r.get("availability") or {}
+        if av.get("last_known_in_stock") is not None or av.get("last_known_at"):
+            assert isinstance(av.get("last_known_in_stock"), bool) and isinstance(av.get("last_known_at"), str) and av["last_known_at"]
 
 
 def test_schema_and_manifest_lockstep():
@@ -112,3 +118,24 @@ def test_schema_and_manifest_lockstep():
     p = tool["outputSchema"]["properties"]["results"]["items"]["properties"]
     assert p["failure_reason"] == s["failure_reason"] and p["failure_reason_detail"] == s["failure_reason_detail"]
     assert "`failure_reason`" in (ROOT / "docs/GPU-PRICES-FIELDS.md").read_text()
+
+
+def test_no_source_current_reading_keeps_carried_last_known_and_has_no_failure_reason():
+    """Hyperstack/Oblivus shape after scout-data b0fc57362: current probe is no_source /
+    unconfirmed_two_reads, with a carried last_known_in_stock false from an earlier firm out_of_stock.
+    failure_reason follows the current reading; last_known_* stays (P64 history, not current state)."""
+    av = {"status": "unknown", "in_stock": None, "checked_at": "2026-11-22T18:51:23Z", "origin": "scout",
+          "availability_stale": True, "availability_reason": "no_source",
+          "availability_reason_detail": "unconfirmed_two_reads",
+          "last_known_in_stock": False, "last_known_at": "2026-11-22T03:07:58Z"}
+    assert P.classify(av) == {"failure_reason": None, "failure_reason_detail": None}
+    assert av["last_known_in_stock"] is False and av["last_known_at"] == "2026-11-22T03:07:58Z"
+    row = {"availability": dict(av), "availability_reason": "no_source",
+           "availability_reason_detail": "unconfirmed_two_reads",
+           "last_known_in_stock": False, "last_known_at": "2026-11-22T03:07:52Z", "in_stock": None}
+    assert P.classify(row) == {"failure_reason": None, "failure_reason_detail": None}
+    assert row["last_known_in_stock"] is False and row["last_known_at"] == "2026-11-22T03:07:52Z"
+    # lapsed sold_out without a no_source current reading is still sold_out
+    lapsed = stale_guard(_claim(False), T0 + timedelta(hours=2))
+    assert lapsed["last_known_in_stock"] is False
+    assert P.classify(lapsed)["failure_reason"] == "sold_out"
