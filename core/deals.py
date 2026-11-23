@@ -612,7 +612,7 @@ def _feed_window_fields(data: dict | None) -> dict:
 def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | None = None,
                        on_demand_only: bool = False, include_reserved: bool = False,
                        max_data_age_hours: float | None = None, now: datetime | None = None, region: str | None = None,
-                       usable_filter=None, gpus: int | None = None) -> dict:
+                       usable_filter=None, gpus: int | None = None, include_history: bool | None = None) -> dict:
     """Filter gpu-prices.json rates by model (all query tokens must be tokens of the model name, so
     'H100' matches 'H100 SXM' but 'L40' does not match 'L40S') and sort by hourly price ascending."""
     from .ids import rate_id
@@ -831,7 +831,20 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                    f"${oos_cheaper['hourly_equiv_usd']:g}/hr ({oos_cheaper.get('tier')}).")
     elif out_of_stock(c):
         oos_msg = f" Note: this row was {oos_note(c)}; no in-stock or unknown-availability row matched."
-    extra = {"history": gpu_history_view(history, gpu, results)} if history is not None else {}
+    show_hist = include_history if include_history is not None else history is not None
+    extra = {"history": gpu_history_view(history, gpu, results)} if history is not None and show_hist else {}
+    if history is not None:
+        from . import gpu_history as _gh
+        held_ids = set()
+        for h in data.get("held_stale") or []:
+            for rec in h.get("records") or []:
+                held_ids.add(rate_id({**rec, "vendor": h.get("vendor")}))
+        for r, orig in zip(results, rows[:limit]):
+            tr = _gh.price_trend(_gh.series_for_rate(history, r["rate_id"]), history=history, live=orig,
+                                 held=r["rate_id"] in held_ids, now=now)
+            r["trend"] = tr.get("trend")
+            if tr.get("trend_reason"):
+                r["trend_reason"] = tr["trend_reason"]
     from .gpu import split_by_form
     if split_by_form(gpu):  # gpu_poor #18 (additive): cheapest per form factor, same rule as the pages
         cbf = cheapest_by_form_factor(rows, n_gpus)

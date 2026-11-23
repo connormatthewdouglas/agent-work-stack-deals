@@ -588,7 +588,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <ul>
 {mcp_tools}
   </ul>
-  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> tools ({watch_tools}). Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
+  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools ({watch_tools}). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
 
   <h2 id="deal-feed">Deal feed</h2>
   <p>Separately, the deal catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists {len(deals)} deals (schema <code>{esc(feed.get("schema_version"))}</code>, feed updated <code>{esc(feed.get("updated_at"))}</code>).</p>
