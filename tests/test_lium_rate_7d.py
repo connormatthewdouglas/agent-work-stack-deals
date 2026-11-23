@@ -1,5 +1,6 @@
 """Lium joins the git-history 7-day window (Brain #961): counted from lium.json captures, never invented."""
 import importlib.util
+import json
 from pathlib import Path
 
 from core import availability_rate as A
@@ -53,3 +54,19 @@ def test_lium_row_joins_the_git_history_window_with_its_own_vendor_key():
     finally:
         A._CACHE, A._SCOUT, A._SCOUT_AT = saved
     assert ar["source"] == "git_history" and ar["checks"] == 7 and ar["in_stock_checks"] == 3
+
+
+def test_working_tree_capture_is_counted_once_with_git_history(tmp_path):
+    """A just-collected in-stock capture on disk is one check, even before it is committed."""
+    rec = _rec(True, "2026-11-23T13:30:15Z")
+    (tmp_path / "data/gpu_pricing").mkdir(parents=True)
+    (tmp_path / ar7.LIUM_SRC).write_text(json.dumps({"records": [rec]}), encoding="utf-8")
+    git_docs = [{"records": [_rec(False, "2026-11-23T08:12:52Z")]}]
+    docs = [ar7.working_tree_doc(ar7.LIUM_SRC, tmp_path)] + git_docs
+    by, n = _rows(docs)
+    assert n == 2 and (by["A100 SXM"]["checks"], by["A100 SXM"]["in_stock_checks"]) == (2, 1)
+    # The same stamp in the working tree and in git is one generation, not two.
+    docs2 = [ar7.working_tree_doc(ar7.LIUM_SRC, tmp_path), {"records": [rec]}]
+    by2, n2 = _rows(docs2)
+    assert n2 == 1 and (by2["A100 SXM"]["checks"], by2["A100 SXM"]["in_stock_checks"]) == (1, 1)
+

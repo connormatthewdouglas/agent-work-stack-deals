@@ -7,8 +7,10 @@ never_ran_checks = no stock reading was taken (check_failed_timeout, check_faile
 no_source_checks = the probe ran but the source gives no stock signal (no_source). unknown_checks stays the total; both
 are null for a row when any of its unknown checks has no recorded reason (older captures), never a guessed split.
 Lium (collected by scripts/collect_lium.py, not by Scout, so absent from latest.json) is counted from the git history of
-data/gpu_pricing/lium.json: each record's availability.in_stock at its own availability.checked_at is one check; a capture
-stamp seen in several commits counts once; a record with no availability object adds no check (no invented checks).
+data/gpu_pricing/lium.json plus the working-tree file: each record's availability.in_stock at its own availability.checked_at
+is one check; a capture stamp seen in several commits (or the working tree and HEAD) counts once; a record with no
+availability object adds no check (no invented checks). The working tree is included so a just-collected capture in the
+same job is counted before the successful commit lands in git.
 Writes data/gpu_availability/rate_7d.json, read by core/availability_rate.py. Needs full git history (fetch-depth 0).
 Usage: availability_rate_7d.py [--days 7]"""
 from __future__ import annotations
@@ -77,6 +79,15 @@ def lium_docs_as_scout(docs: list) -> list:
     return out
 
 
+def working_tree_doc(src: str, root=ROOT):
+    """The on-disk file, if readable. A just-collected capture is not in git until the job commits."""
+    path = Path(root) / src
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+
+
 def _history(src: str, since, root=ROOT) -> list:
     shas = subprocess.run(["git", "log", f"--since={since.isoformat()}", "--format=%H", "--", src], cwd=root,
                           capture_output=True, text=True, check=True).stdout.split()
@@ -86,6 +97,9 @@ def _history(src: str, since, root=ROOT) -> list:
             docs.append(json.loads(subprocess.run(["git", "show", f"{sha}:{src}"], cwd=root, capture_output=True, text=True, check=True).stdout))
         except (subprocess.CalledProcessError, json.JSONDecodeError):
             continue
+    wt = working_tree_doc(src, root)
+    if wt is not None:
+        docs.insert(0, wt)  # newest; rows_from_docs dedupes by generation_id / capture stamp
     return docs
 
 
