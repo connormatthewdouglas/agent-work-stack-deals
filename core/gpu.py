@@ -607,8 +607,9 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: d
                 for d in sorted(deals, key=lambda x: x["id"]) if is_gpu_deal(d) and d["id"] not in priced]
     credits = [{"deal_id": d["id"], "advertiser": d.get("advertiser"), "unit": d.get("unit")}
                for d in deals if is_gpu_deal(d) and d.get("offer_type") in ("free_tier", "trial")]
-    return {"rates": rates, "vendors": vendors, "held_stale": held, "unpriced": unpriced, "free_credits": credits,
-            "problems": problems}
+    from .deals import apply_utc_z
+    return apply_utc_z({"rates": rates, "vendors": vendors, "held_stale": held, "unpriced": unpriced,
+                        "free_credits": credits, "problems": problems})
 
 
 def min_gpus_unmet(r: dict, gpus: int | None = 1) -> bool:
