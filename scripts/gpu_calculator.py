@@ -38,7 +38,7 @@ def write_history(gen) -> dict:
     return hist
 
 
-from core.deals import latest_checked_at  # noqa: E402
+from core.deals import apply_utc_z, deal_catalog_updated_at, latest_checked_at  # noqa: E402
 from core.gpu_availability import now_utc  # noqa: E402
 
 
@@ -98,7 +98,7 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
         "wider_generation_id": (json.loads(_WM.read_text()) if _WM.is_file() else {}).get("wider_generation_id"),
         "availability_collected_at": _av.get("collected_at"),
         "prices_verified_through": latest_checked_at(r.get("verified_at") for r in data["rates"]),
-        "deal_feed_updated_at": feed_updated,
+        "deal_feed_updated_at": deal_catalog_updated_at(gen.ROOT) or feed_updated,
         "hours_per_month": HOURS_PER_MONTH,
         "ranking": "Ascending estimated monthly cost for the requested usage. Affiliate status is not a ranking factor.",
         "methodology": [
@@ -127,13 +127,20 @@ def build_payload(gen, deals: list[dict], feed_updated: str) -> dict:
     # P61 (additive): file-level window counts and a content digest; generation_id is unchanged.
     payload["availability_window_summary"] = window_summary(payload["rates"])
     payload["content_build_id"] = content_build_id(payload["rates"])
+    apply_utc_z(payload)
     gen.assert_public_clean(payload)
     return payload
 
 
 def _prices_unchanged(prev: dict, payload: dict) -> bool:
-    """True when ranked rates and holds are the same. A regen then keeps feed_updated_at."""
-    return all(prev.get(k) == payload.get(k) for k in ("rates", "held_stale", "vendors", "unpriced"))
+    """True when ranked rates and holds are the same. A regen then keeps feed_updated_at.
+
+    Timestamps are compared after UTC-Z normalization so a format-only rewrite (+00:00 -> Z)
+    is not treated as a price change and does not advance the stamp.
+    """
+    import copy
+    return all(apply_utc_z(copy.deepcopy(prev.get(k))) == payload.get(k)
+               for k in ("rates", "held_stale", "vendors", "unpriced"))
 
 
 def _finalize_feed_updated_at(payload: dict, prev: dict | None, clock: str, rows_at=None) -> None:
@@ -184,6 +191,7 @@ def write(gen, deals: list[dict], feed_updated: str) -> str:
                     else:
                         os.environ["LW_AVAIL_NOW"] = saved
             _finalize_feed_updated_at(payload, prev, _build_clock_iso(), rows_at=_rows_at)
+            apply_utc_z(payload)
     write_history(gen)
     API_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     esc = gen.esc

@@ -910,6 +910,7 @@ def public_view(deal: dict, fields: tuple[str, ...] = PUBLIC_FIELDS) -> dict:
 
 
 def _parse_dt(s: Any) -> datetime | None:
+    """Parse an ISO-8601 datetime. Accepts a trailing Z, numeric offsets, and naive values (treated as UTC)."""
     if not isinstance(s, str) or not s:
         return None
     try:
@@ -919,7 +920,57 @@ def _parse_dt(s: Any) -> datetime | None:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
+def to_utc_z(value: Any) -> Any:
+    """Format an ISO-8601 datetime as UTC with a Z suffix (e.g. 2026-11-22T18:51:23Z).
+
+    Parsing is backward compatible: Z, +00:00, other numeric offsets, and naive UTC are accepted.
+    Non-datetime values, including date-only YYYY-MM-DD strings, are returned unchanged.
+    """
+    if isinstance(value, datetime):
+        dt = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if not isinstance(value, str) or "T" not in value:
+        return value
+    dt = _parse_dt(value)
+    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if dt else value
+
+
+def apply_utc_z(obj: Any) -> Any:
+    """Walk a JSON-like structure and rewrite every datetime string to UTC Z. Mutates dicts/lists in place."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            obj[k] = apply_utc_z(v)
+        return obj
+    if isinstance(obj, list):
+        for i, v in enumerate(obj):
+            obj[i] = apply_utc_z(v)
+        return obj
+    return to_utc_z(obj)
+
+
+def deal_catalog_updated_at(root: Path | str | None = None) -> str | None:
+    """Stamp of the served deal catalog: api/v1/deals.json updated_at when present, else deals.json.
+
+    That is the later of the source catalog's updated_at and data/feed_state.json when served
+    deal content last changed (rel054). It is not a GPU price-check time and is never advanced
+    to match feed_updated_at. Returned as written in those files; apply_utc_z emits UTC Z.
+    """
+    base = Path(root) if root is not None else Path(__file__).resolve().parents[1]
+    for rel in ("api/v1/deals.json", "deals.json"):
+        path = base / rel
+        if not path.is_file():
+            continue
+        try:
+            v = json.loads(path.read_text(encoding="utf-8")).get("updated_at")
+        except (OSError, ValueError):
+            continue
+        if isinstance(v, str) and v.strip():
+            return v
+    return None
+
+
 def _terms(q: str | None) -> list[str]:
+
     return [t for t in (q or "").lower().split() if t]
 
 
