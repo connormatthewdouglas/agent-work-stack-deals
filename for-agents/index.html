@@ -146,11 +146,11 @@
   </ul>
 
   <h2 id="mcp-tools">MCP tools</h2>
-  <p>The <a href="https://thelanternworks.com/install/">MCP server</a> (<code>uvx lantern-works-deals-mcp</code>, version 0.6.6) has 10 read-only tools:</p>
+  <p>The <a href="https://thelanternworks.com/install/">MCP server</a> (<code>uvx lantern-works-deals-mcp</code>, version 0.6.6) has 11 read-only tools:</p>
   <ul>
-<li><code>compare_gpu_prices</code></li><li><code>get_price_changes</code></li><li><code>get_price_trend</code></li><li><code>optimize_stack</code></li><li><code>optimize_agent_stack</code></li><li><code>estimate_job_cost</code></li><li><code>search_deals</code></li><li><code>compare_deals</code></li><li><code>get_deal</code></li><li><code>rebuild_quote</code></li>
+<li><code>compare_gpu_prices</code></li><li><code>get_price_changes</code></li><li><code>get_price_trend</code></li><li><code>find_available_gpus</code></li><li><code>optimize_stack</code></li><li><code>optimize_agent_stack</code></li><li><code>estimate_job_cost</code></li><li><code>search_deals</code></li><li><code>compare_deals</code></li><li><code>get_deal</code></li><li><code>rebuild_quote</code></li>
   </ul>
-  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools (<code>create_watch_key</code>, <code>watch_price</code>, <code>list_watches</code>, <code>delete_watch</code>, <code>create_alert</code>, <code>check_alerts</code>, <code>delete_alert</code>). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. Setup for each client: <a href="https://thelanternworks.com/install/">/install/</a>.</p>
+  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools (<code>create_watch_key</code>, <code>watch_price</code>, <code>list_watches</code>, <code>delete_watch</code>, <code>create_alert</code>, <code>check_alerts</code>, <code>delete_alert</code>). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. <code>find_available_gpus(gpu, gpus=1)</code> lists who has N × GPU confirmed in stock right now from existing availability (never from a stale or static-label reading). Setup for each client: <a href="https://thelanternworks.com/install/">/install/</a>.</p>
 
   <h2 id="deal-feed">Deal feed</h2>
   <p>Separately, the deal catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists 202 deals (schema <code>1.6.0</code>, feed updated <code>2026-10-29T09:30:00-04:00</code>).</p>

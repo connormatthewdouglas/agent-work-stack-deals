@@ -915,6 +915,243 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     })
 
 
+def _unknown_stock_reason(av: dict, *, held: str | None = None, region_unresolved: bool = False) -> str:
+    """Stable reason for the unknown bucket. Never treats a 7-day rate as a live signal."""
+    if held:
+        return held
+    if region_unresolved:
+        return "region_unresolved"
+    if not isinstance(av, dict):
+        return "no_signal"
+    from .gpu_availability import STATIC_LABEL_STATUS
+    from .probe_reason import _explicit
+    status = str(av.get("status") or "")
+    if av.get("basis") == "vendor_static_label" or status == STATIC_LABEL_STATUS or "static page label" in status.lower():
+        return "static_label"
+    if av.get("availability_stale") or status.startswith("unknown (stale availability"):
+        return "stale"
+    if av.get("availability_reason") == "no_source":
+        return "no_source"
+    explicit = _explicit(av)
+    if explicit in ("quota", "region"):
+        return explicit
+    return "no_signal"
+
+
+def _is_static_label(av: dict) -> bool:
+    from .gpu_availability import STATIC_LABEL_STATUS
+    if not isinstance(av, dict):
+        return False
+    status = str(av.get("status") or "")
+    return av.get("basis") == "vendor_static_label" or status == STATIC_LABEL_STATUS or "static page label" in status.lower()
+
+
+def _live_item(r: dict, av: dict, reason: str | None = None) -> dict:
+    """One find_available_gpus row. stock_level is passed through only when sourced; never invented."""
+    from .ids import rate_id as _rate_id
+    from .gpu_availability import last_known
+    advertiser = r.get("advertiser") or r.get("vendor")
+    hourly = r.get("hourly_equiv_usd")
+    if not isinstance(hourly, (int, float)):
+        hourly = r.get("hourly_usd") if isinstance(r.get("hourly_usd"), (int, float)) else None
+    av = av if isinstance(av, dict) else {}
+    item = {
+        "advertiser": advertiser,
+        "vendor": advertiser,
+        "gpu": r.get("gpu"),
+        "tier": r.get("tier"),
+        "tier_class": tier_class(r),
+        "rate_id": _rate_id(r),
+        "hourly_usd": hourly,
+        "min_gpus": r.get("min_gpus") or 1,
+        "in_stock": av.get("in_stock") if av.get("in_stock") in (True, False) else None,
+        "checked_at": to_utc_z(av.get("checked_at") or r.get("checked_at")),
+        "source_url": r.get("source_url"),
+    }
+    if av.get("stock_level"):
+        item["stock_level"] = str(av["stock_level"])
+    v, ts = last_known(av)
+    if not isinstance(v, bool):
+        v, ts = av.get("last_known_in_stock"), av.get("last_known_at")
+    if isinstance(v, bool) and ts:
+        item["last_known_in_stock"] = v
+        item["last_known_at"] = to_utc_z(ts)
+    if av.get("availability_expires_at"):
+        item["availability_expires_at"] = to_utc_z(av.get("availability_expires_at"))
+    if av.get("availability_stale"):
+        item["availability_stale"] = True
+    if reason:
+        item["reason"] = reason
+        item["in_stock"] = None  # never claim a live in_stock bool in the unknown bucket
+    return item
+
+
+def find_available_gpus(data: dict, gpu: str, gpus: int = 1, limit: int = 10,
+                        on_demand_only: bool = True, region: str | None = None,
+                        vendor: str | None = None, now: datetime | None = None) -> dict:
+    """Who has N x GPU free right now, among tracked providers, from existing availability only.
+
+    Ranks confirmed live in-stock rows by stock freshness then price. Sold-out and unknown
+    rows are listed separately with a reason. Never invents stock or a free-GPU count.
+    """
+    from .ids import rate_id as _rate_id
+    from .gpu import min_gpus_unmet
+    from .gpu_availability import stale_guard, now_utc
+    from .owner_hold import is_held
+    from . import serverless as _sl
+    from . import eligibility as EL
+
+    vram_m = re.search(r"\b(\d{2,3})\s*gb\b", gpu or "", re.I)
+    want_vram = int(vram_m.group(1)) if vram_m else None
+    q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu or "", flags=re.I))
+    if not q:
+        raise DealError("invalid_argument", "gpu is required, e.g. 'H100', 'A100 SXM', 'A100 80GB', 'RTX 4090'")
+    if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIMIT:
+        raise DealError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
+    if not isinstance(gpus, int) or isinstance(gpus, bool) or not 1 <= gpus <= 1024:
+        raise DealError("invalid_argument", "gpus must be an integer 1-1024")
+    if vendor is not None and (not isinstance(vendor, str) or not vendor.strip()):
+        raise DealError("invalid_argument", "vendor must be a non-empty string when set")
+    if region is not None and (not isinstance(region, str) or not region.strip()):
+        raise DealError("invalid_argument", "region must be a non-empty string when set")
+
+    clock = now
+    if clock is None:
+        clock = now_utc()
+    elif clock.tzinfo is None:
+        clock = clock.replace(tzinfo=timezone.utc)
+    clock = clock.astimezone(timezone.utc)
+    want_vendor = vendor.strip().lower() if vendor else None
+
+    def _matches(r: dict) -> bool:
+        if not isinstance(r, dict):
+            return False
+        if not set(q) <= set(_tokens(r.get("gpu") or "")):
+            return False
+        if want_vram is not None and r.get("vram_gb") != want_vram:
+            return False
+        if want_vendor and want_vendor not in (r.get("advertiser") or "").lower() and want_vendor not in (r.get("vendor") or "").lower():
+            return False
+        return True
+
+    rows = [r for r in (data.get("rates") or []) if _matches(r) and isinstance(r.get("hourly_equiv_usd"), (int, float))]
+    held_hits = []
+    for h in data.get("held_stale") or []:
+        for rec in (h.get("records") or [{}]):
+            row = {**rec, "advertiser": h.get("vendor") or rec.get("advertiser"),
+                   "vendor": h.get("vendor") or rec.get("vendor"),
+                   "source_url": rec.get("source_url") or h.get("source_url"),
+                   "checked_at": rec.get("checked_at") or h.get("checked_at"),
+                   "tier": rec.get("tier") or rec.get("tier") or "On-demand"}
+            if _matches(row):
+                held_hits.append((row, rec.get("availability") if isinstance(rec.get("availability"), dict) else {}))
+    if not rows and not held_hits:
+        raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
+
+    cons = EL.normalize(gpu=gpu, region=region.strip() if region else None, in_stock="ignore")
+    available, sold_out, unknown, excluded_min = [], [], [], []
+    excluded_non_on_demand = 0
+    excluded_reserved = 0
+    excluded_serverless = 0
+    excluded_other_region = 0
+
+    def _bucket(r: dict, av: dict, *, held: str | None = None, region_unresolved: bool = False):
+        from .gpu_availability import is_firm_observation
+        if held or region_unresolved or _is_static_label(av):
+            unknown.append(_live_item(r, av, _unknown_stock_reason(av, held=held, region_unresolved=region_unresolved)))
+            return
+        # P64: quota/region/check failures are not firm, even if in_stock was stored as a bool.
+        if isinstance(av, dict) and is_firm_observation(av) and av.get("in_stock") is True:
+            available.append(_live_item(r, av))
+        elif isinstance(av, dict) and is_firm_observation(av) and av.get("in_stock") is False:
+            sold_out.append(_live_item(r, av))
+        else:
+            unknown.append(_live_item(r, av, _unknown_stock_reason(av)))
+
+    for r in rows:
+        if _sl.rate_reason(r):
+            excluded_serverless += 1
+            continue
+        if is_held(r.get("advertiser")):
+            av = stale_guard(r["availability"], clock) if isinstance(r.get("availability"), dict) else {}
+            _bucket(r, av, held="owner_hold")
+            continue
+        tc = tier_class(r)
+        if on_demand_only and tc != "on-demand":
+            excluded_non_on_demand += 1
+            continue
+        if tc == "reserved":
+            excluded_reserved += 1
+            continue
+        if min_gpus_unmet(r, gpus):
+            from .rate_dates import min_bill as _min_bill
+            mb, basis = _min_bill(r)
+            excluded_min.append({
+                "vendor": r.get("advertiser"), "gpu": r.get("gpu"), "tier": r.get("tier"),
+                "min_gpus": r.get("min_gpus") or 1, "gpu_count": r.get("gpu_count"),
+                "hourly_usd": r.get("hourly_equiv_usd"), "rate_id": _rate_id(r),
+                "source_url": r.get("source_url"),
+                "checked_at": to_utc_z(r.get("verified_at") or r.get("checked_at")),
+                "reason": "min_gpus exceeds requested gpus",
+                "min_bill_usd_per_hour": mb, "min_bill_basis": basis,
+            })
+            continue
+        av = stale_guard(r["availability"], clock) if isinstance(r.get("availability"), dict) else {}
+        ev = EL.evaluate(r, cons, clock)
+        if cons.get("region") and any(u["constraint"] == "region" for u in ev["unmet"]):
+            excluded_other_region += 1
+            continue
+        region_unresolved = bool(cons.get("region") and any(u["constraint"] == "region" for u in ev["unknown"]))
+        _bucket(r, av, region_unresolved=region_unresolved)
+
+    for row, av in held_hits:
+        if not av:
+            av = {"in_stock": None, "checked_at": row.get("checked_at")}
+        _bucket(row, av, held="held_stale")
+
+    def _fresh_key(item: dict):
+        ts = _parse_dt(item.get("checked_at")) if item.get("checked_at") else None
+        stamp = ts.timestamp() if ts else float("-inf")
+        price = item["hourly_usd"] if isinstance(item.get("hourly_usd"), (int, float)) else float("inf")
+        return (-stamp, price, item.get("advertiser") or "", item.get("gpu") or "")
+
+    available.sort(key=_fresh_key)
+    sold_out.sort(key=_fresh_key)
+    unknown.sort(key=lambda x: (x.get("reason") or "", x.get("advertiser") or "", x.get("gpu") or ""))
+
+    return {
+        "gpu": gpu,
+        "gpus": gpus,
+        "vendor": vendor.strip() if vendor else None,
+        "region": cons.get("region"),
+        "on_demand_only": bool(on_demand_only),
+        "as_of": to_utc_z(clock),
+        "availability_collected_at": to_utc_z(data.get("availability_collected_at")),
+        "available_total": len(available),
+        "sold_out_total": len(sold_out),
+        "unknown_total": len(unknown),
+        "available": available[:limit],
+        "sold_out": sold_out,
+        "unknown": unknown,
+        "count": min(limit, len(available)),
+        "min_gpus_unmet": len(excluded_min),
+        "excluded_min_gpus": excluded_min,
+        "excluded_non_on_demand": excluded_non_on_demand,
+        "excluded_reserved": excluded_reserved,
+        "excluded_serverless": excluded_serverless,
+        "excluded_other_region": excluded_other_region,
+        "scope": "confirmed in-stock among tracked providers",
+        "data_source": GPU_PRICES_URL,
+        "feed_updated_at": to_utc_z(data.get("feed_updated_at")),
+        "note": ("available is confirmed live in-stock after the call-time stale guard "
+                 "(8h AVAIL_MAX_AGE_H or a shorter claim lifetime). Unknown is not sold out. "
+                 "stock_level is the vendor's own text when present, not a computed free-GPU count. "
+                 "availability_rate_7d is not used."),
+    }
+
+
+
+
 def public_view(deal: dict, fields: tuple[str, ...] = PUBLIC_FIELDS) -> dict:
     out = {k: deal.get(k) for k in fields if k in deal}
     if "redeem_url" in fields and (t := tracked_url(deal, "mcp")):

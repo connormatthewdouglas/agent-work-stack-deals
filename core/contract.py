@@ -61,6 +61,13 @@ SPEC = {
                         ["days"],
                         ["rate_id", "trend", "trend_reason", "windows", "as_of", "first_snapshot", "last_snapshot"],
                         ["days", "start_at", "end_at", "start_usd", "end_usd", "pct", "direction", "ranked_days", "reason"]),
+    "find_available_gpus": (["gpu", "gpus", "as_of", "available", "sold_out", "unknown"], "available",
+                            ["advertiser", "gpu", "rate_id", "in_stock"],
+                            ["gpu", "gpus", "as_of", "availability_collected_at", "available", "sold_out", "unknown",
+                             "available_total", "sold_out_total", "unknown_total", "count", "on_demand_only"],
+                            ["advertiser", "gpu", "tier", "rate_id", "hourly_usd", "min_gpus", "in_stock", "checked_at",
+                             "stock_level", "last_known_in_stock", "last_known_at", "source_url", "reason",
+                             "availability_stale", "availability_expires_at"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -192,6 +199,19 @@ EXTRA_PROPS["get_price_trend"] = {"windows": {"type": "array", "items": _TREND_W
                                   "rate_id": {"type": "string"}, "vendor": _str, "gpu": _str, "tier": _str,
                                   "vram_gb": {"type": ["integer", "null"]}, "gpu_count": {"type": ["integer", "null"]},
                                   "as_of": _str, "first_snapshot": _str, "last_snapshot": _str}
+_LIVE_ITEM = {"type": "object", "properties": {
+    "advertiser": _str, "vendor": _str, "gpu": _str, "tier": _str, "tier_class": _str, "rate_id": _str,
+    "hourly_usd": _num, "min_gpus": {"type": ["integer", "null"]}, "in_stock": _bool, "checked_at": _str,
+    "stock_level": _str, "last_known_in_stock": _bool, "last_known_at": _str, "source_url": _str,
+    "reason": _str, "availability_stale": _bool, "availability_expires_at": _str}}
+EXTRA_PROPS["find_available_gpus"] = {
+    "available": {"type": "array", "items": _LIVE_ITEM},
+    "sold_out": {"type": "array", "items": _LIVE_ITEM},
+    "unknown": {"type": "array", "items": _LIVE_ITEM},
+    "as_of": _str, "availability_collected_at": _str, "available_total": {"type": "integer"},
+    "sold_out_total": {"type": "integer"}, "unknown_total": {"type": "integer"},
+}
+
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
