@@ -2,9 +2,9 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-11-23T12:54:52Z",
+  "feed_updated_at": "2026-11-23T20:33:31Z",
   "generation_id": "20261123T125424Z-d57d3dd0",
-  "as_of": "2026-11-23T12:54:52Z",
+  "as_of": "2026-11-23T20:33:31Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
@@ -13,22 +13,22 @@
   },
   "excluded_serverless_rows": 5,
   "counts": {
-    "models_tracked": 32,
-    "targets_tracked": 27,
+    "models_tracked": 31,
+    "targets_tracked": 26,
     "targets_total": 28,
     "targets_not_yet_tracked": [
-      "MI250"
+      "MI250",
+      "H200 NVL"
     ],
     "vendors": 25,
     "cells_priced_or_in_stock": 103,
-    "cells_in_stock": 24,
+    "cells_in_stock": 13,
     "models_single_vendor": [
       "A10",
       "A10G",
       "A40",
       "GB300",
       "H100 NVL",
-      "H200 NVL",
       "MI325X",
       "MI355X",
       "Quadro RTX 6000",
@@ -39,7 +39,9 @@
       "T4"
     ],
     "survey_cells_listed": 53,
-    "survey_models_listed_not_priced": []
+    "survey_models_listed_not_priced": [
+      "H200 NVL"
+    ]
   },
   "survey": {
     "surveyed_at": "2026-10-30T22:11:00Z",
@@ -101,10 +103,9 @@
           "checked_at": "2026-11-22T17:53:12Z"
         },
         "Civo": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-22T17:53:28Z",
-          "stock_checked_at": "2026-11-23T12:53:06Z"
+          "checked_at": "2026-11-22T17:53:28Z"
         },
         "CoreWeave": {
           "status": "priced",
@@ -122,10 +123,9 @@
           "checked_at": "2026-11-22T17:53:55Z"
         },
         "Hyperstack": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-22T17:54:07Z",
-          "stock_checked_at": "2026-11-23T12:53:10Z"
+          "checked_at": "2026-11-22T17:54:07Z"
         },
         "Jarvislabs": {
           "status": "priced",
@@ -139,9 +139,9 @@
         },
         "Lium": {
           "status": "in stock",
-          "rows": 3,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "rows": 2,
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "Nebius": {
           "status": "priced",
@@ -154,10 +154,9 @@
           "checked_at": "2026-11-22T17:54:55Z"
         },
         "RunPod": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-22T17:55:15Z",
-          "stock_checked_at": "2026-11-23T12:47:12Z"
+          "checked_at": "2026-11-22T17:55:15Z"
         },
         "Thunder Compute": {
           "status": "priced",
@@ -176,7 +175,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 14,
-      "in_stock_vendor_count": 4
+      "in_stock_vendor_count": 1
     },
     {
       "model": "A100",
@@ -193,10 +192,9 @@
       ],
       "vendors": {
         "Civo": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 8,
-          "checked_at": "2026-11-22T17:53:28Z",
-          "stock_checked_at": "2026-11-23T12:53:06Z"
+          "checked_at": "2026-11-22T17:53:28Z"
         },
         "CoreWeave": {
           "status": "priced",
@@ -209,10 +207,9 @@
           "checked_at": "2026-11-22T17:53:55Z"
         },
         "Hyperstack": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-22T17:54:07Z",
-          "stock_checked_at": "2026-11-23T12:53:10Z"
+          "checked_at": "2026-11-22T17:54:07Z"
         },
         "Jarvislabs": {
           "status": "priced",
@@ -220,22 +217,25 @@
           "checked_at": "2026-11-22T17:54:13Z"
         },
         "Lambda": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-22T17:54:25Z",
-          "stock_checked_at": "2026-11-23T12:53:05Z"
+          "checked_at": "2026-11-22T17:54:25Z"
         },
-        "Oblivus": {
+        "Lium": {
           "status": "in stock",
           "rows": 1,
-          "checked_at": "2026-11-22T17:54:55Z",
-          "stock_checked_at": "2026-11-23T12:53:06Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
+        },
+        "Oblivus": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-22T17:54:55Z"
         },
         "RunPod": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-22T17:55:15Z",
-          "stock_checked_at": "2026-11-23T12:47:12Z"
+          "checked_at": "2026-11-22T17:55:15Z"
         },
         "Thunder Compute": {
           "status": "priced",
@@ -243,16 +243,14 @@
           "checked_at": "2026-11-22T17:55:41Z"
         },
         "Vast.ai": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-22T17:55:53Z",
-          "stock_checked_at": "2026-11-23T12:47:05Z"
+          "checked_at": "2026-11-22T17:55:53Z"
         },
         "Verda (formerly DataCrunch)": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-23T09:58:20Z",
-          "stock_checked_at": "2026-11-23T12:53:00Z"
+          "checked_at": "2026-11-23T09:58:20Z"
         }
       },
       "vendor_lists": {
@@ -261,8 +259,8 @@
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
-      "vendor_count": 11,
-      "in_stock_vendor_count": 7
+      "vendor_count": 12,
+      "in_stock_vendor_count": 1
     },
     {
       "model": "L40S",
@@ -290,8 +288,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "Nebius": {
           "status": "priced",
@@ -337,8 +335,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "Nova Cloud": {
           "status": "priced",
@@ -371,10 +369,9 @@
           "checked_at": "2026-11-22T17:55:26Z"
         },
         "Vast.ai": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-22T17:55:59Z",
-          "stock_checked_at": "2026-11-23T12:47:10Z"
+          "checked_at": "2026-11-22T17:55:59Z"
         }
       },
       "vendor_lists": {
@@ -384,7 +381,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 8,
-      "in_stock_vendor_count": 2
+      "in_stock_vendor_count": 1
     },
     {
       "model": "H200",
@@ -413,8 +410,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 1,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "Nebius": {
           "status": "priced",
@@ -455,8 +452,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -498,8 +495,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -536,8 +533,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -575,8 +572,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -607,9 +604,9 @@
       "vendors": {
         "Lium": {
           "status": "in stock",
-          "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "rows": 1,
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -640,8 +637,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -705,8 +702,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -820,8 +817,8 @@
         "Lium": {
           "status": "in stock",
           "rows": 2,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
+          "checked_at": "2026-11-23T20:32:37Z",
+          "stock_checked_at": "2026-11-23T20:32:37Z"
         },
         "RunPod": {
           "status": "priced",
@@ -958,28 +955,6 @@
       },
       "vendor_count": 1,
       "in_stock_vendor_count": 0
-    },
-    {
-      "model": "H200 NVL",
-      "family": "h200-nvl",
-      "status": "tracked",
-      "variants": [
-        "H200 NVL 141GB"
-      ],
-      "vendors": {
-        "Lium": {
-          "status": "in stock",
-          "rows": 1,
-          "checked_at": "2026-11-23T08:12:52Z",
-          "stock_checked_at": "2026-11-23T08:12:52Z"
-        }
-      },
-      "vendor_lists": {
-        "RunPod": "listed",
-        "Vast.ai": "listed"
-      },
-      "vendor_count": 1,
-      "in_stock_vendor_count": 1
     },
     {
       "model": "MI325X",
@@ -1128,6 +1103,19 @@
         "Clore.ai": "listed"
       },
       "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "H200 NVL",
+      "family": "h200-nvl",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 0,
       "in_stock_vendor_count": 0
     },
     {
