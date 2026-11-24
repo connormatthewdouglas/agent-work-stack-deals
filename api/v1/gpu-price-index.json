@@ -10164,16 +10164,15 @@
   {
    "date": "2026-11-24",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-24.json",
-   "snapshot_sha256": "49eb112cb3cda87f766d1f863f8c42c3f24c56986b91fcf43f9a6e20056d3690",
-   "feed_commit_for_listing_counts": "243cd3350548e48ea2edadc3e53694f529267ed5",
+   "snapshot_sha256": "247ac93b9a3e86dd5ea15cec7b662a4aecc6031881bcf263fec9abbfbd326c07",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
-     "median_usd_per_gpu_hour": 3.5,
-     "monthly_basis_usd": 2555.0,
+     "median_usd_per_gpu_hour": 3.645,
+     "monthly_basis_usd": 2660.85,
      "min_usd_per_gpu_hour": 1.99,
-     "vendors": 13,
+     "vendors": 12,
      "vendor_prices": {
-      "99Stack Cloud": 2.8767,
       "Civo": 2.99,
       "CoreWeave": 6.155,
       "DigitalOcean GPU Droplets": 4.41,
@@ -10185,7 +10184,7 @@
       "Oblivus": 3.5,
       "RunPod": 1.99,
       "Thunder Compute": 3.2,
-      "Verda (formerly DataCrunch)": 5.563
+      "Verda (formerly DataCrunch)": 5.619
      },
      "low_coverage": false
     },
@@ -10204,7 +10203,7 @@
       "RunPod": 1.19,
       "Thunder Compute": 1.09,
       "Vast.ai": 1.136,
-      "Verda (formerly DataCrunch)": 2.47
+      "Verda (formerly DataCrunch)": 2.482
      },
      "low_coverage": false
     },
@@ -10219,7 +10218,7 @@
       "Hyperstack": 3.99,
       "Nebius": 5.4,
       "RunPod": 3.59,
-      "Verda (formerly DataCrunch)": 7.113
+      "Verda (formerly DataCrunch)": 7.184
      },
      "low_coverage": false
     },
@@ -10267,7 +10266,6 @@
     }
    },
    "rows_included": [
-    "99Stack Cloud|H100|On-demand|80|1",
     "Civo|A100|On-demand|80|1",
     "Civo|H100 SXM|On-demand|80|1",
     "CloudRift|L40S|On-demand|48|1",
@@ -10328,6 +10326,10 @@
     "Verda (formerly DataCrunch)|L40S|On-demand instance (1x GPU)|48|1"
    ],
    "rows_excluded": [
+    {
+     "key": "99Stack Cloud|H100|On-demand|80|1",
+     "excluded_because": "held"
+    },
     {
      "key": "Beam|RTX 4090|Machine (from)|24|1",
      "excluded_because": "held"
@@ -10539,12 +10541,14 @@
    ],
    "vs_previous_day_matched": {
     "H100": {
-     "matched_vendors": 13,
-     "matched_median_prev": 3.5,
-     "matched_median_cur": 3.5,
+     "matched_vendors": 12,
+     "matched_median_prev": 3.645,
+     "matched_median_cur": 3.645,
      "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": []
+     "vendors_dropped": [
+      "99Stack Cloud"
+     ]
     },
     "A100": {
      "matched_vendors": 10,
