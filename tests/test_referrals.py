@@ -30,14 +30,19 @@ def test_referral_label_on_every_code_carrying_row():
     if any(r["advertiser"] == "Clore.ai" for r in FEED["rates"]):
         required.add("Clore.ai")
     assert required <= labelled
-    # 99Stack's /a/<uuid> referral drops the token on redirect. Price rows stay; the link is the vendor page.
-    rows_99 = [r for r in FEED["rates"] if r["advertiser"] == "99Stack Cloud"]
-    assert rows_99 and all(
-        r.get("affiliate") is False and "referral_url" not in r and "referral_label" not in r
-        and r["redeem_url"] == "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100"
-        and r["hourly_equiv_usd"] == 2.8767
-        for r in rows_99
-    )
+    # 99Stack's /a/<uuid> referral drops the token on redirect. The product-page link stays
+    # the vendor page. The H100 row is auto-held (cited $2.8767 no longer uniquely listed);
+    # the last sourced price and quote are kept, but the row is not a live ranked rate.
+    assert not any(r["advertiser"] == "99Stack Cloud" for r in FEED["rates"])
+    held_99 = [h for h in FEED["held_stale"] if h.get("vendor") == "99Stack Cloud"]
+    assert len(held_99) == 1
+    rec = held_99[0]["records"][0]
+    assert held_99[0]["deal_id"] == "deal-99stack-001"
+    assert held_99[0]["source_url"] == "https://www.99stack.com/products/nvme-vps-gpu-nvidia-h100"
+    assert rec["hourly_usd"] == 2.8767
+    assert rec["quote"] == "G4-gpu-h100-240m-12c 4800 GiB 240 GB 12 vCPUs 50 TB $2.8767 /hr $2 100 /mo"
+    assert held_99[0]["reason"].startswith("Cited price $2.8767 is no longer uniquely listed")
+    assert "G4-gpu-h100-240m-12c" in held_99[0]["reason"]
 
 
 def test_codes_are_never_stripped():

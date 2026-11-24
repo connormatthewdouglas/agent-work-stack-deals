@@ -121,8 +121,67 @@ def test_released_hold_ranks_on_the_refresh_clock_when_import_pin_is_later(monke
 
 def test_ambiguous_context_is_unreadable():
     d = doc(rec())
-    R.refresh([d], Fake(PAGE + PAGE.replace("1.89", "1.49")), NOW)
-    assert d["records"][0]["price_usd"] == 1.99
+    rows = R.refresh([d], Fake(PAGE + PAGE.replace("1.89", "1.49")), NOW)
+    r = d["records"][0]
+    # Official parse will not pick among two values for the same context, and must not
+    # keep serving the withdrawn figure as a live rate.
+    assert r["price_usd"] == 1.99 and r["verified_at"] == "2026-11-01T10:00:00+00:00"
+    assert r["checked_at"] == rec()["checked_at"]
+    assert r["last_failed_check_at"] == "2026-11-03T12:00:00+00:00"
+    assert r["stale"]["auto"] is True
+    assert "no longer uniquely listed" in r["stale"]["reason"]
+    assert "ambiguous:" in r["stale"]["reason"]
+    assert "1.89" not in r["evidence"]["quote"] and "1.49" not in r["evidence"]["quote"]
+    assert rows[0]["result"].startswith("unreadable") and "HELD" in rows[0]["result"]
+
+
+def test_listed_plan_still_visible_but_cited_price_gone_is_held_without_inventing():
+    """Same hyphenated SKU is still listed, but the cited $ figure is gone and two successor
+    prices are visible. parse_listed cannot uniquely re-cite; do not serve the old number.
+    Fixture amounts only — not a live vendor price."""
+    prior = 1.99
+    quote = "G4-gpu-fixture-12c 4800 GiB 240 GB 12 vCPUs 50 TB $1.99 /hr $1 400 /mo"
+    d = doc(rec(price=prior, quote=quote))
+    page = (
+        "<html><body>"
+        "G4-gpu-fixture-12c 4800 GiB 240 GB 12 vCPUs 50 TB $1.81 /hr $1 300 /mo "
+        "G4-gpu-fixture-12c 4800 GiB 240 GB 12 vCPUs 50 TB $2.25 /hr $1 600 /mo"
+        "</body></html>"
+    )
+    rows = R.refresh([d], Fake(page), NOW)
+    r = d["records"][0]
+    assert r["price_usd"] == prior and r["hourly_usd"] == prior
+    assert r["verified_at"] == "2026-11-01T10:00:00+00:00"
+    assert r["checked_at"] == rec()["checked_at"]
+    assert r["last_failed_check_at"] == "2026-11-03T12:00:00+00:00"
+    assert r["evidence"]["quote"] == quote and r["quote"] == "A100 $1.99/hr"
+    assert r["stale"]["auto"] is True
+    assert "G4-gpu-fixture-12c" in r["stale"]["reason"]
+    assert "no longer uniquely listed" in r["stale"]["reason"]
+    assert "1.81" not in r["quote"] and "2.25" not in r["evidence"]["quote"]
+    assert rows[0]["result"].startswith("unreadable") and "HELD" in rows[0]["result"]
+
+
+def test_unreadable_redesign_without_plan_token_waits_for_stale_days():
+    """A page that lost the quote line (no hyphenated SKU still visible) keeps the old
+    price live until STALE_DAYS, matching #265. last_failed_check_at records the attempt."""
+    d = doc(rec())
+    rows = R.refresh([d], Fake("<html>redesigned page $9.99</html>"), NOW)
+    r = d["records"][0]
+    assert r["price_usd"] == 1.99 and "stale" not in r
+    assert r["verified_at"] == "2026-11-01T10:00:00+00:00"
+    assert r["last_failed_check_at"] == "2026-11-03T12:00:00+00:00"
+    assert rows[0]["result"].startswith("unreadable") and "HELD" not in rows[0]["result"]
+
+
+def test_unreachable_page_does_not_immediate_hold():
+    d = doc(rec())
+    rows = R.refresh([d], Fake("", status=503), NOW)
+    r = d["records"][0]
+    assert r["price_usd"] == 1.99 and "stale" not in r
+    assert r["verified_at"] == "2026-11-01T10:00:00+00:00"
+    assert r["last_failed_check_at"] == "2026-11-03T12:00:00+00:00"
+    assert "unreachable" in rows[0]["result"] and "HELD" not in rows[0]["result"]
 
 
 def test_large_jump_not_auto_applied():
