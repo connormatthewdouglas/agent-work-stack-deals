@@ -13,7 +13,11 @@ update the price ONLY where it was actually parsed:
   on-demand, exact VRAM, per GPU); a median is published only with >= MIN_MARKET_OFFERS offers.
 * Anything unreadable keeps its old price, verified_at and checked_at; last_failed_check_at records the attempt. A rate not verified for
   STALE_DAYS gets an automatic hold (stale.auto = true): listed under held_stale, never ranked or "verified",
-  until a later run parses it again.
+  until a later run parses it again. A successful (HTTP 200) listed read that cannot uniquely re-cite also
+  auto-holds immediately when the same quote context is now ambiguous, or when a hyphenated plan/SKU from the
+  evidence quote is still visible but the cited price figure is gone: the last sourced number is kept but not
+  served or ranked until a unique listed price can be re-cited. A redesigned page with the line gone still
+  waits for STALE_DAYS (#265). An unreachable page is not immediate-held this way.
 * Manual holds (vendor-level stale such as TensorDock, record-level holds without auto) are left untouched.
 * Marketplace (Vast) records use the automatic rule: held (stale.auto) below MIN_MARKET_OFFERS qualifying offers,
   released with a fresh median, quote and checked_at once MIN_MARKET_OFFERS+ return.
@@ -323,6 +327,76 @@ def parse_listed(r: dict, text: str) -> tuple[str | None, str | None, str]:
     if per_gpu:
         v = f"{round(_num(v) * n, 4):g}"
     return v, quotes[0][:MAX_QUOTE], "parsed"
+
+# Hyphenated plan / SKU tokens as they appear in listed quotes (e.g. 99Stack G4-gpu-h100-240m-12c).
+_PLAN_SKU_RE = re.compile(r"\b[A-Za-z0-9]+(?:-[A-Za-z0-9]+)+\b")
+
+
+def _cited_price_figures(r: dict) -> list[str]:
+    """Visible $ figure spellings that represent this record's cited price (not sibling amounts)."""
+    figures: list[str] = []
+    price = r.get("price_usd")
+    if price is None:
+        return figures
+    for raw in (f"{price:g}", f"{price:.4f}", f"{price:.3f}", f"{price:.2f}"):
+        s = raw.rstrip("0").rstrip(".") if "." in raw else raw
+        if s and s not in figures:
+            figures.append(s)
+    quote = (r.get("evidence") or {}).get("quote") or r.get("quote") or ""
+    for m in PRICE_RE.finditer(quote):
+        raw = m.group(1)
+        if abs(_num(raw) - price) < 1e-9 and raw not in figures:
+            figures.append(raw)
+    return figures
+
+
+def cited_price_visible(r: dict, text: str) -> bool:
+    """True when one of the cited price figures appears as a number token in visible page text."""
+    if not text:
+        return False
+    for fig in _cited_price_figures(r):
+        if re.search(rf"(?<![\d.]){re.escape(fig)}(?![\d])", text):
+            return True
+    return False
+
+
+def listed_plan_skus(r: dict) -> list[str]:
+    quote = (r.get("evidence") or {}).get("quote") or r.get("quote") or ""
+    seen, out = set(), []
+    for m in _PLAN_SKU_RE.finditer(quote):
+        sku = m.group(0)
+        if sku not in seen:
+            seen.add(sku)
+            out.append(sku)
+    return out
+
+
+def listed_plan_still_visible(r: dict, text: str) -> bool:
+    if not text:
+        return False
+    return any(sku in text for sku in listed_plan_skus(r))
+
+
+def should_hold_unreadable_listed(r: dict, text: str | None, msg: str) -> bool:
+    """Immediate auto-hold when a 200 listed parse cannot uniquely re-cite a withdrawn figure.
+
+    Ambiguous context, or a still-listed hyphenated plan whose cited $ figure is gone, must not
+    keep serving the last sourced number. A vanished line with no plan token still waits for
+    STALE_DAYS. text is None when the page was not read (unreachable).
+    """
+    if not text:
+        return False
+    if str(msg or "").startswith("ambiguous:"):
+        return True
+    return listed_plan_still_visible(r, text) and not cited_price_visible(r, text)
+
+
+def unreadable_listed_hold_reason(r: dict, msg: str, stamp: str) -> str:
+    sku = (listed_plan_skus(r) or [None])[0]
+    plan = f"plan {sku} still listed; " if sku else ""
+    return (f"Cited price ${r['price_usd']} is no longer uniquely listed on {r['source_url']} "
+            f"({plan}parse: {msg}) at {stamp}; held, not shown or ranked, until a unique listed "
+            "price can be re-cited.")
 
 
 def market_stats(body: str, vram_gb: int) -> list[float] | None:
@@ -681,7 +755,9 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     # is recorded separately (additive) so the feed never implies a check that did not confirm the price
                     r["last_failed_check_at"] = stamp
                 age = now - datetime.fromisoformat(r["verified_at"])
-                if not r.get("stale") and age > timedelta(days=stale_days):
+                if not r.get("stale") and should_hold_unreadable_listed(r, text, msg):
+                    r["stale"] = {"reason": unreadable_listed_hold_reason(r, msg, stamp), "auto": True}
+                elif not r.get("stale") and age > timedelta(days=stale_days):
                     r["stale"] = {"reason": f"Price not re-verified on the vendor page since {r['verified_at'][:10]} "
                                             f"(> {stale_days} days); held out of rankings until re-verified.", "auto": True}
                 row.setdefault("result", f"unreadable: {msg}" + ("; HELD (stale)" if r.get("stale", {}).get("auto") else ""))
