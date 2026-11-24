@@ -379,28 +379,47 @@ def test_scout_v25_lambda_clore_render():
         assert "Clore.ai" not in "".join(_page(slug, h) for h in (10, 100, 730))
     av = json.loads((ROOT / "data/gpu_availability/latest.json").read_text())
     assert av["imported_rows"] == len(av["rows"]) >= 25
-    # RunPod in_stock-null rows: exact "unknown" while the claim is within the stale cut;
-    # the full stale form once it is past the cut (checked_at vs the effective build clock,
-    # LW_AVAIL_NOW + 25-min horizon — the same cut the generator uses). A wall-clock
-    # LW_AVAIL_NOW from check_latest_scout_import.sh overrides the autouse pin, so this
-    # must not demand the fresh wording after the claim has aged.
-    stale_status = re.compile(r"^unknown \(stale availability, last checked .+ ET\)$")
-    from core.gpu_availability import AVAIL_MAX_AGE_H, age_hours, build_now, _parse
-    now = build_now()  # honors LW_AVAIL_NOW and LW_BUILD_HORIZON_MIN
+    # RunPod in_stock-null rows: exact "unknown" while last_known is within the stale cut;
+    # the exact #323/#326 stale label once it is past the cut. That rule ages 8h after
+    # last_known_at (checked_at may be newer on a failed check); the label uses last_known_at.
+    # Same clock as the generator: LW_AVAIL_NOW + 25-min horizon (a wall-clock import
+    # overrides the autouse pin). Do not key the cut on checked_at alone, and do not
+    # accept a regex that would match any "last checked" date.
+    from core.gpu_availability import build_now, stale_guard
+    now = build_now()
     for r in feed["rates"]:  # every row Scout checked shows its checked_at, unknown included
         a = r["availability"]
         if a.get("source") and "runpod" in a["source"] and a["in_stock"] is None:
             assert a["checked_at"]
-            h = age_hours(a.get("checked_at"), now)
-            x = _parse(a.get("availability_expires_at"))
-            past_cut = not (
-                (h is not None and h <= AVAIL_MAX_AGE_H and not (x and now > x))
-                or (h is None and not x)
-            )
-            if past_cut:
-                assert stale_status.match(a.get("status") or ""), a.get("status")
+            src = {k: v for k, v in a.items() if k not in ("availability_stale", "status")}
+            expected = stale_guard(src, now)
+            if expected.get("availability_stale"):
+                assert a["status"] == expected["status"]
             else:
                 assert a["status"] == "unknown"
+
+
+def test_scout_v25_runpod_stale_label_follows_last_known_not_newer_checked_at(monkeypatch):
+    """#323/#326: last_known_at 07:47 ET is >8h old at render; a newer checked_at must not
+    demand bare 'unknown'. Expect the exact stale label (not a substring / regex)."""
+    from datetime import datetime, timezone
+    from core.gpu_availability import stale_guard, et_time
+    monkeypatch.setenv("LW_AVAIL_NOW", "2026-11-24T00:55:19Z")
+    monkeypatch.setenv("LW_BUILD_HORIZON_MIN", "25")
+    last_known_at = "2026-11-23T12:47:12Z"
+    assert et_time(last_known_at) == "2026-11-23 07:47 ET"
+    # 12:47:12Z + 8h = 20:47:12Z; import render 00:55:19Z is 12.1h later.
+    assert (datetime(2026, 11, 24, 0, 55, 19, tzinfo=timezone.utc)
+            - datetime(2026, 11, 23, 12, 47, 12, tzinfo=timezone.utc)).total_seconds() / 3600 > 8
+    want = "unknown (stale availability, last checked 2026-11-23 07:47 ET)"
+    a = {"origin": "scout",
+         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+         "in_stock": None, "checked_at": "2026-11-24T00:50:00Z",
+         "last_known_in_stock": True, "last_known_at": last_known_at}
+    from core.gpu_availability import build_now
+    got = stale_guard(dict(a), build_now())
+    assert got["availability_stale"] is True and got["status"] == want
+
 
 
 def test_k2_mcp_a100_summary_names_cheapest_80gb():
