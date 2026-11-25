@@ -1,51 +1,81 @@
 """Feed-clock restamp: clock-only drift is restamped; real drift is left alone.
 
-No live network. Clocks are taken from the committed feed or injected fixtures,
-never from the wall clock.
+No live network. Clocks are taken from injected fixtures, never from the
+wall clock or the live checkout. classify/restamp are exercised against a
+tmp fixture tree; a live HEAD worktree is not a stable MATCH after a
+collector or a concurrent import (lium-collect run 45618756131).
 """
 from __future__ import annotations
 
 import json
-import os
-import re
-import subprocess
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-import check_generated_pages as chk  # noqa: E402
 import restamp_pages_to_feed_clock as restamp  # noqa: E402
 
+# Frozen fixture clock. Not read from the live feed or datetime.now().
+FROZEN_FEED = "2026-11-19T01:47:16Z"
+HTML_NOW = "2026-11-19 01:47:16 UTC"
+HTML_OLD = "2026-11-19 00:57:48 UTC"
+TITLE = "Beam GPU price sample report"
+PRICE = "$0.44"
+LAST_VERIFIED = "last verified 2026-10-29 23:14:39 UTC"
 
-def _worktree(path: Path) -> None:
-    subprocess.check_call(
-        ["git", "-C", str(ROOT), "worktree", "add", "--detach", "--quiet", str(path), "HEAD"],
-        stdout=subprocess.DEVNULL,
+
+def _page(*, clock: str, title: str = TITLE) -> str:
+    return (
+        f"<!doctype html><title>{title}</title>"
+        f"Feed timestamp: <code>feed_updated_at={clock}</code>. "
+        f"Prices verified through <code>{clock}</code>. "
+        f"<td>{PRICE}</td><td>{LAST_VERIFIED} · read 20d ago</td>"
+        f"<blockquote><p>RTX 4090 from {PRICE}/hr</p></blockquote>"
     )
 
 
-def _remove(path: Path) -> None:
-    subprocess.call(
-        ["git", "-C", str(ROOT), "worktree", "remove", "--force", str(path)],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+def _write_tree(root: Path, *, clock: str, title: str = TITLE) -> Path:
+    prices = root / "api" / "v1"
+    prices.mkdir(parents=True, exist_ok=True)
+    (prices / "gpu-prices.json").write_text(
+        json.dumps({"feed_updated_at": FROZEN_FEED}, indent=2) + "\n",
+        encoding="utf-8",
     )
+    page = root / "reports" / "vendors" / "beam" / "index.html"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text(_page(clock=clock, title=title), encoding="utf-8")
+    return page
 
 
-def _feed_stamp(root: Path) -> str:
-    return json.loads((root / "api" / "v1" / "gpu-prices.json").read_text())["feed_updated_at"]
+def _isolate_from_live_tree(tmp_path: Path, monkeypatch):
+    """Point classify/restamp at a fixture regenerate, not live HEAD or wall clock."""
+    generated = tmp_path / "generated"
+    _write_tree(generated, clock=HTML_NOW)
 
+    def _regen(_root: Path) -> Path:
+        dest = Path(tempfile.mkdtemp(prefix="lw-restamp-fixture-"))
+        shutil.copytree(generated, dest, dirs_exist_ok=True)
+        return dest
 
-def _html_clock(iso: str) -> str:
-    """2026-11-19T01:47:16Z -> 2026-11-19 01:47:16 UTC (page meta format)."""
-    stamp = iso.replace("Z", "").replace("+00:00", "").replace("T", " ")
-    if re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", stamp):
-        return stamp + " UTC"
-    return stamp + " UTC"
+    def _generate(root: Path) -> None:
+        for path in generated.rglob("*"):
+            if path.is_file():
+                target = root / path.relative_to(generated)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(path.read_bytes())
+
+    monkeypatch.setattr(restamp, "_regen_copy", _regen)
+    monkeypatch.setattr(restamp, "_generate_in_place", _generate)
+    monkeypatch.setenv("LW_AVAIL_NOW", FROZEN_FEED)
+    return generated
 
 
 def test_diff_line_parser_strips_trailing_differ(tmp_path, monkeypatch):
     """diff -rq suffixes every pair with ' differ'; the parser must not keep that word in the path."""
+    import check_generated_pages as chk
+
     src = tmp_path / "src"
     dest = tmp_path / "dest"
     src.mkdir(); dest.mkdir()
@@ -81,58 +111,44 @@ def test_clock_noise_keeps_prices_quotes_and_last_verified():
     assert restamp._clock_noise_text(html) != restamp._clock_noise_text(tampered)
 
 
-def test_matching_tree_is_match_and_noop(tmp_path):
+def test_matching_tree_is_match_and_noop(tmp_path, monkeypatch):
+    _isolate_from_live_tree(tmp_path, monkeypatch)
     dest = tmp_path / "match"
-    _worktree(dest)
-    try:
-        os.environ["LW_AVAIL_NOW"] = _feed_stamp(dest)
-        assert restamp.classify(dest) == restamp.MATCH
-        before = (dest / "reports" / "vendors" / "beam" / "index.html").read_text()
-        assert restamp.restamp(dest) == 0
-        assert (dest / "reports" / "vendors" / "beam" / "index.html").read_text() == before
-    finally:
-        _remove(dest)
+    page = _write_tree(dest, clock=HTML_NOW)
+    before = page.read_text(encoding="utf-8")
+    assert restamp.classify(dest) == restamp.MATCH
+    assert restamp.restamp(dest) == 0
+    assert page.read_text(encoding="utf-8") == before
 
 
-def test_feed_timestamp_only_is_clock_stale_and_is_restamped(tmp_path):
+def test_feed_timestamp_only_is_clock_stale_and_is_restamped(tmp_path, monkeypatch):
+    generated = _isolate_from_live_tree(tmp_path, monkeypatch)
     dest = tmp_path / "clock"
-    _worktree(dest)
-    try:
-        page = dest / "reports" / "vendors" / "beam" / "index.html"
-        text = page.read_text(encoding="utf-8")
-        stamp = _feed_stamp(dest)
-        html_now = _html_clock(stamp)
-        # A prior generate clock, not wall clock.
-        html_old = "2026-11-19 00:57:48 UTC"
-        assert html_now != html_old
-        assert html_now in text
-        page.write_text(text.replace(html_now, html_old), encoding="utf-8")
-        os.environ["LW_AVAIL_NOW"] = stamp
-        assert restamp.classify(dest) == restamp.CLOCK_STALE
-        assert restamp.restamp(dest) == 0
-        updated = page.read_text(encoding="utf-8")
-        assert html_now in updated
-        assert html_old not in updated
-        assert "$0.44" in updated
-        assert "last verified 2026-10-29 23:14:39 UTC" in updated
-        assert chk.check(dest) == 0
-    finally:
-        _remove(dest)
+    page = _write_tree(dest, clock=HTML_OLD)
+    text = page.read_text(encoding="utf-8")
+    assert HTML_NOW not in text
+    assert HTML_OLD in text
+    assert restamp.classify(dest) == restamp.CLOCK_STALE
+    assert restamp.restamp(dest) == 0
+    updated = page.read_text(encoding="utf-8")
+    assert HTML_NOW in updated
+    assert HTML_OLD not in updated
+    assert PRICE in updated
+    assert LAST_VERIFIED in updated
+    # Restamp must leave the tree identical to the pinned generate fixture.
+    assert updated == (generated / "reports" / "vendors" / "beam" / "index.html").read_text(
+        encoding="utf-8"
+    )
 
 
-def test_hand_edited_title_is_real_drift_and_not_restamped(tmp_path):
+def test_hand_edited_title_is_real_drift_and_not_restamped(tmp_path, monkeypatch):
+    _isolate_from_live_tree(tmp_path, monkeypatch)
     dest = tmp_path / "tamper"
-    _worktree(dest)
-    try:
-        page = dest / "reports" / "vendors" / "beam" / "index.html"
-        text = page.read_text(encoding="utf-8")
-        page.write_text(text.replace("Beam GPU price sample report", "TAMPERED TITLE", 1), encoding="utf-8")
-        os.environ["LW_AVAIL_NOW"] = _feed_stamp(dest)
-        assert restamp.classify(dest) == restamp.REAL_DRIFT
-        assert restamp.restamp(dest) == 1
-        assert "TAMPERED TITLE" in page.read_text(encoding="utf-8")
-    finally:
-        _remove(dest)
+    page = _write_tree(dest, clock=HTML_NOW, title="TAMPERED TITLE")
+    assert restamp.classify(dest) == restamp.REAL_DRIFT
+    assert restamp.restamp(dest) == 1
+    assert "TAMPERED TITLE" in page.read_text(encoding="utf-8")
+    assert TITLE not in page.read_text(encoding="utf-8")
 
 
 def test_validate_and_deploy_restamps_before_pytest_and_regenerates_before_deploy():
