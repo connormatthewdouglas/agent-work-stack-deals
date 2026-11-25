@@ -494,32 +494,100 @@ def test_0330_stale_guard_unit():
     assert stale_guard({"in_stock": False, "checked_at": "2026-10-01T00:00:00Z"}, t)["in_stock"] is False  # no origin: untouched
 
 
-def test_0330_mcp_stale_rows_unknown_not_ranked_last():
-    import json
+def _0330_frozen_feed():
+    """Pinned A100 compare feed. Not the live checkout, not wall clock.
+
+    Includes the cases the live-feed version of this test tripped over: a
+    cheaper confirmed out-of-stock row (ranks last among fresh prices) and a
+    cheaper degraded (>48h) price (lead_key: after every fresh row). Scout
+    stock is fresh at T and stale at T+9h.
+    """
     from datetime import datetime, timedelta, timezone
+    t = datetime(2026, 11, 20, 12, 0, tzinfo=timezone.utc)
+    stamp = "2026-11-20T12:00:00Z"
+    old = (t - timedelta(hours=72)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def rate(*, vendor, price, tier="On-demand", availability=None, verified=stamp):
+        rec = {
+            "advertiser": vendor,
+            "gpu": "A100",
+            "vram_gb": 80,
+            "tier": tier,
+            "hourly_equiv_usd": price,
+            "billing_unit": "hourly",
+            "gpu_count": 1,
+            "min_gpus": 1,
+            "verified_at": verified,
+            "checked_at": verified,
+            "availability": availability or {"status": "unknown", "in_stock": None, "checked_at": verified},
+        }
+        return rec
+
+    scout = {
+        "status": "available when checked",
+        "in_stock": True,
+        "checked_at": stamp,
+        "origin": "scout",
+        "source_label": "authenticated vendor API (not publicly reproducible)",
+    }
+    rates = [
+        rate(vendor="VendorU", price=1.20),
+        rate(vendor="VendorS1", price=1.50, availability=dict(scout)),
+        rate(vendor="VendorS2", price=2.00, availability=dict(scout)),
+        rate(vendor="VendorO", price=0.80, availability={"status": "out of stock when checked", "in_stock": False, "checked_at": stamp}),
+        rate(vendor="VendorR", price=0.50, tier="1 Month (reserved)"),
+        rate(vendor="VendorD", price=1.10, verified=old),
+    ]
+    return t, {"rates": rates, "held_stale": [], "feed_updated_at": stamp}
+
+
+def test_0330_mcp_stale_rows_unknown_not_ranked_last():
+    """Stale scout stock becomes unknown and is not ranked out-of-stock-last.
+
+    Ranking itself is unchanged: reserved last, degraded prices after fresh
+    prices (lead_key, 48h), confirmed out-of-stock after in-stock/unknown,
+    then hourly price. The previous assertion used the live gpu-prices.json
+    and required every non-reserved result to be in pure price order, which
+    breaks when a degraded row (e.g. E2E A100 $1.98 / $2.10) correctly sorts
+    after fresher, higher prices.
+    """
+    from datetime import timedelta
     from core import deals as D
-    data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
-    # clock-independent: anchor on the newest stock check in the built feed, not a fixed snapshot time or wall clock
-    from core.gpu_availability import _parse
-    checks = [_parse(r["availability"]["checked_at"]) for r in data["rates"]
-              if isinstance(r.get("availability"), dict) and r["availability"].get("origin") == "scout" and r["availability"].get("checked_at")]
-    assert checks
-    t = max(checks)
+    t, data = _0330_frozen_feed()
     fresh = D.compare_gpu_prices(data, "A100", limit=25, now=t + timedelta(minutes=1))
     stale = D.compare_gpu_prices(data, "A100", limit=25, now=t + timedelta(hours=9))
     scout = [r for r in stale["results"] if (r.get("availability") or {}).get("origin") == "scout"]
     assert scout and all(r["in_stock"] is None for r in scout)
     assert all(r["availability"].get("availability_stale") for r in scout if r["availability"].get("checked_at"))
     assert "stale availability" not in fresh["summary"]
-    assert "available when checked" not in stale["summary"] and "out of stock when checked" not in stale["summary"]
-    # stale rows are not ranked out-of-stock-last: pure price order among non-reserved rows
-    # (#130: rows sold only as multi-GPU allocations are excluded for the 1-GPU default, never ranked)
+    # Scout stock claims have expired; a non-scout confirmed OOS row still belongs in the summary.
+    assert "available when checked" not in stale["summary"]
+    assert all("available when checked" not in ((r.get("availability") or {}).get("status") or "") for r in scout)
+    assert all("out of stock when checked" not in ((r.get("availability") or {}).get("status") or "") for r in scout)
+    assert "VendorO" in stale["summary"] and "out of stock when checked" in stale["summary"]
+    # #130: rows sold only as multi-GPU allocations are excluded for the 1-GPU default, never ranked
     assert all((r.get("min_gpus") or 1) <= 1 for r in stale["results"])
-    p = [r["hourly_usd"] for r in stale["results"] if r["tier_class"] != "reserved"]
-    assert p == sorted(p)
-    if fresh["results"][0]["in_stock"] is True:
-        c = fresh["results"][0]["availability"]["checked_at"].replace("T", " ")[:16]
-        assert f"available when checked {c}Z" in fresh["summary"]
+    # Exact intended order on the fixture (not the live feed).
+    # Default compare omits reserved. Among the rest: fresh unknown/in-stock
+    # by price, then confirmed OOS, then degraded.
+    assert [r["advertiser"] for r in stale["results"]] == [
+        "VendorU", "VendorS1", "VendorS2", "VendorO", "VendorD",
+    ]
+    assert all(r["advertiser"] != "VendorR" for r in stale["results"])
+    peers = [r for r in stale["results"] if r["advertiser"] in {"VendorU", "VendorS1", "VendorS2"}]
+    p = [r["hourly_usd"] for r in peers]
+    assert p == sorted(p) == [1.20, 1.50, 2.00]
+    assert {r["advertiser"] for r in scout} == {"VendorS1", "VendorS2"}
+    # Confirmed OOS is still last among fresh rows; stale scout unknown is not last.
+    assert stale["results"][3]["advertiser"] == "VendorO" and stale["results"][3]["in_stock"] is False
+    s1 = next(r for r in fresh["results"] if r["advertiser"] == "VendorS1")
+    assert s1["in_stock"] is True
+    # When the cheapest fresh row is itself in-stock scout, the summary cites the check time.
+    lead_data = {**data, "rates": [r for r in data["rates"] if r["advertiser"] != "VendorU"]}
+    lead = D.compare_gpu_prices(lead_data, "A100", limit=25, now=t + timedelta(minutes=1))
+    assert lead["results"][0]["advertiser"] == "VendorS1" and lead["results"][0]["in_stock"] is True
+    c = lead["results"][0]["availability"]["checked_at"].replace("T", " ")[:16]
+    assert f"available when checked {c}Z" in lead["summary"]
 
 
 def test_0330_import_refuses_old_snapshot(tmp_path):
