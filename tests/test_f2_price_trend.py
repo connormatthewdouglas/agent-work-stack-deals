@@ -269,6 +269,15 @@ def test_get_price_trend_tool_contract(monkeypatch):
     hist, feed = _hist(s), {"rates": [row], "held_stale": []}
     monkeypatch.setattr(server.history_loader, "load", lambda: hist)
     monkeypatch.setattr(server.gpu_loader, "load", lambda: feed)
+    # get_price_trend -> price_trend uses wall clock when now is omitted.
+    # The fixture row is verified at NOW-2h (2026-11-23T16:00Z); 48h later
+    # live_trend_block returns stale and windows is empty (lium-collect /
+    # scout-import 2026-11-25T18:51Z). Pin the same frozen clock as the unit tests.
+    orig_trend = H.price_trend
+    def _pinned_trend(*args, **kwargs):
+        kwargs.setdefault("now", NOW)
+        return orig_trend(*args, **kwargs)
+    monkeypatch.setattr(H, "price_trend", _pinned_trend)
     out = server.get_price_trend(rid)
     contract.finalize("get_price_trend", out, "brief")
     wrapped = contract.finalize("get_price_trend", out, "full")
