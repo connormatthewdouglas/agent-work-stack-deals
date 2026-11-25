@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -163,17 +163,99 @@ def test_compare_gpu_prices_adds_trend_without_bloating_history_view():
     assert "history" in legacy
 
 
-def test_committed_history_json_unchanged():
-    snaps = H.load_snapshots()
-    hist = json.loads((ROOT / "api" / "v1" / "gpu-prices" / "history.json").read_text())
-    assert hist == {**H.build_history(snaps), "source": hist["source"]}
-    # Real archive: 30d exceeds history as of last_snapshot; 7d is computable for a long-lived ranked series.
-    long = next(s for s in hist["series"] if s.get("first_seen") == hist["first_snapshot"] and s["points"][0]["status"] == "ranked")
-    # Use a fresh-enough dummy live row so the current feed stale rule does not mask the window reasons.
-    live = {"verified_at": f"{hist['last_snapshot']}T12:00:00Z", "hourly_equiv_usd": long["points"][-1]["hourly_usd"]}
-    w = {x["days"]: x for x in H.price_trend(long, history=hist, live=live, now=NOW)["windows"]}
+def _dates_to(last: str, first: str = FIRST, skip=("2026-11-07", "2026-11-08")) -> list[str]:
+    d0, d1 = datetime.fromisoformat(first), datetime.fromisoformat(last)
+    return [d for i in range((d1 - d0).days + 1)
+            if (d := (d0 + timedelta(days=i)).date().isoformat()) not in skip]
+
+
+def test_30d_exceeds_history_until_archive_spans_30_days():
+    """Inclusive window start is last-(days-1). A 29-day archive still starts before first_snapshot;
+    a 30-day archive fits. window_exceeds_history takes precedence over insufficient_points.
+    A series held on last_snapshot has no end price and is insufficient_points once the window fits.
+    """
+    ranked = _series([_pt(FIRST, 2.0)])
+    h29 = _hist(ranked, dates=_dates_to("2026-11-24"))
+    assert (date.fromisoformat(h29["last_snapshot"]) - date.fromisoformat(h29["first_snapshot"])).days + 1 == 29
+    w = {x["days"]: x for x in H.price_trend(ranked, history=h29, live=_live(2.0), now=NOW)["windows"]}
+    assert w[30]["reason"] == "window_exceeds_history" and "pct" not in w[30]
+    # Precedence: even a short series on a 29-day archive is exceeds, not insufficient_points.
+    short = _series([_pt("2026-11-24", 2.0)])
+    w = {x["days"]: x for x in H.price_trend(short, history=_hist(short, dates=_dates_to("2026-11-24")), live=_live(2.0), now=NOW)["windows"]}
     assert w[30]["reason"] == "window_exceeds_history"
-    assert "direction" in w[7] or w[7].get("reason") == "insufficient_points"
+    h30 = _hist(ranked, dates=_dates_to("2026-11-25"))
+    assert (date.fromisoformat(h30["last_snapshot"]) - date.fromisoformat(h30["first_snapshot"])).days + 1 == 30
+    w = {x["days"]: x for x in H.price_trend(ranked, history=h30, live=_live(2.0), now=NOW)["windows"]}
+    assert "reason" not in w[30] and w[30]["direction"] == "flat" and w[30]["ranked_days"] >= 10
+    held = _series([_pt(FIRST, 2.0), _pt("2026-11-25", 2.0, "held")])
+    w = {x["days"]: x for x in H.price_trend(held, history=_hist(held, dates=_dates_to("2026-11-25")), live=_live(2.0), now=NOW)["windows"]}
+    assert w[30]["reason"] == "insufficient_points" and "pct" not in w[30]
+
+
+def _assert_window_follows_design(w: dict, first: str, last: str) -> None:
+    """Structural + precedence check. Does not pin a frozen reason to the live archive length."""
+    assert isinstance(w.get("days"), int) and w["days"] >= 1
+    start = (date.fromisoformat(last) - timedelta(days=w["days"] - 1)).isoformat()
+    if start < first:
+        assert w.get("reason") == "window_exceeds_history" and "direction" not in w and "pct" not in w
+        return
+    if "reason" in w:
+        assert w["reason"] == "insufficient_points" and "direction" not in w and "pct" not in w
+        assert isinstance(w.get("ranked_days"), int) and w["ranked_days"] >= 0
+        return
+    assert w["direction"] in ("up", "down", "flat")
+    assert isinstance(w.get("pct"), (int, float))
+    assert str(w.get("start_at") or "").endswith("Z") and "T" in w["start_at"]
+    assert str(w.get("end_at") or "").endswith("Z") and "T" in w["end_at"]
+    assert isinstance(w.get("ranked_days"), int) and w["ranked_days"] >= 0
+
+
+def _assert_history_shape(hist: dict, now: datetime) -> None:
+    assert hist["first_snapshot"] and hist["last_snapshot"]
+    for sid in hist.get("snapshot_ids") or []:
+        assert isinstance(sid, str) and len(sid) >= 10 and sid[4] == "-" and sid[7] == "-"
+    dummy = {"verified_at": f"{hist['last_snapshot']}T12:00:00Z", "hourly_equiv_usd": 1.0}
+    for s in hist.get("series") or []:
+        for p in s.get("points") or []:
+            assert p.get("status") in ("ranked", "held", "removed")
+        if not s.get("points"):
+            continue
+        live = {**dummy, "hourly_equiv_usd": s["points"][-1].get("hourly_usd") or 1.0}
+        tr = H.price_trend(s, history=hist, live=live, now=now)
+        if tr.get("as_of"):
+            assert tr["as_of"].endswith("Z") and "T" in tr["as_of"]
+        for w in tr.get("windows") or []:
+            _assert_window_follows_design(w, hist["first_snapshot"], hist["last_snapshot"])
+
+
+def test_committed_history_json_unchanged():
+    """Live history must stay a faithful build_history() of committed snapshots.
+
+    Window reasons are checked structurally (UTC Z, valid statuses/reasons, design precedence)
+    and are not pinned to a single frozen value — a new snapshot day can move 30d from
+    window_exceeds_history to a computable trend or insufficient_points.
+    """
+    snaps = H.load_snapshots()
+    path = ROOT / "api" / "v1" / "gpu-prices" / "history.json"
+    raw = path.read_text()
+    hist = json.loads(raw)
+    assert hist == {**H.build_history(snaps), "source": hist["source"]}
+    now = datetime.fromisoformat(hist["last_snapshot"] + "T18:00:00+00:00")
+    _assert_history_shape(hist, now)
+    # Read-only: the committed file is not rewritten.
+    assert path.read_text() == raw
+
+
+def test_one_extra_snapshot_keeps_valid_window_reasons():
+    """What scout-import does: one new snapshot day. Reasons must still follow design precedence."""
+    import copy
+    hist = copy.deepcopy(json.loads((ROOT / "api" / "v1" / "gpu-prices" / "history.json").read_text()))
+    nxt = (date.fromisoformat(hist["last_snapshot"]) + timedelta(days=1)).isoformat()
+    hist["snapshot_ids"] = list(hist["snapshot_ids"]) + [f"{nxt}.deadbeef"]
+    hist["last_snapshot"] = nxt
+    hist["snapshot_count"] = len(hist["snapshot_ids"])
+    now = datetime.fromisoformat(nxt + "T18:00:00+00:00")
+    _assert_history_shape(hist, now)
 
 
 def test_get_price_trend_tool_contract(monkeypatch):
