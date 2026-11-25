@@ -39,9 +39,9 @@
     "2026-11-22.07e6dd97",
     "2026-11-23.44ab7957",
     "2026-11-24.4be3caa3",
-    "2026-11-25.6e0f0b55"
+    "2026-11-25.1abd4d21"
   ],
-  "last_seq": 487,
+  "last_seq": 489,
   "note": "points are change points: each point is the first snapshot date at that price/status; status 'held' = published but not ranked (stale or too thin a marketplace); 'removed' = no longer tracked. changes: event_id = '<date>:<rate_id>:<up|down>', seq increases oldest -> newest (use get_price_changes cursors).",
   "series": [
     {
@@ -5900,6 +5900,13 @@
           "hourly_usd": 7.99,
           "status": "ranked",
           "verified_at": "2026-10-31T13:56:21Z"
+        },
+        {
+          "date": "2026-11-25",
+          "price_usd": 8.99,
+          "hourly_usd": 8.99,
+          "status": "ranked",
+          "verified_at": "2026-11-25T18:51:02Z"
         }
       ],
       "last_seen": "2026-11-25"
@@ -5942,6 +5949,13 @@
           "hourly_usd": 8.99,
           "status": "ranked",
           "verified_at": "2026-10-31T13:56:21Z"
+        },
+        {
+          "date": "2026-11-25",
+          "price_usd": 10.49,
+          "hourly_usd": 10.49,
+          "status": "ranked",
+          "verified_at": "2026-11-25T18:51:02Z"
         }
       ],
       "last_seen": "2026-11-25"
@@ -10614,10 +10628,30 @@
   "changes": [
     {
       "date": "2026-11-25",
+      "key": "RunPod|B300|On-demand (Secure Cloud)|288|1",
+      "rate_id": "r_fc42089ad05c",
+      "event_id": "2026-11-25:r_fc42089ad05c:up",
+      "snapshot_id": "2026-11-25.1abd4d21",
+      "vendor": "RunPod",
+      "gpu": "B300",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 288,
+      "from_hourly_usd": 8.99,
+      "to_hourly_usd": 10.49,
+      "change_pct": 16.7,
+      "status": "ranked",
+      "source_url": "https://api.runpod.io/graphql",
+      "last_verified_before": "2026-11-24T18:49:23Z",
+      "gap_days": 1.0,
+      "composition_flag": null,
+      "seq": 489
+    },
+    {
+      "date": "2026-11-25",
       "key": "CloudRift|RTX 5090|3 Month (reserved, \"3 mo\")|32|1",
       "rate_id": "r_fb6a686b5ca5",
       "event_id": "2026-11-25:r_fb6a686b5ca5:up",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "CloudRift",
       "gpu": "RTX 5090",
       "tier": "3 Month (reserved, \"3 mo\")",
@@ -10630,14 +10664,14 @@
       "last_verified_before": "2026-11-24T20:42:38+00:00",
       "gap_days": 0.74,
       "composition_flag": null,
-      "seq": 487
+      "seq": 488
     },
     {
       "date": "2026-11-25",
       "key": "Lium|B200|Marketplace spot node (interruptible)|180|8",
       "rate_id": "r_f505a55ac5e3",
       "event_id": "2026-11-25:r_f505a55ac5e3:up",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "Lium",
       "gpu": "B200",
       "tier": "Marketplace spot node (interruptible)",
@@ -10650,14 +10684,14 @@
       "last_verified_before": "2026-11-24T21:09:33+00:00",
       "gap_days": 0.77,
       "composition_flag": null,
-      "seq": 486
+      "seq": 487
     },
     {
       "date": "2026-11-25",
       "key": "Lium|RTX 4090|Marketplace spot node (interruptible)|24|1",
       "rate_id": "r_cde4d13ac9ff",
       "event_id": "2026-11-25:r_cde4d13ac9ff:up",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "Lium",
       "gpu": "RTX 4090",
       "tier": "Marketplace spot node (interruptible)",
@@ -10670,6 +10704,26 @@
       "last_verified_before": "2026-11-24T21:09:33+00:00",
       "gap_days": 0.77,
       "composition_flag": null,
+      "seq": 486
+    },
+    {
+      "date": "2026-11-25",
+      "key": "RunPod|B200|On-demand (Secure Cloud)|180|1",
+      "rate_id": "r_c2e834803705",
+      "event_id": "2026-11-25:r_c2e834803705:up",
+      "snapshot_id": "2026-11-25.1abd4d21",
+      "vendor": "RunPod",
+      "gpu": "B200",
+      "tier": "On-demand (Secure Cloud)",
+      "vram_gb": 180,
+      "from_hourly_usd": 7.99,
+      "to_hourly_usd": 8.99,
+      "change_pct": 12.5,
+      "status": "ranked",
+      "source_url": "https://api.runpod.io/graphql",
+      "last_verified_before": "2026-11-24T18:49:23Z",
+      "gap_days": 1.0,
+      "composition_flag": null,
       "seq": 485
     },
     {
@@ -10677,7 +10731,7 @@
       "key": "Lium|H200|Marketplace secure node|141|1",
       "rate_id": "r_9b6c41e948a4",
       "event_id": "2026-11-25:r_9b6c41e948a4:down",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "Lium",
       "gpu": "H200",
       "tier": "Marketplace secure node",
@@ -10697,7 +10751,7 @@
       "key": "Lium|A100 SXM|Marketplace secure node|80|8",
       "rate_id": "r_8fe06cffa0fe",
       "event_id": "2026-11-25:r_8fe06cffa0fe:up",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "Lium",
       "gpu": "A100 SXM",
       "tier": "Marketplace secure node",
@@ -10717,7 +10771,7 @@
       "key": "CloudRift|RTX 5090|1 Month (reserved, \"1 mo\")|32|1",
       "rate_id": "r_7250540f1120",
       "event_id": "2026-11-25:r_7250540f1120:up",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "CloudRift",
       "gpu": "RTX 5090",
       "tier": "1 Month (reserved, \"1 mo\")",
@@ -10737,7 +10791,7 @@
       "key": "Lium|H100 SXM|Marketplace secure node|80|8",
       "rate_id": "r_38008c32c29d",
       "event_id": "2026-11-25:r_38008c32c29d:down",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "Lium",
       "gpu": "H100 SXM",
       "tier": "Marketplace secure node",
@@ -10757,7 +10811,7 @@
       "key": "CloudRift|RTX 5090|On-demand|32|1",
       "rate_id": "r_2c2084ad59ed",
       "event_id": "2026-11-25:r_2c2084ad59ed:up",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "CloudRift",
       "gpu": "RTX 5090",
       "tier": "On-demand",
@@ -10777,7 +10831,7 @@
       "key": "Lium|H200 NVL|Marketplace secure node|141|1",
       "rate_id": "r_039b97f0dccf",
       "event_id": "2026-11-25:r_039b97f0dccf:down",
-      "snapshot_id": "2026-11-25.6e0f0b55",
+      "snapshot_id": "2026-11-25.1abd4d21",
       "vendor": "Lium",
       "gpu": "H200 NVL",
       "tier": "Marketplace secure node",
