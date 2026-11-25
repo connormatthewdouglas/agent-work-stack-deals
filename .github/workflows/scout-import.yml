@@ -214,7 +214,7 @@ jobs:
             [ "$rc" = 0 ] || { [ "$rc" = 1 ] && exit 0; exit 1; }
           done
           [ "${pushed:-0}" = 1 ] || { echo "push failed after retries"; exit 1; }
-          gh workflow run validate-and-deploy.yml --ref main
+          sh scripts/dispatch_deploy_after_push.sh "$(git rev-parse HEAD)"
           echo "Committed $(git rev-parse --short HEAD); dispatched validate-and-deploy." >> "$S"
       - name: Open or update a GitHub issue when the import fails
         if: failure()

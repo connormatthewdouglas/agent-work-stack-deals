@@ -101,7 +101,7 @@ jobs:
             if [ -z "$(git status --porcelain)" ]; then exit 0; fi
           done
           [ "${pushed:-0}" = 1 ] || { echo "push failed after retries"; exit 1; }
-          gh workflow run validate-and-deploy.yml --ref main
+          sh scripts/dispatch_deploy_after_push.sh "$(git rev-parse HEAD)"
           echo "Committed $(git rev-parse --short HEAD); dispatched validate-and-deploy." >> "$GITHUB_STEP_SUMMARY"
       - name: Open or update the GPU price refresh issue on failure
         if: failure()
