@@ -26,9 +26,14 @@ def test_referral_label_on_every_code_carrying_row():
     # Clore.ai is in this lock only while it still has a published (not held) rate.
     # After 2026-11-16 the remaining Clore marketplace rows were auto-held (> 7 day
     # manual snapshot); a held vendor must not be required to appear as a current rate.
-    required = {"Vast.ai", "Ucartz", "Novita AI", "RunPod", "Thunder Compute"}
+    required = {"Vast.ai", "Ucartz", "RunPod", "Thunder Compute"}
     if any(r["advertiser"] == "Clore.ai" for r in FEED["rates"]):
         required.add("Clore.ai")
+    # Novita AI is in this lock only while it still has a published (not held) rate.
+    # Official refresh on 2026-11-26T16:14:23Z could not re-cite $0.67: the product
+    # page is a client-rendered shell with no $ figures in visible HTML.
+    if any(r["advertiser"] == "Novita AI" for r in FEED["rates"]):
+        required.add("Novita AI")
     assert required <= labelled
     # 99Stack's /a/<uuid> referral drops the token on redirect. The product-page link stays
     # the vendor page (no referral token). Official refresh on 2026-11-26 uniquely re-cited
@@ -60,6 +65,32 @@ def test_referral_label_on_every_code_carrying_row():
         assert rec["quote"] == QUOTE_99
         assert held_99[0]["reason"].startswith("Cited price $2.8767 is no longer uniquely listed")
         assert "G4-gpu-h100-240m-12c" in held_99[0]["reason"]
+    # Novita product page https://novita.ai/gpu-instance/gpu/rtx-4090 (robots Allow).
+    # Official Fetcher 2026-11-26T16:14:23Z: 200, but visible HTML has no $ price figures
+    # (client-rendered), so the $0.67 On-demand row is auto-held until a unique listed
+    # price can be re-cited. The row must not appear in both rates and held_stale.
+    PRODUCT_NV = "https://novita.ai/gpu-instance/gpu/rtx-4090"
+    QUOTE_NV = "RTX 4090 On-Demand The specific price is subject to the computing power market. $0.67/GPU/hr"
+    rows_nv = [r for r in FEED["rates"] if r["advertiser"] == "Novita AI"]
+    held_nv = [h for h in FEED["held_stale"] if h.get("vendor") == "Novita AI"]
+    assert not (rows_nv and held_nv)
+    if rows_nv:
+        assert len(rows_nv) == 1
+        rnv = rows_nv[0]
+        assert rnv["gpu"] == "RTX 4090" and rnv["tier"] == "On-demand"
+        assert rnv["hourly_equiv_usd"] == 0.67
+        assert rnv.get("basis") == QUOTE_NV or (rnv.get("evidence") or {}).get("quote") == QUOTE_NV
+        assert rnv["source_url"] == PRODUCT_NV
+        assert rnv.get("referral_url") == REFERRALS["Novita AI"] and rnv.get("referral_label") == REFERRAL_LABEL
+    else:
+        assert len(held_nv) == 1
+        rec = held_nv[0]["records"][0]
+        assert held_nv[0]["deal_id"] == "deal-novita-001"
+        assert held_nv[0]["source_url"] == PRODUCT_NV
+        assert rec["hourly_usd"] == 0.67
+        assert rec["quote"] == QUOTE_NV
+        assert held_nv[0]["reason"].startswith("Cited price $0.67 is no longer uniquely listed")
+        assert "no $ price figures in visible page text" in held_nv[0]["reason"]
 
 
 def test_codes_are_never_stripped():

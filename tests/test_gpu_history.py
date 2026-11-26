@@ -174,6 +174,33 @@ def test_unreadable_redesign_without_plan_token_waits_for_stale_days():
     assert rows[0]["result"].startswith("unreadable") and "HELD" not in rows[0]["result"]
 
 
+def test_unreadable_page_with_no_dollar_figures_is_held_without_inventing():
+    """A 200 listed page whose visible text has no $ amounts cannot re-cite (client-rendered
+    shell). Auto-hold immediately; keep the last sourced price and verified_at."""
+    d = doc(rec())
+    # Official visible text shape: marketing/specs copy, no $ figures (Novita RTX 4090
+    # https://novita.ai/gpu-instance/gpu/rtx-4090, Fetcher GET 2026-11-26T16:12:12Z).
+    page = (
+        "<html><body>"
+        "Explore NVIDIA RTX 4090 Features &amp; Specs | High-Performance GPU Model "
+        "RTX 4090: Unleash superior performance. GPU Architecture Ada Lovelace. "
+        "Start Building Now"
+        "</body></html>"
+    )
+    rows = R.refresh([d], Fake(page), NOW)
+    r = d["records"][0]
+    assert r["price_usd"] == 1.99 and r["hourly_usd"] == 1.99
+    assert r["verified_at"] == "2026-11-01T10:00:00+00:00"
+    assert r["checked_at"] == rec()["checked_at"]
+    assert r["last_failed_check_at"] == "2026-11-03T12:00:00+00:00"
+    assert r["stale"]["auto"] is True
+    assert "no longer uniquely listed" in r["stale"]["reason"]
+    assert "no $ price figures in visible page text" in r["stale"]["reason"]
+    assert "quoted context not found" in r["stale"]["reason"]
+    assert "still listed" not in r["stale"]["reason"]
+    assert rows[0]["result"].startswith("unreadable") and "HELD" in rows[0]["result"]
+
+
 def test_unreachable_page_does_not_immediate_hold():
     d = doc(rec())
     rows = R.refresh([d], Fake("", status=503), NOW)
