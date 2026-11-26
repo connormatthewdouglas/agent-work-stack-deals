@@ -789,6 +789,20 @@ def write_model_page(gen, slug: str, fam: dict, all_rates: list[dict]) -> str:
     return path
 
 
+def marketplace_median_rows(rates: list[dict]) -> list[dict]:
+    """Ranked rows that are marketplace medians (Gauge G4). Same rule as the homepage note."""
+    return [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]
+
+
+def marketplace_median_phrase(med: list) -> str | None:
+    """Homepage wording for how many ranked rows are marketplace medians. None when there are none."""
+    if not med:
+        return None
+    if len(med) == 1:
+        return "1 of those rows is a marketplace median"
+    return f"{len(med)} of those rows are marketplace medians"
+
+
 def rate_count_note(gen, deals: list[dict]) -> str:
     """#31: say exactly what the 'N rates from M vendors' headline counts vs the rows in gpu-prices.json."""
     from collections import Counter
@@ -802,12 +816,12 @@ def rate_count_note(gen, deals: list[dict]) -> str:
     rest = [h for h in held if h.get("reason") != "owner_hold" and not str(h.get("reason") or "").startswith("not yet in effect:")]
     unp = doc.get("unpriced") or []
     pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"
-    med = [r for r in rates if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]  # Gauge G4
+    med = marketplace_median_rows(rates)  # Gauge G4
     resv = tc.get("reserved", 0)
     out = (f"How we count: {pl(len(rates), 'rate')} from {gen.esc(vendor_counts_label(rates))}, which is every priced row in "
            f"<a href=\"{gen.BASE}/api/v1/gpu-prices.json\">gpu-prices.json</a> ({gen.esc(parts)}). ")
     if med:
-        out += (f"{pl(len(med), 'of those rows is a marketplace median', ) if len(med) == 1 else str(len(med)) + ' of those rows are marketplace medians'} "
+        out += (f"{marketplace_median_phrase(med)} "
                 f"(each summarises many listings from {gen.esc(', '.join(sorted({r['advertiser'] for r in med})))}, not one offer; "
                 f"{MARKETPLACE_MEDIAN_FOOTNOTE[0].lower() + MARKETPLACE_MEDIAN_FOOTNOTE[1:]}). ")
     if resv:
