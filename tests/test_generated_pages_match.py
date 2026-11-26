@@ -221,6 +221,41 @@ def test_lium_collect_workflow_pins_one_build_clock():
     assert close != -1 and 0 <= gen < pytest_at < close
 
 
+
+def test_collector_workflows_refresh_clock_on_retry_and_repin_to_feed_stamp():
+    """After a rejected push, a new collect must not reuse the first attempt's LW_AVAIL_NOW.
+
+    Lium run 45845293580 (2026-11-26) kept the first clock via ${LW_AVAIL_NOW:-date},
+    wrote feed_updated_at from a later Lium generated_at, and baked window_stale=true
+    because last_check_at was in the future vs the pin. Deploy restamp (pinned to
+    feed_updated_at) then saw real drift and blocked Pages. Each attempt takes a
+    fresh date clock, then re-pins to the written feed_updated_at and regenerates
+    before pytest and before the index-pin commit.
+    """
+    feed_expr = "json.load(open('api/v1/gpu-prices.json'))['feed_updated_at']"
+    for name, fn in (
+        ("gpu-refresh.yml", "run_refresh()"),
+        ("lium-collect.yml", "build()"),
+        ("scout-import.yml", "run_import()"),
+    ):
+        text = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+        for line in text.splitlines():
+            if line.lstrip().startswith("export LW_AVAIL_NOW=") and "${LW_AVAIL_NOW:-" in line:
+                raise AssertionError(f"{name} reuses LW_AVAIL_NOW across retries: {line.strip()}")
+        first = text.find('export LW_AVAIL_NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"')
+        assert first != -1 and fn in text[:first], name
+        close = text.find("\n          }", first)
+        assert feed_expr in text[first:close], name
+        repin_at = text.find(feed_expr, first)
+        gen_after = text.find("scripts/generate_seo_pages.py", repin_at)
+        pytest_at = text.find("pytest", first)
+        assert close != -1 and 0 <= gen_after < pytest_at < close, name
+        pin_commit = text.find('git commit -qm "data: pin GPU index to the feed commit"')
+        assert pin_commit != -1, name
+        window = text[max(0, pin_commit - 600):pin_commit]
+        assert feed_expr in window, name
+
+
 def test_lium_collect_pytest_after_pin_commit():
     """The pin commit is pushed; pytest must run again after it, before rebase_push."""
     text = (ROOT / ".github" / "workflows" / "lium-collect.yml").read_text(encoding="utf-8")
