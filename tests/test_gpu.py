@@ -167,6 +167,13 @@ def pinned_build_clock(monkeypatch):
     # A caller that built the tree under a pinned clock (scripts/check_latest_scout_import.sh) passes that build time.
     monkeypatch.setenv("LW_AVAIL_NOW", os.environ.get("LW_AVAIL_NOW") or api["feed_updated_at"])
     monkeypatch.setenv("LW_BUILD_HORIZON_MIN", "25")
+    # Rebuild rate indexes under that clock. An earlier test can leave _SCOUT/_CACHE
+    # from a different clock (empty scout map -> git_history windows), so the
+    # published file and a later build_rates() would disagree after a scout import.
+    import core.availability_rate as A
+    monkeypatch.setattr(A, "_SCOUT", None)
+    monkeypatch.setattr(A, "_SCOUT_AT", None)
+    monkeypatch.setattr(A, "_CACHE", None)
     return api
 
 

@@ -335,6 +335,11 @@ def _age_last_known(av: dict, now: datetime | None = None) -> dict:
     # lapsed firm claim (PR #323). Do not leave a bare "unknown" next to availability_stale.
     if g.get("status"):
         out["status"] = g["status"]
+        # Status cites last_known_at. If the current reading has no check time
+        # (no_source / no_matching_api_row), fill checked_at so it agrees.
+        # Do not move a newer failed-check timestamp backward (P64).
+        if not out.get("checked_at") and t:
+            out["checked_at"] = t
     if g.get("note"):
         out["note"] = g["note"]
     if g.get("max_age_hours") is not None:
