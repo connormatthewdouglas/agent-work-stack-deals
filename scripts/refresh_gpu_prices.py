@@ -391,22 +391,31 @@ def listed_plan_still_visible(r: dict, text: str) -> bool:
 def should_hold_unreadable_listed(r: dict, text: str | None, msg: str) -> bool:
     """Immediate auto-hold when a 200 listed parse cannot uniquely re-cite a withdrawn figure.
 
-    Ambiguous context, or a still-listed hyphenated plan whose cited $ figure is gone, must not
-    keep serving the last sourced number. A vanished line with no plan token still waits for
-    STALE_DAYS. text is None when the page was not read (unreachable).
+    Ambiguous context, a still-listed hyphenated plan whose cited $ figure is gone, or a
+    readable 200 page whose visible text has no $ price figures at all (a client-rendered
+    shell with no prices in the HTML) must not keep serving the last sourced number.
+    A vanished line on a page that still shows other $ amounts, with no plan token, still
+    waits for STALE_DAYS. text is None when the page was not read (unreachable).
     """
     if not text:
         return False
     if str(msg or "").startswith("ambiguous:"):
         return True
-    return listed_plan_still_visible(r, text) and not cited_price_visible(r, text)
+    if listed_plan_still_visible(r, text) and not cited_price_visible(r, text):
+        return True
+    return not bool(PRICE_RE.search(text))
 
 
-def unreadable_listed_hold_reason(r: dict, msg: str, stamp: str) -> str:
+def unreadable_listed_hold_reason(r: dict, msg: str, stamp: str, text: str | None = None) -> str:
     sku = (listed_plan_skus(r) or [None])[0]
-    plan = f"plan {sku} still listed; " if sku else ""
+    if sku and listed_plan_still_visible(r, text or ""):
+        detail = f"plan {sku} still listed; "
+    elif text and not PRICE_RE.search(text):
+        detail = "no $ price figures in visible page text; "
+    else:
+        detail = ""
     return (f"Cited price ${r['price_usd']} is no longer uniquely listed on {r['source_url']} "
-            f"({plan}parse: {msg}) at {stamp}; held, not shown or ranked, until a unique listed "
+            f"({detail}parse: {msg}) at {stamp}; held, not shown or ranked, until a unique listed "
             "price can be re-cited.")
 
 
@@ -767,7 +776,7 @@ def refresh(docs: list[dict], fetcher, now: datetime, stale_days: int = STALE_DA
                     r["last_failed_check_at"] = stamp
                 age = now - datetime.fromisoformat(r["verified_at"])
                 if not r.get("stale") and should_hold_unreadable_listed(r, text, msg):
-                    r["stale"] = {"reason": unreadable_listed_hold_reason(r, msg, stamp), "auto": True}
+                    r["stale"] = {"reason": unreadable_listed_hold_reason(r, msg, stamp, text), "auto": True}
                 elif not r.get("stale") and age > timedelta(days=stale_days):
                     r["stale"] = {"reason": f"Price not re-verified on the vendor page since {r['verified_at'][:10]} "
                                             f"(> {stale_days} days); held out of rankings until re-verified.", "auto": True}

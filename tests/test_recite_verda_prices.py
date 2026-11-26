@@ -141,15 +141,17 @@ def test_nothing_moved_does_not_write_or_bump_timestamps():
 
 
 def test_vanished_price_keeps_old_value_and_does_not_invent():
+    """A 200 page with no $ figures cannot re-cite; auto-hold keeps the last sourced price."""
     doc = _doc(_page_pair(PRIOR_ON, PRIOR_SPOT))
     result = V.recite(doc, FakeFetcher({PAGE_URL: (200, "<html><body>table redesigned, no 1x row</body></html>")}), NOW)
 
-    assert not result.prices_moved and not result.should_write and not result.new_holds
+    assert not result.prices_moved and result.new_holds and result.should_write
     on, spot = result.doc["records"]
     assert on["price_usd"] == float(PRIOR_ON) and spot["price_usd"] == float(PRIOR_SPOT)
     assert on["verified_at"] == STAMP and spot["verified_at"] == STAMP
     assert on["quote"] == _line(PRIOR_ON) and PRIOR_ON in on["quote"]
-    assert all(str(r["result"]).startswith("unreadable") for r in result.report)
+    assert on["stale"]["auto"] is True and spot["stale"]["auto"] is True
+    assert all(str(r["result"]).startswith("unreadable") and "HELD" in str(r["result"]) for r in result.report)
     assert "last_failed_check_at" in on
 
 
