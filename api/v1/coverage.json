@@ -2,9 +2,9 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-11-26T18:56:54Z",
+  "feed_updated_at": "2026-11-26T19:45:50Z",
   "generation_id": "20261126T185026Z-6c210df1",
-  "as_of": "2026-11-26T18:56:54Z",
+  "as_of": "2026-11-26T19:45:50Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
@@ -13,33 +13,34 @@
   },
   "excluded_serverless_rows": 5,
   "counts": {
-    "models_tracked": 32,
-    "targets_tracked": 27,
+    "models_tracked": 28,
+    "targets_tracked": 26,
     "targets_total": 28,
     "targets_not_yet_tracked": [
-      "MI250"
+      "MI250",
+      "A40"
     ],
     "vendors": 24,
-    "cells_priced_or_in_stock": 102,
-    "cells_in_stock": 26,
+    "cells_priced_or_in_stock": 90,
+    "cells_in_stock": 16,
     "models_single_vendor": [
       "A10",
       "A10G",
-      "A40",
       "GB300",
       "H100 NVL",
       "H200 NVL",
+      "L4",
       "MI325X",
       "MI355X",
       "Quadro RTX 6000",
+      "RTX A4000",
       "RTX A5000",
-      "RTX PRO 4000",
-      "RTX PRO 4500",
-      "RTX PRO 5000",
       "T4"
     ],
     "survey_cells_listed": 53,
-    "survey_models_listed_not_priced": []
+    "survey_models_listed_not_priced": [
+      "A40"
+    ]
   },
   "survey": {
     "surveyed_at": "2026-10-30T22:11:00Z",
@@ -97,45 +98,43 @@
         "99Stack Cloud": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:56:52Z"
+          "checked_at": "2026-11-26T19:42:37Z"
         },
         "Civo": {
           "status": "in stock",
           "rows": 4,
-          "checked_at": "2026-11-26T14:57:06Z",
+          "checked_at": "2026-11-26T19:42:53Z",
           "stock_checked_at": "2026-11-26T18:49:08Z"
         },
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:22Z"
+          "checked_at": "2026-11-26T19:43:08Z"
         },
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:28Z"
+          "checked_at": "2026-11-26T19:43:14Z"
         },
         "E2E Networks": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:34Z"
+          "checked_at": "2026-11-26T19:43:20Z"
         },
         "Hyperstack": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-26T14:57:46Z",
-          "stock_checked_at": "2026-11-26T18:49:12Z"
+          "checked_at": "2026-11-26T19:43:32Z"
         },
         "Jarvislabs": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:52Z"
+          "checked_at": "2026-11-26T19:43:39Z"
         },
         "Lambda": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:04Z",
-          "stock_checked_at": "2026-11-26T18:49:04Z"
+          "checked_at": "2026-11-26T19:43:50Z"
         },
         "Lium": {
           "status": "in stock",
@@ -146,28 +145,27 @@
         "Nebius": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:16Z"
+          "checked_at": "2026-11-26T19:44:03Z"
         },
         "Oblivus": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:34Z"
+          "checked_at": "2026-11-26T19:44:20Z"
         },
         "RunPod": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-26T14:58:53Z",
-          "stock_checked_at": "2026-11-26T18:43:33Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T15:00:16Z"
+          "checked_at": "2026-11-26T19:45:05Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T15:00:37Z"
+          "checked_at": "2026-11-26T19:45:27Z"
         }
       },
       "vendor_lists": {
@@ -176,7 +174,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 14,
-      "in_stock_vendor_count": 5
+      "in_stock_vendor_count": 2
     },
     {
       "model": "A100",
@@ -195,35 +193,33 @@
         "Civo": {
           "status": "in stock",
           "rows": 8,
-          "checked_at": "2026-11-26T14:57:06Z",
+          "checked_at": "2026-11-26T19:42:53Z",
           "stock_checked_at": "2026-11-26T18:49:08Z"
         },
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:22Z"
+          "checked_at": "2026-11-26T19:43:08Z"
         },
         "E2E Networks": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:57:34Z"
+          "checked_at": "2026-11-26T19:43:20Z"
         },
         "Hyperstack": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-26T14:57:46Z",
-          "stock_checked_at": "2026-11-26T18:49:12Z"
+          "checked_at": "2026-11-26T19:43:32Z"
         },
         "Jarvislabs": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:57:52Z"
+          "checked_at": "2026-11-26T19:43:39Z"
         },
         "Lambda": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:04Z",
-          "stock_checked_at": "2026-11-26T18:49:04Z"
+          "checked_at": "2026-11-26T19:43:50Z"
         },
         "Lium": {
           "status": "in stock",
@@ -232,27 +228,24 @@
           "stock_checked_at": "2026-11-26T18:56:23Z"
         },
         "Oblivus": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:34Z",
-          "stock_checked_at": "2026-11-26T18:49:08Z"
+          "checked_at": "2026-11-26T19:44:20Z"
         },
         "RunPod": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-26T14:58:53Z",
-          "stock_checked_at": "2026-11-26T18:43:33Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T15:00:16Z"
+          "checked_at": "2026-11-26T19:45:05Z"
         },
         "Verda (formerly DataCrunch)": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-26T15:00:37Z",
-          "stock_checked_at": "2026-11-26T18:49:03Z"
+          "checked_at": "2026-11-26T19:45:27Z"
         }
       },
       "vendor_lists": {
@@ -262,7 +255,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 11,
-      "in_stock_vendor_count": 7
+      "in_stock_vendor_count": 2
     },
     {
       "model": "L40S",
@@ -275,17 +268,17 @@
         "CloudRift": {
           "status": "priced",
           "rows": 3,
-          "checked_at": "2026-11-26T14:57:11Z"
+          "checked_at": "2026-11-26T19:42:57Z"
         },
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:22Z"
+          "checked_at": "2026-11-26T19:43:08Z"
         },
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:28Z"
+          "checked_at": "2026-11-26T19:43:14Z"
         },
         "Lium": {
           "status": "in stock",
@@ -296,27 +289,27 @@
         "Nebius": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:16Z"
+          "checked_at": "2026-11-26T19:44:03Z"
         },
         "OVHcloud (US)": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:42Z"
+          "checked_at": "2026-11-26T19:44:29Z"
         },
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "Spheron": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:59:16Z"
+          "checked_at": "2026-11-26T19:45:02Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T15:00:37Z"
+          "checked_at": "2026-11-26T19:45:27Z"
         }
       },
       "vendor_lists": {
@@ -338,17 +331,17 @@
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:22Z"
+          "checked_at": "2026-11-26T19:43:08Z"
         },
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:28Z"
+          "checked_at": "2026-11-26T19:43:14Z"
         },
         "Hyperstack": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:57:46Z"
+          "checked_at": "2026-11-26T19:43:32Z"
         },
         "Lium": {
           "status": "in stock",
@@ -359,17 +352,17 @@
         "Nebius": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:16Z"
+          "checked_at": "2026-11-26T19:44:03Z"
         },
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T15:00:37Z"
+          "checked_at": "2026-11-26T19:45:27Z"
         }
       },
       "vendor_lists": {
@@ -396,34 +389,32 @@
         "Nova Cloud": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:22Z"
+          "checked_at": "2026-11-26T19:44:08Z"
         },
         "Oblivus": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T18:50:22Z"
+          "checked_at": "2026-11-26T19:44:20Z"
         },
         "RunC.AI": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:46Z"
+          "checked_at": "2026-11-26T19:44:33Z"
         },
         "RunPod": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:53Z",
-          "stock_checked_at": "2026-11-26T18:43:33Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "SaladCloud": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:59:04Z"
+          "checked_at": "2026-11-26T19:44:50Z"
         },
         "Vast.ai": {
-          "status": "in stock",
+          "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T15:00:34Z",
-          "stock_checked_at": "2026-11-26T18:43:31Z"
+          "checked_at": "2026-11-26T19:45:23Z"
         }
       },
       "vendor_lists": {
@@ -433,7 +424,7 @@
         "Vast.ai": "listed"
       },
       "vendor_count": 7,
-      "in_stock_vendor_count": 3
+      "in_stock_vendor_count": 1
     },
     {
       "model": "RTX A6000",
@@ -446,7 +437,7 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:04Z"
+          "checked_at": "2026-11-26T19:43:50Z"
         },
         "Lium": {
           "status": "in stock",
@@ -457,17 +448,17 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T15:00:16Z"
+          "checked_at": "2026-11-26T19:45:05Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T15:00:37Z"
+          "checked_at": "2026-11-26T19:45:27Z"
         }
       },
       "vendor_lists": {
@@ -476,44 +467,6 @@
         "RunPod": "listed"
       },
       "vendor_count": 5,
-      "in_stock_vendor_count": 1
-    },
-    {
-      "model": "B200",
-      "family": "b200",
-      "status": "tracked",
-      "variants": [
-        "B200 180GB"
-      ],
-      "vendors": {
-        "Lambda": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-26T14:58:04Z"
-        },
-        "Lium": {
-          "status": "in stock",
-          "rows": 1,
-          "checked_at": "2026-11-26T18:56:23Z",
-          "stock_checked_at": "2026-11-26T18:56:23Z"
-        },
-        "RunPod": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-26T18:50:19Z"
-        },
-        "Verda (formerly DataCrunch)": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-26T18:50:26Z"
-        }
-      },
-      "vendor_lists": {
-        "Oblivus": "listed, no sourced price",
-        "RunPod": "listed",
-        "Vast.ai": "listed"
-      },
-      "vendor_count": 4,
       "in_stock_vendor_count": 1
     },
     {
@@ -527,7 +480,7 @@
         "CloudRift": {
           "status": "priced",
           "rows": 3,
-          "checked_at": "2026-11-26T14:57:16Z"
+          "checked_at": "2026-11-26T19:43:02Z"
         },
         "Lium": {
           "status": "in stock",
@@ -538,12 +491,12 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "Ucartz": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T15:00:22Z"
+          "checked_at": "2026-11-26T19:45:11Z"
         }
       },
       "vendor_lists": {
@@ -556,28 +509,23 @@
       "in_stock_vendor_count": 1
     },
     {
-      "model": "RTX 6000 Ada",
-      "family": "rtx-6000-ada",
+      "model": "B200",
+      "family": "b200",
       "status": "tracked",
       "variants": [
-        "RTX 6000 Ada 48GB"
+        "B200 180GB"
       ],
       "vendors": {
-        "DigitalOcean GPU Droplets": {
+        "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:28Z"
+          "checked_at": "2026-11-26T19:43:50Z"
         },
         "Lium": {
           "status": "in stock",
-          "rows": 2,
+          "rows": 1,
           "checked_at": "2026-11-26T18:56:23Z",
           "stock_checked_at": "2026-11-26T18:56:23Z"
-        },
-        "RunPod": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-26T18:50:19Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
@@ -586,39 +534,7 @@
         }
       },
       "vendor_lists": {
-        "RunPod": "listed",
-        "Vast.ai": "listed"
-      },
-      "vendor_count": 4,
-      "in_stock_vendor_count": 1
-    },
-    {
-      "model": "B300",
-      "family": "b300",
-      "status": "tracked",
-      "variants": [
-        "B300 268GB",
-        "B300 288GB"
-      ],
-      "vendors": {
-        "Lium": {
-          "status": "in stock",
-          "rows": 1,
-          "checked_at": "2026-11-26T18:56:23Z",
-          "stock_checked_at": "2026-11-26T18:56:23Z"
-        },
-        "RunPod": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-26T18:50:19Z"
-        },
-        "Verda (formerly DataCrunch)": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-26T18:50:26Z"
-        }
-      },
-      "vendor_lists": {
+        "Oblivus": "listed, no sourced price",
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
@@ -642,12 +558,12 @@
         "RunPod": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T15:00:16Z"
+          "checked_at": "2026-11-26T19:45:05Z"
         }
       },
       "vendor_lists": {
@@ -658,56 +574,23 @@
       "in_stock_vendor_count": 1
     },
     {
-      "model": "MI300X",
-      "family": "mi300x",
+      "model": "RTX 6000 Ada",
+      "family": "rtx-6000-ada",
       "status": "tracked",
       "variants": [
-        "MI300X 192GB"
+        "RTX 6000 Ada 48GB"
       ],
       "vendors": {
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:28Z"
+          "checked_at": "2026-11-26T19:43:14Z"
         },
-        "Hot Aisle": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-26T14:57:42Z"
-        },
-        "RunPod": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-26T18:50:19Z"
-        }
-      },
-      "vendor_lists": {
-        "RunPod": "listed"
-      },
-      "vendor_count": 3,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "RTX PRO 6000",
-      "family": "rtx-pro-6000",
-      "status": "tracked",
-      "variants": [
-        "RTX PRO 6000 96GB",
-        "RTX PRO 6000 Max-Q 96GB",
-        "RTX PRO 6000 Server 96GB",
-        "RTX PRO 6000 Workstation 96GB"
-      ],
-      "vendors": {
         "Lium": {
           "status": "in stock",
           "rows": 2,
           "checked_at": "2026-11-26T18:56:23Z",
           "stock_checked_at": "2026-11-26T18:56:23Z"
-        },
-        "RunPod": {
-          "status": "priced",
-          "rows": 5,
-          "checked_at": "2026-11-26T18:50:19Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
@@ -716,8 +599,6 @@
         }
       },
       "vendor_lists": {
-        "Clore.ai": "listed",
-        "Oblivus": "listed, no sourced price",
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
@@ -725,23 +606,19 @@
       "in_stock_vendor_count": 1
     },
     {
-      "model": "V100",
-      "family": "v100",
+      "model": "B300",
+      "family": "b300",
       "status": "tracked",
       "variants": [
-        "V100 16GB",
-        "V100 SXM2 16GB"
+        "B300 268GB",
+        "B300 288GB"
       ],
       "vendors": {
-        "Lambda": {
-          "status": "priced",
+        "Lium": {
+          "status": "in stock",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:04Z"
-        },
-        "RunPod": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-26T18:50:19Z"
+          "checked_at": "2026-11-26T18:56:23Z",
+          "stock_checked_at": "2026-11-26T18:56:23Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
@@ -750,11 +627,11 @@
         }
       },
       "vendor_lists": {
-        "Clore.ai": "listed",
-        "RunPod": "listed"
+        "RunPod": "listed",
+        "Vast.ai": "listed"
       },
-      "vendor_count": 3,
-      "in_stock_vendor_count": 0
+      "vendor_count": 2,
+      "in_stock_vendor_count": 1
     },
     {
       "model": "GH200",
@@ -767,12 +644,12 @@
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:22Z"
+          "checked_at": "2026-11-26T19:43:08Z"
         },
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:04Z"
+          "checked_at": "2026-11-26T19:43:50Z"
         }
       },
       "vendor_lists": {},
@@ -780,26 +657,25 @@
       "in_stock_vendor_count": 0
     },
     {
-      "model": "L4",
-      "family": "l4",
+      "model": "MI300X",
+      "family": "mi300x",
       "status": "tracked",
       "variants": [
-        "L4 24GB"
+        "MI300X 192GB"
       ],
       "vendors": {
-        "Jarvislabs": {
+        "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:52Z"
+          "checked_at": "2026-11-26T19:43:14Z"
         },
-        "RunPod": {
+        "Hot Aisle": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T18:50:19Z"
+          "checked_at": "2026-11-26T19:43:28Z"
         }
       },
       "vendor_lists": {
-        "Clore.ai": "listed",
         "RunPod": "listed"
       },
       "vendor_count": 2,
@@ -822,7 +698,7 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         }
       },
       "vendor_lists": {
@@ -834,22 +710,52 @@
       "in_stock_vendor_count": 1
     },
     {
-      "model": "RTX A4000",
-      "family": "rtx-a4000",
+      "model": "RTX PRO 6000",
+      "family": "rtx-pro-6000",
       "status": "tracked",
       "variants": [
-        "RTX A4000 16GB"
+        "RTX PRO 6000 96GB",
+        "RTX PRO 6000 Server 96GB"
       ],
       "vendors": {
-        "Hyperstack": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-26T14:57:46Z"
+        "Lium": {
+          "status": "in stock",
+          "rows": 2,
+          "checked_at": "2026-11-26T18:56:23Z",
+          "stock_checked_at": "2026-11-26T18:56:23Z"
         },
-        "RunPod": {
+        "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T18:50:19Z"
+          "checked_at": "2026-11-26T18:50:26Z"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "Oblivus": "listed, no sourced price",
+        "RunPod": "listed",
+        "Vast.ai": "listed"
+      },
+      "vendor_count": 2,
+      "in_stock_vendor_count": 1
+    },
+    {
+      "model": "V100",
+      "family": "v100",
+      "status": "tracked",
+      "variants": [
+        "V100 16GB"
+      ],
+      "vendors": {
+        "Lambda": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-26T19:43:50Z"
+        },
+        "Verda (formerly DataCrunch)": {
+          "status": "priced",
+          "rows": 2,
+          "checked_at": "2026-11-26T18:50:26Z"
         }
       },
       "vendor_lists": {
@@ -870,7 +776,7 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:04Z"
+          "checked_at": "2026-11-26T19:43:50Z"
         }
       },
       "vendor_lists": {},
@@ -888,30 +794,10 @@
         "Amazon Web Services": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:56:55Z"
+          "checked_at": "2026-11-26T19:42:41Z"
         }
       },
       "vendor_lists": {},
-      "vendor_count": 1,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "A40",
-      "family": "a40",
-      "status": "tracked",
-      "variants": [
-        "A40 48GB"
-      ],
-      "vendors": {
-        "RunPod": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-26T18:50:19Z"
-        }
-      },
-      "vendor_lists": {
-        "RunPod": "listed"
-      },
       "vendor_count": 1,
       "in_stock_vendor_count": 0
     },
@@ -944,7 +830,7 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         }
       },
       "vendor_lists": {
@@ -978,6 +864,27 @@
       "in_stock_vendor_count": 1
     },
     {
+      "model": "L4",
+      "family": "l4",
+      "status": "tracked",
+      "variants": [
+        "L4 24GB"
+      ],
+      "vendors": {
+        "Jarvislabs": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-26T19:43:39Z"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed"
+      },
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
       "model": "MI325X",
       "family": "mi325x",
       "status": "tracked",
@@ -988,7 +895,7 @@
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:28Z"
+          "checked_at": "2026-11-26T19:43:14Z"
         }
       },
       "vendor_lists": {},
@@ -1006,7 +913,7 @@
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:28Z"
+          "checked_at": "2026-11-26T19:43:14Z"
         }
       },
       "vendor_lists": {},
@@ -1024,10 +931,31 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:04Z"
+          "checked_at": "2026-11-26T19:43:50Z"
         }
       },
       "vendor_lists": {},
+      "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "RTX A4000",
+      "family": "rtx-a4000",
+      "status": "tracked",
+      "variants": [
+        "RTX A4000 16GB"
+      ],
+      "vendors": {
+        "Hyperstack": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-26T19:43:32Z"
+        }
+      },
+      "vendor_lists": {
+        "Clore.ai": "listed",
+        "RunPod": "listed"
+      },
       "vendor_count": 1,
       "in_stock_vendor_count": 0
     },
@@ -1042,67 +970,12 @@
         "RunPod": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:58:53Z"
+          "checked_at": "2026-11-26T19:44:39Z"
         }
       },
       "vendor_lists": {
         "RunPod": "listed"
       },
-      "vendor_count": 1,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "RTX PRO 4000",
-      "family": "rtx-pro-4000",
-      "status": "tracked",
-      "variants": [
-        "RTX PRO 4000 24GB"
-      ],
-      "vendors": {
-        "RunPod": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-26T18:50:19Z"
-        }
-      },
-      "vendor_lists": {},
-      "vendor_count": 1,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "RTX PRO 4500",
-      "family": "rtx-pro-4500",
-      "status": "tracked",
-      "variants": [
-        "RTX PRO 4500 32GB",
-        "RTX PRO 4500 Server 32GB"
-      ],
-      "vendors": {
-        "RunPod": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-26T18:50:19Z"
-        }
-      },
-      "vendor_lists": {},
-      "vendor_count": 1,
-      "in_stock_vendor_count": 0
-    },
-    {
-      "model": "RTX PRO 5000",
-      "family": "rtx-pro-5000",
-      "status": "tracked",
-      "variants": [
-        "RTX PRO 5000 48GB"
-      ],
-      "vendors": {
-        "RunPod": {
-          "status": "priced",
-          "rows": 2,
-          "checked_at": "2026-11-26T18:50:19Z"
-        }
-      },
-      "vendor_lists": {},
       "vendor_count": 1,
       "in_stock_vendor_count": 0
     },
@@ -1117,13 +990,25 @@
         "E2E Networks": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T14:57:34Z"
+          "checked_at": "2026-11-26T19:43:20Z"
         }
       },
       "vendor_lists": {
         "Clore.ai": "listed"
       },
       "vendor_count": 1,
+      "in_stock_vendor_count": 0
+    },
+    {
+      "model": "A40",
+      "family": "a40",
+      "status": "not yet tracked",
+      "variants": [],
+      "vendors": {},
+      "vendor_lists": {
+        "RunPod": "listed"
+      },
+      "vendor_count": 0,
       "in_stock_vendor_count": 0
     },
     {
