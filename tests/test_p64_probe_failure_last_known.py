@@ -167,3 +167,20 @@ def test_carry_scout_row_keeps_last_known_only_when_current_is_not_firm():
             "availability_checked_at": LATER, "availability_reason": "no_source"}
     out = carry_scout_row(dict(bare), None)
     assert "last_known_in_stock" not in out and "last_known_at" not in out
+
+
+def test_no_source_without_checked_at_fills_stale_last_known_time():
+    """A no_matching_api_row leftover has no current probe time. Once last_known
+    is past 8h, the stale status cites last_known_at and checked_at must agree.
+    A newer failed-check timestamp is still not moved backward (test above)."""
+    prev = _firm(False)
+    cur = _failure("no_source", "no_matching_api_row", at=None)
+    cur.pop("checked_at", None)
+    out = apply_probe(prev, cur, now=T0 + timedelta(hours=1))
+    assert out.get("checked_at") is None and out["last_known_at"] == CHECK
+    assert out["last_known_in_stock"] is False
+    aged = stale_guard(out, T0 + timedelta(hours=AVAIL_MAX_AGE_H, seconds=1))
+    assert aged["availability_stale"] is True and aged["in_stock"] is None
+    assert aged["checked_at"] == CHECK
+    assert aged["status"].startswith("unknown (stale availability, last checked ")
+    assert et_time(CHECK) in aged["status"]
