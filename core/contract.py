@@ -88,12 +88,12 @@ SPEC = {
     "estimate_job_cost": (["gpu_family", "requested_gpus", "job_hours", "count", "results", "assumptions", "citations",
                            "missing_costs", "budget_verdict", "quote_id", "issued_at"], "results",
                           ["rank", "rate_id", "vendor", "allocated_gpus", "instances", "compute_subtotal_usd", "source_url"],
-                          ["summary", "job_hours", "count", "results", "assumptions", "missing_costs", "budget_verdict",
+                          ["summary", "job_hours", "job_days", "count", "results", "assumptions", "missing_costs", "budget_verdict",
                            "quote_id", "issued_at",
                            # (additive) serverless/per-second rows are held out of cost ranking; count and reasons stay in brief
                            "excluded_serverless", "held_serverless"],
                           ["rank", "rate_id", "vendor", "gpu", "allocated_gpus", "instances", "compute_subtotal_usd",
-                           "source_url", "verified_at", "stale"]),
+                           "job_hours", "job_days", "source_url", "verified_at", "stale"]),
     "rebuild_quote": (["quote_id", "receipt_intact", "reproduced", "lines", "revalidation"], "lines",
                       ["line", "matches"],
                       ["quote_id", "receipt_intact", "reproduced", "lines", "revalidation"],
@@ -214,9 +214,10 @@ EXTRA_PROPS["find_available_gpus"] = {
 
 EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["status"]}}}
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
-EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "results": {"type": "array", "items": {
+EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "job_days": _num, "results": {"type": "array", "items": {
     "type": "object", "required": SPEC["estimate_job_cost"][2],
-    "properties": {"rate_id": _RATE_ID, "data_age_hours": _num, "degraded": _bool, "stale": _bool, **_AVAIL_PROPS}}},
+    "properties": {"rate_id": _RATE_ID, "job_hours": _num, "job_days": _num, "tracked_url": _str,
+                   "data_age_hours": _num, "degraded": _bool, "stale": _bool, **_AVAIL_PROPS}}},
     "budget_verdict": {"type": "string", "enum": ["unresolved", "within", "over"]}}
 # T48 (0.4.0, additive): reopenable receipt on the three quoting tools.
 _RECEIPT = {"receipt": {"type": "object", "required": ["receipt_version", "tool", "quote_id", "lines", "feed_revision", "receipt_sha256"]}}
