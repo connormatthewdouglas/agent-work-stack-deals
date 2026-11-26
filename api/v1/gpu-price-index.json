@@ -11044,8 +11044,8 @@
   {
    "date": "2026-11-26",
    "snapshot_file": "data/gpu_pricing/snapshots/2026-11-26.json",
-   "snapshot_sha256": "00ec6cc8c2d16609e380cbfe653ed236d7143d5748659eae9907edd44915c30f",
-   "feed_commit_for_listing_counts": "e2701142d6853bc10e6bc0be98247f84810e9138",
+   "snapshot_sha256": "5f626e86a4dbdeaabc1dc3d8a4e3df8efc90bf58a73df04db137365eb18a62db",
+   "feed_commit_for_listing_counts": "uncommitted",
    "series": {
     "H100": {
      "median_usd_per_gpu_hour": 3.5,
@@ -11119,13 +11119,12 @@
      "low_coverage": false
     },
     "RTX 4090": {
-     "median_usd_per_gpu_hour": 0.4785,
-     "monthly_basis_usd": 349.31,
+     "median_usd_per_gpu_hour": 0.42,
+     "monthly_basis_usd": 306.6,
      "min_usd_per_gpu_hour": 0.34,
-     "vendors": 6,
+     "vendors": 5,
      "vendor_prices": {
       "Nova Cloud": 0.42,
-      "Novita AI": 0.67,
       "Oblivus": 0.64,
       "RunC.AI": 0.42,
       "RunPod": 0.34,
@@ -11175,7 +11174,6 @@
     "Nebius|H200|On-demand|141|1",
     "Nebius|L40S|On-demand (from, Intel CPU)|48|1",
     "Nova Cloud|RTX 4090|On-demand|24|1",
-    "Novita AI|RTX 4090|On-demand|24|1",
     "OVHcloud (US)|L40S|Public Cloud GPU instance, hourly (\"Price ( excl. taxes / hour)\")|48|1",
     "Oblivus|A100 PCIe|On-demand|80|1",
     "Oblivus|H100 PCIe|On-demand|80|1",
@@ -11355,6 +11353,10 @@
      "excluded_because": "spot/interruptible"
     },
     {
+     "key": "Novita AI|RTX 4090|On-demand|24|1",
+     "excluded_because": "held"
+    },
+    {
      "key": "Runcrate|RTX 4090|Aggregated lowest live rate (from)|24|1",
      "excluded_because": "held"
     },
@@ -11461,12 +11463,14 @@
      "vendors_dropped": []
     },
     "RTX 4090": {
-     "matched_vendors": 6,
-     "matched_median_prev": 0.4438,
-     "matched_median_cur": 0.4785,
-     "matched_change_pct": 7.82,
+     "matched_vendors": 5,
+     "matched_median_prev": 0.42,
+     "matched_median_cur": 0.42,
+     "matched_change_pct": 0.0,
      "vendors_added": [],
-     "vendors_dropped": []
+     "vendors_dropped": [
+      "Novita AI"
+     ]
     },
     "RTX 5090": {
      "matched_vendors": 2,
