@@ -2,9 +2,9 @@
   "schema": "lantern-works-coverage/1",
   "license": "CC BY 4.0",
   "source": "/api/v1/gpu-prices.json",
-  "feed_updated_at": "2026-11-26T13:31:49Z",
+  "feed_updated_at": "2026-11-26T15:01:09Z",
   "generation_id": "20261125T185112Z-028a4a17",
-  "as_of": "2026-11-26T13:31:49Z",
+  "as_of": "2026-11-26T15:01:09Z",
   "cell_values": {
     "in stock": "sourced rate and a current in-stock claim at build time",
     "priced": "sourced rate; no current in-stock claim (unknown is not sold out)",
@@ -19,7 +19,7 @@
     "targets_not_yet_tracked": [
       "MI250"
     ],
-    "vendors": 24,
+    "vendors": 25,
     "cells_priced_or_in_stock": 103,
     "cells_in_stock": 0,
     "models_single_vendor": [
@@ -57,6 +57,7 @@
     ]
   },
   "vendors": [
+    "99Stack Cloud",
     "Amazon Web Services",
     "Civo",
     "CloudRift",
@@ -94,40 +95,45 @@
         "H100 SXM 80GB"
       ],
       "vendors": {
+        "99Stack Cloud": {
+          "status": "priced",
+          "rows": 1,
+          "checked_at": "2026-11-26T14:56:52Z"
+        },
         "Civo": {
           "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-24T20:42:29Z"
+          "checked_at": "2026-11-26T14:57:06Z"
         },
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:44Z"
+          "checked_at": "2026-11-26T14:57:22Z"
         },
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:50Z"
+          "checked_at": "2026-11-26T14:57:28Z"
         },
         "E2E Networks": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T13:31:49Z"
+          "checked_at": "2026-11-26T14:57:34Z"
         },
         "Hyperstack": {
           "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-24T20:43:08Z"
+          "checked_at": "2026-11-26T14:57:46Z"
         },
         "Jarvislabs": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:15Z"
+          "checked_at": "2026-11-26T14:57:52Z"
         },
         "Lambda": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         },
         "Lium": {
           "status": "priced",
@@ -137,27 +143,27 @@
         "Nebius": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:38Z"
+          "checked_at": "2026-11-26T14:58:16Z"
         },
         "Oblivus": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:57Z"
+          "checked_at": "2026-11-26T14:58:34Z"
         },
         "RunPod": {
           "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:41Z"
+          "checked_at": "2026-11-26T15:00:16Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:45:03Z"
+          "checked_at": "2026-11-26T15:00:37Z"
         }
       },
       "vendor_lists": {
@@ -165,7 +171,7 @@
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
-      "vendor_count": 13,
+      "vendor_count": 14,
       "in_stock_vendor_count": 0
     },
     {
@@ -185,32 +191,32 @@
         "Civo": {
           "status": "priced",
           "rows": 8,
-          "checked_at": "2026-11-24T20:42:29Z"
+          "checked_at": "2026-11-26T14:57:06Z"
         },
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:44Z"
+          "checked_at": "2026-11-26T14:57:22Z"
         },
         "E2E Networks": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-26T13:31:49Z"
+          "checked_at": "2026-11-26T14:57:34Z"
         },
         "Hyperstack": {
           "status": "priced",
           "rows": 5,
-          "checked_at": "2026-11-24T20:43:08Z"
+          "checked_at": "2026-11-26T14:57:46Z"
         },
         "Jarvislabs": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:43:15Z"
+          "checked_at": "2026-11-26T14:57:52Z"
         },
         "Lambda": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         },
         "Lium": {
           "status": "priced",
@@ -220,27 +226,22 @@
         "Oblivus": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:57Z"
+          "checked_at": "2026-11-26T14:58:34Z"
         },
         "RunPod": {
           "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:41Z"
-        },
-        "Vast.ai": {
-          "status": "priced",
-          "rows": 1,
-          "checked_at": "2026-11-24T20:44:54Z"
+          "checked_at": "2026-11-26T15:00:16Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 4,
-          "checked_at": "2026-11-24T20:45:03Z"
+          "checked_at": "2026-11-26T15:00:37Z"
         }
       },
       "vendor_lists": {
@@ -249,7 +250,7 @@
         "RunPod": "listed",
         "Vast.ai": "listed"
       },
-      "vendor_count": 12,
+      "vendor_count": 11,
       "in_stock_vendor_count": 0
     },
     {
@@ -263,17 +264,17 @@
         "CloudRift": {
           "status": "priced",
           "rows": 3,
-          "checked_at": "2026-11-24T20:42:33Z"
+          "checked_at": "2026-11-26T14:57:11Z"
         },
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:44Z"
+          "checked_at": "2026-11-26T14:57:22Z"
         },
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:50Z"
+          "checked_at": "2026-11-26T14:57:28Z"
         },
         "Lium": {
           "status": "priced",
@@ -283,27 +284,27 @@
         "Nebius": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:38Z"
+          "checked_at": "2026-11-26T14:58:16Z"
         },
         "OVHcloud (US)": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:03Z"
+          "checked_at": "2026-11-26T14:58:42Z"
         },
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "Spheron": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:38Z"
+          "checked_at": "2026-11-26T14:59:16Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:45:03Z"
+          "checked_at": "2026-11-26T15:00:37Z"
         }
       },
       "vendor_lists": {
@@ -329,7 +330,7 @@
         "Nova Cloud": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:45Z"
+          "checked_at": "2026-11-26T14:58:22Z"
         },
         "Novita AI": {
           "status": "priced",
@@ -339,27 +340,27 @@
         "Oblivus": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-25T18:51:05Z"
+          "checked_at": "2026-11-26T14:58:34Z"
         },
         "RunC.AI": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:09Z"
+          "checked_at": "2026-11-26T14:58:46Z"
         },
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "SaladCloud": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:26Z"
+          "checked_at": "2026-11-26T14:59:04Z"
         },
         "Vast.ai": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:59Z"
+          "checked_at": "2026-11-26T15:00:34Z"
         }
       },
       "vendor_lists": {
@@ -383,17 +384,17 @@
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:44Z"
+          "checked_at": "2026-11-26T14:57:22Z"
         },
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:50Z"
+          "checked_at": "2026-11-26T14:57:28Z"
         },
         "Hyperstack": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:43:08Z"
+          "checked_at": "2026-11-26T14:57:46Z"
         },
         "Lium": {
           "status": "priced",
@@ -403,17 +404,17 @@
         "Nebius": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:38Z"
+          "checked_at": "2026-11-26T14:58:16Z"
         },
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:45:03Z"
+          "checked_at": "2026-11-26T15:00:37Z"
         }
       },
       "vendor_lists": {
@@ -434,7 +435,7 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         },
         "Lium": {
           "status": "priced",
@@ -444,17 +445,17 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:41Z"
+          "checked_at": "2026-11-26T15:00:16Z"
         },
         "Verda (formerly DataCrunch)": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:45:03Z"
+          "checked_at": "2026-11-26T15:00:37Z"
         }
       },
       "vendor_lists": {
@@ -476,7 +477,7 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         },
         "Lium": {
           "status": "priced",
@@ -513,7 +514,7 @@
         "CloudRift": {
           "status": "priced",
           "rows": 3,
-          "checked_at": "2026-11-25T14:32:32Z"
+          "checked_at": "2026-11-26T14:57:16Z"
         },
         "Lium": {
           "status": "priced",
@@ -523,12 +524,12 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "Ucartz": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:47Z"
+          "checked_at": "2026-11-26T15:00:22Z"
         }
       },
       "vendor_lists": {
@@ -551,7 +552,7 @@
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:50Z"
+          "checked_at": "2026-11-26T14:57:28Z"
         },
         "Lium": {
           "status": "priced",
@@ -624,12 +625,12 @@
         "RunPod": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         },
         "Thunder Compute": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:41Z"
+          "checked_at": "2026-11-26T15:00:16Z"
         }
       },
       "vendor_lists": {
@@ -650,12 +651,12 @@
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:50Z"
+          "checked_at": "2026-11-26T14:57:28Z"
         },
         "Hot Aisle": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:05Z"
+          "checked_at": "2026-11-26T14:57:42Z"
         },
         "RunPod": {
           "status": "priced",
@@ -717,7 +718,7 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         },
         "RunPod": {
           "status": "priced",
@@ -748,12 +749,12 @@
         "CoreWeave": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:44Z"
+          "checked_at": "2026-11-26T14:57:22Z"
         },
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         }
       },
       "vendor_lists": {},
@@ -771,7 +772,7 @@
         "Jarvislabs": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:15Z"
+          "checked_at": "2026-11-26T14:57:52Z"
         },
         "RunPod": {
           "status": "priced",
@@ -802,7 +803,7 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         }
       },
       "vendor_lists": {
@@ -824,7 +825,7 @@
         "Hyperstack": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:08Z"
+          "checked_at": "2026-11-26T14:57:46Z"
         },
         "RunPod": {
           "status": "priced",
@@ -850,7 +851,7 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         }
       },
       "vendor_lists": {},
@@ -868,7 +869,7 @@
         "Amazon Web Services": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:17Z"
+          "checked_at": "2026-11-26T14:56:55Z"
         }
       },
       "vendor_lists": {},
@@ -924,7 +925,7 @@
         "RunPod": {
           "status": "priced",
           "rows": 2,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         }
       },
       "vendor_lists": {
@@ -967,7 +968,7 @@
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:50Z"
+          "checked_at": "2026-11-26T14:57:28Z"
         }
       },
       "vendor_lists": {},
@@ -985,7 +986,7 @@
         "DigitalOcean GPU Droplets": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:42:50Z"
+          "checked_at": "2026-11-26T14:57:28Z"
         }
       },
       "vendor_lists": {},
@@ -1003,7 +1004,7 @@
         "Lambda": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:43:26Z"
+          "checked_at": "2026-11-26T14:58:04Z"
         }
       },
       "vendor_lists": {},
@@ -1021,7 +1022,7 @@
         "RunPod": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-24T20:44:15Z"
+          "checked_at": "2026-11-26T14:58:53Z"
         }
       },
       "vendor_lists": {
@@ -1096,7 +1097,7 @@
         "E2E Networks": {
           "status": "priced",
           "rows": 1,
-          "checked_at": "2026-11-26T13:31:49Z"
+          "checked_at": "2026-11-26T14:57:34Z"
         }
       },
       "vendor_lists": {
