@@ -136,7 +136,12 @@ _SHOWN = re.compile(r"\$\s?(\d[\d,]*(?:\.\d+)?|\.\d+)(?![\d.,]*\d)(\s?/\s?h(?:r|
 def price_found(token: str, quote: str, text: str) -> bool:
     """A quoted price counts only as a displayed price in visible text: '$' + the same amount (3.5 == 3.50), followed
     by '/h' (/hr, /hour) when the quote shows it that way (the $x/h pattern). A bare digit run never counts, so
-    '2.248' inside SVG path data, an image path or a data attribute is not a match."""
+    '2.248' inside SVG path data, an image path or a data attribute is not a match.
+
+    An INR figure may appear immediately before the same USD amount (E2E Networks, 2026-11-26:
+    'NVIDIA H100 80 26 250 ₹379.05 $3.99'). Only the '$' + exact quoted USD amount counts; the
+    rupee figure is not a token and there is no amount tolerance.
+    """
     want = float(token.replace(",", ""))
     per_h = any(m.group(2) and float(m.group(1).replace(",", "")) == want for m in _SHOWN.finditer(quote))
     return any(float(m.group(1).replace(",", "")) == want and (m.group(2) or not per_h) for m in _SHOWN.finditer(text))
@@ -216,9 +221,44 @@ def _stale_kind(key: tuple, record: dict, doc: dict, present_keys: set, offline:
     return "not re-checked on the page this run"
 
 
+
+HELD_FEED = ROOT / "api" / "v1" / "gpu-prices.json"
+
+
+def load_held_stale(path: Path | None = None) -> list[dict]:
+    """Rows the generator listed in held_stale on the published feed (never ranked)."""
+    p = path or HELD_FEED
+    try:
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return []
+    held = doc.get("held_stale")
+    return held if isinstance(held, list) else []
+
+
+def held_row_reason(doc: dict, record: dict, held_stale: list[dict] | None) -> str | None:
+    """Reason string if this vendor record is one the generator listed in held_stale; else None."""
+    vendor = doc.get("vendor")
+    gpu, tier, vram = record.get("gpu"), record.get("tier"), record.get("vram_gb")
+    for h in held_stale or []:
+        if h.get("vendor") != vendor:
+            continue
+        recs = h.get("records") or []
+        if not recs:
+            continue
+        for hr in recs:
+            if hr.get("gpu") != gpu or (hr.get("tier") or tier) != tier:
+                continue
+            if hr.get("vram_gb") is not None and vram is not None and hr.get("vram_gb") != vram:
+                continue
+            return h.get("reason") or "listed in held_stale"
+    return None
+
+
 def evaluate_sources(docs, sdocs, *, offline: bool = False, pages=None,
                      now: datetime | None = None, fetch_fn=None,
-                     check_schema: bool = True) -> tuple[list[str], list[str], int]:
+                     check_schema: bool = True, held_stale: list[dict] | None = None,
+                     skipped: list[str] | None = None) -> tuple[list[str], list[str], int]:
     """Run the pricing-source check over `docs` / `sdocs`.
 
     Missing or changed prices stay flags (failures). A row past STALE_DAYS
@@ -232,6 +272,10 @@ def evaluate_sources(docs, sdocs, *, offline: bool = False, pages=None,
     get = fetch_fn or fetch
     flags: list[str] = []
     warnings: list[str] = []
+    if skipped is None:
+        skipped = []
+    if held_stale is None:
+        held_stale = load_held_stale()
     present_keys: set[tuple] = set()
     price_fail_keys: set[tuple] = set()
     if check_schema:
@@ -265,6 +309,16 @@ def evaluate_sources(docs, sdocs, *, offline: bool = False, pages=None,
                     continue
                 st, body = pages[r["source_url"]]
                 if st != 200:
+                    continue
+                reason = held_row_reason(doc, r, held_stale)
+                if reason:
+                    # Generator already listed this row in held_stale: report SKIPPED (held),
+                    # never a pass, and do not FLAG a missing/changed price on a held row.
+                    # Nothing else is skipped.
+                    skipped.append(
+                        f"SKIPPED (held): {doc['vendor']} {r.get('gpu')} ({r.get('tier')}): {reason}"
+                    )
+                    print(skipped[-1])
                     continue
                 checked += 1
                 if r.get("batch") == "wider-gpu":
@@ -406,14 +460,18 @@ def evaluate_sources(docs, sdocs, *, offline: bool = False, pages=None,
     if len({(re.search(r"https?://([^/ ]+)", f) or re.search(r"(.*)", f)).group(1) for f in tmo}) == 1:
         flags = [f for f in flags if f not in tmo]
         warnings += [f"single vendor timeout tolerated: {f}" for f in tmo]
-    add_stale_warnings(docs, sdocs, flags, warnings, now, present_keys, offline, price_fail_keys)
+    add_stale_warnings(docs, sdocs, flags, warnings, now, present_keys, offline, price_fail_keys,
+                       held_stale=held_stale)
     return flags, warnings, checked
 
 
-def add_stale_warnings(docs, sdocs, flags, warnings, now, present_keys, offline, price_fail_keys) -> None:
+def add_stale_warnings(docs, sdocs, flags, warnings, now, present_keys, offline, price_fail_keys,
+                       held_stale: list[dict] | None = None) -> None:
     """Age-only classification: warn, or FAIL not-re-checked rows past UNCHECKED_FAIL_DAYS and bad stamps."""
 
     def emit(doc, record, name, plan, url, quote):
+        if held_row_reason(doc, record, held_stale):
+            return  # already reported SKIPPED (held); do not FLAG or warn on age
         label = f"{doc['vendor']} {name} ({plan})"
         problem = stamp_failure(label, record, doc)
         if problem:
@@ -451,10 +509,14 @@ def main() -> int:
     a = ap.parse_args()
     docs = load_vendor_files()
     sdocs = stack.load_vendor_files()
-    flags, warnings, checked = evaluate_sources(docs, sdocs, offline=a.offline)
+    skipped: list[str] = []
+    flags, warnings, checked = evaluate_sources(docs, sdocs, offline=a.offline, skipped=skipped)
     n = sum(len(d["records"]) for d in docs) + sum(len(d["offers"]) for d in sdocs)
-    summary = f"{len(docs) + len(sdocs)} vendor files, {n} records, {checked} prices re-found on live pages, {len(flags)} flag(s), {len(warnings)} warning(s)"
+    summary = (f"{len(docs) + len(sdocs)} vendor files, {n} records, {checked} prices re-found on live pages, "
+               f"{len(flags)} flag(s), {len(warnings)} warning(s), {len(skipped)} skipped (held)")
     print(summary)
+    for s in skipped:
+        print(s)
     for f in flags:
         print("FLAG:", f)
     for w in warnings:
