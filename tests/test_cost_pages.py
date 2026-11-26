@@ -278,11 +278,27 @@ def test_0327_old_note_cleared_and_tie_rule_shared():
 
 
 def test_j7_regions_cite_supporting_urls():
+    """Region citations live on the vendor records, not only on ranked rates.
+
+    Auto-refresh rows drop out of api/v1/gpu-prices.json `rates` after 48h at
+    generate time (T41-12) even when the USD figure is still on the page, so
+    this must not read the live feed. Read the committed vendor files instead.
+    """
     import json
-    feed = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
-    reg = {r["advertiser"]: r["region"] for r in feed["rates"] if r["advertiser"] in {"E2E Networks", "Civo", "Jarvislabs", "Oblivus"}}
-    assert "https://www.e2enetworks.com/pricing.md" in reg["E2E Networks"] and "INR" not in reg["E2E Networks"]
-    assert "https://www.civo.com/docs/overview/regions" in reg["Civo"] and "MON1" in reg["Oblivus"] and "India" in reg["Jarvislabs"]
+    pricing = ROOT / "data" / "gpu_pricing"
+
+    def regions(name):
+        doc = json.loads((pricing / name).read_text())
+        return [r["region"] for r in doc.get("records") or [] if r.get("region")]
+
+    e2e = regions("e2e-networks.json")
+    assert e2e and all("https://www.e2enetworks.com/pricing.md" in r and "INR" not in r for r in e2e)
+    civo = regions("civo.json")
+    assert civo and any("https://www.civo.com/docs/overview/regions" in r for r in civo)
+    oblivus = regions("oblivus.json")
+    assert oblivus and any("MON1" in r for r in oblivus)
+    jarvis = regions("jarvislabs.json")
+    assert jarvis and any("India" in r for r in jarvis)
 
 
 def test_j8_cheapest_a100_summary_names_memory_sizes():

@@ -257,6 +257,17 @@ ALTERNATE_QUOTES = {
     "cloudrift.ai/pricing": [
         "NVIDIA RTX 5090 32 GB VRAM On-Demand $0.65 1 Month $0.59 3 Month $0.55",
     ],
+    # 2026-11-26: E2E pricing table now shows an INR figure before the USD
+    # price (e.g. "NVIDIA H100 80 26 250 ₹379.05 $3.99"). The USD amounts are
+    # unchanged; the old evidence quotes expected "$" immediately after the
+    # RAM column, so parse_listed could not re-cite. Visible text from
+    # https://www.e2enetworks.com/pricing (GET 2026-11-26T13:31:49Z, robots Allow: /).
+    "e2enetworks.com/pricing": [
+        "NVIDIA H100 80 26 250 ₹379.05 $3.99",
+        "NVIDIA A100 80 16 115 ₹189.00 $2.10",
+        "NVIDIA A100 40 16 115 ₹179.00 $1.98",
+        "NVIDIA T4 16 12 50 ₹30.00 $0.45",
+    ],
 }
 
 
