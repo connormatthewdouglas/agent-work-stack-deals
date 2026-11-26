@@ -101,7 +101,7 @@ The full tool contracts, eligibility and stale-price rules, hosted endpoint, ale
 | `find_available_gpus` | Who has N × GPU confirmed in stock right now (never from stale, static-label, no_source, or 7-day stock rates). |
 | `optimize_stack` | Cheapest tracked plan per usage line, with sources. |
 | `optimize_agent_stack` | Cheapest cited option per component from a plain-text agent description. |
-| `estimate_job_cost` | Cost of one GPU job among tracked providers, cheapest first. |
+| `estimate_job_cost` | Cost of one GPU job among tracked providers, cheapest first, including multi-day multi-GPU jobs (`job_days` or `job_hours`) with tracked `/go/` booking links. |
 | `rebuild_quote` | Reopen a past quote and revalidate it against today's feed. |
 | `search_deals` | Search the deals feed by text, category, offer type, price and tags. |
 | `compare_deals` | Compare 2-5 deals by id, best customer value first. |

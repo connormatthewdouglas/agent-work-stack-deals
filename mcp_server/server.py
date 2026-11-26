@@ -503,8 +503,8 @@ def optimize_agent_stack(description: str = "", workload: str | None = None, gpu
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
 @_contract
-def estimate_job_cost(gpu_family: str | None = None, gpus_per_job: int = 1, job_hours: float | None = None, work_units: float | None = None,
-                      throughput_units_per_gpu_hour: float | None = None, workload: str | None = None,
+def estimate_job_cost(gpu_family: str | None = None, gpus_per_job: int = 1, job_hours: float | None = None, job_days: float | None = None,
+                      work_units: float | None = None, throughput_units_per_gpu_hour: float | None = None, workload: str | None = None,
                       allow_interruptible: bool = False, min_vram_gb: int | None = None, runs_per_month: float | None = None,
                       top_n: int = 5, max_data_age_hours: float | None = None, region: str | None = None,
                       gpu: str | None = None) -> dict:
@@ -517,8 +517,9 @@ def estimate_job_cost(gpu_family: str | None = None, gpus_per_job: int = 1, job_
     then compute subtotal ascending; the summary names any cheaper fresh rate ranked lower. If no fresh price exists,
     stale_fallback=true and the summary says the top row is not a current price.
 
-    You supply the duration: job_hours, OR work_units plus throughput_units_per_gpu_hour from your own benchmark
-    (job_hours = work_units / (throughput x gpus_per_job)). If you give workload + work_units but no throughput,
+    You supply the duration: job_hours, OR job_days (wall-clock days; job_hours = job_days x 24), OR work_units plus
+    throughput_units_per_gpu_hour from your own benchmark (job_hours = work_units / (throughput x gpus_per_job)).
+    job_days and job_hours cannot both be given. If you give workload + work_units but no throughput,
     a directly applicable published figure (closed-division MLPerf Inference, exact GPU variant, inference only)
     is used: throughput_basis='published_benchmark' with throughput_source {url, quote, date, benchmark, derived,
     caveats}; your throughput always wins. Otherwise not_found 'missing: throughput for {gpu}'. Whole-instance billing:
@@ -530,7 +531,8 @@ def estimate_job_cost(gpu_family: str | None = None, gpus_per_job: int = 1, job_
     alias = gpu
     try:
         gpu = gpu_loader.load()
-        out = cost_per_job.estimate_job_cost(gpu, gpu_family, gpus_per_job, job_hours=job_hours, work_units=work_units,
+        out = cost_per_job.estimate_job_cost(gpu, gpu_family, gpus_per_job, job_hours=job_hours, job_days=job_days,
+                                             work_units=work_units,
                                              throughput_units_per_gpu_hour=throughput_units_per_gpu_hour, workload=workload,
                                              allow_interruptible=allow_interruptible, min_vram_gb=min_vram_gb,
                                              runs_per_month=runs_per_month, top_n=top_n, max_data_age_hours=max_data_age_hours,
@@ -548,8 +550,8 @@ def estimate_job_cost(gpu_family: str | None = None, gpus_per_job: int = 1, job_
                          r["compute_subtotal_usd"]) for r in out["results"] if r["rate_id"] in idx]
     out["receipt"] = quote.full_receipt("estimate_job_cost", out["quote_id"], rl, "alternatives", quote.feed_revision(gpu),
                                         {"gpu_family": out["gpu_family"], "gpus_per_job": gpus_per_job, "job_hours": out["job_hours"],
-                                         "allow_interruptible": allow_interruptible, "min_vram_gb": min_vram_gb,
-                                         "region": region, "top_n": top_n}, None, out.get("missing_costs"))
+                                         "job_days": out.get("job_days"), "allow_interruptible": allow_interruptible,
+                                         "min_vram_gb": min_vram_gb, "region": region, "top_n": top_n}, None, out.get("missing_costs"))
     out.update(core.freshness(_gpu_checked_at(gpu)))
     return out
 

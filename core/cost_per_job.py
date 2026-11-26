@@ -16,9 +16,15 @@ from .gpu import estimate
 from .ids import rate_id
 from . import throughput as _tp
 from . import serverless as _sl
+from . import golinks as _go
 
 MAX_TOP = 25
 LABEL = "compute subtotal only; excludes storage, egress, vCPU/RAM add-ons and tax"
+
+
+def _job_days(hours: float) -> float:
+    """Wall-clock days for a duration in hours; same 4-decimal rounding as job_hours."""
+    return round(hours / 24.0, 4)
 
 
 class JobCostError(ValueError):
@@ -54,7 +60,8 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
                       work_units: float | None = None, throughput_units_per_gpu_hour: float | None = None,
                       workload: str | None = None, allow_interruptible: bool = False, min_vram_gb: int | None = None,
                       runs_per_month: float | None = None, top_n: int = 5, max_data_age_hours: float | None = None,
-                      now=None, region: str | None = None, gpu: str | None = None) -> dict:
+                      now=None, region: str | None = None, gpu: str | None = None,
+                      job_days: float | None = None) -> dict:
     # `gpu` is an alias for gpu_family (same name compare_gpu_prices uses); both given must name the same GPU
     if gpu is not None and gpu_family is not None and " ".join(str(gpu).split()).lower() != " ".join(str(gpu_family).split()).lower():
         raise JobCostError("invalid_argument", f"gpu ('{gpu}') and gpu_family ('{gpu_family}') conflict; gpu is an alias "
@@ -67,11 +74,20 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
     if isinstance(top_n, bool) or not isinstance(top_n, int) or not 1 <= top_n <= MAX_TOP:
         raise JobCostError("invalid_argument", f"top_n must be an integer 1-{MAX_TOP}")
     job_hours = _num("job_hours", job_hours)
+    job_days = _num("job_days", job_days)
     work_units = _num("work_units", work_units)
     tput = _num("throughput_units_per_gpu_hour", throughput_units_per_gpu_hour)
     runs = _num("runs_per_month", runs_per_month)
+    if job_days is not None and job_hours is not None:
+        raise JobCostError("invalid_argument", "give job_days OR job_hours, not both")
+    if job_days is not None and (work_units is not None or tput is not None):
+        raise JobCostError("invalid_argument", "give job_days OR (work_units + throughput_units_per_gpu_hour), not both")
+    days_given = job_days is not None
+    if days_given:
+        job_hours = job_days * 24.0
     if job_hours is not None and job_hours > MAX_JOB_HOURS:
-        raise JobCostError("invalid_argument", f"job_hours must be a number > 0 and <= {MAX_JOB_HOURS} (hours, not GPU-hours)")
+        raise JobCostError("invalid_argument", f"job_hours must be a number > 0 and <= {MAX_JOB_HOURS} (hours, not GPU-hours)"
+                                             + (" (from job_days × 24)" if days_given else ""))
     try:
         max_h = data_age.validate_max_age(max_data_age_hours)
     except ValueError as e:
@@ -111,8 +127,11 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
                                f"= {job_hours:.4g} h (your input; linear scaling across GPUs assumed)")
     if job_hours > MAX_JOB_HOURS:
         raise JobCostError("invalid_argument", f"the computed job duration {job_hours:.4g} h exceeds {MAX_JOB_HOURS} h (hours, not GPU-hours)")
-    assumptions.insert(0, f"Assumes {job_hours:.4g} h on {gpus_per_job} GPUs"
-                          + (" (from published benchmark)" if source else " (your input)"))
+    if days_given:
+        assumptions.insert(0, f"Assumes {job_days:g} day(s) ({job_hours:.4g} h) on {gpus_per_job} GPUs (your input)")
+    else:
+        assumptions.insert(0, f"Assumes {job_hours:.4g} h on {gpus_per_job} GPUs"
+                              + (" (from published benchmark)" if source else " (your input)"))
     if workload and not source:
         assumptions.append(f"workload '{workload}' is a label only; no throughput is inferred from it")
 
@@ -165,7 +184,8 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
     stale_extra = {"stale_prices": stale_view, "excluded_stale": len(stale_view),
                    "current_max_age_hours": data_age.CURRENT_MAX_HOURS if max_h is None else max_h}
     if not rows and stale:
-        return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4), "count": 0,
+        return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4),
+                "job_days": _job_days(job_hours), "count": 0,
                 "results": [], "label": LABEL, "ok_current": False,
                 "summary": (f"No current price for '{gpu_l}': all {len(stale)} matching tracked rates are older than "
                             f"{data_age.CURRENT_MAX_HOURS} h (stale), so no current cheapest is named. See stale_prices, or pass "
@@ -199,10 +219,13 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
         row = {"rank": i, "rate_id": rate_id(r), "vendor": r.get("advertiser"), "gpu": r.get("gpu"), "vram_gb": r.get("vram_gb"),
                "tier": r.get("tier"), "tier_class": r.get("tier_class"), "hourly_usd_per_gpu": r["price_usd"],
                "gpus_per_instance": per, "requested_gpus": gpus_per_job, "allocated_gpus": inst * per, "instances": inst,
-               "job_hours": round(job_hours, 4), "compute_subtotal_usd": r["monthly_cost_usd"], "calc": r["calc"],
+               "job_hours": round(job_hours, 4), "job_days": _job_days(job_hours),
+               "compute_subtotal_usd": r["monthly_cost_usd"], "calc": r["calc"],
                "deal_id": r.get("deal_id"), "source_url": r.get("source_url"), "verified_at": r.get("verified_at"),
                "checked_at": r.get("checked_at"), **data_age.age_fields(r, now), **avail_fields(r),
                "eligibility": EL.evaluate(r, cons, now)}
+        if t := _go.go_link({"deal_id": r.get("deal_id"), "vendor": r.get("advertiser")}):
+            row["tracked_url"] = t
         if runs:
             row["monthly_subtotal_usd"] = round(r["monthly_cost_usd"] * runs, 2)
         out_rows.append(row)
@@ -231,10 +254,13 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
                        f"(unresolved, not eligible); {other_region} only other regions."
                        + (" Zero confirmed is not zero supply: most providers do not publish regions; check unresolved rows on the vendor page."
                           if n_ok == 0 and n_un else "") + " ")
-    return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4), "count": len(out_rows),
+    whole_days = abs(job_hours / 24.0 - round(job_hours / 24.0)) < 1e-9
+    days_note = (f" ({_job_days(job_hours):g} days)" if days_given or (whole_days and job_hours >= 24) else "")
+    return {"gpu_family": gpu_l, "requested_gpus": gpus_per_job, "job_hours": round(job_hours, 4),
+            "job_days": _job_days(job_hours), "count": len(out_rows),
             "results": out_rows, "label": LABEL,
             "summary": region_note + (f"Cheapest{'' if best_ok else ' regardless of region'} among tracked providers: {best['vendor']} {best['gpu']} at ${best['compute_subtotal_usd']:,.2f} "
-                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h; {LABEL}."
+                        f"({best['instances']} instance(s), {best['allocated_gpus']} GPUs billed) for {job_hours:.4g} h{days_note}; {LABEL}."
                         + f" Tier: {tier_class(priced[0])}." + od_note + oos_msg + deg_note
                         + (f" {len(stale)} rate(s) older than {data_age.CURRENT_MAX_HOURS} h are not ranked (see stale_prices)." if stale else "")
                         + held_note),
