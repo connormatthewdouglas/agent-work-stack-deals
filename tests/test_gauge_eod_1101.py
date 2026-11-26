@@ -27,9 +27,23 @@ def test_g3_on_demand_label():
 
 
 def test_g4_median_count():
-    med = [r for r in FEED["rates"] if r.get("offer_count") or "median" in str(r.get("price_basis") or "").lower()]
+    """Expected wording comes from the same median rule and phrase the homepage generator uses."""
+    import gpu_pages
+    med = gpu_pages.marketplace_median_rows(FEED["rates"])
     home = (ROOT / "index.html").read_text()
-    assert f"{len(med)} of those rows are marketplace medians" in home
+    phrase = gpu_pages.marketplace_median_phrase(med)
+    if phrase:
+        assert phrase in home
+    else:
+        assert "marketplace median" not in home
+
+
+def test_g4_median_phrase_matches_homepage_grammar():
+    """Singular and plural forms are locked to the homepage generator, independent of the live feed."""
+    import gpu_pages
+    assert gpu_pages.marketplace_median_phrase([]) is None
+    assert gpu_pages.marketplace_median_phrase([{"offer_count": 4}]) == "1 of those rows is a marketplace median"
+    assert gpu_pages.marketplace_median_phrase([{}, {}]) == "2 of those rows are marketplace medians"
 
 
 def test_g5_batch_rows_labelled_and_held_after_48h():
