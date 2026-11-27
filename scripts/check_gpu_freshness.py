@@ -6,10 +6,13 @@ A later `last_failed_check_at` means that row was not re-verified and is skipped
 does not count, and its previous `checked_at` does not make the whole run look stale). Vendor-level
 holds and manual snapshots are skipped. If no auto-refresh record was successfully re-verified, the gate fails.
 The latest dated snapshot in data/gpu_pricing/snapshots/ is reported too. The 24 h warn / 26 h fail bars stay.
-A hard 72 h ceiling still fails if any auto-refresh row's checked_at is older than 72 h, failed re-reads included.
+A hard 72 h ceiling still fails if any ranked or unheld auto-refresh row's checked_at is older than 72 h, failed re-reads included.
+The 72 h bar itself is not raised or loosened. Rows the generator listed in held_stale (including expired holds),
+and vendor/record holds (stale, no_capacity, owner hold, manual snapshot), are excluded from the ceiling so one
+aging held row cannot freeze releases. Ranked or unheld rows past 72 h still FAIL as before.
 Every run lists unverified rows (later last_failed_check_at) by count and name/id.
   * WARN  (exit 0, GitHub ::warning::) if there is no snapshot for today (UTC) or the last refresh is > 24 h old.
-  * FAIL  (exit 1) if the last successful re-read is more than --fail-hours (default 26) old, or any auto-refresh
+  * FAIL  (exit 1) if the last successful re-read is more than --fail-hours (default 26) old, or any ranked/unheld auto-refresh
     checked_at is older than --ceiling-hours (default 72), or no auto-refresh record was successfully re-verified.
 GitHub cron is best-effort (runs can be hours late or dropped), so gpu-refresh.yml has a primary and a
 fallback slot; this check is the backstop that makes a missed day visible.
@@ -22,9 +25,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from core.gpu import load_vendor_files  # noqa: E402
+from core.gpu import HOLD_EXPIRE_HOURS, load_vendor_files  # noqa: E402
 from core.gpu_history import SNAPSHOT_DIR  # noqa: E402
 from core.owner_hold import is_held  # noqa: E402
+
+HELD_FEED = Path(__file__).resolve().parents[1] / "api" / "v1" / "gpu-prices.json"
+
+
+
+def load_published_held_stale(path: Path | None = None) -> list[dict]:
+    """held_stale from the published feed (including expired entries). Empty if unreadable."""
+    p = path or HELD_FEED
+    try:
+        import json
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return []
+    held = doc.get("held_stale")
+    return held if isinstance(held, list) else []
 
 
 def _parse_stamp(raw: str) -> datetime:
@@ -51,7 +69,7 @@ def _successfully_reverified(r: dict) -> bool:
         return True
 
 
-CEILING_HOURS = 72.0
+CEILING_HOURS = HOLD_EXPIRE_HOURS  # 72; do not raise or loosen
 
 
 def _row_id(d: dict, r: dict) -> str:
@@ -66,51 +84,77 @@ def _is_auto_refresh_doc(d: dict) -> bool:
     return not d.get("stale") and not d.get("manual_snapshot") and not is_held(d.get("vendor"))
 
 
-def _is_auto_refresh_row(d: dict, r: dict) -> bool:
+def _published_held(d: dict, r: dict, held_stale: list[dict] | None) -> bool:
+    """True when the generator already listed this vendor record in held_stale (including expired)."""
+    if not held_stale:
+        return False
+    vendor = d.get("vendor") or r.get("vendor")
+    gpu, tier, vram = r.get("gpu"), r.get("tier"), r.get("vram_gb")
+    for h in held_stale:
+        if h.get("vendor") != vendor:
+            continue
+        for hr in h.get("records") or []:
+            if hr.get("gpu") != gpu or (hr.get("tier") or tier) != tier:
+                continue
+            if hr.get("vram_gb") is not None and vram is not None and hr.get("vram_gb") != vram:
+                continue
+            return True
+    return False
+
+
+def _is_auto_refresh_row(d: dict, r: dict, held_stale: list[dict] | None = None) -> bool:
     # no_capacity is already a record-level hold: core/gpu.py lists it in held_stale and never ranks it.
     # Its last sourced checked_at must not trip the 72 h ceiling (same as stale / owner holds).
+    # Published held_stale (generate-time 48h holds, expired holds, unreadable, etc.) is the same:
+    # a held row must not fail the 72 h ceiling and freeze releases. The 72 h bar is unchanged
+    # for ranked or unheld rows.
     return (_is_auto_refresh_doc(d) and not r.get("stale") and not r.get("no_capacity")
-            and not is_held(r.get("vendor")) and bool(r.get("checked_at")))
+            and not is_held(r.get("vendor")) and bool(r.get("checked_at"))
+            and not _published_held(d, r, held_stale))
 
 
-def iter_auto_refresh_rows(docs: list[dict] | None = None):
+def iter_auto_refresh_rows(docs: list[dict] | None = None, held_stale: list[dict] | None = None):
     for d in docs if docs is not None else load_vendor_files():
         if not _is_auto_refresh_doc(d):
             continue
         for r in d.get("records") or []:
-            if _is_auto_refresh_row(d, r):
+            if _is_auto_refresh_row(d, r, held_stale):
                 yield d, r
 
 
-def successful_refresh_stamps(docs: list[dict] | None = None) -> list[datetime]:
+def successful_refresh_stamps(docs: list[dict] | None = None,
+                              held_stale: list[dict] | None = None) -> list[datetime]:
     """Successful re-verification only. A failed attempt writes last_failed_check_at and must not
     make the gate look fresh, and its previous checked_at must not make a later successful run look missed.
     Vendor-level holds, owner holds, and manual snapshots are not auto-refreshed; row-level holds are not re-stamped.
-    Owner-held vendors are frozen on purpose (same as a stale hold): their old checked_at must not fail this gate."""
-    return [_parse_stamp(str(r["checked_at"])) for d, r in iter_auto_refresh_rows(docs) if _successfully_reverified(r)]
+    Owner-held vendors are frozen on purpose (same as a stale hold): their old checked_at must not fail this gate.
+    Published held_stale / expired rows are excluded the same way."""
+    return [_parse_stamp(str(r["checked_at"])) for d, r in iter_auto_refresh_rows(docs, held_stale)
+            if _successfully_reverified(r)]
 
 
-def unverified_rows(docs: list[dict] | None = None) -> list[str]:
+def unverified_rows(docs: list[dict] | None = None, held_stale: list[dict] | None = None) -> list[str]:
     """Auto-refresh rows whose last attempt failed (later last_failed_check_at)."""
-    return [_row_id(d, r) for d, r in iter_auto_refresh_rows(docs) if not _successfully_reverified(r)]
+    return [_row_id(d, r) for d, r in iter_auto_refresh_rows(docs, held_stale) if not _successfully_reverified(r)]
 
 
-def _unverified_line(docs: list[dict] | None = None) -> str:
-    names = unverified_rows(docs)
+def _unverified_line(docs: list[dict] | None = None, held_stale: list[dict] | None = None) -> str:
+    names = unverified_rows(docs, held_stale)
     listed = "; ".join(names)
     suffix = f": {listed}" if listed else ":"
     return f"{len(names)} unverified row(s) (failed re-read){suffix}"
 
 
 def status(now: datetime, fail_hours: float = 26.0, ceiling_hours: float = CEILING_HOURS,
-           docs: list[dict] | None = None) -> tuple[int, list[str]]:
+           docs: list[dict] | None = None, held_stale: list[dict] | None = None) -> tuple[int, list[str]]:
     source = docs
-    stamps = successful_refresh_stamps(source)
+    held = list(held_stale or [])
+    stamps = successful_refresh_stamps(source, held)
     snaps = sorted(p.stem for p in Path(SNAPSHOT_DIR).glob("????-??-??.json"))
     latest = snaps[-1] if snaps else None
-    unverified_msg = _unverified_line(source)
+    unverified_msg = _unverified_line(source, held)
     old = []
-    for d, r in iter_auto_refresh_rows(source):
+    for d, r in iter_auto_refresh_rows(source, held):
         age = (now - _parse_stamp(str(r["checked_at"]))).total_seconds() / 3600
         if age > ceiling_hours:
             old.append((_row_id(d, r), age))
@@ -140,7 +184,8 @@ def main() -> int:
     ap.add_argument("--fail-hours", type=float, default=26.0)
     ap.add_argument("--ceiling-hours", type=float, default=CEILING_HOURS)
     a = ap.parse_args()
-    code, msgs = status(datetime.now(timezone.utc), a.fail_hours, a.ceiling_hours)
+    code, msgs = status(datetime.now(timezone.utc), a.fail_hours, a.ceiling_hours,
+                       held_stale=load_published_held_stale())
     print("\n".join(msgs))
     return code
 

@@ -131,7 +131,7 @@ def test_auto_refresh_row_older_than_48h_is_unranked_at_build():
     """A daily-refresh row older than T41-12 (48h) must leave `rates` at generate time.
 
     lead_key only sorted it after fresh rows, so it stayed ranked and the freshness
-    watchdog stayed red (Spheron RTX 5090 at 73.3h, runs 44649405733 / 44649548149).
+    watchdog stayed red (Spheron RTX 5090 at 73.3h, runs 44649405733 / 44649548149). This fixture is 50h (past 48h, under the 72h expiry ceiling).
     The vendor file is not rewritten: no stale.auto, no fresh verified_at. Past the
     cutoff the row is held_stale with an honest age label; just inside 48h it still ranks.
     Clock is injected; no live network and no wall-clock dependence.
@@ -139,7 +139,7 @@ def test_auto_refresh_row_older_than_48h_is_unranked_at_build():
     from core.data_age import DEGRADED_HOURS, stale_label
     clock = datetime(2026, 11, 20, 0, 52, 22, tzinfo=timezone.utc)
     url = "https://example.com/gpu-rental/rtx-5090/"
-    verified = (clock - timedelta(hours=73.3)).replace(microsecond=0).isoformat()
+    verified = (clock - timedelta(hours=50)).replace(microsecond=0).isoformat()
     failed = (clock - timedelta(hours=6)).replace(microsecond=0).isoformat()
     rec = {
         "vendor": "SpheronTest", "gpu": "RTX 5090", "vram_gb": 32, "price_usd": 0.78,

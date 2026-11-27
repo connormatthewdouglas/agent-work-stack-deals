@@ -141,9 +141,11 @@ def test_nothing_moved_does_not_write_or_bump_timestamps():
 
 
 def test_vanished_price_keeps_old_value_and_does_not_invent():
-    """A 200 page with no $ figures cannot re-cite; auto-hold keeps the last sourced price."""
+    """A 200 page that still shows the GPU marker but no $ figures cannot re-cite;
+    auto-hold keeps the last sourced price. A marker-less interstitial is a failed
+    read, not a hold (see test_no_dollar_interstitial_without_marker_does_not_hold_or_stamp)."""
     doc = _doc(_page_pair(PRIOR_ON, PRIOR_SPOT))
-    result = V.recite(doc, FakeFetcher({PAGE_URL: (200, "<html><body>table redesigned, no 1x row</body></html>")}), NOW)
+    result = V.recite(doc, FakeFetcher({PAGE_URL: (200, "<html><body>H200 SXM table redesigned, no 1x row</body></html>")}), NOW)
 
     assert not result.prices_moved and result.new_holds and result.should_write
     on, spot = result.doc["records"]

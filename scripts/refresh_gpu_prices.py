@@ -388,14 +388,29 @@ def listed_plan_still_visible(r: dict, text: str) -> bool:
     return any(sku in text for sku in listed_plan_skus(r))
 
 
+def listed_page_marker(r: dict) -> str:
+    """Visible token expected on a real listed product page for this vendor row (the GPU name)."""
+    return " ".join(str(r.get("gpu") or "").split())
+
+
+def listed_page_marker_visible(r: dict, text: str | None) -> bool:
+    """True when the vendor's known page marker appears in visible text."""
+    marker = listed_page_marker(r)
+    if not marker or not text:
+        return False
+    return bool(re.search(rf"(?<![\w-]){re.escape(marker)}(?![\w-])", text, re.I))
+
+
 def should_hold_unreadable_listed(r: dict, text: str | None, msg: str) -> bool:
     """Immediate auto-hold when a 200 listed parse cannot uniquely re-cite a withdrawn figure.
 
     Ambiguous context, a still-listed hyphenated plan whose cited $ figure is gone, or a
-    readable 200 page whose visible text has no $ price figures at all (a client-rendered
-    shell with no prices in the HTML) must not keep serving the last sourced number.
-    A vanished line on a page that still shows other $ amounts, with no plan token, still
-    waits for STALE_DAYS. text is None when the page was not read (unreachable).
+    200 page that shows the vendor's known page marker (the GPU name expected on the real
+    product page) but has no $ price figures at all, must not keep serving the last sourced
+    number. A 200 interstitial or bot-check page that lacks the marker is a failed read:
+    no new hold and no fresh checked_at / verified_at. A vanished line on a page that still
+    shows other $ amounts, with no plan token, still waits for STALE_DAYS. text is None when
+    the page was not read (unreachable).
     """
     if not text:
         return False
@@ -403,7 +418,9 @@ def should_hold_unreadable_listed(r: dict, text: str | None, msg: str) -> bool:
         return True
     if listed_plan_still_visible(r, text) and not cited_price_visible(r, text):
         return True
-    return not bool(PRICE_RE.search(text))
+    if not PRICE_RE.search(text):
+        return listed_page_marker_visible(r, text)
+    return False
 
 
 def unreadable_listed_hold_reason(r: dict, msg: str, stamp: str, text: str | None = None) -> str:
