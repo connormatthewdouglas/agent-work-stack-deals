@@ -42,9 +42,11 @@ def test_max_age_source_provider():
 
 
 def test_max_age_source_policy():
-    # Lambda overall claims follow the 1h policy.
+    # Lambda firm claims carry _min_expiry (1h). Annotation reports that applied TTL, not 8h.
     av = A.annotate_max_age(
-        {"checked_at": CHECK, "in_stock": True, "origin": "scout", "tier": "On-demand instance (1x GPU)"},
+        {"checked_at": CHECK, "in_stock": True, "origin": "scout",
+         "availability_expires_at": "2026-11-27T14:23:00Z",
+         "tier": "On-demand instance (1x GPU)"},
         vendor="Lambda",
         tier="On-demand instance (1x GPU)",
     )
@@ -52,6 +54,20 @@ def test_max_age_source_policy():
     assert av["max_age_hours"] == 1.0
     assert av["availability_expires_at"] == "2026-11-27T14:23:00Z"
     assert "max_age_reason" not in av
+
+
+def test_max_age_source_policy_eight_hour_when_no_expiry_present():
+    """Without an existing expiry, stale_guard's bar is 8h — including Lambda and RunPod."""
+    for vendor, tier in (("Lambda", "On-demand instance (1x GPU)"),
+                         ("RunPod", "On-demand (Secure Cloud)"),
+                         ("Civo", "On-demand")):
+        av = A.annotate_max_age(
+            {"checked_at": CHECK, "in_stock": True, "origin": "scout", "tier": tier},
+            vendor=vendor, tier=tier,
+        )
+        assert av["max_age_source"] == A.MAX_AGE_SOURCE_POLICY, vendor
+        assert av["max_age_hours"] == 8.0, vendor
+        assert av["availability_expires_at"] == "2026-11-27T21:23:00Z", vendor
 
 
 def test_max_age_source_fallback():
@@ -85,11 +101,14 @@ def test_availability_expires_at_present_on_no_source_rows():
     finally:
         A._CACHE = None
     assert "availability_expires_at" in out
-    assert out["availability_expires_at"] == "2026-11-27T14:53:00Z"
+    # no_source rows have no Scout expiry; stale_guard applied 8h, so report 8h.
+    assert out["availability_expires_at"] == "2026-11-27T21:53:00Z"
     assert out["max_age_source"] == A.MAX_AGE_SOURCE_POLICY
-    assert out["max_age_hours"] == 1.0
+    assert out["max_age_hours"] == 8.0
     assert out["in_stock"] is None
+    assert out.get("availability_stale") is not True
     assert out.get("availability_reason") == "no_source"
+    assert not str(out.get("status") or "").startswith("unknown (stale")
     # No stamp invented on the Scout row itself.
     assert row["availability_checked_at"] == NO_SOURCE_CHECK and row["availability_expires_at"] is None
 
@@ -152,3 +171,79 @@ def test_probe_crash_writes_error_and_does_not_count_as_success():
     code, msgs = gate.status(CLOCK, 26, docs=docs_old, held_stale=[])
     assert code == 1, msgs
     assert any("older than 72 h" in m and "hard ceiling" in m and "ExampleCloud" in m for m in msgs)
+
+# Fields stale_guard / Scout reasons use; annotation must not change them.
+_STALE_REASON_KEYS = (
+    "status", "in_stock", "availability_stale", "availability_reason",
+    "availability_reason_detail", "checked_at", "origin", "note",
+    "feed_status", "derived_from_regions",
+)
+
+
+def _reason_view(av: dict) -> dict:
+    return {k: av.get(k) for k in _STALE_REASON_KEYS}
+
+
+def test_annotation_matches_main_stale_set_and_reasons():
+    """At a pinned clock, annotation-on equals annotation-off (main) for the stale set
+    and each row's stale / no_source reasons. Fixture covers Lambda/RunPod no_source
+    inside 8h but past 1h, a firm Lambda 1h claim, and an 8h marketplace claim."""
+    from datetime import timedelta
+    now = CLOCK
+    check_2h = (now - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    check_30m = (now - timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = [
+        # 2h-old Lambda no_source: 1h table would stale it; main's 8h bar does not.
+        {"vendor": "Lambda", "gpu": "H100 PCIe", "vram_gb": 80,
+         "tier": "On-demand instance (1x GPU)", "in_stock": None,
+         "availability_checked_at": check_2h, "availability_expires_at": None,
+         "availability_reason": "no_source", "availability_reason_detail": "unconfirmed_two_reads",
+         "availability_source": "public no-auth API"},
+        {"vendor": "RunPod", "gpu": "H100 PCIe", "vram_gb": 80,
+         "tier": "On-demand (Secure Cloud)", "in_stock": None,
+         "availability_checked_at": check_2h, "availability_expires_at": None,
+         "availability_reason": "no_source", "availability_reason_detail": "api_null_signal",
+         "availability_source": "public no-auth API"},
+        # Firm Lambda claim with _min_expiry already 1h (still valid at 30 min).
+        {"vendor": "Lambda", "gpu": "A100 SXM", "vram_gb": 80,
+         "tier": "On-demand instance (1x GPU)", "in_stock": True,
+         "availability_checked_at": check_30m,
+         "availability_expires_at": (now + timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+         "availability_source": "authenticated vendor API"},
+        # Firm RunPod claim, 2h old, 8h expiry (would be stale under a 1h TTL).
+        {"vendor": "RunPod", "gpu": "A100 SXM", "vram_gb": 80,
+         "tier": "On-demand (Secure Cloud)", "in_stock": True,
+         "availability_checked_at": check_2h,
+         "availability_expires_at": (now + timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+         "availability_source": "public no-auth API"},
+    ]
+
+    def key(r):
+        return (r["vendor"], r["gpu"], r["vram_gb"], A._tier_key(r["tier"]))
+
+    A._CACHE = {key(r): r for r in rows}
+    try:
+        off, on = {}, {}
+        for r in rows:
+            k = key(r)
+            raw = A.price_join_guard(A._scout(r["vendor"], r), None)
+            off[k] = A.publish_availability(raw, r["vendor"], r["tier"], now, annotate=False)
+            on[k] = A.publish_availability(raw, r["vendor"], r["tier"], now, annotate=True)
+    finally:
+        A._CACHE = None
+
+    stale_off = {k for k, av in off.items() if av.get("availability_stale")}
+    stale_on = {k for k, av in on.items() if av.get("availability_stale")}
+    assert stale_on == stale_off
+    for k in off:
+        assert _reason_view(on[k]) == _reason_view(off[k]), k
+        assert "max_age_source" in on[k]
+        assert "availability_expires_at" in on[k]
+        assert "max_age_source" not in off[k]
+    # The 2h no_source Lambda/RunPod rows must stay no_source, not stale.
+    for r in rows[:2]:
+        av = on[key(r)]
+        assert av.get("availability_stale") is not True
+        assert av.get("availability_reason") == "no_source"
+        assert av["max_age_hours"] == 8.0
+        assert av["max_age_source"] == A.MAX_AGE_SOURCE_POLICY

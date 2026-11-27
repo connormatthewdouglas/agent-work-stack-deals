@@ -224,7 +224,7 @@ P72 (marxsignal) and P73 (morpheus404). Additive optional fields on each rate's 
 
 | Field | Type | Meaning |
 |---|---|---|
-| `max_age_source` | `provider`, `policy`, or `fallback` | Where `max_age_hours` came from. `provider`: the vendor stated the lifetime (`provider_max_age_hours`). `policy`: our documented claim lifetimes (15 min Verda spot; 1 h for Lambda, Verda, RunPod, Oblivus, Novita, Thunder Compute, and region-derived claims; 8 h otherwise), or Scout's already-computed `availability_expires_at`. `fallback`: there is no time basis to compute an expiry. |
+| `max_age_source` | `provider`, `policy`, or `fallback` | Where `max_age_hours` came from. `provider`: the vendor stated the lifetime (`provider_max_age_hours`). `policy`: the TTL `stale_guard` actually applied. That is Scout's already-computed `availability_expires_at` / `_min_expiry` when present (15 min Verda spot; 1 h for Lambda, Verda, and region-derived claims), otherwise the 8 h `AVAIL_MAX_AGE_H` bar used on main (including RunPod, Oblivus, Novita, and Thunder). Annotation runs only after `stale_guard` and does not change enforcement. `fallback`: there is no time basis to compute an expiry. |
 | `max_age_hours` | number or null | Claim lifetime in hours. Null only when `max_age_source` is `fallback`. Never invented. |
 | `availability_expires_at` | string (ISO-8601 UTC, `Z`) or null | Present on every availability row, including `no_source` and `never_ran`. Null when there is no check time to add a lifetime to, together with `max_age_reason`. |
 | `max_age_reason` | string | Why expiry is null. Omitted when expiry was computed. |

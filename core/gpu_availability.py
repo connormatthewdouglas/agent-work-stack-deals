@@ -417,8 +417,9 @@ def _min_expiry(r: dict, vendor: str = "") -> str | None:
 MAX_AGE_SOURCE_PROVIDER = "provider"
 MAX_AGE_SOURCE_POLICY = "policy"
 MAX_AGE_SOURCE_FALLBACK = "fallback"
-# Vendors whose overall claims follow the 1h policy (same family as collect_v2 / _min_expiry).
-POLICY_ONE_HOUR_VENDORS = ("Lambda", "Verda", "RunPod", "Oblivus", "Novita AI", "Thunder Compute")
+# Same vendors as _min_expiry / SHORT_CLAIM_VENDORS: 1h overall claims for Lambda and Verda only.
+# RunPod, Oblivus, Novita and Thunder stay at AVAIL_MAX_AGE_H (8h), as on main.
+POLICY_ONE_HOUR_VENDORS = SHORT_CLAIM_VENDORS
 _PROBE_SECRET_QS = re.compile(
     r"(?i)([?&](?:access_token|token|key|secret|password|passwd|api[_-]?key|auth|authorization|bearer)=)[^&\s]*"
 )
@@ -444,11 +445,17 @@ def format_probe_error(exc: BaseException) -> dict:
 
 def policy_ttl_hours(vendor: str | None = None, tier: str | None = None,
                      *, derived_from_regions: bool = False) -> float:
-    """Our claim-lifetime policy in hours (not a vendor-stated value)."""
+    """Claim-lifetime policy in hours, aligned with _min_expiry.
+
+    15 min Verda spot; 1 h for Lambda, Verda, and region-derived claims; 8 h otherwise
+    (including RunPod, Oblivus, Novita, and Thunder). This table describes policy. The
+    published annotation still reports the TTL stale_guard actually applied: if a row
+    had no availability_expires_at, that bar is AVAIL_MAX_AGE_H (8 h).
+    """
     v = vendor or ""
-    if v == "Verda" and "Spot" in (tier or ""):
+    if v.startswith("Verda") and "Spot" in (tier or ""):
         return 0.25
-    if derived_from_regions or any(v.startswith(p) for p in POLICY_ONE_HOUR_VENDORS):
+    if derived_from_regions or v.startswith(SHORT_CLAIM_VENDORS):
         return 1.0
     return float(AVAIL_MAX_AGE_H)
 
@@ -456,9 +463,11 @@ def policy_ttl_hours(vendor: str | None = None, tier: str | None = None,
 def annotate_max_age(av: dict, vendor: str | None = None, tier: str | None = None) -> dict:
     """P72: every availability row gets max_age_source and a always-present availability_expires_at.
 
+    Purely additive: call only after stale_guard so enforcement is unchanged.
     provider: a vendor-stated lifetime (provider_max_age_hours on the row).
-    policy: our documented TTL (15 min Verda spot, 1 h short-claim / region-derived, 8 h otherwise),
-    or Scout's already-computed availability_expires_at.
+    policy: the TTL stale_guard actually applied — Scout/_min_expiry availability_expires_at
+    when present, otherwise AVAIL_MAX_AGE_H (8 h). That matches main: 1 h only when
+    _min_expiry already put a short expiry on the row (Lambda, Verda, region-derived).
     fallback: no time basis to compute expiry; max_age_hours and availability_expires_at are null
     and max_age_reason explains why. Never invents a timestamp.
     """
@@ -487,11 +496,13 @@ def annotate_max_age(av: dict, vendor: str | None = None, tier: str | None = Non
         return out
 
     if _parse(checked):
-        ttl = policy_ttl_hours(vendor, tier, derived_from_regions=derived)
-        exp = _plus_h(checked, ttl)
-        out["max_age_hours"] = float(ttl)
+        # No expiry was present for stale_guard to enforce, so the applied bar is 8 h.
+        # Do not write a shorter Lambda/Verda policy expiry here: that would change
+        # later request-time enforcement. Firm short claims already carry _min_expiry.
+        ttl = float(AVAIL_MAX_AGE_H)
+        out["max_age_hours"] = ttl
         out["max_age_source"] = MAX_AGE_SOURCE_POLICY
-        out["availability_expires_at"] = exp
+        out["availability_expires_at"] = _plus_h(checked, ttl)
         out.pop("max_age_reason", None)
         return out
 
@@ -615,6 +626,15 @@ def price_join_guard(a: dict, price_rec: dict | None) -> dict:
     return out
 
 
+def publish_availability(av: dict, vendor: str | None = None, tier: str | None = None,
+                         now: datetime | None = None, *, annotate: bool = True) -> dict:
+    """stale_guard first, then optional P72 annotation. annotate=False is the main pipeline."""
+    guarded = stale_guard(av, now)
+    if not annotate:
+        return guarded
+    return annotate_max_age(guarded, vendor, tier)
+
+
 def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None,
                      price_rec: dict | None = None) -> dict:
     now = build_now(now)
@@ -624,9 +644,9 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | N
             (_parse(r.get("availability_checked_at")) or datetime.min.replace(tzinfo=timezone.utc)):
         r = None  # Gauge rel053: a newer record read from the same capture as the price beats an older Scout row
     def _publish(av):
-        # Annotate before stale_guard so short policy TTLs are visible, then again so a
-        # stale replacement still carries max_age_source and a present availability_expires_at.
-        return annotate_max_age(stale_guard(annotate_max_age(av, vendor, tier), now), vendor, tier)
+        # Annotation is a purely additive pass after stale_guard. Enforcement, TTLs,
+        # the stale set and stale reasons stay as on main.
+        return publish_availability(av, vendor, tier, now, annotate=True)
     if not r and isinstance(record, dict):
         return _publish(price_join_guard(_from_record(record), price_rec))
     # join first, then expiry: an expired claim still says which price it was read against
