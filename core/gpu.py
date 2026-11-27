@@ -12,7 +12,7 @@ deal_id may be null for vendors with no deal in the feed (links then go to the v
 scripts/refresh_gpu_prices.py (daily Action) re-reads each source and updates a price only where it parsed it from
 the vendor's own page/API: verified_at = when the price was last parsed, checked_at = last attempt. A rate not
 re-verified for STALE_DAYS gets an automatic record-level hold (stale.auto) and is never ranked until re-verified.
-At generate time, any auto-refresh or batch row older than 48h (T41-12) is listed in held_stale and never ranked, even if refresh() has not yet written stale.auto.
+At generate time, any auto-refresh or batch row older than 48h (T41-12) is listed in held_stale and never ranked, even if refresh() has not yet written stale.auto. A held row (held_stale, no_capacity, owner hold, unreadable, and so on) whose last successful check is older than 72h is marked expired in the published feed; checked_at, verified_at, quotes and evidence are not rewritten. Ranked or unheld rows past 72h still fail check_gpu_freshness at that same ceiling.
 scripts/check_gpu_sources.py re-fetches sources daily and flags stale/unreachable ones (never edits); scripts/refresh_gpu_prices.py updates parsed prices.
 A record with price_effective_at in the future (the vendor's own stated instant, e.g. Lambda's
 public list taking effect 2026-11-16T00:00:00Z) is listed in held_stale and never ranked as a
@@ -419,6 +419,70 @@ def _vram_note(r: dict) -> dict:
     return {"vram_note": r["vram_note"]} if r.get("vram_note") else {}
 
 
+
+HOLD_EXPIRE_HOURS = 72.0  # same hard ceiling as check_gpu_freshness; do not raise or loosen
+
+
+def _parse_check_stamp(raw) -> datetime | None:
+    if not raw:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def last_successful_check_at(r: dict) -> datetime | None:
+    """Last successful check on a published or vendor record. Never uses last_failed_check_at or no_capacity.read_at."""
+    return (_parse_check_stamp((r.get("evidence") or {}).get("checked_at"))
+            or _parse_check_stamp(r.get("verified_at"))
+            or _parse_check_stamp(r.get("checked_at")))
+
+
+def expire_held_rows(held: list[dict], clock: datetime,
+                     ceiling_hours: float = HOLD_EXPIRE_HOURS) -> list[dict]:
+    """Mark held entries whose last successful check is older than the 72h ceiling.
+
+    Source quotes, evidence, checked_at and verified_at are left as written. Rows stay in
+    held_stale with expired=True so the published feed still carries the last sourced
+    evidence, and check_gpu_freshness can skip them instead of failing main. Entries
+    under the ceiling are returned unchanged. A record with no parseable successful
+    stamp is left as-is (unknown stays unknown).
+    """
+    clock = clock.astimezone(timezone.utc) if clock.tzinfo else clock.replace(tzinfo=timezone.utc)
+    out: list[dict] = []
+    for h in held:
+        recs = list(h.get("records") or [])
+        if not recs:
+            out.append(h)
+            continue
+        expired, live = [], []
+        for r in recs:
+            t = last_successful_check_at(r)
+            if t is None:
+                live.append(r)
+                continue
+            age_h = (clock - t).total_seconds() / 3600
+            (expired if age_h > ceiling_hours else live).append(r)
+        if live:
+            stay = dict(h)
+            stay["records"] = live
+            out.append(stay)
+        if expired:
+            exp = dict(h)
+            exp["records"] = expired
+            exp["expired"] = True
+            exp["expired_reason"] = (
+                f"last successful check older than {ceiling_hours:g} h (hard ceiling); "
+                "expired, not ranked; source evidence retained"
+            )
+            out.append(exp)
+    return out
+
+
 NOT_YET_EFFECTIVE_PREFIX = "not yet in effect:"
 
 
@@ -608,6 +672,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: d
     credits = [{"deal_id": d["id"], "advertiser": d.get("advertiser"), "unit": d.get("unit")}
                for d in deals if is_gpu_deal(d) and d.get("offer_type") in ("free_tier", "trial")]
     from .deals import apply_utc_z
+    held = expire_held_rows(held, clock)
     return apply_utc_z({"rates": rates, "vendors": vendors, "held_stale": held, "unpriced": unpriced,
                         "free_credits": credits, "problems": problems})
 

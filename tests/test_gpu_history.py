@@ -177,9 +177,10 @@ def test_unreadable_redesign_without_plan_token_waits_for_stale_days():
 def test_unreadable_page_with_no_dollar_figures_is_held_without_inventing():
     """A 200 listed page whose visible text has no $ amounts cannot re-cite (client-rendered
     shell). Auto-hold immediately; keep the last sourced price and verified_at."""
-    d = doc(rec())
-    # Official visible text shape: marketing/specs copy, no $ figures (Novita RTX 4090
-    # https://novita.ai/gpu-instance/gpu/rtx-4090, Fetcher GET 2026-11-26T16:12:12Z).
+    d = doc(rec(gpu="RTX 4090", form_factor="PCIe"))
+    # Official visible text shape: marketing/specs copy with the GPU name marker and no $
+    # figures (Novita RTX 4090 https://novita.ai/gpu-instance/gpu/rtx-4090,
+    # Fetcher GET 2026-11-26T16:12:12Z). The no-$ hold requires that marker.
     page = (
         "<html><body>"
         "Explore NVIDIA RTX 4090 Features &amp; Specs | High-Performance GPU Model "
