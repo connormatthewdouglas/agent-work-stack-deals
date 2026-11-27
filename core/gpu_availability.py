@@ -1,11 +1,21 @@
 """Availability attached to GPU rates (T11/T19), from data/gpu_availability/latest.json (Lantern Scout v2).
 
 Display rules: unknown -> "unknown" (never "out of stock"); availability carries its own checked_at and cadence
-(a manual Scout snapshot, time shown per row) separate from the daily price check; stock is never a guarantee."""
+(a manual Scout snapshot, time shown per row) separate from the daily price check; stock is never a guarantee.
+
+P72: every availability object carries max_age_source (provider / policy / fallback) and always has
+availability_expires_at (null when there is no time basis, with max_age_reason). Values are never invented.
+
+P73: a crashed stock/terms probe is recorded as probe_error plus probe_attempted_at. That attempt stamp is
+not a successful check. Freshness, the 72h ceiling and expire_held_rows still read only successful-check
+stamps (evidence.checked_at / verified_at / a successful checked_at). Failed collection never writes a
+fresh verified_at or success checked_at.
+"""
 from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -253,8 +263,16 @@ def apply_probe_outcome(av: dict, previous: dict | None = None) -> dict:
 
 
 def apply_probe(previous: dict | None, current: dict, now: datetime | None = None) -> dict:
-    """Apply a new probe onto previous availability state (P64). Used by tests and Scout import."""
+    """Apply a new probe onto previous availability state (P64). Used by tests and Scout import.
+
+    If current carries a crashed probe (`error` as an exception, or `probe_crash`), record
+    probe_error + probe_attempted_at and do not treat the attempt as a successful check.
+    """
     cur = dict(current)
+    crash = cur.pop("probe_crash", None) or cur.pop("error", None)
+    if isinstance(crash, BaseException):
+        attempted = cur.get("probe_attempted_at") or cur.get("attempted_at") or now
+        return apply_probe_crash(previous, crash, attempted_at=attempted)
     if previous and not cur.get("origin") and previous.get("origin"):
         cur["origin"] = previous["origin"]
     out = apply_probe_outcome(cur, previous)
@@ -395,6 +413,132 @@ def _min_expiry(r: dict, vendor: str = "") -> str | None:
     return min(ts, key=_parse) if ts else None
 
 
+
+MAX_AGE_SOURCE_PROVIDER = "provider"
+MAX_AGE_SOURCE_POLICY = "policy"
+MAX_AGE_SOURCE_FALLBACK = "fallback"
+# Same vendors as _min_expiry / SHORT_CLAIM_VENDORS: 1h overall claims for Lambda and Verda only.
+# RunPod, Oblivus, Novita and Thunder stay at AVAIL_MAX_AGE_H (8h), as on main.
+POLICY_ONE_HOUR_VENDORS = SHORT_CLAIM_VENDORS
+_PROBE_SECRET_QS = re.compile(
+    r"(?i)([?&](?:access_token|token|key|secret|password|passwd|api[_-]?key|auth|authorization|bearer)=)[^&\s]*"
+)
+_PROBE_SECRET_KV = re.compile(
+    r"(?i)\b(access_token|token|secret|password|passwd|api[_-]?key|authorization|bearer)\b\s*[:=]\s*\S+"
+)
+_PROBE_USERINFO = re.compile(r"://[^/@\s]+:[^/@\s]+@")
+
+
+def sanitize_probe_message(message: str, limit: int = 200) -> str:
+    """Short exception text with credentials, tokens, and userinfo URLs stripped. Never returns secrets."""
+    s = " ".join(str(message or "").split())
+    s = _PROBE_USERINFO.sub("://[redacted]@", s)
+    s = _PROBE_SECRET_QS.sub(r"\1[redacted]", s)
+    s = _PROBE_SECRET_KV.sub(r"\1=[redacted]", s)
+    return s[:limit]
+
+
+def format_probe_error(exc: BaseException) -> dict:
+    """Additive probe_error object: exception class plus a sanitized short message. No URLs with credentials."""
+    return {"type": type(exc).__name__, "message": sanitize_probe_message(exc)}
+
+
+def policy_ttl_hours(vendor: str | None = None, tier: str | None = None,
+                     *, derived_from_regions: bool = False) -> float:
+    """Claim-lifetime policy in hours, aligned with _min_expiry.
+
+    15 min Verda spot; 1 h for Lambda, Verda, and region-derived claims; 8 h otherwise
+    (including RunPod, Oblivus, Novita, and Thunder). This table describes policy. The
+    published annotation still reports the TTL stale_guard actually applied: if a row
+    had no availability_expires_at, that bar is AVAIL_MAX_AGE_H (8 h).
+    """
+    v = vendor or ""
+    if v.startswith("Verda") and "Spot" in (tier or ""):
+        return 0.25
+    if derived_from_regions or v.startswith(SHORT_CLAIM_VENDORS):
+        return 1.0
+    return float(AVAIL_MAX_AGE_H)
+
+
+def annotate_max_age(av: dict, vendor: str | None = None, tier: str | None = None) -> dict:
+    """P72: every availability row gets max_age_source and a always-present availability_expires_at.
+
+    Purely additive: call only after stale_guard so enforcement is unchanged.
+    provider: a vendor-stated lifetime (provider_max_age_hours on the row).
+    policy: the TTL stale_guard actually applied — Scout/_min_expiry availability_expires_at
+    when present, otherwise AVAIL_MAX_AGE_H (8 h). That matches main: 1 h only when
+    _min_expiry already put a short expiry on the row (Lambda, Verda, region-derived).
+    fallback: no time basis to compute expiry; max_age_hours and availability_expires_at are null
+    and max_age_reason explains why. Never invents a timestamp.
+    """
+    if not isinstance(av, dict):
+        return av
+    out = dict(av)
+    vendor = vendor or out.get("advertiser") or out.get("vendor")
+    tier = tier if tier is not None else out.get("tier")
+    checked = out.get("checked_at") or out.get("availability_checked_at")
+    provider_h = out.get("provider_max_age_hours")
+    derived = bool(out.get("derived_from_regions"))
+
+    if isinstance(provider_h, (int, float)) and not isinstance(provider_h, bool) and provider_h >= 0 and _parse(checked):
+        out["max_age_hours"] = float(provider_h)
+        out["max_age_source"] = MAX_AGE_SOURCE_PROVIDER
+        out["availability_expires_at"] = _plus_h(checked, provider_h)
+        out.pop("max_age_reason", None)
+        return out
+
+    existing = out.get("availability_expires_at")
+    if _parse(checked) and _parse(existing):
+        out["max_age_hours"] = claim_hours(checked, existing)
+        out["max_age_source"] = MAX_AGE_SOURCE_POLICY
+        out["availability_expires_at"] = existing
+        out.pop("max_age_reason", None)
+        return out
+
+    if _parse(checked):
+        # No expiry was present for stale_guard to enforce, so the applied bar is 8 h.
+        # Do not write a shorter Lambda/Verda policy expiry here: that would change
+        # later request-time enforcement. Firm short claims already carry _min_expiry.
+        ttl = float(AVAIL_MAX_AGE_H)
+        out["max_age_hours"] = ttl
+        out["max_age_source"] = MAX_AGE_SOURCE_POLICY
+        out["availability_expires_at"] = _plus_h(checked, ttl)
+        out.pop("max_age_reason", None)
+        return out
+
+    out["max_age_hours"] = None
+    out["max_age_source"] = MAX_AGE_SOURCE_FALLBACK
+    out["availability_expires_at"] = None
+    reason = "no check time to compute expiry"
+    if (out.get("availability_reason") or "") == "never_ran":
+        reason = "never_ran: no check time to compute expiry"
+    elif (out.get("availability_reason") or "") == "no_source":
+        reason = "no_source: no check time to compute expiry"
+    out["max_age_reason"] = reason
+    return out
+
+
+def apply_probe_crash(previous: dict | None, exc: BaseException, attempted_at) -> dict:
+    """P73: record a crashed stock/terms probe without treating the attempt as a successful check.
+
+    Writes probe_error (class + short sanitized message) and probe_attempted_at. Leaves verified_at
+    and the successful checked_at unchanged (does not invent them). Availability in_stock is left
+    as previously known or unknown; nothing is ranked from this attempt.
+    """
+    out = dict(previous) if isinstance(previous, dict) else {}
+    stamp = attempted_at
+    if hasattr(stamp, "strftime"):
+        if getattr(stamp, "tzinfo", None) is None:
+            from datetime import timezone as _tz
+            stamp = stamp.replace(tzinfo=_tz.utc)
+        stamp = stamp.astimezone(__import__("datetime").timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    out["probe_error"] = format_probe_error(exc)
+    out["probe_attempted_at"] = stamp
+    # Do not refresh verified_at or a successful checked_at. If there was never a successful
+    # check, those keys stay absent (unknown stays unknown).
+    return out
+
+
 BUILD_HORIZON_MIN = 25  # Gauge re24 (a): build cutoff = Scout cadence + deploy. Every Scout push rebuilds; the */10 backstop rebuilds before any published claim expires
 
 
@@ -482,6 +626,15 @@ def price_join_guard(a: dict, price_rec: dict | None) -> dict:
     return out
 
 
+def publish_availability(av: dict, vendor: str | None = None, tier: str | None = None,
+                         now: datetime | None = None, *, annotate: bool = True) -> dict:
+    """stale_guard first, then optional P72 annotation. annotate=False is the main pipeline."""
+    guarded = stale_guard(av, now)
+    if not annotate:
+        return guarded
+    return annotate_max_age(guarded, vendor, tier)
+
+
 def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None,
                      price_rec: dict | None = None) -> dict:
     now = build_now(now)
@@ -490,10 +643,14 @@ def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | N
             (_parse(record.get("checked_at")) or datetime.min.replace(tzinfo=timezone.utc)) > \
             (_parse(r.get("availability_checked_at")) or datetime.min.replace(tzinfo=timezone.utc)):
         r = None  # Gauge rel053: a newer record read from the same capture as the price beats an older Scout row
+    def _publish(av):
+        # Annotation is a purely additive pass after stale_guard. Enforcement, TTLs,
+        # the stale set and stale reasons stay as on main.
+        return publish_availability(av, vendor, tier, now, annotate=True)
     if not r and isinstance(record, dict):
-        return stale_guard(price_join_guard(_from_record(record), price_rec), now)  # record-origin stock expires at build time too
-    # join first, then expiry: an expired claim still says which price it was read against (stale_guard keeps the audit)
-    return stale_guard(price_join_guard(_scout(vendor, r), price_rec), now)
+        return _publish(price_join_guard(_from_record(record), price_rec))
+    # join first, then expiry: an expired claim still says which price it was read against
+    return _publish(price_join_guard(_scout(vendor, r), price_rec))
 
 
 HELD_NOTE = "Held by Scout: fewer offers than its publish minimum, so no stock claim is shown."

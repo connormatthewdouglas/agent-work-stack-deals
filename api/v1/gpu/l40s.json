@@ -53,7 +53,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -84,7 +88,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -115,7 +123,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -146,7 +158,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -177,7 +193,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -210,7 +230,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -241,7 +265,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -272,7 +300,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -311,7 +343,7 @@
         "source": "https://lium.io/api/public/v1/nodes",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "record",
-        "max_age_hours": 8,
+        "max_age_hours": 8.0,
         "availability_expires_at": "2026-11-27T22:20:21Z",
         "stock_level": "8 GPUs free on 5 nodes",
         "same_capture_as_price": true,
@@ -319,7 +351,8 @@
         "stock_read_at": "2026-11-27T14:20:21Z",
         "price_read_at": "2026-11-27T14:20:21Z",
         "price_at_claim_usd": 0.38,
-        "gpu_count": 2
+        "gpu_count": 2,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -345,7 +378,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -371,7 +408,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -397,7 +438,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -423,7 +468,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -449,7 +498,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -475,7 +528,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -501,7 +558,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -527,7 +588,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -553,7 +618,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -580,7 +649,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -606,7 +679,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -633,7 +710,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -659,7 +740,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -685,7 +770,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"

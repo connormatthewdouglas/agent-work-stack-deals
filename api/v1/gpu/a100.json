@@ -55,7 +55,10 @@
           "in_stock": null,
           "checked_at": "2026-10-30T00:05:46Z",
           "source": "https://jarvislabs.ai/pricing",
-          "note": "The public pricing page publishes no stock signal"
+          "note": "The public pricing page publishes no stock signal",
+          "max_age_hours": 8.0,
+          "max_age_source": "policy",
+          "availability_expires_at": "2026-10-30T08:05:46Z"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -104,7 +107,8 @@
           "second_read_basis": "region FIN-02",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:53:57Z"
+          "last_known_at": "2026-11-27T12:53:57Z",
+          "max_age_source": "policy"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -153,7 +157,8 @@
           "second_read_basis": "overall",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:53:58Z"
+          "last_known_at": "2026-11-27T12:53:58Z",
+          "max_age_source": "policy"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -184,7 +189,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -232,7 +241,8 @@
           "second_read_basis": "overall",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:54:05Z"
+          "last_known_at": "2026-11-27T12:54:05Z",
+          "max_age_source": "policy"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -280,7 +290,8 @@
           "second_read_basis": "overall",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:54:05Z"
+          "last_known_at": "2026-11-27T12:54:05Z",
+          "max_age_source": "policy"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -328,7 +339,8 @@
           "second_read_basis": "region CA-MTL-3 (Canada)",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:48:41Z"
+          "last_known_at": "2026-11-27T12:48:41Z",
+          "max_age_source": "policy"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -376,7 +388,8 @@
           "second_read_basis": "region US-KS-2 (United States)",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:48:41Z"
+          "last_known_at": "2026-11-27T12:48:41Z",
+          "max_age_source": "policy"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -425,7 +438,8 @@
           "second_read_basis": "region FIN-01",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:53:57Z"
+          "last_known_at": "2026-11-27T12:53:57Z",
+          "max_age_source": "policy"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -476,7 +490,8 @@
           "second_read_basis": "region FIN-01",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:53:57Z"
+          "last_known_at": "2026-11-27T12:53:57Z",
+          "max_age_source": "policy"
         },
         "form_factor": "SXM",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -524,7 +539,8 @@
           "second_read_basis": "overall",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:54:05Z"
+          "last_known_at": "2026-11-27T12:54:05Z",
+          "max_age_source": "policy"
         },
         "form_factor": "PCIe",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -560,7 +576,10 @@
           "origin": "scout",
           "availability_status": "unknown",
           "availability_reason": "no_source",
-          "availability_reason_detail": "api_null_signal"
+          "availability_reason_detail": "api_null_signal",
+          "max_age_hours": 8.0,
+          "max_age_source": "policy",
+          "availability_expires_at": "2026-11-27T20:48:43Z"
         },
         "form_factor": "PCIe",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -609,7 +628,8 @@
           "second_read_basis": "region FIN-01",
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
-          "last_known_at": "2026-11-27T12:53:57Z"
+          "last_known_at": "2026-11-27T12:53:57Z",
+          "max_age_source": "policy"
         },
         "form_factor": "SXM",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -645,7 +665,10 @@
           "origin": "scout",
           "availability_status": "unknown",
           "availability_reason": "no_source",
-          "availability_reason_detail": "api_null_signal"
+          "availability_reason_detail": "api_null_signal",
+          "max_age_hours": 8.0,
+          "max_age_source": "policy",
+          "availability_expires_at": "2026-11-27T20:48:43Z"
         },
         "form_factor": "SXM",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -697,7 +720,8 @@
         "second_read_basis": "region FIN-01",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:53:57Z"
+        "last_known_at": "2026-11-27T12:53:57Z",
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -728,7 +752,7 @@
         "source": "https://lium.io/api/public/v1/nodes",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "record",
-        "max_age_hours": 8,
+        "max_age_hours": 8.0,
         "availability_expires_at": "2026-11-27T22:20:21Z",
         "stock_level": "16 GPUs free on 2 nodes",
         "same_capture_as_price": true,
@@ -736,7 +760,8 @@
         "stock_read_at": "2026-11-27T14:20:21Z",
         "price_read_at": "2026-11-27T14:20:21Z",
         "price_at_claim_usd": 0.87,
-        "gpu_count": 8
+        "gpu_count": 8,
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -763,7 +788,10 @@
         "in_stock": null,
         "checked_at": "2026-10-30T00:05:46Z",
         "source": "https://jarvislabs.ai/pricing",
-        "note": "The public pricing page publishes no stock signal"
+        "note": "The public pricing page publishes no stock signal",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-10-30T08:05:46Z"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -806,7 +834,8 @@
         "second_read_basis": "overall",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:54:05Z"
+        "last_known_at": "2026-11-27T12:54:05Z",
+        "max_age_source": "policy"
       },
       "form_factor": "PCIe",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -848,7 +877,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 1.09,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -874,7 +904,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -905,7 +939,10 @@
         "origin": "scout",
         "availability_status": "unknown",
         "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "availability_reason_detail": "api_null_signal",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-11-27T20:48:43Z"
       },
       "form_factor": "PCIe",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -949,7 +986,8 @@
         "second_read_basis": "region FIN-01",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:53:57Z"
+        "last_known_at": "2026-11-27T12:53:57Z",
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -992,7 +1030,8 @@
         "second_read_basis": "overall",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:54:05Z"
+        "last_known_at": "2026-11-27T12:54:05Z",
+        "max_age_source": "policy"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1023,7 +1062,10 @@
         "origin": "scout",
         "availability_status": "unknown",
         "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "availability_reason_detail": "api_null_signal",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-11-27T20:48:43Z"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1066,7 +1108,8 @@
         "second_read_basis": "overall",
         "two_read_gap_ok": true,
         "last_known_in_stock": false,
-        "last_known_at": "2026-11-27T12:54:05Z"
+        "last_known_at": "2026-11-27T12:54:05Z",
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1109,7 +1152,8 @@
         "second_read_basis": "region MON1 (CANADA, MONTREAL)",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:54:01Z"
+        "last_known_at": "2026-11-27T12:54:01Z",
+        "max_age_source": "policy"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1136,7 +1180,10 @@
         "in_stock": null,
         "checked_at": "2026-10-30T00:05:46Z",
         "source": "https://jarvislabs.ai/pricing",
-        "note": "The public pricing page publishes no stock signal"
+        "note": "The public pricing page publishes no stock signal",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-10-30T08:05:46Z"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1179,7 +1226,8 @@
         "second_read_basis": "overall",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:54:05Z"
+        "last_known_at": "2026-11-27T12:54:05Z",
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1223,7 +1271,8 @@
         "second_read_basis": "region FIN-02",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:53:57Z"
+        "last_known_at": "2026-11-27T12:53:57Z",
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1265,7 +1314,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 1.79,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1292,7 +1342,10 @@
         "in_stock": null,
         "checked_at": "2026-10-30T00:07:06Z",
         "source": "https://www.e2enetworks.com/pricing",
-        "note": "The public pricing page publishes no stock signal"
+        "note": "The public pricing page publishes no stock signal",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-10-30T08:07:06Z"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1336,7 +1389,8 @@
         "second_read_basis": "overall",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:53:58Z"
+        "last_known_at": "2026-11-27T12:53:58Z",
+        "max_age_source": "policy"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1380,7 +1434,8 @@
         "second_read_basis": "overall",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:53:58Z"
+        "last_known_at": "2026-11-27T12:53:58Z",
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1423,7 +1478,8 @@
         "second_read_basis": "region CA-MTL-3 (Canada)",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:48:41Z"
+        "last_known_at": "2026-11-27T12:48:41Z",
+        "max_age_source": "policy"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1450,7 +1506,10 @@
         "in_stock": null,
         "checked_at": "2026-10-30T00:07:06Z",
         "source": "https://www.e2enetworks.com/pricing",
-        "note": "The public pricing page publishes no stock signal"
+        "note": "The public pricing page publishes no stock signal",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-10-30T08:07:06Z"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1493,7 +1552,8 @@
         "second_read_basis": "region US-KS-2 (United States)",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:48:41Z"
+        "last_known_at": "2026-11-27T12:48:41Z",
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1537,7 +1597,8 @@
         "second_read_basis": "region FIN-01",
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
-        "last_known_at": "2026-11-27T12:53:57Z"
+        "last_known_at": "2026-11-27T12:53:57Z",
+        "max_age_source": "policy"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1564,7 +1625,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "serverless list price per GPU-hour while running (cold starts not included); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1591,7 +1656,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1633,7 +1702,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 0.79,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1675,7 +1745,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 0.89,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1717,7 +1788,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 0.99,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1743,7 +1815,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "SXM",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1785,7 +1861,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 1.49,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1827,7 +1904,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 1.59,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1869,7 +1947,8 @@
         "stock_read_at": "2026-11-27T12:54:01Z",
         "price_read_at": "2026-11-26T19:42:53Z",
         "price_at_claim_usd": 1.69,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"

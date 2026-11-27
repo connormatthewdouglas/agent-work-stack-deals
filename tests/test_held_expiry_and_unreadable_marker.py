@@ -174,7 +174,7 @@ def test_no_dollar_interstitial_without_marker_does_not_hold_or_stamp():
     assert r["quote"] == before["quote"]
     assert r["evidence"] == before["evidence"]
     assert r["checked_at"] == before["checked_at"]
-    assert r["verified_at"] == before.get("verified_at") or before["checked_at"]
+    assert r["verified_at"] == (before.get("verified_at") or before["checked_at"])
     assert r["last_failed_check_at"] == "2026-11-03T12:00:00+00:00"
     assert rows[0]["result"].startswith("unreadable") and "HELD" not in rows[0]["result"]
     assert not R.listed_page_marker_visible(r, R.page_text(page))
