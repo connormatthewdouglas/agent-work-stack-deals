@@ -36,7 +36,9 @@ Hosted only, opt-in, free. No webhook, no email, no account, no cron. Delivery i
 - `delete_alert(alert_id, alert_token)`.
 - TTL 30 days; an expired alert stays visible (`expired`, not renewable) for 7 days, then is purged.
 - Limits: 10 active alerts per token; 60 checks per token per hour and 500 per day; 10 creates per caller per UTC day (keyed per-day hash of the IP, never stored raw) and 100 creates per day overall; arguments over 4 KB are rejected.
-- Stale rule: an alert never fires on a `held_stale` row or a row whose price check is older than 48 hours (or undated). Those rows are listed in `skipped_stale` with `hold` (`held_stale` or `older_than_48h`) and `would_have_crossed`; a crossing on stale data is not a fire. Every response carries this rule as `stale_rule`.
+- Stale rule: an alert never fires on a `held_stale` row or a row whose last price verification is older than 48 hours (or undated). Those rows are listed in `skipped_stale` with `hold` (`held_stale` or `older_than_48h`) and `would_have_crossed`; a crossing on stale data is not a fire. Every response carries this rule as `stale_rule`.
+- A `skipped_stale` row's `would_have_crossed` is computed for that `check_alerts` call only and is not stored. The next poll re-evaluates the current feed. If the row is fresh again and the current price still crosses, `check_alerts` can fire on that poll (`new` is true unless `last_fired_price` already equals that best fired price; `last_fired_price` is written only when status is `fired`, so a prior skip does not suppress a later fire). That is a new evaluation of the current fresh price, not a delayed fire of the earlier stale crossing. If the now-fresh price no longer crosses, there is no fire.
+- `data_age_hours` (and the 48-hour stale rule for alerts) is measured from the row's own last price verification: `verified_at` when present, otherwise `checked_at`. It is not measured from `feed_updated_at` or the time the feed file was written.
 - Storage: watches D1 tables `price_alert_tokens`, `price_alerts`, `price_alert_counters` (`hosted/migrations/0008_price_alerts.sql`). No email, webhook URL, raw IP or raw token. Until the migration is applied the tools answer `alerts_unavailable`.
 
 ## Alert delivery (hosted watches)
@@ -60,7 +62,7 @@ Hosted only, opt-in, free. No webhook, no email, no account, no cron. Delivery i
 
 ## Stale prices
 
-By default no tool or page ranks a GPU price older than 168 hours (7 days) or names it cheapest. Such rows are listed separately as "stale price (N days old)" in `stale_prices`. If every matching price is stale, no current cheapest is named and the summary says so. Pass `max_data_age_hours` to set a different limit (for example 1000 to rank older quotes anyway; confirm them on the vendor page).
+By default no tool or page ranks a GPU price older than 168 hours (7 days) or names it cheapest. Such rows are listed separately as "stale price (N days old)" in `stale_prices`. If every matching price is stale, no current cheapest is named and the summary says so. Pass `max_data_age_hours` to set a different limit (for example 1000 to rank older quotes anyway; confirm them on the vendor page). `data_age_hours` is measured from the row's own last price verification (`verified_at`, or `checked_at` if `verified_at` is missing), not from `feed_updated_at` or the feed write time.
 
 ## Published GPU throughput data (T20 Phase B, data only)
 

@@ -86,3 +86,15 @@ def test_methodology_customers_buy_data_never_placement():
     for anchor in ("like-for-like", "placement", "collected", "verified", "held", "reserved", "cadence", "license"):
         assert f'id="{anchor}"' in s
 
+
+
+def test_methodology_stock_expiry_and_data_age():
+    s = (ROOT / "methodology" / "index.html").read_text(encoding="utf-8")
+    assert 'id="stock-expiry"' in s
+    assert "still valid at the exact instant" in s
+    assert "availability_expires_at" in s
+    assert "no grace period" in s and "no clock-skew tolerance" in s
+    assert "data_age_hours" in s
+    assert "not from when the feed file was written" in s
+    assert "/api/#availability-expiry" in s
+    assert "Frosty" not in s

@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Stock expiry and alert age (P70/P71, 2026-11-27): `/api/#availability-expiry`, `/methodology/#stock-expiry`, `/for-agents/#availability-expiry` and the contract docs now state that a stock claim is still valid when now equals `availability_expires_at` (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that `check_alerts` re-evaluates a previously `skipped_stale` row on the next poll rather than firing late. `data_age_hours` is measured from the row's own last price verification, not from the feed write time.
+
 - GPU prices that moved (P30, week to 2026-11-20): `/reports/gpu-prices-that-moved-2026-11-20/` is the first weekly moves post. Figures were recomputed from the live `gpu-prices.json` and `gpu-prices/history.json` feeds (`feed_updated_at` 2026-11-22T05:39:23Z): 24 eligible hourly rows moved, all Verda (formerly DataCrunch) and all increases (2.5% to 6.2%). A chart, the full move list, and `moves.json` ship with the page.
 
 - Neutrality rule (2026-11-20): `/methodology/#placement` expands “Customers buy data, never placement” to say what money does not change, what is allowed, and that paid sponsorships or advertisements are not offered. `/disclosure/` points to that section. Also folds Gauge nits: deal copy no longer says “sign-up link link”, and the TrueProxies disclosure reads “this TrueProxies link”.
