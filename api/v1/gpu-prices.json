@@ -13,7 +13,7 @@
     "docs": "https://github.com/connormatthewdouglas/agent-work-stack-deals/blob/main/docs/REPORT-WRONG-PRICE.md"
   },
   "source_feed": "https://thelanternworks.com/api/v1/deals.json",
-  "feed_updated_at": "2026-11-27T19:57:17Z",
+  "feed_updated_at": "2026-11-27T21:40:15Z",
   "generation_id": "20261127T184920Z-875791ff",
   "wider_generation_id": "20261127T184920Z-875791ff",
   "availability_collected_at": "2026-11-27T18:48:04Z",
@@ -8679,10 +8679,10 @@
         "checked_at": "2026-11-27T19:33:56Z"
       },
       "availability": {
-        "status": "unknown",
+        "status": "unknown (stale availability, last checked 2026-11-27 07:48 ET)",
         "in_stock": null,
         "checked_at": "2026-11-27T18:42:14Z",
-        "note": "No confirmed region claim at overall_recomputed_at",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
         "origin": "scout",
         "availability_status": "unknown",
@@ -8690,6 +8690,7 @@
         "availability_reason_detail": "unconfirmed_two_reads",
         "last_known_in_stock": true,
         "last_known_at": "2026-11-27T12:48:41Z",
+        "availability_stale": true,
         "max_age_hours": 8.0,
         "max_age_source": "policy",
         "availability_expires_at": "2026-11-28T02:42:14Z"
@@ -15830,7 +15831,9 @@
           }
         }
       ],
-      "scope": "record"
+      "scope": "record",
+      "expired": true,
+      "expired_reason": "last successful check older than 72 h (hard ceiling); expired, not ranked; source evidence retained"
     },
     {
       "vendor": "Runcrate",
@@ -16096,5 +16099,5 @@
     "signal_no_window_yet": 0,
     "earliest_first_check_at": "2026-11-20T18:55:41Z"
   },
-  "content_build_id": "8b8067151e5af4c5"
+  "content_build_id": "4041f5e3e73be69b"
 }
