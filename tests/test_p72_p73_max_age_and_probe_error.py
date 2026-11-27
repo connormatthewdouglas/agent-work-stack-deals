@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+import pytest
+
 from core import gpu_availability as A
 from core.gpu import last_successful_check_at
 import sys
@@ -13,9 +15,17 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import check_gpu_freshness as gate  # noqa: E402
 
 CLOCK = datetime(2026, 11, 27, 14, 23, tzinfo=timezone.utc)
-CHECK = "2026-11-27T13:23:00Z"  # 1h before CLOCK
+CHECK = "2026-11-27T13:23:00Z"  # 1h before CLOCK; used by annotate_max_age tests
+# Inside the 1h policy with room for CI's LW_BUILD_HORIZON_MIN=25 cutoff (build_now = now + horizon).
+NO_SOURCE_CHECK = "2026-11-27T13:53:00Z"  # 30 min before CLOCK
 ATTEMPT = "2026-11-27T14:23:00Z"
 OLD_OK = "2026-11-26T12:00:00Z"
+
+
+@pytest.fixture(autouse=True)
+def _pin_build_horizon(monkeypatch):
+    """These tests pass an explicit now=; do not let a generate-time horizon shift the clock."""
+    monkeypatch.delenv("LW_BUILD_HORIZON_MIN", raising=False)
 
 
 def test_max_age_source_provider():
@@ -63,7 +73,7 @@ def test_availability_expires_at_present_on_no_source_rows():
         "vram_gb": 80,
         "tier": "On-demand instance (1x GPU)",
         "in_stock": None,
-        "availability_checked_at": CHECK,
+        "availability_checked_at": NO_SOURCE_CHECK,
         "availability_expires_at": None,
         "availability_reason": "no_source",
         "availability_reason_detail": "unconfirmed_two_reads",
@@ -75,13 +85,13 @@ def test_availability_expires_at_present_on_no_source_rows():
     finally:
         A._CACHE = None
     assert "availability_expires_at" in out
-    assert out["availability_expires_at"] == "2026-11-27T14:23:00Z"
+    assert out["availability_expires_at"] == "2026-11-27T14:53:00Z"
     assert out["max_age_source"] == A.MAX_AGE_SOURCE_POLICY
     assert out["max_age_hours"] == 1.0
     assert out["in_stock"] is None
     assert out.get("availability_reason") == "no_source"
     # No stamp invented on the Scout row itself.
-    assert row["availability_checked_at"] == CHECK and row["availability_expires_at"] is None
+    assert row["availability_checked_at"] == NO_SOURCE_CHECK and row["availability_expires_at"] is None
 
 
 def test_probe_crash_writes_error_and_does_not_count_as_success():
