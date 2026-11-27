@@ -142,6 +142,10 @@ def write(g) -> str:
     <li><strong>Stale vendor page:</strong> if a vendor's published prices are out of date, all of that vendor's rates are held.</li>
   </ul>
 
+  <h2 id="stock-expiry">When a stock claim expires</h2>
+  <p>A published in-stock or sold-out claim is still valid at the exact instant in <code>availability_expires_at</code> (UTC). It is treated as unknown only after that instant: not in stock, and not sold out. The clock is UTC. There is no grace period and no clock-skew tolerance. Static pages and feeds drop a claim that would expire within 25 minutes so the published file does not outlive it; tools that read the feed still have to apply the expiry time themselves. The same <a href="{base}/api/#availability-expiry">rule is documented on the API page</a>.</p>
+  <p>How old a price is (<code>data_age_hours</code>) is measured from that row's own last price verification (<code>verified_at</code>, or <code>checked_at</code> if <code>verified_at</code> is missing), not from when the feed file was written.</p>
+
   <h2 id="reserved">Why reserved rates are not "cheapest"</h2>
   <p>Some vendors publish lower prices that need a reservation, a contract or a minimum term. Those prices are real, so they are shown, but they are not comparable with pay-as-you-go rates you can start and stop at any time. They are always listed separately, after every pay-as-you-go rate, and are never counted when this site calls a rate the cheapest among tracked providers.</p>
 

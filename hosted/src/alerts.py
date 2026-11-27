@@ -3,8 +3,9 @@
 No webhook, no email, no cron, no accounts, no PII. An agent creates an alert, gets a secret alert_token ONCE
 (only its SHA-256 is stored), and polls check_alerts after the feed refresh (daily 10:23 UTC, plus mid-day Scout/Lium
 rebuilds). An alert is a stable rate_id, or a gpu (+ optional vendor, vram_gb, tiers) filter, with a threshold and a
-direction. It never fires on a held_stale row or a row whose price check is older than DEGRADED_HOURS (48 h); those are
-reported in skipped_stale. Pure logic here; D1 helpers come from watch_store (rows are plain dicts, SQL NULL -> None)."""
+direction. It never fires on a held_stale row or a row whose last price verification is older than DEGRADED_HOURS (48 h); those are
+reported in skipped_stale with would_have_crossed (computed for that poll only; the next check re-evaluates the current
+feed). Pure logic here; D1 helpers come from watch_store (rows are plain dicts, SQL NULL -> None)."""
 from __future__ import annotations
 
 import hashlib
@@ -34,8 +35,11 @@ MAX_CREATES_PER_DAY = 100
 MAX_ARGS_BYTES = 4096
 MAX_ITEMS = 5                   # fired / skipped_stale rows listed per alert
 STALE_HOURS = data_age.DEGRADED_HOURS
-STALE_NOTE = (f"Never fires on a held_stale row or a row whose price check is older than {STALE_HOURS} hours: those are "
-              "listed in skipped_stale with would_have_crossed, and a crossing on stale data is not a fire.")
+STALE_NOTE = (f"Never fires on a held_stale row or a row whose last price verification is older than {STALE_HOURS} hours "
+              "(data_age_hours is measured from the row's verified_at, or checked_at if verified_at is missing, not from "
+              "feed write time): those are listed in skipped_stale with would_have_crossed, and a crossing on stale data "
+              "is not a fire. would_have_crossed is not stored; the next check_alerts re-evaluates the current feed, and "
+              "a now-fresh row can fire then if the current price still crosses (that is not a delayed fire of the stale crossing).")
 
 _NUM, _STR = {"type": ["number", "null"]}, {"type": ["string", "null"]}
 _ITEM = {"type": "object", "required": ["rate_id", "vendor", "gpu", "hourly_usd"],

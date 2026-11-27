@@ -30,6 +30,31 @@ def test_api_docs_page_exists_and_covers_public_api():
     assert (ROOT / "api" / "v1" / "gpu-prices.json").is_file()
 
 
+def test_api_docs_page_covers_p70_expiry_and_p71_alerts():
+    s = (ROOT / "api" / "index.html").read_text(encoding="utf-8")
+    assert 'id="availability-expiry"' in s
+    assert "still valid at the exact expiry instant" in s
+    assert "equals <code>availability_expires_at</code>" in s or "equals availability_expires_at" in s
+    assert "no grace period" in s and "no clock-skew tolerance" in s
+    assert "current UTC time" in s
+    assert 'id="price-alerts"' in s
+    assert "would_have_crossed" in s
+    assert "not stored" in s
+    assert "new evaluation of the current price" in s
+    assert "not a delayed fire" in s
+    assert "data_age_hours" in s
+    assert "not from <code>feed_updated_at</code>" in s
+    assert "Frosty" not in s and "Connor" not in s
+    fa = (ROOT / "for-agents" / "index.html").read_text(encoding="utf-8")
+    assert "still valid at the exact expiry instant" in fa
+    assert "no clock-skew tolerance" in fa
+    assert "find_available_gpus" in fa
+    llms = (ROOT / "llms.txt").read_text(encoding="utf-8")
+    assert "including at the exact expiry instant" in llms
+    assert "no clock-skew tolerance" in llms
+
+
+
 def test_redeem_url_plain_words_do_not_say_the_the():
     assert g.plain_words("Sign up via the redeem_url for proxies.") == "Sign up via the sign-up link for proxies."
     assert g.plain_words("Open the redeem_url link and get a free API key.") == "Open the sign-up link and get a free API key."

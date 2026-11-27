@@ -135,6 +135,9 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>Stock expiry and alert age (P70/P71, 2026-11-27): <code>/api/#availability-expiry</code>, <code>/methodology/#stock-expiry</code>, <code>/for-agents/#availability-expiry</code> and the contract docs now state that a stock claim is still valid when now equals <code>availability_expires_at</code> (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that <code>check_alerts</code> re-evaluates a previously <code>skipped_stale</code> row on the next poll rather than firing late. <code>data_age_hours</code> is measured from the row&#x27;s own last price verification, not from the feed write time.</li>
+</ul>
+<ul>
 <li>GPU prices that moved (P30, week to 2026-11-20): <code>/reports/gpu-prices-that-moved-2026-11-20/</code> is the first weekly moves post. Figures were recomputed from the live <code>gpu-prices.json</code> and <code>gpu-prices/history.json</code> feeds (<code>feed_updated_at</code> 2026-11-22T05:39:23Z): 24 eligible hourly rows moved, all Verda (formerly DataCrunch) and all increases (2.5% to 6.2%). A chart, the full move list, and <code>moves.json</code> ship with the page.</li>
 </ul>
 <ul>

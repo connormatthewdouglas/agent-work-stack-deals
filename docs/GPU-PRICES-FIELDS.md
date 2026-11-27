@@ -136,7 +136,7 @@ last_known is marked stale **8 hours** after `last_known_at`. That number is `AV
 | `other` (`check_failed_http`, `check_failed_timeout`) | Yes (not a firm observation; last_known is not updated). Current reading is unknown. | Same 8-hour clock on the prior last_known, if any. No separate ageing rule for the failed check itself. |
 | `no_source` / unknown with no prior firm claim | Nothing to keep; last_known is not invented. | No last_known is shown. If a prior last_known exists, it is kept and ages on the same 8-hour clock. |
 | Price-join drop (`price_join_guard`, #211) | Yes: last_known is the firm, dated claim that was dropped. `in_stock` is null. | Then the same 8-hour clock (`AVAIL_MAX_AGE_H`) as any other last_known. |
-| Claim lapse (time / `availability_expires_at`) | Yes (P36): last_known is the firm claim that just lapsed. | Marked stale at lapse; last_known is still shown, not dropped. Live claims may lapse sooner than 8 hours under the existing lifetimes above, equally for true and false. |
+| Claim lapse (time / `availability_expires_at`) | Yes (P36): last_known is the firm claim that just lapsed. | The claim lapses when now is after `availability_expires_at` (UTC). A claim at the exact expiry instant is still valid. There is no grace period or clock-skew tolerance. Once lapsed, it is marked stale; last_known is still shown, not dropped. Live claims may lapse sooner than 8 hours under the existing lifetimes above, equally for true and false. |
 ## marketplace_query and composition_flag (additive, P45, Nov 2026)
 
 On marketplace-median rates (`price_status=marketplace`) in `gpu-prices.json` and `compare_gpu_prices`, and on
