@@ -51,7 +51,10 @@
           "basis": "vendor_static_label",
           "checked_at": "2026-10-29T23:15:22Z",
           "source": "https://nova-cloud.ai/pricing (schema.org Offer availability InStock, USD 0.42/HOUR)",
-          "note": "The vendor's own page labels this offer in stock; that label is static page markup, not a live capacity check, so it is treated as unknown availability."
+          "note": "The vendor's own page labels this offer in stock; that label is static page markup, not a live capacity check, so it is treated as unknown availability.",
+          "max_age_hours": 8.0,
+          "max_age_source": "policy",
+          "availability_expires_at": "2026-10-30T07:15:22Z"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -194,7 +197,8 @@
           "stock_read_at": "2026-11-27T12:48:41Z",
           "price_read_at": "2026-11-26T19:44:39Z",
           "price_at_claim_usd": 0.89,
-          "gpu_count": 1
+          "gpu_count": 1,
+          "max_age_source": "policy"
         },
         "form_factor": "unknown",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -227,7 +231,11 @@
           "status": "unknown",
           "in_stock": null,
           "checked_at": null,
-          "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+          "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+          "max_age_hours": null,
+          "max_age_source": "fallback",
+          "availability_expires_at": null,
+          "max_age_reason": "no check time to compute expiry"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -263,7 +271,10 @@
           "origin": "scout",
           "availability_status": "unknown",
           "availability_reason": "no_source",
-          "availability_reason_detail": "api_null_signal"
+          "availability_reason_detail": "api_null_signal",
+          "max_age_hours": 1.0,
+          "max_age_source": "policy",
+          "availability_expires_at": "2026-11-27T13:48:43Z"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -298,7 +309,7 @@
           "source": "https://lium.io/api/public/v1/nodes",
           "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
           "origin": "record",
-          "max_age_hours": 8,
+          "max_age_hours": 8.0,
           "availability_expires_at": "2026-11-27T19:16:06Z",
           "stock_level": "126 GPUs free on 38 nodes",
           "same_capture_as_price": true,
@@ -306,7 +317,8 @@
           "stock_read_at": "2026-11-27T11:16:06Z",
           "price_read_at": "2026-11-27T11:16:06Z",
           "price_at_claim_usd": 0.35,
-          "gpu_count": 1
+          "gpu_count": 1,
+          "max_age_source": "policy"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -341,7 +353,7 @@
           "source": "https://lium.io/api/public/v1/nodes",
           "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
           "origin": "record",
-          "max_age_hours": 8,
+          "max_age_hours": 8.0,
           "availability_expires_at": "2026-11-27T19:16:06Z",
           "stock_level": "5 GPUs free on 2 nodes",
           "same_capture_as_price": true,
@@ -349,7 +361,8 @@
           "stock_read_at": "2026-11-27T11:16:06Z",
           "price_read_at": "2026-11-27T11:16:06Z",
           "price_at_claim_usd": 0.39,
-          "gpu_count": 1
+          "gpu_count": 1,
+          "max_age_source": "policy"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -852,7 +865,8 @@
           "stock_read_at": "2026-11-27T12:48:39Z",
           "price_read_at": "2026-11-26T19:45:23Z",
           "price_at_claim_usd": 0.5078,
-          "gpu_count": 1
+          "gpu_count": 1,
+          "max_age_source": "policy"
         },
         "form_factor": "unknown",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -886,7 +900,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -917,7 +935,10 @@
         "origin": "scout",
         "availability_status": "unknown",
         "availability_reason": "no_source",
-        "availability_reason_detail": "api_null_signal"
+        "availability_reason_detail": "api_null_signal",
+        "max_age_hours": 1.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-11-27T13:48:43Z"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -947,7 +968,7 @@
         "source": "https://lium.io/api/public/v1/nodes",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "record",
-        "max_age_hours": 8,
+        "max_age_hours": 8.0,
         "availability_expires_at": "2026-11-27T19:16:06Z",
         "stock_level": "126 GPUs free on 38 nodes",
         "same_capture_as_price": true,
@@ -955,7 +976,8 @@
         "stock_read_at": "2026-11-27T11:16:06Z",
         "price_read_at": "2026-11-27T11:16:06Z",
         "price_at_claim_usd": 0.35,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -985,7 +1007,7 @@
         "source": "https://lium.io/api/public/v1/nodes",
         "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
         "origin": "record",
-        "max_age_hours": 8,
+        "max_age_hours": 8.0,
         "availability_expires_at": "2026-11-27T19:16:06Z",
         "stock_level": "5 GPUs free on 2 nodes",
         "same_capture_as_price": true,
@@ -993,7 +1015,8 @@
         "stock_read_at": "2026-11-27T11:16:06Z",
         "price_read_at": "2026-11-27T11:16:06Z",
         "price_at_claim_usd": 0.39,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1021,7 +1044,10 @@
         "basis": "vendor_static_label",
         "checked_at": "2026-10-29T23:15:22Z",
         "source": "https://nova-cloud.ai/pricing (schema.org Offer availability InStock, USD 0.42/HOUR)",
-        "note": "The vendor's own page labels this offer in stock; that label is static page markup, not a live capacity check, so it is treated as unknown availability."
+        "note": "The vendor's own page labels this offer in stock; that label is static page markup, not a live capacity check, so it is treated as unknown availability.",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-10-30T07:15:22Z"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1048,7 +1074,10 @@
         "in_stock": null,
         "checked_at": "2026-10-29T23:14:39Z",
         "source": "https://www.runc.ai/gpu/rtx-4090/",
-        "note": "The public page publishes no stock signal and RunC.AI has no no-signup availability API"
+        "note": "The public page publishes no stock signal and RunC.AI has no no-signup availability API",
+        "max_age_hours": 8.0,
+        "max_age_source": "policy",
+        "availability_expires_at": "2026-10-30T07:14:39Z"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1546,7 +1575,8 @@
         "stock_read_at": "2026-11-27T12:48:39Z",
         "price_read_at": "2026-11-26T19:45:23Z",
         "price_at_claim_usd": 0.5078,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1572,7 +1602,11 @@
         "status": "unknown",
         "in_stock": null,
         "checked_at": null,
-        "note": "No availability signal from this vendor for this offer; unknown, not sold out."
+        "note": "No availability signal from this vendor for this offer; unknown, not sold out.",
+        "max_age_hours": null,
+        "max_age_source": "fallback",
+        "availability_expires_at": null,
+        "max_age_reason": "no check time to compute expiry"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1710,7 +1744,8 @@
         "stock_read_at": "2026-11-27T12:48:41Z",
         "price_read_at": "2026-11-26T19:44:39Z",
         "price_at_claim_usd": 0.89,
-        "gpu_count": 1
+        "gpu_count": 1,
+        "max_age_source": "policy"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"

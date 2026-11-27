@@ -217,3 +217,17 @@ rejects unrecognized invalid URLs before writing anything. `--check` validates w
 price-record validator also rejects invalid URLs at export. Model feeds preserve request metadata, and
 history exports normalize citations without rewriting historical snapshots. API evidence fields are additive;
 no MCP fields are renamed.
+
+## max_age_source, availability_expires_at on every availability row, probe_error (additive, P72 / P73, Nov 2026)
+
+P72 (marxsignal) and P73 (morpheus404). Additive optional fields on each rate's `availability` object and, when present, on imported Scout rows. The imported snapshot schema stays `lantern-works-gpu-availability/1`. Scout snapshot version stays 3.2. Ranking does not read these fields.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `max_age_source` | `provider`, `policy`, or `fallback` | Where `max_age_hours` came from. `provider`: the vendor stated the lifetime (`provider_max_age_hours`). `policy`: our documented claim lifetimes (15 min Verda spot; 1 h for Lambda, Verda, RunPod, Oblivus, Novita, Thunder Compute, and region-derived claims; 8 h otherwise), or Scout's already-computed `availability_expires_at`. `fallback`: there is no time basis to compute an expiry. |
+| `max_age_hours` | number or null | Claim lifetime in hours. Null only when `max_age_source` is `fallback`. Never invented. |
+| `availability_expires_at` | string (ISO-8601 UTC, `Z`) or null | Present on every availability row, including `no_source` and `never_ran`. Null when there is no check time to add a lifetime to, together with `max_age_reason`. |
+| `max_age_reason` | string | Why expiry is null. Omitted when expiry was computed. |
+| `probe_error` | object or absent | Written when the stock/terms probe crashes: `type` (exception class) and `message` (short, with secrets, tokens, and credential-bearing URLs stripped). |
+| `probe_attempted_at` | string (ISO-8601 UTC, `Z`) or absent | The crash attempt time. This is not a successful check. If a historical field is called `checked_at`, freshness, the 72h ceiling and `expire_held_rows` still read only successful-check stamps (`evidence.checked_at`, `verified_at`, or a successful `checked_at`). Failed collection never writes a fresh `verified_at` or success `checked_at`. |
+
