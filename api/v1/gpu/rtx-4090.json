@@ -82,131 +82,27 @@
         "source_url": "https://www.runpod.io/pricing",
         "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
         "availability": {
-          "status": "available when checked",
-          "in_stock": true,
+          "status": "unknown (stale availability, last checked 2026-11-27 19:46 ET)",
+          "in_stock": null,
+          "availability_stale": true,
           "checked_at": "2026-11-28T00:46:15Z",
-          "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-          "origin": "scout",
-          "availability_expires_at": "2026-11-28T01:46:15Z",
           "max_age_hours": 1.0,
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
           "derived_from_regions": true,
-          "stock_level": "High",
-          "available_regions": [
-            "EU-CZ-1 (Europe)",
-            "EU-RO-1 (Europe)",
-            "EUR-IS-1 (Europe)",
-            "EUR-IS-2 (Europe)",
-            "US-IL-1 (United States)"
-          ],
-          "available_regions_detail": [
-            {
-              "region": "EU-CZ-1 (Europe)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-28T00:46:33Z",
-              "availability_expires_at": "2026-11-28T01:46:33Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-28T00:46:33Z",
-              "second_read_at": "2026-11-28T00:51:10Z",
-              "second_read_gap_s": 277.0
-            },
-            {
-              "region": "EU-RO-1 (Europe)",
-              "stock_level": "Medium",
-              "checked_at": "2026-11-28T00:46:36Z",
-              "availability_expires_at": "2026-11-28T01:46:36Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "High",
-              "first_read_at": "2026-11-28T00:46:36Z",
-              "second_read_at": "2026-11-28T00:51:11Z",
-              "second_read_gap_s": 275.0
-            },
-            {
-              "region": "EUR-IS-1 (Europe)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-28T00:46:44Z",
-              "availability_expires_at": "2026-11-28T01:46:44Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-28T00:46:44Z",
-              "second_read_at": "2026-11-28T00:51:12Z",
-              "second_read_gap_s": 268.0
-            },
-            {
-              "region": "EUR-IS-2 (Europe)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-28T00:46:45Z",
-              "availability_expires_at": "2026-11-28T01:46:45Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-28T00:46:45Z",
-              "second_read_at": "2026-11-28T00:51:13Z",
-              "second_read_gap_s": 268.0
-            },
-            {
-              "region": "US-IL-1 (United States)",
-              "stock_level": "Low",
-              "checked_at": "2026-11-28T00:47:15Z",
-              "availability_expires_at": "2026-11-28T01:47:15Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": "Low",
-              "first_read_at": "2026-11-28T00:47:15Z",
-              "second_read_at": "2026-11-28T00:51:16Z",
-              "second_read_gap_s": 241.0
-            }
-          ],
-          "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+          "availability_expires_at": "2026-11-28T01:46:15Z",
+          "stock_read_at": "2026-11-28T00:46:15Z",
+          "price_read_at": "2026-11-27T19:33:56Z",
+          "price_at_claim_usd": 0.89,
+          "gpu_count": 1,
           "first_read_at": "2026-11-28T00:46:33Z",
           "second_read_at": "2026-11-28T00:51:10Z",
           "second_read_gap_s": 277.0,
           "second_read_basis": "region EU-CZ-1 (Europe)",
           "two_read_gap_ok": true,
-          "available_regions_normalized": [
-            {
-              "label": "EU-CZ-1 (Europe)",
-              "zone": "EU-CZ-1",
-              "country": "CZ",
-              "group": "EU"
-            },
-            {
-              "label": "EU-RO-1 (Europe)",
-              "zone": "EU-RO-1",
-              "country": "RO",
-              "group": "EU"
-            },
-            {
-              "label": "EUR-IS-1 (Europe)",
-              "zone": "EUR-IS-1",
-              "country": "IS",
-              "group": "EU"
-            },
-            {
-              "label": "EUR-IS-2 (Europe)",
-              "zone": "EUR-IS-2",
-              "country": "IS",
-              "group": "EU"
-            },
-            {
-              "label": "US-IL-1 (United States)",
-              "zone": "US-IL-1",
-              "country": "US",
-              "group": "NA"
-            }
-          ],
-          "regions_expires_at": "2026-11-28T01:46:33Z",
-          "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-          "availability_status": "in_stock",
-          "availability_reason": "in_stock",
-          "stock_read_at": "2026-11-28T00:46:15Z",
-          "price_read_at": "2026-11-27T19:33:56Z",
-          "price_at_claim_usd": 0.89,
-          "gpu_count": 1,
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-28T00:46:15Z",
           "max_age_source": "policy"
         },
         "form_factor": "unknown",
@@ -399,350 +295,26 @@
         "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
         "quote": "Vast public offers API: 53 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.5171/hr, min $0.4428/hr",
         "availability": {
-          "status": "available when checked",
-          "in_stock": true,
+          "status": "unknown (stale availability, last checked 2026-11-27 19:46 ET)",
+          "in_stock": null,
+          "availability_stale": true,
           "checked_at": "2026-11-28T00:46:13Z",
-          "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-          "origin": "scout",
-          "availability_expires_at": "2026-11-28T01:46:13Z",
           "max_age_hours": 1.0,
-          "offer_count": 42,
-          "available_regions": [
-            "AR",
-            "BG",
-            "CA",
-            "ES",
-            "FR",
-            "SE",
-            "TW",
-            "US",
-            "VN",
-            "ZA"
-          ],
-          "available_regions_detail": [
-            {
-              "region": "AR",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                150084
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "BG",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 3,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                29212,
-                30508,
-                158257
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "CA",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 3,
-              "second_read_offer_count": 5,
-              "machine_ids": [
-                10029,
-                154269
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "ES",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 6,
-              "second_read_offer_count": 5,
-              "machine_ids": [
-                11851,
-                13450,
-                151394
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "FR",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 3,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                154732,
-                157828,
-                158485
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "IE",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": false,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 2,
-              "second_read_offer_count": 0,
-              "machine_ids": [
-                15489,
-                16299
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "MY",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": false,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 0,
-              "machine_ids": [
-                138228
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "NO",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": false,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 0,
-              "machine_ids": [
-                106395
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "SE",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 2,
-              "second_read_offer_count": 2,
-              "machine_ids": [
-                14826,
-                136736
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "TW",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 2,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                26415,
-                102319
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "US",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 14,
-              "second_read_offer_count": 15,
-              "machine_ids": [
-                9204,
-                18857,
-                20820,
-                26385,
-                53947,
-                114244,
-                150711,
-                153161,
-                153891,
-                154038,
-                157213,
-                158250
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "VN",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 3,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                9956,
-                10577,
-                47598
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            },
-            {
-              "region": "ZA",
-              "stock_level": null,
-              "checked_at": "2026-11-28T00:46:13Z",
-              "availability_expires_at": "2026-11-28T01:46:13Z",
-              "confirmed": true,
-              "confirmation": "two_reads",
-              "second_read_stock_level": null,
-              "offer_count": 1,
-              "second_read_offer_count": 1,
-              "machine_ids": [
-                149229
-              ],
-              "first_read_at": "2026-11-28T00:46:13Z",
-              "second_read_at": "2026-11-28T00:51:35Z",
-              "second_read_gap_s": 322.0
-            }
-          ],
-          "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+          "origin": "scout",
+          "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+          "source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+          "availability_expires_at": "2026-11-28T01:46:13Z",
+          "stock_read_at": "2026-11-28T00:46:13Z",
+          "price_read_at": "2026-11-27T19:35:37Z",
+          "price_at_claim_usd": 0.5171,
+          "gpu_count": 1,
           "first_read_at": "2026-11-28T00:46:13Z",
           "second_read_at": "2026-11-28T00:51:35Z",
           "second_read_gap_s": 322.0,
           "second_read_basis": "region AR",
           "two_read_gap_ok": true,
-          "available_regions_normalized": [
-            {
-              "label": "AR",
-              "zone": "AR",
-              "country": "AR",
-              "group": null
-            },
-            {
-              "label": "BG",
-              "zone": "BG",
-              "country": "BG",
-              "group": null
-            },
-            {
-              "label": "CA",
-              "zone": "CA",
-              "country": "CA",
-              "group": "NA"
-            },
-            {
-              "label": "ES",
-              "zone": "ES",
-              "country": "ES",
-              "group": "EU"
-            },
-            {
-              "label": "FR",
-              "zone": "FR",
-              "country": "FR",
-              "group": "EU"
-            },
-            {
-              "label": "SE",
-              "zone": "SE",
-              "country": "SE",
-              "group": "EU"
-            },
-            {
-              "label": "TW",
-              "zone": "TW",
-              "country": "TW",
-              "group": "APAC"
-            },
-            {
-              "label": "US",
-              "zone": "US",
-              "country": "US",
-              "group": "NA"
-            },
-            {
-              "label": "VN",
-              "zone": "VN",
-              "country": "VN",
-              "group": null
-            },
-            {
-              "label": "ZA",
-              "zone": "ZA",
-              "country": "ZA",
-              "group": null
-            }
-          ],
-          "regions_expires_at": "2026-11-28T01:46:13Z",
-          "source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-          "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
-          "availability_status": "in_stock",
-          "availability_reason": "in_stock",
-          "stock_read_at": "2026-11-28T00:46:13Z",
-          "price_read_at": "2026-11-27T19:35:37Z",
-          "price_at_claim_usd": 0.5171,
-          "gpu_count": 1,
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-28T00:46:13Z",
           "max_age_source": "policy"
         },
         "form_factor": "unknown",
@@ -977,350 +549,26 @@
       "source_url": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
       "quote": "Vast public offers API: 53 verified rentable on-demand RTX 4090 24GB offers; per-GPU dph_total median $0.5171/hr, min $0.4428/hr",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-27 19:46 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-28T00:46:13Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-28T01:46:13Z",
         "max_age_hours": 1.0,
-        "offer_count": 42,
-        "available_regions": [
-          "AR",
-          "BG",
-          "CA",
-          "ES",
-          "FR",
-          "SE",
-          "TW",
-          "US",
-          "VN",
-          "ZA"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "AR",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              150084
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "BG",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 3,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              29212,
-              30508,
-              158257
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "CA",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 3,
-            "second_read_offer_count": 5,
-            "machine_ids": [
-              10029,
-              154269
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "ES",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 6,
-            "second_read_offer_count": 5,
-            "machine_ids": [
-              11851,
-              13450,
-              151394
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "FR",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 3,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              154732,
-              157828,
-              158485
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "IE",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 0,
-            "machine_ids": [
-              15489,
-              16299
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "MY",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 0,
-            "machine_ids": [
-              138228
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "NO",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": false,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 0,
-            "machine_ids": [
-              106395
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "SE",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 2,
-            "machine_ids": [
-              14826,
-              136736
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "TW",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 2,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              26415,
-              102319
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "US",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 14,
-            "second_read_offer_count": 15,
-            "machine_ids": [
-              9204,
-              18857,
-              20820,
-              26385,
-              53947,
-              114244,
-              150711,
-              153161,
-              153891,
-              154038,
-              157213,
-              158250
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "VN",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 3,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              9956,
-              10577,
-              47598
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          },
-          {
-            "region": "ZA",
-            "stock_level": null,
-            "checked_at": "2026-11-28T00:46:13Z",
-            "availability_expires_at": "2026-11-28T01:46:13Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": null,
-            "offer_count": 1,
-            "second_read_offer_count": 1,
-            "machine_ids": [
-              149229
-            ],
-            "first_read_at": "2026-11-28T00:46:13Z",
-            "second_read_at": "2026-11-28T00:51:35Z",
-            "second_read_gap_s": 322.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
+        "source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
+        "availability_expires_at": "2026-11-28T01:46:13Z",
+        "stock_read_at": "2026-11-28T00:46:13Z",
+        "price_read_at": "2026-11-27T19:35:37Z",
+        "price_at_claim_usd": 0.5171,
+        "gpu_count": 1,
         "first_read_at": "2026-11-28T00:46:13Z",
         "second_read_at": "2026-11-28T00:51:35Z",
         "second_read_gap_s": 322.0,
         "second_read_basis": "region AR",
         "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "AR",
-            "zone": "AR",
-            "country": "AR",
-            "group": null
-          },
-          {
-            "label": "BG",
-            "zone": "BG",
-            "country": "BG",
-            "group": null
-          },
-          {
-            "label": "CA",
-            "zone": "CA",
-            "country": "CA",
-            "group": "NA"
-          },
-          {
-            "label": "ES",
-            "zone": "ES",
-            "country": "ES",
-            "group": "EU"
-          },
-          {
-            "label": "FR",
-            "zone": "FR",
-            "country": "FR",
-            "group": "EU"
-          },
-          {
-            "label": "SE",
-            "zone": "SE",
-            "country": "SE",
-            "group": "EU"
-          },
-          {
-            "label": "TW",
-            "zone": "TW",
-            "country": "TW",
-            "group": "APAC"
-          },
-          {
-            "label": "US",
-            "zone": "US",
-            "country": "US",
-            "group": "NA"
-          },
-          {
-            "label": "VN",
-            "zone": "VN",
-            "country": "VN",
-            "group": null
-          },
-          {
-            "label": "ZA",
-            "zone": "ZA",
-            "country": "ZA",
-            "group": null
-          }
-        ],
-        "regions_expires_at": "2026-11-28T01:46:13Z",
-        "source": "https://console.vast.ai/api/v0/bundles/?q=%7B%22gpu_name%22%3A%7B%22eq%22%3A%22RTX%204090%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22rented%22%3A%7B%22eq%22%3Afalse%7D%2C%22verified%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%2C%22limit%22%3A1000%7D",
-        "consistency_note": "Vast.ai: the offer count is from a separate availability check (its own checked_at), not the price snapshot; offer counts and prices on the marketplace move between checks, so they can differ from the count/minimum in the price quote.",
-        "availability_status": "in_stock",
-        "availability_reason": "in_stock",
-        "stock_read_at": "2026-11-28T00:46:13Z",
-        "price_read_at": "2026-11-27T19:35:37Z",
-        "price_at_claim_usd": 0.5171,
-        "gpu_count": 1,
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T00:46:13Z",
         "max_age_source": "policy"
       },
       "form_factor": "unknown",
@@ -1374,131 +622,27 @@
       "source_url": "https://www.runpod.io/pricing",
       "quote": "On-demand RTX 4090 cloud GPU rental on Runpod. Community Cloud $0.34/hr, Secure Cloud $0.89/hr.",
       "availability": {
-        "status": "available when checked",
-        "in_stock": true,
+        "status": "unknown (stale availability, last checked 2026-11-27 19:46 ET)",
+        "in_stock": null,
+        "availability_stale": true,
         "checked_at": "2026-11-28T00:46:15Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "scout",
-        "availability_expires_at": "2026-11-28T01:46:15Z",
         "max_age_hours": 1.0,
+        "origin": "scout",
+        "note": "This availability check is past its availability_expires_at, or expires before the next rebuild, so it is shown as unknown (not in stock, not sold out) until a newer check is imported. Claim lifetimes: 15 min for Verda spot; 1 h for Lambda, Verda, RunPod/Oblivus overall, region and region-derived claims; 8 h for marketplace overall claims.",
         "derived_from_regions": true,
-        "stock_level": "High",
-        "available_regions": [
-          "EU-CZ-1 (Europe)",
-          "EU-RO-1 (Europe)",
-          "EUR-IS-1 (Europe)",
-          "EUR-IS-2 (Europe)",
-          "US-IL-1 (United States)"
-        ],
-        "available_regions_detail": [
-          {
-            "region": "EU-CZ-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-28T00:46:33Z",
-            "availability_expires_at": "2026-11-28T01:46:33Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-28T00:46:33Z",
-            "second_read_at": "2026-11-28T00:51:10Z",
-            "second_read_gap_s": 277.0
-          },
-          {
-            "region": "EU-RO-1 (Europe)",
-            "stock_level": "Medium",
-            "checked_at": "2026-11-28T00:46:36Z",
-            "availability_expires_at": "2026-11-28T01:46:36Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "High",
-            "first_read_at": "2026-11-28T00:46:36Z",
-            "second_read_at": "2026-11-28T00:51:11Z",
-            "second_read_gap_s": 275.0
-          },
-          {
-            "region": "EUR-IS-1 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-28T00:46:44Z",
-            "availability_expires_at": "2026-11-28T01:46:44Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-28T00:46:44Z",
-            "second_read_at": "2026-11-28T00:51:12Z",
-            "second_read_gap_s": 268.0
-          },
-          {
-            "region": "EUR-IS-2 (Europe)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-28T00:46:45Z",
-            "availability_expires_at": "2026-11-28T01:46:45Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-28T00:46:45Z",
-            "second_read_at": "2026-11-28T00:51:13Z",
-            "second_read_gap_s": 268.0
-          },
-          {
-            "region": "US-IL-1 (United States)",
-            "stock_level": "Low",
-            "checked_at": "2026-11-28T00:47:15Z",
-            "availability_expires_at": "2026-11-28T01:47:15Z",
-            "confirmed": true,
-            "confirmation": "two_reads",
-            "second_read_stock_level": "Low",
-            "first_read_at": "2026-11-28T00:47:15Z",
-            "second_read_at": "2026-11-28T00:51:16Z",
-            "second_read_gap_s": 241.0
-          }
-        ],
-        "available_regions_label": "seen in stock at check time; available_regions lists only regions confirmed in stock by two reads; available_regions_detail also lists single-read and unconfirmed regions (see confirmation/confirmed)",
+        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
+        "availability_expires_at": "2026-11-28T01:46:15Z",
+        "stock_read_at": "2026-11-28T00:46:15Z",
+        "price_read_at": "2026-11-27T19:33:56Z",
+        "price_at_claim_usd": 0.89,
+        "gpu_count": 1,
         "first_read_at": "2026-11-28T00:46:33Z",
         "second_read_at": "2026-11-28T00:51:10Z",
         "second_read_gap_s": 277.0,
         "second_read_basis": "region EU-CZ-1 (Europe)",
         "two_read_gap_ok": true,
-        "available_regions_normalized": [
-          {
-            "label": "EU-CZ-1 (Europe)",
-            "zone": "EU-CZ-1",
-            "country": "CZ",
-            "group": "EU"
-          },
-          {
-            "label": "EU-RO-1 (Europe)",
-            "zone": "EU-RO-1",
-            "country": "RO",
-            "group": "EU"
-          },
-          {
-            "label": "EUR-IS-1 (Europe)",
-            "zone": "EUR-IS-1",
-            "country": "IS",
-            "group": "EU"
-          },
-          {
-            "label": "EUR-IS-2 (Europe)",
-            "zone": "EUR-IS-2",
-            "country": "IS",
-            "group": "EU"
-          },
-          {
-            "label": "US-IL-1 (United States)",
-            "zone": "US-IL-1",
-            "country": "US",
-            "group": "NA"
-          }
-        ],
-        "regions_expires_at": "2026-11-28T01:46:33Z",
-        "source": "https://api.runpod.io/graphql gpuTypes.lowestPrice(secureCloud:true)",
-        "availability_status": "in_stock",
-        "availability_reason": "in_stock",
-        "stock_read_at": "2026-11-28T00:46:15Z",
-        "price_read_at": "2026-11-27T19:33:56Z",
-        "price_at_claim_usd": 0.89,
-        "gpu_count": 1,
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T00:46:15Z",
         "max_age_source": "policy"
       },
       "form_factor": "unknown",
@@ -1508,5 +652,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261128T005246Z-4887ce12",
-  "feed_updated_at": "2026-11-28T00:53:25Z"
+  "feed_updated_at": "2026-11-28T02:25:18Z"
 }
