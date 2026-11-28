@@ -68,11 +68,11 @@ def content_day_from_root(root: Path) -> str | None:
 
 
 def discover_case_pages(root: Path) -> list[dict]:
-    """Public case pages already on disk (proof pack, plus any later case dirs)."""
+    """Public case pages already on disk (proof pack v1 plus data/receipts-case-pages.json)."""
     found: list[dict] = []
     seen: set[str] = set()
     rec = root / "receipts"
-    for spec in receipts_page.PROOF_CASES:
+    for spec in receipts_page.all_case_specs(root):
         slug = spec["slug"]
         if (rec / slug / "index.html").is_file():
             found.append({"id": spec["id"], "slug": slug, "title_verdict": spec.get("title_verdict")})
