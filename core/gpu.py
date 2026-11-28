@@ -28,6 +28,7 @@ import math
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from . import cancel_terms
 
 HOURS_PER_MONTH = 730  # 24 * 365 / 12
 HOURS_30_DAY_MONTH = 720  # 24 * 30; a 30-day month such as November (display only, never used as the month factor)
@@ -182,6 +183,8 @@ def record_problems(doc: dict) -> list[str]:
                 out.append(f"{tag}: evidence.checked_at not ISO-8601")
         if not str(r["source_url"]).startswith("https://") or not r["checked_at"]:
             out.append(f"{tag}: needs https source_url and checked_at")
+        if "cancellation" in r:
+            out.extend(cancel_terms.cancellation_problems(r.get("cancellation"), tag))
         for k in ("checked_at", "verified_at"):
             if k == "verified_at" and k not in r:
                 continue
@@ -633,6 +636,7 @@ def build_rates(deals: list[dict], vendor_docs: list[dict] | None = None, now: d
                 **({"form_class": fc} if (fc := form_class(r["gpu"], f"{r['quote']} {(r.get('evidence') or {}).get('quote') or ''}")) else {}),
                 "price_scope": "gpu_hour_only", **_published_extras(doc),
                 **({k: r[k] for k in ("provider", "availability_note", "platform_fee_note", "region", "vram_note", "price_rotates", "vendor_confirmed", "vendor_confirmed_by", "vendor_confirmed_at", "price_effective_at") if r.get(k)}),
+                **({"cancellation": r["cancellation"]} if r.get("cancellation") else {}),
                 # Manual snapshot vendors (e.g. Clore.ai): not re-checked daily; held automatically after hold_after.
                 **({"price_check": "manual snapshot", "snapshot_at": r["checked_at"],
                     "hold_after": (datetime.fromisoformat(r["checked_at"]) + timedelta(days=STALE_DAYS)).isoformat()}

@@ -53,6 +53,7 @@ from core.owner_hold import is_held  # noqa: E402
 from core import gpu_history  # noqa: E402
 from core import aws_price_list  # noqa: E402
 from core import http_fetch  # noqa: E402
+from core import cancel_terms  # noqa: E402
 
 UA = "LanternWorksPriceCheck/1.1 (+https://github.com/connormatthewdouglas/agent-work-stack-deals)"
 REQUEST_GAP_S = 3.0
@@ -851,3 +852,22 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+
+def probe_cloudrift_reserved_cancel_terms(source: str | None, *, source_url: str = cancel_terms.CLOUDRIFT_TERMS_URL,
+                                          collected_at: str, fetch_ok: bool, reason: str | None = None) -> dict:
+    """Cancellation terms for CloudRift reserved (1 Month / 3 Month) rows.
+
+    Terms are read from the vendor's published Legal Terms page, not the price
+    chart. A failed fetch is unreadable and never stamps terms_read_at or the
+    reserved row's verified_at / checked_at. Existing evidence quotes stay put.
+    """
+    return cancel_terms.probe_from_page(
+        "CloudRift", source, source_url=source_url, terms_read_at=collected_at,
+        fetch_ok=fetch_ok, reason=reason,
+    )
+
+
+def attach_cloudrift_reserved_cancel_terms(records: list[dict], cancellation: dict) -> list[dict]:
+    return cancel_terms.attach_to_reserved_records(records, cancellation, vendor="CloudRift")
