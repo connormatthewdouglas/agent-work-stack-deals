@@ -283,20 +283,22 @@ def _expiry_claim_suffix(a: dict) -> str:
     """P76: label which claim the live expiry belongs to, and show an older in-stock claim's own expiry."""
     if not isinstance(a, dict):
         return ""
-    from core.gpu_availability import et_hm
+    from core.gpu_availability import et_time
     bits = []
     exp = a.get("availability_expires_at")
     if exp:
         claim = a.get("availability_expires_claim")
+        # Full date+time stamp (P74 lesson): never a relative 'ago' or a time-of-day
+        # without a date, which would go stale if the static page sits.
         if claim == "checked_at":
-            bits.append(f"current-read expiry {et_hm(exp)} (checked_at); after that treat as unknown")
+            bits.append(f"current-read expiry {et_time(exp)} (checked_at); after that treat as unknown")
         elif claim == "last_known_at":
-            bits.append(f"last-known claim expiry {et_hm(exp)} (last_known_at); after that treat as unknown")
+            bits.append(f"last-known claim expiry {et_time(exp)} (last_known_at); after that treat as unknown")
         else:
-            bits.append(f"valid until {et_hm(exp)}; after that treat as unknown")
+            bits.append(f"valid until {et_time(exp)}; after that treat as unknown")
     lk_exp = a.get("last_known_expires_at")
     if lk_exp and lk_exp != exp:
-        bits.append(f"last-known in-stock claim expiry {et_hm(lk_exp)} (last_known_at)")
+        bits.append(f"last-known in-stock claim expiry {et_time(lk_exp)} (last_known_at)")
     return ("; " + "; ".join(bits)) if bits else ""
 
 

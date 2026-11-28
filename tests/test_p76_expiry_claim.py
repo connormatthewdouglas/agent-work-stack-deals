@@ -136,6 +136,19 @@ def test_pages_label_both_expiries():
     assert "last_known_at" in html
     assert "current-read expiry" in html
     assert "last-known in-stock claim expiry" in html
+    assert "ago" not in html
+    # Absolute date+time, not a bare HH:MM (P74 lesson).
+    assert "2026-11-28" in html
+    assert "2026-11-25" in html
+
+
+def test_expiry_claim_suffix_is_absolute_not_relative():
+    av = annotate_last_known_window(_null_beside_older_instock(), NOW)
+    s = gp._expiry_claim_suffix(av)
+    assert "ago" not in s
+    assert "2026-11-28" in s and "2026-11-25" in s
+    assert "current-read expiry" in s
+    assert "last-known in-stock claim expiry" in s
 
 
 def test_compare_ranking_unchanged_when_claim_fields_present():
@@ -198,3 +211,28 @@ def test_expiry_claim_matches_main_stale_set_and_reasons():
 
     assert pr_stale == main_stale
     assert pr_all == main_all
+
+
+def test_static_pages_expiry_phrasing_has_no_relative_ago():
+    """Static HTML must not bake relative 'ago' into P76 expiry-claim labels."""
+    import re
+    phrase = re.compile(
+        r"(current-read expiry|last-known(?: in-stock claim)? expiry|valid until)[^<]{0,120}",
+        re.I,
+    )
+    ago = re.compile(r"\bago\b", re.I)
+    date = re.compile(r"\d{4}-\d{2}-\d{2}")
+    found = 0
+    bad = []
+    for root in ("gpu", "lanternworks", "tools"):
+        d = ROOT / root
+        if not d.exists():
+            continue
+        for f in d.rglob("*.html"):
+            for m in phrase.finditer(f.read_text(encoding="utf-8", errors="replace")):
+                found += 1
+                s = m.group(0)
+                if ago.search(s) or not date.search(s):
+                    bad.append((str(f.relative_to(ROOT)), s))
+    assert not bad, bad[:8]
+    assert found > 0, "official generate should have written expiry-claim labels on static pages"
