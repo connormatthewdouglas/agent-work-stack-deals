@@ -220,7 +220,7 @@ def agent_intro(gen, fam: str) -> str:
     esc, b = gen.esc, gen.BASE
     return (f'<p>Lantern Works compares {esc(fam)} rental prices across tracked cloud providers. Each price links to the vendor\'s own page and shows when it was checked. '
             f'"Cheapest" means cheapest among tracked providers, not the whole market.</p>\n'
-            f'<p><strong>For agents, in one call:</strong> <code>compare_gpu_prices</code> returns this comparison, cheapest first, from the free hosted MCP server (no API key). '
+            f'<p><strong>For agents, in one call:</strong> <code>compare_gpu_prices</code> returns this comparison, lowest price first, from the free hosted MCP server (no API key). '
             f'The same server has <code>find_available_gpus</code> (who has N &times; {esc(fam)} with a current in-stock check), <code>estimate_job_cost</code> (a sourced cost for one job), '
             f'<code>create_alert</code> and <code>check_alerts</code> (poll-only price alerts), and price history (<code>get_price_changes</code>, <code>get_price_trend</code>). '
             f'<a href="{b}/install/">Copy-paste install</a> &middot; <a href="{b}/api/">API docs</a> &middot; <a href="{b}/api/v1/gpu/index.json">per-model JSON feeds</a>.</p>')
