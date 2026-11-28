@@ -240,10 +240,10 @@ for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P36 (additive): brief 
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["last_known_in_stock", "last_known_at"],)
 for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P41 (additive): brief rows carry a non-null failure reason only
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["failure_reason", "failure_reason_detail"],)
-for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P68 (additive): claim window on every brief row
+for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P68/P76 (additive): claim window + which claim on every brief row
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["max_age_hours", "availability_expires_at",
                                                     "last_known_expires_at", "last_known_max_age_hours",
-                                                    "last_known_outside_window"],)
+                                                    "last_known_outside_window", "availability_expires_claim"],)
 REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
                               "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
