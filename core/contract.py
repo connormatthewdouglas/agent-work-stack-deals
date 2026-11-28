@@ -202,6 +202,8 @@ _TREND = {"type": ["object", "null"],
                          "first_snapshot": _str, "last_snapshot": _str}}
 EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend"] = _TREND
 EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend_reason"] = _str
+EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["rent_url"] = _str
+EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["rent_here"] = _str
 EXTRA_PROPS["get_price_trend"] = {"windows": {"type": "array", "items": _TREND_WIN}, "trend": _TREND, "trend_reason": _str,
                                   "rate_id": {"type": "string"}, "vendor": _str, "gpu": _str, "tier": _str,
                                   "vram_gb": {"type": ["integer", "null"]}, "gpu_count": {"type": ["integer", "null"]},
@@ -209,7 +211,7 @@ EXTRA_PROPS["get_price_trend"] = {"windows": {"type": "array", "items": _TREND_W
 _LIVE_ITEM = {"type": "object", "properties": {
     "advertiser": _str, "vendor": _str, "gpu": _str, "tier": _str, "tier_class": _str, "rate_id": _str,
     "hourly_usd": _num, "min_gpus": {"type": ["integer", "null"]}, "in_stock": _bool, "checked_at": _str,
-    "stock_level": _str, "last_known_in_stock": _bool, "last_known_at": _str, "source_url": _str,
+    "stock_level": _str, "last_known_in_stock": _bool, "last_known_at": _str, "source_url": _str, "tracked_url": _str, "rent_url": _str, "rent_here": _str,
     "reason": _str, "availability_stale": _bool, "availability_expires_at": _str, "max_age_hours": _num,
     "last_known_expires_at": _str, "last_known_max_age_hours": _num, "last_known_outside_window": _bool}}
 EXTRA_PROPS["find_available_gpus"] = {
@@ -224,7 +226,7 @@ EXTRA_PROPS["optimize_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINE
 EXTRA_PROPS["optimize_agent_stack"] = {**_QUOTE, "lines": {**_LINES, "items": {**_LINES["items"], "required": ["component", "status"]}}}
 EXTRA_PROPS["estimate_job_cost"] = {**_QUOTE, "job_days": _num, "results": {"type": "array", "items": {
     "type": "object", "required": SPEC["estimate_job_cost"][2],
-    "properties": {"rate_id": _RATE_ID, "job_hours": _num, "job_days": _num, "tracked_url": _str,
+    "properties": {"rate_id": _RATE_ID, "job_hours": _num, "job_days": _num, "tracked_url": _str, "rent_url": _str, "rent_here": _str,
                    "data_age_hours": _num, "degraded": _bool, "stale": _bool, **_AVAIL_PROPS}}},
     "budget_verdict": {"type": "string", "enum": ["unresolved", "within", "over"]}}
 # T48 (0.4.0, additive): reopenable receipt on the three quoting tools.
@@ -242,6 +244,8 @@ for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P68 (additive): claim 
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["max_age_hours", "availability_expires_at",
                                                     "last_known_expires_at", "last_known_max_age_hours",
                                                     "last_known_outside_window"],)
+for _t in ("compare_gpu_prices", "find_available_gpus", "estimate_job_cost"):  # P7: top-N Rent here line stays in brief
+    SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["rent_url", "rent_here"],)
 REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
                               "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
@@ -488,6 +492,7 @@ def finalize(tool: str, out, mode: str = "full") -> dict:
     _, list_key, _, brief_keys, brief_row = SPEC[tool]
     out = golinks.annotate(copy.deepcopy(out))
     # T136: tagged /go/ link per provider + one referral line (additive, both modes)
+    out = golinks.add_rent_here(out, tool)  # P7: Rent here / rent_url on top N booking rows
     _fill_last_known(out)  # P36: every availability in a result says its last firm stock answer (null when never firm)
     _fill_failure_reason(out)  # P41: keep a failed/no probe's fixed reason (null when the source does not say)
     if mode == "full":

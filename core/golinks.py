@@ -60,3 +60,39 @@ def annotate(out: dict) -> dict:
         if found:
             out.setdefault("referral_disclosure", REFERRAL_DISCLOSURE)
     return out
+
+
+RENT_HERE_TOP_N = 3
+RENT_HERE_LABEL = "Rent here"
+RENT_HERE_LISTS = {
+    "compare_gpu_prices": ("results",),
+    "find_available_gpus": ("available",),
+    "estimate_job_cost": ("results",),
+}
+
+
+def rent_here_line(url: str) -> str:
+    return f"{RENT_HERE_LABEL}: {url}"
+
+
+def add_rent_here(out: dict, tool: str, n: int = RENT_HERE_TOP_N) -> dict:
+    """P7: on the top N rows of the booking tools, add a clear Rent here line and rent_url
+    (the same counted /go/?src=mcp target as tracked_url). Additive only; ranking never
+    reads these fields; receipts are not walked."""
+    if not isinstance(out, dict):
+        return out
+    for key in RENT_HERE_LISTS.get(tool, ()):
+        rows = out.get(key)
+        if not isinstance(rows, list):
+            continue
+        for row in rows[:n]:
+            if not isinstance(row, dict):
+                continue
+            url = row.get("tracked_url") or go_link(row)
+            if not url:
+                continue
+            row.setdefault("tracked_url", url)
+            row["rent_url"] = url
+            row["rent_here"] = rent_here_line(url)
+    return out
+
