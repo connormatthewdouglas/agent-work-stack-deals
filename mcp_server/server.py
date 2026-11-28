@@ -217,6 +217,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     trend_reason). include_history=true also adds each result's price_history (change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
+    Each result also has stock_age_hours (hours since the stock claim was read: reader clock minus stock_read_at or the
+    stock checked_at), stock_age_basis, and stock_read_state (never_read, read, or read_expired). Computed at call time;
+    a missing stock timestamp stays never_read and no timestamp is invented. Display only; not a successful check.
     A degraded row is shown and flagged but never ranked first while a fresh row exists; if none is fresh,
     stale_fallback=true and the summary says so.
     By default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices
@@ -425,7 +428,9 @@ def find_available_gpus(gpu: str, gpus: int = 1, limit: int = 10, on_demand_only
     shorter Scout claim lifetime). sold_out is confirmed unexpired in_stock false. Everything else
     is unknown with a reason (stale, static_label, no_source, no_signal, quota, region,
     region_unresolved, held_stale, owner_hold). last_known_in_stock / last_known_at stay visible
-    on lapsed claims (P64). A crashed probe may add probe_error and probe_attempted_at (attempt
+    on lapsed claims (P64). Each row has stock_age_hours and stock_read_state (never_read, read, or
+    read_expired) measured at call time from stock_read_at or the stock checked_at; never invented.
+    A crashed probe may add probe_error and probe_attempted_at (attempt
     time only; not a successful check). Unknown is not sold out. Vendor-labelled static page labels, no_source,
     no signal, quota/region failures, held rows, and the 7-day stock rate never count as in stock.
     gpus (default 1) is the existing min_gpus allocation rule, not a cluster free-count.
