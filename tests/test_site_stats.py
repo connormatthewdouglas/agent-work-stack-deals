@@ -19,6 +19,22 @@ def test_weekly_aggregate_no_pii():
     for bad in ("k_abc", "ua_class", "src_class", "ip", "email"):
         assert f'"{bad}"' not in text
 
+def test_internal_readonly_prefix():
+    assert S.internal("readonly-murmur") and S.internal("readonly-p38")
+    assert not S.internal("readonly") and not S.internal("murmur") and not S.internal("x-readonly-murmur")
+    assert S.internal("house-gauge") and S.internal("ci") and S.internal("t41")
+
+
+def test_readonly_refs_excluded_from_external_mcp_tool_calls():
+    hosted = {"rows": [{"day": "2026-11-23", "tool": "a", "ref": "readonly-murmur", "n": 20},
+                       {"day": "2026-11-23", "tool": "a", "ref": "mcp-registry", "n": 13},
+                       {"day": "2026-11-23", "tool": "a", "ref": "job-cost-docs", "n": 3}]}
+    w = S.build(hosted, {}, None, 12, datetime.now(timezone.utc))["weeks"][0]
+    assert w["week"] == "2026-W48"
+    assert w["external_mcp_tool_calls"] == 16
+    assert w["mcp_tool_calls_by_ref"]["readonly-murmur"] == 20
+
+
 def test_committed_stats_json_shape():
     p = Path(__file__).resolve().parents[1] / "stats.json"
     d = json.loads(p.read_text())

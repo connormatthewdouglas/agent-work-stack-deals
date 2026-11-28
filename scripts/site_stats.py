@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HOSTED = "https://lantern-works-mcp.lantern-works.workers.dev/stats.json"
 TELEMETRY = "https://lantern-works-telemetry.lantern-works.workers.dev/v1/stats?days=120"
 GO_CLICKS = "https://lantern-works-telemetry.lantern-works.workers.dev/v1/clicks?days=120"
-INTERNAL_REFS = {"ci", "qa", "test", "smoke"}  # plus any ref starting with "house-": our own checks
+INTERNAL_REFS = {"ci", "qa", "test", "smoke"}  # plus any ref starting with "house-" or "readonly-": our own checks
 
 
 def _get(url: str):
@@ -47,7 +47,8 @@ TEST_REF_RE = re.compile(r"^t\d+(-.*)?$")  # QA harness tags: t41, t17-openai-ag
 
 
 def internal(ref: str) -> bool:
-    return ref in INTERNAL_REFS or ref.startswith("house-") or bool(TEST_REF_RE.match(ref))
+    return (ref in INTERNAL_REFS or ref.startswith("house-") or ref.startswith("readonly-")
+            or bool(TEST_REF_RE.match(ref)))
 
 
 def _add(d: dict, k, n: int):
@@ -209,7 +210,7 @@ def build(hosted: dict, telemetry: dict, clicks: dict | None, weeks: int, now: d
         "schema": "lantern-works-site-stats/1",
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "note": "Weekly (ISO week, UTC) aggregate counts only. No IP addresses, user agents, cookies, keys or per-caller "
-                "data. ref is the ?ref= channel tag. Refs ci, qa, test, smoke, house-* and t<N>/t<N>-* are our own checks and are "
+                "data. ref is the ?ref= channel tag. Refs ci, qa, test, smoke, house-*, readonly-* and t<N>/t<N>-* are our own checks and are "
                 "excluded from external_mcp_tool_calls. Calls with no ref are counted separately in untagged_mcp_tool_calls "
                 "and may include our own checks. feed_fetches_by_ref counts only feed fetches through the hosted worker, not "
                 "GitHub Pages feed hits. mcp_initialize_by_ref['mcp-registry'] is probably MCP Registry health checks, not users.",
@@ -292,7 +293,7 @@ def add_go_clicks(rep: dict, go: dict) -> None:
 
 AGENT_Q2C_SOURCE = ("T136: agent_query_to_click = agent_mcp_clicks / agent_tool_calls per ISO week. agent_tool_calls = hosted "
                     "worker tool calls (hits kind=tool) minus house traffic (src_class house, or a house ref: ci, qa, test, smoke, "
-                    "house-*, t<N>) and known bots. agent_mcp_clicks = clicks.by_source.mcp (the src=mcp /go/ links in MCP "
+                    "house-*, readonly-*, t<N>) and known bots. agent_mcp_clicks = clicks.by_source.mcp (the src=mcp /go/ links in MCP "
                     "results), already without bots and house clicks. Clicks also come from local (stdio) installs, whose calls "
                     "the hosted worker cannot see, so the rate can overstate hosted-only conversion. null when no agent calls.")
 
