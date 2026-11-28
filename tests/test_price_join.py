@@ -1,5 +1,13 @@
 """Gauge T73 F1: a stock claim stands only if the price in force at stock-read time is within $0.005 of today's."""
+import pytest
 from core import gpu_availability as ga
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 
 def _rec(price, at):
