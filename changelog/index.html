@@ -135,6 +135,9 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>Availability expiry claim (P76, 2026-11-28; marxsignal, Brain #1171): each <code>availability_expires_at</code> is labelled with <code>availability_expires_claim</code> (<code>checked_at</code> or <code>last_known_at</code>) so a later null/<code>no_source</code> read is not mistaken for the last in-stock claim&#x27;s window. When an older in-stock claim exists beside a newer read, the feed also carries <code>last_known_expires_at</code> (that claim&#x27;s <code>last_known_at</code> + its max_age), separate from the current-read expiry. Static pages show those expiries as an absolute date and time, not a relative “ago” label. Ranking, TTLs and <code>stale_guard</code> are unchanged. No schema bump. Documented at <code>/api/#expiry-claim</code>.</li>
+</ul>
+<ul>
 <li>Job-cost fields on the public docs (2026-11-28): <code>/api/#estimate-job-cost</code> and <code>/for-agents/#estimate-job-cost</code> document <code>estimate_job_cost</code>&#x27;s <code>job_days</code> input and response (wall-clock days, <code>job_hours = job_days × 24</code>, exclusive of <code>job_hours</code> and of work-unit duration, 20,000-hour cap) and the <code>tracked_url</code> counted <code>/go/</code> booking link on each result row.</li>
 </ul>
 <ul>
