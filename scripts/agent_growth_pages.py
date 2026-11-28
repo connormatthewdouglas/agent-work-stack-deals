@@ -18,9 +18,12 @@ def write_all(g) -> list[str]:
 <p>The example connects to the public hosted MCP, initializes the session, requests three on-demand <strong>H100 SXM</strong> rates checked within 24 hours, and estimates a 100-hour, one-GPU job. Output is JSON with vendor source links, check times, assumptions, missing costs and a quote receipt. No purchase or watch is created.</p>
 <p>Change <code>--gpu 'A100 PCIe'</code>, <code>--hours 10</code> or <code>--gpus 4</code> for your workload. Omit <code>--hours</code> to compare hourly prices only. Use <code>--qa</code> for internal tests.</p>
 <h2>Already using an MCP client?</h2>
-<p>Connect with Streamable HTTP to:</p>
-<pre style="overflow-x:auto"><code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=quickstart</code></pre>
-<p>Ask for <code>compare_gpu_prices(gpu="H100 SXM", on_demand_only=true, limit=3, mode="brief")</code>. <a href="{g.BASE}/install/">Client-specific configuration</a> · <a href="{g.BASE}/agent.json">Agent discovery JSON</a></p>
+<p>One-line install. Hosted, nothing to install:</p>
+<pre style="overflow-x:auto"><code>claude mcp add --transport http lantern-works-gpu-prices "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=quickstart"</code></pre>
+<p>Local: <code>uvx lantern-works-deals-mcp</code>. Or add the hosted URL <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=quickstart</code> in any MCP client.</p>
+<p>Then copy and paste this first call:</p>
+<pre style="overflow-x:auto"><code>find_available_gpus(gpu="H100")</code></pre>
+<p>It returns H100 rates with a current in-stock check among tracked providers, with the hourly price, the vendor source page, and when stock was checked. Prices and stock change; the call always uses the current feed. Confirmed in-stock rows are ranked by stock freshness, then price. <a href="{g.BASE}/install/">Client-specific configuration</a> · <a href="{g.BASE}/agent.json">Agent discovery JSON</a></p>
 <h2>Read the answer safely</h2>
 <ul><li>Cheapest means among tracked providers. Match the GPU variant and tier; unknown stock is not a promise of capacity.</li>
 <li>The job result is a compute subtotal. Review <code>assumptions</code> and <code>missing_costs</code> for storage, egress and taxes. Whole-instance billing may allocate more GPUs than requested.</li>
