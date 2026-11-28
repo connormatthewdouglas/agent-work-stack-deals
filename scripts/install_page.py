@@ -22,7 +22,7 @@ def _server_tools() -> tuple[str, ...]:
     import re
     src = (Path(__file__).resolve().parents[1] / "mcp_server" / "server.py").read_text(encoding="utf-8")
     names = re.findall(r"@mcp\.tool\([^)]*\)\n(?:@\w+\n)*def (\w+)\(", src)
-    order = ["compare_gpu_prices", "get_price_changes", "get_price_trend", "find_available_gpus", "optimize_stack", "optimize_agent_stack", "estimate_job_cost", "search_deals", "compare_deals", "get_deal", "rebuild_quote"]
+    order = ["compare_gpu_prices", "get_price_changes", "get_price_trend", "get_price_moves", "find_available_gpus", "optimize_stack", "optimize_agent_stack", "estimate_job_cost", "search_deals", "compare_deals", "get_deal", "rebuild_quote"]
     return tuple(sorted(names, key=lambda n: (order.index(n) if n in order else len(order), n)))
 
 
@@ -106,6 +106,7 @@ def write(g) -> str:
   <p><strong>Know when GPU prices move.</strong> Lantern Works re-reads every tracked GPU rental rate daily from the vendor's own pricing page. Your agent can check what moved since yesterday and act on it, every day, with no API key:</p>
   <ul>
     <li><a href="{base}/api/v1/gpu-price-changes.json">/api/v1/gpu-price-changes.json</a>: rates that went down, up, newly tracked or dropped out between the last two daily snapshots, each with the vendor's source page (<a href="{base}/api/v1/gpu-price-changes.xml">RSS</a>).</li>
+    <li><a href="{base}/api/v1/gpu-price-digest.json">/api/v1/gpu-price-digest.json</a>: digest of the biggest daily and 7-day tracked price moves (<a href="{base}/api/v1/gpu-price-digest.xml">RSS</a>), also via <code>get_price_moves</code>.</li>
     <li><code>compare_gpu_prices(gpu="H100", include_history=true)</code>: today's cheapest rates among tracked providers plus each rate's price history and recent changes.</li>
     <li><a href="https://github.com/connormatthewdouglas/agent-work-stack-deals/tree/main/examples/gpu-price-monitor">GPU price monitor example</a>: a zero-dependency script that alerts when a tracked rate drops by a set percent. Run it on a daily cron.</li>
   </ul>
