@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PATH = Path(__file__).resolve().parents[1] / "data" / "gpu_availability" / "latest.json"
-NOTE = STOCK_EXPLAINER = ("Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; \u201cvendor-labelled\u201d means a fixed label on the vendor's page, not a capacity check; \u201c\u2014\u201d or \u201cunknown\u201d means no signal, not sold out.")
+NOTE = STOCK_EXPLAINER = ("Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; \u201cvendor-labelled\u201d means a fixed label on the vendor's page, not a capacity check; \u201c\u2014\u201d or \u201cnever read\u201d means no stock check has been taken; \u201cunknown (stale availability, last checked \u2026)\u201d means a check was taken and the claim has expired. Neither is sold out.")
 UNKNOWN_NOTE = "No availability signal from this vendor for this offer; unknown, not sold out."
 VAST_NOTE = ("Vast.ai: the offer count is from a separate availability check (its own checked_at), not the "
              "price snapshot; offer counts and prices on the marketplace move between checks, so they can differ "
@@ -377,7 +377,13 @@ def apply_probe(previous: dict | None, current: dict, now: datetime | None = Non
     probe_error + probe_attempted_at and do not treat the attempt as a successful check.
     """
     cur = dict(current)
-    crash = cur.pop("probe_crash", None) or cur.pop("error", None)
+    # Only pop/convert `error` when it is an exception. A string (or other
+    # non-exception) error key must stay on the record; popping it silently
+    # used to drop a real probe note (#372).
+    crash = cur.pop("probe_crash", None)
+    if not isinstance(crash, BaseException):
+        err = cur.get("error")
+        crash = cur.pop("error") if isinstance(err, BaseException) else None
     if isinstance(crash, BaseException):
         attempted = cur.get("probe_attempted_at") or cur.get("attempted_at") or now
         return apply_probe_crash(previous, crash, attempted_at=attempted)

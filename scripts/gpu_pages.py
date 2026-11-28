@@ -309,7 +309,9 @@ def _avail_cell(gen, r: dict) -> str:
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         return gen.esc(a["status"] + (f", seen {t} UTC" if t else "") + tail)
     if a.get("availability_stale"):
-        return gen.esc(a["status"] + _expiry_claim_suffix(a) + tail)
+        age = stock_read_absolute_phrase(a)
+        extra = f", {age}" if age and age not in (a.get("status") or "") else ""
+        return gen.esc(a["status"] + extra + _expiry_claim_suffix(a) + tail)
     if a.get("in_stock") is None:
         from core.gpu import NO_STOCK_COLLECTION, NO_STOCK_COLLECTION_LABEL
         from core.gpu_availability import et_time
@@ -324,8 +326,10 @@ def _avail_cell(gen, r: dict) -> str:
             return gen.esc(lp + _expiry_claim_suffix(a))
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         if t:
+            # A no-signal check is not a stock read (Gauge #385 B1 (a)).
             return gen.esc(f"unknown (no signal), checked {t} UTC" + _expiry_claim_suffix(a))
-        return "—"
+        # Never read: distinct from a check that has expired (P74 / Brain #1172).
+        return "— never read"
     # 0/N trailing reading: say "not observed in stock in N checks", not "out of stock" / "sold out".
     # Only when the current snapshot is out of stock. A live in-stock row must not take a lagging
     # 0/N series as the current claim (rate_7d is built from git history, so a capture just written
@@ -364,7 +368,9 @@ def _avail_cell(gen, r: dict) -> str:
     sep = " (separate check, time shown)" if r.get("advertiser") == "Vast.ai" else ""
     exp = a.get("availability_expires_at")
     sep += _expiry_claim_suffix(a)
-    body = gen.esc(", ".join(bits)) + (", " + regions_html if regions_html else "") + gen.esc((f", snapshot {t} UTC" if t else "") + sep)
+    age = stock_read_absolute_phrase(a, already_shown=t if t else None)
+    age_bit = f", {age}" if age else ""
+    body = gen.esc(", ".join(bits)) + (", " + regions_html if regions_html else "") + gen.esc((f", snapshot {t} UTC" if t else "") + age_bit + sep)
     if a.get("origin") in ("scout", "record") and t:
         return (f'<span data-av-checked="{gen.esc(a.get("checked_at") or "")}" data-av-expires="{gen.esc(exp or "")}">{body}</span>')
     return body
@@ -381,6 +387,7 @@ def _verified_cell(r: dict, esc) -> str:
 
 
 from core.gpu_availability import STOCK_EXPLAINER, REGIONS_NOTE  # noqa: E402  (one wording: core NOTE == page explainer)
+from core.stock_age import NEVER_READ, stock_age_fields, stock_read_absolute_phrase  # noqa: E402
 from core.deals import tie_label, out_of_stock, usd  # noqa: E402  (J3 tie rule shared with the MCP summary)
 
 

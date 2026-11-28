@@ -5,6 +5,13 @@ from pathlib import Path
 
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
+
 ROOT = Path(__file__).resolve().parents[1]
 FEED = ROOT / "api" / "v1" / "deals.json"
 GPU = ROOT / "api" / "v1" / "gpu-prices.json"

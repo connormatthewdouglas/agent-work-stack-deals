@@ -1,11 +1,12 @@
 """estimate_job_cost applies the same serverless/per-second rule as compare_gpu_prices (core/serverless.py): real
+
 Modal and Koyeb rows are held out of cost ranking, listed in held_serverless with the reason and counted in
 excluded_serverless (brief mode too); a model with only serverless prices is a clear not_found."""
 import asyncio
 import copy
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -16,8 +17,14 @@ from core import deals  # noqa: E402
 from core.cost_per_job import JobCostError, estimate_job_cost  # noqa: E402
 from core.serverless import rate_reason  # noqa: E402
 
+
 FEED = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
-NOW = datetime.fromisoformat("2026-11-06T08:00:00+00:00")  # inside the feed's freshness window, so rows rank
+# Pin to the committed feed stamp so rows stay inside the freshness window as the wall clock moves.
+_feed_ts = FEED["feed_updated_at"].replace("Z", "+00:00")
+NOW = datetime.fromisoformat(_feed_ts)
+if NOW.tzinfo is None:
+    NOW = NOW.replace(tzinfo=timezone.utc)
+
 
 
 def _real(vendor):
