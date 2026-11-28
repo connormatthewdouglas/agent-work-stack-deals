@@ -39,9 +39,11 @@ OFFER_TYPE_SCORE = {"verified_discount": 3.0, "free_tier": 2.5, "trial": 1.0, "l
 PUBLIC_FIELDS = ("id", "title", "advertiser", "category", "offer_type", "tags", "affiliate", "agent_only",
                  "price_usd", "list_price_usd", "currency", "unit", "billing_period", "promo_code",
                  "redeem_url", "expires_at", "verified_at", "updated_at", "agent_instructions",
-                 "docs_url", "source_url", "pricing_note", "claim_note", "signup", "signup_note", "price_null_reason", "tracked_url")
+                 "docs_url", "source_url", "pricing_note", "claim_note", "signup", "signup_note", "price_null_reason", "tracked_url",
+                 "disclosure", "plain_url")
 SUMMARY_FIELDS = ("id", "title", "advertiser", "category", "offer_type", "price_usd", "unit",
-                  "verified_at", "redeem_url", "affiliate", "signup", "price_null_reason", "source_url")
+                  "verified_at", "redeem_url", "affiliate", "signup", "price_null_reason", "source_url",
+                  "disclosure", "plain_url")
 NO_CITED_PRICE = "no cited price"
 
 
@@ -1348,6 +1350,6 @@ def compare(deals: list[dict], ids: list[str]) -> dict:
     rows = sorted((by_id[i] for i in ids), key=lambda d: rank_key(d))
     cols = ("id", "advertiser", "category", "offer_type", "price_usd", "list_price_usd", "unit",
             "billing_period", "promo_code", "expires_at", "verified_at", "redeem_url", "pricing_note", "signup",
-            "price_null_reason", "source_url")
+            "price_null_reason", "source_url", "disclosure", "plain_url")
     return {"order": "customer_value", "deals": [public_view(d, cols) for d in rows],
             "note": "price_usd null = unknown, not free. Confirm terms on the vendor page before spending."}
