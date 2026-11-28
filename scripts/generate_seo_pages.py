@@ -572,8 +572,14 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   </ul>
 
   <h2 id="first-call">Make your first useful call</h2>
-  <p><a href="{BASE}/quickstart/">Get a cited GPU comparison and job estimate with Python's standard library</a>: no package installation, account or API key. Already have a client? Use the <a href="{BASE}/install/">hosted MCP setup</a>.</p>
-  <p>Machine discovery: <a href="{BASE}/agent.json">agent.json</a> · smaller payloads: <a href="{BASE}/api/v1/gpu/index.json">per-model feed index</a> · maintain a tool or dataset? <a href="{BASE}/integrate/">Copy an integration snippet</a>.</p>
+  <p>One-line install, then one tool call. Free, read-only, no API key.</p>
+  <p>Hosted, nothing to install:</p>
+  <pre style="overflow-x:auto"><code>claude mcp add --transport http lantern-works-gpu-prices "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=for-agents"</code></pre>
+  <p>Local: <code>uvx lantern-works-deals-mcp</code> (or <code>pip install lantern-works-deals-mcp</code>, then <code>lantern-works-deals-mcp</code>).</p>
+  <p>Then copy and paste this first call:</p>
+  <pre style="overflow-x:auto"><code>find_available_gpus(gpu="H100")</code></pre>
+  <p>It returns H100 rates with a current in-stock check among tracked providers, with the hourly price, the vendor source page, and when stock was checked. Prices and stock change; the call always uses the current feed. Confirmed in-stock rows are ranked by stock freshness, then price.</p>
+  <p>No MCP client? <a href="{BASE}/quickstart/">Get a cited GPU comparison with Python's standard library</a>. Client-specific setup: <a href="{BASE}/install/">/install/</a>. Machine discovery: <a href="{BASE}/agent.json">agent.json</a> · smaller payloads: <a href="{BASE}/api/v1/gpu/index.json">per-model feed index</a> · maintain a tool or dataset? <a href="{BASE}/integrate/">Copy an integration snippet</a>.</p>
 
   <h2 id="receipts">Receipts and methodology</h2>
   <ul>
