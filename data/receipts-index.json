@@ -26,7 +26,7 @@
    "canonical_task": "compare_gpu_prices for H100 across tracked vendors",
    "category": "house",
    "caveats": [
-    "House product — always labeled as such wherever this index is published",
+    "House product \u2014 always labeled as such wherever this index is published",
     "Answer correctly scoped itself: 'cheapest among tracked providers, not the whole market'"
    ],
    "ground_truth": "the live gpu-prices.json feed the server draws from",
@@ -47,7 +47,7 @@
    "category": "reference",
    "caveats": [
     "Readability extraction drops the page's main heading on simple pages (example.com lost its H1)",
-    "Unexpected HTTP errors reach the client as a bare 'Error executing tool fetch' — the underlying cause is thrown away, which made sandbox debugging take 7 runs",
+    "Unexpected HTTP errors reach the client as a bare 'Error executing tool fetch' \u2014 the underlying cause is thrown away, which made sandbox debugging take 7 runs",
     "Default config cannot fetch behind proxy-mediated DNS (SSRF guard) without --allow-private-ips / --proxy-url",
     "First fetch shells out to npm install for Readability.js unless --no-readability-js"
    ],
@@ -69,7 +69,7 @@
    "category": "reference",
    "caveats": [],
    "ground_truth": "system date with TZ conversions in the same session",
-   "headline": "Exact on both tasks, including the asymmetric DST fall-back week (NY→London +4.0h, not the usual +5h).",
+   "headline": "Exact on both tasks, including the asymmetric DST fall-back week (NY\u2192London +4.0h, not the usual +5h).",
    "id": "002",
    "package": "mcp-server-time",
    "registry": "pypi",
@@ -86,7 +86,7 @@
    "category": "reference",
    "caveats": [
     "Slowest startup of the reference set (~4.5s to initialize)",
-    "No git_init tool in this version — repo setup still needs the CLI",
+    "No git_init tool in this version \u2014 repo setup still needs the CLI",
     "Text-only results, no structuredContent"
    ],
    "ground_truth": "the git CLI in the same repo",
@@ -111,7 +111,7 @@
     "Tool list varies with the client's protocol era"
    ],
    "ground_truth": "the submitted values themselves (137+264=401)",
-   "headline": "Echo and arithmetic exact — but the 'add' tool was silently renamed to 'get-sum' in v2.1.0.",
+   "headline": "Echo and arithmetic exact \u2014 but the 'add' tool was silently renamed to 'get-sum' in v2.1.0.",
    "id": "004",
    "package": "@modelcontextprotocol/server-everything",
    "registry": "npm",
@@ -127,12 +127,12 @@
    "canonical_task": "list, read, and search files in one allowed directory (planted files); probe the directory boundary",
    "category": "reference",
    "caveats": [
-    "search_files matches patterns against root-relative paths: '*.log' finds nothing in subdirectories (only '**/*.log' works), despite claiming recursive search — a silent wrong-answer generator",
+    "search_files matches patterns against root-relative paths: '*.log' finds nothing in subdirectories (only '**/*.log' works), despite claiming recursive search \u2014 a silent wrong-answer generator",
     "Write tools are enabled by default; the allowed-directory list is the entire security boundary",
     "A deprecated read_file tool is still exposed"
    ],
    "ground_truth": "the planted files, byte-for-byte; boundary probes against /etc/hostname, a sibling file, and a ../ traversal",
-   "headline": "Reads byte-exact and the boundary held 3/3 — but search_files silently misses subdirectory files for natural patterns.",
+   "headline": "Reads byte-exact and the boundary held 3/3 \u2014 but search_files silently misses subdirectory files for natural patterns.",
    "id": "005",
    "package": "@modelcontextprotocol/server-filesystem",
    "registry": "npm",
@@ -148,12 +148,12 @@
    "canonical_task": "create entities and a relation, then read/search the knowledge graph back (incl. after a restart)",
    "category": "reference",
    "caveats": [
-    "By default the graph persists to memory.jsonl inside the server's package dir — under the documented npx install that's ~/.npm/_npx/<hash>/... so a cache prune or version change silently resets an agent's 'persistent' memory unless MEMORY_FILE_PATH is set",
+    "By default the graph persists to memory.jsonl inside the server's package dir \u2014 under the documented npx install that's ~/.npm/_npx/<hash>/... so a cache prune or version change silently resets an agent's 'persistent' memory unless MEMORY_FILE_PATH is set",
     "open_nodes returns relations but not the neighboring entity itself",
     "Retest check 2026-10-29 (test 037): npm latest is still 2.0.1, so this caveat stands unchanged; retest protocol recorded for when a newer version ships"
    ],
    "ground_truth": "the exact entities, observations, and relation submitted",
-   "headline": "Every fact round-tripped exactly, even across a restart — but the default data file lives inside the npx cache.",
+   "headline": "Every fact round-tripped exactly, even across a restart \u2014 but the default data file lives inside the npx cache.",
    "id": "006",
    "package": "@modelcontextprotocol/server-memory",
    "registry": "npm",
@@ -169,7 +169,7 @@
    "canonical_task": "fetch metadata/abstract for arXiv 1706.03762 and find it by title search",
    "category": "community",
    "caveats": [
-    "Title search passes through to arXiv's loose matching (693,977 results for a title phrase) — the search tool is broad, not precise",
+    "Title search passes through to arXiv's loose matching (693,977 results for a title phrase) \u2014 the search tool is broad, not precise",
     "17 of its 19 tools operate on a local downloaded-paper store rather than the live API",
     "A plus: results carry an 'untrusted external content' warning field"
    ],
@@ -195,7 +195,7 @@
     "tools/list registers all 22 tools twice (bare and wikipedia_-prefixed); serverInfo reports version 4.1.4 vs package 2.0.1"
    ],
    "ground_truth": "Wikipedia's own API extract for 'Lantern' (11,832 chars), fetched independently in the same session",
-   "headline": "Returns summary: null with isError: false behind any HTTP proxy — its HTTP library discards proxy settings and the failure is invisible to the calling agent.",
+   "headline": "Returns summary: null with isError: false behind any HTTP proxy \u2014 its HTTP library discards proxy settings and the failure is invisible to the calling agent.",
    "id": "008",
    "package": "wikipedia-mcp",
    "registry": "pypi",
@@ -211,12 +211,12 @@
    "canonical_task": "current weather for New York City",
    "category": "community",
    "caveats": [
-    "With mcp==1.12.0 + pydantic==2.11.7 pinned (neither documented), it starts — but its 'current' weather text reproduces the NEXT hour's forecast bucket digit-for-digit, presented as current (gusts off by 7.6 km/h vs the API's actual current block, outside tolerance)",
-    "Its two weather tools disagree with each other in the same minute (17.0°C/gusts 14.4 vs 17.2/16.9) and one emits a timezone-less GMT timestamp",
+    "With mcp==1.12.0 + pydantic==2.11.7 pinned (neither documented), it starts \u2014 but its 'current' weather text reproduces the NEXT hour's forecast bucket digit-for-digit, presented as current (gusts off by 7.6 km/h vs the API's actual current block, outside tolerance)",
+    "Its two weather tools disagree with each other in the same minute (17.0\u00b0C/gusts 14.4 vs 17.2/16.9) and one emits a timezone-less GMT timestamp",
     "Cause: open-ended dependency ranges (mcp>=1.12.0, no upper bound) met two fatal upstream changes since 0.2.0 shipped"
    ],
-   "ground_truth": "the Open-Meteo API fetched directly in the same minute, with pre-set tolerances (temp ±1.5°C, wind ±5 km/h, humidity ±5, pressure ±1.5 hPa, code exact)",
-   "headline": "Crashes at import as installed per its own README — an upstream SDK rename (McpError→MCPError) kills it before initialize; needs two undocumented pins to run at all.",
+   "ground_truth": "the Open-Meteo API fetched directly in the same minute, with pre-set tolerances (temp \u00b11.5\u00b0C, wind \u00b15 km/h, humidity \u00b15, pressure \u00b11.5 hPa, code exact)",
+   "headline": "Crashes at import as installed per its own README \u2014 an upstream SDK rename (McpError\u2192MCPError) kills it before initialize; needs two undocumented pins to run at all.",
    "id": "009",
    "package": "open-meteo-mcp",
    "registry": "pypi",
@@ -236,7 +236,7 @@
     "Results returned as strings in structuredContent; handshake reports the SDK version, not the package version"
    ],
    "ground_truth": "Python's own arithmetic, computed separately",
-   "headline": "All five expressions matched Python exactly (0.1+0.2 → 0.30000000000000004, honestly), and 1/0 is a clean tool error, not a crash.",
+   "headline": "All five expressions matched Python exactly (0.1+0.2 \u2192 0.30000000000000004, honestly), and 1/0 is a clean tool error, not a crash.",
    "id": "010",
    "package": "mcp-server-calculator",
    "registry": "pypi",
@@ -252,7 +252,7 @@
    "canonical_task": "run a 4-thought chain with a revision and a branch; submit malformed input",
    "category": "reference",
    "caveats": [
-    "Grading limit, stated plainly: the tool is a ledger for a model's reasoning — reasoning quality itself is ungradeable; only bookkeeping fidelity was tested",
+    "Grading limit, stated plainly: the tool is a ledger for a model's reasoning \u2014 reasoning quality itself is ungradeable; only bookkeeping fidelity was tested",
     "A string thoughtNumber produces an error saying 'received NaN' (SDK coercion wart)"
    ],
    "ground_truth": "the exact inputs submitted (step numbers, totals, flags)",
@@ -277,7 +277,7 @@
     "Article call took 15.2s (assembles the full comment tree, no opt-out); comment text is raw HN HTML; cold initialize ~7.9s with an ad banner on stderr"
    ],
    "ground_truth": "the official HN Firebase API (topstories + item), fetched independently in the same session",
-   "headline": "Data matched the official API exactly — but the README documents tools that don't exist in the shipped server.",
+   "headline": "Data matched the official API exactly \u2014 but the README documents tools that don't exist in the shipped server.",
    "id": "012",
    "package": "mcp-server-hacker-news",
    "registry": "pypi",
@@ -295,10 +295,11 @@
    "caveats": [
     "637MB footprint (56MB packages + 581MB of browsers); package is deprecated and launches headed by default",
     "serverInfo claims version 0.1.0",
-    "Chrome cannot consume this sandbox's authenticated proxy from any flag; the test used a disclosed localhost relay plus cache hand-placement (see write-up)"
+    "Chrome cannot consume this sandbox's authenticated proxy from any flag; the test used a disclosed localhost relay plus cache hand-placement (see write-up)",
+    "Shared seam with #014: both failed on the same thing \u2014 the Node browser downloader dying behind an authenticating proxy. Workaround: skip the download at install, fetch the Chrome-for-Testing build with curl into the cache layout, point the server at it."
    ],
    "ground_truth": "example.com fetched independently twice in the same session (title 'Example Domain'; the live page no longer has an H1)",
-   "headline": "Task flawless once running (title exact, H1 correctly null, real 800x600 screenshot) — but the documented install failed after 21 minutes when the postinstall Chrome download died and npm rolled back.",
+   "headline": "Task flawless once running (title exact, H1 correctly null, real 800x600 screenshot) \u2014 but the documented install failed after 21 minutes when the postinstall Chrome download died and npm rolled back.",
    "id": "013",
    "package": "@modelcontextprotocol/server-puppeteer",
    "registry": "npm",
@@ -315,10 +316,12 @@
    "category": "community",
    "caveats": [
     "serverInfo reports the bundled Playwright alpha version, not the package's 0.0.83",
-    "Ships a self-described browser_run_code_unsafe tool"
+    "Ships a self-described browser_run_code_unsafe tool",
+    "Installer first error (identical on both attempts): request to https://storage.googleapis.com/chrome-for-testing-public/155.0.8059.12/linux64/chrome-linux64.zip timed out after 30s, five retries per attempt (~5m25s and ~5m10s); curl fetched the identical file in ~50s.",
+    "Shared seam with #013: both failed on the same thing \u2014 the Node browser downloader dying behind an authenticating proxy. Workaround: skip the download at install, fetch the Chrome-for-Testing build with curl into the cache layout, point the server at it."
    ],
    "ground_truth": "example.com fetched independently twice in the same session (title 'Example Domain'; the live page no longer has an H1)",
-   "headline": "Strongest browser server tested: ~25 tools, accessibility-snapshot model, title verified three ways — but its own browser installer failed twice through the proxy and needed a curl-fetched browser plus the documented --executable-path flag.",
+   "headline": "Strongest browser server tested: ~25 tools, accessibility-snapshot model, title verified three ways \u2014 but its own browser installer failed twice through the proxy and needed a curl-fetched browser plus the documented --executable-path flag.",
    "id": "014",
    "package": "@playwright/mcp",
    "registry": "npm",
@@ -334,12 +337,12 @@
    "canonical_task": "write a file with planted content and read it back; execute a command computing 6*7; list the working directory",
    "category": "community",
    "caveats": [
-    "No execute_command tool in v0.3.1 — the surface is a stateful start_process terminal family, so generic agent docs mislead",
+    "No execute_command tool in v0.3.1 \u2014 the surface is a stateful start_process terminal family, so generic agent docs mislead",
     "get_config returns a full host fingerprint (mounts, paths, runtime tables) to any connected client",
     "244MB / 614-package install"
    ],
    "ground_truth": "planted file content byte-compared in Python; 6*7 by hand; /etc/os-release read independently first",
-   "headline": "Every task exact (byte-identical round-trip, shell returned 42) — but the defaults are an unconfined shell: empty allowedDirectories means file tools read/write anywhere (proven against /etc/os-release), the shell is guarded only by a 32-command denylist, and telemetry is on by default.",
+   "headline": "Every task exact (byte-identical round-trip, shell returned 42) \u2014 but the defaults are an unconfined shell: empty allowedDirectories means file tools read/write anywhere (proven against /etc/os-release), the shell is guarded only by a 32-command denylist, and telemetry is on by default.",
    "id": "015",
    "package": "@wonderwhy-er/desktop-commander",
    "registry": "npm",
@@ -355,10 +358,10 @@
    "canonical_task": "search 'Lantern Works GPU price comparison' and 'capital of Norway'",
    "category": "community",
    "caveats": [
-    "The failure shape is the defect: an agent reads an empty success as 'no matches exist', not 'search is blocked' — the silent-failure pattern Receipts exists to catch",
+    "The failure shape is the defect: an agent reads an empty success as 'no matches exist', not 'search is blocked' \u2014 the silent-failure pattern Receipts exists to catch",
     "The error text itself is honest (names bot detection, prescribes the remedy); serverInfo version is an empty string"
    ],
-   "ground_truth": "direct curl to DuckDuckGo's html and lite endpoints returned HTTP 202 bot-challenge pages in <1.2s — the egress is refused before any query is evaluated",
+   "ground_truth": "direct curl to DuckDuckGo's html and lite endpoints returned HTTP 202 bot-challenge pages in <1.2s \u2014 the egress is refused before any query is evaluated",
    "headline": "Every search stalls ~31s, then returns zero results reported as success (isError: false). DuckDuckGo bot-blocks this egress, and the server's own prescribed [browser] remedy changed nothing. (Scoped: broken on bot-blocked egress.)",
    "id": "016",
    "package": "duckduckgo-mcp-server",
@@ -377,7 +380,7 @@
    "caveats": [
     "Rung 1 and 2 failures are network-independent; rung 3's install failure is partly proxy-specific (prebuilt download failed, source build died extracting Node headers)"
    ],
-   "ground_truth": "hand-computed aggregates from the planted rows (never reached — no candidate started)",
+   "ground_truth": "hand-computed aggregates from the planted rows (never reached \u2014 no candidate started)",
    "headline": "No DuckDB MCP candidate ever answered initialize: mcp-server-duckdb 1.1.0 crashes on today's SDK ('list_resources' removed), mcp-duckdb-server does not exist on PyPI, and duckdb-mcp's install collapsed after ~11 min on a legacy native binding.",
    "id": "017",
    "package": "mcp-server-duckdb",
@@ -395,10 +398,11 @@
    "category": "reference",
    "caveats": [
     "With two undocumented pins (mcp 1.17.0 + pydantic 2.11.7) the server itself is flawless: aggregates digit-for-digit, writes persist",
-    "Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0"
+    "Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0",
+    "Upstream archived (modelcontextprotocol/servers-archived, verified 2026-11-11): no longer maintained, no fix expected; 2025.4.25 remains the latest release on PyPI"
    ],
    "ground_truth": "database planted with python3 sqlite3 (products: n=5, SUM price 110.49, SUM stock 540, plus a marker row); writes verified by reading the file directly with sqlite3",
-   "headline": "Reference server, dead on arrival: its unbounded mcp[cli]>=1.6.0 resolves SDK 2.3.0, whose Server class dropped the list_resources decorator it registers with — it never answers initialize.",
+   "headline": "Reference server, dead on arrival: its unbounded mcp[cli]>=1.6.0 resolves SDK 2.3.0, whose Server class dropped the list_resources decorator it registers with \u2014 it never answers initialize.",
    "id": "018",
    "package": "mcp-server-sqlite",
    "registry": "pypi",
@@ -418,7 +422,7 @@
     "No filesystem boundary by default: any Excel file on the machine is openable unless launched with --allow-dir"
    ],
    "ground_truth": "workbook planted with openpyxl (Units 10/20/30, formula =SUM(B2:B4) with NO cached result, marker EXCEL-MARKER-9021, value 42.5)",
-   "headline": "Best spreadsheet handling in the index: it evaluates formulas itself — returned the computed 60 where openpyxl had planted no cached value — with structuredContent throughout and an honest version handshake.",
+   "headline": "Best spreadsheet handling in the index: it evaluates formulas itself \u2014 returned the computed 60 where openpyxl had planted no cached value \u2014 with structuredContent throughout and an honest version handshake.",
    "id": "019",
    "package": "excel-mcp-server",
    "registry": "pypi",
@@ -435,11 +439,11 @@
    "category": "community",
    "caveats": [
     "The converter invents a spurious empty header row atop docx tables",
-    "Web conversion drops the page H1 — the same loss as test 001's readability path",
+    "Web conversion drops the page H1 \u2014 the same loss as test 001's readability path",
     "serverInfo version is an empty string"
    ],
    "ground_truth": "the planted heading, paragraph, table cells, and PDF markers; example.com's known page text",
-   "headline": "Both planted documents converted faithfully through a single URI-based tool (file:// and https://) — every planted string present and exact.",
+   "headline": "Both planted documents converted faithfully through a single URI-based tool (file:// and https://) \u2014 every planted string present and exact.",
    "id": "020",
    "package": "markitdown-mcp",
    "registry": "pypi",
@@ -459,7 +463,7 @@
     "Keeps a persistent SQLite extraction cache in the user's cache directory"
    ],
    "ground_truth": "the planted markers, page count (2), and metadata fields",
-   "headline": "Extraction is exact — page count, metadata, both markers on the right pages, keyword search with correct bounding box — but the default search mode silently downloads an embedding model on first use and hung past 280s on this egress.",
+   "headline": "Extraction is exact \u2014 page count, metadata, both markers on the right pages, keyword search with correct bounding box \u2014 but the default search mode silently downloads an embedding model on first use and hung past 280s on this egress.",
    "id": "021",
    "package": "pdf-mcp",
    "registry": "pypi",
@@ -479,7 +483,7 @@
     "Error messages are exemplary; the server pressures clients toward a newer MCP protocol while working in legacy mode"
    ],
    "ground_truth": "the planted note contents, byte-for-byte",
-   "headline": "Hidden gate: it refuses to start against a plain Markdown folder — the vault must contain an .obsidian directory, i.e. have been opened in the Obsidian app once — so any agent-created or git-cloned vault is rejected (VAULT_NOT_INITIALIZED). Once initialized, search hit exactly the right line and read-back was byte-exact with an etag.",
+   "headline": "Hidden gate: it refuses to start against a plain Markdown folder \u2014 the vault must contain an .obsidian directory, i.e. have been opened in the Obsidian app once \u2014 so any agent-created or git-cloned vault is rejected (VAULT_NOT_INITIALIZED). Once initialized, search hit exactly the right line and read-back was byte-exact with an etag.",
    "id": "022",
    "package": "obsidian-mcp",
    "registry": "npm",
@@ -499,7 +503,7 @@
     "Resolve returns near-duplicate 'React' entries and its benchmark score does not rank the canonical one first; some chunks carry MDX tag residue"
    ],
    "ground_truth": "react.dev's useState reference page, fetched directly in the same session",
-   "headline": "Genuine react.dev useState docs, verbatim-accurate against the live page, fully keyless — and its HTTP client honors proxy settings, making it the control case for this batch's proxy failures.",
+   "headline": "Genuine react.dev useState docs, verbatim-accurate against the live page, fully keyless \u2014 and its HTTP client honors proxy settings, making it the control case for this batch's proxy failures.",
    "id": "023",
    "package": "@upstash/context7-mcp",
    "registry": "npm",
@@ -516,7 +520,7 @@
    "category": "community",
    "caveats": [
     "Worst error manners in the index: a transport failure discards its cause; a rate-limit is relabeled nonexistence and delivered without isError",
-    "No API contract — it scrapes deepwiki.com HTML with happy-dom, so any redesign, bot wall, or rate limit silently becomes its behavior"
+    "No API contract \u2014 it scrapes deepwiki.com HTML with happy-dom, so any redesign, bot wall, or rate limit silently becomes its behavior"
    ],
    "ground_truth": "the repo's README fetched directly from GitHub, plus DeepWiki's page for the repo via an independent crawler (its claims verified 3/3, with file:line citations)",
    "headline": "Two stacked failures, both misreported: its proxy-blind fetch dies as a bare 'fetch failed', and with the proxy honored an upstream HTTP 429 comes back as a successful 'Documentation not found' for a repo whose wiki demonstrably exists. (Scoped: proxy-egress/rate-limited environments; no successful call was observable from this VM.)",
@@ -539,7 +543,7 @@
     "serverInfo reports 0.1.0 vs package 0.1.1; the lang parameter is required despite a documented default"
    ],
    "ground_truth": "the video's documented transcript (Wikipedia's printed transcript, NPR, two other extractors' published outputs for this video ID): the elephants/'really long trunks' opening",
-   "headline": "'Could not find captions' — false about the world: the captions exist, but YouTube serves this egress a watch page with zero caption tracks (verified by an independent scrape), and the server's own fetch is proxy-blind underneath. (Scoped: this environment.)",
+   "headline": "'Could not find captions' \u2014 false about the world: the captions exist, but YouTube serves this egress a watch page with zero caption tracks (verified by an independent scrape), and the server's own fetch is proxy-blind underneath. (Scoped: this environment.)",
    "id": "025",
    "package": "@kimtaeyoon83/mcp-server-youtube-transcript",
    "registry": "npm",
@@ -555,11 +559,11 @@
    "canonical_task": "search Airbnb for Austin, TX (a November weekend, 2 guests), then get details for the first listing",
    "category": "community",
    "caveats": [
-    "Its robots.txt politeness layer fails open — when the robots fetch fails it logs 'assuming all paths allowed' while the startup banner still claims robotsRespected: true",
+    "Its robots.txt politeness layer fails open \u2014 when the robots fetch fails it logs 'assuming all paths allowed' while the startup banner still claims robotsRespected: true",
     "Best error manners of the batch's failures (isError, attempted URL, timestamps, structured logs); the design assumes Airbnb's pages stay scrapable from the user's IP, and both halves of that assumption failed in one test"
    ],
-   "ground_truth": "attempted independently: the server's own constructed search URL fetched via an independent crawler returned Airbnb HTTP 403 — no listing data was obtainable from this network by any route",
-   "headline": "The one server with no workaround at all: node-fetch v3 has no proxy support and the server offers no proxy option, so every request dies in 0.1s on TLS — and behind that wall, Airbnb itself 403s this infrastructure. (Scoped: proxy-egress networks.)",
+   "ground_truth": "attempted independently: the server's own constructed search URL fetched via an independent crawler returned Airbnb HTTP 403 \u2014 no listing data was obtainable from this network by any route",
+   "headline": "The one server with no workaround at all: node-fetch v3 has no proxy support and the server offers no proxy option, so every request dies in 0.1s on TLS \u2014 and behind that wall, Airbnb itself 403s this infrastructure. (Scoped: proxy-egress networks.)",
    "id": "026",
    "package": "@openbnb/mcp-server-airbnb",
    "registry": "npm",
@@ -575,11 +579,11 @@
    "canonical_task": "generate a bar chart from planted data (quarters Q1-Q4 = 10/25/17/32)",
    "category": "community",
    "caveats": [
-    "The server sets no request timeout and upstream latency is bimodal: first call produced no response in 240s, a retry took 2.34s — clients with a 60s tool timeout will see un-diagnosable hangs",
+    "The server sets no request timeout and upstream latency is bimodal: first call produced no response in 240s, a retry took 2.34s \u2014 clients with a 60s tool timeout will see un-diagnosable hangs",
     "serverInfo version is the literal placeholder string '0.8.x' vs package 0.9.10; the CDN serves PNG bytes labeled image/jpeg"
    ],
    "ground_truth": "the planted dataset, checked against the response's spec echo, a direct call to the rendering service with the identical spec, and visual inspection of the returned PNG (1800x1200, labels and proportions correct)",
-   "headline": "The chart is exactly right — but the 'local' server POSTs your data to Ant Group's hosted GPT-Vis service (antv-studio.alipay.com) and hosts the image on Alipay's public CDN at unauthenticated URLs.",
+   "headline": "The chart is exactly right \u2014 but the 'local' server POSTs your data to Ant Group's hosted GPT-Vis service (antv-studio.alipay.com) and hosts the image on Alipay's public CDN at unauthenticated URLs.",
    "id": "027",
    "package": "@antv/mcp-server-chart",
    "registry": "npm",
@@ -599,7 +603,7 @@
     "A docstring promises start/end parameters that do not exist in the tool schema"
    ],
    "ground_truth": "AAPL 2024-01-02 close 185.64 (EODHD and StockAnalysis agreeing to the cent; the assigned Stooq source was unreachable from this sandbox all evening). Yahoo's chart API itself answered 200 in 0.9s via curl from the same sandbox",
-   "headline": "Crashes at import as installed today (the mcp.server.fastmcp path was removed in mcp 2.3.0, which its unbounded requirement resolves to). Pinned to mcp 1.30 it starts — but both canonical calls timed out at ~60s and returned error strings with isError: false.",
+   "headline": "Crashes at import as installed today (the mcp.server.fastmcp path was removed in mcp 2.3.0, which its unbounded requirement resolves to). Pinned to mcp 1.30 it starts \u2014 but both canonical calls timed out at ~60s and returned error strings with isError: false.",
    "id": "028",
    "package": "yahoo-finance-mcp",
    "registry": "pypi",
@@ -619,7 +623,7 @@
     "Requires Python >=3.13, which the README never mentions (the sandbox shipped 3.12)"
    ],
    "ground_truth": "the Nominatim API queried directly in the same session",
-   "headline": "SDK-drift crash as installed; pinned, it still cannot reach Nominatim on proxy-egress networks — every call builds an aiohttp session without trust_env=True, so proxy settings are silently ignored and TLS dies on the intercept.",
+   "headline": "SDK-drift crash as installed; pinned, it still cannot reach Nominatim on proxy-egress networks \u2014 every call builds an aiohttp session without trust_env=True, so proxy settings are silently ignored and TLS dies on the intercept.",
    "id": "029",
    "package": "osm-mcp-server",
    "registry": "pypi",
@@ -638,8 +642,8 @@
     "The package summary is the unedited project-template placeholder 'Add your description here'; the whole README is one line naming no upstream API, so the assigned current-vs-next-hour check is moot",
     "It also declares Requires-Python >=3.13, so it will not even 'install' on Python 3.12. A handshake census could never catch this; only install-and-look does"
    ],
-   "ground_truth": "not applicable — no server output exists to grade; the evidence is the published package artifact itself (wheel listing, pip show -f, run attempts)",
-   "headline": "The published wheel is empty: 1,139 bytes containing five metadata files and zero code — no module, no entry point, nothing that can answer an initialize on any machine — while pip install exits 0.",
+   "ground_truth": "not applicable \u2014 no server output exists to grade; the evidence is the published package artifact itself (wheel listing, pip show -f, run attempts)",
+   "headline": "The published wheel is empty: 1,139 bytes containing five metadata files and zero code \u2014 no module, no entry point, nothing that can answer an initialize on any machine \u2014 while pip install exits 0.",
    "id": "030",
    "package": "mcp-weather",
    "registry": "pypi",
@@ -652,15 +656,15 @@
    "writeup": "tests/030-mcp-weather.md"
   },
   {
-   "canonical_task": "in local mode (QDRANT_LOCAL_PATH, no server, no key): store planted texts with payloads, retrieve them back, check persistence across a restart (assigned as a vector-level task; translated 1:1 to this server's text interface — it exposes no raw-vector API)",
+   "canonical_task": "in local mode (QDRANT_LOCAL_PATH, no server, no key): store planted texts with payloads, retrieve them back, check persistence across a restart (assigned as a vector-level task; translated 1:1 to this server's text interface \u2014 it exposes no raw-vector API)",
    "category": "community",
    "caveats": [
-    "It is a semantic text memory layer (qdrant-store/qdrant-find) — there is no collection/vector management API at all",
+    "It is a semantic text memory layer (qdrant-store/qdrant-find) \u2014 there is no collection/vector management API at all",
     "First run eagerly downloads an ~87MB embedding model before answering initialize (12.8s unobstructed; in this sandbox it blew the 60s window until TMPDIR was redirected off the full /tmp)",
     "Starts silently with no configuration at all"
    ],
    "ground_truth": "the planted texts and payloads (exact-text query = embedding-space exact match; payload {label: quantum, slot: 2} verified intact)",
-   "headline": "Local mode works exactly as documented: exact retrieval, correct semantic ranking, persistence across a fresh process restart verified against the on-disk store — and it is the one package this wave whose own dependency pins (fastmcp 2.7.0, pydantic<2.12) kept it installable today.",
+   "headline": "Local mode works exactly as documented: exact retrieval, correct semantic ranking, persistence across a fresh process restart verified against the on-disk store \u2014 and it is the one package this wave whose own dependency pins (fastmcp 2.7.0, pydantic<2.12) kept it installable today.",
    "id": "031",
    "package": "mcp-server-qdrant",
    "registry": "pypi",
@@ -677,11 +681,11 @@
    "category": "community",
    "caveats": [
     "Rescuing it took three undocumented pins (fastmcp 2.7.0, mcp<2, pydantic 2.11.7), starting from test 009's exact McpError import crash",
-    "Second detector bug: pattern-matched URLs are verified by HEAD only — news.ycombinator.com/rss answers HEAD with 405 and was rejected too (GET returns the feed instantly)",
-    "The parser underneath is flawless: on the BBC feed (the one URL shape the detector accepts) the top 10 titles/links matched ground truth exactly, in order. All three failures are network-independent — it fails the same on its author's network"
+    "Second detector bug: pattern-matched URLs are verified by HEAD only \u2014 news.ycombinator.com/rss answers HEAD with 405 and was rejected too (GET returns the feed instantly)",
+    "The parser underneath is flawless: on the BBC feed (the one URL shape the detector accepts) the top 10 titles/links matched ground truth exactly, in order. All three failures are network-independent \u2014 it fails the same on its author's network"
    ],
    "ground_truth": "hnrss.org/frontpage XML (20 items), news.ycombinator.com/rss, and feeds.bbci.co.uk/news/rss.xml, all fetched directly in the same minutes",
-   "headline": "Fails its canonical task: 'No RSS/Atom feeds found' for the live HN frontpage feed, because its detector judges a URL by spelling (end-anchored regexes) and HEAD response, never by content — the URL is never even fetched, and it burned 45.8s probing 18 guessed paths that all 404.",
+   "headline": "Fails its canonical task: 'No RSS/Atom feeds found' for the live HN frontpage feed, because its detector judges a URL by spelling (end-anchored regexes) and HEAD response, never by content \u2014 the URL is never even fetched, and it burned 45.8s probing 18 guessed paths that all 404.",
    "id": "032",
    "package": "mcp-server-rss",
    "registry": "pypi",
@@ -699,10 +703,10 @@
    "caveats": [
     "The misleading error is the defect: on any proxy-mediated network it sends the user debugging a healthy upstream",
     "Cold npx initialize 13.4s; output is the raw API JSON firehose, unsummarized; a stderr banner discloses the project is AI-maintained",
-    "Ladder note: the two PyPI names and @modelcontextprotocol/server-musicbrainz are all 404 — this npm package is the only installable MusicBrainz server under the canonical names"
+    "Ladder note: the two PyPI names and @modelcontextprotocol/server-musicbrainz are all 404 \u2014 this npm package is the only installable MusicBrainz server under the canonical names"
    ],
    "ground_truth": "the MusicBrainz API fetched independently in the same session (Radiohead, id a74b1b7f-71a5-4011-9441-d0b5e4122711, type Group, score 100)",
-   "headline": "Search and lookup match the live API exactly — once the environment is proxy-aware. Under the standard sandbox env every call fails with 'MusicBrainz unreachable. The service may be down' while the API is verifiably up: Node's fetch ignores proxy variables and the server has no proxy configuration (NODE_USE_ENV_PROXY=1 fixes it instantly).",
+   "headline": "Search and lookup match the live API exactly \u2014 once the environment is proxy-aware. Under the standard sandbox env every call fails with 'MusicBrainz unreachable. The service may be down' while the API is verifiably up: Node's fetch ignores proxy variables and the server has no proxy configuration (NODE_USE_ENV_PROXY=1 fixes it instantly).",
    "id": "033",
    "package": "musicbrainz-mcp",
    "registry": "npm",
@@ -719,9 +723,9 @@
    "category": "community",
    "caveats": [
     "Scope: servers may exist under other names or as GitHub-only projects; the ladder graded the four canonical package names, which is where a user's search starts",
-    "The gap is purely the missing server — this is a listing-vs-reality finding, not a data finding"
+    "The gap is purely the missing server \u2014 this is a listing-vs-reality finding, not a data finding"
    ],
-   "ground_truth": "openlibrary.org/isbn/9780547928227.json fetched independently (title 'The Hobbit', Mariner Books, 2012, 300 pages) — obtained and kept for the eventual retest; never used, because no server ran",
+   "ground_truth": "openlibrary.org/isbn/9780547928227.json fetched independently (title 'The Hobbit', Mariner Books, 2012, 300 pages) \u2014 obtained and kept for the eventual retest; never used, because no server ran",
    "headline": "No installable Open Library MCP server exists under any canonical name on either registry: all four ladder rungs return 404 / 'No matching distribution found', while the Open Library API itself is healthy and keyless.",
    "id": "034",
    "package": "ladder: mcp-server-openlibrary / openlibrary-mcp / open-library-mcp-server / openlibrary-mcp",
@@ -741,8 +745,8 @@
     "The r-spacex API is a single point of failure for every SpaceX tool built on it",
     "Retest protocol: check upstream health first, or the test grades the API, not the server"
    ],
-   "ground_truth": "api.spacexdata.com/v4/company and /v4/launches/latest — unreachable all session: Cloudflare 522/525 on 8+ attempts over ~25 minutes",
-   "headline": "No installable SpaceX MCP server exists under any canonical name (all four rungs 404) — and the upstream community API was itself down the entire session, so no server could have served live data anyway.",
+   "ground_truth": "api.spacexdata.com/v4/company and /v4/launches/latest \u2014 unreachable all session: Cloudflare 522/525 on 8+ attempts over ~25 minutes",
+   "headline": "No installable SpaceX MCP server exists under any canonical name (all four rungs 404) \u2014 and the upstream community API was itself down the entire session, so no server could have served live data anyway.",
    "id": "035",
    "package": "ladder: mcp-server-spacex / spacex-mcp-server / spacex-mcp / @modelcontextprotocol/server-spacex",
    "registry": "other",
@@ -759,7 +763,7 @@
    "category": "community",
    "caveats": [
     "The PyPI rung needs the exact two-pin resuscitation from test 009 (mcp==1.12.0 + pydantic==2.11.7); pinning mcp alone moves the crash into pydantic internals",
-    "Supplementary grading: once resuscitated, BOTH servers returned the ground-truth first definition word-for-word — packaging rot, not data rot",
+    "Supplementary grading: once resuscitated, BOTH servers returned the ground-truth first definition word-for-word \u2014 packaging rot, not data rot",
     "Version misreports on both rungs (npm serverInfo '1.0.0' vs package 1.0.6; PyPI serverInfo reports the SDK's 1.12.0 vs package 0.1.0); the PyPI server's tools are German-named"
    ],
    "ground_truth": "api.dictionaryapi.dev/api/v2/entries/en/serendipity fetched independently (first definition quoted verbatim in the write-up)",
@@ -783,9 +787,9 @@
    "version": "2025.4.8",
    "category": "reference",
    "canonical_task": "search_repositories for \"modelcontextprotocol\"",
-   "ground_truth": "GitHub's public search API queried unauthenticated (total_count 1356, first item id 862570523 — exact match)",
+   "ground_truth": "GitHub's public search API queried unauthenticated (total_count 1356, first item id 862570523 \u2014 exact match)",
    "verdict": "works_with_caveats",
-   "headline": "Canonical public search completes with NO token at all — the key-required premise is false for it, and the README never says so.",
+   "headline": "Canonical public search completes with NO token at all \u2014 the key-required premise is false for it, and the README never says so.",
    "caveats": [
     "Completion was unauthenticated: for public search the token is optional, undisclosed in the docs",
     "As-installed error shape is opaque (-32603 \"fetch failed\")",
@@ -807,9 +811,9 @@
    "canonical_task": "slack_list_channels (limit 5)",
    "ground_truth": "Slack's invalid_auth response via the token-as-parameter form (in ~0.85s)",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Best no-key gate in the batch (exits naming both required vars); the decoy-phase tool error is success-shaped.",
+   "headline": "Deferred \u2014 needs key. Best no-key gate in the batch (exits naming both required vars); the decoy-phase tool error is success-shaped.",
    "caveats": [
-    "Decoy-phase tool error is {\"error\":\"fetch failed\"} with no isError flag — a silent-failure shape",
+    "Decoy-phase tool error is {\"error\":\"fetch failed\"} with no isError flag \u2014 a silent-failure shape",
     "Canonical task not gradable without a real Slack token"
    ],
    "tested_at": "2026-10-31",
@@ -827,7 +831,7 @@
    "canonical_task": "API-post-search with query \"test\"",
    "ground_truth": "Notion API unauthenticated 401 (partial; credentialed ground truth not obtainable from this egress)",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Worst failure shape in the batch: hangs in every configuration — no gate, no error, no answer in 90s.",
+   "headline": "Deferred \u2014 needs key. Worst failure shape in the batch: hangs in every configuration \u2014 no gate, no error, no answer in 90s.",
    "caveats": [
     "No startup gate and no self-timeout: no-key, decoy, and decoy+proxy runs all hang silently",
     "Docs claim 22 tools; 24 are listed"
@@ -847,9 +851,9 @@
    "canonical_task": "search for files matching \"test\"",
    "ground_truth": "Not obtainable live (googleapis stalls from this egress even unauthenticated); graded on documented Google OAuth behaviour",
    "verdict": "deferred",
-   "headline": "Deferred — needs OAuth. The documented headless auth path is a silent dead end; fabricated saved credentials are accepted with zero validation.",
+   "headline": "Deferred \u2014 needs OAuth. The documented headless auth path is a silent dead end; fabricated saved credentials are accepted with zero validation.",
    "caveats": [
-    "Documented `auth` run headless prints \"Launching auth flow…\" then nothing — no URL, no error, hangs",
+    "Documented `auth` run headless prints \"Launching auth flow\u2026\" then nothing \u2014 no URL, no error, hangs",
     "Fabricated .gdrive-server-credentials.json accepted as \"Credentials loaded.\" with no validation; search then hangs >90s",
     "No-creds startup is clean (exit 1 with instructions)"
    ],
@@ -868,7 +872,7 @@
    "canonical_task": "geocode \"1600 Amphitheatre Parkway, Mountain View, CA\" with a decoy key (no data should return)",
    "ground_truth": "Google's own invalid-key error text, matched word-for-word via an independent call",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Best decoy honesty in the batch (upstream error verbatim, isError:true, 0.90s) — but transport errors leak the API key in the request URL.",
+   "headline": "Deferred \u2014 needs key. Best decoy honesty in the batch (upstream error verbatim, isError:true, 0.90s) \u2014 but transport errors leak the API key in the request URL.",
    "caveats": [
     "SECURITY: on transport errors the tool output embeds the full request URL including key=<API key>; with a production key it lands in agent context and logs (upstream-error path does not leak)",
     "README tool names are all wrong (documents geocode; ships maps_geocode, etc.)"
@@ -888,7 +892,7 @@
    "canonical_task": "brave_web_search for \"capital of France\"",
    "ground_truth": "Not established (this sandbox's egress stalls on Brave's API); grading rests on observed gate/error behaviour",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Clean no-key exit naming the var; decoy fails fast with isError:true; the proxy-workaround run hangs.",
+   "headline": "Deferred \u2014 needs key. Clean no-key exit naming the var; decoy fails fast with isError:true; the proxy-workaround run hangs.",
    "caveats": [
     "With NODE_USE_ENV_PROXY=1 the decoy run hangs 60s instead of failing fast"
    ],
@@ -904,10 +908,10 @@
    "registry": "npm",
    "version": "1.3.0",
    "category": "community",
-   "canonical_task": "perplexity_ask — \"What is the capital of France?\"",
+   "canonical_task": "perplexity_ask \u2014 \"What is the capital of France?\"",
    "ground_truth": "Not established (egress stall); grading rests on observed gate/error behaviour",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Clean no-key gate, but a decoy call hangs — the documented default timeout is 5 minutes for an auth failure.",
+   "headline": "Deferred \u2014 needs key. Clean no-key gate, but a decoy call hangs \u2014 the documented default timeout is 5 minutes for an auth failure.",
    "caveats": [
     "Decoy perplexity_ask produced no response in 90s; documented 5-min default timeout is the worst failure shape in its wave"
    ],
@@ -926,7 +930,7 @@
    "canonical_task": "get_sentry_issue for a fabricated issue ID (the server's only tool)",
    "ground_truth": "Not established (egress stall); both graded defects are in the package's own code, observed directly",
    "verdict": "broken",
-   "headline": "Broken as installed: import crash from a new SDK-drift variant — it imports httpx but declares only mcp, which now pulls httpx2 instead.",
+   "headline": "Broken as installed: import crash from a new SDK-drift variant \u2014 it imports httpx but declares only mcp, which now pulls httpx2 instead.",
    "caveats": [
     "Declares only `mcp` as a dependency but imports httpx directly; mcp 2.x depends on httpx2, so the transitive httpx it relied on is gone",
     "Behind the crash, an error-masking bug: every error path raises McpError(<string>), surfacing as \"'str' object has no attribute 'message'\" instead of the real error",
@@ -949,8 +953,9 @@
    "verdict": "works_with_caveats",
    "headline": "Honest, fast failure against a decoy DSN: proper JSON-RPC error in 0.10s, and the password never appears in output.",
    "caveats": [
-    "Scope: this verdict grades decoy-failure behaviour against driver ground truth — no successful query against a real database was graded",
-    "The surfaced error is opaque (ECONNRESET, partly a sandbox-DNS artefact); the server validates nothing until the first call"
+    "Scope: this verdict grades decoy-failure behaviour against driver ground truth \u2014 no successful query against a real database was graded",
+    "The surfaced error is opaque (ECONNRESET, partly a sandbox-DNS artefact); the server validates nothing until the first call",
+    "0.6.2 is the last release; npm marks the package deprecated \u2014 archived and unmaintained, no security guarantees. Reported (Datadog Security Labs): the READ ONLY wrapper can be escaped with a stacked COMMIT; a decoy harness cannot see this since nothing ever connects."
    ],
    "tested_at": "2026-10-31",
    "tester": "batch-3 wave testers; reviewed by Pax",
@@ -967,7 +972,7 @@
    "canonical_task": "firecrawl_scrape of https://example.com",
    "ground_truth": "Not established (egress stall on Firecrawl's API); grading rests on observed keyless/decoy behaviour",
    "verdict": "deferred",
-   "headline": "Deferred — needs key for the full toolset. Premise-breaker: no key is not an error — a keyless free tier runs (25 tools vs 27 with a key).",
+   "headline": "Deferred \u2014 needs key for the full toolset. Premise-breaker: no key is not an error \u2014 a keyless free tier runs (25 tools vs 27 with a key).",
    "caveats": [
     "Keyless scrape fails honestly (isError:true); decoy scrape hangs 90s",
     "Best documentation in the batch, including an explicit never-put-your-key-in-a-URL warning"
@@ -987,7 +992,7 @@
    "canonical_task": "web_search_exa with query \"capital of France\"",
    "ground_truth": "Not established (egress stall); grading rests on observed error behaviour",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Best error honesty in the batch: first call fails in 0.10s, isError:true, naming EXA_API_KEY.",
+   "headline": "Deferred \u2014 needs key. Best error honesty in the batch: first call fails in 0.10s, isError:true, naming EXA_API_KEY.",
    "caveats": [
     "README now leads with the hosted remote MCP and no longer documents the local EXA_API_KEY configuration at all",
     "Decoy-phase failures are bounded by the server's own 60s timeout and stay isError:true"
@@ -1007,10 +1012,10 @@
    "canonical_task": "tavily_search with query \"capital of France\"",
    "ground_truth": "Not established (no answer ever returned in either phase)",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Starts in an undocumented \"keyless mode\", then search never answers in either phase and the server has no self-timeout.",
+   "headline": "Deferred \u2014 needs key. Starts in an undocumented \"keyless mode\", then search never answers in either phase and the server has no self-timeout.",
    "caveats": [
     "Undocumented keyless mode contradicts the docs' key requirement",
-    "tavily_search produced no response within 60–90s in both no-key and decoy phases"
+    "tavily_search produced no response within 60\u201390s in both no-key and decoy phases"
    ],
    "tested_at": "2026-10-31",
    "tester": "batch-3 wave testers; reviewed by Pax",
@@ -1027,11 +1032,11 @@
    "canonical_task": "list_customers / retrieve_balance with a format-valid test-mode decoy key",
    "ground_truth": "Partial: Stripe's 401 status observed once with the decoy; body not captured",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Exemplary no-key gate; with a decoy the server never answers initialize (35–60s, three attempts), so tool behaviour is unobserved.",
+   "headline": "Deferred \u2014 needs key. Exemplary no-key gate; with a decoy the server never answers initialize (35\u201360s, three attempts), so tool behaviour is unobserved.",
    "caveats": [
-    "Decoy-phase handshake stall means error behaviour could not be graded — flagged, not counted against the server",
+    "Decoy-phase handshake stall means error behaviour could not be graded \u2014 flagged, not counted against the server",
     "README's --tools=all flag was removed in this version; docs are stale",
-    "Only a test-mode decoy (sk_test_…) was used; no live-format key anywhere"
+    "Only a test-mode decoy (sk_test_\u2026) was used; no live-format key anywhere"
    ],
    "tested_at": "2026-10-31",
    "tester": "batch-3 wave testers; reviewed by Pax",
@@ -1048,7 +1053,7 @@
    "canonical_task": "linear_search_issues with no filters",
    "ground_truth": "Not established (egress stall); the graded defect was observed live in the error path",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Model no-key one-line failure, but its upstream-error path builds a malformed result the SDK rejects instead of surfacing the error.",
+   "headline": "Deferred \u2014 needs key. Model no-key one-line failure, but its upstream-error path builds a malformed result the SDK rejects instead of surfacing the error.",
    "caveats": [
     "On upstream errors the server returns a malformed tool result; the SDK rejects it with -32602, so the real error never reaches the user",
     "README installs a different package name (@modelcontextprotocol/server-linear) than the package itself"
@@ -1068,10 +1073,10 @@
    "canonical_task": "ask-openai with prompt \"What is the capital of France?\"",
    "ground_truth": "Not established from this sandbox (egress stall); both graded failures are in the server's own code, source-verified, and independent of ground truth",
    "verdict": "broken",
-   "headline": "Broken: the README's documented configuration crashes 100% — the code reads the key from env only, never from the documented CLI argument — and every upstream error returns as a success-shaped result.",
+   "headline": "Broken: the README's documented configuration crashes 100% \u2014 the code reads the key from env only, never from the documented CLI argument \u2014 and every upstream error returns as a success-shaped result.",
    "caveats": [
     "Documented config (key as CLI arg) crashes at startup: shipped code never reads argv (verified in dist/index.js)",
-    "Via the undocumented env path, all upstream errors return generic text with isError absent — silent failure by design; the real cause appears only in stderr",
+    "Via the undocumented env path, all upstream errors return generic text with isError absent \u2014 silent failure by design; the real cause appears only in stderr",
     "serverInfo reports 0.1.0 vs package 0.1.6",
     "The PyPI namesake (mcp-server-openai) was rejected with reason recorded: it manages keys/spending and documents no completion tool"
    ],
@@ -1090,7 +1095,7 @@
    "canonical_task": "a Claude completion with a decoy ANTHROPIC_API_KEY (never reached)",
    "ground_truth": "Anthropic API unauthenticated 401 (partial); the finding is installability itself",
    "verdict": "broken",
-   "headline": "Broken as a ladder finding: no installable Anthropic MCP server exists under any canonical name — the npm package was unpublished in Jan 2026 and every other rung 404s.",
+   "headline": "Broken as a ladder finding: no installable Anthropic MCP server exists under any canonical name \u2014 the npm package was unpublished in Jan 2026 and every other rung 404s.",
    "caveats": [
     "npm anthropic-mcp-server was unpublished 2026-01-12; @anthropic/mcp-server and all three PyPI names return 404",
     "Scope: servers may exist under non-canonical names or GitHub-only, as with batch 2's ladders"
@@ -1110,7 +1115,7 @@
    "canonical_task": "generate_image for \"a red circle\" (the server's only tool)",
    "ground_truth": "EverArt API unauthenticated 401, verbatim, after correcting the API base from the SDK source (api.ever.art is dead; api.everart.ai answers)",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Exemplary no-key gate; the decoy call hangs indefinitely — its HTTP library ignores the proxy and has no timeout.",
+   "headline": "Deferred \u2014 needs key. Exemplary no-key gate; the decoy call hangs indefinitely \u2014 its HTTP library ignores the proxy and has no timeout.",
    "caveats": [
     "Decoy generate_image never returns: axios ignores proxy env and sets no timeout (the hang is sandbox-mediated; the missing timeout is the server's)",
     "serverInfo reports 0.2.0 vs package 0.6.2"
@@ -1128,12 +1133,12 @@
    "version": "0.6.2",
    "category": "reference",
    "canonical_task": "retrieve_from_aws_kb with a fabricated knowledgeBaseId and decoy AWS credentials",
-   "ground_truth": "AWS's documented 403 behaviour; live ground truth not establishable (signed decoy request stalled at egress) — the verdict rests on the local no-credentials phase, which needs no network",
+   "ground_truth": "AWS's documented 403 behaviour; live ground truth not establishable (signed decoy request stalled at egress) \u2014 the verdict rests on the local no-credentials phase, which needs no network",
    "verdict": "broken",
-   "headline": "Broken: every failure mode — no credentials, missing region, decoy credentials — returns \"Retrieval failed or returned no results.\" as a successful result with no isError flag.",
+   "headline": "Broken: every failure mode \u2014 no credentials, missing region, decoy credentials \u2014 returns \"Retrieval failed or returned no results.\" as a successful result with no isError flag.",
    "caveats": [
     "Silent failure as success in its purest form: an agent cannot distinguish an empty knowledge base from rejected credentials",
-    "Real errors exist only in stderr (\"RAG Error: …\"), which no MCP consumer sees",
+    "Real errors exist only in stderr (\"RAG Error: \u2026\"), which no MCP consumer sees",
     "npm marks the package deprecated / no longer supported; serverInfo reports 0.2.0 vs package 0.6.2"
    ],
    "tested_at": "2026-10-31",
@@ -1151,11 +1156,11 @@
    "canonical_task": "set then get the key \"receipts-test\"",
    "ground_truth": "Raw node-redis driver against the same decoy URLs, plus a sandboxed fake-RESP server as positive control (round-trip verified)",
    "verdict": "works_with_caveats",
-   "headline": "SECURITY: the set/get round-trip works, but the server logs the full connection URL — password in clear text — to stderr on every connect, error, retry, and success.",
+   "headline": "SECURITY: the set/get round-trip works, but the server logs the full connection URL \u2014 password in clear text \u2014 to stderr on every connect, error, retry, and success.",
    "caveats": [
-    "SECURITY: the decoy password appears 40+ times in one test transcript; the raw driver's own errors contain no password — the leak is the server's own `Connection: ${REDIS_URL}` logging. With a real password, every host log is a credential spill",
-    "Connect-before-handshake: with an unreachable server, initialize is never answered (~35–60s of retries, then exit)",
-    "Logs \"Successfully connected\" on a bare TCP accept, before AUTH — a success claim for a connection that never authenticated",
+    "SECURITY: the decoy password appears 40+ times in one test transcript; the raw driver's own errors contain no password \u2014 the leak is the server's own `Connection: ${REDIS_URL}` logging. With a real password, every host log is a credential spill",
+    "Connect-before-handshake: with an unreachable server, initialize is never answered (~35\u201360s of retries, then exit)",
+    "Logs \"Successfully connected\" on a bare TCP accept, before AUTH \u2014 a success claim for a connection that never authenticated",
     "A wrong password is retried identically 5 times over ~34s instead of surfacing the (honest, verbatim) error",
     "npm marks the package deprecated / no longer supported; serverInfo reports 0.0.1"
    ],
@@ -1171,10 +1176,10 @@
    "registry": "npm",
    "version": "0.6.5",
    "category": "community",
-   "canonical_task": "list_projects (never reached — the server validates the key online at startup)",
+   "canonical_task": "list_projects (never reached \u2014 the server validates the key online at startup)",
    "ground_truth": "Neon API unauthenticated 401, verbatim",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Validates the key online at startup (a clean deferral), but the documented-in-code NEON_API_KEY env var is ignored — argv only — and the no-key error prints to stdout.",
+   "headline": "Deferred \u2014 needs key. Validates the key online at startup (a clean deferral), but the documented-in-code NEON_API_KEY env var is ignored \u2014 argv only \u2014 and the no-key error prints to stdout.",
    "caveats": [
     "NEON_API_KEY in env is silently ignored; only the README's argv form works",
     "The no-key error is printed to stdout, polluting the JSON-RPC stream",
@@ -1195,10 +1200,10 @@
    "canonical_task": "list_projects with a decoy personal access token",
    "ground_truth": "Partial: no-header 401 from the Supabase API",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Exemplary startup gate; decoy error is honest but content-free; tools/list is flaky — empty in 2 of 3 runs while the tools stay callable.",
+   "headline": "Deferred \u2014 needs key. Exemplary startup gate; decoy error is honest but content-free; tools/list is flaky \u2014 empty in 2 of 3 runs while the tools stay callable.",
    "caveats": [
     "tools/list returned empty in 2 of 3 runs, yet list_projects remained callable while unlisted",
-    "Decoy error is a bare TypeError \"fetch failed\" — right shape (isError:true), no cause",
+    "Decoy error is a bare TypeError \"fetch failed\" \u2014 right shape (isError:true), no cause",
     "--help crashes with ERR_PARSE_ARGS_UNKNOWN_OPTION"
    ],
    "tested_at": "2026-10-31",
@@ -1214,9 +1219,9 @@
    "version": "2025.4.25",
    "category": "reference",
    "canonical_task": "search_repositories with query \"gitlab\" and a decoy token",
-   "ground_truth": "Partial: GitLab's no-header 401 body ({\"message\":\"401 Unauthorized\"}) captured — exactly the object shape that triggers the crash",
+   "ground_truth": "Partial: GitLab's no-header 401 body ({\"message\":\"401 Unauthorized\"}) captured \u2014 exactly the object shape that triggers the crash",
    "verdict": "broken",
-   "headline": "Broken: the decoy call crashes in 0.10s — the server .map()s GitLab's object-shaped 401 body as if it were a results array, instead of surfacing the auth error.",
+   "headline": "Broken: the decoy call crashes in 0.10s \u2014 the server .map()s GitLab's object-shaped 401 body as if it were a results array, instead of surfacing the auth error.",
    "caveats": [
     "JSON-RPC -32603 \"Cannot read properties of undefined (reading 'map')\" replaces the real 401",
     "serverInfo reports 0.5.1 vs package 2025.4.25",
@@ -1235,13 +1240,14 @@
    "version": "3.2.2",
    "category": "community",
    "canonical_task": "list-databases via a decoy connection string",
-   "ground_truth": "Raw MongoDB driver against the same decoy SRV string — the surfaced error matches exactly (querySrv EREFUSED)",
+   "ground_truth": "Raw MongoDB driver against the same decoy SRV string \u2014 the surfaced error matches exactly (querySrv EREFUSED)",
    "verdict": "works_with_caveats",
    "headline": "Best ground-truth match of the batch: the server's surfaced driver error is identical to the raw driver's, in 0.10s, with the password never echoed.",
    "caveats": [
-    "Scope: this verdict grades decoy-failure behaviour against driver ground truth — no successful read against a real database was graded",
+    "Scope: this verdict grades decoy-failure behaviour against driver ground truth \u2014 no successful read against a real database was graded",
     "connectionId \"preconfigured\" is undiscoverable from the tool itself",
-    "The plain-string connect path waits the full 30s driver timeout, then swallows the real error behind a generic message"
+    "The plain-string connect path waits the full 30s driver timeout, then swallows the real error behind a generic message",
+    "Surfaced lines side by side: SRV path 'Could not connect to MongoDB. Last error: querySrv EREFUSED _mongodb._tcp.nonexistent-decoy-cluster.invalid' (0.10s); plain-string connect path 'You need to connect to MongoDB instance before you can access its data.' after 30.13s \u2014 the real driver error appears nowhere in the record."
    ],
    "tested_at": "2026-10-31",
    "tester": "batch-3 wave testers; reviewed by Pax",
@@ -1258,7 +1264,7 @@
    "canonical_task": "list_bases with a decoy personal access token",
    "ground_truth": "Partial: no-header 401 from the Airtable API",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Clean startup gate naming AIRTABLE_API_KEY; the decoy error has an honest shape but its cause is stripped to \"fetch failed\".",
+   "headline": "Deferred \u2014 needs key. Clean startup gate naming AIRTABLE_API_KEY; the decoy error has an honest shape but its cause is stripped to \"fetch failed\".",
    "caveats": [
     "Startup failure comes with a noisy stack trace",
     "Airtable offers no official stdio MCP server; this is the commonly installed community package"
@@ -1278,15 +1284,554 @@
    "canonical_task": "list-indexes with a decoy key",
    "ground_truth": "Partial: no-header 401 from the Pinecone API",
    "verdict": "deferred",
-   "headline": "Deferred — needs key. Best failure communication in the batch: its per-call error tells the user exactly how to fix it.",
+   "headline": "Deferred \u2014 needs key. Best failure communication in the batch: its per-call error tells the user exactly how to fix it.",
    "caveats": [
     "Open question recorded: whether a real 401 lands in its \"network problem, retry once\" bucket is unobservable from this egress",
-    "Starts keyless with only a stderr warning rather than gating at startup — a defensible design, noted for contrast"
+    "Starts keyless with only a stderr warning rather than gating at startup \u2014 a defensible design, noted for contrast"
    ],
    "tested_at": "2026-10-31",
    "tester": "batch-3 wave testers; reviewed by Pax",
    "writeup": "tests/062-pinecone.md",
    "transcript": "tests/062-pinecone-transcript.txt"
+  },
+  {
+   "canonical_task": "Offline Step 1: verify the kit's secp256k1/MDIP challenge known-answer vectors with stock OpenSSL (verify-openssl.sh plus tester-issued raw OpenSSL checks)",
+   "category": "community",
+   "caveats": [
+    "Live leg (init a DID against a local gatekeeper, respond to a challenge) not attempted: no Docker on this VM; retest condition is one run on a Docker-capable sandbox",
+    "JS leg untested here: full npm install's transitive sqlite3 native build exceeded the sandbox build window (terminated at 300s); --ignore-scripts installs but all entry points fail on the missing sqlite3 binding, and a rebuild attempt was interrupted by a runtime restart with no confirmed result",
+    "Challenge-1's response binding is a recorded result, not offline-provable (by design; challenge-2 closes it with a public test verifier key)",
+    "MDIP does not sign signature.signed; shipped DIDs are authentic only via the registry integrity hash (documented in the README)",
+    "Not an MCP server: CLI/library kit, no initialize/tools-list surface"
+   ],
+   "ground_truth": "Stock OpenSSL 3.0.13: pinned kav-1 hash/signature, all signed ops in mdip-challenge-1/-2, DIDs recomputed as CID(sha256(signed op)), challenge-2 response decrypted with the public test key naming the challenge DID; tarball sha512 matched registry dist.integrity",
+   "headline": "Offline crypto leg passes completely on stock OpenSSL (201 ok / 0 FAIL, ALL VECTORS OK, 47/47 expiry rows, challenge-response binding decrypts and names the challenge DID); the live DID leg is untested \u2014 it needs a Docker MDIP node this sandbox does not have.",
+   "id": "063",
+   "package": "mdip-agent-kit",
+   "registry": "npm",
+   "server": "mdip-agent-kit",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/063-mdip-agent-kit-transcript.txt",
+   "verdict": "works_with_caveats",
+   "version": "0.1.5",
+   "writeup": "tests/063-mdip-agent-kit.md"
+  },
+  {
+   "canonical_task": "One free keyless sample tool call (kyb / sanctions-screen with sample:true), graded against GLEIF LEI and OFAC SDN public data",
+   "category": "community",
+   "caveats": [
+    "Paid x402 legs are Deferred-needs-key by design inside this record (pay-per-call USDC; Receipts does not pay)",
+    "Third-party checks saw johtodata.com/mcp live with 12 tools on 2026-11-08 and already unhealthy on 2026-11-11 \u2014 reads as an outage or withdrawal between Nov 8-20; retest if either endpoint answers initialize",
+    "A third-party watcher flagged agent-directed (competitor-suppression) text in this server's tool descriptions; not independently observed \u2014 the server never listed tools to us"
+   ],
+   "ground_truth": "Not obtainable \u2014 no call ever completed; grading rests on observed endpoint behaviour (documented free routes 404, MCP initialize 0 bytes on both documented hosts, cited registry entry absent at test time)",
+   "headline": "Broken at test time on both documented endpoints: the workers.dev host returns Cloudflare 404 'error code: 1042' for every documented free sample route and its MCP initialize stalls with 0 bytes, johtodata.com/mcp GETs the site's own 404 page and its initialize stalls too, and the cited Official Registry entry no longer resolves.",
+   "id": "064",
+   "package": "com.johtodata/johto-data",
+   "registry": "other",
+   "server": "Johto Data MCP",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/064-johto-data-transcript.txt",
+   "verdict": "broken",
+   "version": "1.0.0 (last advertised serverInfo; not observed \u2014 server never answered)",
+   "writeup": "tests/064-johto-data.md"
+  },
+  {
+   "canonical_task": "One free-tier canonical call on the default surface, then verify the returned AER-1 receipt against the underlying data it reports",
+   "category": "community",
+   "caveats": [
+    "Retest condition: one run on a different egress or a longer uninterrupted window; a stall from independent egress converts this to Broken evidence",
+    "A third attempt (280s window) was interrupted by a runtime restart with no confirmed result and was not re-run",
+    "Vendor's live numbers page still advertised the endpoint, 36 default / 153 catalog tools and the free tier on 2026-11-20; a third-party watcher captured the tool manifest on 2026-10-30"
+   ],
+   "ground_truth": "Not obtainable \u2014 initialize never answered from this sandbox, so no call and no receipt could be observed or verified",
+   "headline": "Deferred \u2014 the endpoint stalls from this sandbox: POST initialize received 0 bytes (30s curl, 90s python client) while GET zambo.dev answered in 1.4s and another remote MCP completed through the same egress in the same hour; retest on different egress.",
+   "id": "065",
+   "package": "zambo.dev/mcp",
+   "registry": "other",
+   "server": "Zambo MCP",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/065-zambo-transcript.txt",
+   "verdict": "deferred",
+   "version": "unknown (serverInfo never observed)",
+   "writeup": "tests/065-zambo.md"
+  },
+  {
+   "canonical_task": "get_agent for a known-offline agent and a known-unverified agent, plus list_agents, graded against plain REST at duami.ai/v1/agents",
+   "category": "community",
+   "caveats": [
+    "Cold initialize took 19.9s (subsequent calls 0.7-2.8s); a client with a short handshake timeout would fail",
+    "tools/list is 73,284 bytes across 61 tools \u2014 roughly 20k tokens of definitions before any work; most write tools are key-gated and only the free reads were graded",
+    "The initialize instructions field carries a long registration funnel including a human trigger phrase, and get_agent wraps other agents' profile text in an untrusted_content_notice",
+    "Post-test reruns (2026-11-22/23): tools/list is now 67 tools / 82,209 bytes (gigawatt 2026-11-22, canaryseal passive snapshot the same day, Pax re-verified 2026-11-23) \u2014 the receipt's 61 tools / 73,284 bytes was accurate at test time; the contract drifted within 48 hours.",
+    "Cold initialize of 19.9s was observed once, on the test host, 2026-11-20; two independent reruns saw 0.74s (gigawatt, 2026-11-22) and ~1.2s (Pax, 2026-11-23) \u2014 treat as host-specific, not a server property.",
+    "Live-agent count moved: 10 live of 86 listed at Pax's 2026-11-23 REST check (the receipt's sample had 5 live); directory membership changes daily, which is why the receipt is dated."
+   ],
+   "ground_truth": "Independent REST GETs at test time (2026-11-20T10:28Z): agt_0mvwqtw4u4wgm3r77yx5c status offline (last heartbeat 2026-10-31), agt_0mw22yay698ok0b9r1jom status unverified, plus the live /v1/agents directory listing",
+   "headline": "MCP matches its own REST ground truth exactly: the listed-but-offline agent reads 'offline', the unverified one reads 'unverified', and list_agents matches the REST directory \u2014 no silent nulls.",
+   "id": "066",
+   "package": "ai.duami/intent-exchange",
+   "registry": "other",
+   "server": "duami",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/066-duami-transcript.txt",
+   "verdict": "works",
+   "version": "0.1.0",
+   "writeup": "tests/066-duami.md"
+  },
+  {
+   "canonical_task": "search_pubmed_articles for Jinek et al. 2012 (PMID 22745249), by title query and by 22745249[PMID] query",
+   "category": "community",
+   "caveats": [
+    "The mcp<2 pin was a diagnostic only; the grade is the as-instructed install (same SDK-drift class as #028/#029/#036/#045)",
+    "Minimal surface even when alive: one tool, search hard-coded to 3 results, article details exposed only as an article://{pmid} resource, not a tool",
+    "Retest on any release that pins mcp<2 or ports to the mcp 2.x API; canonical task and ground truth are reusable as-is",
+    "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+    "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward \u2014 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+   ],
+   "ground_truth": "Direct NCBI E-utilities (keyless) esummary and efetch for PMID 22745249, fetched at test time",
+   "headline": "Crashes at import as installed today: its unbounded mcp requirement resolves to mcp 2.3.0, which removed mcp.server.fastmcp. Pinned to mcp 1.30.0 the same package returns the exact article \u2014 title, all six authors, journal, date and abstract \u2014 matching E-utilities word for word.",
+   "id": "067",
+   "package": "pubmed-mcp-server",
+   "registry": "pypi",
+   "server": "pubmed-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/067-pubmed-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "0.1.2",
+   "writeup": "tests/067-pubmed-mcp-server.md"
+  },
+  {
+   "canonical_task": "get_paper for arXiv:1706.03762 (Attention Is All You Need)",
+   "category": "community",
+   "caveats": [
+    "Unbounded mcp[cli]>=1.12.3 dependency is the sole cause; one pip install 'mcp[cli]<2' revives it, but the README never says so",
+    "Ships local write-capable memory/project tools alongside the API tools \u2014 a larger permission surface than a metadata lookup needs",
+    "Keyless S2 tier 429s under shared-IP load; server retries recover (search took 22.25s)",
+    "Pinned-run serverInfo reports the SDK version (1.30.0), not the package's 0.4.0",
+    "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+    "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward \u2014 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+   ],
+   "ground_truth": "Direct Semantic Scholar API for the same paper (citationCount 203888, CorpusId 13756489)",
+   "headline": "Broken as installed \u2014 unbounded mcp>=1.12.3 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0 its output matches the direct S2 API exactly, citation count included.",
+   "id": "068",
+   "package": "semantic-scholar-mcp",
+   "registry": "pypi",
+   "server": "Semantic Scholar MCP server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/068-semantic-scholar-mcp-transcript.txt",
+   "verdict": "broken",
+   "version": "0.4.0",
+   "writeup": "tests/068-semantic-scholar-mcp.md"
+  },
+  {
+   "canonical_task": "crossref_doi_lookup for DOI 10.18653/v1/N19-1423 (BERT paper)",
+   "category": "community",
+   "caveats": [
+    "Unbounded mcp[cli]>=1.0.0 dependency is the sole cause of the Broken verdict; the underlying server is a faithful Crossref pass-through",
+    "crossref_export_ris / crossref_export_bibtex are stateful \u2014 they export the most recent search held in server memory",
+    "Pinned-run serverInfo reports the SDK version (1.30.0), not the package's 1.0.0",
+    "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+    "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward \u2014 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+   ],
+   "ground_truth": "Direct Crossref API for the same DOI (is-referenced-by-count 12098, pp. 4171-4186)",
+   "headline": "Broken as installed \u2014 unbounded mcp[cli]>=1.0.0 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0 its DOI lookup matches the direct Crossref record on every field.",
+   "id": "069",
+   "package": "crossref-mcp-server",
+   "registry": "pypi",
+   "server": "Crossref MCP server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/069-crossref-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "1.0.0",
+   "writeup": "tests/069-crossref-mcp-server.md"
+  },
+  {
+   "canonical_task": "openalex_get_work for W2626778328 (Attention Is All You Need)",
+   "category": "community",
+   "caveats": [
+    "openalex_search could not be graded: OpenAlex's keyless tier now draws on a daily budget shared by egress IP, which was exhausted (HTTP 429); its select list is valid, so a retest on a fresh budget or with a free key is the condition",
+    "Error messages are Chinese-language (e.g. 'OpenAlex API \u8bf7\u6c42\u5931\u8d25')",
+    "README contradicts itself: OPENALEX_API_KEY is 'optional' in the .env section but 'required' in the Smithery/ModelScope configs",
+    "serverInfo reports version 1.0.0 against the package's 1.0.5"
+   ],
+   "ground_truth": "Direct OpenAlex API for W2626778328 (cited_by_count 151778, captured before the keyless budget ran out)",
+   "headline": "Broken at two layers: its undici fetch ignores standard proxy env vars (EPROTO on proxy egress), and with the proxy engaged openalex_get_work still fails \u2014 it hard-codes the invalid select field 'pmid' and OpenAlex answers HTTP 400.",
+   "id": "070",
+   "package": "openalex-mcp-server",
+   "registry": "npm",
+   "server": "OpenAlex MCP server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/070-openalex-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "1.0.5",
+   "writeup": "tests/070-openalex-mcp-server.md"
+  },
+  {
+   "canonical_task": "get info on a well-known public model \u2014 not offered; fallback generate_story with a decoy key",
+   "category": "community",
+   "caveats": [
+    "A PyPI namesake (huggingface-mcp-server 0.1.0) exists; the npm package was tested as assigned, the namesake was not",
+    "No keyless surface at all \u2014 it exits code 1 before tools/list without an API key (clean, clear error message)",
+    "Version confusion: package 1.0.26, CLI --version says 1.0.5, serverInfo reports 1.0.18",
+    "Default transport is HTTP on port 3000; stdio requires -t stdio; the stdio implementation is hand-rolled with nonstandard capabilities",
+    "Retest condition: one run on credential-permitting egress"
+   ],
+   "ground_truth": "Direct HF Hub API for gpt2 (openai-community/gpt2, sha 607a30d783dfa663caf39e06633721c8d4cfcd7e), captured keyless",
+   "headline": "Deferred \u2014 needs key. Despite the name it offers no Hub/model-info tools at all, only generate_image/generate_story inference gated on a personal HF key; the decoy call stalls on this VM's credential-header egress, so its auth behaviour is unobservable here.",
+   "id": "071",
+   "package": "huggingface-mcp-server",
+   "registry": "npm",
+   "server": "HuggingFace MCP server (npm inference wrapper)",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/071-huggingface-mcp-server-transcript.txt",
+   "verdict": "deferred",
+   "version": "1.0.26",
+   "writeup": "tests/071-huggingface-mcp-server.md"
+  },
+  {
+   "canonical_task": "get_apod for fixed date 2023-07-01 (DEMO_KEY default)",
+   "category": "community",
+   "caveats": [
+    "Unbounded mcp>=0.1.0 dependency is the sole cause of the Broken verdict",
+    "get_apod returns a Python-dict-repr string as its text content rather than clean JSON",
+    "Silently defaults to the shared DEMO_KEY when NASA_API_KEY is unset (direct call showed X-Ratelimit-Limit: 10)",
+    "Upstream degradation observed directly: APOD serves a generic placeholder for all sampled dates, and the Mars-photos endpoint returns an HTML 404 'No such app' \u2014 get_mars_image presumably affected, not exercised",
+    "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+    "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward \u2014 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+   ],
+   "ground_truth": "Direct api.nasa.gov APOD call with DEMO_KEY for the same date \u2014 currently a degraded placeholder payload (title 'NASA Science') for every date sampled",
+   "headline": "Broken as installed \u2014 unbounded mcp>=0.1.0 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0, get_apod exactly reproduces the direct api.nasa.gov DEMO_KEY response.",
+   "id": "072",
+   "package": "nasa-mcp-server",
+   "registry": "pypi",
+   "server": "NASA MCP server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/072-nasa-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "0.1.20",
+   "writeup": "tests/072-nasa-mcp-server.md"
+  },
+  {
+   "canonical_task": "WHOIS lookup for example.com (mcp_whois_query)",
+   "category": "community",
+   "caveats": [
+    "Unpinned mcp>=1.0.0 resolves to mcp 2.3.0; 'from mcp.server.fastmcp import FastMCP' no longer exists \u2014 startup crash before initialize",
+    "Diagnostic pin mcp==1.30.0 still crashes: mcp.run(transport='sse', port=18895) raises TypeError (unexpected kwarg 'port') \u2014 no user-side pin makes 0.1.5 start",
+    "Undisclosed key requirement: the only tool calls openapi.chinaz.net with a CHINAZ_API_KEY; keyless it returns code -1 'Missing CHINAZ API Key' \u2014 no WHOIS-protocol or RDAP lookup exists",
+    "SSE-only design (port 18895) contradicts the stdio command config in its own README",
+    "Project URLs in package metadata still point at github.com/your-username/whois-mcp-server (template placeholder)"
+   ],
+   "ground_truth": "Direct RDAP query to rdap.verisign.com for example.com",
+   "headline": "Broken on fresh install twice over: unpinned mcp resolves to 2.x and kills its FastMCP import, its entry point crashes under mcp 1.x too \u2014 and the tool secretly needs a Chinaz API key, not public WHOIS/RDAP.",
+   "id": "073",
+   "package": "whois-mcp-server",
+   "registry": "pypi",
+   "server": "whois-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/073-whois-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "0.1.5",
+   "writeup": "tests/073-whois-mcp-server.md"
+  },
+  {
+   "canonical_task": "tool_search_earthquakes for 2024-01-01 to 2024-01-07 at min magnitude 5.5, cross-checked with tool_get_earthquake_count",
+   "category": "community",
+   "caveats": [
+    "serverInfo reports version '4.2.3' (the FastMCP framework version), not the package's 0.1.0",
+    "Tool descriptions and docstrings are in German while the README/listing are in English",
+    "FastMCP/Prefect promotional banner and INFO logs on stderr (stdout stays clean JSON-RPC)",
+    "end_date is inclusive (mapped to T23:59:59), unlike the USGS API's exclusive-end convention",
+    "The search tool's 'region' parameter is output decoration only, not an API filter"
+   ],
+   "ground_truth": "Direct USGS GeoJSON feed for 2024-01-01..2024-01-08, minmagnitude 5.5 (count 12)",
+   "headline": "Exact USGS fidelity on a fixed window \u2014 12 of 12 events, magnitudes and count all match ground truth; caveats are cosmetic (framework version reported as its own, German tool descriptions).",
+   "id": "074",
+   "package": "earthquake-mcp-server",
+   "registry": "pypi",
+   "server": "earthquake-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/074-earthquake-mcp-server-transcript.txt",
+   "verdict": "works_with_caveats",
+   "version": "0.1.0",
+   "writeup": "tests/074-earthquake-mcp-server.md"
+  },
+  {
+   "canonical_task": "frankfurter_get_historical_rates for 2024-01-15, base USD (EUR/GBP/JPY), plus frankfurter_convert_currency 100 USD to EUR on the same date",
+   "category": "community",
+   "caveats": [
+    "Default response_format is markdown; agents must pass response_format 'json' explicitly for structured data",
+    "Already migrated to the current api.frankfurter.dev/v1 endpoint (the old api.frankfurter.app host now 301-redirects) \u2014 no stale-endpoint rot"
+   ],
+   "ground_truth": "Direct Frankfurter API for 2024-01-15 USD: EUR 0.91366, GBP 0.78643, JPY 145.88",
+   "headline": "Works \u2014 historical ECB rates for a fixed date match the direct Frankfurter API digit-for-digit, and the 100 USD conversion (91.366 EUR) is arithmetically correct.",
+   "id": "075",
+   "package": "frankfurter-mcp-server",
+   "registry": "npm",
+   "server": "frankfurter-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/075-frankfurter-mcp-server-transcript.txt",
+   "verdict": "works",
+   "version": "1.0.0",
+   "writeup": "tests/075-frankfurter-mcp-server.md"
+  },
+  {
+   "canonical_task": "get_prices for bitcoin,ethereum in USD",
+   "category": "community",
+   "caveats": [
+    "Tarball ships only TypeScript sources: bin/main point at dist/index.js, which does not exist, and there is no prepare/prepack build script",
+    "typescript is not a declared dependency, so users cannot build it from the package's own toolchain without adding packages",
+    "Diagnostic hand-build (tsc, clean) with NODE_USE_ENV_PROXY=1 returned BTC $62,061 and ETH $1,753.16, exactly matching ground truth fetched seconds earlier \u2014 the code is right, the release is not",
+    "Hand-built server is also proxy-blind: without NODE_USE_ENV_PROXY=1 every call returns a bare 'Error: fetch failed'",
+    "Hand-built serverInfo reports version 1.0.0 while the package is 1.0.1; prime Broken-queue retest candidate if a version ever ships dist/"
+   ],
+   "ground_truth": "Direct CoinGecko /simple/price API fetched in the same window (BTC $62,061, ETH $1,753.16 at probe time)",
+   "headline": "Broken as published: the npm tarball contains no dist/ at all, so its bin dies with MODULE_NOT_FOUND for every user \u2014 yet hand-built from its shipped sources, its prices match the direct CoinGecko API exactly.",
+   "id": "076",
+   "package": "coingecko-mcp-server",
+   "registry": "npm",
+   "server": "coingecko-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/076-coingecko-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "1.0.1",
+   "writeup": "tests/076-coingecko-mcp-server.md"
+  },
+  {
+   "canonical_task": "fetch-pokemon for pikachu, confirmed with get-current-pokemon",
+   "category": "community",
+   "caveats": [
+    "Proxy blindness with a misleading error: Node fetch ignores proxy env vars, and the failure message blames the Pokemon name/number instead of the network",
+    "Thin payload: returns only id, name, type(s), height and weight \u2014 no base stats or abilities, though Pok\u00e9API provides them free",
+    "Side effects by design: starts a web server on a random port and tries to open a browser window on every fetch",
+    "Weight renders as '6kg' where the README example shows '6.0kg' (values agree; formatting only)",
+    "Only 2 tools and no search \u2014 the caller must already know the exact name or id"
+   ],
+   "ground_truth": "Direct pokeapi.co /pokemon/pikachu: id 25, electric, height 4 dm (0.4 m), weight 60 hg (6.0 kg)",
+   "headline": "Pikachu's data is exactly right (#25, electric, 0.4 m, 6 kg) \u2014 but only with NODE_USE_ENV_PROXY=1; under a standard proxy env it fails and falsely claims the Pokemon name may be invalid.",
+   "id": "077",
+   "package": "pokemon-mcp-server",
+   "registry": "npm",
+   "server": "pokemon-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/077-pokemon-mcp-server-transcript.txt",
+   "verdict": "works_with_caveats",
+   "version": "1.0.0",
+   "writeup": "tests/077-pokemon-mcp-server.md"
+  },
+  {
+   "canonical_task": "playwright_navigate to example.com (chromium, headless) and extract title/visible text",
+   "category": "community",
+   "caveats": [
+    "example.com unreachable from the browser in this sandbox: HTTPS net::ERR_TUNNEL_CONNECTION_FAILED, HTTP net::ERR_EMPTY_RESPONSE, while curl via the same proxy returns 200 \u2014 environmental; retest on tunnel-permitting egress",
+    "Browser postinstall (chromium/firefox/webkit) takes ~4 min through the proxy; a 120s-capped install was killed mid-download and npm rolled back",
+    "serverInfo reports version 1.0.11 while the installed package is 1.0.12"
+   ],
+   "ground_truth": "Direct curl fetch of https://example.com/ (title 'Example Domain') plus a planted local page (title 'Receipts Fixture Page') as control \u2014 navigate/evaluate/get_visible_text matched the control exactly",
+   "headline": "Browser binaries download fine (~4 min) and the navigate/extract pipeline is exact against ground truth on a control page; external navigation is blocked by this sandbox's egress for browser traffic.",
+   "id": "079",
+   "package": "@executeautomation/playwright-mcp-server",
+   "registry": "npm",
+   "server": "ExecuteAutomation Playwright MCP server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/079-executeautomation-playwright-transcript.txt",
+   "verdict": "works_with_caveats",
+   "version": "1.0.12",
+   "writeup": "tests/079-executeautomation-playwright.md"
+  },
+  {
+   "canonical_task": "query and filter a planted JSON fixture (3 books priced 5/15/25) via JSONPath",
+   "category": "community",
+   "caveats": [
+    "query $.store.book[*].author returns \"Ann\" only (expected [\"Ann\",\"Bob\",\"Cat\"]); same first-match truncation for [*].price",
+    "filter tool: '@.price > 10' -> [], '>= 10' -> [], '== 15' -> [], '<= 15' -> [Alpha] only; only '<' is correct",
+    "Inline filter in query ($[?(@.price > 10)].title) selects the right records but ignores the .title projection and returns full objects",
+    "All wrong answers returned with no error (isError never set)",
+    "Only input mode is a URL; the fixture had to be served over local HTTP to be tested at all"
+   ],
+   "ground_truth": "Hand computation on the planted fixture (preserved in the sandbox)",
+   "headline": "Scalar lookups are exact, but wildcard queries silently return only the first match and the filter tool returns empty or truncated results for every operator except '<'.",
+   "id": "080",
+   "package": "@gongrzhe/server-json-mcp",
+   "registry": "npm",
+   "server": "JSON MCP server (@gongrzhe)",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/080-server-json-mcp-transcript.txt",
+   "verdict": "broken",
+   "version": "1.0.3",
+   "writeup": "tests/080-server-json-mcp.md"
+  },
+  {
+   "canonical_task": "load_csv a planted 5-row CSV, then group_by_aggregate (sum salary by department), get_statistics, get_value_counts, filter_rows",
+   "category": "community",
+   "caveats": [
+    "group_by_aggregate always errors: \"type object 'OperationType' has no attribute 'GROUP_BY'\"",
+    "get_statistics and filter_rows report \"Column 'salary' not found\" for a column load_csv just previewed as int64",
+    "get_value_counts silently wrong: {eng:1, ops:1, sales:1}, total_count 3 for a 5-row file (expected 2/2/1, total 5)",
+    "load_csv silently ignores a caller-supplied session_id and returns a generated UUID; failures to the requested id read 'Invalid session or no data loaded'",
+    "Failures are success:false payloads with isError:false at the MCP layer",
+    "serverInfo version '4.2.3' is the installed FastMCP version, not this package's 1.0.0; cold initialize took 28s"
+   ],
+   "ground_truth": "Hand computation on the planted fixture: dept salary sums eng 300 / sales 200 / ops 120; dept counts eng 2 / sales 2 / ops 1; salary mean 124, total 620",
+   "headline": "Load and preview are perfect; afterwards the aggregation tool crashes on an internal enum error, statistics claim a real column is missing, and value counts silently report 3 rows for a 5-row file.",
+   "id": "081",
+   "package": "csv-mcp-server",
+   "registry": "pypi",
+   "server": "CSV MCP server (csv-editor)",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/081-csv-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "1.0.0",
+   "writeup": "tests/081-csv-mcp-server.md"
+  },
+  {
+   "canonical_task": "14 unit conversions across 10 categories (length, mass, temperature, volume, speed, pressure, energy, area, computer data, time, angle)",
+   "category": "community",
+   "caveats": [
+    "convert_computer_data 1 kilobytes -> 1024.0003397387368 bytes: matches neither the binary (1024) nor SI (1000) definition; that category's factors are suspect",
+    "60 mph -> 96.56063999992274 km/h vs exact 96.56064 (drift ~7.6e-8, consistent with a rounded intermediate)",
+    "serverInfo version '2.14.7' is the installed FastMCP version, not this package's 0.1.2"
+   ],
+   "ground_truth": "Exact defining conversion factors: 1 mile = 1.609344 km, 1 lb = 0.45359237 kg, 1 US gal = 3.785411784 L, 1 atm = 101325 Pa, 1 acre = 4046.8564224 m2, 1 kWh = 3,600,000 J, 180 deg = pi rad",
+   "headline": "12 of 14 conversions exact to the last digit across 11 categories; the computer-data scale is measurably wrong (1 KB -> 1024.00034 bytes).",
+   "id": "082",
+   "package": "unit-converter-mcp",
+   "registry": "pypi",
+   "server": "Unit Converter MCP server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/082-unit-converter-mcp-transcript.txt",
+   "verdict": "works_with_caveats",
+   "version": "0.1.2",
+   "writeup": "tests/082-unit-converter-mcp.md"
+  },
+  {
+   "canonical_task": "create a collection, add planted documents, query them back (ephemeral client)",
+   "category": "community",
+   "caveats": [
+    "As-installed server exits code 1 before initialize; none of its 13 tools can be listed or called",
+    "Diagnostic-only pin (pydantic==2.11.7) proves the server code is sound \u2014 create/add/query/get/count all exact \u2014 but is not the graded install",
+    "README tool list omits chroma_fork_collection, present in the live tool list",
+    "Retest condition: any newer chroma-mcp release, or a pin change in 0.2.6's dependency set"
+   ],
+   "ground_truth": "the planted documents themselves (exact ids/text, semantic ranking, collection count)",
+   "headline": "Clean install as instructed is dead on arrival: chroma-mcp pins mcp==1.6.0, whose unbounded pydantic range now resolves 2.14.4, and the server crashes at import (eval_type_backport) before initialize \u2014 a diagnostic run with pydantic 2.11.7 passed the canonical task exactly.",
+   "id": "083",
+   "package": "chroma-mcp",
+   "registry": "pypi",
+   "server": "Chroma MCP server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/083-chroma-mcp-transcript.txt",
+   "verdict": "broken",
+   "version": "0.2.6",
+   "writeup": "tests/083-chroma-mcp.md"
+  },
+  {
+   "canonical_task": "list_containers / list_images against the sandbox's Docker state",
+   "category": "community",
+   "caveats": [
+    "Docker client is built eagerly in the lifespan handler via docker.from_env(), so a down/absent daemon kills the whole server instead of failing per-tool (contrast #046/#060)",
+    "The underlying cause (missing socket, FileNotFoundError) is visible at the tail of the traceback",
+    "Behaviour against a live daemon is untested and was out of scope to install; that is the retest condition"
+   ],
+   "ground_truth": "the sandbox's own Docker state, checked independently: no docker CLI, no /var/run/docker.sock, no daemon",
+   "headline": "With no Docker daemon present the server crashes during start-up with a 143-line traceback and never answers initialize \u2014 no handshake, no tool list, no per-tool error.",
+   "id": "084",
+   "package": "mcp-server-docker",
+   "registry": "pypi",
+   "server": "mcp-server-docker",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/084-mcp-server-docker-transcript.txt",
+   "verdict": "broken",
+   "version": "0.3.0",
+   "writeup": "tests/084-mcp-server-docker.md"
+  },
+  {
+   "canonical_task": "list namespaces / pods (namespaces_list, pods_list)",
+   "category": "community",
+   "caveats": [
+    "Best missing-backend reporting in the wave: one clean, accurate, actionable error line, no traceback",
+    "Still a handshake failure \u2014 a client that never sees stderr learns nothing, so it grades broken rather than the stays-up-and-errors-per-tool works_with_caveats pattern",
+    "--version works cleanly (v0.1.3)",
+    "Retest condition: one run with a real kubeconfig pointing at a live cluster"
+   ],
+   "ground_truth": "the absence itself, verified independently: no kubectl binary, no ~/.kube directory, KUBECONFIG unset \u2014 no cluster and no contexts",
+   "headline": "Exemplary missing-backend message, but it exits code 1 before initialize: 'no current-context is set and no contexts are defined in kubeconfig' \u2014 exactly true, yet no MCP client can ever connect.",
+   "id": "085",
+   "package": "kubernetes-mcp-server",
+   "registry": "npm",
+   "server": "kubernetes-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/085-kubernetes-mcp-server-transcript.txt",
+   "verdict": "broken",
+   "version": "0.1.3",
+   "writeup": "tests/085-kubernetes-mcp-server.md"
+  },
+  {
+   "canonical_task": "get_global_achievement_percentages and get_game_details for app 730 (Counter-Strike 2), with get_user_profile as the keyed control, under a format-shaped decoy STEAM_API_KEY",
+   "category": "community",
+   "caveats": [
+    "Keyed tools (profile, friends, library, per-player achievements, bans, workshop) ungraded beyond the invalid-key error; a real-key run is the retest condition",
+    "Keyless start-up refusal (clear ValueError) also blocks tools that don't actually need a key; start-up validation is only a presence/placeholder check",
+    "serverInfo reports version 4.2.3 \u2014 the FastMCP framework's version, not the package's 1.0.6",
+    "Documentation and tool descriptions are primarily in Korean",
+    "Decoy key never appeared in any server output"
+   ],
+   "ground_truth": "direct curl to the same Steam endpoints: achievements endpoint returns exactly [{PLAY_CS2, 41.3}]; store appdetails returns Counter-Strike 2, is_free true, type game",
+   "headline": "Strict, honest key-gating both ways, and the two key-independent canonical tools returned real data matching ground truth exactly; keyed tools graded only as far as their honest 'Invalid Steam API key' error.",
+   "id": "086",
+   "package": "mcp-server-steam",
+   "registry": "pypi",
+   "server": "mcp-server-steam",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/086-mcp-server-steam-transcript.txt",
+   "verdict": "works_with_caveats",
+   "version": "1.0.6",
+   "writeup": "tests/086-mcp-server-steam.md"
+  },
+  {
+   "canonical_task": "generate: render a known flowchart (Alpha Node -> Beta Node -> Gamma Node) to SVG and PNG, plus a deliberate syntax-error input",
+   "category": "community",
+   "caveats": [
+    "Default configuration fails as root: Chromium refuses to launch without --no-sandbox; the server surfaces Chromium's stderr honestly and the remedy is a documented env var",
+    "Syntax-error handling is excellent: precise parse diagnostic with line, expected/got tokens and a caret, isError true, no file written",
+    "Single-tool server (generate only)",
+    "Heavy install for one tool: 237 npm packages including a full Chromium download"
+   ],
+   "ground_truth": "hand-checked saved files: SVG parses as XML and contains each planted label exactly once; PNG is a valid 504x456 image (PIL); the syntax-error input is genuinely unparseable Mermaid",
+   "headline": "Renders correctly and reports syntax errors precisely, but every call fails by default in a root-run container until the documented MERMAID_DISABLE_SANDBOX=true is set.",
+   "id": "087",
+   "package": "@peng-shawn/mermaid-mcp-server",
+   "registry": "npm",
+   "server": "mermaid-mcp-server",
+   "tested_at": "2026-11-20",
+   "tester": "batch-4 wave testers; reviewed by Pax",
+   "transcript": "tests/087-mermaid-mcp-server-transcript.txt",
+   "verdict": "works_with_caveats",
+   "version": "0.3.0",
+   "writeup": "tests/087-mermaid-mcp-server.md"
   }
  ]
 }
