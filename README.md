@@ -112,11 +112,11 @@ Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
-Tool counts: **11** in the local package (stdio, below); **18** on the hosted endpoint (the same 11 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
+Tool counts: **12** in the local package (stdio, below); **19** on the hosted endpoint (the same 12 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
 
 The full tool contracts, eligibility and stale-price rules, hosted endpoint, alert delivery, throughput data, and the feed contract and deploy gate are in [docs/CONTRACT.md](docs/CONTRACT.md). Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
 
-## Tools (11 in the local package, read-only)
+## Tools (12 in the local package, read-only)
 
 | Tool | What it does |
 |---|---|
@@ -133,7 +133,7 @@ The full tool contracts, eligibility and stale-price rules, hosted endpoint, ale
 | `compare_deals` | Compare 2-5 deals by id, best customer value first. |
 | `get_deal` | Return the full public record for one deal id. |
 
-Hosted endpoint only (7 more, 18 in total): `create_alert`, `check_alerts` and `delete_alert` (poll-only price alerts) and `create_watch_key`, `watch_price`, `list_watches` and `delete_watch` (opt-in price watches with a webhook). Details: [docs/CONTRACT.md](docs/CONTRACT.md).
+Hosted endpoint only (7 more, 19 in total): `create_alert`, `check_alerts` and `delete_alert` (poll-only price alerts) and `create_watch_key`, `watch_price`, `list_watches` and `delete_watch` (opt-in price watches with a webhook). Details: [docs/CONTRACT.md](docs/CONTRACT.md).
 
 Keywords: MCP server, Model Context Protocol, GPU prices, cloud GPU pricing, GPU rental price comparison, H100 / H200 / A100 / L40S / RTX 4090 / RTX 5090 hourly price, GPU cost estimate, price history, AI infrastructure costs, Claude, Cursor, VS Code Copilot, Windsurf, Cline.
 

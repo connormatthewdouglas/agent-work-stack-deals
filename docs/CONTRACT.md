@@ -4,7 +4,7 @@ This page is the contract and API detail that previously lived in the [README](.
 
 ### Tools
 
-Tool counts: **11** in the local package (stdio, below); **18** on the hosted endpoint (the same 11 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
+Tool counts: **12** in the local package (stdio, below); **19** on the hosted endpoint (the same 12 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
 
 | Tool | What it does |
 |---|---|
