@@ -145,13 +145,17 @@ def _tc(r):
     return tier_class(r)
 
 
-def avail_fields(r: dict) -> dict:
-    """E5/F1: feed availability passed through as-is (None when absent; never invented)."""
+def avail_fields(r: dict, now=None) -> dict:
+    """E5/F1: feed availability with the same P64 request-time stale_guard as find_available_gpus.
+    Never invents a stock claim; a lapsed in_stock is unknown (null); last_known_* stays visible."""
     from .deals import oos_note, out_of_stock
-    a = r.get("availability") if isinstance(r.get("availability"), dict) else None
+    from .gpu_availability import request_availability
+    raw = r.get("availability") if isinstance(r.get("availability"), dict) else None
+    a = request_availability(raw, now) if raw is not None else None
+    rr = r if a is raw else {**r, "availability": a}
     f = {"availability": a, "in_stock": a.get("in_stock") if a else None}
-    if out_of_stock(r):
-        f["availability_note"] = oos_note(r) + "; ranked after in-stock/unknown rows"
+    if out_of_stock(rr):
+        f["availability_note"] = oos_note(rr) + "; ranked after in-stock/unknown rows"
     return f
 
 
