@@ -64,6 +64,8 @@ Hosted only, opt-in, free. No webhook, no email, no account, no cron. Delivery i
 
 By default no tool or page ranks a GPU price older than 168 hours (7 days) or names it cheapest. Such rows are listed separately as "stale price (N days old)" in `stale_prices`. If every matching price is stale, no current cheapest is named and the summary says so. Pass `max_data_age_hours` to set a different limit (for example 1000 to rank older quotes anyway; confirm them on the vendor page). `data_age_hours` is measured from the row's own last price verification (`verified_at`, or `checked_at` if `verified_at` is missing), not from `feed_updated_at` or the feed write time.
 
+P68 (additive): `last_known_in_stock` is flagged against that row's own last firm claim window (`last_known_expires_at`, `last_known_outside_window`). The window is shown on every GPU row (`max_age_hours`, `availability_expires_at`, and when last_known is present `last_known_expires_at`). A later failed or `no_source` read never extends the last good window. The P64 8h `stale_guard` is unchanged: last_known stays visible and `in_stock` is never claimed from a lapsed reading. All timestamps are UTC with a Z.
+
 ## Published GPU throughput data (T20 Phase B, data only)
 
 `data/gpu_throughput.json` (schema `lantern-works-gpu-throughput/1`) holds **published** throughput and peak-spec figures for H100 (SXM, PCIe 80GB, NVL), A100 (40/80GB, SXM vs PCIe), L40S and RTX 4090, from NVIDIA spec sheets and MLPerf Inference results (closed division, Offline). Each figure carries `gpu`, `variant`, `workload`, `metric`, `unit`, `value`, `conditions` (precision, sparsity, scenario, batch, `gpu_count`, `per_gpu`), `source_url`, `source_title`, `publication_date`, `retrieved_at` (UTC) and a verbatim `quote`.

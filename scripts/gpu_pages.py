@@ -285,7 +285,7 @@ def _avail_cell(gen, r: dict) -> str:
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         return gen.esc(a["status"] + (f", seen {t} UTC" if t else "") + tail)
     if a.get("availability_stale"):
-        age = stock_age_phrase(a)
+        age = stock_read_absolute_phrase(a)
         extra = f", {age}" if age and age not in (a.get("status") or "") else ""
         return gen.esc(a["status"] + extra + tail)
     if a.get("in_stock") is None:
@@ -302,9 +302,8 @@ def _avail_cell(gen, r: dict) -> str:
             return gen.esc(lp)
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         if t:
-            age = stock_age_phrase(a)
-            extra = f", {age}" if age else ""
-            return gen.esc(f"unknown (no signal), checked {t} UTC{extra}")
+            # A no-signal check is not a stock read (Gauge #385 B1 (a)).
+            return gen.esc(f"unknown (no signal), checked {t} UTC")
         # Never read: distinct from a check that has expired (P74 / Brain #1172).
         return "— never read"
     # 0/N trailing reading: say "not observed in stock in N checks", not "out of stock" / "sold out".
@@ -347,7 +346,7 @@ def _avail_cell(gen, r: dict) -> str:
     if exp:
         from core.gpu_availability import et_hm
         sep += f"; valid until {et_hm(exp)}; after that treat as unknown"
-    age = stock_age_phrase(a)
+    age = stock_read_absolute_phrase(a, already_shown=t if t else None)
     age_bit = f", {age}" if age else ""
     body = gen.esc(", ".join(bits)) + (", " + regions_html if regions_html else "") + gen.esc((f", snapshot {t} UTC" if t else "") + age_bit + sep)
     if a.get("origin") in ("scout", "record") and t:
@@ -366,7 +365,7 @@ def _verified_cell(r: dict, esc) -> str:
 
 
 from core.gpu_availability import STOCK_EXPLAINER, REGIONS_NOTE  # noqa: E402  (one wording: core NOTE == page explainer)
-from core.stock_age import NEVER_READ, stock_age_fields, stock_age_phrase  # noqa: E402
+from core.stock_age import NEVER_READ, stock_age_fields, stock_read_absolute_phrase  # noqa: E402
 from core.deals import tie_label, out_of_stock, usd  # noqa: E402  (J3 tie rule shared with the MCP summary)
 
 

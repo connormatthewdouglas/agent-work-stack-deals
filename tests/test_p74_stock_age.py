@@ -212,6 +212,21 @@ def test_pages_label_never_read_distinctly_from_expired():
     assert "stale availability" in exp_html
     assert "never read" not in exp_html
     assert "stock read" in exp_html
+    assert "ago" not in exp_html
+    assert "stock read 2026-11-27 20:00 UTC" in exp_html  # NOW-10h at pinned clock
+    # (a) a no-signal check is not called a stock read.
+    nosig = {
+        "advertiser": "ExampleCo",
+        "availability": {
+            "in_stock": None,
+            "status": "unknown",
+            "checked_at": _iso(NOW - timedelta(hours=2)),
+        },
+    }
+    nosig_html = gp._avail_cell(_G, nosig)
+    assert "unknown (no signal), checked " in nosig_html
+    assert "stock read" not in nosig_html
+    assert "ago" not in nosig_html
     # Explainer no longer lumps em-dash / unknown as "no signal".
     assert "never read" in A.STOCK_EXPLAINER
     assert "expired" in A.STOCK_EXPLAINER
@@ -279,3 +294,20 @@ def test_stock_age_matches_main_stale_set_and_reasons():
 
     assert pr_stale == main_stale
     assert pr_all == main_all
+
+
+def test_static_pages_contain_no_relative_stock_ago():
+    """B1: static HTML must not bake relative 'stock read Nh ago' (false freshness if collection stalls)."""
+    import re
+    ago = re.compile(r"stock read\s[^<]*\bago\b", re.I)
+    roots = [ROOT / "gpu", ROOT / "lanternworks", ROOT / "tools"]
+    hits = []
+    for root in roots:
+        if not root.exists():
+            continue
+        for path in root.rglob("*.html"):
+            text = path.read_text(encoding="utf-8")
+            m = ago.search(text)
+            if m:
+                hits.append(f"{path.relative_to(ROOT)}: {m.group(0)!r}")
+    assert not hits, "relative stock-age phrasing on static pages:\n" + "\n".join(hits[:20])

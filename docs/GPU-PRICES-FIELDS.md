@@ -137,6 +137,19 @@ last_known is marked stale **8 hours** after `last_known_at`. That number is `AV
 | `no_source` / unknown with no prior firm claim | Nothing to keep; last_known is not invented. | No last_known is shown. If a prior last_known exists, it is kept and ages on the same 8-hour clock. |
 | Price-join drop (`price_join_guard`, #211) | Yes: last_known is the firm, dated claim that was dropped. `in_stock` is null. | Then the same 8-hour clock (`AVAIL_MAX_AGE_H`) as any other last_known. |
 | Claim lapse (time / `availability_expires_at`) | Yes (P36): last_known is the firm claim that just lapsed. | The claim lapses when now is after `availability_expires_at` (UTC). A claim at the exact expiry instant is still valid. There is no grace period or clock-skew tolerance. Once lapsed, it is marked stale; last_known is still shown, not dropped. Live claims may lapse sooner than 8 hours under the existing lifetimes above, equally for true and false. |
+
+## last_known claim window (additive, P68, Nov 2026)
+
+`last_known_in_stock` is flagged against **that row's own** last firm claim window, and the window is shown on every GPU row so a client can check it (Brain #1081). The P64 8h `stale_guard` clock is unchanged: `in_stock` is still nulled on that clock (or sooner when a live claim's own `availability_expires_at` has lapsed). last_known stays visible; it is not dropped or rewritten.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `max_age_hours`, `availability_expires_at` | number / string or null | The current reading's claim window (P72). Shown on every row, including `no_source`. |
+| `last_known_expires_at` | string (date-time, UTC `Z`) or null | Expiry of the last firm stock claim, anchored on `last_known_at`. A later failed or `no_source` read never extends this window. |
+| `last_known_max_age_hours` | number or null | TTL in hours that produced `last_known_expires_at`. |
+| `last_known_outside_window` | boolean | True when now is after `last_known_expires_at`. Absent when there is no last_known. |
+
+A Verda 0.25 h last_known is flagged 15 minutes after `last_known_at`, even though `stale_guard` would only mark `availability_stale` at 8 h (or at the live claim expiry). A failed read after a 1 h firm claim keeps the 1 h last-known window, not `checked_at + 8 h`.
 ## marketplace_query and composition_flag (additive, P45, Nov 2026)
 
 On marketplace-median rates (`price_status=marketplace`) in `gpu-prices.json` and `compare_gpu_prices`, and on

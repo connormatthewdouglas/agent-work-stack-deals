@@ -100,8 +100,33 @@ def attach_stock_age(row: dict, now: datetime | None = None) -> dict:
     return out
 
 
+def stock_claim_stamp_utc(av: dict | None) -> str | None:
+    """Absolute UTC 'YYYY-MM-DD HH:MM UTC' of the stock claim, or None. Never invented."""
+    ts, _basis = stock_timestamp(av)
+    if ts is None:
+        return None
+    return ts.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def stock_read_absolute_phrase(av: dict | None, *, already_shown: str | None = None) -> str:
+    """Static-page label with an absolute stamp. Empty when never read, or when the
+    same moment is already shown (e.g. 'snapshot 2026-11-28 03:17 UTC').
+
+    Relative 'ago' phrasing is for tool responses only (stock_age_phrase / stock_age_hours).
+    """
+    stamp = stock_claim_stamp_utc(av)
+    if not stamp:
+        return ""
+    key = stamp.removesuffix(" UTC").strip()
+    if already_shown:
+        shown = str(already_shown).replace("T", " ").replace(" UTC", "").strip()[:16]
+        if shown == key:
+            return ""
+    return f"stock read {stamp}"
+
+
 def stock_age_phrase(av: dict | None, now: datetime | None = None) -> str:
-    """Short render label, or empty when there is no stock timestamp (never read)."""
+    """Relative 'stock read Nh ago' label for tool responses only. Empty when never read."""
     fields = stock_age_fields(av, now)
     if fields["stock_read_state"] == NEVER_READ or fields["stock_age_hours"] is None:
         return ""
