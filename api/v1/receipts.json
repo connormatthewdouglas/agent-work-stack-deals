@@ -24,18 +24,18 @@
   },
   "publication": {
     "author": "Pax",
-    "source_sha256": "ebcd0b1b2524585dd343efcd7c4eeb0b560f71e4950dcb88bea069e6736be517",
+    "source_sha256": "e03bc05a3123d26537c4db50a84026913dcd063729063307790c72078c7dd31a",
     "evidence_level": "authored_summaries_only",
-    "limitations": "These are Pax-authored summaries of specific versions and tasks, dated October 29–31, 2026. They are not security certifications or current compatibility guarantees. Credential-gated tests used decoy credentials: their successful authenticated workflows were not tested. Deferred means untested for the promised task, not broken.",
-    "evidence_availability": "Sixty-two records publish authored summaries only. Write-up and transcript filenames in the index JSON refer to project records that are not included with those summaries. Three representative third-party cases also have a public proof-pack page (excerpts + machine-readable evidence) under /receipts/; see Proof pack v1 below.",
+    "limitations": "These are Pax-authored summaries of specific versions and tasks, dated October 29–31 and November 20, 2026. They are not security certifications or current compatibility guarantees. Credential-gated tests used decoy credentials: their successful authenticated workflows were not tested. Deferred means untested for the promised task, not broken.",
+    "evidence_availability": "Eighty-six records publish authored summaries only. Write-up and transcript filenames in the index JSON refer to project records that are not included with those summaries. Three representative third-party cases also have a public proof-pack page (excerpts + machine-readable evidence) under /receipts/; see Proof pack v1 below.",
     "verdict_policy": "Money may buy testing or re-testing, never a changed verdict. Paid listings are re-tested under the same criteria; payment never changes a result or its placement.",
     "house_disclosure": "Record 000 is Lantern Works, our own product, tested at version 0.3.8; it is not an independent endorsement of today's release."
   },
   "counts": {
-    "broken": 20,
-    "deferred": 16,
-    "works": 9,
-    "works_with_caveats": 17
+    "broken": 33,
+    "deferred": 18,
+    "works": 11,
+    "works_with_caveats": 24
   },
   "tests": [
     {
@@ -311,7 +311,8 @@
       "caveats": [
         "637MB footprint (56MB packages + 581MB of browsers); package is deprecated and launches headed by default",
         "serverInfo claims version 0.1.0",
-        "Chrome cannot consume this sandbox's authenticated proxy from any flag; the test used a disclosed localhost relay plus cache hand-placement (see write-up)"
+        "Chrome cannot consume this sandbox's authenticated proxy from any flag; the test used a disclosed localhost relay plus cache hand-placement (see write-up)",
+        "Shared seam with #014: both failed on the same thing — the Node browser downloader dying behind an authenticating proxy. Workaround: skip the download at install, fetch the Chrome-for-Testing build with curl into the cache layout, point the server at it."
       ],
       "ground_truth": "example.com fetched independently twice in the same session (title 'Example Domain'; the live page no longer has an H1)",
       "headline": "Task flawless once running (title exact, H1 correctly null, real 800x600 screenshot) — but the documented install failed after 21 minutes when the postinstall Chrome download died and npm rolled back.",
@@ -331,7 +332,9 @@
       "category": "community",
       "caveats": [
         "serverInfo reports the bundled Playwright alpha version, not the package's 0.0.83",
-        "Ships a self-described browser_run_code_unsafe tool"
+        "Ships a self-described browser_run_code_unsafe tool",
+        "Installer first error (identical on both attempts): request to https://storage.googleapis.com/chrome-for-testing-public/155.0.8059.12/linux64/chrome-linux64.zip timed out after 30s, five retries per attempt (~5m25s and ~5m10s); curl fetched the identical file in ~50s.",
+        "Shared seam with #013: both failed on the same thing — the Node browser downloader dying behind an authenticating proxy. Workaround: skip the download at install, fetch the Chrome-for-Testing build with curl into the cache layout, point the server at it."
       ],
       "ground_truth": "example.com fetched independently twice in the same session (title 'Example Domain'; the live page no longer has an H1)",
       "headline": "Strongest browser server tested: ~25 tools, accessibility-snapshot model, title verified three ways — but its own browser installer failed twice through the proxy and needed a curl-fetched browser plus the documented --executable-path flag.",
@@ -411,7 +414,8 @@
       "category": "reference",
       "caveats": [
         "With two undocumented pins (mcp 1.17.0 + pydantic 2.11.7) the server itself is flawless: aggregates digit-for-digit, writes persist",
-        "Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0"
+        "Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0",
+        "Upstream archived (modelcontextprotocol/servers-archived, verified 2026-11-11): no longer maintained, no fix expected; 2025.4.25 remains the latest release on PyPI"
       ],
       "ground_truth": "database planted with python3 sqlite3 (products: n=5, SUM price 110.49, SUM stock 540, plus a marker row); writes verified by reading the file directly with sqlite3",
       "headline": "Reference server, dead on arrival: its unbounded mcp[cli]>=1.6.0 resolves SDK 2.3.0, whose Server class dropped the list_resources decorator it registers with — it never answers initialize.",
@@ -966,7 +970,8 @@
       "headline": "Honest, fast failure against a decoy DSN: proper JSON-RPC error in 0.10s, and the password never appears in output.",
       "caveats": [
         "Scope: this verdict grades decoy-failure behaviour against driver ground truth — no successful query against a real database was graded",
-        "The surfaced error is opaque (ECONNRESET, partly a sandbox-DNS artefact); the server validates nothing until the first call"
+        "The surfaced error is opaque (ECONNRESET, partly a sandbox-DNS artefact); the server validates nothing until the first call",
+        "0.6.2 is the last release; npm marks the package deprecated — archived and unmaintained, no security guarantees. Reported (Datadog Security Labs): the READ ONLY wrapper can be escaped with a stacked COMMIT; a decoy harness cannot see this since nothing ever connects."
       ],
       "tested_at": "2026-10-31",
       "tester": "batch-3 wave testers; reviewed by Pax",
@@ -1257,7 +1262,8 @@
       "caveats": [
         "Scope: this verdict grades decoy-failure behaviour against driver ground truth — no successful read against a real database was graded",
         "connectionId \"preconfigured\" is undiscoverable from the tool itself",
-        "The plain-string connect path waits the full 30s driver timeout, then swallows the real error behind a generic message"
+        "The plain-string connect path waits the full 30s driver timeout, then swallows the real error behind a generic message",
+        "Surfaced lines side by side: SRV path 'Could not connect to MongoDB. Last error: querySrv EREFUSED _mongodb._tcp.nonexistent-decoy-cluster.invalid' (0.10s); plain-string connect path 'You need to connect to MongoDB instance before you can access its data.' after 30.13s — the real driver error appears nowhere in the record."
       ],
       "tested_at": "2026-10-31",
       "tester": "batch-3 wave testers; reviewed by Pax",
@@ -1303,6 +1309,545 @@
       "tester": "batch-3 wave testers; reviewed by Pax",
       "writeup": "tests/062-pinecone.md",
       "transcript": "tests/062-pinecone-transcript.txt"
+    },
+    {
+      "canonical_task": "Offline Step 1: verify the kit's secp256k1/MDIP challenge known-answer vectors with stock OpenSSL (verify-openssl.sh plus tester-issued raw OpenSSL checks)",
+      "category": "community",
+      "caveats": [
+        "Live leg (init a DID against a local gatekeeper, respond to a challenge) not attempted: no Docker on this VM; retest condition is one run on a Docker-capable sandbox",
+        "JS leg untested here: full npm install's transitive sqlite3 native build exceeded the sandbox build window (terminated at 300s); --ignore-scripts installs but all entry points fail on the missing sqlite3 binding, and a rebuild attempt was interrupted by a runtime restart with no confirmed result",
+        "Challenge-1's response binding is a recorded result, not offline-provable (by design; challenge-2 closes it with a public test verifier key)",
+        "MDIP does not sign signature.signed; shipped DIDs are authentic only via the registry integrity hash (documented in the README)",
+        "Not an MCP server: CLI/library kit, no initialize/tools-list surface"
+      ],
+      "ground_truth": "Stock OpenSSL 3.0.13: pinned kav-1 hash/signature, all signed ops in mdip-challenge-1/-2, DIDs recomputed as CID(sha256(signed op)), challenge-2 response decrypted with the public test key naming the challenge DID; tarball sha512 matched registry dist.integrity",
+      "headline": "Offline crypto leg passes completely on stock OpenSSL (201 ok / 0 FAIL, ALL VECTORS OK, 47/47 expiry rows, challenge-response binding decrypts and names the challenge DID); the live DID leg is untested — it needs a Docker MDIP node this sandbox does not have.",
+      "id": "063",
+      "package": "mdip-agent-kit",
+      "registry": "npm",
+      "server": "mdip-agent-kit",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/063-mdip-agent-kit-transcript.txt",
+      "verdict": "works_with_caveats",
+      "version": "0.1.5",
+      "writeup": "tests/063-mdip-agent-kit.md"
+    },
+    {
+      "canonical_task": "One free keyless sample tool call (kyb / sanctions-screen with sample:true), graded against GLEIF LEI and OFAC SDN public data",
+      "category": "community",
+      "caveats": [
+        "Paid x402 legs are Deferred-needs-key by design inside this record (pay-per-call USDC; Receipts does not pay)",
+        "Third-party checks saw johtodata.com/mcp live with 12 tools on 2026-11-08 and already unhealthy on 2026-11-11 — reads as an outage or withdrawal between Nov 8-20; retest if either endpoint answers initialize",
+        "A third-party watcher flagged agent-directed (competitor-suppression) text in this server's tool descriptions; not independently observed — the server never listed tools to us"
+      ],
+      "ground_truth": "Not obtainable — no call ever completed; grading rests on observed endpoint behaviour (documented free routes 404, MCP initialize 0 bytes on both documented hosts, cited registry entry absent at test time)",
+      "headline": "Broken at test time on both documented endpoints: the workers.dev host returns Cloudflare 404 'error code: 1042' for every documented free sample route and its MCP initialize stalls with 0 bytes, johtodata.com/mcp GETs the site's own 404 page and its initialize stalls too, and the cited Official Registry entry no longer resolves.",
+      "id": "064",
+      "package": "com.johtodata/johto-data",
+      "registry": "other",
+      "server": "Johto Data MCP",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/064-johto-data-transcript.txt",
+      "verdict": "broken",
+      "version": "1.0.0 (last advertised serverInfo; not observed — server never answered)",
+      "writeup": "tests/064-johto-data.md"
+    },
+    {
+      "canonical_task": "One free-tier canonical call on the default surface, then verify the returned AER-1 receipt against the underlying data it reports",
+      "category": "community",
+      "caveats": [
+        "Retest condition: one run on a different egress or a longer uninterrupted window; a stall from independent egress converts this to Broken evidence",
+        "A third attempt (280s window) was interrupted by a runtime restart with no confirmed result and was not re-run",
+        "Vendor's live numbers page still advertised the endpoint, 36 default / 153 catalog tools and the free tier on 2026-11-20; a third-party watcher captured the tool manifest on 2026-10-30"
+      ],
+      "ground_truth": "Not obtainable — initialize never answered from this sandbox, so no call and no receipt could be observed or verified",
+      "headline": "Deferred — the endpoint stalls from this sandbox: POST initialize received 0 bytes (30s curl, 90s python client) while GET zambo.dev answered in 1.4s and another remote MCP completed through the same egress in the same hour; retest on different egress.",
+      "id": "065",
+      "package": "zambo.dev/mcp",
+      "registry": "other",
+      "server": "Zambo MCP",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/065-zambo-transcript.txt",
+      "verdict": "deferred",
+      "version": "unknown (serverInfo never observed)",
+      "writeup": "tests/065-zambo.md"
+    },
+    {
+      "canonical_task": "get_agent for a known-offline agent and a known-unverified agent, plus list_agents, graded against plain REST at duami.ai/v1/agents",
+      "category": "community",
+      "caveats": [
+        "Cold initialize took 19.9s (subsequent calls 0.7-2.8s); a client with a short handshake timeout would fail",
+        "tools/list is 73,284 bytes across 61 tools — roughly 20k tokens of definitions before any work; most write tools are key-gated and only the free reads were graded",
+        "The initialize instructions field carries a long registration funnel including a human trigger phrase, and get_agent wraps other agents' profile text in an untrusted_content_notice",
+        "Post-test reruns (2026-11-22/23): tools/list is now 67 tools / 82,209 bytes (gigawatt 2026-11-22, canaryseal passive snapshot the same day, Pax re-verified 2026-11-23) — the receipt's 61 tools / 73,284 bytes was accurate at test time; the contract drifted within 48 hours.",
+        "Cold initialize of 19.9s was observed once, on the test host, 2026-11-20; two independent reruns saw 0.74s (gigawatt, 2026-11-22) and ~1.2s (Pax, 2026-11-23) — treat as host-specific, not a server property.",
+        "Live-agent count moved: 10 live of 86 listed at Pax's 2026-11-23 REST check (the receipt's sample had 5 live); directory membership changes daily, which is why the receipt is dated."
+      ],
+      "ground_truth": "Independent REST GETs at test time (2026-11-20T10:28Z): agt_0mvwqtw4u4wgm3r77yx5c status offline (last heartbeat 2026-10-31), agt_0mw22yay698ok0b9r1jom status unverified, plus the live /v1/agents directory listing",
+      "headline": "MCP matches its own REST ground truth exactly: the listed-but-offline agent reads 'offline', the unverified one reads 'unverified', and list_agents matches the REST directory — no silent nulls.",
+      "id": "066",
+      "package": "ai.duami/intent-exchange",
+      "registry": "other",
+      "server": "duami",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/066-duami-transcript.txt",
+      "verdict": "works",
+      "version": "0.1.0",
+      "writeup": "tests/066-duami.md"
+    },
+    {
+      "canonical_task": "search_pubmed_articles for Jinek et al. 2012 (PMID 22745249), by title query and by 22745249[PMID] query",
+      "category": "community",
+      "caveats": [
+        "The mcp<2 pin was a diagnostic only; the grade is the as-instructed install (same SDK-drift class as #028/#029/#036/#045)",
+        "Minimal surface even when alive: one tool, search hard-coded to 3 results, article details exposed only as an article://{pmid} resource, not a tool",
+        "Retest on any release that pins mcp<2 or ports to the mcp 2.x API; canonical task and ground truth are reusable as-is",
+        "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+        "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+      ],
+      "ground_truth": "Direct NCBI E-utilities (keyless) esummary and efetch for PMID 22745249, fetched at test time",
+      "headline": "Crashes at import as installed today: its unbounded mcp requirement resolves to mcp 2.3.0, which removed mcp.server.fastmcp. Pinned to mcp 1.30.0 the same package returns the exact article — title, all six authors, journal, date and abstract — matching E-utilities word for word.",
+      "id": "067",
+      "package": "pubmed-mcp-server",
+      "registry": "pypi",
+      "server": "pubmed-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/067-pubmed-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "0.1.2",
+      "writeup": "tests/067-pubmed-mcp-server.md"
+    },
+    {
+      "canonical_task": "get_paper for arXiv:1706.03762 (Attention Is All You Need)",
+      "category": "community",
+      "caveats": [
+        "Unbounded mcp[cli]>=1.12.3 dependency is the sole cause; one pip install 'mcp[cli]<2' revives it, but the README never says so",
+        "Ships local write-capable memory/project tools alongside the API tools — a larger permission surface than a metadata lookup needs",
+        "Keyless S2 tier 429s under shared-IP load; server retries recover (search took 22.25s)",
+        "Pinned-run serverInfo reports the SDK version (1.30.0), not the package's 0.4.0",
+        "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+        "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+      ],
+      "ground_truth": "Direct Semantic Scholar API for the same paper (citationCount 203888, CorpusId 13756489)",
+      "headline": "Broken as installed — unbounded mcp>=1.12.3 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0 its output matches the direct S2 API exactly, citation count included.",
+      "id": "068",
+      "package": "semantic-scholar-mcp",
+      "registry": "pypi",
+      "server": "Semantic Scholar MCP server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/068-semantic-scholar-mcp-transcript.txt",
+      "verdict": "broken",
+      "version": "0.4.0",
+      "writeup": "tests/068-semantic-scholar-mcp.md"
+    },
+    {
+      "canonical_task": "crossref_doi_lookup for DOI 10.18653/v1/N19-1423 (BERT paper)",
+      "category": "community",
+      "caveats": [
+        "Unbounded mcp[cli]>=1.0.0 dependency is the sole cause of the Broken verdict; the underlying server is a faithful Crossref pass-through",
+        "crossref_export_ris / crossref_export_bibtex are stateful — they export the most recent search held in server memory",
+        "Pinned-run serverInfo reports the SDK version (1.30.0), not the package's 1.0.0",
+        "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+        "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+      ],
+      "ground_truth": "Direct Crossref API for the same DOI (is-referenced-by-count 12098, pp. 4171-4186)",
+      "headline": "Broken as installed — unbounded mcp[cli]>=1.0.0 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0 its DOI lookup matches the direct Crossref record on every field.",
+      "id": "069",
+      "package": "crossref-mcp-server",
+      "registry": "pypi",
+      "server": "Crossref MCP server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/069-crossref-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "1.0.0",
+      "writeup": "tests/069-crossref-mcp-server.md"
+    },
+    {
+      "canonical_task": "openalex_get_work for W2626778328 (Attention Is All You Need)",
+      "category": "community",
+      "caveats": [
+        "openalex_search could not be graded: OpenAlex's keyless tier now draws on a daily budget shared by egress IP, which was exhausted (HTTP 429); its select list is valid, so a retest on a fresh budget or with a free key is the condition",
+        "Error messages are Chinese-language (e.g. 'OpenAlex API 请求失败')",
+        "README contradicts itself: OPENALEX_API_KEY is 'optional' in the .env section but 'required' in the Smithery/ModelScope configs",
+        "serverInfo reports version 1.0.0 against the package's 1.0.5"
+      ],
+      "ground_truth": "Direct OpenAlex API for W2626778328 (cited_by_count 151778, captured before the keyless budget ran out)",
+      "headline": "Broken at two layers: its undici fetch ignores standard proxy env vars (EPROTO on proxy egress), and with the proxy engaged openalex_get_work still fails — it hard-codes the invalid select field 'pmid' and OpenAlex answers HTTP 400.",
+      "id": "070",
+      "package": "openalex-mcp-server",
+      "registry": "npm",
+      "server": "OpenAlex MCP server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/070-openalex-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "1.0.5",
+      "writeup": "tests/070-openalex-mcp-server.md"
+    },
+    {
+      "canonical_task": "get info on a well-known public model — not offered; fallback generate_story with a decoy key",
+      "category": "community",
+      "caveats": [
+        "A PyPI namesake (huggingface-mcp-server 0.1.0) exists; the npm package was tested as assigned, the namesake was not",
+        "No keyless surface at all — it exits code 1 before tools/list without an API key (clean, clear error message)",
+        "Version confusion: package 1.0.26, CLI --version says 1.0.5, serverInfo reports 1.0.18",
+        "Default transport is HTTP on port 3000; stdio requires -t stdio; the stdio implementation is hand-rolled with nonstandard capabilities",
+        "Retest condition: one run on credential-permitting egress"
+      ],
+      "ground_truth": "Direct HF Hub API for gpt2 (openai-community/gpt2, sha 607a30d783dfa663caf39e06633721c8d4cfcd7e), captured keyless",
+      "headline": "Deferred — needs key. Despite the name it offers no Hub/model-info tools at all, only generate_image/generate_story inference gated on a personal HF key; the decoy call stalls on this VM's credential-header egress, so its auth behaviour is unobservable here.",
+      "id": "071",
+      "package": "huggingface-mcp-server",
+      "registry": "npm",
+      "server": "HuggingFace MCP server (npm inference wrapper)",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/071-huggingface-mcp-server-transcript.txt",
+      "verdict": "deferred",
+      "version": "1.0.26",
+      "writeup": "tests/071-huggingface-mcp-server.md"
+    },
+    {
+      "canonical_task": "get_apod for fixed date 2023-07-01 (DEMO_KEY default)",
+      "category": "community",
+      "caveats": [
+        "Unbounded mcp>=0.1.0 dependency is the sole cause of the Broken verdict",
+        "get_apod returns a Python-dict-repr string as its text content rather than clean JSON",
+        "Silently defaults to the shared DEMO_KEY when NASA_API_KEY is unset (direct call showed X-Ratelimit-Limit: 10)",
+        "Upstream degradation observed directly: APOD serves a generic placeholder for all sampled dates, and the Mars-photos endpoint returns an HTML 404 'No such app' — get_mars_image presumably affected, not exercised",
+        "Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.",
+        "Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint '2.3.0-specific' was wrong; verdict and test date untouched."
+      ],
+      "ground_truth": "Direct api.nasa.gov APOD call with DEMO_KEY for the same date — currently a degraded placeholder payload (title 'NASA Science') for every date sampled",
+      "headline": "Broken as installed — unbounded mcp>=0.1.0 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0, get_apod exactly reproduces the direct api.nasa.gov DEMO_KEY response.",
+      "id": "072",
+      "package": "nasa-mcp-server",
+      "registry": "pypi",
+      "server": "NASA MCP server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/072-nasa-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "0.1.20",
+      "writeup": "tests/072-nasa-mcp-server.md"
+    },
+    {
+      "canonical_task": "WHOIS lookup for example.com (mcp_whois_query)",
+      "category": "community",
+      "caveats": [
+        "Unpinned mcp>=1.0.0 resolves to mcp 2.3.0; 'from mcp.server.fastmcp import FastMCP' no longer exists — startup crash before initialize",
+        "Diagnostic pin mcp==1.30.0 still crashes: mcp.run(transport='sse', port=18895) raises TypeError (unexpected kwarg 'port') — no user-side pin makes 0.1.5 start",
+        "Undisclosed key requirement: the only tool calls openapi.chinaz.net with a CHINAZ_API_KEY; keyless it returns code -1 'Missing CHINAZ API Key' — no WHOIS-protocol or RDAP lookup exists",
+        "SSE-only design (port 18895) contradicts the stdio command config in its own README",
+        "Project URLs in package metadata still point at github.com/your-username/whois-mcp-server (template placeholder)"
+      ],
+      "ground_truth": "Direct RDAP query to rdap.verisign.com for example.com",
+      "headline": "Broken on fresh install twice over: unpinned mcp resolves to 2.x and kills its FastMCP import, its entry point crashes under mcp 1.x too — and the tool secretly needs a Chinaz API key, not public WHOIS/RDAP.",
+      "id": "073",
+      "package": "whois-mcp-server",
+      "registry": "pypi",
+      "server": "whois-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/073-whois-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "0.1.5",
+      "writeup": "tests/073-whois-mcp-server.md"
+    },
+    {
+      "canonical_task": "tool_search_earthquakes for 2024-01-01 to 2024-01-07 at min magnitude 5.5, cross-checked with tool_get_earthquake_count",
+      "category": "community",
+      "caveats": [
+        "serverInfo reports version '4.2.3' (the FastMCP framework version), not the package's 0.1.0",
+        "Tool descriptions and docstrings are in German while the README/listing are in English",
+        "FastMCP/Prefect promotional banner and INFO logs on stderr (stdout stays clean JSON-RPC)",
+        "end_date is inclusive (mapped to T23:59:59), unlike the USGS API's exclusive-end convention",
+        "The search tool's 'region' parameter is output decoration only, not an API filter"
+      ],
+      "ground_truth": "Direct USGS GeoJSON feed for 2024-01-01..2024-01-08, minmagnitude 5.5 (count 12)",
+      "headline": "Exact USGS fidelity on a fixed window — 12 of 12 events, magnitudes and count all match ground truth; caveats are cosmetic (framework version reported as its own, German tool descriptions).",
+      "id": "074",
+      "package": "earthquake-mcp-server",
+      "registry": "pypi",
+      "server": "earthquake-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/074-earthquake-mcp-server-transcript.txt",
+      "verdict": "works_with_caveats",
+      "version": "0.1.0",
+      "writeup": "tests/074-earthquake-mcp-server.md"
+    },
+    {
+      "canonical_task": "frankfurter_get_historical_rates for 2024-01-15, base USD (EUR/GBP/JPY), plus frankfurter_convert_currency 100 USD to EUR on the same date",
+      "category": "community",
+      "caveats": [
+        "Default response_format is markdown; agents must pass response_format 'json' explicitly for structured data",
+        "Already migrated to the current api.frankfurter.dev/v1 endpoint (the old api.frankfurter.app host now 301-redirects) — no stale-endpoint rot"
+      ],
+      "ground_truth": "Direct Frankfurter API for 2024-01-15 USD: EUR 0.91366, GBP 0.78643, JPY 145.88",
+      "headline": "Works — historical ECB rates for a fixed date match the direct Frankfurter API digit-for-digit, and the 100 USD conversion (91.366 EUR) is arithmetically correct.",
+      "id": "075",
+      "package": "frankfurter-mcp-server",
+      "registry": "npm",
+      "server": "frankfurter-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/075-frankfurter-mcp-server-transcript.txt",
+      "verdict": "works",
+      "version": "1.0.0",
+      "writeup": "tests/075-frankfurter-mcp-server.md"
+    },
+    {
+      "canonical_task": "get_prices for bitcoin,ethereum in USD",
+      "category": "community",
+      "caveats": [
+        "Tarball ships only TypeScript sources: bin/main point at dist/index.js, which does not exist, and there is no prepare/prepack build script",
+        "typescript is not a declared dependency, so users cannot build it from the package's own toolchain without adding packages",
+        "Diagnostic hand-build (tsc, clean) with NODE_USE_ENV_PROXY=1 returned BTC $62,061 and ETH $1,753.16, exactly matching ground truth fetched seconds earlier — the code is right, the release is not",
+        "Hand-built server is also proxy-blind: without NODE_USE_ENV_PROXY=1 every call returns a bare 'Error: fetch failed'",
+        "Hand-built serverInfo reports version 1.0.0 while the package is 1.0.1; prime Broken-queue retest candidate if a version ever ships dist/"
+      ],
+      "ground_truth": "Direct CoinGecko /simple/price API fetched in the same window (BTC $62,061, ETH $1,753.16 at probe time)",
+      "headline": "Broken as published: the npm tarball contains no dist/ at all, so its bin dies with MODULE_NOT_FOUND for every user — yet hand-built from its shipped sources, its prices match the direct CoinGecko API exactly.",
+      "id": "076",
+      "package": "coingecko-mcp-server",
+      "registry": "npm",
+      "server": "coingecko-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/076-coingecko-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "1.0.1",
+      "writeup": "tests/076-coingecko-mcp-server.md"
+    },
+    {
+      "canonical_task": "fetch-pokemon for pikachu, confirmed with get-current-pokemon",
+      "category": "community",
+      "caveats": [
+        "Proxy blindness with a misleading error: Node fetch ignores proxy env vars, and the failure message blames the Pokemon name/number instead of the network",
+        "Thin payload: returns only id, name, type(s), height and weight — no base stats or abilities, though PokéAPI provides them free",
+        "Side effects by design: starts a web server on a random port and tries to open a browser window on every fetch",
+        "Weight renders as '6kg' where the README example shows '6.0kg' (values agree; formatting only)",
+        "Only 2 tools and no search — the caller must already know the exact name or id"
+      ],
+      "ground_truth": "Direct pokeapi.co /pokemon/pikachu: id 25, electric, height 4 dm (0.4 m), weight 60 hg (6.0 kg)",
+      "headline": "Pikachu's data is exactly right (#25, electric, 0.4 m, 6 kg) — but only with NODE_USE_ENV_PROXY=1; under a standard proxy env it fails and falsely claims the Pokemon name may be invalid.",
+      "id": "077",
+      "package": "pokemon-mcp-server",
+      "registry": "npm",
+      "server": "pokemon-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/077-pokemon-mcp-server-transcript.txt",
+      "verdict": "works_with_caveats",
+      "version": "1.0.0",
+      "writeup": "tests/077-pokemon-mcp-server.md"
+    },
+    {
+      "canonical_task": "playwright_navigate to example.com (chromium, headless) and extract title/visible text",
+      "category": "community",
+      "caveats": [
+        "example.com unreachable from the browser in this sandbox: HTTPS net::ERR_TUNNEL_CONNECTION_FAILED, HTTP net::ERR_EMPTY_RESPONSE, while curl via the same proxy returns 200 — environmental; retest on tunnel-permitting egress",
+        "Browser postinstall (chromium/firefox/webkit) takes ~4 min through the proxy; a 120s-capped install was killed mid-download and npm rolled back",
+        "serverInfo reports version 1.0.11 while the installed package is 1.0.12"
+      ],
+      "ground_truth": "Direct curl fetch of https://example.com/ (title 'Example Domain') plus a planted local page (title 'Receipts Fixture Page') as control — navigate/evaluate/get_visible_text matched the control exactly",
+      "headline": "Browser binaries download fine (~4 min) and the navigate/extract pipeline is exact against ground truth on a control page; external navigation is blocked by this sandbox's egress for browser traffic.",
+      "id": "079",
+      "package": "@executeautomation/playwright-mcp-server",
+      "registry": "npm",
+      "server": "ExecuteAutomation Playwright MCP server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/079-executeautomation-playwright-transcript.txt",
+      "verdict": "works_with_caveats",
+      "version": "1.0.12",
+      "writeup": "tests/079-executeautomation-playwright.md"
+    },
+    {
+      "canonical_task": "query and filter a planted JSON fixture (3 books priced 5/15/25) via JSONPath",
+      "category": "community",
+      "caveats": [
+        "query $.store.book[*].author returns \"Ann\" only (expected [\"Ann\",\"Bob\",\"Cat\"]); same first-match truncation for [*].price",
+        "filter tool: '@.price > 10' -> [], '>= 10' -> [], '== 15' -> [], '<= 15' -> [Alpha] only; only '<' is correct",
+        "Inline filter in query ($[?(@.price > 10)].title) selects the right records but ignores the .title projection and returns full objects",
+        "All wrong answers returned with no error (isError never set)",
+        "Only input mode is a URL; the fixture had to be served over local HTTP to be tested at all"
+      ],
+      "ground_truth": "Hand computation on the planted fixture (preserved in the sandbox)",
+      "headline": "Scalar lookups are exact, but wildcard queries silently return only the first match and the filter tool returns empty or truncated results for every operator except '<'.",
+      "id": "080",
+      "package": "@gongrzhe/server-json-mcp",
+      "registry": "npm",
+      "server": "JSON MCP server (@gongrzhe)",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/080-server-json-mcp-transcript.txt",
+      "verdict": "broken",
+      "version": "1.0.3",
+      "writeup": "tests/080-server-json-mcp.md"
+    },
+    {
+      "canonical_task": "load_csv a planted 5-row CSV, then group_by_aggregate (sum salary by department), get_statistics, get_value_counts, filter_rows",
+      "category": "community",
+      "caveats": [
+        "group_by_aggregate always errors: \"type object 'OperationType' has no attribute 'GROUP_BY'\"",
+        "get_statistics and filter_rows report \"Column 'salary' not found\" for a column load_csv just previewed as int64",
+        "get_value_counts silently wrong: {eng:1, ops:1, sales:1}, total_count 3 for a 5-row file (expected 2/2/1, total 5)",
+        "load_csv silently ignores a caller-supplied session_id and returns a generated UUID; failures to the requested id read 'Invalid session or no data loaded'",
+        "Failures are success:false payloads with isError:false at the MCP layer",
+        "serverInfo version '4.2.3' is the installed FastMCP version, not this package's 1.0.0; cold initialize took 28s"
+      ],
+      "ground_truth": "Hand computation on the planted fixture: dept salary sums eng 300 / sales 200 / ops 120; dept counts eng 2 / sales 2 / ops 1; salary mean 124, total 620",
+      "headline": "Load and preview are perfect; afterwards the aggregation tool crashes on an internal enum error, statistics claim a real column is missing, and value counts silently report 3 rows for a 5-row file.",
+      "id": "081",
+      "package": "csv-mcp-server",
+      "registry": "pypi",
+      "server": "CSV MCP server (csv-editor)",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/081-csv-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "1.0.0",
+      "writeup": "tests/081-csv-mcp-server.md"
+    },
+    {
+      "canonical_task": "14 unit conversions across 10 categories (length, mass, temperature, volume, speed, pressure, energy, area, computer data, time, angle)",
+      "category": "community",
+      "caveats": [
+        "convert_computer_data 1 kilobytes -> 1024.0003397387368 bytes: matches neither the binary (1024) nor SI (1000) definition; that category's factors are suspect",
+        "60 mph -> 96.56063999992274 km/h vs exact 96.56064 (drift ~7.6e-8, consistent with a rounded intermediate)",
+        "serverInfo version '2.14.7' is the installed FastMCP version, not this package's 0.1.2"
+      ],
+      "ground_truth": "Exact defining conversion factors: 1 mile = 1.609344 km, 1 lb = 0.45359237 kg, 1 US gal = 3.785411784 L, 1 atm = 101325 Pa, 1 acre = 4046.8564224 m2, 1 kWh = 3,600,000 J, 180 deg = pi rad",
+      "headline": "12 of 14 conversions exact to the last digit across 11 categories; the computer-data scale is measurably wrong (1 KB -> 1024.00034 bytes).",
+      "id": "082",
+      "package": "unit-converter-mcp",
+      "registry": "pypi",
+      "server": "Unit Converter MCP server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/082-unit-converter-mcp-transcript.txt",
+      "verdict": "works_with_caveats",
+      "version": "0.1.2",
+      "writeup": "tests/082-unit-converter-mcp.md"
+    },
+    {
+      "canonical_task": "create a collection, add planted documents, query them back (ephemeral client)",
+      "category": "community",
+      "caveats": [
+        "As-installed server exits code 1 before initialize; none of its 13 tools can be listed or called",
+        "Diagnostic-only pin (pydantic==2.11.7) proves the server code is sound — create/add/query/get/count all exact — but is not the graded install",
+        "README tool list omits chroma_fork_collection, present in the live tool list",
+        "Retest condition: any newer chroma-mcp release, or a pin change in 0.2.6's dependency set"
+      ],
+      "ground_truth": "the planted documents themselves (exact ids/text, semantic ranking, collection count)",
+      "headline": "Clean install as instructed is dead on arrival: chroma-mcp pins mcp==1.6.0, whose unbounded pydantic range now resolves 2.14.4, and the server crashes at import (eval_type_backport) before initialize — a diagnostic run with pydantic 2.11.7 passed the canonical task exactly.",
+      "id": "083",
+      "package": "chroma-mcp",
+      "registry": "pypi",
+      "server": "Chroma MCP server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/083-chroma-mcp-transcript.txt",
+      "verdict": "broken",
+      "version": "0.2.6",
+      "writeup": "tests/083-chroma-mcp.md"
+    },
+    {
+      "canonical_task": "list_containers / list_images against the sandbox's Docker state",
+      "category": "community",
+      "caveats": [
+        "Docker client is built eagerly in the lifespan handler via docker.from_env(), so a down/absent daemon kills the whole server instead of failing per-tool (contrast #046/#060)",
+        "The underlying cause (missing socket, FileNotFoundError) is visible at the tail of the traceback",
+        "Behaviour against a live daemon is untested and was out of scope to install; that is the retest condition"
+      ],
+      "ground_truth": "the sandbox's own Docker state, checked independently: no docker CLI, no /var/run/docker.sock, no daemon",
+      "headline": "With no Docker daemon present the server crashes during start-up with a 143-line traceback and never answers initialize — no handshake, no tool list, no per-tool error.",
+      "id": "084",
+      "package": "mcp-server-docker",
+      "registry": "pypi",
+      "server": "mcp-server-docker",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/084-mcp-server-docker-transcript.txt",
+      "verdict": "broken",
+      "version": "0.3.0",
+      "writeup": "tests/084-mcp-server-docker.md"
+    },
+    {
+      "canonical_task": "list namespaces / pods (namespaces_list, pods_list)",
+      "category": "community",
+      "caveats": [
+        "Best missing-backend reporting in the wave: one clean, accurate, actionable error line, no traceback",
+        "Still a handshake failure — a client that never sees stderr learns nothing, so it grades broken rather than the stays-up-and-errors-per-tool works_with_caveats pattern",
+        "--version works cleanly (v0.1.3)",
+        "Retest condition: one run with a real kubeconfig pointing at a live cluster"
+      ],
+      "ground_truth": "the absence itself, verified independently: no kubectl binary, no ~/.kube directory, KUBECONFIG unset — no cluster and no contexts",
+      "headline": "Exemplary missing-backend message, but it exits code 1 before initialize: 'no current-context is set and no contexts are defined in kubeconfig' — exactly true, yet no MCP client can ever connect.",
+      "id": "085",
+      "package": "kubernetes-mcp-server",
+      "registry": "npm",
+      "server": "kubernetes-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/085-kubernetes-mcp-server-transcript.txt",
+      "verdict": "broken",
+      "version": "0.1.3",
+      "writeup": "tests/085-kubernetes-mcp-server.md"
+    },
+    {
+      "canonical_task": "get_global_achievement_percentages and get_game_details for app 730 (Counter-Strike 2), with get_user_profile as the keyed control, under a format-shaped decoy STEAM_API_KEY",
+      "category": "community",
+      "caveats": [
+        "Keyed tools (profile, friends, library, per-player achievements, bans, workshop) ungraded beyond the invalid-key error; a real-key run is the retest condition",
+        "Keyless start-up refusal (clear ValueError) also blocks tools that don't actually need a key; start-up validation is only a presence/placeholder check",
+        "serverInfo reports version 4.2.3 — the FastMCP framework's version, not the package's 1.0.6",
+        "Documentation and tool descriptions are primarily in Korean",
+        "Decoy key never appeared in any server output"
+      ],
+      "ground_truth": "direct curl to the same Steam endpoints: achievements endpoint returns exactly [{PLAY_CS2, 41.3}]; store appdetails returns Counter-Strike 2, is_free true, type game",
+      "headline": "Strict, honest key-gating both ways, and the two key-independent canonical tools returned real data matching ground truth exactly; keyed tools graded only as far as their honest 'Invalid Steam API key' error.",
+      "id": "086",
+      "package": "mcp-server-steam",
+      "registry": "pypi",
+      "server": "mcp-server-steam",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/086-mcp-server-steam-transcript.txt",
+      "verdict": "works_with_caveats",
+      "version": "1.0.6",
+      "writeup": "tests/086-mcp-server-steam.md"
+    },
+    {
+      "canonical_task": "generate: render a known flowchart (Alpha Node -> Beta Node -> Gamma Node) to SVG and PNG, plus a deliberate syntax-error input",
+      "category": "community",
+      "caveats": [
+        "Default configuration fails as root: Chromium refuses to launch without --no-sandbox; the server surfaces Chromium's stderr honestly and the remedy is a documented env var",
+        "Syntax-error handling is excellent: precise parse diagnostic with line, expected/got tokens and a caret, isError true, no file written",
+        "Single-tool server (generate only)",
+        "Heavy install for one tool: 237 npm packages including a full Chromium download"
+      ],
+      "ground_truth": "hand-checked saved files: SVG parses as XML and contains each planted label exactly once; PNG is a valid 504x456 image (PIL); the syntax-error input is genuinely unparseable Mermaid",
+      "headline": "Renders correctly and reports syntax errors precisely, but every call fails by default in a root-run container until the documented MERMAID_DISABLE_SANDBOX=true is set.",
+      "id": "087",
+      "package": "@peng-shawn/mermaid-mcp-server",
+      "registry": "npm",
+      "server": "mermaid-mcp-server",
+      "tested_at": "2026-11-20",
+      "tester": "batch-4 wave testers; reviewed by Pax",
+      "transcript": "tests/087-mermaid-mcp-server-transcript.txt",
+      "verdict": "works_with_caveats",
+      "version": "0.3.0",
+      "writeup": "tests/087-mermaid-mcp-server.md"
     }
   ]
 }
