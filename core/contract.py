@@ -7,6 +7,7 @@ from ERROR_CODES. Shared by the stdio server and the hosted worker (both import 
 from __future__ import annotations
 
 import copy
+import json
 
 from . import golinks
 
@@ -308,6 +309,26 @@ def is_error(out) -> bool:
     return isinstance(out, dict) and out.get("ok") is False
 
 
+
+def coerce_object_arg(name: str, value):
+    """Accept a JSON object, or a JSON string that parses to an object.
+
+    Returns (object, None) on success, or (None, error_envelope) when the value is
+    not valid JSON, or is not an object. Used so rebuild_quote can take either form.
+    """
+    if isinstance(value, dict):
+        return value, None
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return None, error("invalid_argument", f"{name} is not valid JSON")
+        if isinstance(parsed, dict):
+            return parsed, None
+        return None, error("invalid_argument", f"{name} must be an object")
+    return None, error("invalid_argument", f"{name} must be an object")
+
+
 def check_args(fn, args) -> dict | None:
     """T44/re26: one argument check for stdio and hosted, run before the tool. Returns the invalid_argument
     envelope for a non-object, a missing required argument, an unknown (extra) argument, or a wrong JSON type;
@@ -336,10 +357,21 @@ def check_args(fn, args) -> dict | None:
         opts = typing.get_args(t) if typing.get_origin(t) in (typing.Union, getattr(__import__("types"), "UnionType", None)) else (t,)
         if v is None and type(None) in opts:
             continue
+        if any(_is_dict_type(o) for o in opts) and isinstance(v, str):
+            obj, err = coerce_object_arg(k, v)
+            if err is not None:
+                return err
+            args[k] = obj
+            continue
         if not any(_type_ok(v, o) for o in opts if o is not type(None)):
             want = " or ".join(_type_name(o) for o in opts)
             return error("invalid_argument", f"{k} must be {want}")
     return None
+
+
+def _is_dict_type(t) -> bool:
+    import typing
+    return t is dict or typing.get_origin(t) is dict
 
 
 def _type_ok(v, t) -> bool:
