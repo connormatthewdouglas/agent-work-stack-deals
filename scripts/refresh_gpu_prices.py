@@ -393,12 +393,25 @@ def listed_page_marker(r: dict) -> str:
     return " ".join(str(r.get("gpu") or "").split())
 
 
+# Known form-factor suffix digits after a bare 'SXM' marker (SXM2/SXM4/SXM5/SXM6).
+# 'H100 SXM' on a page written as 'H100 SXM5' is the same product family; a trailing
+# digit was previously rejected by the exact-name word boundary (#370 nit 2).
+_SXM_SUFFIX_VARIANTS = "2-6"
+
+
 def listed_page_marker_visible(r: dict, text: str | None) -> bool:
-    """True when the vendor's known page marker appears in visible text."""
+    """True when the vendor's known page marker appears in visible text.
+
+    If the marker ends in bare 'SXM' (not already SXM+digit), an optional known
+    suffix digit (2-6) is allowed. Other trailing word characters still do not match.
+    """
     marker = listed_page_marker(r)
     if not marker or not text:
         return False
-    return bool(re.search(rf"(?<![\w-]){re.escape(marker)}(?![\w-])", text, re.I))
+    pat = re.escape(marker)
+    if re.search(r"(?i)SXM$", marker) and not re.search(r"(?i)SXM\d$", marker):
+        pat += rf"[{_SXM_SUFFIX_VARIANTS}]?"
+    return bool(re.search(rf"(?<![\w-]){pat}(?![\w-])", text, re.I))
 
 
 def should_hold_unreadable_listed(r: dict, text: str | None, msg: str) -> bool:

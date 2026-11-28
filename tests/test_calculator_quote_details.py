@@ -5,6 +5,13 @@ import pytest
 
 from core import gpu as G
 
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PAGE = ROOT / "tools/gpu-cost-calculator/index.html"
 FIXTURE = ROOT / "tests/fixtures/gpu-prices-min-gpus-2026-11-10.json"

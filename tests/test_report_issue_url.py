@@ -1,6 +1,14 @@
+import pytest
 from urllib.parse import urlparse, parse_qs
 
 from core.report_issue import report_issue_url, FORM_IDS
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 
 def test_report_issue_url_public_fields_only():

@@ -9,6 +9,13 @@ import pytest
 from core import agent_stack as a
 from core import compliance, stack
 
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
+
 ROOT = Path(__file__).resolve().parents[1]
 DEALS = json.loads((ROOT / "api" / "v1" / "deals.json").read_text())["deals"]
 GPU = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
@@ -72,8 +79,13 @@ def test_budget_needs_complete_estimate():
 
 def _gpu_rate(advertiser, price, deal_id=None):
     """A ranked H100 row. Fresh checked_at so the age hold does not drop it. deal_id may be absent (Lium)."""
+    import os
     from datetime import datetime, timedelta, timezone
-    fresh = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    pin = os.environ.get("LW_AVAIL_NOW") or "2026-11-28T05:50:06Z"
+    now = datetime.fromisoformat(pin.replace("Z", "+00:00"))
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    fresh = (now - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
     return {"advertiser": advertiser, "gpu": "H100 SXM", "vram_gb": 80, "price_usd": price, "hourly_equiv_usd": price,
             "unit": "hour", "tier": "On-demand", "tier_class": "on-demand", "interruptible": False, "deal_id": deal_id,
             "source_url": "https://example.test/prices", "verified_at": fresh, "checked_at": fresh, "affiliate": False,

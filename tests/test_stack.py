@@ -9,6 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from core import stack  # noqa: E402
 
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
+
 FEED = json.loads((ROOT / "api" / "v1" / "deals.json").read_text())
 DEALS = FEED["deals"] if isinstance(FEED, dict) else FEED
 GPU = json.loads((ROOT / "api" / "v1" / "gpu-prices.json").read_text())
