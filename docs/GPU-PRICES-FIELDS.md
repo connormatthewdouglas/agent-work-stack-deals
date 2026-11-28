@@ -258,3 +258,12 @@ Reserved / commitment rows may carry a `cancellation` object written by the rese
 | `quote` | string, or absent | Visible page text that supports a `present_and_read` window or fee. Existing price `evidence` quotes and quote IDs are left untouched. |
 
 `present_and_read` requires a published window or fee. `confirmed_absent` is a successful read that found neither. `unreadable` must not stamp `terms_read_at` and must not invent a window or fee.
+## stock_age_hours and stock_read_state (additive, P74, Nov 2026)
+
+P74 (morpheus404, Brain #1142 and #1172). Computed at serve/read time on `compare_gpu_prices` and `find_available_gpus` results, and rendered on GPU pages. Not written into the static `gpu-prices.json` schema (that schema stays `lantern-works-gpu-prices/1`). Ranking, TTLs and `stale_guard` do not read these fields. Unknown stays unknown. Timestamps are never invented.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `stock_age_hours` | number or null | Hours from the reader clock back to the stock claim time: `last_known_at` when the claim has lapsed or `in_stock` is unknown after a prior firm answer; otherwise `stock_read_at`, or the stock `checked_at` when `stock_read_at` is absent. Null when no stock stamp exists (`never_read`). Not price `data_age_hours`. `probe_attempted_at` and the price row's `verified_at` / `checked_at` are not used. |
+| `stock_age_basis` | `stock_read_at`, `checked_at`, `last_known_at`, or null | Which stock stamp was used. |
+| `stock_read_state` | `never_read`, `read`, or `read_expired` | `never_read`: no stock check timestamp. `read`: a check was taken and the claim has not expired. `read_expired`: a check was taken and the claim has expired (`availability_stale`, or now is after `availability_expires_at`). |
