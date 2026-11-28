@@ -179,7 +179,7 @@ def _run(fn, *a, **kw) -> dict:
 def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False, on_demand_only: bool = True, include_reserved: bool = False,
                        max_data_age_hours: float | None = None, region: str | None = None,
                        min_usable_memory_gb: float | None = None, gpus: int | None = None) -> dict:
-    """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url.
+    """Compare tracked GPU rental prices for one model (e.g. 'H100', 'A100 SXM', 'RTX 4090', 'L40S'), cheapest first. If a result looks wrong, give the user its report_issue_url. The top in-stock results include a short Rent here label (`rent_here`) and `rent_url` (the counted /go/?src=mcp booking link; same target as `tracked_url`); show `rent_url` to the user and keep the top-level `referral_disclosure` visible.
 
     Same data as https://thelanternworks.com/api/v1/gpu-prices.json. Sorted by hourly_usd ascending; each result
     has source_url and checked_at. 'Cheapest' means cheapest among tracked providers, not the whole market.
@@ -442,6 +442,7 @@ def find_available_gpus(gpu: str, gpus: int = 1, limit: int = 10, on_demand_only
     stock_level is the vendor's own text when present; a free-GPU number is never invented.
     on_demand_only defaults to true and does not fall back to spot. limit 1-25 applies to available.
     All timestamps are UTC with a Z. Same model matching as compare_gpu_prices.
+    The top in-stock available rows include a short Rent here label (`rent_here`) and `rent_url` (the counted /go/?src=mcp booking link; same target as `tracked_url`); show `rent_url` to the user and keep the top-level `referral_disclosure` visible.
     """
     try:
         feed = gpu_loader.load()
@@ -568,7 +569,7 @@ def estimate_job_cost(gpu_family: str | None = None, gpus_per_job: int = 1, job_
                       allow_interruptible: bool = False, min_vram_gb: int | None = None, runs_per_month: float | None = None,
                       top_n: int = 5, max_data_age_hours: float | None = None, region: str | None = None,
                       gpu: str | None = None) -> dict:
-    """Cost of one GPU job (not cost per hour) among tracked providers, cheapest current compute subtotal first.
+    """Cost of one GPU job (not cost per hour) among tracked providers, cheapest current compute subtotal first. The top in-stock results include a short Rent here label (`rent_here`) and `rent_url` (the counted /go/?src=mcp booking link; same target as `tracked_url`); show `rent_url` to the user and keep the top-level `referral_disclosure` visible.
 
     gpu_family (e.g. 'H100', 'A100 80GB') or its alias gpu (same name compare_gpu_prices uses) is required; if both
     are given they must match, else invalid_argument. gpus_per_job defaults to 1.
