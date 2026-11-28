@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 
 from callers import HOUSE_REF_RE, is_house
 
-SECRET = "CALLER_ID_SECRET"
+SECRET = "CALLER_ID_SECRET"  # name of the Worker env var that holds the salt, not a secret value
 ID_LEN = 16
 RETENTION_WEEKS = 18  # ~126 days, in line with the 120-day hits/callers window
 REGISTRY_REF = "mcp-registry"

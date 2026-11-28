@@ -68,7 +68,7 @@ def test_region_group(raw, g):
 def test_record_stores_only_bucketed_aggregates():
     db = FakeD1()
     out = {"ok": True, "results": [{"advertiser": "Hyperstack", "tier_class": "on-demand", "hourly_usd": 2.5}]}
-    secret = "ZZ-secret-free-text-42"
+    secret = "ZZ-secret-free-text-42"  # synthetic canary string: the test asserts it is never stored
     for _ in range(3):
         run(D.record(db, "compare_gpu_prices", {"gpu": "h100 sxm", "region": "us-east-1", "note": secret}, out, "lobehub", "mcp:claude", "other", day="2026-11-10"))
     run(D.record(db, "compare_gpu_prices", {"gpu": secret, "region": secret}, {"ok": False, "error": {"code": "x", "message": secret}},
