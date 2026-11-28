@@ -251,13 +251,21 @@ def test_receipts_lastmod_follows_content_dates_not_script_commit(monkeypatch):
     monkeypatch.setattr(gen, "_git_commit_date", lambda *_a, **_k: tomorrow)
     _reset_lastmod_caches()
     rows = {r["id"]: r for r in json.loads((ROOT / "data/receipts-index.json").read_text())["tests"]}
+    today = datetime.now(timezone.utc).date().isoformat()
     for spec in receipts_page.all_case_specs(ROOT):
         loc = f"https://thelanternworks.com/receipts/{spec['slug']}/"
         got = gen.sitemap_lastmod_for_loc(loc)
         assert got == rows[spec["id"]]["tested_at"], (loc, got, rows[spec["id"]]["tested_at"])
         assert got != tomorrow
-        assert got <= "2026-11-28"
+        assert got <= today
+    pack = json.loads((ROOT / "data/receipts-proof-pack-v1.json").read_text(encoding="utf-8"))
+    index_days = [r["tested_at"] for r in rows.values()]
+    assembled = pack.get("assembled_at")
+    if assembled:
+        index_days.append(assembled[:10])
+    expected_index = max(index_days)
     index_lm = gen.sitemap_lastmod_for_loc("https://thelanternworks.com/receipts/")
-    assert index_lm == "2026-11-06"  # proof pack assembled_at is newer than tested_at
+    assert index_lm == expected_index  # newest tested_at or proof-pack assembled_at
     assert index_lm != tomorrow
+    assert index_lm <= today
     _reset_lastmod_caches()
