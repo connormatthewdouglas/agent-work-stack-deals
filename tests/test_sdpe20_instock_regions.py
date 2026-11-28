@@ -47,7 +47,7 @@ def _stale_view(av: dict | None) -> tuple:
 
 
 def _rate_key(r: dict):
-    return r.get("rate_id") or (r.get("advertiser"), r.get("gpu"), r.get("tier"))
+    return r.get("rate_id") or (r.get("advertiser"), r.get("gpu"), r.get("vram_gb"), r.get("tier"))
 
 
 def test_fixture_confirmed_h100_a100_regions_publish_before_expiry():
@@ -136,5 +136,4 @@ def test_stale_set_only_refreshed_rows_differ_from_main():
         pub = publish_availability(dict(av), r.get("advertiser"), r.get("tier"), now, annotate=True) if av else {}
         if pub.get("in_stock") is True and pub.get("available_regions"):
             confirmed.append((r.get("advertiser"), g, r.get("tier"), pub.get("available_regions"), pub.get("checked_at")))
-    if refreshed or new_confirmed:
-        assert confirmed, "refreshed availability but no confirmed in-stock H100/A100 row with regions"
+    assert confirmed, "expected confirmed in-stock H100/A100 rows with vendor regions in the published feed"
