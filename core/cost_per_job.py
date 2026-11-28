@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import math
 
+from . import arg_hints
 from . import data_age
 from .gpu import estimate
 from .ids import rate_id
@@ -69,7 +70,7 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
                                                "for gpu_family, so pass one of them")
     gpu_family = gpu_family if gpu_family is not None else gpu
     if not isinstance(gpu_family, str) or not _tokens(gpu_family):
-        raise JobCostError("invalid_argument", "gpu (or gpu_family) is required, e.g. 'H100', 'A100 80GB', 'L40S'")
+        raise JobCostError("invalid_argument", arg_hints.required_gpu("gpu (or gpu_family) is required, e.g. 'H100', 'A100 80GB', 'L40S'", "estimate_job_cost"))
     if isinstance(gpus_per_job, bool) or not isinstance(gpus_per_job, int) or gpus_per_job < 1:
         raise JobCostError("invalid_argument", "gpus_per_job must be an integer >= 1")
     if isinstance(top_n, bool) or not isinstance(top_n, int) or not 1 <= top_n <= MAX_TOP:
@@ -109,9 +110,12 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
                                                          "reinstall the package, or pass job_hours or your own throughput.")
             miss = f"throughput for {gpu_l}" + (f" running {workload}" if workload else "")
             if fig is None:
-                raise JobCostError("not_found", f"missing: {miss}. No directly applicable cited throughput"
-                                                + (f" ({why})" if why else "") + ", so no duration is estimated. Pass "
-                                                "job_hours, or work_units plus throughput_units_per_gpu_hour from your own benchmark.")
+                raise JobCostError("not_found", arg_hints.format_hint(
+                    f"missing: {miss}. No directly applicable cited throughput"
+                    + (f" ({why})" if why else "") + ", so no duration is estimated. Pass "
+                    "job_hours, or work_units plus throughput_units_per_gpu_hour from your own benchmark.",
+                    example=arg_hints.example_for("estimate_job_cost", gpu=gpu_family if isinstance(gpu_family, str) else None),
+                ))
             if work_units is None:
                 raise JobCostError("not_found", f"missing: work_units ({fig['unit']}) for {workload}. A published "
                                                 f"throughput exists ({fig['throughput_source']['url']}); pass work_units "
@@ -196,8 +200,9 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
                 "missing_costs": ["storage", "egress", "vCPU/RAM add-ons", "tax", "billing minimums/commitments not in feed"],
                 "budget_verdict": "unresolved", "excluded_too_old": too_old, **stale_extra, **held_extra}
     if not rows:
-        raise JobCostError("not_found", f"No rankable hourly rate tracked for '{gpu_l}'"
-                                        + (f" ({too_old} older rates excluded by max_data_age_hours)" if too_old else ""))
+        from .deals import gpu_models
+        _msg = f"No rankable hourly rate tracked for '{gpu_l}'" + (f" ({too_old} older rates excluded by max_data_age_hours)" if too_old else "")
+        raise JobCostError("not_found", arg_hints.unknown_gpu(_msg, gpu_l, gpu_models(data), "estimate_job_cost"))
     priced = estimate(rows, job_hours, gpus_per_job, min_vram_gb=min_vram_gb)
     from .deals import oos_note, out_of_stock, tier_class
     from .stack import avail_fields
