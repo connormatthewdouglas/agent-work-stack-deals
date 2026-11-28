@@ -12,6 +12,22 @@ uvx lantern-works-deals-mcp
 
 Hosted URL: `https://lantern-works-mcp.lantern-works.workers.dev/mcp` (`?ref=` only tags which snippet was used). Local command: `uvx lantern-works-deals-mcp` (or `pip install lantern-works-deals-mcp`, then `lantern-works-deals-mcp`).
 
+Hosted, nothing to install:
+
+```bash
+claude mcp add --transport http lantern-works-gpu-prices "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme"
+```
+
+### First call
+
+After you connect, copy and paste this tool call:
+
+```
+find_available_gpus(gpu="H100")
+```
+
+It returns H100 rates with a current in-stock check among tracked providers, with the hourly price, the vendor source page, and when stock was checked. Prices and stock change; the call always uses the current feed. Confirmed in-stock rows are ranked by stock freshness, then price.
+
 **Claude Code**
 ```bash
 claude mcp add --transport http lantern-works-gpu-prices "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=pypi-readme-claude-code"
