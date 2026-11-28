@@ -77,7 +77,8 @@ def test_api_and_for_agents_document_job_days_and_tracked_url():
         assert "job_days" in s and "tracked_url" in s
         assert "wall-clock" in s
         assert "job_hours = job_days" in s or "job_hours = job_days" in s.replace("&times;", "×")
-        assert "not both" in s or "together with" in s
+        assert "invalid_argument" in s
+        assert "job_hours" in s and "job_days" in s
         assert "20,000" in s or "20000" in s
         assert "834" in s
         assert "not a reservation" in s
