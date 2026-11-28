@@ -1578,6 +1578,7 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("changelog", ("scripts/generate_seo_pages.py",)),
     ("quickstart", ("scripts/agent_growth_pages.py",)),
     ("integrate", ("scripts/agent_growth_pages.py",)),
+    ("receipts/write-up", ("scripts/receipts_writeup_page.py", "data/receipts-index.json")),
     ("receipts", ("scripts/receipts_page.py",)),
     ("coverage", ("scripts/coverage_page.py",)),
     ("reports/vendors", ("scripts/vendor_sample_reports.py",)),
@@ -1816,6 +1817,11 @@ def sitemap_lastmod_for_loc(loc: str) -> str | None:
     # a squash merge after 19:00 America/New_York would stamp the next UTC day.
     if stripped == "changelog":
         return _changelog_content_day()
+    # Receipts write-up lastmod is the newest tested_at in the Receipts index, not the
+    # generator's git date or the clock (a regen or late squash merge must not move it).
+    if stripped == "receipts/write-up":
+        import receipts_writeup_page
+        return receipts_writeup_page.content_day_from_root(ROOT)
     # gpu/changes.xml is the changes feed. Its lastmod is that feed's date, so a later edit to a
     # generator script or a CI merge commit does not move it.
     if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:
@@ -2393,6 +2399,8 @@ def main() -> None:
     tool_paths += agent_growth_pages.write_all(sys.modules[__name__])
     import receipts_page
     tool_paths += receipts_page.write(sys.modules[__name__])
+    import receipts_writeup_page
+    tool_paths += receipts_writeup_page.write(sys.modules[__name__])
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Receipts write-up: what we tested, the tally, and what broke</title>
+  <meta name="description" content="Lantern Works Receipts write-up: 62 MCP servers tested (29 October 2026 and 31 October 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://thelanternworks.com/receipts/write-up/" />
+  <meta property="og:title" content="Receipts write-up: what we tested, the tally, and what broke" />
+  <meta property="og:description" content="Lantern Works Receipts write-up: 62 MCP servers tested (29 October 2026 and 31 October 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
+  <meta property="og:url" content="https://thelanternworks.com/receipts/write-up/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lantern Works" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Receipts write-up: what we tested, the tally, and what broke" />
+  <meta name="twitter:description" content="Lantern Works Receipts write-up: 62 MCP servers tested (29 October 2026 and 31 October 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
+    body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 .6rem; }
+    .feed { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; font-size: .9rem; overflow-wrap: anywhere; }
+    .feed a { color: #9cf; }
+    .deal { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+    .deal h2, .deal h1 { font-size: 1.1rem; margin: 0 0 .35rem; }
+    .tag, .badge { display: inline-block; background: #eee; border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; margin-right: .25rem; }
+    .badge.agent { background: #e8f5e9; }
+    .badge { background: #fff3cd; }
+    .badge.public { background: #e3f2fd; color: #0d47a1; }
+    .badge.affiliate { background: #e8f5e9; }
+    .badge.example { background: #fce4ec; }
+    .badge.unverified { background: #f1f5f9; color: #475569; }
+    .badge.fresh-new { background: #dcfce7; color: #14532d; }
+    .badge.fresh-updated { background: #ede9fe; color: #4c1d95; }
+    .freshness { font-size: .85rem; color: #555; }
+    .changelog h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+    .changelog ul { margin: .25rem 0 .75rem; padding-left: 1.2rem; }
+    .changelog li { margin: .2rem 0; }
+    .section-title { margin-top: 2rem; font-size: 1.25rem; }
+    footer { margin-top: 2rem; color: #666; font-size: .85rem; }
+    code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 4px; }
+    nav a { margin-right: .5rem; }
+    .crumbs { font-size: .9rem; color: #555; margin-bottom: 1rem; }
+    .meta { color: #333; }
+    tr.no-stock-reading { opacity: 0.78; }
+    tr.no-stock-reading td:first-child { border-left: 3px solid #444; }
+    .stock-reading-label { font-style: italic; font-weight: 600; }
+    .verified { font-size: .85rem; color: #555; }
+    a.cta { display: inline-block; margin-top: .5rem; font-weight: 600; }
+    .howto { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0 1.5rem; }
+    .howto pre { background: #111; color: #eee; padding: .75rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    .howto table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .5rem 0 1rem; }
+    .howto th, .howto td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    .howto th { background: #f3f3f3; }
+    /* H8: one table style site-wide (tables outside .howto, e.g. /stack/ results, /deals/ notes) */
+    table:not(.howto) { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; margin: .5rem 0 1rem; }
+    table:not(.howto) th, table:not(.howto) td { border: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }
+    table:not(.howto) th { background: #f3f3f3; }
+    /* H8: install code blocks */
+    p a, li a, td a, p code, li code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; max-width: 100%; }
+    .codebox { position: relative; margin: .5rem 0 1rem; }
+    .codebox pre { background: #111827; color: #eee; padding: .75rem 1rem; padding-right: 4.5rem; border-radius: 8px; overflow-x: auto; font-size: .82rem; border-left: 4px solid #f59e0b; }
+    .codebox .copy { position: absolute; top: .4rem; right: .4rem; font-size: .75rem; padding: .2rem .55rem; border: 1px solid #555; border-radius: 6px; background: #1f2937; color: #fff; cursor: pointer; }
+    section.catsec > details > summary { cursor: pointer; }
+    section.catsec > details > summary h2 { display: inline; }
+    .gotchas { background: #fff8e6; border: 1px solid #f0d78c; border-radius: 10px; padding: .85rem 1rem; margin: 1rem 0 1.25rem; }
+    .gotchas h2 { font-size: 1.05rem; margin: 0 0 .45rem; }
+    .gotchas ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .gotchas li { margin: .3rem 0; }
+    .gotchas a { font-weight: 600; }
+  
+    details.quote summary { cursor: pointer; color: #1a4d8f; }
+    details.quote[open] summary { display: none; }
+    .brandbar { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem .75rem; padding: .6rem 0 .4rem; border-top: 4px solid #f59e0b; }
+    .brand { display: inline-flex; align-items: center; gap: .4rem; font-weight: 800; font-size: 1.15rem; color: #111827; text-decoration: none; }
+    .brand img { border-radius: 4px; }
+    .brand-tag { font-size: .85rem; color: #555; }
+    .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tscroll table.sticky1 th:first-child, .tscroll table.sticky1 td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; box-shadow: 1px 0 0 #ddd; }
+    .tscroll table.sticky1 th:first-child { background: #f3f3f3; }
+    @media (max-width: 640px) {
+      .rates-cards table, .rates-cards tbody, .rates-cards tr, .rates-cards td { display: block; width: 100%; }
+      .rates-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .rates-cards tr { border: 1px solid #ddd; border-radius: 8px; margin: 0 0 .75rem; padding: .25rem .5rem; background: #fff; }
+      .rates-cards tr[hidden] { display: none; }
+      .howto .rates-cards td { border: 0; border-bottom: 1px solid #eee; padding: .3rem 0; overflow-wrap: anywhere; }
+      .rates-cards td:last-child { border-bottom: 0; }
+      .rates-cards td::before { content: attr(data-label); display: block; font-size: .75rem; color: #555; font-weight: 600; }
+    }
+    .sitenav { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: .9rem; padding: .5rem 0 .4rem; border-bottom: 0; margin-bottom: 0; }
+    .sitenav-deals { font-size: .85rem; padding-top: .15rem; padding-bottom: .75rem; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+    .sitenav a { margin: 0; }
+    .sitenav a[aria-current] { font-weight: 700; color: #111; text-decoration: none; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 1rem; top: 1rem; background: #fff; padding: .4rem; z-index: 9; }
+    #filters { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: .75rem 1rem; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem .9rem; align-items: end; }
+    #filters label { display: flex; flex-direction: column; font-size: .85rem; gap: .2rem; }
+    #filters label.check { flex-direction: row; align-items: center; gap: .4rem; }
+    #filters input[type=search], #filters select, #filters input[type=number] { font: inherit; padding: .3rem .4rem; }
+    #filters .wide { grid-column: 1 / -1; }
+    .cmp-pick { font-size: .85rem; margin-left: .5rem; }
+    #cmp-tray { position: sticky; bottom: 0; background: #111; color: #eee; padding: .6rem 1rem; border-radius: 8px 8px 0 0; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    #cmp-tray button { font: inherit; }
+    #cmp-view table { width: 100%; border-collapse: collapse; background: #fff; font-size: .9rem; }
+    #cmp-view th, #cmp-view td { border: 1px solid #ddd; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+    #cmp-view th[scope=row] { background: #f3f3f3; width: 9rem; }
+    [hidden] { display: none !important; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+  <!-- brand -->
+  <link rel="icon" href="https://thelanternworks.com/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://thelanternworks.com/favicon-32.png" />
+  <link rel="apple-touch-icon" href="https://thelanternworks.com/apple-touch-icon.png" />
+  <meta property="og:image" content="https://thelanternworks.com/logo.png" />
+  <meta property="og:image:width" content="400" />
+  <meta property="og:image:height" content="400" />
+  <meta property="og:image:alt" content="Lantern Works lantern logo" />
+  <meta name="twitter:image" content="https://thelanternworks.com/logo.png" />
+  <!-- /brand -->
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="brandbar"><a class="brand" href="https://thelanternworks.com/"><img src="https://thelanternworks.com/favicon-32.png" alt="" width="22" height="22" />Lantern Works</a><span class="brand-tag">GPU prices, refreshed regularly, with each price's age shown</span></header>
+  <nav class="sitenav" aria-label="Site"><a href="https://thelanternworks.com/">Home</a><a href="https://thelanternworks.com/gpu/price-comparison/">GPU price comparison</a><a href="https://thelanternworks.com/tools/gpu-cost-calculator/">GPU calculator</a><a href="https://thelanternworks.com/coverage/">GPU coverage</a><a href="https://thelanternworks.com/stack/">Plan a stack</a><a href="https://thelanternworks.com/tools/stack-optimizer/">Stack optimizer</a><a href="https://thelanternworks.com/install/">Install (MCP)</a><a href="https://thelanternworks.com/methodology/">Methodology</a><a href="https://thelanternworks.com/for-agents/">For agents</a><a href="https://thelanternworks.com/changelog/">Changelog</a></nav>
+  <nav class="sitenav sitenav-deals" aria-label="Deals"><a href="https://thelanternworks.com/deals/">Other deals</a><a href="https://thelanternworks.com/ai-agent-tool-deals/">Deal categories</a></nav>
+<div id="content">
+<style>.receipt{border:1px solid #d1d5db;border-radius:10px;padding:1rem;margin:1rem 0;overflow-wrap:anywhere}.receipt h3{margin-top:0;font-size:1.15rem}.receipt code{white-space:normal}.receipt-policy{border-left:4px solid #f59e0b;padding-left:1rem;margin:1.25rem 0}table.tally{border-collapse:collapse;margin:1rem 0}table.tally th,table.tally td{border:1px solid #d1d5db;padding:.4rem .7rem;text-align:left}table.tally td:last-child{text-align:right}</style>
+<nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/receipts/">Receipts</a> › Write-up</nav>
+<h1>Receipts write-up: what we tested, the tally, and what broke</h1>
+<p>Lantern Works tested 62 MCP servers by installing each one, giving it a specific task, and checking the output against an independent ground truth. This page's counts, date list, and broken-case list are computed from the Receipts index when the site is built, not typed in by hand. The records themselves are dated 29 October 2026 and 31 October 2026 (37 on 29 October 2026 and 25 on 31 October 2026; 62 in all). There is no filled-in day between those <code>tested_at</code> values.</p>
+<p>The full record list is the <a href="https://thelanternworks.com/receipts/">Receipts index</a>. Machine-readable records: <a href="https://thelanternworks.com/api/v1/receipts.json?ref=receipts-writeup">/api/v1/receipts.json</a>.</p>
+<h2>What we tested</h2>
+<p>This edition has 62 records: 1 house product, 20 reference, and 41 community. Install sources in the index are 37 <code>npm</code>, 22 <code>pypi</code>, and 3 <code>other</code>. Each record names the version tested, the canonical task, the ground truth it was graded against, and a headline finding.</p>
+<p>Record #000 is the Lantern Works house product, <code>lantern-works-deals-mcp</code> version 0.3.8, tested 2026-10-29. It is not an independent endorsement of today's release. See the <a href="https://thelanternworks.com/receipts/#test-000">index entry</a>.</p><h2>The tally</h2>
+<p>Counts below are the number of records for each recorded <code>verdict</code> value in the Receipts index. The index page uses slightly different display wording for the same keys: “Worked” for <code>works</code>, “Worked with caveats” for <code>works_with_caveats</code>, “Failed tested task” for <code>broken</code>, and “Deferred — needs credentials” for <code>deferred</code>.</p>
+<div class="tscroll"><table class="tally">
+<thead><tr><th>Verdict</th><th>Recorded value</th><th>Count</th></tr></thead>
+<tbody><tr><td>Works</td><td><code>works</code></td><td>9</td></tr><tr><td>Works with caveats</td><td><code>works_with_caveats</code></td><td>17</td></tr><tr><td>Broken</td><td><code>broken</code></td><td>20</td></tr><tr><td>Deferred</td><td><code>deferred</code></td><td>16</td></tr><tr><th scope="row">Total</th><td></td><td>62</td></tr></tbody></table></div>
+<p>Deferred means the promised task was not tested, not that the server is broken. Credential-gated tests used decoy credentials, so successful authenticated workflows were not tested.</p>
+<h2>What broke</h2>
+<p>20 of 62 records have the recorded verdict <code>broken</code> (failed the dated, scoped task). Findings are the authored headlines and caveats from the index; they are not security certifications or current compatibility guarantees.</p>
+<article class="receipt" id="broken-008">
+<h3>#008 wikipedia-mcp</h3>
+<p><code>wikipedia-mcp</code> v2.0.1 · tested 2026-10-29</p>
+<p>Returns summary: null with isError: false behind any HTTP proxy — its HTTP library discards proxy settings and the failure is invisible to the calling agent.</p>
+<p><strong>Task:</strong> fetch the summary of the article &#x27;Lantern&#x27; and search for it</p>
+<ul><li>Root cause: the wikipediaapi dependency builds its httpx client with an explicit transport, discarding environment proxy config; no server option exists to fix it (scoped: broken on proxy-egress networks; direct egress unobservable from this sandbox)</li><li>Failure is reported as success: summary null, isError false, &#x27;error&#x27; field containing only the bare API URL</li><li>tools/list registers all 22 tools twice (bare and wikipedia_-prefixed); serverInfo reports version 4.1.4 vs package 2.0.1</li></ul><p><a href="https://thelanternworks.com/receipts/#test-008">Index entry #008</a></p>
+</article>
+<article class="receipt" id="broken-009">
+<h3>#009 open-meteo-mcp</h3>
+<p><code>open-meteo-mcp</code> v0.2.0 · tested 2026-10-29</p>
+<p>Crashes at import as installed per its own README — an upstream SDK rename (McpError→MCPError) kills it before initialize; needs two undocumented pins to run at all.</p>
+<p><strong>Task:</strong> current weather for New York City</p>
+<ul><li>With mcp==1.12.0 + pydantic==2.11.7 pinned (neither documented), it starts — but its &#x27;current&#x27; weather text reproduces the NEXT hour&#x27;s forecast bucket digit-for-digit, presented as current (gusts off by 7.6 km/h vs the API&#x27;s actual current block, outside tolerance)</li><li>Its two weather tools disagree with each other in the same minute (17.0°C/gusts 14.4 vs 17.2/16.9) and one emits a timezone-less GMT timestamp</li><li>Cause: open-ended dependency ranges (mcp&gt;=1.12.0, no upper bound) met two fatal upstream changes since 0.2.0 shipped</li></ul><p><a href="https://thelanternworks.com/receipts/#test-009">Index entry #009</a> · <a href="https://thelanternworks.com/receipts/009-open-meteo-mcp/">Case page</a></p>
+</article>
+<article class="receipt" id="broken-016">
+<h3>#016 duckduckgo-mcp-server</h3>
+<p><code>duckduckgo-mcp-server</code> v0.7.0 · tested 2026-10-29</p>
+<p>Every search stalls ~31s, then returns zero results reported as success (isError: false). DuckDuckGo bot-blocks this egress, and the server&#x27;s own prescribed [browser] remedy changed nothing. (Scoped: broken on bot-blocked egress.)</p>
+<p><strong>Task:</strong> search &#x27;Lantern Works GPU price comparison&#x27; and &#x27;capital of Norway&#x27;</p>
+<ul><li>The failure shape is the defect: an agent reads an empty success as &#x27;no matches exist&#x27;, not &#x27;search is blocked&#x27; — the silent-failure pattern Receipts exists to catch</li><li>The error text itself is honest (names bot detection, prescribes the remedy); serverInfo version is an empty string</li></ul><p><a href="https://thelanternworks.com/receipts/#test-016">Index entry #016</a></p>
+</article>
+<article class="receipt" id="broken-017">
+<h3>#017 DuckDB MCP servers (ladder)</h3>
+<p><code>mcp-server-duckdb</code> v1.1.0 · tested 2026-10-29</p>
+<p>No DuckDB MCP candidate ever answered initialize: mcp-server-duckdb 1.1.0 crashes on today&#x27;s SDK (&#x27;list_resources&#x27; removed), mcp-duckdb-server does not exist on PyPI, and duckdb-mcp&#x27;s install collapsed after ~11 min on a legacy native binding.</p>
+<p><strong>Task:</strong> create a table in a sandbox .duckdb file, insert planted rows, run a COUNT/SUM aggregate</p>
+<ul><li>Rung 1 and 2 failures are network-independent; rung 3&#x27;s install failure is partly proxy-specific (prebuilt download failed, source build died extracting Node headers)</li></ul><p><a href="https://thelanternworks.com/receipts/#test-017">Index entry #017</a></p>
+</article>
+<article class="receipt" id="broken-018">
+<h3>#018 mcp-server-sqlite</h3>
+<p><code>mcp-server-sqlite</code> v2025.4.25 · tested 2026-10-29</p>
+<p>Reference server, dead on arrival: its unbounded mcp[cli]&gt;=1.6.0 resolves SDK 2.3.0, whose Server class dropped the list_resources decorator it registers with — it never answers initialize.</p>
+<p><strong>Task:</strong> against a planted database: list tables, read a schema, run a SELECT aggregate (COUNT, SUM)</p>
+<ul><li>With two undocumented pins (mcp 1.17.0 + pydantic 2.11.7) the server itself is flawless: aggregates digit-for-digit, writes persist</li><li>Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0</li></ul><p><a href="https://thelanternworks.com/receipts/#test-018">Index entry #018</a></p>
+</article>
+<article class="receipt" id="broken-024">
+<h3>#024 deepwiki-mcp</h3>
+<p><code>deepwiki-mcp</code> v0.0.6 · tested 2026-10-29</p>
+<p>Two stacked failures, both misreported: its proxy-blind fetch dies as a bare &#x27;fetch failed&#x27;, and with the proxy honored an upstream HTTP 429 comes back as a successful &#x27;Documentation not found&#x27; for a repo whose wiki demonstrably exists. (Scoped: proxy-egress/rate-limited environments; no successful call was observable from this VM.)</p>
+<p><strong>Task:</strong> get the DeepWiki index for modelcontextprotocol/servers, then read its overview page</p>
+<ul><li>Worst error manners in the index: a transport failure discards its cause; a rate-limit is relabeled nonexistence and delivered without isError</li><li>No API contract — it scrapes deepwiki.com HTML with happy-dom, so any redesign, bot wall, or rate limit silently becomes its behavior</li></ul><p><a href="https://thelanternworks.com/receipts/#test-024">Index entry #024</a></p>
+</article>
+<article class="receipt" id="broken-025">
+<h3>#025 @kimtaeyoon83/mcp-server-youtube-transcript</h3>
+<p><code>@kimtaeyoon83/mcp-server-youtube-transcript</code> v0.1.1 · tested 2026-10-29</p>
+<p>&#x27;Could not find captions&#x27; — false about the world: the captions exist, but YouTube serves this egress a watch page with zero caption tracks (verified by an independent scrape), and the server&#x27;s own fetch is proxy-blind underneath. (Scoped: this environment.)</p>
+<p><strong>Task:</strong> fetch the transcript of &#x27;Me at the zoo&#x27; (video jNQXAC9IVRw)</p>
+<ul><li>At least fails as a proper JSON-RPC error, unlike test 024&#x27;s fake success</li><li>serverInfo reports 0.1.0 vs package 0.1.1; the lang parameter is required despite a documented default</li></ul><p><a href="https://thelanternworks.com/receipts/#test-025">Index entry #025</a></p>
+</article>
+<article class="receipt" id="broken-026">
+<h3>#026 @openbnb/mcp-server-airbnb</h3>
+<p><code>@openbnb/mcp-server-airbnb</code> v0.3.0 · tested 2026-10-29</p>
+<p>The one server with no workaround at all: node-fetch v3 has no proxy support and the server offers no proxy option, so every request dies in 0.1s on TLS — and behind that wall, Airbnb itself 403s this infrastructure. (Scoped: proxy-egress networks.)</p>
+<p><strong>Task:</strong> search Airbnb for Austin, TX (a November weekend, 2 guests), then get details for the first listing</p>
+<ul><li>Its robots.txt politeness layer fails open — when the robots fetch fails it logs &#x27;assuming all paths allowed&#x27; while the startup banner still claims robotsRespected: true</li><li>Best error manners of the batch&#x27;s failures (isError, attempted URL, timestamps, structured logs); the design assumes Airbnb&#x27;s pages stay scrapable from the user&#x27;s IP, and both halves of that assumption failed in one test</li></ul><p><a href="https://thelanternworks.com/receipts/#test-026">Index entry #026</a></p>
+</article>
+<article class="receipt" id="broken-028">
+<h3>#028 yahoo-finance-mcp</h3>
+<p><code>yahoo-finance-mcp</code> v0.1.2 · tested 2026-10-29</p>
+<p>Crashes at import as installed today (the mcp.server.fastmcp path was removed in mcp 2.3.0, which its unbounded requirement resolves to). Pinned to mcp 1.30 it starts — but both canonical calls timed out at ~60s and returned error strings with isError: false.</p>
+<p><strong>Task:</strong> historical daily price for AAPL (2024-01-02) and basic quote/company info for AAPL</p>
+<ul><li>The live failure sits in yfinance&#x27;s cookie/crumb session flow on proxy egress, not in Yahoo&#x27;s API</li><li>A docstring promises start/end parameters that do not exist in the tool schema</li></ul><p><a href="https://thelanternworks.com/receipts/#test-028">Index entry #028</a></p>
+</article>
+<article class="receipt" id="broken-029">
+<h3>#029 osm-mcp-server</h3>
+<p><code>osm-mcp-server</code> v0.1.1 · tested 2026-10-29</p>
+<p>SDK-drift crash as installed; pinned, it still cannot reach Nominatim on proxy-egress networks — every call builds an aiohttp session without trust_env=True, so proxy settings are silently ignored and TLS dies on the intercept.</p>
+<p><strong>Task:</strong> geocode &#x27;Statue of Liberty&#x27; and reverse-geocode the resulting coordinates</p>
+<ul><li>With a clearly labeled 6-line trust_env shim (proxy handling only), the data was perfect: geocode identical to direct Nominatim to 7 decimals (40.6892532, -74.0445482), reverse field-for-field identical</li><li>Requires Python &gt;=3.13, which the README never mentions (the sandbox shipped 3.12)</li></ul><p><a href="https://thelanternworks.com/receipts/#test-029">Index entry #029</a></p>
+</article>
+<article class="receipt" id="broken-030">
+<h3>#030 mcp-weather</h3>
+<p><code>mcp-weather</code> v0.1.0 · tested 2026-10-29</p>
+<p>The published wheel is empty: 1,139 bytes containing five metadata files and zero code — no module, no entry point, nothing that can answer an initialize on any machine — while pip install exits 0.</p>
+<p><strong>Task:</strong> current weather for New York City (the test-009 sequel: does a second weather server present next-hour data as current?)</p>
+<ul><li>The package summary is the unedited project-template placeholder &#x27;Add your description here&#x27;; the whole README is one line naming no upstream API, so the assigned current-vs-next-hour check is moot</li><li>It also declares Requires-Python &gt;=3.13, so it will not even &#x27;install&#x27; on Python 3.12. A handshake census could never catch this; only install-and-look does</li></ul><p><a href="https://thelanternworks.com/receipts/#test-030">Index entry #030</a></p>
+</article>
+<article class="receipt" id="broken-032">
+<h3>#032 mcp-server-rss</h3>
+<p><code>mcp-server-rss</code> v0.1.0 · tested 2026-10-29</p>
+<p>Fails its canonical task: &#x27;No RSS/Atom feeds found&#x27; for the live HN frontpage feed, because its detector judges a URL by spelling (end-anchored regexes) and HEAD response, never by content — the URL is never even fetched, and it burned 45.8s probing 18 guessed paths that all 404.</p>
+<p><strong>Task:</strong> fetch the Hacker News frontpage feed (hnrss.org/frontpage); top titles/links must match the feed XML fetched independently</p>
+<ul><li>Rescuing it took three undocumented pins (fastmcp 2.7.0, mcp&lt;2, pydantic 2.11.7), starting from test 009&#x27;s exact McpError import crash</li><li>Second detector bug: pattern-matched URLs are verified by HEAD only — news.ycombinator.com/rss answers HEAD with 405 and was rejected too (GET returns the feed instantly)</li><li>The parser underneath is flawless: on the BBC feed (the one URL shape the detector accepts) the top 10 titles/links matched ground truth exactly, in order. All three failures are network-independent — it fails the same on its author&#x27;s network</li></ul><p><a href="https://thelanternworks.com/receipts/#test-032">Index entry #032</a></p>
+</article>
+<article class="receipt" id="broken-034">
+<h3>#034 Open Library MCP servers (ladder)</h3>
+<p><code>ladder: mcp-server-openlibrary / openlibrary-mcp / open-library-mcp-server / openlibrary-mcp</code> vn/a · tested 2026-10-29</p>
+<p>No installable Open Library MCP server exists under any canonical name on either registry: all four ladder rungs return 404 / &#x27;No matching distribution found&#x27;, while the Open Library API itself is healthy and keyless.</p>
+<p><strong>Task:</strong> get book details for ISBN 9780547928227 (The Hobbit, Mariner Books edition)</p>
+<ul><li>Scope: servers may exist under other names or as GitHub-only projects; the ladder graded the four canonical package names, which is where a user&#x27;s search starts</li><li>The gap is purely the missing server — this is a listing-vs-reality finding, not a data finding</li></ul><p><a href="https://thelanternworks.com/receipts/#test-034">Index entry #034</a></p>
+</article>
+<article class="receipt" id="broken-035">
+<h3>#035 SpaceX MCP servers (ladder)</h3>
+<p><code>ladder: mcp-server-spacex / spacex-mcp-server / spacex-mcp / @modelcontextprotocol/server-spacex</code> vn/a · tested 2026-10-29</p>
+<p>No installable SpaceX MCP server exists under any canonical name (all four rungs 404) — and the upstream community API was itself down the entire session, so no server could have served live data anyway.</p>
+<p><strong>Task:</strong> SpaceX company info and/or the latest launch, graded against api.spacexdata.com live</p>
+<ul><li>The r-spacex API is a single point of failure for every SpaceX tool built on it</li><li>Retest protocol: check upstream health first, or the test grades the API, not the server</li></ul><p><a href="https://thelanternworks.com/receipts/#test-035">Index entry #035</a></p>
+</article>
+<article class="receipt" id="broken-036">
+<h3>#036 Dictionary MCP servers (ladder)</h3>
+<p><code>dictionary-mcp-server</code> v0.1.0 · tested 2026-10-29</p>
+<p>Broken via every documented route: the PyPI server (dictionary-mcp-server 0.1.0) crashes at import on SDK drift, and the npm server (dictionary-mcp 1.0.6) ships no bin entry, so npx cannot run it at all. The other two ladder names are 404.</p>
+<p><strong>Task:</strong> define the word &#x27;serendipity&#x27;</p>
+<ul><li>The PyPI rung needs the exact two-pin resuscitation from test 009 (mcp==1.12.0 + pydantic==2.11.7); pinning mcp alone moves the crash into pydantic internals</li><li>Supplementary grading: once resuscitated, BOTH servers returned the ground-truth first definition word-for-word — packaging rot, not data rot</li><li>Version misreports on both rungs (npm serverInfo &#x27;1.0.0&#x27; vs package 1.0.6; PyPI serverInfo reports the SDK&#x27;s 1.12.0 vs package 0.1.0); the PyPI server&#x27;s tools are German-named</li></ul><p><a href="https://thelanternworks.com/receipts/#test-036">Index entry #036</a></p>
+</article>
+<article class="receipt" id="broken-045">
+<h3>#045 Sentry MCP server</h3>
+<p><code>mcp-server-sentry</code> v2025.1.14 · tested 2026-10-31</p>
+<p>Broken as installed: import crash from a new SDK-drift variant — it imports httpx but declares only mcp, which now pulls httpx2 instead.</p>
+<p><strong>Task:</strong> get_sentry_issue for a fabricated issue ID (the server&#x27;s only tool)</p>
+<ul><li>Declares only `mcp` as a dependency but imports httpx directly; mcp 2.x depends on httpx2, so the transitive httpx it relied on is gone</li><li>Behind the crash, an error-masking bug: every error path raises McpError(&lt;string&gt;), surfacing as &quot;&#x27;str&#x27; object has no attribute &#x27;message&#x27;&quot; instead of the real error</li><li>Docs name the wrong env var: code reads undocumented SENTRY_TOKEN; README documents only --auth-token</li></ul><p><a href="https://thelanternworks.com/receipts/#test-045">Index entry #045</a></p>
+</article>
+<article class="receipt" id="broken-052">
+<h3>#052 OpenAI MCP server (community npm)</h3>
+<p><code>openai-mcp-server</code> v0.1.6 · tested 2026-10-31</p>
+<p>Broken: the README&#x27;s documented configuration crashes 100% — the code reads the key from env only, never from the documented CLI argument — and every upstream error returns as a success-shaped result.</p>
+<p><strong>Task:</strong> ask-openai with prompt &quot;What is the capital of France?&quot;</p>
+<ul><li>Documented config (key as CLI arg) crashes at startup: shipped code never reads argv (verified in dist/index.js)</li><li>Via the undocumented env path, all upstream errors return generic text with isError absent — silent failure by design; the real cause appears only in stderr</li><li>serverInfo reports 0.1.0 vs package 0.1.6</li><li>The PyPI namesake (mcp-server-openai) was rejected with reason recorded: it manages keys/spending and documents no completion tool</li></ul><p><a href="https://thelanternworks.com/receipts/#test-052">Index entry #052</a></p>
+</article>
+<article class="receipt" id="broken-053">
+<h3>#053 Anthropic MCP server (ladder)</h3>
+<p><code>ladder: anthropic-mcp-server / @anthropic/mcp-server / anthropic-mcp / mcp-server-anthropic / anthropic-mcp-server</code> vn/a · tested 2026-10-31</p>
+<p>Broken as a ladder finding: no installable Anthropic MCP server exists under any canonical name — the npm package was unpublished in Jan 2026 and every other rung 404s.</p>
+<p><strong>Task:</strong> a Claude completion with a decoy ANTHROPIC_API_KEY (never reached)</p>
+<ul><li>npm anthropic-mcp-server was unpublished 2026-01-12; @anthropic/mcp-server and all three PyPI names return 404</li><li>Scope: servers may exist under non-canonical names or GitHub-only, as with batch 2&#x27;s ladders</li></ul><p><a href="https://thelanternworks.com/receipts/#test-053">Index entry #053</a></p>
+</article>
+<article class="receipt" id="broken-055">
+<h3>#055 AWS Knowledge Base Retrieval MCP server</h3>
+<p><code>@modelcontextprotocol/server-aws-kb-retrieval</code> v0.6.2 · tested 2026-10-31</p>
+<p>Broken: every failure mode — no credentials, missing region, decoy credentials — returns &quot;Retrieval failed or returned no results.&quot; as a successful result with no isError flag.</p>
+<p><strong>Task:</strong> retrieve_from_aws_kb with a fabricated knowledgeBaseId and decoy AWS credentials</p>
+<ul><li>Silent failure as success in its purest form: an agent cannot distinguish an empty knowledge base from rejected credentials</li><li>Real errors exist only in stderr (&quot;RAG Error: …&quot;), which no MCP consumer sees</li><li>npm marks the package deprecated / no longer supported; serverInfo reports 0.2.0 vs package 0.6.2</li></ul><p><a href="https://thelanternworks.com/receipts/#test-055">Index entry #055</a></p>
+</article>
+<article class="receipt" id="broken-059">
+<h3>#059 GitLab MCP server</h3>
+<p><code>@modelcontextprotocol/server-gitlab</code> v2025.4.25 · tested 2026-10-31</p>
+<p>Broken: the decoy call crashes in 0.10s — the server .map()s GitLab&#x27;s object-shaped 401 body as if it were a results array, instead of surfacing the auth error.</p>
+<p><strong>Task:</strong> search_repositories with query &quot;gitlab&quot; and a decoy token</p>
+<ul><li>JSON-RPC -32603 &quot;Cannot read properties of undefined (reading &#x27;map&#x27;)&quot; replaces the real 401</li><li>serverInfo reports 0.5.1 vs package 2025.4.25</li><li>A retest on credential-permitting egress would confirm against a live 401; the crash mechanism is already demonstrated</li></ul><p><a href="https://thelanternworks.com/receipts/#test-059">Index entry #059</a></p>
+</article>
+<h2>Method</h2>
+<p>These are Pax-authored summaries of specific versions and tasks, published by Lantern Works. The <code>tested_at</code> dates in this edition are 29 October 2026 and 31 October 2026. Evidence in the public index is authored summaries only: write-up and transcript filenames in the index JSON refer to project records that are not included with those summaries. 3 representative third-party cases have a public proof-pack page (excerpts and machine-readable evidence) under <a href="https://thelanternworks.com/receipts/">/receipts/</a>.</p>
+<aside class="receipt-policy" aria-label="Verdict policy"><h2>Verdict firewall</h2><p>Money may buy testing or re-testing, never a changed verdict. Paid listings are re-tested under the same criteria; payment never changes a result or its placement.</p></aside>
+<h2>Receipts index and case pages</h2>
+<p><a href="https://thelanternworks.com/receipts/">All 62 dated summaries</a></p>
+<ul><li><a href="https://thelanternworks.com/receipts/002-mcp-server-time/">#002 mcp-server-time</a> (Works)</li><li><a href="https://thelanternworks.com/receipts/056-server-redis/">#056 Redis MCP server</a> (Works With Caveats)</li><li><a href="https://thelanternworks.com/receipts/009-open-meteo-mcp/">#009 open-meteo-mcp</a> (Broken)</li></ul><p>Need GPU prices in your own agent? <a href="https://thelanternworks.com/quickstart/?ref=receipts-writeup">Try a free, cited comparison</a>. Price methodology is documented separately at <a href="https://thelanternworks.com/methodology/">/methodology/</a>.</p>
+
+</div>
+  <footer>
+    <p>Verified-on dates are each offer's own <code>verified_at</code>; offers without one are marked unverified. Affiliate links are marked and use rel="sponsored"; public/non-affiliate badges mark free tiers and vendor-published coupons (no invented codes).</p>
+    <p><strong>Lantern Works</strong> · <a href="https://thelanternworks.com/">GPU prices</a> · <a href="https://thelanternworks.com/deals/">Deals</a> · <a href="https://thelanternworks.com/lanternworks/">About</a> · <a href="https://thelanternworks.com/reports/">Reports</a> · <a href="https://thelanternworks.com/changelog/">Changelog</a> · <a href="https://thelanternworks.com/for-agents/">For agents</a> · <a href="https://thelanternworks.com/privacy/">Privacy</a> · <a href="https://thelanternworks.com/api/">API</a> · Contact <a href="https://thelanternworks.com/report-price/">report a price or correction</a></p>
+    <p><a href="https://thelanternworks.com/disclosure/">Affiliate disclosure</a>: we may earn a commission when you sign up through affiliate links. That never changes the price you pay.</p>
+  </footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "327dc277f310484b93db8d3156c54a0f"}'></script>
+  <script>
+(()=>{
+  const seen=new Set();
+  // push a virtual route (counted once), then step back so history and the address bar are unchanged
+  function lwTrack(name, then){
+    if(seen.has(name)){ if(then) then(); return; } seen.add(name);
+    let done=false; const fin=()=>{ if(done) return; done=true; removeEventListener("popstate",fin); if(then) then(); };
+    try{ history.pushState(history.state,"","/e/"+name+"/"); addEventListener("popstate",fin); history.back(); setTimeout(fin,400); }
+    catch(e){ fin(); }
+  }
+  window.lwTrack=lwTrack;
+  let bypass=false;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest&&ev.target.closest("a[href]"); if(!a||bypass) return;
+    try{ const o=new URL(a.href,location.href);  // T51: tag outbound vendor links (utm_source=lanternworks) at click time
+      if(/^https?:$/.test(o.protocol)&&o.hostname!==location.hostname&&!/(^|\.)thelanternworks\.com$/.test(o.hostname)&&!o.searchParams.has("utm_source")){ o.searchParams.set("utm_source","lanternworks"); a.href=o.href; } }catch(e){}
+    let id;
+    if(a.dataset.deal){ id="out/"+a.dataset.deal.replace(/[^a-z0-9-]/gi,"");
+      // route deal links through the counted /go/ redirect (302 to the same stored redeem_url, utm_source kept; aggregate count only)
+      const g=new URL("https://lantern-works-telemetry.lantern-works.workers.dev/go/"+id.slice(4)); g.searchParams.set("src","site");
+      try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) g.searchParams.set("ref",r); }catch(e){}
+      a.href=g.href; }
+    else {  // outbound vendor link without a deal id (GPU tables): count by hostname only, never path or query
+      let u; try{ u=new URL(a.href,location.href); }catch(e){ return; }
+      if(!/^https?:$/.test(u.protocol)||u.hostname===location.hostname||/(^|\.)thelanternworks\.com$/.test(u.hostname)) return;
+      id="out/h-"+u.hostname.toLowerCase().replace(/^www\./,"").replace(/[^a-z0-9-]/g,"-").slice(0,60);
+    }
+    const sameTab=ev.button===0&&!ev.metaKey&&!ev.ctrlKey&&!ev.shiftKey&&!ev.altKey&&a.target!=="_blank";
+    if(!sameTab){ lwTrack(id); return; }
+    ev.preventDefault();
+    lwTrack(id,()=>{ bypass=true; a.click(); bypass=false; });  // native navigation keeps rel/referrer behaviour
+  },true);
+  // rel055: a landing ?ref= channel tag (same pattern the hosted worker accepts) counts once as /e/ref/<ref>/; nothing else from the query is sent
+  try{ const r=new URLSearchParams(location.search).get("ref"); if(r&&/^[a-z0-9][a-z0-9_-]{0,31}$/.test(r)) lwTrack("ref/"+r); }catch(e){}
+  document.addEventListener("lw:search",ev=>{ if(ev.detail&&ev.detail.active) lwTrack("search"); });
+  document.addEventListener("lw:event",ev=>lwTrack(String(ev.detail).replace(/[^a-z0-9-]/gi,"")));
+})();
+  </script>
+</body>
+</html>
