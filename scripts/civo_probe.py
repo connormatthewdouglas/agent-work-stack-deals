@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import re
 from typing import Any
+from core import cancel_terms
 
 # Product pages that publish statusText for the 1-GPU sizes we already track.
 CIVO_PRODUCT_PAGES = {
@@ -280,3 +281,22 @@ def availability_rows(parsed: list[dict], source_url: str, collected_at: str,
                 "observation": None if p["status_text"] is None else f"statusText={p['status_text']!r}",
             })
     return out
+
+
+
+def probe_cancel_terms(source: str | None, *, source_url: str = cancel_terms.CIVO_TERMS_URL,
+                       collected_at: str, fetch_ok: bool, reason: str | None = None) -> dict:
+    """Cancellation terms for reserved Civo commitment rows (legal terms page).
+
+    A failed fetch is unreadable and never stamps terms_read_at. Price evidence
+    and quote IDs on the commitment row are left untouched.
+    """
+    return cancel_terms.probe_from_page(
+        "Civo", source, source_url=source_url, terms_read_at=collected_at,
+        fetch_ok=fetch_ok, reason=reason,
+    )
+
+
+def attach_cancel_terms(rows: list[dict], cancellation: dict) -> list[dict]:
+    """Attach a Civo terms probe result to reserved/commitment rows only."""
+    return cancel_terms.attach_to_reserved_records(rows, cancellation, vendor="Civo")

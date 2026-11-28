@@ -245,6 +245,20 @@ P72 (marxsignal) and P73 (morpheus404). Additive optional fields on each rate's 
 | `probe_error` | object or absent | Written when the stock/terms probe crashes: `type` (exception class) and `message` (short, with secrets, tokens, and credential-bearing URLs stripped). |
 | `probe_attempted_at` | string (ISO-8601 UTC, `Z`) or absent | The crash attempt time. This is not a successful check. If a historical field is called `checked_at`, freshness, the 72h ceiling and `expire_held_rows` still read only successful-check stamps (`evidence.checked_at`, `verified_at`, or a successful `checked_at`). Failed collection never writes a fresh `verified_at` or success `checked_at`. |
 
+## cancellation (additive, P63, Nov 2026)
+
+Reserved / commitment rows may carry a `cancellation` object written by the reserved-terms probe (Civo legal terms, CloudRift terms of service, Hyperstack contracts docs). It is absent when no probe has run (unknown stays unknown). Schema stays `lantern-works-gpu-prices/1`. Ranking and stale/TTL behaviour are unchanged.
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `terms_flag` | `present_and_read` \| `confirmed_absent` \| `unreadable` | Whether cancellation terms were observable at probe time. Every probe writes one of these three. A failed fetch (including a disallowed or empty response) is `unreadable`. |
+| `terms_read_at` | ISO-8601 timestamp, or absent | When the terms page was successfully read. **Absent** on `unreadable`. Never used to refresh `checked_at` / `verified_at` of the price. |
+| `cancel_window` | object with `text` (and `value` / `unit` only when the vendor publishes a number), or absent | The published cancel / notice window. Omitted when the vendor does not publish one. |
+| `cancel_fee` | object with `text` (and `value` / `kind` only when published), or absent | The published cancel / early-exit fee or refund rule. Omitted when the vendor does not publish one. |
+| `source_url` | https URL | The official page that was read (or attempted). |
+| `quote` | string, or absent | Visible page text that supports a `present_and_read` window or fee. Existing price `evidence` quotes and quote IDs are left untouched. |
+
+`present_and_read` requires a published window or fee. `confirmed_absent` is a successful read that found neither. `unreadable` must not stamp `terms_read_at` and must not invent a window or fee.
 ## stock_age_hours and stock_read_state (additive, P74, Nov 2026)
 
 P74 (morpheus404, Brain #1142 and #1172). Computed at serve/read time on `compare_gpu_prices` and `find_available_gpus` results, and rendered on GPU pages. Not written into the static `gpu-prices.json` schema (that schema stays `lantern-works-gpu-prices/1`). Ranking, TTLs and `stale_guard` do not read these fields. Unknown stays unknown. Timestamps are never invented.

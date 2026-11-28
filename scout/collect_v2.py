@@ -2,9 +2,11 @@
 import json, csv, os, sys, time, statistics, urllib.request, urllib.parse
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core import cancel_terms
 UA = "LanternWorks-Scout/0.2 (+https://thelanternworks.com)"
 def NOW(): return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-FIELDS = ["vendor","gpu_model","vram_gb","tier","region","in_stock","offer_count","unrented_servers","stock_level","price_usd_hr","price_basis","source_url","collected_at","price_refresh","availability_refresh","vram_note","availability_note","source","observation","checked_at","availability_expires_at","stock_level_scope","confirmation","confirmed","second_read_stock_level","second_read_at","available_gpus","second_read_offer_count","second_read_available_gpus","second_read_in_stock","second_read_gap_s","generation_id","feed_status","derived_from_regions","overall_recomputed_at"]
+FIELDS = ["vendor","gpu_model","vram_gb","tier","region","in_stock","offer_count","unrented_servers","stock_level","price_usd_hr","price_basis","source_url","collected_at","price_refresh","availability_refresh","vram_note","availability_note","source","observation","checked_at","availability_expires_at","stock_level_scope","confirmation","confirmed","second_read_stock_level","second_read_at","available_gpus","second_read_offer_count","second_read_available_gpus","second_read_in_stock","second_read_gap_s","generation_id","feed_status","derived_from_regions","overall_recomputed_at","cancellation"]
 def get(url, data=None):  # GET unless data is given
     req = urllib.request.Request(url, data=data, headers={"User-Agent": UA, "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=40) as r: return json.load(r)
@@ -373,6 +375,23 @@ def hyperstack():
         for rg, n in sorted(regs.items()):
             if n > 0: rows.append({**base, "region": rg, "in_stock": True, "available_gpus": None})
     return rows
+
+def hyperstack_reserved_cancel_terms(source, *, source_url=cancel_terms.HYPERSTACK_TERMS_URL,
+                                     collected_at, fetch_ok, reason=None):
+    """Cancellation terms for Hyperstack Reservation (starting from) rows.
+
+    Reads the public contracts documentation page (no API key). A failed fetch
+    is unreadable and never stamps terms_read_at or price timestamps. Stock
+    API results are left untouched.
+    """
+    return cancel_terms.probe_from_page(
+        "Hyperstack", source, source_url=source_url, terms_read_at=collected_at,
+        fetch_ok=fetch_ok, reason=reason,
+    )
+
+def attach_hyperstack_reserved_cancel_terms(rows, cancellation):
+    """Attach a terms probe to Reservation-tier rows only (stock rows stay as-is)."""
+    return cancel_terms.attach_to_reserved_records(rows, cancellation, vendor="Hyperstack")
 
 # ---- T73: Novita GPU products list (read-only GET, Bearer key from env NOVITA_API_KEY or NV_KEY_FILE, never logged; no deploys) ----
 NV_URL = "https://api.novita.ai/gpu-instance/openapi/v1/products?gpuNum=1&billingMethod=onDemand"
