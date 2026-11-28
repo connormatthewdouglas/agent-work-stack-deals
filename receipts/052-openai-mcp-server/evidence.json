@@ -1,0 +1,29 @@
+{
+  "record_id": "052",
+  "package": "openai-mcp-server",
+  "version": "0.1.6",
+  "registry": "npm",
+  "server": "OpenAI MCP server (community npm)",
+  "verdict": "broken",
+  "tested_at": "2026-10-31",
+  "task": "ask-openai with prompt \"What is the capital of France?\"",
+  "ground_truth": "Not established from this sandbox (egress stall); both graded failures are in the server's own code, source-verified, and independent of ground truth",
+  "observed_summary": "Broken: the README's documented configuration crashes 100% — the code reads the key from env only, never from the documented CLI argument — and every upstream error returns as a success-shaped result.",
+  "caveats": [
+    "Documented config (key as CLI arg) crashes at startup: shipped code never reads argv (verified in dist/index.js)",
+    "Via the undocumented env path, all upstream errors return generic text with isError absent — silent failure by design; the real cause appears only in stderr",
+    "serverInfo reports 0.1.0 vs package 0.1.6",
+    "The PyPI namesake (mcp-server-openai) was rejected with reason recorded: it manages keys/spending and documents no completion tool"
+  ],
+  "category": "community",
+  "evidence": {
+    "transcript": "tests/052-openai-transcript.txt",
+    "writeup": "tests/052-openai-mcp-server.md"
+  },
+  "source": "receipts-index",
+  "stable_url": "https://thelanternworks.com/receipts/052-openai-mcp-server/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/052-openai-mcp-server/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}

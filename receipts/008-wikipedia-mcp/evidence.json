@@ -1,0 +1,28 @@
+{
+  "record_id": "008",
+  "package": "wikipedia-mcp",
+  "version": "2.0.1",
+  "registry": "pypi",
+  "server": "wikipedia-mcp",
+  "verdict": "broken",
+  "tested_at": "2026-10-29",
+  "task": "fetch the summary of the article 'Lantern' and search for it",
+  "ground_truth": "Wikipedia's own API extract for 'Lantern' (11,832 chars), fetched independently in the same session",
+  "observed_summary": "Returns summary: null with isError: false behind any HTTP proxy — its HTTP library discards proxy settings and the failure is invisible to the calling agent.",
+  "caveats": [
+    "Root cause: the wikipediaapi dependency builds its httpx client with an explicit transport, discarding environment proxy config; no server option exists to fix it (scoped: broken on proxy-egress networks; direct egress unobservable from this sandbox)",
+    "Failure is reported as success: summary null, isError false, 'error' field containing only the bare API URL",
+    "tools/list registers all 22 tools twice (bare and wikipedia_-prefixed); serverInfo reports version 4.1.4 vs package 2.0.1"
+  ],
+  "category": "community",
+  "evidence": {
+    "transcript": "tests/008-wikipedia-transcript.txt",
+    "writeup": "tests/008-wikipedia-server.md"
+  },
+  "source": "receipts-index",
+  "stable_url": "https://thelanternworks.com/receipts/008-wikipedia-mcp/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/008-wikipedia-mcp/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}

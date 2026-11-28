@@ -1,0 +1,27 @@
+{
+  "record_id": "018",
+  "package": "mcp-server-sqlite",
+  "version": "2025.4.25",
+  "registry": "pypi",
+  "server": "mcp-server-sqlite",
+  "verdict": "broken",
+  "tested_at": "2026-10-29",
+  "task": "against a planted database: list tables, read a schema, run a SELECT aggregate (COUNT, SUM)",
+  "ground_truth": "database planted with python3 sqlite3 (products: n=5, SUM price 110.49, SUM stock 540, plus a marker row); writes verified by reading the file directly with sqlite3",
+  "observed_summary": "Reference server, dead on arrival: its unbounded mcp[cli]>=1.6.0 resolves SDK 2.3.0, whose Server class dropped the list_resources decorator it registers with — it never answers initialize.",
+  "caveats": [
+    "With two undocumented pins (mcp 1.17.0 + pydantic 2.11.7) the server itself is flawless: aggregates digit-for-digit, writes persist",
+    "Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0"
+  ],
+  "category": "reference",
+  "evidence": {
+    "transcript": "tests/018-sqlite-transcript.txt",
+    "writeup": "tests/018-mcp-server-sqlite.md"
+  },
+  "source": "receipts-index",
+  "stable_url": "https://thelanternworks.com/receipts/018-mcp-server-sqlite/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/018-mcp-server-sqlite/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}

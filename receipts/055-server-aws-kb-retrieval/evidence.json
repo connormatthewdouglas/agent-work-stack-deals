@@ -1,0 +1,28 @@
+{
+  "record_id": "055",
+  "package": "@modelcontextprotocol/server-aws-kb-retrieval",
+  "version": "0.6.2",
+  "registry": "npm",
+  "server": "AWS Knowledge Base Retrieval MCP server",
+  "verdict": "broken",
+  "tested_at": "2026-10-31",
+  "task": "retrieve_from_aws_kb with a fabricated knowledgeBaseId and decoy AWS credentials",
+  "ground_truth": "AWS's documented 403 behaviour; live ground truth not establishable (signed decoy request stalled at egress) — the verdict rests on the local no-credentials phase, which needs no network",
+  "observed_summary": "Broken: every failure mode — no credentials, missing region, decoy credentials — returns \"Retrieval failed or returned no results.\" as a successful result with no isError flag.",
+  "caveats": [
+    "Silent failure as success in its purest form: an agent cannot distinguish an empty knowledge base from rejected credentials",
+    "Real errors exist only in stderr (\"RAG Error: …\"), which no MCP consumer sees",
+    "npm marks the package deprecated / no longer supported; serverInfo reports 0.2.0 vs package 0.6.2"
+  ],
+  "category": "reference",
+  "evidence": {
+    "transcript": "tests/055-aws-kb-retrieval-transcript.txt",
+    "writeup": "tests/055-aws-kb-retrieval.md"
+  },
+  "source": "receipts-index",
+  "stable_url": "https://thelanternworks.com/receipts/055-server-aws-kb-retrieval/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/055-server-aws-kb-retrieval/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}

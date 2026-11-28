@@ -30,10 +30,17 @@ LIMITS = "These are Pax-authored summaries of specific versions and tasks, dated
 EVIDENCE = (
     "Sixty-two records publish authored summaries only. Write-up and transcript "
     "filenames in the index JSON refer to project records that are not included "
-    "with those summaries. Three representative third-party cases also have a "
-    "public proof-pack page (excerpts + machine-readable evidence) under "
-    "/receipts/; see Proof pack v1 below."
+    "with those summaries. Ten third-party case pages under /receipts/ state the "
+    "version tested, the date, the task, the recorded findings, and the transcript "
+    "and write-up filenames; three of those also have a public proof-pack page "
+    "(excerpts + machine-readable evidence). See Case pages and Proof pack v1 below."
 )
+INDEX_CASES_FILE = "receipts-case-pages.json"
+TITLE_VERDICTS = {
+    "works": "Works",
+    "works_with_caveats": "Works With Caveats",
+    "broken": "Broken",
+}
 REF_PROOF = "receipts-proofpack"
 THIRD_PARTY = (
     "Third-party MCP server. Not the Lantern Works house product "
@@ -56,6 +63,46 @@ def scrub_personal(text: str) -> str:
         text = text.replace(name, "Lantern Works")
     return text
 
+
+def load_index_rows(root: Path) -> dict[str, dict]:
+    doc = json.loads((root / "data" / "receipts-index.json").read_text(encoding="utf-8"))
+    return {r["id"]: r for r in doc["tests"]}
+
+
+def load_index_case_specs(root: Path) -> tuple[dict, ...]:
+    """Load the seven additional case-page selections. Facts stay in the index."""
+    raw = json.loads((root / "data" / INDEX_CASES_FILE).read_text(encoding="utf-8"))
+    cases = raw.get("cases") or []
+    if len(cases) != 7:
+        raise ValueError("Expected seven additional Receipts case pages")
+    rows = load_index_rows(root)
+    proof_ids = {s["id"] for s in PROOF_CASES}
+    slugs: set[str] = set()
+    out: list[dict] = []
+    for spec in cases:
+        rid = spec.get("id")
+        slug = spec.get("slug") or ""
+        title = spec.get("title_verdict")
+        if rid in proof_ids:
+            raise ValueError(f"Additional case {rid} duplicates proof pack v1")
+        if rid not in rows:
+            raise ValueError(f"Additional case {rid} is not in the Receipts index")
+        row = rows[rid]
+        if row.get("category") == "house":
+            raise ValueError(f"Additional case {rid} is the house product")
+        if row["verdict"] not in ("broken", "works_with_caveats"):
+            raise ValueError(f"Additional case {rid} is not a Broken or Caveats verdict")
+        if title != TITLE_VERDICTS[row["verdict"]]:
+            raise ValueError(f"Additional case {rid} title_verdict does not match the recorded verdict")
+        if not slug or slug in slugs or not slug.startswith(f"{rid}-"):
+            raise ValueError(f"Invalid slug for additional case {rid}")
+        slugs.add(slug)
+        out.append({"id": rid, "slug": slug, "title_verdict": title})
+    return tuple(out)
+
+
+def all_case_specs(root: Path) -> tuple[dict, ...]:
+    return tuple(PROOF_CASES) + load_index_case_specs(root)
 
 
 def build(source: bytes) -> dict:
@@ -225,6 +272,134 @@ def write_proof_case(g, spec: dict, heading: str, body_md: str, case_json: dict)
     return f"receipts/{slug}"
 
 
+def write_index_case(g, spec: dict, row: dict) -> str:
+    """Publish a case page whose facts come only from the Receipts index record."""
+    e = html.escape
+    slug = spec["slug"]
+    rid = spec["id"]
+    url = f"{g.BASE}/receipts/{slug}/"
+    evidence_url = f"{g.BASE}/receipts/{slug}/evidence.json"
+    package = row.get("package") or ""
+    version = row.get("version") or ""
+    registry = row.get("registry") or ""
+    tested_at = row.get("tested_at") or ""
+    task = scrub_personal(row.get("canonical_task") or "")
+    ground = scrub_personal(row.get("ground_truth") or "")
+    headline = scrub_personal(row.get("headline") or "")
+    transcript = row.get("transcript") or ""
+    writeup = row.get("writeup") or ""
+    server = scrub_personal(row.get("server") or package)
+    title = f"Receipts #{rid}: {package} — {spec['title_verdict']}"
+    desc = (
+        f"Receipts case #{rid} ({spec['title_verdict']}): {package} "
+        f"v{version}, tested {tested_at}. "
+        f"Third-party MCP server; not the Lantern Works house product."
+    )
+    heading = f"{spec['title_verdict'].upper()}: {server} (Receipts #{rid})"
+    caveats = row.get("caveats") or []
+    caveat_items = "".join(f"<li>{e(scrub_personal(c))}</li>" for c in caveats)
+    caveats_block = f"<ul>{caveat_items}</ul>" if caveat_items else "<p>No caveats recorded.</p>"
+    if transcript:
+        writeup_bit = f" and the write-up as <code>{e(writeup)}</code>" if writeup else ""
+        trans_p = (
+            f"<p>The Receipts index records the transcript as <code>{e(transcript)}</code>"
+            f"{writeup_bit}. Those filenames refer to project records that are not "
+            "published with the summaries. This page states only the recorded index "
+            "fields for this id: the version tested, the date, the task, the ground "
+            "truth, the headline, and the caveats.</p>"
+        )
+    else:
+        trans_p = (
+            "<p>The Receipts index does not name a transcript file for this record. "
+            "This page states only the recorded index fields for this id.</p>"
+        )
+    sep = "\u203a"
+    body = (
+        '<style>.proof-case{overflow-wrap:anywhere}.proof-case pre{overflow:auto;background:#f3f4f6;padding:1rem;border-radius:8px}'
+        '.proof-case code{white-space:normal}.proof-meta{border-left:4px solid #6366f1;padding-left:1rem;margin:1rem 0}'
+        '.third-party{border-left:4px solid #9ca3af;padding-left:1rem}</style>\n'
+        f'<nav class="crumbs"><a href="{g.BASE}/">Lantern Works</a> {sep} '
+        f'<a href="{g.BASE}/receipts/">Receipts</a> {sep} #{e(rid)}</nav>\n'
+        '<article class="proof-case">\n'
+        f'<h1>Receipts #{e(rid)} — {e(heading)}</h1>\n'
+        f'<aside class="third-party" aria-label="Third-party disclosure"><p><strong>{e(THIRD_PARTY)}</strong></p></aside>\n'
+        '<aside class="proof-meta" aria-label="Case metadata">\n'
+        f'<p><strong>Package:</strong> <code>{e(package)}</code> v{e(str(version))} ({e(str(registry))})</p>\n'
+        f'<p><strong>Verdict:</strong> {e(spec["title_verdict"])} · <strong>Tested:</strong> {e(str(tested_at))}</p>\n'
+        f'<p><strong>Machine-readable evidence:</strong> <a href="{evidence_url}"><code>evidence.json</code></a> · source <a href="{g.BASE}/receipts/">Receipts index</a></p>\n'
+        '</aside>\n'
+        '<h2>Version, date, and transcript</h2>\n'
+        f'<p><strong>Version tested:</strong> <code>{e(str(version))}</code> · <strong>Date tested:</strong> {e(str(tested_at))}.</p>\n'
+        f'{trans_p}\n'
+        f'<h2>Task</h2>\n<p>{e(task)}</p>\n'
+        f'<h2>Ground truth</h2>\n<p>{e(ground)}</p>\n'
+        f'<h2>Recorded finding</h2>\n<p>{e(headline)}</p>\n'
+        f'<h2>Caveats</h2>\n{caveats_block}\n'
+        '<p>Corrections and retest requests: open an issue on the Lantern Works repo naming the record id. Paid re-tests are accepted under the Receipts firewall: money can buy being measured sooner, never a changed verdict.</p>\n'
+        f'<p>Need GPU prices in your own agent? <a href="{g.BASE}/quickstart/?ref={REF_PROOF}">Try a free, cited comparison</a>. Back to the <a href="{g.BASE}/receipts/">Receipts index</a>.</p>\n'
+        '</article>'
+    )
+    out_dir = g.ROOT / "receipts" / slug
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "index.html").write_text(
+        g.page_shell(title, desc[:300], url, body), encoding="utf-8"
+    )
+    evidence = {
+        "record_id": rid,
+        "package": package,
+        "version": version,
+        "registry": registry,
+        "server": row.get("server"),
+        "verdict": row["verdict"],
+        "tested_at": tested_at,
+        "task": row.get("canonical_task"),
+        "ground_truth": row.get("ground_truth"),
+        "observed_summary": row.get("headline"),
+        "caveats": list(row.get("caveats") or []),
+        "category": row.get("category"),
+        "evidence": {"transcript": transcript, "writeup": writeup},
+        "source": "receipts-index",
+        "stable_url": url,
+        "evidence_json_url": evidence_url,
+        "third_party": True,
+        "house": False,
+        "referral_tag": REF_PROOF,
+    }
+    (out_dir / "evidence.json").write_text(
+        json.dumps(evidence, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    return f"receipts/{slug}"
+
+
+def write_index_cases(g) -> list[str]:
+    rows = load_index_rows(g.ROOT)
+    return [write_index_case(g, spec, rows[spec["id"]]) for spec in load_index_case_specs(g.ROOT)]
+
+
+def extra_case_pages_index_section(g) -> str:
+    e = html.escape
+    rows = load_index_rows(g.ROOT)
+    links = []
+    for spec in load_index_case_specs(g.ROOT):
+        row = rows[spec["id"]]
+        links.append(
+            f'<li><a href="{g.BASE}/receipts/{spec["slug"]}/">#{e(spec["id"])} '
+            f'<code>{e(row["package"])}</code> — {e(spec["title_verdict"])}</a> '
+            f'(<a href="{g.BASE}/receipts/{spec["slug"]}/evidence.json">evidence.json</a>)</li>'
+        )
+    return (
+        '<section id="case-pages" class="proof-pack">\n'
+        '<h2>Case pages</h2>\n'
+        '<p>Seven more third-party case pages, chosen from the strongest '
+        "<strong>Broken</strong> and <strong>Works With Caveats</strong> verdicts "
+        "in the Receipts index after the three proof pack v1 cases. Each page "
+        "states the recorded version, test date, task, findings, and transcript "
+        "filename. Facts are taken from the index; these pages do not add transcript excerpts.</p>\n"
+        f'<ul>{"".join(links)}</ul>\n'
+        "</section>\n"
+    )
+
+
 def write_proof_pack(g) -> list[str]:
     md, pack = load_proof_pack(g.ROOT)
     cases_md = split_proof_cases(md)
@@ -282,7 +457,7 @@ def brand_receipts_pages(g) -> None:
     b, e = "<!-- brand -->", "<!-- /brand -->"
     block = f"  {b}\n{g.HEAD_BRAND}{g.OG_IMAGE}  {e}\n"
     paths = [g.ROOT / "receipts" / "index.html"]
-    for spec in PROOF_CASES:
+    for spec in all_case_specs(g.ROOT):
         paths.append(g.ROOT / "receipts" / spec["slug"] / "index.html")
     for path in paths:
         if not path.is_file():
@@ -301,17 +476,19 @@ def write(g) -> list[str]:
     doc = build(source)
     e = html.escape
     counts = " · ".join(f"{n} {LABELS[v].lower()}" for v, n in doc["counts"].items())
-    proof_by_id = {spec["id"]: spec for spec in PROOF_CASES}
+    case_by_id = {spec["id"]: spec for spec in all_case_specs(g.ROOT)}
+    proof_ids = {spec["id"] for spec in PROOF_CASES}
     cards = []
     for row in doc["tests"]:
         caveats = "".join(f"<li>{e(c)}</li>" for c in row["caveats"])
         house = ('<p><strong>House product: made by Lantern Works. This is not an independent endorsement.</strong></p>'
                  if row["category"] == "house" else "")
         proof_link = ""
-        if row["id"] in proof_by_id:
-            spec = proof_by_id[row["id"]]
+        if row["id"] in case_by_id:
+            spec = case_by_id[row["id"]]
+            label = "Proof pack v1 case page" if row["id"] in proof_ids else "Case page"
             proof_link = (
-                f'<p><a href="{g.BASE}/receipts/{spec["slug"]}/">Proof pack v1 case page</a> '
+                f'<p><a href="{g.BASE}/receipts/{spec["slug"]}/">{label}</a> '
                 f'(third-party) · <a href="{g.BASE}/receipts/{spec["slug"]}/evidence.json">evidence.json</a></p>'
             )
         cards.append(
@@ -336,6 +513,7 @@ def write(g) -> list[str]:
         f'<p>{e(doc['publication']['house_disclosure'])}</p></aside>\n'
         f'<h2>What this edition can establish</h2><p>{e(LIMITS)}</p><p>{e(EVIDENCE)}</p>\n'
         f'{proof_pack_index_section(g)}\n'
+        f'{extra_case_pages_index_section(g)}\n'
         f'<p><a href="https://lantern-works-mcp.lantern-works.workers.dev/api/v1/receipts.json?ref=receipts-page">Download all records as JSON</a>. Verdict values preserve the original reports; “failed tested task” is the original <code>broken</code> label, scoped to the dated task.</p>\n'
         f'<p>Need GPU prices in your own agent? <a href="{g.BASE}/quickstart/?ref=receipts">Try a free, cited comparison</a>. Price methodology is documented separately at <a href="{g.BASE}/methodology/">/methodology/</a>.</p>\n'
         f'{"".join(cards)}'
@@ -347,6 +525,7 @@ def write(g) -> list[str]:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(g.page_shell("Receipts — dated MCP server test summaries", f"{len(doc['tests'])} dated MCP server test summaries by Pax, with task-specific findings, limitations, house-product disclosure and a verdict firewall.", f"{g.BASE}/receipts/", body), encoding="utf-8")
     proof_paths = write_proof_pack(g)
+    index_paths = write_index_cases(g)
     brand_receipts_pages(g)
-    return ["receipts", *proof_paths]
+    return ["receipts", *proof_paths, *index_paths]
 

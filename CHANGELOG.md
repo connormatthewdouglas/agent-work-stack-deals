@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Receipts case pages (P27, 2026-11-28): seven more third-party case pages join the three proof pack v1 pages, so ten case pages are in the sitemap. Each new page states the recorded version, test date, task, findings, and transcript filename from the Receipts index. Sitemap lastmod for Receipts URLs follows those content dates, not a generator commit date.
+
 - Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include `probe_error` (`type` and a sanitized `message` of at most 200 characters) and `probe_attempted_at`. These fields appear only after a probe error. The attempt is not a successful check and does not refresh `verified_at` or the success `checked_at`. Documented at `/api/#probe-error`.
 
 - Stock expiry and alert age (P70/P71, 2026-11-27): `/api/#availability-expiry`, `/methodology/#stock-expiry`, `/for-agents/#availability-expiry` and the contract docs now state that a stock claim is still valid when now equals `availability_expires_at` (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that `check_alerts` re-evaluates a previously `skipped_stale` row on the next poll rather than firing late. `data_age_hours` is measured from the row's own last price verification, not from the feed write time.
