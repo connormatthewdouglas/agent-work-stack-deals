@@ -346,11 +346,11 @@ def _avail_cell(gen, r: dict) -> str:
         bits.append(f"{a['unrented_servers']} unrented servers (one server may hold several GPUs)")
     regions_html = ""
     if a.get("available_regions"):
-        from core.gpu_availability import et_hm
+        from core.gpu_availability import et_hm, et_time
         rtxt = "regions " + "/".join(a["available_regions"][:6]) + ("…" if len(a["available_regions"]) > 6 else "")
         rx = a.get("regions_expires_at")
         if rx:  # v2.9: the region list has its own (1 h) expiry; the in-page script blanks it after that time
-            rtxt += f" (regions valid until {et_hm(rx)})"
+            rtxt += f" (regions valid until {et_time(rx)})"
             regions_html = f'<span data-rg-expires="{gen.esc(rx)}">{gen.esc(rtxt)}</span>'
         else:
             bits.append(rtxt)

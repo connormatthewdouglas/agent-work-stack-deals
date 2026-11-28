@@ -181,7 +181,7 @@ def region_guard(a, now: datetime | None = None):
     if "available_regions_normalized" in out:
         out["available_regions_normalized"] = None
     out["regions_expired"] = True
-    out["regions_note"] = f"region list expires at {et_hm(a['regions_expires_at'])} (left out once expired or expiring before the next rebuild). " + REGIONS_NOTE
+    out["regions_note"] = f"region list expires at {et_time(a['regions_expires_at'])} (left out once expired or expiring before the next rebuild). " + REGIONS_NOTE
     return out
 
 
