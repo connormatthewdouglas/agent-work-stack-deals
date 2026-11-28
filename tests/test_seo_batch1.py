@@ -1,6 +1,7 @@
 """SEO batch 1: weekly cheapest-H100/L40S/A100 pages and the LoRA fine-tune cost page."""
 from __future__ import annotations
 
+import html
 import re
 import sys
 from pathlib import Path
@@ -137,7 +138,7 @@ def test_install_block_and_example_calls():
     figs = _figs()
     mcp = figs["mcp"]
     for fam, path in FAMILY_PAGES.items():
-        text = path.read_text(encoding="utf-8")
+        text = html.unescape(path.read_text(encoding="utf-8"))
         assert mcp["hosted_add"] in text
         assert mcp["uvx_add"] in text
         assert HOSTED in text
@@ -146,7 +147,7 @@ def test_install_block_and_example_calls():
         assert "compare_gpu_prices" in text
         assert f'"gpu": "{fam}"' in text
         assert '"on_demand_only": true' in text
-    cost = COST_PAGE.read_text(encoding="utf-8")
+    cost = html.unescape(COST_PAGE.read_text(encoding="utf-8"))
     assert mcp["hosted_add"] in cost
     assert mcp["uvx_add"] in cost
     assert HOSTED in cost
