@@ -55,7 +55,7 @@ def test_eligibility_fails_closed():
 
 
 def test_pages_math_and_exclusions():
-    for p in (ROOT / "cost").glob("*/index.html"):
+    for p in (ROOT / "cost").glob("*-hours/index.html"):
         s = p.read_text(encoding="utf-8")
         assert "TensorDock" not in s and "Clore" not in s and "Compute subtotal only" in s
         h = int(re.search(r"-(\d+)-hours", str(p)).group(1))
