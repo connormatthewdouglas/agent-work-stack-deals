@@ -135,6 +135,7 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>README and GPU pages lead with what an agent gets in one call (P11/P12, 2026-11-28): the README top now lists <code>compare_gpu_prices</code>, <code>find_available_gpus</code>, <code>estimate_job_cost</code>, poll-only alerts and price history, with a copy-paste install block (hosted URL and <code>uvx lantern-works-deals-mcp</code>) and the correct tool counts (11 local, 18 hosted). Every <code>/gpu/*-rental-price/</code> page keeps its title and H1, adds a short agent intro naming those tools with links to /install/, /api/ and the per-model feeds, and its meta description adds &quot;Free MCP server and JSON API for agents&quot; (within the 155-character limit). Offer and vendor counts in descriptions still come from the feed at build time.</li>
 <li>Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include <code>probe_error</code> (<code>type</code> and a sanitized <code>message</code> of at most 200 characters) and <code>probe_attempted_at</code>. These fields appear only after a probe error. The attempt is not a successful check and does not refresh <code>verified_at</code> or the success <code>checked_at</code>. Documented at <code>/api/#probe-error</code>.</li>
 </ul>
 <ul>
