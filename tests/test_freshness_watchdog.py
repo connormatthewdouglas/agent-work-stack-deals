@@ -1,4 +1,5 @@
 """A4: outside watchdog. 26h and 8h bars stay put; T41-12's 48h bar applies per ranked row."""
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -137,7 +138,8 @@ def test_workflow_schedule_label_and_node24_actions():
     assert 'cron: "11 */4 * * *"' in text
     assert "issues: write" in text and "actions: read" in text
     assert "freshness-watchdog" in text
-    assert "actions/checkout@v5" in text and "actions/setup-python@v6" in text
+    assert re.search(r"actions/checkout@[0-9a-f]{40} # v5", text)
+    assert re.search(r"actions/setup-python@[0-9a-f]{40} # v6", text)
     assert "fetch-depth: 0" in text
     assert W.FEED_MAX_HOURS == 26 and W.AVAIL_MAX_HOURS == 8
 
