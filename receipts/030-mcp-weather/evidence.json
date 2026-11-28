@@ -1,0 +1,27 @@
+{
+  "record_id": "030",
+  "package": "mcp-weather",
+  "version": "0.1.0",
+  "registry": "pypi",
+  "server": "mcp-weather",
+  "verdict": "broken",
+  "tested_at": "2026-10-29",
+  "task": "current weather for New York City (the test-009 sequel: does a second weather server present next-hour data as current?)",
+  "ground_truth": "not applicable — no server output exists to grade; the evidence is the published package artifact itself (wheel listing, pip show -f, run attempts)",
+  "observed_summary": "The published wheel is empty: 1,139 bytes containing five metadata files and zero code — no module, no entry point, nothing that can answer an initialize on any machine — while pip install exits 0.",
+  "caveats": [
+    "The package summary is the unedited project-template placeholder 'Add your description here'; the whole README is one line naming no upstream API, so the assigned current-vs-next-hour check is moot",
+    "It also declares Requires-Python >=3.13, so it will not even 'install' on Python 3.12. A handshake census could never catch this; only install-and-look does"
+  ],
+  "category": "community",
+  "evidence": {
+    "transcript": "tests/030-mcp-weather-transcript.txt",
+    "writeup": "tests/030-mcp-weather.md"
+  },
+  "source": "receipts-index",
+  "stable_url": "https://thelanternworks.com/receipts/030-mcp-weather/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/030-mcp-weather/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}

@@ -1561,6 +1561,7 @@ _SITEMAP_GIT_DATE_CACHE: dict[str, str | None] = {}
 _SITEMAP_DEAL_DATES: dict[str, str] | None = None
 _SITEMAP_DEALS_FEED_DAY: str | None | bool = False  # False = unloaded
 _SITEMAP_GPU_FEED_DAY: str | None | bool = False
+_SITEMAP_RECEIPTS_DATES: dict[str, str] | None = None
 
 # Relative site path prefix → generator script(s) that own that URL's content.
 _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
@@ -1822,6 +1823,39 @@ def _homepage_content_days() -> list[str]:
     return [day for day in (_gpu_feed_day(), _deals_feed_day(), _changes_content_day()) if day]
 
 
+def _receipts_lastmod_dates() -> dict[str, str]:
+    """Content dates for Receipts URLs: tested_at for case pages; newest content date for the index."""
+    global _SITEMAP_RECEIPTS_DATES
+    if _SITEMAP_RECEIPTS_DATES is not None:
+        return _SITEMAP_RECEIPTS_DATES
+    import receipts_page
+    out: dict[str, str] = {}
+    index = json.loads((ROOT / "data" / "receipts-index.json").read_text(encoding="utf-8"))
+    by_id = {r["id"]: r for r in index["tests"]}
+    days: list[str] = []
+    for r in index["tests"]:
+        day = _iso_date(r.get("tested_at"))
+        if day:
+            days.append(day)
+    pack_path = ROOT / "data" / "receipts-proof-pack-v1.json"
+    if pack_path.is_file():
+        pack = json.loads(pack_path.read_text(encoding="utf-8"))
+        pack_day = _iso_date(pack.get("assembled_at"))
+        if pack_day:
+            days.append(pack_day)
+    if days:
+        out["receipts"] = max(days)
+    for spec in receipts_page.all_case_specs(ROOT):
+        row = by_id.get(spec["id"])
+        if not row:
+            continue
+        day = _iso_date(row.get("tested_at"))
+        if day:
+            out[f"receipts/{spec['slug']}"] = day
+    _SITEMAP_RECEIPTS_DATES = out
+    return out
+
+
 def sitemap_lastmod_for_loc(loc: str) -> str | None:
     """Honest YYYY-MM-DD lastmod for a sitemap loc, or None to omit the tag."""
     url_path = _sitemap_url_path(loc)
@@ -1842,6 +1876,12 @@ def sitemap_lastmod_for_loc(loc: str) -> str | None:
     if stripped == "receipts/write-up":
         import receipts_writeup_page
         return receipts_writeup_page.content_day_from_root(ROOT)
+    # Receipts case pages and the index use recorded content dates (tested_at /
+    # proof-pack assembled_at), never a generator commit date or the clock.
+    if stripped == "receipts" or stripped.startswith("receipts/"):
+        day = _receipts_lastmod_dates().get(stripped)
+        if day:
+            return day
     # gpu/changes.xml is the changes feed. Its lastmod is that feed's date, so a later edit to a
     # generator script or a CI merge commit does not move it.
     if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:

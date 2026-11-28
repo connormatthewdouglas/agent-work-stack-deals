@@ -1,4 +1,5 @@
 import copy
+import html
 import hashlib
 import json
 import sys
@@ -16,14 +17,16 @@ def test_published_summaries_preserve_verified_source_and_disclose_evidence_limi
     assert hashlib.sha256(source).hexdigest() == receipts_page.SOURCE_SHA256
     published = json.loads((ROOT / "api/v1/receipts.json").read_text())
     assert published == receipts_page.build(source)
-    assert published["tests"] == json.loads(source)["tests"]
-    assert sum(published["counts"].values()) == 86
-    assert published["counts"]["deferred"] == 18
+    source_tests = json.loads(source)["tests"]
+    assert published["tests"] == source_tests
+    n = len(source_tests)
+    assert sum(published["counts"].values()) == n
+    assert published["counts"]["deferred"] == sum(1 for r in source_tests if r["verdict"] == "deferred")
     page = (ROOT / "receipts/index.html").read_text()
     for text in [receipts_page.FIREWALL, "not security certifications", "not an independent endorsement",
                  "proof-pack page", "Deferred means untested"]:
         assert text in page
-    assert page.count('<article class="receipt"') == 86
+    assert page.count('<article class="receipt"') == n
     assert 'href="tests/' not in page
     assert "House product: made by Lantern Works" in page
     assert 'id="test-000"' in page
@@ -99,3 +102,68 @@ def test_proof_pack_public_pages_scrub_personal_github_handle():
     assert "connormatthew" not in json.dumps(pack)
     # Source data files keep Pax's original wording (including the repo path).
     assert "connormatthewdouglas" in (ROOT / "data" / receipts_page.PROOF_PACK_MD).read_text()
+
+
+def test_p27_ten_case_pages_from_recorded_receipts():
+    """Ten third-party case pages: three proof-pack v1 plus seven index-sourced Broken/Caveats."""
+    specs = receipts_page.all_case_specs(ROOT)
+    assert len(specs) == 10
+    ids = [s["id"] for s in specs]
+    assert ids[:3] == ["002", "056", "009"]
+    extra = receipts_page.load_index_case_specs(ROOT)
+    assert len(extra) == 7
+    assert {s["id"] for s in extra} == {"030", "018", "055", "052", "008", "027", "015"}
+    rows = receipts_page.load_index_rows(ROOT)
+    index_page = (ROOT / "receipts/index.html").read_text()
+    assert "Case pages" in index_page
+    for spec in extra:
+        row = rows[spec["id"]]
+        assert row["verdict"] in ("broken", "works_with_caveats")
+        assert row["category"] != "house"
+        page_path = ROOT / "receipts" / spec["slug"] / "index.html"
+        evidence_path = ROOT / "receipts" / spec["slug"] / "evidence.json"
+        assert page_path.is_file(), spec["slug"]
+        assert evidence_path.is_file(), spec["slug"]
+        page = page_path.read_text()
+        evidence = json.loads(evidence_path.read_text())
+        assert evidence["record_id"] == spec["id"]
+        assert evidence["package"] == row["package"]
+        assert evidence["version"] == row["version"]
+        assert evidence["verdict"] == row["verdict"]
+        assert evidence["tested_at"] == row["tested_at"]
+        assert evidence["task"] == row["canonical_task"]
+        assert evidence["ground_truth"] == row["ground_truth"]
+        assert evidence["observed_summary"] == row["headline"]
+        assert evidence["caveats"] == row["caveats"]
+        assert evidence["evidence"]["transcript"] == row["transcript"]
+        assert evidence["evidence"]["writeup"] == row["writeup"]
+        assert evidence["source"] == "receipts-index"
+        assert evidence["third_party"] is True
+        assert evidence["house"] is False
+        assert html.escape(row["canonical_task"]) in page
+        assert html.escape(row["headline"]) in page
+        assert row["tested_at"] in page
+        assert str(row["version"]) in page
+        assert html.escape(row["transcript"]) in page
+        for caveat in row["caveats"]:
+            assert html.escape(caveat) in page
+        assert spec["title_verdict"] in page
+        assert "Third-party MCP server" in page
+        assert "House product: made by Lantern Works" not in page
+        assert "Connor" not in page and "Frosty" not in page
+        assert "connormatthew" not in page
+        assert f"/receipts/{spec['slug']}/" in index_page
+        assert f"ref={receipts_page.REF_PROOF}" in page
+        assert "<!-- brand -->" in page
+    # Proof pack v1 stays exactly the original three cases.
+    pack = json.loads((ROOT / "data" / receipts_page.PROOF_PACK_JSON).read_text(encoding="utf-8"))
+    assert {c["record_id"] for c in pack["cases"]} == {"002", "056", "009"}
+    published = json.loads((ROOT / "receipts/proof-pack-v1.json").read_text())
+    assert {c["record_id"] for c in published["cases"]} == {"002", "056", "009"}
+
+
+def test_p27_case_pages_are_in_the_sitemap():
+    sm = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+    for spec in receipts_page.all_case_specs(ROOT):
+        loc = f"https://thelanternworks.com/receipts/{spec['slug']}/"
+        assert f"<loc>{loc}</loc>" in sm, loc
