@@ -1,4 +1,5 @@
 import copy
+import html
 import hashlib
 import json
 import sys
@@ -137,13 +138,13 @@ def test_p27_ten_case_pages_from_recorded_receipts():
         assert evidence["source"] == "receipts-index"
         assert evidence["third_party"] is True
         assert evidence["house"] is False
-        assert row["canonical_task"] in page
-        assert row["headline"] in page
+        assert html.escape(row["canonical_task"]) in page
+        assert html.escape(row["headline"]) in page
         assert row["tested_at"] in page
         assert str(row["version"]) in page
-        assert row["transcript"] in page
+        assert html.escape(row["transcript"]) in page
         for caveat in row["caveats"]:
-            assert caveat in page
+            assert html.escape(caveat) in page
         assert spec["title_verdict"] in page
         assert "Third-party MCP server" in page
         assert "House product: made by Lantern Works" not in page
