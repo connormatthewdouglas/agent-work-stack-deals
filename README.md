@@ -36,7 +36,13 @@ claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
 
 Any other MCP client: add the URL `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme`, or run `uvx lantern-works-deals-mcp`. Per-client config (Claude Desktop, Cursor, VS Code, Windsurf, Cline, Codex) is [below](#connect-your-client). No MCP client? Read the JSON directly: [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json), or the small per-model feeds at [api/v1/gpu/index.json](https://thelanternworks.com/api/v1/gpu/index.json).
 
-Then ask: *"What's the cheapest H100 to rent for 100 hours? Show sources."*
+Then make this first call (copy and paste):
+
+```
+find_available_gpus(gpu="H100")
+```
+
+It returns H100 rates with a current in-stock check among tracked providers, with the hourly price, the vendor source page, and when stock was checked. Prices and stock change; the call always uses the current feed. Confirmed in-stock rows are ranked by stock freshness, then price. You can also ask in plain language: *"Who has an H100 in stock right now? Show sources."*
 
 ![Lantern Works: live GPU rental prices compared across tracked providers](docs/assets/demo.gif)
 
