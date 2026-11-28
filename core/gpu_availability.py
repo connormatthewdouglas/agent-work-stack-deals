@@ -270,8 +270,47 @@ def last_known_window(av: dict) -> tuple[str | None, float | None]:
     return _plus_h(t, AVAIL_MAX_AGE_H), float(AVAIL_MAX_AGE_H)
 
 
+EXPIRES_CLAIM_CHECKED_AT = "checked_at"
+EXPIRES_CLAIM_LAST_KNOWN_AT = "last_known_at"
+
+
+def availability_expires_claim(av: dict | None) -> str | None:
+    """Which claim availability_expires_at is anchored on (P76). Never invents an expiry.
+
+    P72 anchors the live expiry on checked_at (the current read, including a later
+    null/no_source read). The last firm in-stock claim has its own window in
+    last_known_expires_at. Returns None when there is no expiry to label.
+    """
+    if not isinstance(av, dict) or not _parse(av.get("availability_expires_at")):
+        return None
+    exp = _parse(av["availability_expires_at"])
+    ch, lk = av.get("checked_at"), av.get("last_known_at")
+    h = av.get("max_age_hours")
+
+    def _matches(ts, hours) -> bool:
+        if not _parse(ts):
+            return False
+        if isinstance(hours, (int, float)) and not isinstance(hours, bool) and hours >= 0:
+            got = _parse(_plus_h(ts, hours))
+            return bool(got and got == exp)
+        return False
+
+    if _matches(ch, h):
+        return EXPIRES_CLAIM_CHECKED_AT
+    lk_h = av.get("last_known_max_age_hours")
+    if _matches(lk, lk_h if isinstance(lk_h, (int, float)) and not isinstance(lk_h, bool) else h):
+        return EXPIRES_CLAIM_LAST_KNOWN_AT
+    # Existing expiry that we cannot reconstruct arithmetically: P72/stale_guard still
+    # anchor a present live expiry on checked_at when that stamp exists.
+    if _parse(ch):
+        return EXPIRES_CLAIM_CHECKED_AT
+    if _parse(lk):
+        return EXPIRES_CLAIM_LAST_KNOWN_AT
+    return None
+
+
 def annotate_last_known_window(av: dict, now: datetime | None = None) -> dict:
-    """P68: flag last_known against its own claim window and surface that window.
+    """P68/P76: flag last_known against its own claim window and say which claim the live expiry belongs to.
 
     Purely additive, after stale_guard (and P72 annotate_max_age). Never invents a
     last_known value, never changes in_stock / availability_stale / the 8h P64 clock.
@@ -281,6 +320,9 @@ def annotate_last_known_window(av: dict, now: datetime | None = None) -> dict:
     out = dict(av)
     v, t = last_known(out)
     if not (isinstance(v, bool) and t):
+        claim = availability_expires_claim(out)
+        if claim:
+            out["availability_expires_claim"] = claim
         return out
     out["last_known_in_stock"], out["last_known_at"] = v, t
     exp, h = last_known_window(out)
@@ -291,6 +333,9 @@ def annotate_last_known_window(av: dict, now: datetime | None = None) -> dict:
     x = _parse(exp)
     if x is not None:
         out["last_known_outside_window"] = (now or now_utc()) > x
+    claim = availability_expires_claim(out)
+    if claim:
+        out["availability_expires_claim"] = claim
     return out
 
 
@@ -691,11 +736,13 @@ def price_join_guard(a: dict, price_rec: dict | None) -> dict:
 
 def publish_availability(av: dict, vendor: str | None = None, tier: str | None = None,
                          now: datetime | None = None, *, annotate: bool = True) -> dict:
-    """stale_guard first, then optional P72 annotation. annotate=False is the main pipeline."""
+    """stale_guard first, then optional additive annotation. annotate=False is the main pipeline."""
     guarded = stale_guard(av, now)
     if not annotate:
         return guarded
-    return annotate_max_age(guarded, vendor, tier)
+    # P72 max-age, then P68/P76 last-known window + which claim availability_expires_at belongs to.
+    # Both passes are additive; stale_guard / TTLs / ranking are unchanged.
+    return annotate_last_known_window(annotate_max_age(guarded, vendor, tier), now)
 
 
 def availability_for(vendor: str, gpu: str, vram_gb, tier: str, record: dict | None = None, now: datetime | None = None,

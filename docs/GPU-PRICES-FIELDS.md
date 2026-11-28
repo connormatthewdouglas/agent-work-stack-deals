@@ -145,7 +145,8 @@ last_known is marked stale **8 hours** after `last_known_at`. That number is `AV
 | Field | Type | Meaning |
 |---|---|---|
 | `max_age_hours`, `availability_expires_at` | number / string or null | The current reading's claim window (P72). Shown on every row, including `no_source`. |
-| `last_known_expires_at` | string (date-time, UTC `Z`) or null | Expiry of the last firm stock claim, anchored on `last_known_at`. A later failed or `no_source` read never extends this window. |
+| `availability_expires_claim` | `checked_at`, `last_known_at`, or absent (P76) | Which claim `availability_expires_at` is anchored on. A later null or `no_source` read stays `checked_at`; it is not the last in-stock claim's window. |
+| `last_known_expires_at` | string (date-time, UTC `Z`) or null | Expiry of the last firm stock claim, anchored on `last_known_at` (`last_known_at` + that claim's max-age). A later failed or `no_source` read never extends this window. Published on the feed when an older in-stock claim exists beside a newer read (P76), and on MCP results (P68). |
 | `last_known_max_age_hours` | number or null | TTL in hours that produced `last_known_expires_at`. |
 | `last_known_outside_window` | boolean | True when now is after `last_known_expires_at`. Absent when there is no last_known. |
 

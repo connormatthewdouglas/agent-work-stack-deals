@@ -68,7 +68,7 @@ SPEC = {
                             ["advertiser", "gpu", "tier", "rate_id", "hourly_usd", "min_gpus", "in_stock", "checked_at",
                              "stock_level", "last_known_in_stock", "last_known_at", "source_url", "reason",
                              "availability_stale", "availability_expires_at", "max_age_hours",
-                             "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window"]),
+                             "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window", "availability_expires_claim"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -135,6 +135,7 @@ _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock":
                                                                         "last_known_at": {"type": ["string", "null"], "format": "date-time"},
                                                                         # P68 (additive): last firm claim's own window + flag
                                                                         "last_known_expires_at": {"type": ["string", "null"], "format": "date-time"},
+                                                                        "availability_expires_claim": {"type": ["string", "null"], "enum": ["checked_at", "last_known_at"]},
                                                                         "last_known_max_age_hours": _num,
                                                                         "last_known_outside_window": _bool,
                                                                         "max_age_hours": _num,
@@ -211,7 +212,8 @@ _LIVE_ITEM = {"type": "object", "properties": {
     "hourly_usd": _num, "min_gpus": {"type": ["integer", "null"]}, "in_stock": _bool, "checked_at": _str,
     "stock_level": _str, "last_known_in_stock": _bool, "last_known_at": _str, "source_url": _str,
     "reason": _str, "availability_stale": _bool, "availability_expires_at": _str, "max_age_hours": _num,
-    "last_known_expires_at": _str, "last_known_max_age_hours": _num, "last_known_outside_window": _bool}}
+    "last_known_expires_at": _str, "last_known_max_age_hours": _num, "last_known_outside_window": _bool,
+     "availability_expires_claim": _str}}
 EXTRA_PROPS["find_available_gpus"] = {
     "available": {"type": "array", "items": _LIVE_ITEM},
     "sold_out": {"type": "array", "items": _LIVE_ITEM},
@@ -345,11 +347,11 @@ BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd"
                           "last_known_in_stock", "last_known_at",
                           # P68 (additive): the row's claim window, on every row so a client can check it
                           "max_age_hours", "availability_expires_at",
-                          "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window")
+                          "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window", "availability_expires_claim")
 
 
 LAST_KNOWN_KEYS = ("last_known_in_stock", "last_known_at")  # same as core.gpu_availability.LAST_KNOWN_KEYS
-LAST_KNOWN_WINDOW_KEYS = ("last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window")
+LAST_KNOWN_WINDOW_KEYS = ("last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window", "availability_expires_claim")
 LIVE_CLAIM_WINDOW_KEYS = ("max_age_hours", "availability_expires_at")
 DEAL_TOOLS = ("search_deals", "compare_deals", "get_deal")
 

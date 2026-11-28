@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Availability expiry claim (P76, 2026-11-28; marxsignal, Brain #1171): each `availability_expires_at` is labelled with `availability_expires_claim` (`checked_at` or `last_known_at`) so a later null/`no_source` read is not mistaken for the last in-stock claim's window. When an older in-stock claim exists beside a newer read, the feed also carries `last_known_expires_at` (that claim's `last_known_at` + its max_age), separate from the current-read expiry. Ranking, TTLs and `stale_guard` are unchanged. No schema bump. Documented at `/api/#expiry-claim`.
+
 - Job-cost fields on the public docs (2026-11-28): `/api/#estimate-job-cost` and `/for-agents/#estimate-job-cost` document `estimate_job_cost`'s `job_days` input and response (wall-clock days, `job_hours = job_days × 24`, exclusive of `job_hours` and of work-unit duration, 20,000-hour cap) and the `tracked_url` counted `/go/` booking link on each result row.
 
 - Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include `probe_error` (`type` and a sanitized `message` of at most 200 characters) and `probe_attempted_at`. These fields appear only after a probe error. The attempt is not a successful check and does not refresh `verified_at` or the success `checked_at`. Documented at `/api/#probe-error`.

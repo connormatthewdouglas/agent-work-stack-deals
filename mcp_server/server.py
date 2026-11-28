@@ -210,6 +210,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     A crashed availability probe may add probe_error ({type, sanitized message of at most 200 characters})
     and probe_attempted_at; those fields appear only when a probe raised an error and never count as a
     successful check (verified_at and the success checked_at are not refreshed).
+    availability_expires_claim says which claim availability_expires_at belongs to (checked_at or last_known_at).
+    When an older in-stock claim exists beside a newer read, last_known_expires_at is that older claim's own expiry
+    (last_known_at + its max_age), separate from the current-read expiry. Display only; not a successful check.
     A row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill
     (true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),
     backfill_eta and next_check_basis (the schedule it came from).
@@ -379,7 +382,9 @@ def find_available_gpus(gpu: str, gpus: int = 1, limit: int = 10, on_demand_only
     shorter Scout claim lifetime). sold_out is confirmed unexpired in_stock false. Everything else
     is unknown with a reason (stale, static_label, no_source, no_signal, quota, region,
     region_unresolved, held_stale, owner_hold). last_known_in_stock / last_known_at stay visible
-    on lapsed claims (P64). A crashed probe may add probe_error and probe_attempted_at (attempt
+    on lapsed claims (P64). availability_expires_claim names which claim availability_expires_at belongs to;
+    last_known_expires_at is the older in-stock claim's own expiry when one exists beside a newer read.
+    A crashed probe may add probe_error and probe_attempted_at (attempt
     time only; not a successful check). Unknown is not sold out. Vendor-labelled static page labels, no_source,
     no signal, quota/region failures, held rows, and the 7-day stock rate never count as in stock.
     gpus (default 1) is the existing min_gpus allocation rule, not a cluster free-count.

@@ -974,6 +974,8 @@ def _live_item(r: dict, av: dict, reason: str | None = None) -> dict:
     av = annotate_last_known_window(av)
     if "availability_expires_at" in av:
         item["availability_expires_at"] = to_utc_z(av.get("availability_expires_at"))
+    if av.get("availability_expires_claim"):
+        item["availability_expires_claim"] = av["availability_expires_claim"]
     if av.get("max_age_hours") is not None:
         item["max_age_hours"] = av["max_age_hours"]
     v, ts = last_known(av)
