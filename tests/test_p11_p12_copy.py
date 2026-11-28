@@ -18,7 +18,7 @@ def _real_tools():
 
 def test_one_call_tool_names_exist_in_server_code():
     assert set(ONE_CALL) <= _real_tools()
-    assert len(install_page.TOOLS) == 11 and len(_real_tools()) == 18  # README states 11 local / 18 hosted
+    assert len(install_page.TOOLS) == 12 and len(_real_tools()) == 19  # README states 12 local / 19 hosted
 
 
 def test_readme_leads_with_one_call_and_has_install_block():
@@ -29,7 +29,7 @@ def test_readme_leads_with_one_call_and_has_install_block():
     assert f"claude mcp add --transport http lantern-works-gpu-prices \"{HOSTED}?ref=readme\"" in top
     assert "uvx lantern-works-deals-mcp" in top and "No API key" in top
     assert "among tracked providers" in top and "not real-time" in top
-    assert "18 in total" in s and "Tools (11 in the local package" in s
+    assert "19 in total" in s and "Tools (12 in the local package" in s
     assert "Frosty" not in s and "Connor" not in top
 
 

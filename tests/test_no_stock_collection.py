@@ -1,9 +1,18 @@
 """rel055 (Scout): Jarvislabs and Thunder Compute stock is labelled 'unmeasurable (no stock collection)' on /gpu/;
+
 their cited prices stay."""
+import pytest
 import json, re
 from pathlib import Path
 from core.gpu import unmeasurable_reason, NO_STOCK_COLLECTION_LABEL
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 
 def test_reason():

@@ -118,6 +118,7 @@ def test_changes_feed_is_written_before_the_sitemap():
     src = (ROOT / "scripts" / "generate_seo_pages.py").read_text(encoding="utf-8")
     main = src.split("def main", 1)[1]
     assert main.index("gpu_changes_feed.write") < main.index("write_sitemap(")
+    assert main.index("gpu_digest_feed.write") < main.index("write_sitemap(")
 
 
 def _reset_lastmod_caches() -> None:

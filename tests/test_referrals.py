@@ -1,7 +1,15 @@
+import pytest
 import copy, json
 from pathlib import Path
 from core import deals as core
 from core.referrals import REFERRALS, REFERRAL_LABEL
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 ROOT = Path(__file__).resolve().parents[1]
 FEED = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())

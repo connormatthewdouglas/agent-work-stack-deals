@@ -374,6 +374,51 @@ def get_price_trend(rate_id: str, windows: list[int] | None = None) -> dict:
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
 @_contract
+def get_price_moves(period: str = "daily", limit: int = 10, gpu: str | None = None,
+                    vendor: str | None = None, direction: str | None = None) -> dict:
+    """Biggest tracked GPU price moves for a daily or 7-day window, among tracked providers only.
+
+    Reuses existing daily snapshot diffs and history windows (same 2% deadband and ranked-day
+    rules as get_price_trend). Held/stale days stay out of the math. Missing snapshot days are
+    not invented. Current sold_out does not blank a historical move. At request time a live
+    stock claim is passed through stale_guard (P64) so staleness is visible; that does not
+    change pct. period is daily (default) or weekly. limit 1-25 (default 10). Optional gpu,
+    vendor, and direction (up/down) filters. All timestamps are UTC with a Z.
+    """
+    try:
+        from core import gpu_digest as D
+        hist, ch, rates = None, None, None
+        per = (period or "daily").strip().lower() or "daily"
+        try:
+            hist = history_loader.load()
+        except DealError:
+            if per == "weekly":
+                raise
+            hist = {"series": []}
+        try:
+            ch = changes_loader.load()
+        except DealError:
+            if per == "daily":
+                raise
+            ch = {"changes": []}
+        try:
+            rates = (gpu_loader.load() or {}).get("rates")
+        except DealError:
+            rates = None
+        return D.price_moves(history=hist, changes=ch, period=period or "daily", limit=limit,
+                             gpu=gpu, vendor=vendor, direction=direction, live_rates=rates)
+    except DealError as e:
+        return e.to_dict()
+    except Exception as e:
+        from core.gpu_digest import DigestError
+        if isinstance(e, DigestError):
+            return DealError(e.code, e.message).to_dict()
+        raise
+
+
+@mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
+@_contract
 def find_available_gpus(gpu: str, gpus: int = 1, limit: int = 10, on_demand_only: bool = True,
                         region: str | None = None, vendor: str | None = None) -> dict:
     """Who has N x GPU free right now among tracked providers, ranked by confirmed in-stock freshness.

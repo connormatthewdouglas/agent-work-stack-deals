@@ -1,6 +1,8 @@
 """T61 (Gauge 1108 blocker): the hosted Worker bundles only .py modules, so core/assets/gpu_identity.json is NOT on disk
+
 there. Build the bundle the way hosted/build.sh does (its own asset-embedding lines), delete the assets, and call
 compare_gpu_prices in a fresh interpreter: prices must come back, never internal_error."""
+import pytest
 import json
 import os
 import re
@@ -10,6 +12,13 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 CALL = r'''
 import json, sys, types
