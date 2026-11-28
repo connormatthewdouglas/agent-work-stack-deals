@@ -119,15 +119,24 @@ def test_insufficient_ranked_days():
 @pytest.mark.parametrize("kw,reason", [
     (dict(held=True), "held_stale"),
     (dict(live=_live(reason="no_source")), "no_source"),
-    (dict(live=_live(sold=True)), "sold_out"),
     (dict(live=_live(hours_old=49)), "stale"),
     (dict(live=_live(undated=True)), "undated"),
 ])
-def test_live_stale_held_no_source_sold_out_block_the_whole_trend(kw, reason):
+def test_live_stale_held_no_source_block_the_whole_trend(kw, reason):
     s = _series([_pt("2026-10-27", 2.0), _pt("2026-11-23", 1.0)])  # would otherwise be a downtrend
     live = kw.get("live", _live())
     out = H.price_trend(s, history=_hist(s), live=live, held=kw.get("held", False), now=NOW)
     assert out["trend"] is None and out["trend_reason"] == reason and out["windows"] == []
+
+
+def test_sold_out_live_row_still_computes_trend_windows():
+    # Current sold_out must not gate windows; held/stale *days* are still excluded via _point_on.
+    s = _series([_pt("2026-10-27", 2.0), _pt("2026-11-23", 1.0)])
+    sold = H.price_trend(s, history=_hist(s), live=_live(sold=True), now=NOW)
+    instock = H.price_trend(s, history=_hist(s), live=_live(), now=NOW)
+    assert sold["trend_reason"] != "sold_out" and sold["windows"]
+    assert sold["windows"] == instock["windows"]
+    assert sold["trend"] == instock["trend"]
 
 
 def test_utc_z_and_plus00_verified_at():

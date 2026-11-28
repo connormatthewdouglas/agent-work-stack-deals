@@ -145,13 +145,17 @@ def test_stale_price_excluded_degraded_flagged_frozen_clock():
 
 
 def test_availability_passthrough_is_not_a_reservation():
-    # A stale in_stock reading is passed through as the feed has it; the quote is not a stock claim.
-    av = {"in_stock": True, "checked_at": "2026-11-26T08:00:00Z",  # 9h before NOW, past P64 8h
+    # A stale stock claim is request-time guarded (same stale_guard as find_available_gpus).
+    # The quote is still not a reservation; in_stock is unknown, last_known stays visible.
+    av = {"in_stock": True, "origin": "scout",
+          "checked_at": "2026-11-26T08:00:00Z",  # 9h before NOW, past P64 8h
           "last_known_in_stock": True, "last_known_at": "2026-11-26T08:00:00Z"}
     data = _feed([_row("Acme", 2.0, availability=av)])
     out = estimate_job_cost(data, "H100", 8, job_days=3, now=NOW)
     r = out["results"][0]
-    assert r["availability"]["in_stock"] is True  # passthrough, not a live claim for 3 days
+    assert r["in_stock"] is None and r["availability"]["in_stock"] is None
+    assert r["availability"].get("availability_stale") is True
+    assert r["availability"]["last_known_in_stock"] is True
     assert r["availability"]["last_known_at"].endswith("Z")
     assert "reservation" not in out["summary"].lower()
     assert "3 days" in out["summary"]

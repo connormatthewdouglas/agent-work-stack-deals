@@ -385,6 +385,23 @@ def stale_guard(a, now: datetime | None = None):
     return _age_last_known(out, now)
 
 
+def request_availability(av, now: datetime | None = None):
+    """P64 request-time expiry check shared by find_available_gpus, compare_gpu_prices,
+    and estimate_job_cost. Applies stale_guard so a lapsed stock claim is never shown
+    as in_stock true or false; last_known_* stays visible. Non-dicts pass through."""
+    if not isinstance(av, dict):
+        return av
+    return stale_guard(av, now)
+
+
+def with_request_availability(r: dict, now: datetime | None = None) -> dict:
+    """Copy of a rate with availability passed through request_availability (P64)."""
+    if not isinstance(r, dict) or not isinstance(r.get("availability"), dict):
+        return r
+    guarded = request_availability(r["availability"], now)
+    return r if guarded is r["availability"] else {**r, "availability": guarded}
+
+
 def _age_last_known(av: dict, now: datetime | None = None) -> dict:
     """If the current reading is not a firm observation, mark last_known stale on the same AVAIL_MAX_AGE_H
     clock as a live in_stock true or sold_out claim, without moving checked_at back."""
