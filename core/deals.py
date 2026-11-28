@@ -970,14 +970,24 @@ def _live_item(r: dict, av: dict, reason: str | None = None) -> dict:
     }
     if av.get("stock_level"):
         item["stock_level"] = str(av["stock_level"])
+    from .gpu_availability import annotate_last_known_window
+    av = annotate_last_known_window(av)
+    if "availability_expires_at" in av:
+        item["availability_expires_at"] = to_utc_z(av.get("availability_expires_at"))
+    if av.get("max_age_hours") is not None:
+        item["max_age_hours"] = av["max_age_hours"]
     v, ts = last_known(av)
     if not isinstance(v, bool):
         v, ts = av.get("last_known_in_stock"), av.get("last_known_at")
     if isinstance(v, bool) and ts:
         item["last_known_in_stock"] = v
         item["last_known_at"] = to_utc_z(ts)
-    if av.get("availability_expires_at"):
-        item["availability_expires_at"] = to_utc_z(av.get("availability_expires_at"))
+        if av.get("last_known_expires_at"):
+            item["last_known_expires_at"] = to_utc_z(av.get("last_known_expires_at"))
+        if av.get("last_known_max_age_hours") is not None:
+            item["last_known_max_age_hours"] = av["last_known_max_age_hours"]
+        if "last_known_outside_window" in av:
+            item["last_known_outside_window"] = av["last_known_outside_window"]
     if av.get("availability_stale"):
         item["availability_stale"] = True
     if reason:
