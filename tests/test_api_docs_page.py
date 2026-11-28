@@ -89,3 +89,20 @@ def test_api_and_for_agents_document_job_days_and_tracked_url():
         assert "Frosty" not in s and "Connor" not in s
     assert 'href="https://thelanternworks.com/for-agents/#estimate-job-cost"' in api
     assert 'href="https://thelanternworks.com/api/#estimate-job-cost"' in fa
+
+
+def test_api_and_for_agents_document_rent_here():
+    api = (ROOT / "api" / "index.html").read_text(encoding="utf-8")
+    fa = (ROOT / "for-agents" / "index.html").read_text(encoding="utf-8")
+    for s in (api, fa):
+        assert 'id="rent-here"' in s
+        assert "rent_here" in s and "rent_url" in s and "tracked_url" in s
+        assert "top 3" in s
+        for name in ("compare_gpu_prices", "find_available_gpus", "estimate_job_cost"):
+            assert f"<code>{name}</code>" in s
+        assert "referral_disclosure" in s
+        assert "src=mcp" in s and "/go/" in s
+        assert "Frosty" not in s and "Connor" not in s
+    assert 'href="https://thelanternworks.com/for-agents/#rent-here"' in api
+    assert 'href="https://thelanternworks.com/api/#rent-here"' in fa
+
