@@ -1,13 +1,12 @@
 """SDPE-20: confirmed in-stock H100/A100 rows must carry vendor-confirmed regions.
 
-Fixture tests are deterministic (no live reads). The stale-set parity check
-allows differences only on rates whose availability was refreshed (newer
-stock-read timestamp than origin/main).
+Fixture tests and the stale-set parity check are deterministic: they use
+committed fixtures at a pinned clock. They do not read origin/main, the live
+feed, or the wall clock.
 """
 from __future__ import annotations
 
 import json
-import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -21,7 +20,7 @@ from core.gpu_availability import (  # noqa: E402
 )
 
 FIX = json.loads((ROOT / "tests/fixtures/sdpe20_confirmed_regions.json").read_text())
-FEED = ROOT / "api/v1/gpu-prices.json"
+PARITY = json.loads((ROOT / "tests/fixtures/sdpe20_stale_set_parity.json").read_text())
 T0 = datetime(2026, 11, 28, 12, 0, tzinfo=timezone.utc)
 
 
@@ -46,8 +45,8 @@ def _stale_view(av: dict | None) -> tuple:
     )
 
 
-def _rate_key(r: dict):
-    return r.get("rate_id") or (r.get("advertiser"), r.get("gpu"), r.get("vram_gb"), r.get("tier"))
+def _row_key(r: dict):
+    return (r.get("vendor") or r.get("advertiser"), r.get("gpu"), r.get("vram_gb"), r.get("tier"))
 
 
 def test_fixture_confirmed_h100_a100_regions_publish_before_expiry():
@@ -85,55 +84,41 @@ def test_fixture_regions_blank_after_region_expiry_without_inventing_a_fresh_sta
     assert out.get("checked_at") == checked
 
 
-def test_stale_set_only_refreshed_rows_differ_from_main():
-    """At the PR feed clock, stale-set / region differences vs origin/main are only on refreshed rows.
+def test_stale_set_only_refreshed_rows_differ():
+    """At a pinned clock, only refreshed rows may change stale/region view versus the before fixture.
 
-    A row is 'refreshed' when this PR's availability checked_at is newer than origin/main's.
-    Other rates must publish the same stale view (in_stock, status, stale, expiry, regions).
+    A row is refreshed when after.checked_at is newer than before.checked_at (or the row is new).
+    Unchanged rows must publish the same stale view. The after set must include a confirmed
+    in-stock H100/A100 row with vendor regions.
     """
-    if not FEED.is_file():
-        return
-    pr = json.loads(FEED.read_text())
-    try:
-        main_raw = subprocess.check_output(
-            ["git", "show", "origin/main:api/v1/gpu-prices.json"], cwd=ROOT
-        )
-    except subprocess.CalledProcessError:
-        return
-    main = json.loads(main_raw)
-    now = _now(pr["feed_updated_at"])
-    main_by = {_rate_key(r): r for r in main.get("rates") or []}
+    clock = _now(PARITY["clock"])
+    before_rows = PARITY["before"]["rows"]
+    after_rows = PARITY["after"]["rows"]
+    assert before_rows and after_rows and PARITY.get("refreshed_keys"), "parity fixture incomplete"
+    before_by = {_row_key(r): r for r in before_rows}
+    expected_refreshed = {tuple(k) for k in PARITY["refreshed_keys"]}
     drifted = []
     refreshed = []
-    new_confirmed = []
-    for r in pr.get("rates") or []:
-        key = _rate_key(r)
-        av = r.get("availability") if isinstance(r.get("availability"), dict) else None
-        if not av:
-            continue
-        pr_view = _stale_view(publish_availability(dict(av), r.get("advertiser"), r.get("tier"), now, annotate=True))
-        mr = main_by.get(key)
-        mav = mr.get("availability") if mr and isinstance(mr.get("availability"), dict) else None
-        if not mav:
-            if av.get("in_stock") is True and av.get("available_regions"):
-                new_confirmed.append(key)
-            continue
-        main_view = _stale_view(publish_availability(dict(mav), mr.get("advertiser"), mr.get("tier"), now, annotate=True))
-        pr_ts = av.get("checked_at") or av.get("stock_read_at") or ""
-        main_ts = mav.get("checked_at") or mav.get("stock_read_at") or ""
-        if pr_ts > main_ts:
-            refreshed.append(key)
-            continue
-        if pr_view != main_view:
-            drifted.append((key, main_view, pr_view))
-    assert not drifted, f"stale/region view changed on rows that were not refreshed: {drifted[:8]}"
     confirmed = []
-    for r in pr.get("rates") or []:
-        g = (r.get("gpu") or "")
-        if "H100" not in g.upper() and "A100" not in g.upper():
-            continue
-        av = r.get("availability") if isinstance(r.get("availability"), dict) else {}
-        pub = publish_availability(dict(av), r.get("advertiser"), r.get("tier"), now, annotate=True) if av else {}
-        if pub.get("in_stock") is True and pub.get("available_regions"):
-            confirmed.append((r.get("advertiser"), g, r.get("tier"), pub.get("available_regions"), pub.get("checked_at")))
-    assert confirmed, "expected confirmed in-stock H100/A100 rows with vendor regions in the published feed"
+    for r in after_rows:
+        key = _row_key(r)
+        after_view = _stale_view(_pub(r, clock))
+        prev = before_by.get(key)
+        if prev is None or (r.get("availability_checked_at") or "") > (prev.get("availability_checked_at") or ""):
+            refreshed.append(key)
+        else:
+            before_view = _stale_view(_pub(prev, clock))
+            if after_view != before_view:
+                drifted.append((key, before_view, after_view))
+        if (("H100" in (r.get("gpu") or "").upper() or "A100" in (r.get("gpu") or "").upper())
+                and after_view and after_view[0] is True and after_view[5]):
+            confirmed.append((key, after_view[5], after_view[4]))
+    assert not drifted, f"stale/region view changed on rows that were not refreshed: {drifted}"
+    assert set(refreshed) == expected_refreshed, (refreshed, expected_refreshed)
+    assert confirmed, "after fixture must have a confirmed in-stock H100/A100 row with vendor regions"
+    # The refreshed Hyperstack row actually changed view (not a no-op refresh).
+    hs_before = _stale_view(_pub(before_by[("Hyperstack", "H100 PCIe", 80, "On-demand")], clock))
+    hs_after = _stale_view(_pub(next(r for r in after_rows if _row_key(r) == ("Hyperstack", "H100 PCIe", 80, "On-demand")), clock))
+    assert hs_before != hs_after
+    assert hs_after[0] is True and hs_after[5] == ("CANADA-1",)
+    assert hs_before[0] is not True and not hs_before[5]

@@ -1,0 +1,168 @@
+{
+  "comment": "Deterministic SDPE-20 stale-set parity pair. Not a live feed. Pinned clock 2026-11-28T12:30:00Z: only the refreshed Hyperstack H100 PCIe row may change stale/region view; Lambda and Civo are unchanged.",
+  "clock": "2026-11-28T12:30:00Z",
+  "refreshed_keys": [
+    [
+      "Hyperstack",
+      "H100 PCIe",
+      80,
+      "On-demand"
+    ]
+  ],
+  "before": {
+    "rows": [
+      {
+        "vram_gb": 80,
+        "region": "all",
+        "offer_count": null,
+        "unrented_servers": null,
+        "stock_level": null,
+        "derived_from_regions": true,
+        "availability_source": "https://example.invalid/stock",
+        "availability_source_type": "fixture",
+        "vendor": "Hyperstack",
+        "gpu": "H100 PCIe",
+        "tier": "On-demand",
+        "in_stock": true,
+        "available_regions": [
+          "CANADA-1"
+        ],
+        "availability_checked_at": "2026-11-28T10:00:00Z",
+        "availability_expires_at": "2026-11-28T18:00:00Z",
+        "available_regions_detail": [
+          {
+            "region": "CANADA-1",
+            "checked_at": "2026-11-28T10:00:00Z",
+            "availability_expires_at": "2026-11-28T11:00:00Z",
+            "confirmed": true,
+            "confirmation": "two_reads"
+          }
+        ]
+      },
+      {
+        "vram_gb": 80,
+        "region": "all",
+        "offer_count": null,
+        "unrented_servers": null,
+        "stock_level": null,
+        "derived_from_regions": true,
+        "availability_source": "https://example.invalid/stock",
+        "availability_source_type": "fixture",
+        "vendor": "Lambda",
+        "gpu": "A100 SXM",
+        "tier": "On-demand instance (1x GPU)",
+        "in_stock": true,
+        "available_regions": [
+          "us-east-1"
+        ],
+        "availability_checked_at": "2026-11-28T12:00:00Z",
+        "availability_expires_at": "2026-11-28T13:00:00Z",
+        "available_regions_detail": [
+          {
+            "region": "us-east-1",
+            "checked_at": "2026-11-28T12:00:00Z",
+            "availability_expires_at": "2026-11-28T13:00:00Z",
+            "confirmed": true,
+            "confirmation": "two_reads"
+          }
+        ]
+      },
+      {
+        "vram_gb": 80,
+        "region": "all",
+        "offer_count": null,
+        "unrented_servers": null,
+        "stock_level": null,
+        "derived_from_regions": false,
+        "availability_source": "https://example.invalid/stock",
+        "availability_source_type": "fixture",
+        "vendor": "Civo",
+        "gpu": "H100 SXM",
+        "tier": "On-demand",
+        "in_stock": true,
+        "available_regions": null,
+        "availability_checked_at": "2026-11-28T12:00:00Z",
+        "availability_expires_at": "2026-11-28T20:00:00Z",
+        "availability_note": "statusText on the vendor product page: 'In stock'"
+      }
+    ]
+  },
+  "after": {
+    "rows": [
+      {
+        "vram_gb": 80,
+        "region": "all",
+        "offer_count": null,
+        "unrented_servers": null,
+        "stock_level": null,
+        "derived_from_regions": true,
+        "availability_source": "https://example.invalid/stock",
+        "availability_source_type": "fixture",
+        "vendor": "Hyperstack",
+        "gpu": "H100 PCIe",
+        "tier": "On-demand",
+        "in_stock": true,
+        "available_regions": [
+          "CANADA-1"
+        ],
+        "availability_checked_at": "2026-11-28T12:05:00Z",
+        "availability_expires_at": "2026-11-28T20:05:00Z",
+        "available_regions_detail": [
+          {
+            "region": "CANADA-1",
+            "checked_at": "2026-11-28T12:05:00Z",
+            "availability_expires_at": "2026-11-28T13:05:00Z",
+            "confirmed": true,
+            "confirmation": "two_reads"
+          }
+        ]
+      },
+      {
+        "vram_gb": 80,
+        "region": "all",
+        "offer_count": null,
+        "unrented_servers": null,
+        "stock_level": null,
+        "derived_from_regions": true,
+        "availability_source": "https://example.invalid/stock",
+        "availability_source_type": "fixture",
+        "vendor": "Lambda",
+        "gpu": "A100 SXM",
+        "tier": "On-demand instance (1x GPU)",
+        "in_stock": true,
+        "available_regions": [
+          "us-east-1"
+        ],
+        "availability_checked_at": "2026-11-28T12:00:00Z",
+        "availability_expires_at": "2026-11-28T13:00:00Z",
+        "available_regions_detail": [
+          {
+            "region": "us-east-1",
+            "checked_at": "2026-11-28T12:00:00Z",
+            "availability_expires_at": "2026-11-28T13:00:00Z",
+            "confirmed": true,
+            "confirmation": "two_reads"
+          }
+        ]
+      },
+      {
+        "vram_gb": 80,
+        "region": "all",
+        "offer_count": null,
+        "unrented_servers": null,
+        "stock_level": null,
+        "derived_from_regions": false,
+        "availability_source": "https://example.invalid/stock",
+        "availability_source_type": "fixture",
+        "vendor": "Civo",
+        "gpu": "H100 SXM",
+        "tier": "On-demand",
+        "in_stock": true,
+        "available_regions": null,
+        "availability_checked_at": "2026-11-28T12:00:00Z",
+        "availability_expires_at": "2026-11-28T20:00:00Z",
+        "availability_note": "statusText on the vendor product page: 'In stock'"
+      }
+    ]
+  }
+}
