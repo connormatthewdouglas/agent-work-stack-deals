@@ -332,7 +332,13 @@ def apply_probe(previous: dict | None, current: dict, now: datetime | None = Non
     probe_error + probe_attempted_at and do not treat the attempt as a successful check.
     """
     cur = dict(current)
-    crash = cur.pop("probe_crash", None) or cur.pop("error", None)
+    # Only pop/convert `error` when it is an exception. A string (or other
+    # non-exception) error key must stay on the record; popping it silently
+    # used to drop a real probe note (#372).
+    crash = cur.pop("probe_crash", None)
+    if not isinstance(crash, BaseException):
+        err = cur.get("error")
+        crash = cur.pop("error") if isinstance(err, BaseException) else None
     if isinstance(crash, BaseException):
         attempted = cur.get("probe_attempted_at") or cur.get("attempted_at") or now
         return apply_probe_crash(previous, crash, attempted_at=attempted)
