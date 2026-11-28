@@ -30,7 +30,7 @@ def test_mcp_readme_lists_every_tool():
     src = (R / "mcp_server" / "server.py").read_text()
     tools = re.findall(r"@mcp\.tool\([^\n]*\)\s*\n(?:@\w+\s*\n)*def (\w+)\(", src)
     readme = (R / "mcp_server" / "README.md").read_text()
-    assert len(tools) == 11, tools
+    assert len(tools) == 12, tools
     missing = [t for t in tools if f"| `{t}` |" not in readme]
     assert not missing, missing
 

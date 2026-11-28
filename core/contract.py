@@ -57,6 +57,12 @@ SPEC = {
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
                           ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
                            "change_pct", "source_url", "last_verified_before", "gap_days", "composition_flag"]),
+    "get_price_moves": (["period", "as_of", "count", "results"], "results",
+                        ["rank", "vendor", "gpu", "direction", "pct"],
+                        ["ok", "period", "as_of", "window_start", "window_end", "count", "considered", "results", "label"],
+                        ["rank", "rate_id", "vendor", "gpu", "tier", "change", "direction", "start_usd", "end_usd",
+                         "pct", "ranked_days", "start_at", "end_at", "source_url", "verified_at",
+                         "in_stock", "availability_stale", "last_known_in_stock", "last_known_at"]),
     "get_price_trend": (["rate_id", "as_of", "first_snapshot", "last_snapshot"], "windows",
                         ["days"],
                         ["rate_id", "trend", "trend_reason", "windows", "as_of", "first_snapshot", "last_snapshot"],
@@ -204,6 +210,26 @@ EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend"] = _
 EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend_reason"] = _str
 EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["rent_url"] = _str
 EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["rent_here"] = _str
+EXTRA_PROPS["get_price_moves"] = {
+    "period": {"type": "string", "enum": ["daily", "weekly"]},
+    "as_of": _str, "window_start": _str, "window_end": _str, "label": _str,
+    "count": {"type": "integer"}, "considered": {"type": ["integer", "null"]},
+    "results": {"type": "array", "items": {"type": "object",
+        "required": ["rank", "vendor", "gpu", "direction", "pct"],
+        "properties": {
+            "rank": {"type": "integer"}, "rate_id": {"type": ["string", "null"], "pattern": "^r_[0-9a-f]{12}$"},
+            "key": _str, "vendor": _str, "gpu": _str, "tier": _str,
+            "vram_gb": {"type": ["integer", "null"]}, "gpu_count": {"type": ["integer", "null"]},
+            "change": _str, "direction": {"type": "string", "enum": ["up", "down"]},
+            "start_usd": _num, "end_usd": _num, "pct": {"type": "number"},
+            "ranked_days": {"type": ["integer", "null"]},
+            "start_at": _str, "end_at": _str, "source_url": _str, "verified_at": _str,
+            "last_verified_before": _str, "gap_days": _num,
+            "in_stock": {"type": ["boolean", "null"]}, "availability_stale": _bool,
+            "last_known_in_stock": {"type": ["boolean", "null"]}, "last_known_at": _str,
+            "availability": {"type": ["object", "null"]},
+        }}},
+}
 EXTRA_PROPS["get_price_trend"] = {"windows": {"type": "array", "items": _TREND_WIN}, "trend": _TREND, "trend_reason": _str,
                                   "rate_id": {"type": "string"}, "vendor": _str, "gpu": _str, "tier": _str,
                                   "vram_gb": {"type": ["integer", "null"]}, "gpu_count": {"type": ["integer", "null"]},

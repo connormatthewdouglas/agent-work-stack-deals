@@ -567,7 +567,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <h1>For agents: GPU rental prices, with receipts</h1>
   <p>Lantern Works tracks <strong>{gcov["models_tracked"]} GPU models across {gcov["vendors"]} vendors</strong> ({n_rates} rates in the current feed, updated <code>{esc(gdoc.get("feed_updated_at"))}</code>). Every rate is read from the vendor's own pricing page and carries its <code>source_url</code> and <code>checked_at</code>. Public, read-only, no API key.</p>
   <ul>
-    <li>GPU price feed: <a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> · daily changes: <a href="{BASE}/api/v1/gpu-price-changes.json">gpu-price-changes.json</a></li>
+    <li>GPU price feed: <a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> · daily changes: <a href="{BASE}/api/v1/gpu-price-changes.json">gpu-price-changes.json</a> · biggest moves: <a href="{BASE}/api/v1/gpu-price-digest.json">gpu-price-digest.json</a></li>
     <li>Coverage by model and vendor: <a href="{BASE}/coverage/">/coverage/</a> (<a href="{BASE}/api/v1/coverage.json">coverage.json</a>)</li>
   </ul>
 
@@ -588,7 +588,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <ul>
 {mcp_tools}
   </ul>
-  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools ({watch_tools}). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. <code>find_available_gpus(gpu, gpus=1)</code> lists who has N × GPU confirmed in stock right now from existing availability (never from a stale or static-label reading). Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
+  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools ({watch_tools}). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. <code>get_price_moves(period="weekly")</code> returns the biggest daily or 7-day tracked price moves (also at <a href="{BASE}/api/v1/gpu-price-digest.json">gpu-price-digest.json</a>). <code>find_available_gpus(gpu, gpus=1)</code> lists who has N × GPU confirmed in stock right now from existing availability (never from a stale or static-label reading). Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
 
   <h3 id="rent-here">Rent here links on top price rows</h3>
   <p>The top 3 rows of <code>compare_gpu_prices</code> (<code>results[]</code>), <code>find_available_gpus</code> (<code>available[]</code>) and <code>estimate_job_cost</code> (<code>results[]</code>) carry a clear <code>rent_here</code> line (the text &quot;Rent here: &quot; plus the URL) and a <code>rent_url</code> field. Both use the same counted <code>/go/?src=mcp</code> booking link as <code>tracked_url</code>, in brief and full mode. Show those links to the user. The top-level <code>referral_disclosure</code> is unchanged. Ranking never reads these fields, and quote <code>receipt</code> lines do not include them. These links are for a human to open; agents must not follow them automatically. The same facts are on the <a href="{BASE}/api/#rent-here">public API page</a>.</p>
@@ -1573,6 +1573,7 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("gpu/price-comparison", ("scripts/gpu_pages.py",)),
     ("docs/watch-gpu-prices", ("scripts/agent_growth_pages.py",)),
     ("api/v1/gpu-price-changes", ("scripts/gpu_changes_feed.py",)),
+    ("api/v1/gpu-price-digest", ("scripts/gpu_digest_feed.py",)),
     # Exact /api/ docs page. Keep this after the api/v1/ prefix so feed lastmods are unchanged.
     ("api", ("scripts/api_docs_page.py",)),
     ("report-price", ("scripts/report_price_page.py",)),
@@ -1719,7 +1720,7 @@ def _depends_on_gpu_feed(url_path: str) -> bool:
         return True
     if p == "cost" or p.startswith("cost/"):
         return True
-    if p.startswith("api/v1/gpu-price-changes"):
+    if p.startswith("api/v1/gpu-price-changes") or p.startswith("api/v1/gpu-price-digest"):
         return True
     if p == "coverage" or p.startswith("coverage/"):
         return True
@@ -1780,6 +1781,18 @@ def _changes_content_day() -> str | None:
     return _iso_date(doc.get("date"))
 
 
+def _digest_content_day() -> str | None:
+    """Day the published price-moves digest moved (weekly window_end or daily date). Not the clock."""
+    try:
+        doc = json.loads((ROOT / "api/v1/gpu-price-digest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    weekly = _iso_date(((doc.get("weekly") or {}).get("window_end")))
+    daily = _iso_date((doc.get("daily") or {}).get("date"))
+    days = [d for d in (weekly, daily) if d]
+    return max(days) if days else None
+
+
 _CHANGELOG_DAY_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 
 
@@ -1833,6 +1846,8 @@ def sitemap_lastmod_for_loc(loc: str) -> str | None:
     # generator script or a CI merge commit does not move it.
     if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:
         return _changes_content_day() or _gpu_feed_day()
+    if stripped in {"api/v1/gpu-price-digest.xml", "api/v1/gpu-price-digest.json"}:
+        return _digest_content_day() or _gpu_feed_day()
 
     # Per-deal pages: the deal record is the content source of truth.
     m = re.fullmatch(r"deals/([^/]+)", stripped)
@@ -1885,6 +1900,8 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
         (f"{BASE}/deals/", "0.9"),
         (f"{BASE}/api/v1/gpu-price-changes.json", "0.6"),
         (f"{BASE}/api/v1/gpu-price-changes.xml", "0.6"),
+        (f"{BASE}/api/v1/gpu-price-digest.json", "0.6"),
+        (f"{BASE}/api/v1/gpu-price-digest.xml", "0.6"),
         (f"{BASE}/gpu/changes.xml", "0.6"),
         (f"{BASE}/lanternworks/", "0.8"),
         (f"{BASE}/changelog/", "0.7"),
@@ -2370,6 +2387,8 @@ def main() -> None:
     # changes file, and only a second build matched (refresh failed test_committed_pages_match_pinned_generator).
     import gpu_changes_feed
     gpu_changes_feed.write(sys.modules[__name__])
+    import gpu_digest_feed
+    gpu_digest_feed.write(sys.modules[__name__])
     import spec_pages
     tool_paths += spec_pages.write_all(sys.modules[__name__])
     tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)
