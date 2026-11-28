@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Price-moves digest (F5, Brain #1032, 2026-11-28): `/api/v1/gpu-price-digest.json` and `.xml` (RSS) list the biggest daily and 7-day tracked GPU price moves. The new read-only `get_price_moves` tool (stdio and hosted) serves the same digest. Moves reuse existing changes and history windows (2% deadband; held/stale days excluded; composition-only marketplace median changes are not price moves). Official generate is deterministic (snapshot dates only). Package tools 12, hosted 19.
+
 - Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include `probe_error` (`type` and a sanitized `message` of at most 200 characters) and `probe_attempted_at`. These fields appear only after a probe error. The attempt is not a successful check and does not refresh `verified_at` or the success `checked_at`. Documented at `/api/#probe-error`.
 
 - Stock expiry and alert age (P70/P71, 2026-11-27): `/api/#availability-expiry`, `/methodology/#stock-expiry`, `/for-agents/#availability-expiry` and the contract docs now state that a stock claim is still valid when now equals `availability_expires_at` (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that `check_alerts` re-evaluates a previously `skipped_stale` row on the next poll rather than firing late. `data_age_hours` is measured from the row's own last price verification, not from the feed write time.
