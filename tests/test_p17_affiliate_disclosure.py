@@ -18,7 +18,7 @@ RUNABLE_AFFILIATE = "https://runable.link" + "/lantern-works"
 CTA_RE = re.compile(
     r'<a class="cta" rel="nofollow sponsored" href="(?P<href>[^"]+)" data-deal="(?P<id>[^"]+)">'
     r"Redeem / signup</a>"
-    r"(?P<extra>(?: · [^<]+| · <em>[^<]+</em>)*)"
+    r"(?P<extra>(?: · code <code>[^<]+</code>| · <em>[^<]+</em>)*)"
     r'<br><small class="disclosure">(?P<disc>.*?)</small>',
     re.S,
 )
