@@ -7,6 +7,7 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 ## Unreleased (site)
 
 - Price-moves digest (F5, Brain #1032, 2026-11-28): `/api/v1/gpu-price-digest.json` and `.xml` (RSS) list the biggest daily and 7-day tracked GPU price moves. The new read-only `get_price_moves` tool (stdio and hosted) serves the same digest. Moves reuse existing changes and history windows (2% deadband; held/stale days excluded; composition-only marketplace median changes are not price moves). Official generate is deterministic (snapshot dates only). Package tools 12, hosted 19.
+- Job-cost fields on the public docs (2026-11-28): `/api/#estimate-job-cost` and `/for-agents/#estimate-job-cost` document `estimate_job_cost`'s `job_days` input and response (wall-clock days, `job_hours = job_days × 24`, exclusive of `job_hours` and of work-unit duration, 20,000-hour cap) and the `tracked_url` counted `/go/` booking link on each result row.
 
 - Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include `probe_error` (`type` and a sanitized `message` of at most 200 characters) and `probe_attempted_at`. These fields appear only after a probe error. The attempt is not a successful check and does not refresh `verified_at` or the success `checked_at`. Documented at `/api/#probe-error`.
 

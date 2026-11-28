@@ -4,6 +4,8 @@ Free, read-only MCP server that compares live cloud GPU rental prices (H100, H20
 
 [![PyPI](https://img.shields.io/pypi/v/lantern-works-deals-mcp)](https://pypi.org/project/lantern-works-deals-mcp/) [![Python](https://img.shields.io/pypi/pyversions/lantern-works-deals-mcp)](https://pypi.org/project/lantern-works-deals-mcp/) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE) [![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.connormatthewdouglas%2Flantern--works--deals-blue)](https://registry.modelcontextprotocol.io/v0/servers?search=lantern-works-deals) [![Data: CC BY 4.0](https://img.shields.io/badge/data-CC_BY_4.0-lightgrey)](LICENSE-DATA)
 
+[![connormatthewdouglas/agent-work-stack-deals MCP server](https://glama.ai/mcp/servers/connormatthewdouglas/agent-work-stack-deals/badges/score.svg)](https://glama.ai/mcp/servers/connormatthewdouglas/agent-work-stack-deals)
+
 [![Install in Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=lantern-works-gpu-prices&config=eyJ1cmwiOiJodHRwczovL2xhbnRlcm4td29ya3MtbWNwLmxhbnRlcm4td29ya3Mud29ya2Vycy5kZXYvbWNwP3JlZj1yZWFkbWUtY3Vyc29yLWJ1dHRvbiJ9) [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_MCP_server-0098FF)](https://vscode.dev/redirect/mcp/install?name=lantern-works-gpu-prices&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A//lantern-works-mcp.lantern-works.workers.dev/mcp%3Fref%3Dreadme-vscode-button%22%7D)
 
 **Connect in one line**

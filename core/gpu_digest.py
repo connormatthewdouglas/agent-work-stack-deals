@@ -223,7 +223,7 @@ def attach_live(moves: list[dict], rates: list | None, now=None) -> list[dict]:
     """P64 request-time availability on a copy of each move. Does not change pct/windows."""
     if not rates:
         return moves
-    from .gpu_availability import stale_guard
+    from .gpu_availability import request_availability
     by = {}
     for r in rates:
         if not isinstance(r, dict):
@@ -237,7 +237,7 @@ def attach_live(moves: list[dict], rates: list | None, now=None) -> list[dict]:
         item = dict(m)
         r = by.get(item.get("rate_id"))
         if r is not None and isinstance(r.get("availability"), dict):
-            g = stale_guard(r["availability"], now)
+            g = request_availability(r["availability"], now)
             item["availability"] = g
             item["in_stock"] = g.get("in_stock")
             if g.get("availability_stale"):
