@@ -1587,7 +1587,11 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("receipts", ("scripts/receipts_page.py",)),
     ("coverage", ("scripts/coverage_page.py",)),
     ("reports/vendors", ("scripts/vendor_sample_reports.py",)),
-    ("reports", ("scripts/reports_page.py",)),
+    ("reports/cheapest-h100-week-of-2026-11-23", ("scripts/seo_batch1_pages.py",)),
+    ("reports/cheapest-l40s-week-of-2026-11-23", ("scripts/seo_batch1_pages.py",)),
+    ("reports/cheapest-a100-week-of-2026-11-23", ("scripts/seo_batch1_pages.py",)),
+    ("cost/fine-tune-7b-8b-lora", ("scripts/seo_batch1_pages.py",)),
+    ("reports", ("scripts/reports_page.py", "scripts/seo_batch1_pages.py")),
     ("install", ("scripts/install_page.py",)),
     ("embed", ("scripts/embed_page.py", "embed/rank.js")),
     ("stack", ("scripts/stack_page.py",)),
@@ -2413,6 +2417,8 @@ def main() -> None:
     tool_paths.append(coverage_page.write(sys.modules[__name__]))
     import reports_page
     tool_paths += reports_page.write_all(sys.modules[__name__])
+    import seo_batch1_pages
+    tool_paths += seo_batch1_pages.write_all(sys.modules[__name__])
     import vendor_sample_reports
     tool_paths += vendor_sample_reports.write_all(sys.modules[__name__])
     vendor_sample_reports._llms_update(ROOT)

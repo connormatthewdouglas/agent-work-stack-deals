@@ -226,6 +226,7 @@ def write_all(g) -> list[str]:
             f"from published on-demand rates among tracked providers, recomputed from the daily feed. 730 hours is the "
             f"stated full-month parameter ({HOURS_PER_MONTH_NOTE}). Only rows whose current reading is out of stock when checked "
             "rank last and are excluded from lowest, median and cheapest.</p>" f"<ul>{rows}</ul>"
+            f'<p>Also: <a href="{g.BASE}/cost/fine-tune-7b-8b-lora/">Cost to fine-tune a 7B or 8B model (LoRA)</a>, with worked examples at 2, 4, 8 and 24 GPU-hours from the current on-demand snapshot.</p>'
             f'<p>Full price lists: <a href="{g.BASE}/gpu/">GPU prices</a>.</p>\n')
     (root / "cost").mkdir(exist_ok=True)
     (root / "cost" / "index.html").write_text(g.page_shell("GPU rental cost by hours", "Cost of 10, 100 or 730 GPU-hours on H100, A100, L40S and RTX 4090 across tracked providers.",

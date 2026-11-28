@@ -330,7 +330,23 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     body.append(__import__("gpu_pages").price_block(gen, rows))
     body.append("<h2>FAQ</h2>" + fh)
     sib = " · ".join(f'<a href="{gpu_url(gen, f)}">{esc(f)}</a>' for f in sorted(quals) if f != fam)
-    body.append(f"<h2>More</h2><p>Other GPUs: {sib}</p><p><a href=\"{gen.BASE}/gpu/\">GPU price hub</a> · <a href=\"{gen.BASE}/gpu/changes/\">price changes</a> · Data source: {feed_links(gen)}</p>")
+    weekly = {
+        "H100": ("cheapest-h100-week-of-2026-11-23", "Cheapest H100 rental this week (week of Nov 23, 2026)"),
+        "L40S": ("cheapest-l40s-week-of-2026-11-23", "Cheapest L40S rental this week (week of Nov 23, 2026)"),
+        "A100": ("cheapest-a100-week-of-2026-11-23", "Cheapest A100 rental this week (week of Nov 23, 2026)"),
+    }
+    more = [f"<h2>More</h2><p>Other GPUs: {sib}</p>"]
+    if fam in weekly:
+        slug, label = weekly[fam]
+        more.append(
+            f'<p>Dated weekly snapshot: <a href="{gen.BASE}/reports/{slug}/">{esc(label)}</a>. '
+            f'Worked fine-tune examples: <a href="{gen.BASE}/cost/fine-tune-7b-8b-lora/">'
+            f"Cost to fine-tune a 7B or 8B model (LoRA)</a>.</p>"
+        )
+    more.append(
+        f'<p><a href="{gen.BASE}/gpu/">GPU price hub</a> · <a href="{gen.BASE}/gpu/changes/">price changes</a> · Data source: {feed_links(gen)}</p>'
+    )
+    body.append("".join(more))
     hourly = [r for r in rows if bucket(r) not in ("Monthly", "Reserved")]
     # lowPrice is a headline. Multi-GPU minimums stay in the HTML table, not in this offer.
     single_hr = [r for r in hourly if gp.headline_eligible(r)]
