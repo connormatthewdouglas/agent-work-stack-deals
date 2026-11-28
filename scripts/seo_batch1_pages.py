@@ -485,7 +485,7 @@ This is a **job-cost calculator**, not a claim that a named fine-tune takes a fi
 
 {table}
 
-## Rates used in the table
+## Hourly prices used in the table
 
 {chr(10).join(rate_bits)}
 

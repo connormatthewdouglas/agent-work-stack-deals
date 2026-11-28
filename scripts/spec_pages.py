@@ -331,9 +331,9 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     body.append("<h2>FAQ</h2>" + fh)
     sib = " · ".join(f'<a href="{gpu_url(gen, f)}">{esc(f)}</a>' for f in sorted(quals) if f != fam)
     weekly = {
-        "H100": ("cheapest-h100-week-of-2026-11-23", "Cheapest H100 rental this week (week of Nov 23, 2026)"),
-        "L40S": ("cheapest-l40s-week-of-2026-11-23", "Cheapest L40S rental this week (week of Nov 23, 2026)"),
-        "A100": ("cheapest-a100-week-of-2026-11-23", "Cheapest A100 rental this week (week of Nov 23, 2026)"),
+        "H100": ("cheapest-h100-week-of-2026-11-23", "Cheapest H100 rental this week among tracked providers (week of Nov 23, 2026)"),
+        "L40S": ("cheapest-l40s-week-of-2026-11-23", "Cheapest L40S rental this week among tracked providers (week of Nov 23, 2026)"),
+        "A100": ("cheapest-a100-week-of-2026-11-23", "Cheapest A100 rental this week among tracked providers (week of Nov 23, 2026)"),
     }
     more = [f"<h2>More</h2><p>Other GPUs: {sib}</p>"]
     if fam in weekly:
