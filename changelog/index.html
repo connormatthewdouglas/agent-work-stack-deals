@@ -135,6 +135,9 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>Job-cost fields on the public docs (2026-11-28): <code>/api/#estimate-job-cost</code> and <code>/for-agents/#estimate-job-cost</code> document <code>estimate_job_cost</code>&#x27;s <code>job_days</code> input and response (wall-clock days, <code>job_hours = job_days × 24</code>, exclusive of <code>job_hours</code> and of work-unit duration, 20,000-hour cap) and the <code>tracked_url</code> counted <code>/go/</code> booking link on each result row.</li>
+</ul>
+<ul>
 <li>Stock expiry and alert age (P70/P71, 2026-11-27): <code>/api/#availability-expiry</code>, <code>/methodology/#stock-expiry</code>, <code>/for-agents/#availability-expiry</code> and the contract docs now state that a stock claim is still valid when now equals <code>availability_expires_at</code> (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that <code>check_alerts</code> re-evaluates a previously <code>skipped_stale</code> row on the next poll rather than firing late. <code>data_age_hours</code> is measured from the row&#x27;s own last price verification, not from the feed write time.</li>
 </ul>
 <ul>

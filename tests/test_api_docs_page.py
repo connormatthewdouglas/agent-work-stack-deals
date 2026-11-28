@@ -67,3 +67,24 @@ def test_trueproxies_disclosure_names_vendor_once():
     assert "Lantern Works may earn a commission if you sign up through this TrueProxies link." in html
     assert "this link from TrueProxies" not in html
     assert "; we may earn a commission from TrueProxies." not in html
+
+
+def test_api_and_for_agents_document_job_days_and_tracked_url():
+    api = (ROOT / "api" / "index.html").read_text(encoding="utf-8")
+    fa = (ROOT / "for-agents" / "index.html").read_text(encoding="utf-8")
+    for s in (api, fa):
+        assert 'id="estimate-job-cost"' in s
+        assert "job_days" in s and "tracked_url" in s
+        assert "wall-clock" in s
+        assert "job_hours = job_days" in s or "job_hours = job_days" in s.replace("&times;", "×")
+        assert "not both" in s or "together with" in s
+        assert "20,000" in s or "20000" in s
+        assert "834" in s
+        assert "not a reservation" in s
+        assert "/go/" in s and "src=mcp" in s
+        assert "lantern-works-telemetry.lantern-works.workers.dev/go/" in s
+        assert "not from the caller" in s
+        assert "receipt" in s.lower()
+        assert "Frosty" not in s and "Connor" not in s
+    assert 'href="https://thelanternworks.com/for-agents/#estimate-job-cost"' in api
+    assert 'href="https://thelanternworks.com/api/#estimate-job-cost"' in fa
