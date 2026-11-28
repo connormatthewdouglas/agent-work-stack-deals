@@ -337,9 +337,9 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     }
     more = [f"<h2>More</h2><p>Other GPUs: {sib}</p>"]
     if fam in weekly:
-        slug, label = weekly[fam]
+        week_slug, label = weekly[fam]
         more.append(
-            f'<p>Dated weekly snapshot: <a href="{gen.BASE}/reports/{slug}/">{esc(label)}</a>. '
+            f'<p>Dated weekly snapshot: <a href="{gen.BASE}/reports/{week_slug}/">{esc(label)}</a>. '
             f'Worked fine-tune examples: <a href="{gen.BASE}/cost/fine-tune-7b-8b-lora/">'
             f"Cost to fine-tune a 7B or 8B model (LoRA)</a>.</p>"
         )
