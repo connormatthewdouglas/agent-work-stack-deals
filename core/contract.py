@@ -67,7 +67,8 @@ SPEC = {
                              "available_total", "sold_out_total", "unknown_total", "count", "on_demand_only"],
                             ["advertiser", "gpu", "tier", "rate_id", "hourly_usd", "min_gpus", "in_stock", "checked_at",
                              "stock_level", "last_known_in_stock", "last_known_at", "source_url", "reason",
-                             "availability_stale", "availability_expires_at"]),
+                             "availability_stale", "availability_expires_at", "max_age_hours",
+                             "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -131,7 +132,13 @@ _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock":
                                                      "basis": _str, "source": {"type": ["string", "null"]},
                                                      # P36 (additive): last firm stock answer + its check time (display only)
                                                      **(_LAST_KNOWN := {"last_known_in_stock": {"type": ["boolean", "null"]},
-                                                                        "last_known_at": {"type": ["string", "null"], "format": "date-time"}}),
+                                                                        "last_known_at": {"type": ["string", "null"], "format": "date-time"},
+                                                                        # P68 (additive): last firm claim's own window + flag
+                                                                        "last_known_expires_at": {"type": ["string", "null"], "format": "date-time"},
+                                                                        "last_known_max_age_hours": _num,
+                                                                        "last_known_outside_window": _bool,
+                                                                        "max_age_hours": _num,
+                                                                        "availability_expires_at": {"type": ["string", "null"], "format": "date-time"}}),
                                                      **(_FAILURE_REASON := {  # P41 (additive): core.probe_reason; null when the source does not say
                                                          "failure_reason": {"type": ["string", "null"], "enum": ["sold_out", "region", "quota", "other", None]},
                                                          "failure_reason_detail": {"type": ["string", "null"]}})}}
@@ -203,7 +210,8 @@ _LIVE_ITEM = {"type": "object", "properties": {
     "advertiser": _str, "vendor": _str, "gpu": _str, "tier": _str, "tier_class": _str, "rate_id": _str,
     "hourly_usd": _num, "min_gpus": {"type": ["integer", "null"]}, "in_stock": _bool, "checked_at": _str,
     "stock_level": _str, "last_known_in_stock": _bool, "last_known_at": _str, "source_url": _str,
-    "reason": _str, "availability_stale": _bool, "availability_expires_at": _str}}
+    "reason": _str, "availability_stale": _bool, "availability_expires_at": _str, "max_age_hours": _num,
+    "last_known_expires_at": _str, "last_known_max_age_hours": _num, "last_known_outside_window": _bool}}
 EXTRA_PROPS["find_available_gpus"] = {
     "available": {"type": "array", "items": _LIVE_ITEM},
     "sold_out": {"type": "array", "items": _LIVE_ITEM},
@@ -230,6 +238,10 @@ for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P36 (additive): brief 
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["last_known_in_stock", "last_known_at"],)
 for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P41 (additive): brief rows carry a non-null failure reason only
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["failure_reason", "failure_reason_detail"],)
+for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P68 (additive): claim window on every brief row
+    SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["max_age_hours", "availability_expires_at",
+                                                    "last_known_expires_at", "last_known_max_age_hours",
+                                                    "last_known_outside_window"],)
 REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
                               "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
@@ -330,10 +342,15 @@ def error(code: str, message: str) -> dict:
 BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "first_read_at", "second_read_at",
                           "second_read_gap_s", "second_read_basis", "two_read_gap_ok", "price_join_failed",
                           # P36 (additive): last firm stock answer and its check time, kept beside a lapsed claim
-                          "last_known_in_stock", "last_known_at")
+                          "last_known_in_stock", "last_known_at",
+                          # P68 (additive): the row's claim window, on every row so a client can check it
+                          "max_age_hours", "availability_expires_at",
+                          "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window")
 
 
 LAST_KNOWN_KEYS = ("last_known_in_stock", "last_known_at")  # same as core.gpu_availability.LAST_KNOWN_KEYS
+LAST_KNOWN_WINDOW_KEYS = ("last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window")
+LIVE_CLAIM_WINDOW_KEYS = ("max_age_hours", "availability_expires_at")
 DEAL_TOOLS = ("search_deals", "compare_deals", "get_deal")
 
 
@@ -347,7 +364,7 @@ def _brief_row(tool: str, row: dict, keys: list) -> dict:
         # Gauge T73 F1-F6 #3 (additive): brief rows carry the stock-claim audit fields that full rows hold in availability
         av = row["availability"]
         for k in BRIEF_AVAIL_AUDIT_KEYS:
-            if k in av and k not in LAST_KNOWN_KEYS:
+            if k in av and k not in LAST_KNOWN_KEYS and k not in LAST_KNOWN_WINDOW_KEYS:
                 out[k] = av[k]
     out.update(_brief_last_known(row.get("availability")))
     out.update(_brief_failure_reason(row))
@@ -375,7 +392,8 @@ def _brief_last_known(av) -> dict:
     the claim lapsed (in_stock null) after a firm answer. Absent means null or equal to in_stock / checked_at; full
     mode always has both inside availability. Keeps brief within its size budget."""
     if isinstance(av, dict) and av.get("in_stock") is None and isinstance(av.get("last_known_in_stock"), bool):
-        return {k: av.get(k) for k in LAST_KNOWN_KEYS}
+        keys = LAST_KNOWN_KEYS + LAST_KNOWN_WINDOW_KEYS
+        return {k: av.get(k) for k in keys if k in av}
     return {}
 
 
@@ -383,12 +401,13 @@ def _fill_last_known(o) -> None:
     """P36 (additive, display only): give every availability dict in a tool result last_known_in_stock / last_known_at.
     A lapsed claim already carries them (core.gpu_availability.stale_guard); a current firm claim is its own last known
     value; anything else is null. Never invented, and ranking never reads them (it reads in_stock)."""
-    from .gpu_availability import last_known
+    from .gpu_availability import last_known, annotate_last_known_window
     if isinstance(o, dict):
         av = o.get("availability")
         if isinstance(av, dict):
             v, t = last_known(av)
             av["last_known_in_stock"], av["last_known_at"] = v, t
+            av.update(annotate_last_known_window(av))
         for k, x in o.items():
             if k not in ("receipt", "error"):
                 _fill_last_known(x)
