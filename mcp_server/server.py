@@ -207,6 +207,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     A failed or out-of-stock probe keeps failure_reason (sold_out, region, quota, or other) and
     failure_reason_detail; both stay on a lapsed claim next to last_known_in_stock. Null when the source
     does not say; never guessed. Display only.
+    A crashed availability probe may add probe_error ({type, sanitized message of at most 200 characters})
+    and probe_attempted_at; those fields appear only when a probe raised an error and never count as a
+    successful check (verified_at and the success checked_at are not refreshed).
     A row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill
     (true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),
     backfill_eta and next_check_basis (the schedule it came from).
@@ -376,7 +379,8 @@ def find_available_gpus(gpu: str, gpus: int = 1, limit: int = 10, on_demand_only
     shorter Scout claim lifetime). sold_out is confirmed unexpired in_stock false. Everything else
     is unknown with a reason (stale, static_label, no_source, no_signal, quota, region,
     region_unresolved, held_stale, owner_hold). last_known_in_stock / last_known_at stay visible
-    on lapsed claims (P64). Unknown is not sold out. Vendor-labelled static page labels, no_source,
+    on lapsed claims (P64). A crashed probe may add probe_error and probe_attempted_at (attempt
+    time only; not a successful check). Unknown is not sold out. Vendor-labelled static page labels, no_source,
     no signal, quota/region failures, held rows, and the 7-day stock rate never count as in stock.
     gpus (default 1) is the existing min_gpus allocation rule, not a cluster free-count.
     stock_level is the vendor's own text when present; a free-GPU number is never invented.
