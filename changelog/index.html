@@ -138,6 +138,9 @@
 <li>P17 terms (Brain #1200, 2026-11-28): a one-sentence commission disclosure stays immediately next to each affiliate link on deal pages (ScreenshotOne&#x27;s close-to-the-link rule and the FTC-style disclosure Runable and Speak AI cite). The public feed already carries <code>disclosure</code> and <code>plain_url</code> on affiliate deals; MCP <code>get_deal</code>, <code>search_deals</code> and <code>compare_deals</code> now return those fields next to <code>redeem_url</code>. InboxKit and Runable stay listed but now use plain vendor URLs (the public pricing or homepage link, no referral parameters) until their terms are cleared: InboxKit bans coupon and deal sites, and Runable bans bot-driven referrals.</li>
 </ul>
 <ul>
+<li>Job-cost fields on the public docs (2026-11-28): <code>/api/#estimate-job-cost</code> and <code>/for-agents/#estimate-job-cost</code> document <code>estimate_job_cost</code>&#x27;s <code>job_days</code> input and response (wall-clock days, <code>job_hours = job_days × 24</code>, exclusive of <code>job_hours</code> and of work-unit duration, 20,000-hour cap) and the <code>tracked_url</code> counted <code>/go/</code> booking link on each result row.</li>
+</ul>
+<ul>
 <li>Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include <code>probe_error</code> (<code>type</code> and a sanitized <code>message</code> of at most 200 characters) and <code>probe_attempted_at</code>. These fields appear only after a probe error. The attempt is not a successful check and does not refresh <code>verified_at</code> or the success <code>checked_at</code>. Documented at <code>/api/#probe-error</code>.</li>
 </ul>
 <ul>
