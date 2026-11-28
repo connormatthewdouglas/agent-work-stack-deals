@@ -312,12 +312,9 @@ def live_trend_block(row: dict | None, *, held: bool = False, now: datetime | No
     reason = row.get("availability_reason") or av.get("availability_reason")
     if reason == "no_source":
         return "no_source"
-    stock = row.get("in_stock")
-    if stock is None:
-        stock = av.get("in_stock")
-    fr = row.get("failure_reason") or av.get("failure_reason")
-    if stock is False or fr == "sold_out" or reason == "sold_out":
-        return "sold_out"
+    # Current sold_out / in_stock false does not blank trend windows. Windows are
+    # computed from verified (ranked) snapshot days regardless of live stock;
+    # held/stale days stay out of the math via _point_on.
     from . import data_age
     age = data_age.age_fields(row, now)
     if age["data_age_hours"] is None:
@@ -373,7 +370,8 @@ def price_trend(series: dict | None, *, history: dict | None = None, live: dict 
     """% change, direction and ranked-day count over 7d/30d (or `windows`) from existing change points.
 
     Never uses held/removed points, never invents missing snapshot days, and never computes a trend from a
-    live row that is held_stale, no_source, sold_out, older than 48 h, or undated. All timestamps are UTC Z.
+    live row that is held_stale, no_source, older than 48 h, or undated. Current sold_out does not blank
+    windows: held/stale days stay out of the math; windows are not gated on live stock. All timestamps are UTC Z.
     """
     first = (history or {}).get("first_snapshot")
     last = (history or {}).get("last_snapshot")

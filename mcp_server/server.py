@@ -325,7 +325,8 @@ def get_price_trend(rate_id: str, windows: list[int] | None = None) -> dict:
 
     Reuses the existing daily snapshots in /api/v1/gpu-prices/history.json: percent change, direction (up/down/flat),
     and how many ranked snapshot days were in the window. A trend is never computed from held_stale, no_source,
-    sold_out, or stale (older than 48 hours / undated) current rows; then trend is null with trend_reason.
+    or stale (older than 48 hours / undated) current rows; then trend is null with trend_reason. Current
+    sold_out does not blank windows: they use the same verified-day history math as compare_gpu_prices.
     A window with too few ranked days is returned with reason insufficient_points; a window longer than the
     archive is window_exceeds_history. Missing snapshot days are not invented. All timestamps are UTC with a Z.
     windows defaults to [7, 30].
