@@ -17,14 +17,16 @@ def test_published_summaries_preserve_verified_source_and_disclose_evidence_limi
     assert hashlib.sha256(source).hexdigest() == receipts_page.SOURCE_SHA256
     published = json.loads((ROOT / "api/v1/receipts.json").read_text())
     assert published == receipts_page.build(source)
-    assert published["tests"] == json.loads(source)["tests"]
-    assert sum(published["counts"].values()) == 86
-    assert published["counts"]["deferred"] == 18
+    source_tests = json.loads(source)["tests"]
+    assert published["tests"] == source_tests
+    n = len(source_tests)
+    assert sum(published["counts"].values()) == n
+    assert published["counts"]["deferred"] == sum(1 for r in source_tests if r["verdict"] == "deferred")
     page = (ROOT / "receipts/index.html").read_text()
     for text in [receipts_page.FIREWALL, "not security certifications", "not an independent endorsement",
                  "proof-pack page", "Deferred means untested"]:
         assert text in page
-    assert page.count('<article class="receipt"') == 86
+    assert page.count('<article class="receipt"') == n
     assert 'href="tests/' not in page
     assert "House product: made by Lantern Works" in page
     assert 'id="test-000"' in page
