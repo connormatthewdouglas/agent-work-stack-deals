@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hosted" / "src"))
 import weekly_callers as W  # noqa: E402
 
-SECRET = "test-caller-id-secret"
+SECRET = "test-caller-id-secret"  # synthetic test fixture, not a real credential
 NAME, VER = "cursor-mcp", "1.2.3"
 IP = "203.0.113.77"
 INFO = {"name": NAME, "version": VER}
