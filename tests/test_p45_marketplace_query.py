@@ -215,8 +215,18 @@ def test_brief_keeps_compact_query_and_flag_under_size_budget():
     brief = s.compare_gpu_prices(gpu="A100 SXM", limit=8, mode="brief")
     full_out = s.compare_gpu_prices(gpu="A100 SXM", limit=8, mode="full")
     assert brief["ok"] and full_out["ok"]
-    ratio = len(json.dumps(brief)) / len(json.dumps(full_out))
+    # P7 adds rent_here/rent_url to the top 3 brief rows (intentional, tested in
+    # test_p7_rent_here.py). Those strings are large relative to brief, so exclude
+    # them from this P45 compactness ratio; the 0.4 budget is unchanged.
+    def _without_p7(obj):
+        out = json.loads(json.dumps(obj))
+        for row in out.get("results") or []:
+            row.pop("rent_url", None)
+            row.pop("rent_here", None)
+        return out
+    ratio = len(json.dumps(_without_p7(brief))) / len(json.dumps(_without_p7(full_out)))
     assert ratio < 0.4, f"brief is {ratio:.3f}x full after adding marketplace_query/composition_flag"
+    assert any(r.get("rent_here") and r.get("rent_url") for r in brief["results"][:3])
     # At least one marketplace median row in this compare should carry the query and a flag key.
     flags = [row.get("composition_flag") for row in brief["results"] if row.get("marketplace_query") or row.get("composition_flag")]
     queries = [row.get("marketplace_query") for row in brief["results"] if row.get("marketplace_query")]
