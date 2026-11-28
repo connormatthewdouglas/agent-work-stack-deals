@@ -138,6 +138,9 @@
 <li>Receipts write-up (P29, 2026-11-28): <code>/receipts/write-up/</code> summarizes what was tested, the verdict tally, and what broke. Every count and the <code>tested_at</code> date list are computed from <code>data/receipts-index.json</code> when the page is built, not typed by hand. The sitemap lastmod is the newest <code>tested_at</code> in that index (a content date). The page links to the Receipts index and to the public case pages. Credit is Lantern Works; no personal names.</li>
 </ul>
 <ul>
+<li>Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include <code>probe_error</code> (<code>type</code> and a sanitized <code>message</code> of at most 200 characters) and <code>probe_attempted_at</code>. These fields appear only after a probe error. The attempt is not a successful check and does not refresh <code>verified_at</code> or the success <code>checked_at</code>. Documented at <code>/api/#probe-error</code>.</li>
+</ul>
+<ul>
 <li>Stock expiry and alert age (P70/P71, 2026-11-27): <code>/api/#availability-expiry</code>, <code>/methodology/#stock-expiry</code>, <code>/for-agents/#availability-expiry</code> and the contract docs now state that a stock claim is still valid when now equals <code>availability_expires_at</code> (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that <code>check_alerts</code> re-evaluates a previously <code>skipped_stale</code> row on the next poll rather than firing late. <code>data_age_hours</code> is measured from the row&#x27;s own last price verification, not from the feed write time.</li>
 </ul>
 <ul>
