@@ -10,6 +10,19 @@ SRC = ROOT / "data" / "reports"
 PAGE_LINKS = {"B300 288GB": ("B300", "b300"), "MI300X 192GB": ("MI300X", "mi300x"), "L4 24GB": ("L4", "l4")}
 FORBIDDEN = re.compile(r"github\.com|connormatthewdouglas|/workspace/|/home/", re.I)
 
+# Dated weekly cheapest-GPU snapshots generated from the live feed (not verbatim markdown).
+# Sort date is the snapshot feed day (UTC).
+COMPUTED_REPORTS = [
+    ("cheapest-h100-week-of-2026-11-23", "Cheapest H100 rental this week (week of Nov 23, 2026)", "2026-11-28"),
+    ("cheapest-l40s-week-of-2026-11-23", "Cheapest L40S rental this week (week of Nov 23, 2026)", "2026-11-28"),
+    ("cheapest-a100-week-of-2026-11-23", "Cheapest A100 rental this week (week of Nov 23, 2026)", "2026-11-28"),
+]
+
+
+def computed_reports():
+    return list(COMPUTED_REPORTS)
+
+
 
 def front_matter(md: str):
     meta = {}
@@ -139,10 +152,16 @@ def _llms_update(root: Path | None = None) -> None:
         return
     text = path.read_text(encoding="utf-8")
     bullets = []
+    listed = []
     for p in reports():
         meta, _ = front_matter(p.read_text(encoding="utf-8"))
         title = meta.get("title") or p.stem
-        bullets.append(f"- [{title}](https://thelanternworks.com/reports/{p.stem}/)")
+        listed.append((_report_date(p), p.stem, title))
+    for slug, title, day in computed_reports():
+        listed.append((day, slug, title))
+    listed.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    for _, slug, title in listed:
+        bullets.append(f"- [{title}](https://thelanternworks.com/reports/{slug}/)")
     weekly = "\n".join(bullets)
     text = re.sub(
         r"\n- \[[^\]]+\]\(https://thelanternworks\.com/reports/(?!vendors/)[^/]+/\)[^\n]*",
@@ -189,9 +208,12 @@ def write_all(gen) -> list[str]:
                 if f.is_file() and f.suffix.lower() in {".svg", ".png", ".json", ".csv"}:
                     (out / f.name).write_bytes(f.read_bytes())
         paths.append(f"reports/{slug}")
-        items.append((slug, title))
+        items.append((_report_date(p), slug, title))
+    for slug, title, day in computed_reports():
+        items.append((day, slug, title))
+    items.sort(key=lambda x: (x[0], x[1]), reverse=True)
     url = f"{gen.BASE}/reports/"
-    lis = "".join(f'<li><a href="{gen.BASE}/reports/{s}/">{gen.esc(t)}</a></li>' for s, t in items)
+    lis = "".join(f'<li><a href="{gen.BASE}/reports/{s}/">{gen.esc(t)}</a></li>' for _, s, t in items)
     body = (f'  <p class="crumbs"><a href="{gen.BASE}/">Home</a> · Reports</p>\n  <h1>GPU price reports</h1>\n'
             f"  <p>Weekly GPU rental price reports, newest first. Each one is built from the public "
             f'<a href="{gen.BASE}/api/v1/gpu-prices.json">gpu-prices.json</a> and '
