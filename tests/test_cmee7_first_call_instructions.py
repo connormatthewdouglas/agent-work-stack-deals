@@ -81,8 +81,10 @@ def test_descriptions_match_across_stdio_hosted_and_lhm_manifest():
     assert hosted["instructions"] == server.INSTRUCTIONS
 
     for name, example in EXAMPLES.items():
-        stdio_desc = (stdio[name].description or "").strip()
-        hosted_desc = (hosted_tools[name]["description"] or "").strip()
+        # cleandoc: FastMCP list_tools on some CI Pythons keeps raw indent (3.12),
+        # while inspect.getdoc already strips it (same reason as test_version_sync).
+        stdio_desc = inspect.cleandoc(stdio[name].description or "").strip()
+        hosted_desc = inspect.cleandoc(hosted_tools[name]["description"] or "").strip()
         doc = (inspect.getdoc(getattr(server, name)) or "").strip()
         assert stdio_desc == doc, name
         assert hosted_desc == doc, name
