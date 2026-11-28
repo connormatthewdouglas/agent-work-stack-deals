@@ -145,7 +145,8 @@ last_known is marked stale **8 hours** after `last_known_at`. That number is `AV
 | Field | Type | Meaning |
 |---|---|---|
 | `max_age_hours`, `availability_expires_at` | number / string or null | The current reading's claim window (P72). Shown on every row, including `no_source`. |
-| `last_known_expires_at` | string (date-time, UTC `Z`) or null | Expiry of the last firm stock claim, anchored on `last_known_at`. A later failed or `no_source` read never extends this window. |
+| `availability_expires_claim` | `checked_at`, `last_known_at`, or absent (P76) | Which claim `availability_expires_at` is anchored on. A later null or `no_source` read stays `checked_at`; it is not the last in-stock claim's window. |
+| `last_known_expires_at` | string (date-time, UTC `Z`) or null | Expiry of the last firm stock claim, anchored on `last_known_at` (`last_known_at` + that claim's max-age). A later failed or `no_source` read never extends this window. Published on the feed when an older in-stock claim exists beside a newer read (P76), and on MCP results (P68). |
 | `last_known_max_age_hours` | number or null | TTL in hours that produced `last_known_expires_at`. |
 | `last_known_outside_window` | boolean | True when now is after `last_known_expires_at`. Absent when there is no last_known. |
 
@@ -244,3 +245,12 @@ P72 (marxsignal) and P73 (morpheus404). Additive optional fields on each rate's 
 | `probe_error` | object or absent | Written when the stock/terms probe crashes: `type` (exception class) and `message` (short, with secrets, tokens, and credential-bearing URLs stripped). |
 | `probe_attempted_at` | string (ISO-8601 UTC, `Z`) or absent | The crash attempt time. This is not a successful check. If a historical field is called `checked_at`, freshness, the 72h ceiling and `expire_held_rows` still read only successful-check stamps (`evidence.checked_at`, `verified_at`, or a successful `checked_at`). Failed collection never writes a fresh `verified_at` or success `checked_at`. |
 
+## stock_age_hours and stock_read_state (additive, P74, Nov 2026)
+
+P74 (morpheus404, Brain #1142 and #1172). Computed at serve/read time on `compare_gpu_prices` and `find_available_gpus` results, and rendered on GPU pages. Not written into the static `gpu-prices.json` schema (that schema stays `lantern-works-gpu-prices/1`). Ranking, TTLs and `stale_guard` do not read these fields. Unknown stays unknown. Timestamps are never invented.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `stock_age_hours` | number or null | Hours from the reader clock back to the stock claim time: `last_known_at` when the claim has lapsed or `in_stock` is unknown after a prior firm answer; otherwise `stock_read_at`, or the stock `checked_at` when `stock_read_at` is absent. Null when no stock stamp exists (`never_read`). Not price `data_age_hours`. `probe_attempted_at` and the price row's `verified_at` / `checked_at` are not used. |
+| `stock_age_basis` | `stock_read_at`, `checked_at`, `last_known_at`, or null | Which stock stamp was used. |
+| `stock_read_state` | `never_read`, `read`, or `read_expired` | `never_read`: no stock check timestamp. `read`: a check was taken and the claim has not expired. `read_expired`: a check was taken and the claim has expired (`availability_stale`, or now is after `availability_expires_at`). |
