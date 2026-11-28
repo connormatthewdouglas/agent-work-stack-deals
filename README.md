@@ -98,7 +98,7 @@ This calls the public hosted MCP: three on-demand rates checked within 24 hours,
 
 [Client setup](https://thelanternworks.com/install/?ref=readme) · [Quickstart](https://thelanternworks.com/quickstart/?ref=readme) · [Agent manifest](https://thelanternworks.com/agent.json) · [Small per-model JSON feeds](https://thelanternworks.com/api/v1/gpu/index.json) · [Add this to your README or dataset](docs/INTEGRATING.md)
 
-- **GPU prices:** [thelanternworks.com](https://thelanternworks.com/?ref=readme) · [/gpu/](https://thelanternworks.com/gpu/?ref=readme) · JSON [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · history [api/v1/gpu-prices/history.json](https://thelanternworks.com/api/v1/gpu-prices/history.json) · what moved since yesterday [api/v1/gpu-price-changes.json](https://thelanternworks.com/api/v1/gpu-price-changes.json) ([RSS](https://thelanternworks.com/api/v1/gpu-price-changes.xml))
+- **GPU prices:** [thelanternworks.com](https://thelanternworks.com/?ref=readme) · [/gpu/](https://thelanternworks.com/gpu/?ref=readme) · JSON [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json) · history [api/v1/gpu-prices/history.json](https://thelanternworks.com/api/v1/gpu-prices/history.json) · what moved since yesterday [api/v1/gpu-price-changes.json](https://thelanternworks.com/api/v1/gpu-price-changes.json) ([RSS](https://thelanternworks.com/api/v1/gpu-price-changes.xml)) · biggest daily/weekly moves [api/v1/gpu-price-digest.json](https://thelanternworks.com/api/v1/gpu-price-digest.json) ([RSS](https://thelanternworks.com/api/v1/gpu-price-digest.xml))
 - **GPU coverage:** which GPU models each vendor is tracked for (in stock, priced, not listed): [/coverage/](https://thelanternworks.com/coverage/?ref=readme) · JSON [api/v1/coverage.json](https://thelanternworks.com/api/v1/coverage.json)
 - **Deals directory:** [thelanternworks.com/deals/](https://thelanternworks.com/deals/?ref=readme) · [About](https://thelanternworks.com/lanternworks/?ref=readme)
 - **Agent feed (JSON, no auth):** [thelanternworks.com/api/v1/deals.json](https://thelanternworks.com/api/v1/deals.json) (same bytes as `/deals.json`) · mirror: [gist](https://gist.githubusercontent.com/connormatthewdouglas/ab5c3a8dceaf396d8f0c631913433a5e/raw/deals.json)
@@ -112,17 +112,18 @@ Contact: [lanternworks@agentmail.to](mailto:lanternworks@agentmail.to)
 
 Free, read-only, no API key. Package [`lantern-works-deals-mcp`](https://pypi.org/project/lantern-works-deals-mcp/) on PyPI; MCP Registry name `io.github.connormatthewdouglas/lantern-works-deals`. Built on the official Python MCP SDK.
 
-Tool counts: **11** in the local package (stdio, below); **18** on the hosted endpoint (the same 11 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
+Tool counts: **12** in the local package (stdio, below); **19** on the hosted endpoint (the same 12 plus `create_watch_key`, `watch_price`, `list_watches`, `delete_watch`, and the poll-only price alerts `create_alert`, `check_alerts`, `delete_alert`).
 
 The full tool contracts, eligibility and stale-price rules, hosted endpoint, alert delivery, throughput data, and the feed contract and deploy gate are in [docs/CONTRACT.md](docs/CONTRACT.md). Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
 
-## Tools (11 in the local package, read-only)
+## Tools (12 in the local package, read-only)
 
 | Tool | What it does |
 |---|---|
 | `compare_gpu_prices` | Hourly rental prices for a GPU model across tracked providers, cheapest first. When a result includes `availability_rate_7d`, `window_days` is the planned window and `observed_hours` is the actual coverage (`coverage_note` when coverage is shorter). The output also carries file-level `availability_window_summary` (no-window counts by reason, plus when current windows began) and `content_build_id`. |
 | `get_price_changes` | GPU price moves among tracked providers, newest first. |
 | `get_price_trend` | 7-day and 30-day price trend for one `rate_id` (existing snapshots; never from stale/held/sold_out/no_source rows). |
+| `get_price_moves` | Biggest daily or 7-day tracked GPU price moves (`period=daily\|weekly`; held/stale days excluded). |
 | `find_available_gpus` | Who has N × GPU confirmed in stock right now (never from stale, static-label, no_source, or 7-day stock rates). |
 | `optimize_stack` | Cheapest tracked plan per usage line, with sources. |
 | `optimize_agent_stack` | Cheapest cited option per component from a plain-text agent description. |
@@ -132,7 +133,7 @@ The full tool contracts, eligibility and stale-price rules, hosted endpoint, ale
 | `compare_deals` | Compare 2-5 deals by id, best customer value first. |
 | `get_deal` | Return the full public record for one deal id. |
 
-Hosted endpoint only (7 more, 18 in total): `create_alert`, `check_alerts` and `delete_alert` (poll-only price alerts) and `create_watch_key`, `watch_price`, `list_watches` and `delete_watch` (opt-in price watches with a webhook). Details: [docs/CONTRACT.md](docs/CONTRACT.md).
+Hosted endpoint only (7 more, 19 in total): `create_alert`, `check_alerts` and `delete_alert` (poll-only price alerts) and `create_watch_key`, `watch_price`, `list_watches` and `delete_watch` (opt-in price watches with a webhook). Details: [docs/CONTRACT.md](docs/CONTRACT.md).
 
 Keywords: MCP server, Model Context Protocol, GPU prices, cloud GPU pricing, GPU rental price comparison, H100 / H200 / A100 / L40S / RTX 4090 / RTX 5090 hourly price, GPU cost estimate, price history, AI infrastructure costs, Claude, Cursor, VS Code Copilot, Windsurf, Cline.
 

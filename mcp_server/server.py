@@ -210,6 +210,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     A crashed availability probe may add probe_error ({type, sanitized message of at most 200 characters})
     and probe_attempted_at; those fields appear only when a probe raised an error and never count as a
     successful check (verified_at and the success checked_at are not refreshed).
+    availability_expires_claim says which claim availability_expires_at belongs to (checked_at or last_known_at).
+    When an older in-stock claim exists beside a newer read, last_known_expires_at is that older claim's own expiry
+    (last_known_at + its max_age), separate from the current-read expiry. Display only; not a successful check.
     A row with unknown stock, and each stale_prices entry, has next_check_at (next scheduled check, UTC), will_backfill
     (true: a scheduled check covers it; false: scope limit, nothing will re-check it; null: not derivable),
     backfill_eta and next_check_basis (the schedule it came from).
@@ -217,6 +220,9 @@ def compare_gpu_prices(gpu: str, limit: int = 10, include_history: bool = False,
     trend_reason). include_history=true also adds each result's price_history (change points) and history.recent_changes
     (price changes for this model among tracked providers, last 30 days) from /api/v1/gpu-prices/history.json.
     Each result has data_age_hours (hours since its price was last verified), degraded (> 48 h) and stale (> 7 days).
+    Each result also has stock_age_hours (hours since the stock claim was read: reader clock minus stock_read_at or the
+    stock checked_at), stock_age_basis, and stock_read_state (never_read, read, or read_expired). Computed at call time;
+    a missing stock timestamp stays never_read and no timestamp is invented. Display only; not a successful check.
     A degraded row is shown and flagged but never ranked first while a fresh row exists; if none is fresh,
     stale_fallback=true and the summary says so.
     By default a rate whose price is older than 168 h is never ranked or named cheapest: it is listed in stale_prices
@@ -371,6 +377,51 @@ def get_price_trend(rate_id: str, windows: list[int] | None = None) -> dict:
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
 @_counted
 @_contract
+def get_price_moves(period: str = "daily", limit: int = 10, gpu: str | None = None,
+                    vendor: str | None = None, direction: str | None = None) -> dict:
+    """Biggest tracked GPU price moves for a daily or 7-day window, among tracked providers only.
+
+    Reuses existing daily snapshot diffs and history windows (same 2% deadband and ranked-day
+    rules as get_price_trend). Held/stale days stay out of the math. Missing snapshot days are
+    not invented. Current sold_out does not blank a historical move. At request time a live
+    stock claim is passed through stale_guard (P64) so staleness is visible; that does not
+    change pct. period is daily (default) or weekly. limit 1-25 (default 10). Optional gpu,
+    vendor, and direction (up/down) filters. All timestamps are UTC with a Z.
+    """
+    try:
+        from core import gpu_digest as D
+        hist, ch, rates = None, None, None
+        per = (period or "daily").strip().lower() or "daily"
+        try:
+            hist = history_loader.load()
+        except DealError:
+            if per == "weekly":
+                raise
+            hist = {"series": []}
+        try:
+            ch = changes_loader.load()
+        except DealError:
+            if per == "daily":
+                raise
+            ch = {"changes": []}
+        try:
+            rates = (gpu_loader.load() or {}).get("rates")
+        except DealError:
+            rates = None
+        return D.price_moves(history=hist, changes=ch, period=period or "daily", limit=limit,
+                             gpu=gpu, vendor=vendor, direction=direction, live_rates=rates)
+    except DealError as e:
+        return e.to_dict()
+    except Exception as e:
+        from core.gpu_digest import DigestError
+        if isinstance(e, DigestError):
+            return DealError(e.code, e.message).to_dict()
+        raise
+
+
+@mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+@_counted
+@_contract
 def find_available_gpus(gpu: str, gpus: int = 1, limit: int = 10, on_demand_only: bool = True,
                         region: str | None = None, vendor: str | None = None) -> dict:
     """Who has N x GPU free right now among tracked providers, ranked by confirmed in-stock freshness.
@@ -380,7 +431,11 @@ def find_available_gpus(gpu: str, gpus: int = 1, limit: int = 10, on_demand_only
     shorter Scout claim lifetime). sold_out is confirmed unexpired in_stock false. Everything else
     is unknown with a reason (stale, static_label, no_source, no_signal, quota, region,
     region_unresolved, held_stale, owner_hold). last_known_in_stock / last_known_at stay visible
-    on lapsed claims (P64). A crashed probe may add probe_error and probe_attempted_at (attempt
+    on lapsed claims (P64). Each row has stock_age_hours and stock_read_state (never_read, read, or
+    read_expired) measured at call time from stock_read_at or the stock checked_at; never invented.
+    availability_expires_claim names which claim availability_expires_at belongs to;
+    last_known_expires_at is the older in-stock claim's own expiry when one exists beside a newer read.
+    A crashed probe may add probe_error and probe_attempted_at (attempt
     time only; not a successful check). Unknown is not sold out. Vendor-labelled static page labels, no_source,
     no signal, quota/region failures, held rows, and the 7-day stock rate never count as in stock.
     gpus (default 1) is the existing min_gpus allocation rule, not a cluster free-count.

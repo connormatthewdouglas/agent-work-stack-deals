@@ -61,10 +61,10 @@ def test_page_cell_carries_region_expiry_and_script():
     class G:
         esc = staticmethod(lambda s: str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;"))
     h = gp._avail_cell(G, {"advertiser": "RunPod", "availability": _claim()})
-    assert 'data-rg-expires="2026-10-30T14:54:36Z"' in h and "(regions valid until 10:54 ET)" in h
+    assert 'data-rg-expires="2026-10-30T14:54:36Z"' in h and "(regions valid until 2026-10-30 10:54 ET)" in h
     assert "data-rg-expires" in stale_js.JS
     gone = gp._avail_cell(G, {"advertiser": "RunPod", "availability": stale_guard(_claim(), T + timedelta(hours=1))})
-    assert "data-rg-expires" not in gone and "AP-IN-1" not in gone and "region list expires at 10:54" in gone
+    assert "data-rg-expires" not in gone and "AP-IN-1" not in gone and "region list expires at 2026-10-30 10:54 ET" in gone
 
 
 def test_built_outputs_list_no_region_past_its_expiry_at_build_time():

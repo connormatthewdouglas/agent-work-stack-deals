@@ -1,5 +1,7 @@
 """T39: rate_id on every compare_gpu_prices row and optimizer option (from core.ids, T38), and a deterministic
+
 quote_id receipt (+ issued_at) on optimize_stack / optimize_agent_stack."""
+import pytest
 import copy
 import json
 import random
@@ -15,6 +17,13 @@ sys.path.insert(0, str(ROOT))
 
 from core import contract, deals, ids, quote, stack  # noqa: E402
 from mcp_server import server as s  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 GPU = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
 STACK = json.loads((ROOT / "api/v1/stack-pricing.json").read_text())

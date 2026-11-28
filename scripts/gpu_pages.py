@@ -278,6 +278,30 @@ def _rate_tail(r: dict) -> str:
     return f"; {p}" if p else ""
 
 
+
+def _expiry_claim_suffix(a: dict) -> str:
+    """P76: label which claim the live expiry belongs to, and show an older in-stock claim's own expiry."""
+    if not isinstance(a, dict):
+        return ""
+    from core.gpu_availability import et_time
+    bits = []
+    exp = a.get("availability_expires_at")
+    if exp:
+        claim = a.get("availability_expires_claim")
+        # Full date+time stamp (P74 lesson): never a relative 'ago' or a time-of-day
+        # without a date, which would go stale if the static page sits.
+        if claim == "checked_at":
+            bits.append(f"current-read expiry {et_time(exp)} (checked_at); after that treat as unknown")
+        elif claim == "last_known_at":
+            bits.append(f"last-known claim expiry {et_time(exp)} (last_known_at); after that treat as unknown")
+        else:
+            bits.append(f"valid until {et_time(exp)}; after that treat as unknown")
+    lk_exp = a.get("last_known_expires_at")
+    if lk_exp and lk_exp != exp:
+        bits.append(f"last-known in-stock claim expiry {et_time(lk_exp)} (last_known_at)")
+    return ("; " + "; ".join(bits)) if bits else ""
+
+
 def _avail_cell(gen, r: dict) -> str:
     a = r.get("availability") or {}
     tail = _rate_tail(r)
@@ -285,7 +309,9 @@ def _avail_cell(gen, r: dict) -> str:
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         return gen.esc(a["status"] + (f", seen {t} UTC" if t else "") + tail)
     if a.get("availability_stale"):
-        return gen.esc(a["status"] + tail)
+        age = stock_read_absolute_phrase(a)
+        extra = f", {age}" if age and age not in (a.get("status") or "") else ""
+        return gen.esc(a["status"] + extra + _expiry_claim_suffix(a) + tail)
     if a.get("in_stock") is None:
         from core.gpu import NO_STOCK_COLLECTION, NO_STOCK_COLLECTION_LABEL
         from core.gpu_availability import et_time
@@ -295,13 +321,15 @@ def _avail_cell(gen, r: dict) -> str:
         p = rate_phrase(r.get("availability_rate_7d"))
         when = a.get("checked_at") or (r.get("availability_rate_7d") or {}).get("last_check_at")
         if p:
-            return gen.esc(f"unknown; {p}, last check {et_time(when)}")
+            return gen.esc(f"unknown; {p}, last check {et_time(when)}" + _expiry_claim_suffix(a))
         if lp := lapsed_phrase(r.get("availability_rate_7d")):
-            return gen.esc(lp)
+            return gen.esc(lp + _expiry_claim_suffix(a))
         t = (a.get("checked_at") or "").replace("T", " ")[:16]
         if t:
-            return gen.esc(f"unknown (no signal), checked {t} UTC")
-        return "—"
+            # A no-signal check is not a stock read (Gauge #385 B1 (a)).
+            return gen.esc(f"unknown (no signal), checked {t} UTC" + _expiry_claim_suffix(a))
+        # Never read: distinct from a check that has expired (P74 / Brain #1172).
+        return "— never read"
     # 0/N trailing reading: say "not observed in stock in N checks", not "out of stock" / "sold out".
     # Only when the current snapshot is out of stock. A live in-stock row must not take a lagging
     # 0/N series as the current claim (rate_7d is built from git history, so a capture just written
@@ -318,11 +346,11 @@ def _avail_cell(gen, r: dict) -> str:
         bits.append(f"{a['unrented_servers']} unrented servers (one server may hold several GPUs)")
     regions_html = ""
     if a.get("available_regions"):
-        from core.gpu_availability import et_hm
+        from core.gpu_availability import et_hm, et_time
         rtxt = "regions " + "/".join(a["available_regions"][:6]) + ("…" if len(a["available_regions"]) > 6 else "")
         rx = a.get("regions_expires_at")
         if rx:  # v2.9: the region list has its own (1 h) expiry; the in-page script blanks it after that time
-            rtxt += f" (regions valid until {et_hm(rx)})"
+            rtxt += f" (regions valid until {et_time(rx)})"
             regions_html = f'<span data-rg-expires="{gen.esc(rx)}">{gen.esc(rtxt)}</span>'
         else:
             bits.append(rtxt)
@@ -339,10 +367,10 @@ def _avail_cell(gen, r: dict) -> str:
     t = (a.get("checked_at") or "").replace("T", " ")[:16]
     sep = " (separate check, time shown)" if r.get("advertiser") == "Vast.ai" else ""
     exp = a.get("availability_expires_at")
-    if exp:
-        from core.gpu_availability import et_hm
-        sep += f"; valid until {et_hm(exp)}; after that treat as unknown"
-    body = gen.esc(", ".join(bits)) + (", " + regions_html if regions_html else "") + gen.esc((f", snapshot {t} UTC" if t else "") + sep)
+    sep += _expiry_claim_suffix(a)
+    age = stock_read_absolute_phrase(a, already_shown=t if t else None)
+    age_bit = f", {age}" if age else ""
+    body = gen.esc(", ".join(bits)) + (", " + regions_html if regions_html else "") + gen.esc((f", snapshot {t} UTC" if t else "") + age_bit + sep)
     if a.get("origin") in ("scout", "record") and t:
         return (f'<span data-av-checked="{gen.esc(a.get("checked_at") or "")}" data-av-expires="{gen.esc(exp or "")}">{body}</span>')
     return body
@@ -359,6 +387,7 @@ def _verified_cell(r: dict, esc) -> str:
 
 
 from core.gpu_availability import STOCK_EXPLAINER, REGIONS_NOTE  # noqa: E402  (one wording: core NOTE == page explainer)
+from core.stock_age import NEVER_READ, stock_age_fields, stock_read_absolute_phrase  # noqa: E402
 from core.deals import tie_label, out_of_stock, usd  # noqa: E402  (J3 tie rule shared with the MCP summary)
 
 
@@ -684,7 +713,7 @@ def _stock_tag(gen, r) -> str:
         return ""
     from core.gpu_availability import et_hm, et_time
     exp = a.get("availability_expires_at") or ""
-    tail = f"; valid until {et_hm(exp)}; after that treat as unknown" if exp else ""
+    tail = _expiry_claim_suffix(a)
     return (f' <small data-av-checked="{gen.esc(a["checked_at"])}" data-av-expires="{gen.esc(exp)}">(available when checked at '
             f'{gen.esc(et_time(a["checked_at"]))}{gen.esc(tail)})</small>')
 

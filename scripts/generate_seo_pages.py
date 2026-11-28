@@ -567,7 +567,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <h1>For agents: GPU rental prices, with receipts</h1>
   <p>Lantern Works tracks <strong>{gcov["models_tracked"]} GPU models across {gcov["vendors"]} vendors</strong> ({n_rates} rates in the current feed, updated <code>{esc(gdoc.get("feed_updated_at"))}</code>). Every rate is read from the vendor's own pricing page and carries its <code>source_url</code> and <code>checked_at</code>. Public, read-only, no API key.</p>
   <ul>
-    <li>GPU price feed: <a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> · daily changes: <a href="{BASE}/api/v1/gpu-price-changes.json">gpu-price-changes.json</a></li>
+    <li>GPU price feed: <a href="{BASE}/api/v1/gpu-prices.json">{BASE}/api/v1/gpu-prices.json</a> · daily changes: <a href="{BASE}/api/v1/gpu-price-changes.json">gpu-price-changes.json</a> · biggest moves: <a href="{BASE}/api/v1/gpu-price-digest.json">gpu-price-digest.json</a></li>
     <li>Coverage by model and vendor: <a href="{BASE}/coverage/">/coverage/</a> (<a href="{BASE}/api/v1/coverage.json">coverage.json</a>)</li>
   </ul>
 
@@ -588,7 +588,7 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   <ul>
 {mcp_tools}
   </ul>
-  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools ({watch_tools}). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. <code>find_available_gpus(gpu, gpus=1)</code> lists who has N × GPU confirmed in stock right now from existing availability (never from a stale or static-label reading). Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
+  <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools ({watch_tools}). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. <code>get_price_moves(period="weekly")</code> returns the biggest daily or 7-day tracked price moves (also at <a href="{BASE}/api/v1/gpu-price-digest.json">gpu-price-digest.json</a>). <code>find_available_gpus(gpu, gpus=1)</code> lists who has N × GPU confirmed in stock right now from existing availability (never from a stale or static-label reading). Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
 
   <h3 id="estimate-job-cost"><code>estimate_job_cost</code>: <code>job_days</code> and <code>tracked_url</code></h3>
   <p><code>job_days</code> is an optional input (number greater than 0; omit it if you pass <code>job_hours</code> or work units). It means wall-clock days: <code>job_hours = job_days &times; 24</code>. Do not pass <code>job_days</code> together with <code>job_hours</code>, or together with <code>work_units</code> / throughput; that is <code>invalid_argument</code>. The resulting hours must be &le; 20,000 (hours, not GPU-hours), so 834 days is rejected. The tool always returns <code>job_days</code> and <code>job_hours</code> at the top level and on each result row (hours &divide; 24, four decimal places) even if you supplied hours. A multi-day total is a compute subtotal at current rates, not a reservation.</p>
@@ -645,7 +645,7 @@ cheap = [d for d in feed["deals"] if d["price_usd"] is not None and d["price_usd
   <p><a href="{BASE}/api/v1/stack-pricing.json">{BASE}/api/v1/stack-pricing.json</a> has cited plan prices for scraping, residential proxies, transactional email and search APIs (each offer has <code>quote</code>, <code>source_url</code>, <code>checked_at</code>; unpublished numbers are <code>null</code> = not published). The <a href="{BASE}/tools/stack-optimizer/">Agent Stack Optimizer</a> picks the cheapest suitable plan per need among tracked providers.</p>
 
   <h3 id="availability-expiry">Stock claims expire</h3>
-  <p>Every stock claim (<code>availability.in_stock</code> true or false) in <code>gpu-prices.json</code> and <code>gpu/&lt;family&gt;.json</code> carries <code>checked_at</code> and <code>availability_expires_at</code> (UTC): at most <code>checked_at</code> + 1 h for Lambda, Verda, region and region-derived claims, and + 1 h for Vast marketplace overall claims and + 8 h for Clore. A claim is still valid at the exact expiry instant (now equals <code>availability_expires_at</code>). After that instant &mdash; when now is later than <code>availability_expires_at</code> &mdash; treat the claim as unknown: not in stock, not sold out. The clock is UTC (the current UTC time on the server or worker that applies the rule). There is no grace period and no clock-skew tolerance on this boundary. Static feeds leave out claims within 25 minutes of expiry and are rebuilt on every availability snapshot; that 25-minute cutoff is only for static output, not a consumer-side grace. You must still enforce <code>availability_expires_at</code>; <code>compare_gpu_prices</code> and <code>find_available_gpus</code> apply it at request time and are the source of truth. The pages show the same limit as &ldquo;valid until HH:MM ET; after that treat as unknown&rdquo; and carry <code>data-av-checked</code> / <code>data-av-expires</code> attributes. Feeds are rebuilt hourly when a claim expires or a new availability snapshot arrives, and the MCP tools re-check expiry on every call (expired rows: <code>in_stock</code> null, <code>availability_stale</code> true).</p>
+  <p>Every stock claim (<code>availability.in_stock</code> true or false) in <code>gpu-prices.json</code> and <code>gpu/&lt;family&gt;.json</code> carries <code>checked_at</code> and <code>availability_expires_at</code> (UTC): at most <code>checked_at</code> + 1 h for Lambda, Verda, region and region-derived claims, and + 1 h for Vast marketplace overall claims and + 8 h for Clore. A claim is still valid at the exact expiry instant (now equals <code>availability_expires_at</code>). After that instant &mdash; when now is later than <code>availability_expires_at</code> &mdash; treat the claim as unknown: not in stock, not sold out. The clock is UTC (the current UTC time on the server or worker that applies the rule). There is no grace period and no clock-skew tolerance on this boundary. Static feeds leave out claims within 25 minutes of expiry and are rebuilt on every availability snapshot; that 25-minute cutoff is only for static output, not a consumer-side grace. You must still enforce <code>availability_expires_at</code>; <code>compare_gpu_prices</code> and <code>find_available_gpus</code> apply it at request time and are the source of truth. The pages show the same limit as &ldquo;valid until YYYY-MM-DD HH:MM ET; after that treat as unknown&rdquo; and carry <code>data-av-checked</code> / <code>data-av-expires</code> attributes. Feeds are rebuilt hourly when a claim expires or a new availability snapshot arrives, and the MCP tools re-check expiry on every call (expired rows: <code>in_stock</code> null, <code>availability_stale</code> true).</p>
   <h2>Install the MCP server (local stdio)</h2>
   <p>Published on <a href="https://pypi.org/project/lantern-works-deals-mcp/">PyPI</a> as <code>lantern-works-deals-mcp</code> and in the MCP Registry as <code>io.github.connormatthewdouglas/lantern-works-deals</code>. With <a href="https://docs.astral.sh/uv/">uv</a> installed, run:</p>
   <pre>uvx lantern-works-deals-mcp</pre>
@@ -707,7 +707,7 @@ def write_about(deals: list[dict]) -> Path:
 
   <h2>How we check prices</h2>
   <p>Each tracked offer is checked against the vendor's own public pricing page or API. We record the rate per GPU per hour, the exact text we saw, and when we saw it. If we can't confirm a price, we mark it unknown instead of guessing. Each table shows its own check date, so you can see how old a number is.</p>
-  <p>Lists are sorted by price for the use you pick. Reserved or committed-term prices are shown separately, because they aren't comparable to pay-as-you-go rates. Spot and interruptible offers are labelled. <strong>Availability:</strong> Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; &ldquo;vendor-labelled&rdquo; means a fixed label on the vendor's page, not a capacity check; &ldquo;&mdash;&rdquo; or &ldquo;unknown&rdquo; means no signal, not sold out.</p>
+  <p>Lists are sorted by price for the use you pick. Reserved or committed-term prices are shown separately, because they aren't comparable to pay-as-you-go rates. Spot and interruptible offers are labelled. <strong>Availability:</strong> Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; &ldquo;vendor-labelled&rdquo; means a fixed label on the vendor's page, not a capacity check; &ldquo;&mdash;&rdquo; or &ldquo;never read&rdquo; means no stock check has been taken; &ldquo;unknown (stale availability, last checked &hellip;)&rdquo; means a check was taken and the claim has expired. Neither is sold out.</p>
   <p>The site currently tracks {n} offers. You can see what changed on the <a href="{BASE}/changelog/">changelog</a>.</p>
 
   <h2>How we make money</h2>
@@ -1570,6 +1570,7 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("gpu/price-comparison", ("scripts/gpu_pages.py",)),
     ("docs/watch-gpu-prices", ("scripts/agent_growth_pages.py",)),
     ("api/v1/gpu-price-changes", ("scripts/gpu_changes_feed.py",)),
+    ("api/v1/gpu-price-digest", ("scripts/gpu_digest_feed.py",)),
     # Exact /api/ docs page. Keep this after the api/v1/ prefix so feed lastmods are unchanged.
     ("api", ("scripts/api_docs_page.py",)),
     ("report-price", ("scripts/report_price_page.py",)),
@@ -1716,7 +1717,7 @@ def _depends_on_gpu_feed(url_path: str) -> bool:
         return True
     if p == "cost" or p.startswith("cost/"):
         return True
-    if p.startswith("api/v1/gpu-price-changes"):
+    if p.startswith("api/v1/gpu-price-changes") or p.startswith("api/v1/gpu-price-digest"):
         return True
     if p == "coverage" or p.startswith("coverage/"):
         return True
@@ -1777,6 +1778,18 @@ def _changes_content_day() -> str | None:
     return _iso_date(doc.get("date"))
 
 
+def _digest_content_day() -> str | None:
+    """Day the published price-moves digest moved (weekly window_end or daily date). Not the clock."""
+    try:
+        doc = json.loads((ROOT / "api/v1/gpu-price-digest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    weekly = _iso_date(((doc.get("weekly") or {}).get("window_end")))
+    daily = _iso_date((doc.get("daily") or {}).get("date"))
+    days = [d for d in (weekly, daily) if d]
+    return max(days) if days else None
+
+
 _CHANGELOG_DAY_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 
 
@@ -1830,6 +1843,8 @@ def sitemap_lastmod_for_loc(loc: str) -> str | None:
     # generator script or a CI merge commit does not move it.
     if stripped in {"gpu/changes.xml", "gpu/changes", "api/v1/gpu-price-changes.xml", "api/v1/gpu-price-changes.json"}:
         return _changes_content_day() or _gpu_feed_day()
+    if stripped in {"api/v1/gpu-price-digest.xml", "api/v1/gpu-price-digest.json"}:
+        return _digest_content_day() or _gpu_feed_day()
 
     # Per-deal pages: the deal record is the content source of truth.
     m = re.fullmatch(r"deals/([^/]+)", stripped)
@@ -1882,6 +1897,8 @@ def write_sitemap(deal_slugs: list[str], hub_slugs: list[str], guide_slugs: list
         (f"{BASE}/deals/", "0.9"),
         (f"{BASE}/api/v1/gpu-price-changes.json", "0.6"),
         (f"{BASE}/api/v1/gpu-price-changes.xml", "0.6"),
+        (f"{BASE}/api/v1/gpu-price-digest.json", "0.6"),
+        (f"{BASE}/api/v1/gpu-price-digest.xml", "0.6"),
         (f"{BASE}/gpu/changes.xml", "0.6"),
         (f"{BASE}/lanternworks/", "0.8"),
         (f"{BASE}/changelog/", "0.7"),
@@ -2367,6 +2384,8 @@ def main() -> None:
     # changes file, and only a second build matched (refresh failed test_committed_pages_match_pinned_generator).
     import gpu_changes_feed
     gpu_changes_feed.write(sys.modules[__name__])
+    import gpu_digest_feed
+    gpu_digest_feed.write(sys.modules[__name__])
     import spec_pages
     tool_paths += spec_pages.write_all(sys.modules[__name__])
     tool_paths += gpu_pages.write_all(sys.modules[__name__], deals)

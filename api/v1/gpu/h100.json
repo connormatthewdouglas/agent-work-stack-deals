@@ -15,8 +15,8 @@
   "cheapest_grouping": "cheapest[bucket] has one row per (vram_gb, form_factor, tier) group, sorted by vram_gb then price; SXM vs PCIe and vendor tiers (e.g. RunPod Community vs Secure) are never mixed. form_factor is 'unknown' when the source does not say.",
   "price_basis": "hourly_usd_per_gpu = per-GPU hourly equivalent (monthly rows / 730 h); multi-GPU instances also give server_hourly_usd",
   "reserved_policy": "reserved rows and serverless rows (core.serverless.rate_reason: per-second price, or serverless/flex/active-worker/per-second/scale-to-zero on tier, billing, or price basis) are listed under rows but omitted from cheapest. A bucket key such as monthly or spot-community is omitted when every row in it fails that same headline rule (including min_gpus above 1). Those rows stay under rows.",
-  "last_checked": "2026-11-28T03:17:28Z",
-  "row_count": 31,
+  "last_checked": "2026-11-28T07:01:47Z",
+  "row_count": 30,
   "providers": [
     "99Stack Cloud",
     "Civo",
@@ -58,7 +58,7 @@
           "in_stock": true,
           "checked_at": "2026-11-28T06:54:10Z",
           "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
           "origin": "scout",
           "availability_expires_at": "2026-11-28T07:54:10Z",
           "max_age_hours": 1.0,
@@ -103,7 +103,13 @@
           "price_read_at": "2026-11-27T19:32:49Z",
           "price_at_claim_usd": 2.5,
           "gpu_count": 1,
-          "max_age_source": "policy"
+          "max_age_source": "policy",
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-28T06:54:10Z",
+          "last_known_expires_at": "2026-11-28T07:54:10Z",
+          "last_known_max_age_hours": 1.0,
+          "last_known_outside_window": false,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -180,7 +186,11 @@
           "availability_stale": true,
           "max_age_hours": 8.0,
           "max_age_source": "policy",
-          "availability_expires_at": "2026-11-28T14:49:02Z"
+          "availability_expires_at": "2026-11-28T14:49:02Z",
+          "last_known_expires_at": "2026-11-25T20:49:53Z",
+          "last_known_max_age_hours": 8.0,
+          "last_known_outside_window": true,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -212,7 +222,7 @@
           "in_stock": true,
           "checked_at": "2026-11-28T06:54:06Z",
           "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
           "origin": "scout",
           "availability_expires_at": "2026-11-28T14:54:06Z",
           "max_age_hours": 8.0,
@@ -228,7 +238,13 @@
           "price_read_at": "2026-11-27T19:32:09Z",
           "price_at_claim_usd": 2.99,
           "gpu_count": 1,
-          "max_age_source": "policy"
+          "max_age_source": "policy",
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-28T06:54:06Z",
+          "last_known_expires_at": "2026-11-28T14:54:06Z",
+          "last_known_max_age_hours": 8.0,
+          "last_known_outside_window": false,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -260,7 +276,7 @@
           "in_stock": true,
           "checked_at": "2026-11-28T06:49:02Z",
           "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
           "origin": "scout",
           "availability_expires_at": "2026-11-28T07:49:02Z",
           "max_age_hours": 1.0,
@@ -514,7 +530,13 @@
           "price_read_at": "2026-11-27T19:33:56Z",
           "price_at_claim_usd": 4.39,
           "gpu_count": 1,
-          "max_age_source": "policy"
+          "max_age_source": "policy",
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-28T06:49:02Z",
+          "last_known_expires_at": "2026-11-28T07:49:02Z",
+          "last_known_max_age_hours": 1.0,
+          "last_known_outside_window": false,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -546,7 +568,7 @@
           "in_stock": false,
           "checked_at": "2026-11-28T06:54:03Z",
           "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
           "origin": "scout",
           "availability_expires_at": "2026-11-28T07:54:03Z",
           "max_age_hours": 1.0,
@@ -566,7 +588,13 @@
           "price_read_at": "2026-11-27T19:33:07Z",
           "price_at_claim_usd": 3.79,
           "gpu_count": 1,
-          "max_age_source": "policy"
+          "max_age_source": "policy",
+          "last_known_in_stock": false,
+          "last_known_at": "2026-11-28T06:54:03Z",
+          "last_known_expires_at": "2026-11-28T07:54:03Z",
+          "last_known_max_age_hours": 1.0,
+          "last_known_outside_window": false,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "PCIe",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -598,7 +626,7 @@
           "in_stock": false,
           "checked_at": "2026-11-28T06:54:03Z",
           "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
           "origin": "scout",
           "availability_expires_at": "2026-11-28T07:54:03Z",
           "max_age_hours": 1.0,
@@ -618,7 +646,13 @@
           "price_read_at": "2026-11-27T19:33:07Z",
           "price_at_claim_usd": 4.89,
           "gpu_count": 1,
-          "max_age_source": "policy"
+          "max_age_source": "policy",
+          "last_known_in_stock": false,
+          "last_known_at": "2026-11-28T06:54:03Z",
+          "last_known_expires_at": "2026-11-28T07:54:03Z",
+          "last_known_max_age_hours": 1.0,
+          "last_known_outside_window": false,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "SXM",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -657,7 +691,8 @@
           "availability_reason_detail": "unconfirmed_two_reads",
           "max_age_hours": 8.0,
           "max_age_source": "policy",
-          "availability_expires_at": "2026-11-28T14:49:02Z"
+          "availability_expires_at": "2026-11-28T14:49:02Z",
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "NVL",
         "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption",
@@ -698,7 +733,8 @@
           "availability_reason_detail": "api_null_signal",
           "max_age_hours": 8.0,
           "max_age_source": "policy",
-          "availability_expires_at": "2026-11-28T14:49:04Z"
+          "availability_expires_at": "2026-11-28T14:49:04Z",
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "PCIe",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -730,7 +766,7 @@
           "in_stock": true,
           "checked_at": "2026-11-28T06:54:10Z",
           "refresh": "automated check, time shown (prices checked daily)",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
           "origin": "scout",
           "availability_expires_at": "2026-11-28T07:54:10Z",
           "max_age_hours": 1.0,
@@ -775,57 +811,19 @@
           "price_read_at": "2026-11-27T19:32:49Z",
           "price_at_claim_usd": 2.0,
           "gpu_count": 1,
-          "max_age_source": "policy"
+          "max_age_source": "policy",
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-28T06:54:10Z",
+          "last_known_expires_at": "2026-11-28T07:54:10Z",
+          "last_known_max_age_hours": 1.0,
+          "last_known_outside_window": false,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "PCIe",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
         "group": {
           "form_factor": "PCIe",
           "tier": "Spot VM",
-          "vram_gb": 80
-        }
-      },
-      {
-        "vram_gb": 80,
-        "provider": "Lium",
-        "gpu": "H100 PCIe",
-        "tier": "Marketplace secure node",
-        "tier_class": "marketplace",
-        "bucket": "spot-community",
-        "interruptible": false,
-        "hourly_usd_per_gpu": 2.2,
-        "unit": "hour",
-        "price_usd": 2.2,
-        "gpu_count": 1,
-        "min_gpus": 1,
-        "price_status": "listed",
-        "verified_at": "2026-11-28T03:17:28Z",
-        "source_url": "https://lium.io/api/public/v1/nodes",
-        "quote": "Lium nodes API 2026-11-28T03:17:28+00:00: 1 available H100 PCIe secure nodes, 4 GPUs free; lowest price_per_gpu_hour $2.2 (min rental 1 GPU, Europe)",
-        "availability": {
-          "status": "available when checked",
-          "in_stock": true,
-          "checked_at": "2026-11-28T03:17:28Z",
-          "refresh": "automated check, time shown (prices checked daily)",
-          "source": "https://lium.io/api/public/v1/nodes",
-          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-          "origin": "record",
-          "max_age_hours": 8.0,
-          "availability_expires_at": "2026-11-28T11:17:28Z",
-          "stock_level": "4 GPUs free on 1 nodes",
-          "same_capture_as_price": true,
-          "detail": "Lium public nodes API: 4 available GPUs (secure tier)",
-          "stock_read_at": "2026-11-28T03:17:28Z",
-          "price_read_at": "2026-11-28T03:17:28Z",
-          "price_at_claim_usd": 2.2,
-          "gpu_count": 1,
-          "max_age_source": "policy"
-        },
-        "form_factor": "PCIe",
-        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
-        "group": {
-          "form_factor": "PCIe",
-          "tier": "Marketplace secure node",
           "vram_gb": 80
         }
       },
@@ -869,7 +867,11 @@
           "two_read_gap_ok": true,
           "last_known_in_stock": true,
           "last_known_at": "2026-11-28T06:54:02Z",
-          "max_age_source": "policy"
+          "max_age_source": "policy",
+          "last_known_expires_at": "2026-11-28T07:09:02Z",
+          "last_known_max_age_hours": 0.25,
+          "last_known_outside_window": true,
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "SXM",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -908,13 +910,64 @@
           "availability_reason_detail": "api_null_signal",
           "max_age_hours": 8.0,
           "max_age_source": "policy",
-          "availability_expires_at": "2026-11-28T14:49:04Z"
+          "availability_expires_at": "2026-11-28T14:49:04Z",
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "SXM",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
         "group": {
           "form_factor": "SXM",
           "tier": "On-demand (Community Cloud)",
+          "vram_gb": 80
+        }
+      },
+      {
+        "vram_gb": 80,
+        "provider": "Lium",
+        "gpu": "H100 SXM",
+        "tier": "Marketplace secure node",
+        "tier_class": "marketplace",
+        "bucket": "spot-community",
+        "interruptible": false,
+        "hourly_usd_per_gpu": 2.88,
+        "unit": "hour",
+        "price_usd": 2.88,
+        "gpu_count": 1,
+        "min_gpus": 1,
+        "price_status": "listed",
+        "verified_at": "2026-11-28T07:01:47Z",
+        "source_url": "https://lium.io/api/public/v1/nodes",
+        "quote": "Lium nodes API 2026-11-28T07:01:47+00:00: 8 available H100 80GB HBM3 secure nodes, 57 GPUs free; lowest price_per_gpu_hour $2.88 (min rental 1 GPU, Helsinki, Finland)",
+        "availability": {
+          "status": "available when checked",
+          "in_stock": true,
+          "checked_at": "2026-11-28T07:01:47Z",
+          "refresh": "automated check, time shown (prices checked daily)",
+          "source": "https://lium.io/api/public/v1/nodes",
+          "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
+          "origin": "record",
+          "max_age_hours": 8.0,
+          "availability_expires_at": "2026-11-28T15:01:47Z",
+          "stock_level": "57 GPUs free on 8 nodes",
+          "same_capture_as_price": true,
+          "detail": "Lium public nodes API: 57 available GPUs (secure tier)",
+          "stock_read_at": "2026-11-28T07:01:47Z",
+          "price_read_at": "2026-11-28T07:01:47Z",
+          "price_at_claim_usd": 2.88,
+          "gpu_count": 1,
+          "max_age_source": "policy",
+          "last_known_in_stock": true,
+          "last_known_at": "2026-11-28T07:01:47Z",
+          "last_known_expires_at": "2026-11-28T15:01:47Z",
+          "last_known_max_age_hours": 8.0,
+          "last_known_outside_window": false,
+          "availability_expires_claim": "checked_at"
+        },
+        "form_factor": "SXM",
+        "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
+        "group": {
+          "form_factor": "SXM",
+          "tier": "Marketplace secure node",
           "vram_gb": 80
         }
       },
@@ -947,7 +1000,8 @@
           "availability_reason_detail": "api_null_signal",
           "max_age_hours": 8.0,
           "max_age_source": "policy",
-          "availability_expires_at": "2026-11-28T14:49:04Z"
+          "availability_expires_at": "2026-11-28T14:49:04Z",
+          "availability_expires_claim": "checked_at"
         },
         "form_factor": "NVL",
         "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption",
@@ -975,27 +1029,33 @@
       "server_hourly_usd": 10.14,
       "min_gpus": 6,
       "price_status": "listed",
-      "verified_at": "2026-11-28T03:17:28Z",
+      "verified_at": "2026-11-28T07:01:47Z",
       "source_url": "https://lium.io/api/public/v1/nodes",
-      "quote": "Lium nodes API 2026-11-28T03:17:28+00:00: 4 available H100 80GB HBM3 spot nodes, 11 GPUs free; lowest price_per_gpu_hour $1.69 (min 6 GPUs = $10.14/hr, Siestrzeń, Poland)",
+      "quote": "Lium nodes API 2026-11-28T07:01:47+00:00: 6 available H100 80GB HBM3 spot nodes, 12 GPUs free; lowest price_per_gpu_hour $1.69 (min 6 GPUs = $10.14/hr, Siestrzeń, Poland)",
       "availability": {
         "status": "available when checked",
         "in_stock": true,
-        "checked_at": "2026-11-28T03:17:28Z",
+        "checked_at": "2026-11-28T07:01:47Z",
         "refresh": "automated check, time shown (prices checked daily)",
         "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "record",
         "max_age_hours": 8.0,
-        "availability_expires_at": "2026-11-28T11:17:28Z",
-        "stock_level": "11 GPUs free on 4 nodes",
+        "availability_expires_at": "2026-11-28T15:01:47Z",
+        "stock_level": "12 GPUs free on 6 nodes",
         "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 11 available GPUs (spot tier)",
-        "stock_read_at": "2026-11-28T03:17:28Z",
-        "price_read_at": "2026-11-28T03:17:28Z",
+        "detail": "Lium public nodes API: 12 available GPUs (spot tier)",
+        "stock_read_at": "2026-11-28T07:01:47Z",
+        "price_read_at": "2026-11-28T07:01:47Z",
         "price_at_claim_usd": 1.69,
         "gpu_count": 6,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T07:01:47Z",
+        "last_known_expires_at": "2026-11-28T15:01:47Z",
+        "last_known_max_age_hours": 8.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1029,7 +1089,8 @@
         "availability_reason_detail": "api_null_signal",
         "max_age_hours": 8.0,
         "max_age_source": "policy",
-        "availability_expires_at": "2026-11-28T14:49:04Z"
+        "availability_expires_at": "2026-11-28T14:49:04Z",
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "PCIe",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1056,7 +1117,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:54:10Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:10Z",
         "max_age_hours": 1.0,
@@ -1101,46 +1162,13 @@
         "price_read_at": "2026-11-27T19:32:49Z",
         "price_at_claim_usd": 2.0,
         "gpu_count": 1,
-        "max_age_source": "policy"
-      },
-      "form_factor": "PCIe",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
-      "provider": "Lium",
-      "gpu": "H100 PCIe",
-      "vram_gb": 80,
-      "tier": "Marketplace secure node",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 2.2,
-      "unit": "hour",
-      "price_usd": 2.2,
-      "gpu_count": 1,
-      "min_gpus": 1,
-      "price_status": "listed",
-      "verified_at": "2026-11-28T03:17:28Z",
-      "source_url": "https://lium.io/api/public/v1/nodes",
-      "quote": "Lium nodes API 2026-11-28T03:17:28+00:00: 1 available H100 PCIe secure nodes, 4 GPUs free; lowest price_per_gpu_hour $2.2 (min rental 1 GPU, Europe)",
-      "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-11-28T03:17:28Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "record",
-        "max_age_hours": 8.0,
-        "availability_expires_at": "2026-11-28T11:17:28Z",
-        "stock_level": "4 GPUs free on 1 nodes",
-        "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 4 available GPUs (secure tier)",
-        "stock_read_at": "2026-11-28T03:17:28Z",
-        "price_read_at": "2026-11-28T03:17:28Z",
-        "price_at_claim_usd": 2.2,
-        "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:54:10Z",
+        "last_known_expires_at": "2026-11-28T07:54:10Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "PCIe",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1167,7 +1195,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:54:10Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:10Z",
         "max_age_hours": 1.0,
@@ -1212,7 +1240,13 @@
         "price_read_at": "2026-11-27T19:32:49Z",
         "price_at_claim_usd": 2.5,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:54:10Z",
+        "last_known_expires_at": "2026-11-28T07:54:10Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1246,7 +1280,8 @@
         "availability_reason_detail": "api_null_signal",
         "max_age_hours": 8.0,
         "max_age_source": "policy",
-        "availability_expires_at": "2026-11-28T14:49:04Z"
+        "availability_expires_at": "2026-11-28T14:49:04Z",
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "NVL",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1291,7 +1326,11 @@
         "two_read_gap_ok": true,
         "last_known_in_stock": true,
         "last_known_at": "2026-11-28T06:54:02Z",
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_expires_at": "2026-11-28T07:09:02Z",
+        "last_known_max_age_hours": 0.25,
+        "last_known_outside_window": true,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1325,7 +1364,8 @@
         "availability_reason_detail": "api_null_signal",
         "max_age_hours": 8.0,
         "max_age_source": "policy",
-        "availability_expires_at": "2026-11-28T14:49:04Z"
+        "availability_expires_at": "2026-11-28T14:49:04Z",
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1361,6 +1401,51 @@
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
+      "provider": "Lium",
+      "gpu": "H100 SXM",
+      "vram_gb": 80,
+      "tier": "Marketplace secure node",
+      "tier_class": "marketplace",
+      "bucket": "spot-community",
+      "interruptible": false,
+      "hourly_usd_per_gpu": 2.88,
+      "unit": "hour",
+      "price_usd": 2.88,
+      "gpu_count": 1,
+      "min_gpus": 1,
+      "price_status": "listed",
+      "verified_at": "2026-11-28T07:01:47Z",
+      "source_url": "https://lium.io/api/public/v1/nodes",
+      "quote": "Lium nodes API 2026-11-28T07:01:47+00:00: 8 available H100 80GB HBM3 secure nodes, 57 GPUs free; lowest price_per_gpu_hour $2.88 (min rental 1 GPU, Helsinki, Finland)",
+      "availability": {
+        "status": "available when checked",
+        "in_stock": true,
+        "checked_at": "2026-11-28T07:01:47Z",
+        "refresh": "automated check, time shown (prices checked daily)",
+        "source": "https://lium.io/api/public/v1/nodes",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
+        "origin": "record",
+        "max_age_hours": 8.0,
+        "availability_expires_at": "2026-11-28T15:01:47Z",
+        "stock_level": "57 GPUs free on 8 nodes",
+        "same_capture_as_price": true,
+        "detail": "Lium public nodes API: 57 available GPUs (secure tier)",
+        "stock_read_at": "2026-11-28T07:01:47Z",
+        "price_read_at": "2026-11-28T07:01:47Z",
+        "price_at_claim_usd": 2.88,
+        "gpu_count": 1,
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T07:01:47Z",
+        "last_known_expires_at": "2026-11-28T15:01:47Z",
+        "last_known_max_age_hours": 8.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
+      },
+      "form_factor": "SXM",
+      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
+    },
+    {
       "provider": "RunPod",
       "gpu": "H100 PCIe",
       "vram_gb": 80,
@@ -1392,7 +1477,11 @@
         "availability_stale": true,
         "max_age_hours": 8.0,
         "max_age_source": "policy",
-        "availability_expires_at": "2026-11-28T14:49:02Z"
+        "availability_expires_at": "2026-11-28T14:49:02Z",
+        "last_known_expires_at": "2026-11-25T20:49:53Z",
+        "last_known_max_age_hours": 8.0,
+        "last_known_outside_window": true,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1419,7 +1508,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:54:06Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T14:54:06Z",
         "max_age_hours": 8.0,
@@ -1435,7 +1524,13 @@
         "price_read_at": "2026-11-27T19:32:09Z",
         "price_at_claim_usd": 2.99,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:54:06Z",
+        "last_known_expires_at": "2026-11-28T14:54:06Z",
+        "last_known_max_age_hours": 8.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1469,7 +1564,8 @@
         "availability_reason_detail": "unconfirmed_two_reads",
         "max_age_hours": 8.0,
         "max_age_source": "policy",
-        "availability_expires_at": "2026-11-28T14:49:02Z"
+        "availability_expires_at": "2026-11-28T14:49:02Z",
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "NVL",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1505,46 +1601,6 @@
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
     },
     {
-      "provider": "Lium",
-      "gpu": "H100 SXM",
-      "vram_gb": 80,
-      "tier": "Marketplace secure node",
-      "tier_class": "marketplace",
-      "bucket": "spot-community",
-      "interruptible": false,
-      "hourly_usd_per_gpu": 3.25,
-      "unit": "hour",
-      "price_usd": 3.25,
-      "gpu_count": 8,
-      "server_hourly_usd": 26.0,
-      "min_gpus": 8,
-      "price_status": "listed",
-      "verified_at": "2026-11-28T03:17:28Z",
-      "source_url": "https://lium.io/api/public/v1/nodes",
-      "quote": "Lium nodes API 2026-11-28T03:17:28+00:00: 6 available H100 80GB HBM3 secure nodes, 48 GPUs free; lowest price_per_gpu_hour $3.25 (min 8 GPUs = $26/hr, Austin, United States)",
-      "availability": {
-        "status": "available when checked",
-        "in_stock": true,
-        "checked_at": "2026-11-28T03:17:28Z",
-        "refresh": "automated check, time shown (prices checked daily)",
-        "source": "https://lium.io/api/public/v1/nodes",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
-        "origin": "record",
-        "max_age_hours": 8.0,
-        "availability_expires_at": "2026-11-28T11:17:28Z",
-        "stock_level": "48 GPUs free on 6 nodes",
-        "same_capture_as_price": true,
-        "detail": "Lium public nodes API: 48 available GPUs (secure tier)",
-        "stock_read_at": "2026-11-28T03:17:28Z",
-        "price_read_at": "2026-11-28T03:17:28Z",
-        "price_at_claim_usd": 3.25,
-        "gpu_count": 8,
-        "max_age_source": "policy"
-      },
-      "form_factor": "SXM",
-      "price_basis_label": "interruptible/community/marketplace list price per GPU-hour (may be preempted); tracked providers only; excludes storage, egress, idle time and preemption"
-    },
-    {
       "provider": "Jarvislabs",
       "gpu": "H100 SXM",
       "vram_gb": 80,
@@ -1569,7 +1625,8 @@
         "note": "The public pricing page publishes no stock signal",
         "max_age_hours": 8.0,
         "max_age_source": "policy",
-        "availability_expires_at": "2026-10-30T08:05:46Z"
+        "availability_expires_at": "2026-10-30T08:05:46Z",
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1596,7 +1653,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:54:06Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:06Z",
         "max_age_hours": 1.0,
@@ -1643,7 +1700,13 @@
         "price_read_at": "2026-11-27T19:33:37Z",
         "price_at_claim_usd": 3.5,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:54:06Z",
+        "last_known_expires_at": "2026-11-28T07:54:06Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1704,7 +1767,8 @@
         "note": "The public pricing page publishes no stock signal",
         "max_age_hours": 8.0,
         "max_age_source": "policy",
-        "availability_expires_at": "2026-10-30T08:07:06Z"
+        "availability_expires_at": "2026-10-30T08:07:06Z",
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -1731,7 +1795,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:49:02Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:49:02Z",
         "max_age_hours": 1.0,
@@ -1985,7 +2049,13 @@
         "price_read_at": "2026-11-27T19:33:56Z",
         "price_at_claim_usd": 4.39,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:49:02Z",
+        "last_known_expires_at": "2026-11-28T07:49:02Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2103,7 +2173,7 @@
         "in_stock": false,
         "checked_at": "2026-11-28T06:54:10Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:10Z",
         "max_age_hours": 1.0,
@@ -2122,7 +2192,13 @@
         "price_read_at": "2026-11-27T19:32:49Z",
         "price_at_claim_usd": 2.6,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": false,
+        "last_known_at": "2026-11-28T06:54:10Z",
+        "last_known_expires_at": "2026-11-28T07:54:10Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "unknown",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2149,7 +2225,7 @@
         "in_stock": false,
         "checked_at": "2026-11-28T06:54:10Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:10Z",
         "max_age_hours": 1.0,
@@ -2168,7 +2244,13 @@
         "price_read_at": "2026-11-27T19:32:49Z",
         "price_at_claim_usd": 3.2,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": false,
+        "last_known_at": "2026-11-28T06:54:10Z",
+        "last_known_expires_at": "2026-11-28T07:54:10Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2195,7 +2277,7 @@
         "in_stock": false,
         "checked_at": "2026-11-28T06:54:03Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:03Z",
         "max_age_hours": 1.0,
@@ -2215,7 +2297,13 @@
         "price_read_at": "2026-11-27T19:33:07Z",
         "price_at_claim_usd": 3.79,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": false,
+        "last_known_at": "2026-11-28T06:54:03Z",
+        "last_known_expires_at": "2026-11-28T07:54:03Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "PCIe",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2242,7 +2330,7 @@
         "in_stock": false,
         "checked_at": "2026-11-28T06:54:03Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:03Z",
         "max_age_hours": 1.0,
@@ -2262,7 +2350,13 @@
         "price_read_at": "2026-11-27T19:33:07Z",
         "price_at_claim_usd": 4.89,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": false,
+        "last_known_at": "2026-11-28T06:54:03Z",
+        "last_known_expires_at": "2026-11-28T07:54:03Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2289,7 +2383,7 @@
         "in_stock": false,
         "checked_at": "2026-11-28T06:54:02Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T07:54:02Z",
         "max_age_hours": 1.0,
@@ -2309,7 +2403,13 @@
         "price_read_at": "2026-11-27T19:35:40Z",
         "price_at_claim_usd": 5.293,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": false,
+        "last_known_at": "2026-11-28T06:54:02Z",
+        "last_known_expires_at": "2026-11-28T07:54:02Z",
+        "last_known_max_age_hours": 1.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "on-demand list price per GPU-hour; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2336,7 +2436,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:54:06Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T14:54:06Z",
         "max_age_hours": 8.0,
@@ -2352,7 +2452,13 @@
         "price_read_at": "2026-11-27T19:32:09Z",
         "price_at_claim_usd": 2.59,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:54:06Z",
+        "last_known_expires_at": "2026-11-28T14:54:06Z",
+        "last_known_max_age_hours": 8.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2379,7 +2485,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:54:06Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T14:54:06Z",
         "max_age_hours": 8.0,
@@ -2395,7 +2501,13 @@
         "price_read_at": "2026-11-27T19:32:09Z",
         "price_at_claim_usd": 2.69,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:54:06Z",
+        "last_known_expires_at": "2026-11-28T14:54:06Z",
+        "last_known_max_age_hours": 8.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2452,7 +2564,7 @@
         "in_stock": true,
         "checked_at": "2026-11-28T06:54:06Z",
         "refresh": "automated check, time shown (prices checked daily)",
-        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “unknown” means no signal, not sold out.",
+        "note": "Where a status is shown, it is a snapshot from the time in the row, not a guarantee. Statuses from a vendor's live stock check can change within minutes; “vendor-labelled” means a fixed label on the vendor's page, not a capacity check; “—” or “never read” means no stock check has been taken; “unknown (stale availability, last checked …)” means a check was taken and the claim has expired. Neither is sold out.",
         "origin": "scout",
         "availability_expires_at": "2026-11-28T14:54:06Z",
         "max_age_hours": 8.0,
@@ -2468,7 +2580,13 @@
         "price_read_at": "2026-11-27T19:32:09Z",
         "price_at_claim_usd": 2.79,
         "gpu_count": 1,
-        "max_age_source": "policy"
+        "max_age_source": "policy",
+        "last_known_in_stock": true,
+        "last_known_at": "2026-11-28T06:54:06Z",
+        "last_known_expires_at": "2026-11-28T14:54:06Z",
+        "last_known_max_age_hours": 8.0,
+        "last_known_outside_window": false,
+        "availability_expires_claim": "checked_at"
       },
       "form_factor": "SXM",
       "price_basis_label": "reserved/commitment list price per GPU-hour, excluded from lowest-price picks; tracked providers only; excludes storage, egress, idle time and preemption"
@@ -2477,5 +2595,5 @@
   "full_feed": "https://thelanternworks.com/api/v1/gpu-prices.json",
   "history": "https://thelanternworks.com/api/v1/gpu-prices/history.json",
   "generation_id": "20261128T065525Z-e07c1b77",
-  "feed_updated_at": "2026-11-28T06:55:57Z"
+  "feed_updated_at": "2026-11-28T07:02:11Z"
 }

@@ -57,6 +57,12 @@ SPEC = {
                           ["summary", "total", "count", "changes", "next_cursor", "has_more"],
                           ["date", "event_id", "rate_id", "seq", "vendor", "gpu", "direction", "from_hourly_usd", "to_hourly_usd",
                            "change_pct", "source_url", "last_verified_before", "gap_days", "composition_flag"]),
+    "get_price_moves": (["period", "as_of", "count", "results"], "results",
+                        ["rank", "vendor", "gpu", "direction", "pct"],
+                        ["ok", "period", "as_of", "window_start", "window_end", "count", "considered", "results", "label"],
+                        ["rank", "rate_id", "vendor", "gpu", "tier", "change", "direction", "start_usd", "end_usd",
+                         "pct", "ranked_days", "start_at", "end_at", "source_url", "verified_at",
+                         "in_stock", "availability_stale", "last_known_in_stock", "last_known_at"]),
     "get_price_trend": (["rate_id", "as_of", "first_snapshot", "last_snapshot"], "windows",
                         ["days"],
                         ["rate_id", "trend", "trend_reason", "windows", "as_of", "first_snapshot", "last_snapshot"],
@@ -68,7 +74,7 @@ SPEC = {
                             ["advertiser", "gpu", "tier", "rate_id", "hourly_usd", "min_gpus", "in_stock", "checked_at",
                              "stock_level", "last_known_in_stock", "last_known_at", "source_url", "reason",
                              "availability_stale", "availability_expires_at", "max_age_hours",
-                             "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window"]),
+                             "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window", "availability_expires_claim"]),
     "optimize_stack": (["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"], "lines",
                        ["status"],
                        ["lines", "total_monthly_usd", "total_is_complete", "quote_id", "issued_at"],
@@ -81,11 +87,13 @@ SPEC = {
     "search_deals": (["total", "count", "results"], "results",
                      ["id"],
                      ["total", "count", "results", "next_cursor"],
-                     ["id", "advertiser", "title", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason"]),
+                     ["id", "advertiser", "title", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason",
+                      "disclosure", "plain_url"]),
     "compare_deals": (["deals"], "deals",
                       ["id"],
                       ["order", "deals"],
-                      ["id", "advertiser", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason"]),
+                      ["id", "advertiser", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason",
+                       "disclosure", "plain_url"]),
     "estimate_job_cost": (["gpu_family", "requested_gpus", "job_hours", "count", "results", "assumptions", "citations",
                            "missing_costs", "budget_verdict", "quote_id", "issued_at"], "results",
                           ["rank", "rate_id", "vendor", "allocated_gpus", "instances", "compute_subtotal_usd", "source_url"],
@@ -101,7 +109,7 @@ SPEC = {
                       ["line", "rate_id", "recorded_subtotal_usd", "recomputed_subtotal_usd", "matches"]),
     "get_deal": (["id"], None, [],
                  ["id", "title", "advertiser", "offer_type", "price_usd", "list_price_usd", "unit", "redeem_url", "verified_at", "affiliate",
-                  "source_url", "price_null_reason"], []),
+                  "source_url", "price_null_reason", "disclosure", "plain_url"], []),
 }
 # Optional typed fields beyond the required ones (T38 paging for get_price_changes).
 EXTRA_PROPS = {
@@ -135,6 +143,7 @@ _AVAIL = {"type": ["object", "null"], "properties": {"status": _str, "in_stock":
                                                                         "last_known_at": {"type": ["string", "null"], "format": "date-time"},
                                                                         # P68 (additive): last firm claim's own window + flag
                                                                         "last_known_expires_at": {"type": ["string", "null"], "format": "date-time"},
+                                                                        "availability_expires_claim": {"type": ["string", "null"], "enum": ["checked_at", "last_known_at"]},
                                                                         "last_known_max_age_hours": _num,
                                                                         "last_known_outside_window": _bool,
                                                                         "max_age_hours": _num,
@@ -202,6 +211,26 @@ _TREND = {"type": ["object", "null"],
                          "first_snapshot": _str, "last_snapshot": _str}}
 EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend"] = _TREND
 EXTRA_PROPS["compare_gpu_prices"]["results"]["items"]["properties"]["trend_reason"] = _str
+EXTRA_PROPS["get_price_moves"] = {
+    "period": {"type": "string", "enum": ["daily", "weekly"]},
+    "as_of": _str, "window_start": _str, "window_end": _str, "label": _str,
+    "count": {"type": "integer"}, "considered": {"type": ["integer", "null"]},
+    "results": {"type": "array", "items": {"type": "object",
+        "required": ["rank", "vendor", "gpu", "direction", "pct"],
+        "properties": {
+            "rank": {"type": "integer"}, "rate_id": {"type": ["string", "null"], "pattern": "^r_[0-9a-f]{12}$"},
+            "key": _str, "vendor": _str, "gpu": _str, "tier": _str,
+            "vram_gb": {"type": ["integer", "null"]}, "gpu_count": {"type": ["integer", "null"]},
+            "change": _str, "direction": {"type": "string", "enum": ["up", "down"]},
+            "start_usd": _num, "end_usd": _num, "pct": {"type": "number"},
+            "ranked_days": {"type": ["integer", "null"]},
+            "start_at": _str, "end_at": _str, "source_url": _str, "verified_at": _str,
+            "last_verified_before": _str, "gap_days": _num,
+            "in_stock": {"type": ["boolean", "null"]}, "availability_stale": _bool,
+            "last_known_in_stock": {"type": ["boolean", "null"]}, "last_known_at": _str,
+            "availability": {"type": ["object", "null"]},
+        }}},
+}
 EXTRA_PROPS["get_price_trend"] = {"windows": {"type": "array", "items": _TREND_WIN}, "trend": _TREND, "trend_reason": _str,
                                   "rate_id": {"type": "string"}, "vendor": _str, "gpu": _str, "tier": _str,
                                   "vram_gb": {"type": ["integer", "null"]}, "gpu_count": {"type": ["integer", "null"]},
@@ -211,7 +240,8 @@ _LIVE_ITEM = {"type": "object", "properties": {
     "hourly_usd": _num, "min_gpus": {"type": ["integer", "null"]}, "in_stock": _bool, "checked_at": _str,
     "stock_level": _str, "last_known_in_stock": _bool, "last_known_at": _str, "source_url": _str,
     "reason": _str, "availability_stale": _bool, "availability_expires_at": _str, "max_age_hours": _num,
-    "last_known_expires_at": _str, "last_known_max_age_hours": _num, "last_known_outside_window": _bool}}
+    "last_known_expires_at": _str, "last_known_max_age_hours": _num, "last_known_outside_window": _bool,
+     "availability_expires_claim": _str}}
 EXTRA_PROPS["find_available_gpus"] = {
     "available": {"type": "array", "items": _LIVE_ITEM},
     "sold_out": {"type": "array", "items": _LIVE_ITEM},
@@ -238,10 +268,10 @@ for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P36 (additive): brief 
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["last_known_in_stock", "last_known_at"],)
 for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P41 (additive): brief rows carry a non-null failure reason only
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["failure_reason", "failure_reason_detail"],)
-for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P68 (additive): claim window on every brief row
+for _t in ("compare_gpu_prices", "estimate_job_cost"):  # P68/P76 (additive): claim window + which claim on every brief row
     SPEC[_t] = SPEC[_t][:4] + (list(SPEC[_t][4]) + ["max_age_hours", "availability_expires_at",
                                                     "last_known_expires_at", "last_known_max_age_hours",
-                                                    "last_known_outside_window"],)
+                                                    "last_known_outside_window", "availability_expires_claim"],)
 REFERRAL_DISCLOSURE_SCHEMA = {"type": "string", "description": "One-line referral disclosure, present whenever the result names a "
                               "provider; each provider-naming item then has tracked_url (tagged /go/ redirect)."}
 BRIEF_CHOICE_KEYS = ("rate_id", "vendor", "plan", "monthly_cost_usd", "source_url", "verified_at", "checked_at", "tracked_url")
@@ -345,11 +375,11 @@ BRIEF_AVAIL_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd"
                           "last_known_in_stock", "last_known_at",
                           # P68 (additive): the row's claim window, on every row so a client can check it
                           "max_age_hours", "availability_expires_at",
-                          "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window")
+                          "last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window", "availability_expires_claim")
 
 
 LAST_KNOWN_KEYS = ("last_known_in_stock", "last_known_at")  # same as core.gpu_availability.LAST_KNOWN_KEYS
-LAST_KNOWN_WINDOW_KEYS = ("last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window")
+LAST_KNOWN_WINDOW_KEYS = ("last_known_expires_at", "last_known_max_age_hours", "last_known_outside_window", "availability_expires_claim")
 LIVE_CLAIM_WINDOW_KEYS = ("max_age_hours", "availability_expires_at")
 DEAL_TOOLS = ("search_deals", "compare_deals", "get_deal")
 
