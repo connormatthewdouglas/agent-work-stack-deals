@@ -1,21 +1,44 @@
-# Lantern Works GPU Prices: MCP server for cloud GPU rental prices
+# Lantern Works GPU Prices: cloud GPU rental prices for agents, over MCP and JSON
 
-Free, read-only MCP server that compares live cloud GPU rental prices (H100, H200, A100, L40S, RTX 4090/5090 and more) across tracked providers, cheapest first, with each price's vendor source page and check time. No API key.
+Ask one question, get cited prices: a free, read-only MCP server and JSON API that compare cloud GPU rental prices (H100, H200, A100, L40S, RTX 4090/5090 and more) across tracked providers, cheapest first. Every price links to the vendor's own page and shows when it was checked. No API key. "Cheapest" always means cheapest among tracked providers, not the whole market.
 
 [![PyPI](https://img.shields.io/pypi/v/lantern-works-deals-mcp)](https://pypi.org/project/lantern-works-deals-mcp/) [![Python](https://img.shields.io/pypi/pyversions/lantern-works-deals-mcp)](https://pypi.org/project/lantern-works-deals-mcp/) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE) [![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.connormatthewdouglas%2Flantern--works--deals-blue)](https://registry.modelcontextprotocol.io/v0/servers?search=lantern-works-deals) [![Data: CC BY 4.0](https://img.shields.io/badge/data-CC_BY_4.0-lightgrey)](LICENSE-DATA)
 
 [![Install in Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=lantern-works-gpu-prices&config=eyJ1cmwiOiJodHRwczovL2xhbnRlcm4td29ya3MtbWNwLmxhbnRlcm4td29ya3Mud29ya2Vycy5kZXYvbWNwP3JlZj1yZWFkbWUtY3Vyc29yLWJ1dHRvbiJ9) [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_MCP_server-0098FF)](https://vscode.dev/redirect/mcp/install?name=lantern-works-gpu-prices&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A//lantern-works-mcp.lantern-works.workers.dev/mcp%3Fref%3Dreadme-vscode-button%22%7D)
 
-**Connect in one line**
+## What an agent gets in one call
 
-- Hosted, no install (Streamable HTTP): `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme`
-- Local (stdio, Python 3.10+): `uvx lantern-works-deals-mcp`
+| Call | What comes back |
+|---|---|
+| `compare_gpu_prices(gpu="H100")` | Rental prices for that model across tracked providers, cheapest first, each with `source_url`, `checked_at` and its data age. Stale prices are flagged and never ranked ahead of fresh ones. |
+| `find_available_gpus(gpu="H100", gpus=8)` | Who has N x that GPU with a current in-stock check. Stock claims expire; unknown stock is never reported as available. |
+| `estimate_job_cost(...)` | The cost of one job (not per hour) across tracked providers, with assumptions, missing costs and a re-openable quote (`rebuild_quote`). |
+| `create_alert(...)` / `check_alerts(...)` | Poll-only price alerts (hosted endpoint only): no webhook, email or account. An alert never fires on a stale price. |
+| `get_price_changes(...)`, `get_price_trend(...)`, `compare_gpu_prices(include_history=true)` | What moved since a date, 7- and 30-day trends, and per-rate price history from daily snapshots. |
+
+Prices are read from vendors' public pages and APIs and re-checked on a schedule; they are not real-time. Confirm on the vendor's page before you spend. Some result links are referral links; Lantern Works may earn a commission, and that never changes ranking.
+
+## Install (copy and paste)
+
+Hosted, nothing to install (Streamable HTTP):
+
+```bash
+claude mcp add --transport http lantern-works-gpu-prices "https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme"
+```
+
+Local (stdio, Python 3.10+, PyPI package `lantern-works-deals-mcp`):
+
+```bash
+claude mcp add lantern-works-deals -- uvx lantern-works-deals-mcp
+```
+
+Any other MCP client: add the URL `https://lantern-works-mcp.lantern-works.workers.dev/mcp?ref=readme`, or run `uvx lantern-works-deals-mcp`. Per-client config (Claude Desktop, Cursor, VS Code, Windsurf, Cline, Codex) is [below](#connect-your-client). No MCP client? Read the JSON directly: [api/v1/gpu-prices.json](https://thelanternworks.com/api/v1/gpu-prices.json), or the small per-model feeds at [api/v1/gpu/index.json](https://thelanternworks.com/api/v1/gpu/index.json).
 
 Then ask: *"What's the cheapest H100 to rent for 100 hours? Show sources."*
 
 ![Lantern Works: live GPU rental prices compared across tracked providers](docs/assets/demo.gif)
 
-[thelanternworks.com](https://thelanternworks.com/?ref=readme) · [Receipts](https://lantern-works-mcp.lantern-works.workers.dev/receipts/?ref=receipts-readme)
+[thelanternworks.com](https://thelanternworks.com/?ref=readme) · [Public API docs](https://thelanternworks.com/api/?ref=readme) · [Methodology](https://thelanternworks.com/methodology/?ref=readme) · [Receipts](https://lantern-works-mcp.lantern-works.workers.dev/receipts/?ref=receipts-readme)
 
 ## Connect your client
 
@@ -91,7 +114,7 @@ Tool counts: **11** in the local package (stdio, below); **18** on the hosted en
 
 The full tool contracts, eligibility and stale-price rules, hosted endpoint, alert delivery, throughput data, and the feed contract and deploy gate are in [docs/CONTRACT.md](docs/CONTRACT.md). Arguments, errors, data sources and tests: [mcp_server/README.md](mcp_server/README.md).
 
-## Tools (9, read-only)
+## Tools (11 in the local package, read-only)
 
 | Tool | What it does |
 |---|---|
@@ -106,6 +129,8 @@ The full tool contracts, eligibility and stale-price rules, hosted endpoint, ale
 | `search_deals` | Search the deals feed by text, category, offer type, price and tags. |
 | `compare_deals` | Compare 2-5 deals by id, best customer value first. |
 | `get_deal` | Return the full public record for one deal id. |
+
+Hosted endpoint only (7 more, 18 in total): `create_alert`, `check_alerts` and `delete_alert` (poll-only price alerts) and `create_watch_key`, `watch_price`, `list_watches` and `delete_watch` (opt-in price watches with a webhook). Details: [docs/CONTRACT.md](docs/CONTRACT.md).
 
 Keywords: MCP server, Model Context Protocol, GPU prices, cloud GPU pricing, GPU rental price comparison, H100 / H200 / A100 / L40S / RTX 4090 / RTX 5090 hourly price, GPU cost estimate, price history, AI infrastructure costs, Claude, Cursor, VS Code Copilot, Windsurf, Cline.
 

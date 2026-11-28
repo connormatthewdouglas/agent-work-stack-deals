@@ -215,6 +215,17 @@ def spot_head(rows) -> dict | None:
     return rs[0] if rs else None
 
 
+def agent_intro(gen, fam: str) -> str:
+    """P12: say what an agent gets in one call. Tool names are the hosted server's (tools/list, 0.6.6); no numbers here."""
+    esc, b = gen.esc, gen.BASE
+    return (f'<p>Lantern Works compares {esc(fam)} rental prices across tracked cloud providers. Each price links to the vendor\'s own page and shows when it was checked. '
+            f'"Cheapest" means cheapest among tracked providers, not the whole market.</p>\n'
+            f'<p><strong>For agents, in one call:</strong> <code>compare_gpu_prices</code> returns this comparison, cheapest first, from the free hosted MCP server (no API key). '
+            f'The same server has <code>find_available_gpus</code> (who has N &times; {esc(fam)} with a current in-stock check), <code>estimate_job_cost</code> (a sourced cost for one job), '
+            f'<code>create_alert</code> and <code>check_alerts</code> (poll-only price alerts), and price history (<code>get_price_changes</code>, <code>get_price_trend</code>). '
+            f'<a href="{b}/install/">Copy-paste install</a> &middot; <a href="{b}/api/">API docs</a> &middot; <a href="{b}/api/v1/gpu/index.json">per-model JSON feeds</a>.</p>')
+
+
 def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     esc = gen.esc
     prices, changes, history = feeds["prices"], feeds["changes"], feeds["history"]
@@ -230,8 +241,12 @@ def write_gpu_page(gen, fam, rows, feeds, quals) -> str:
     title = f"Cheapest {fam} rental today among tracked providers"
     desc = (f"Cheapest {fam} rental today among tracked providers. "
             f"{len(rows)} offers from {len({r['advertiser'] for r in rows})} vendors; each price shows its age.")
+    desc_agents = desc + " Free MCP server and JSON API for agents."
+    if len(desc_agents) <= 155:  # P12: keep the 155-char meta limit (tests/test_homepage_lead_key.py); drop the agent clause if a long model name would overflow
+        desc = desc_agents
     body = [f'<nav class="crumbs"><a href="{gen.BASE}/">Lantern Works</a> › <a href="{gen.BASE}/gpu/">GPU prices</a> › {esc(fam)}</nav>',
             f"<h1>Cheapest {esc(fam)} rental today among tracked providers</h1>",
+            agent_intro(gen, fam),
             f'<p class="meta">Prices verified {ts(mv)} · {len(rows)} offers from {len({r["advertiser"] for r in rows})} vendors. Per GPU-hour, among tracked providers only.</p>']
     ranked = gp.rank_rates(gp.estimate(rows, gp.DEFAULT_HOURS))
     split = gp._form_split(gen, ranked)  # Gauge Nov 1: same per-form lines (incl. H100 NVL) as /gpu/cheapest-<model>-rental/

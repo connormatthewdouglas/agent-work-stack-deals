@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- README and GPU pages lead with what an agent gets in one call (P11/P12, 2026-11-28): the README top now lists `compare_gpu_prices`, `find_available_gpus`, `estimate_job_cost`, poll-only alerts and price history, with a copy-paste install block (hosted URL and `uvx lantern-works-deals-mcp`) and the correct tool counts (11 local, 18 hosted). Every `/gpu/*-rental-price/` page keeps its title and H1, adds a short agent intro naming those tools with links to /install/, /api/ and the per-model feeds, and its meta description adds "Free MCP server and JSON API for agents" (within the 155-character limit). Offer and vendor counts in descriptions still come from the feed at build time.
+
 - Stock expiry and alert age (P70/P71, 2026-11-27): `/api/#availability-expiry`, `/methodology/#stock-expiry`, `/for-agents/#availability-expiry` and the contract docs now state that a stock claim is still valid when now equals `availability_expires_at` (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that `check_alerts` re-evaluates a previously `skipped_stale` row on the next poll rather than firing late. `data_age_hours` is measured from the row's own last price verification, not from the feed write time.
 
 - GPU prices that moved (P30, week to 2026-11-20): `/reports/gpu-prices-that-moved-2026-11-20/` is the first weekly moves post. Figures were recomputed from the live `gpu-prices.json` and `gpu-prices/history.json` feeds (`feed_updated_at` 2026-11-22T05:39:23Z): 24 eligible hourly rows moved, all Verda (formerly DataCrunch) and all increases (2.5% to 6.2%). A chart, the full move list, and `moves.json` ship with the page.

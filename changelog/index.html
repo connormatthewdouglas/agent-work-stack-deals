@@ -135,6 +135,9 @@
 <p>Reverse-chronological ships for <a href="https://thelanternworks.com/">Agent work-stack deals</a> (Lantern Works). Append new entries at the top. The generator renders this file to <a href="https://thelanternworks.com/changelog/">`changelog/`</a>.</p>
 <h2>Unreleased (site)</h2>
 <ul>
+<li>README and GPU pages lead with what an agent gets in one call (P11/P12, 2026-11-28): the README top now lists <code>compare_gpu_prices</code>, <code>find_available_gpus</code>, <code>estimate_job_cost</code>, poll-only alerts and price history, with a copy-paste install block (hosted URL and <code>uvx lantern-works-deals-mcp</code>) and the correct tool counts (11 local, 18 hosted). Every <code>/gpu/*-rental-price/</code> page keeps its title and H1, adds a short agent intro naming those tools with links to /install/, /api/ and the per-model feeds, and its meta description adds &quot;Free MCP server and JSON API for agents&quot; (within the 155-character limit). Offer and vendor counts in descriptions still come from the feed at build time.</li>
+</ul>
+<ul>
 <li>Stock expiry and alert age (P70/P71, 2026-11-27): <code>/api/#availability-expiry</code>, <code>/methodology/#stock-expiry</code>, <code>/for-agents/#availability-expiry</code> and the contract docs now state that a stock claim is still valid when now equals <code>availability_expires_at</code> (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that <code>check_alerts</code> re-evaluates a previously <code>skipped_stale</code> row on the next poll rather than firing late. <code>data_age_hours</code> is measured from the row&#x27;s own last price verification, not from the feed write time.</li>
 </ul>
 <ul>
