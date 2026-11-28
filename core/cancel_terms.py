@@ -20,15 +20,19 @@ TERMS_UNREADABLE = "unreadable"
 TERMS_FLAGS = (TERMS_PRESENT_AND_READ, TERMS_CONFIRMED_ABSENT, TERMS_UNREADABLE)
 
 # Official pages where these vendors publish reservation / commitment terms.
+# confirmed_absent is allowed only after a successful read of the vendor's general
+# terms page (not a narrower docs/FAQ page).
 CIVO_TERMS_URL = "https://www.civo.com/legal/terms"
 CLOUDRIFT_TERMS_URL = "https://www.cloudrift.ai/terms"
-HYPERSTACK_TERMS_URL = "https://docs.hyperstack.cloud/docs/billing/contracts"
+HYPERSTACK_CONTRACTS_URL = "https://docs.hyperstack.cloud/docs/billing/contracts"
+HYPERSTACK_TERMS_URL = "https://www.hyperstack.cloud/terms-and-conditions"
 
 VENDOR_TERMS_URL = {
     "Civo": CIVO_TERMS_URL,
     "CloudRift": CLOUDRIFT_TERMS_URL,
     "Hyperstack": HYPERSTACK_TERMS_URL,
 }
+VENDOR_GENERAL_TERMS_URL = dict(VENDOR_TERMS_URL)
 
 
 class _VisibleText(HTMLParser):
@@ -84,6 +88,16 @@ def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").replace("\xa0", " ")).strip()
 
 
+def _url_key(url: str) -> str:
+    return (url or "").strip().rstrip("/").lower()
+
+
+def is_general_terms_url(vendor: str, source_url: str) -> bool:
+    """True when source_url is that vendor's general terms page."""
+    general = VENDOR_GENERAL_TERMS_URL.get(vendor)
+    return bool(general and _url_key(source_url) == _url_key(general))
+
+
 def unreadable(*, source_url: str | None = None, reason: str | None = None) -> dict[str, Any]:
     """Failed fetch / unreadable page: flag only. No read time, no window, no fee."""
     out: dict[str, Any] = {"terms_flag": TERMS_UNREADABLE}
@@ -125,17 +139,15 @@ _CIVO_NO_CAUSE = re.compile(
     r"You may terminate the Agreement for no cause unless You have entered into a Commitment Discount with Civo\.?",
     re.I,
 )
-_CIVO_SHORTFALL = re.compile(
-    r"if You have not met the aggregate spend commitment, You will make a spend commitment shortfall payment to Civo",
-    re.I,
-)
-_CIVO_UPFRONT = re.compile(
-    r"upfront payments are non-refundable, excepting If You terminate this Agreement for material cause, "
+# Whole of clause 11.5, including 11.5(a) (no shortfall if the commitment was met).
+# Cited as one verbatim block so a join does not produce "Commitment Discount:; if You…".
+_CIVO_11_5 = re.compile(
+    r"11\.5 If You terminate this Agreement during the term of a Commitment Discount, "
+    r"the following process will apply in accordance with the Commitment Discount: "
+    r"a\. if You have met the aggregate spend commitment, then no spend commitment shortfall payment will be required to be made to Civo; "
+    r"b\. if You have not met the aggregate spend commitment, You will make a spend commitment shortfall payment to Civo; "
+    r"c\. upfront payments are non-refundable, excepting If You terminate this Agreement for material cause, "
     r"during the term of a Commitment Discount, in which case Civo will rebate the balance of any unused upfront payment to You\.?",
-    re.I,
-)
-_CIVO_DURING = re.compile(
-    r"If You terminate this Agreement during the term of a Commitment Discount, the following process will apply in accordance with the Commitment Discount:?",
     re.I,
 )
 
@@ -150,20 +162,18 @@ def _clip(text: str, match: re.Match, pad: int = 0) -> str:
 
 def extract_civo(text: str, *, source_url: str, terms_read_at: str) -> dict[str, Any]:
     body = _norm(visible_text(text))
-    fee_parts: list[str] = []
     quotes: list[str] = []
-    for pat in (_CIVO_DURING, _CIVO_SHORTFALL, _CIVO_UPFRONT):
-        m = pat.search(body)
-        if m:
-            q = _clip(body, m)
-            fee_parts.append(q)
-            quotes.append(q)
+    fee = None
+    m11 = _CIVO_11_5.search(body)
+    if m11:
+        fee_text = _clip(body, m11)
+        fee = {"text": fee_text}
+        quotes.append(fee_text)
     no_cause = _CIVO_NO_CAUSE.search(body)
     if no_cause:
         quotes.insert(0, _clip(body, no_cause))
-    if fee_parts or no_cause:
-        # Fee is published (shortfall + non-refundable upfront). No numeric cancel window is published.
-        fee = {"text": "; ".join(dict.fromkeys(fee_parts))} if fee_parts else None
+    if fee or no_cause:
+        # Fee is published (11.5 including no-shortfall-if-met). No numeric cancel window is published.
         return present_and_read(
             source_url=source_url,
             terms_read_at=terms_read_at,
@@ -187,16 +197,31 @@ def extract_cloudrift(text: str, *, source_url: str, terms_read_at: str) -> dict
     return confirmed_absent(source_url=source_url, terms_read_at=terms_read_at)
 
 
-def extract_hyperstack(text: str, *, source_url: str, terms_read_at: str) -> dict[str, Any]:
-    """Hyperstack public contract docs: record window/fee only if this page states them.
+_HS_12_2 = re.compile(
+    r"Unless otherwise agreed in writing, any monies paid to us are non-refundable and "
+    r"any fees still outstanding at the time of such termination shall be immediately due and payable\.?",
+    re.I,
+)
 
-    No early-cancel window or fee pattern is registered until a published phrase is
-    actually present on the saved page. A successful read with none is confirmed_absent.
+
+def extract_hyperstack(text: str, *, source_url: str, terms_read_at: str) -> dict[str, Any]:
+    """Hyperstack general terms: record clause 12.2 when that published sentence is on the page.
+
+    The contracts docs page is not the general terms page; a successful read of only
+    that docs page cannot be confirmed_absent (see probe_from_page). Account-
+    cancellation FAQ and contract-expiry Keep/Delete policy are not a reserved
+    cancel window or fee.
     """
     body = _norm(visible_text(text))
-    # Intentionally empty: do not treat account-cancellation FAQ or contract-expiry
-    # Keep/Delete policy as a reserved cancel window or fee.
-    _ = body
+    m = _HS_12_2.search(body)
+    if m:
+        quote = _clip(body, m)
+        return present_and_read(
+            source_url=source_url,
+            terms_read_at=terms_read_at,
+            quote=quote,
+            cancel_fee={"text": quote},
+        )
     return confirmed_absent(source_url=source_url, terms_read_at=terms_read_at)
 
 
@@ -215,7 +240,11 @@ def probe_from_page(vendor: str, source: str | None, *, source_url: str,
     fn = EXTRACTORS.get(vendor)
     if fn is None:
         return unreadable(source_url=source_url, reason=f"no extractor for {vendor}")
-    return fn(source, source_url=source_url, terms_read_at=terms_read_at)
+    result = fn(source, source_url=source_url, terms_read_at=terms_read_at)
+    # confirmed_absent is allowed only after a successful read of the general terms page.
+    if result.get("terms_flag") == TERMS_CONFIRMED_ABSENT and not is_general_terms_url(vendor, source_url):
+        return unreadable(source_url=source_url, reason="general terms page not read")
+    return result
 
 
 def is_reserved_record(record: dict) -> bool:

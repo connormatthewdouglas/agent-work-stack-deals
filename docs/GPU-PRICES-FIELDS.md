@@ -258,7 +258,7 @@ Reserved / commitment rows may carry a `cancellation` object written by the rese
 | `source_url` | https URL | The official page that was read (or attempted). |
 | `quote` | string, or absent | Visible page text that supports a `present_and_read` window or fee. Existing price `evidence` quotes and quote IDs are left untouched. |
 
-`present_and_read` requires a published window or fee. `confirmed_absent` is a successful read that found neither. `unreadable` must not stamp `terms_read_at` and must not invent a window or fee.
+`present_and_read` requires a published window or fee. `confirmed_absent` is a successful read of the vendor's general terms page that found neither. A successful read of only a narrower docs or FAQ page is `unreadable`, not `confirmed_absent`. `unreadable` must not stamp `terms_read_at` and must not invent a window or fee.
 ## stock_age_hours and stock_read_state (additive, P74, Nov 2026)
 
 P74 (morpheus404, Brain #1142 and #1172). Computed at serve/read time on `compare_gpu_prices` and `find_available_gpus` results, and rendered on GPU pages. Not written into the static `gpu-prices.json` schema (that schema stays `lantern-works-gpu-prices/1`). Ranking, TTLs and `stale_guard` do not read these fields. Unknown stays unknown. Timestamps are never invented.

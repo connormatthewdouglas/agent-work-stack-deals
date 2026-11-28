@@ -380,9 +380,11 @@ def hyperstack_reserved_cancel_terms(source, *, source_url=cancel_terms.HYPERSTA
                                      collected_at, fetch_ok, reason=None):
     """Cancellation terms for Hyperstack Reservation (starting from) rows.
 
-    Reads the public contracts documentation page (no API key). A failed fetch
-    is unreadable and never stamps terms_read_at or price timestamps. Stock
-    API results are left untouched.
+    Reads the public general terms page (no API key). confirmed_absent is
+    allowed only after that page is read successfully; a contracts-docs-only
+    read is unreadable, not confirmed_absent. A failed fetch is unreadable
+    and never stamps terms_read_at or price timestamps. Stock API results
+    are left untouched.
     """
     return cancel_terms.probe_from_page(
         "Hyperstack", source, source_url=source_url, terms_read_at=collected_at,

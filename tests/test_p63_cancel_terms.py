@@ -33,6 +33,7 @@ FIX = ROOT / "tests" / "fixtures"
 CIVO_HTML = (FIX / "civo-legal-terms.html").read_text()
 CR_HTML = (FIX / "cloudrift-terms.html").read_text()
 HS_HTML = (FIX / "hyperstack-contracts.html").read_text()
+HS_TERMS_HTML = (FIX / "hyperstack-terms-and-conditions.html").read_text()
 
 
 @pytest.fixture(autouse=True)
@@ -78,8 +79,11 @@ def test_civo_probe_reads_published_shortfall_and_nonrefundable_upfront():
     assert result["terms_flag"] == cancel_terms.TERMS_PRESENT_AND_READ
     assert result["terms_read_at"] == STAMP
     assert result["source_url"] == cancel_terms.CIVO_TERMS_URL
-    assert "spend commitment shortfall payment" in result["cancel_fee"]["text"]
-    assert "upfront payments are non-refundable" in result["cancel_fee"]["text"]
+    fee = result["cancel_fee"]["text"]
+    assert "spend commitment shortfall payment" in fee
+    assert "upfront payments are non-refundable" in fee
+    assert "if You have met the aggregate spend commitment, then no spend commitment shortfall payment will be required to be made to Civo" in fee
+    assert "Discount:; if" not in fee
     assert "cancel_window" not in result  # no numeric/notice window is published
     assert "Commitment Discount" in result["quote"]
     civo_probe.attach_cancel_terms([rec], result)
@@ -120,7 +124,7 @@ def test_cloudrift_reserved_reads_sales_final_no_refund():
     assert rec["verified_at"] == ev["checked_at"]
 
 
-def test_hyperstack_collect_v2_confirmed_absent_on_contracts_page():
+def test_hyperstack_contracts_docs_only_is_not_confirmed_absent():
     rec = {
         "vendor": "Hyperstack",
         "gpu": "H200 SXM",
@@ -136,13 +140,70 @@ def test_hyperstack_collect_v2_confirmed_absent_on_contracts_page():
     ev = dict(rec["evidence"])
     result = collect_v2.hyperstack_reserved_cancel_terms(
         HS_HTML, collected_at=STAMP, fetch_ok=True,
+        source_url=cancel_terms.HYPERSTACK_CONTRACTS_URL,
     )
-    assert result["terms_flag"] == "confirmed_absent"
-    assert result["terms_read_at"] == STAMP
+    # Contracts docs are not the general terms page, so this cannot be confirmed_absent.
+    assert result["terms_flag"] == "unreadable"
+    assert result.get("unreadable_reason") == "general terms page not read"
+    assert "terms_read_at" not in result
     assert "cancel_window" not in result and "cancel_fee" not in result
-    # Expiry Keep/Delete is not recorded as a cancel window.
     collect_v2.attach_hyperstack_reserved_cancel_terms([rec], result)
-    assert rec["cancellation"]["terms_flag"] == "confirmed_absent"
+    assert rec["cancellation"]["terms_flag"] == "unreadable"
+    assert rec["evidence"] == ev
+    assert rec["checked_at"] == ev["checked_at"]
+
+
+def test_confirmed_absent_requires_general_terms_page():
+    """confirmed_absent is allowed only once the vendor's general terms page was read successfully."""
+    blank = "<html><body><p>Hourly GPU rental pricing. Contact sales for reservations.</p></body></html>"
+    docs_only = collect_v2.hyperstack_reserved_cancel_terms(
+        blank, collected_at=STAMP, fetch_ok=True,
+        source_url=cancel_terms.HYPERSTACK_CONTRACTS_URL,
+    )
+    assert docs_only["terms_flag"] in ("unreadable", "present_and_read")
+    assert docs_only["terms_flag"] != "confirmed_absent"
+    assert "terms_read_at" not in docs_only or docs_only["terms_flag"] == "present_and_read"
+
+    general_blank = collect_v2.hyperstack_reserved_cancel_terms(
+        blank, collected_at=STAMP, fetch_ok=True,
+        source_url=cancel_terms.HYPERSTACK_TERMS_URL,
+    )
+    assert general_blank["terms_flag"] == "confirmed_absent"
+    assert general_blank["terms_read_at"] == STAMP
+    assert cancel_terms.cancellation_problems(general_blank, "x") == []
+
+    # A failed general-terms fetch is unreadable, never confirmed_absent.
+    failed = collect_v2.hyperstack_reserved_cancel_terms(
+        None, collected_at=STAMP, fetch_ok=False, reason="timeout",
+        source_url=cancel_terms.HYPERSTACK_TERMS_URL,
+    )
+    assert failed["terms_flag"] == "unreadable"
+    assert "terms_read_at" not in failed
+
+
+def test_hyperstack_general_terms_records_clause_12_2():
+    rec = {
+        "vendor": "Hyperstack",
+        "gpu": "H100 SXM",
+        "tier": "Reservation (starting from)",
+        "checked_at": "2026-11-10T00:00:00Z",
+        "verified_at": "2026-11-10T00:00:00Z",
+        "evidence": {"source_url": "https://www.hyperstack.cloud/gpu-pricing",
+                     "quote": "Reserve NVIDIA H100 SXM", "checked_at": "2026-11-10T00:00:00Z"},
+    }
+    ev = dict(rec["evidence"])
+    result = collect_v2.hyperstack_reserved_cancel_terms(
+        HS_TERMS_HTML, collected_at=STAMP, fetch_ok=True,
+        source_url=cancel_terms.HYPERSTACK_TERMS_URL,
+    )
+    assert result["terms_flag"] == "present_and_read"
+    expected = ("Unless otherwise agreed in writing, any monies paid to us are non-refundable "
+                "and any fees still outstanding at the time of such termination shall be immediately due and payable.")
+    assert result["cancel_fee"]["text"] == expected
+    assert result["quote"] == expected
+    assert result["source_url"] == cancel_terms.HYPERSTACK_TERMS_URL
+    collect_v2.attach_hyperstack_reserved_cancel_terms([rec], result)
+    assert rec["cancellation"]["cancel_fee"]["text"] == expected
     assert rec["evidence"] == ev
     assert rec["checked_at"] == ev["checked_at"]
 
