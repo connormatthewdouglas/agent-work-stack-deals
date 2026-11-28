@@ -17,6 +17,7 @@ from .ids import rate_id
 from . import throughput as _tp
 from . import serverless as _sl
 from . import golinks as _go
+from .gpu_availability import with_request_availability
 
 MAX_TOP = 25
 LABEL = "compute subtotal only; excludes storage, egress, vCPU/RAM add-ons and tax"
@@ -160,7 +161,7 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
         if max_h is None and data_age.too_old(r, data_age.CURRENT_MAX_HOURS, now):
             stale.append(r)  # Gauge re28: > 168 h never ranks by default; listed separately
             continue
-        rows.append(r)
+        rows.append(with_request_availability(r, now))
     # T47: shared eligibility contract; a region drops rows publishing other regions, keeps unresolved ones labelled
     from . import eligibility as EL
     try:
@@ -222,7 +223,7 @@ def estimate_job_cost(data: dict, gpu_family: str | None = None, gpus_per_job: i
                "job_hours": round(job_hours, 4), "job_days": _job_days(job_hours),
                "compute_subtotal_usd": r["monthly_cost_usd"], "calc": r["calc"],
                "deal_id": r.get("deal_id"), "source_url": r.get("source_url"), "verified_at": r.get("verified_at"),
-               "checked_at": r.get("checked_at"), **data_age.age_fields(r, now), **avail_fields(r),
+               "checked_at": r.get("checked_at"), **data_age.age_fields(r, now), **avail_fields(r, now),
                "eligibility": EL.evaluate(r, cons, now)}
         if t := _go.go_link({"deal_id": r.get("deal_id"), "vendor": r.get("advertiser")}):
             row["tracked_url"] = t

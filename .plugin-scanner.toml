@@ -1,0 +1,21 @@
+# HOL plugin-scanner configuration (https://hol.org/docs/libraries/ai-plugin-scanner/).
+# Reviewed 2026-11-28; every finding below was checked and is a false positive. No real credentials are in the repo.
+#
+# - HARDCODED_SECRET, tests/test_demand.py:71 and tests/test_weekly_callers.py:15: synthetic test fixtures
+#   (a canary string the test asserts is never stored; a dummy salt). Not credentials.
+# - HARDCODED_SECRET, hosted/src/weekly_callers.py:22: the literal is the NAME of the Worker env var
+#   (CALLER_ID_SECRET) that holds the salt, not its value. The value lives only in Worker secrets.
+# - DANGEROUS_DYNAMIC_EXECUTION, tests/test_single_gpu_rank.py: the tests run this repo's own site JavaScript
+#   through `node` with eval() inside a throwaway test harness. No untrusted input reaches it.
+#
+# The scanner's suppressions (src/codex_plugin_scanner/suppressions.py) only support
+# path globs via ignore_paths (fnmatch on finding.file_path) or whole-rule suppression
+# via baseline_file / rules.disabled. There is no per-line or per-finding allowlist,
+# so each false positive is ignored by its file path rather than tests/* or a whole rule.
+[scanner]
+ignore_paths = [
+  "tests/test_demand.py",
+  "tests/test_weekly_callers.py",
+  "tests/test_single_gpu_rank.py",
+  "hosted/src/weekly_callers.py",
+]
