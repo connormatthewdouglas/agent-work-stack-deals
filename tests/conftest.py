@@ -28,3 +28,15 @@ def fixed_owner_hold(monkeypatch):
     monkeypatch.setattr(oh, "CONFIG", HOLD_FIXTURE)
     monkeypatch.setenv("LW_OWNER_HOLD", str(HOLD_FIXTURE))
     return HOLD_FIXTURE
+
+
+@pytest.fixture
+def pin_committed_feed_clock(monkeypatch):
+    """Pin LW_AVAIL_NOW to the committed feed stamp so availability is not judged on the wall clock."""
+    import json
+    import os
+    feed = Path(__file__).resolve().parent.parent / "api" / "v1" / "gpu-prices.json"
+    stamp = json.loads(feed.read_text(encoding="utf-8"))["feed_updated_at"]
+    monkeypatch.setenv("LW_AVAIL_NOW", os.environ.get("LW_AVAIL_NOW") or stamp)
+    monkeypatch.setenv("LW_BUILD_HORIZON_MIN", "25")
+    return stamp

@@ -1,6 +1,14 @@
 """Gauge nov1_mart3: importers keep the vendor's own quote text; corrected VRAM goes in vram_gb + vram_note only."""
+import pytest
 import json
 from pathlib import Path
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 ROOT = Path(__file__).resolve().parents[1]
 

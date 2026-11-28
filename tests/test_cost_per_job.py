@@ -66,6 +66,7 @@ def test_bad_inputs(kw):
         estimate_job_cost(CW, "H100", 1, **kw)
 
 
+@pytest.mark.usefixtures("pin_committed_feed_clock")
 def test_published_feed_held_stale_never_ranked():
     data = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
     held = {(h.get("advertiser") or h.get("vendor")) for h in data.get("held_stale") or [] if isinstance(h, dict)}
@@ -78,6 +79,7 @@ def test_published_feed_held_stale_never_ranked():
         assert not ({r["vendor"] for r in res} & (held - live))
 
 
+@pytest.mark.usefixtures("pin_committed_feed_clock")
 def test_mcp_tool_contract(monkeypatch):
     from core.deals import GpuPricesLoader
     from mcp_server import server

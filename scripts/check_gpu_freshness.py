@@ -94,7 +94,7 @@ def _published_held(d: dict, r: dict, held_stale: list[dict] | None) -> bool:
         if h.get("vendor") != vendor:
             continue
         for hr in h.get("records") or []:
-            if hr.get("gpu") != gpu or (hr.get("tier") or tier) != tier:
+            if hr.get("gpu") != gpu or (hr.get("tier") or "") != (tier or ""):
                 continue
             if hr.get("vram_gb") is not None and vram is not None and hr.get("vram_gb") != vram:
                 continue

@@ -7,6 +7,13 @@ import pytest
 from core import agent_stack, cost_per_job, stack
 from core.stack import MAX_GPU_HOURS_MONTH
 
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
+
 ROOT = Path(__file__).resolve().parents[1]
 GPU = json.loads((ROOT / "api/v1/gpu-prices.json").read_text())
 

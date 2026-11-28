@@ -247,7 +247,7 @@ def held_row_reason(doc: dict, record: dict, held_stale: list[dict] | None) -> s
         if not recs:
             continue
         for hr in recs:
-            if hr.get("gpu") != gpu or (hr.get("tier") or tier) != tier:
+            if hr.get("gpu") != gpu or (hr.get("tier") or "") != (tier or ""):
                 continue
             if hr.get("vram_gb") is not None and vram is not None and hr.get("vram_gb") != vram:
                 continue
