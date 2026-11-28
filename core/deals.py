@@ -818,6 +818,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
         from .check_schedule import stock as _next_stock
         out.update(_next_stock(out, data_age._clock(now)))
         out.update(data_age.age_fields(r, now))
+        # P74: stock age at call time (display only; ranking already used lead_key / stale_guard above)
+        from .stock_age import attach_stock_age
+        out = attach_stock_age(out, now)
         from .report_issue import report_issue_url
         out["report_issue_url"] = report_issue_url(out)  # T40: give this to the user if the row looks wrong
         results.append(out)
@@ -946,7 +949,7 @@ def _is_static_label(av: dict) -> bool:
     return av.get("basis") == "vendor_static_label" or status == STATIC_LABEL_STATUS or "static page label" in status.lower()
 
 
-def _live_item(r: dict, av: dict, reason: str | None = None) -> dict:
+def _live_item(r: dict, av: dict, reason: str | None = None, now=None) -> dict:
     """One find_available_gpus row. stock_level is passed through only when sourced; never invented."""
     from .ids import rate_id as _rate_id
     from .gpu_availability import last_known
@@ -983,6 +986,9 @@ def _live_item(r: dict, av: dict, reason: str | None = None) -> dict:
     if reason:
         item["reason"] = reason
         item["in_stock"] = None  # never claim a live in_stock bool in the unknown bucket
+    # P74: stock age at call time. Display only; _fresh_key still ranks on checked_at / price.
+    from .stock_age import stock_age_fields
+    item.update(stock_age_fields(av, now))
     return item
 
 
@@ -1058,15 +1064,15 @@ def find_available_gpus(data: dict, gpu: str, gpus: int = 1, limit: int = 10,
     def _bucket(r: dict, av: dict, *, held: str | None = None, region_unresolved: bool = False):
         from .gpu_availability import is_firm_observation
         if held or region_unresolved or _is_static_label(av):
-            unknown.append(_live_item(r, av, _unknown_stock_reason(av, held=held, region_unresolved=region_unresolved)))
+            unknown.append(_live_item(r, av, _unknown_stock_reason(av, held=held, region_unresolved=region_unresolved), now=clock))
             return
         # P64: quota/region/check failures are not firm, even if in_stock was stored as a bool.
         if isinstance(av, dict) and is_firm_observation(av) and av.get("in_stock") is True:
-            available.append(_live_item(r, av))
+            available.append(_live_item(r, av, now=clock))
         elif isinstance(av, dict) and is_firm_observation(av) and av.get("in_stock") is False:
-            sold_out.append(_live_item(r, av))
+            sold_out.append(_live_item(r, av, now=clock))
         else:
-            unknown.append(_live_item(r, av, _unknown_stock_reason(av)))
+            unknown.append(_live_item(r, av, _unknown_stock_reason(av), now=clock))
 
     for r in rows:
         if _sl.rate_reason(r):

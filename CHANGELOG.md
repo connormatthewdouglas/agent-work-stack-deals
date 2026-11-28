@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- Rendered stock age (P74, 2026-11-28; morpheus404, Brain #1142 / #1172): `compare_gpu_prices` and `find_available_gpus` add `stock_age_hours` (reader clock minus the stock claim time: `last_known_at` when the claim has lapsed, otherwise `stock_read_at` or the stock `checked_at`), `stock_age_basis` and `stock_read_state` (`never_read`, `read`, or `read_expired`). Computed at call or page-render time so a still-valid last claim does not render as current. `never_read` (no stock check) is labelled distinctly from a check whose claim has expired. Price `data_age_hours`, ranking and claim TTLs are unchanged. No schema bump. Documented at `/api/#stock-age`.
+
 - Availability probe errors (P73, 2026-11-28): when a stock or terms probe raises an error, the availability object may include `probe_error` (`type` and a sanitized `message` of at most 200 characters) and `probe_attempted_at`. These fields appear only after a probe error. The attempt is not a successful check and does not refresh `verified_at` or the success `checked_at`. Documented at `/api/#probe-error`.
 
 - Stock expiry and alert age (P70/P71, 2026-11-27): `/api/#availability-expiry`, `/methodology/#stock-expiry`, `/for-agents/#availability-expiry` and the contract docs now state that a stock claim is still valid when now equals `availability_expires_at` (UTC clock, no grace or skew tolerance) and is unknown only after that instant, and that `check_alerts` re-evaluates a previously `skipped_stale` row on the next poll rather than firing late. `data_age_hours` is measured from the row's own last price verification, not from the feed write time.

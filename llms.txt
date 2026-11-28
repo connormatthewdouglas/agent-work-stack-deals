@@ -13,7 +13,7 @@
 
 ## Availability rule
 - A stock claim (availability.in_stock true or false) is valid until availability.availability_expires_at (UTC), including at the exact expiry instant. Lambda, Verda, region-derived and per-region claims last at most 1 hour after checked_at; Vast marketplace overall claims last at most 1 hour; Clore overall claims at most 8 hours. The claim becomes unknown only when now is after availability_expires_at: neither in stock nor sold out. The clock is UTC (the current UTC time on the server or worker that applies the rule). There is no grace period and no clock-skew tolerance on this boundary. Static feeds leave out claims within 25 minutes of expiry and are rebuilt on every availability snapshot; that cutoff is only for static output, not a consumer-side grace. Consumers must still enforce availability_expires_at. compare_gpu_prices and find_available_gpus apply it at request time and are the source of truth.
-- availability.in_stock null means no signal, not sold out.
+- availability.in_stock null is unknown, not sold out. stock_read_state is never_read when no stock check has been taken, and read_expired when a check was taken and the claim has expired; those are distinct from a current read.
 - Pages show the same limit as "valid until HH:MM ET; after that treat as unknown".
 
 ## For agents
