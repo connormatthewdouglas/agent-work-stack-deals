@@ -16,6 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from . import arg_hints
 
 
 def usd(x) -> str:
@@ -294,7 +295,7 @@ def price_changes(latest: dict | None, history: dict | None, since: str | None =
     if kinds:
         bad = [k for k in kinds if k not in CHANGE_KINDS]
         if bad:
-            raise DealError("invalid_argument", f"kinds must be among {', '.join(CHANGE_KINDS)}; got {', '.join(map(str, bad))}")
+            raise DealError("invalid_argument", arg_hints.bad_enum(f"kinds must be among {', '.join(CHANGE_KINDS)}; got {', '.join(map(str, bad))}", bad[0] if bad else "", list(CHANGE_KINDS)))
     kset = set(kinds) if kinds else None
     limit = max(1, min(int(limit or 50), 200))
     paging = None
@@ -622,7 +623,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     want_vram = int(vram_m.group(1)) if vram_m else None
     q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu or "", flags=re.I))
     if not q:
-        raise DealError("invalid_argument", "gpu is required, e.g. 'H100', 'A100 SXM', 'A100 80GB', 'RTX 4090'")
+        raise DealError("invalid_argument", arg_hints.required_gpu("gpu is required, e.g. 'H100', 'A100 SXM', 'A100 80GB', 'RTX 4090'", "compare_gpu_prices"))
     if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIMIT:
         raise DealError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
     if gpus is not None and (not isinstance(gpus, int) or isinstance(gpus, bool) or not 1 <= gpus <= 1024):
@@ -654,7 +655,7 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
                                 "(owner_hold) and are not ranked."),
                     "held_owner": held_owner, "data_source": GPU_PRICES_URL,
                     "feed_updated_at": data.get("feed_updated_at"), "scope": "cheapest among tracked providers"})
-        raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
+        raise DealError("not_found", arg_hints.unknown_gpu(f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}", gpu, gpu_models(data), "compare_gpu_prices"))
     from . import data_age
     try:
         max_h = data_age.validate_max_age(max_data_age_hours)
@@ -1025,7 +1026,7 @@ def find_available_gpus(data: dict, gpu: str, gpus: int = 1, limit: int = 10,
     want_vram = int(vram_m.group(1)) if vram_m else None
     q = _tokens(re.sub(r"\b\d{2,3}\s*gb\b", " ", gpu or "", flags=re.I))
     if not q:
-        raise DealError("invalid_argument", "gpu is required, e.g. 'H100', 'A100 SXM', 'A100 80GB', 'RTX 4090'")
+        raise DealError("invalid_argument", arg_hints.required_gpu("gpu is required, e.g. 'H100', 'A100 SXM', 'A100 80GB', 'RTX 4090'", "find_available_gpus"))
     if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIMIT:
         raise DealError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
     if not isinstance(gpus, int) or isinstance(gpus, bool) or not 1 <= gpus <= 1024:
@@ -1066,7 +1067,7 @@ def find_available_gpus(data: dict, gpu: str, gpus: int = 1, limit: int = 10,
             if _matches(row):
                 held_hits.append((row, rec.get("availability") if isinstance(rec.get("availability"), dict) else {}))
     if not rows and not held_hits:
-        raise DealError("not_found", f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}")
+        raise DealError("not_found", arg_hints.unknown_gpu(f"No tracked price for GPU '{gpu}'. Tracked models: {', '.join(gpu_models(data))}", gpu, gpu_models(data), "find_available_gpus"))
 
     cons = EL.normalize(gpu=gpu, region=region.strip() if region else None, in_stock="ignore")
     available, sold_out, unknown, excluded_min = [], [], [], []
@@ -1301,7 +1302,7 @@ def search(deals: list[dict], query: str | None = None, category: str | None = N
            offer_type: str | None = None, max_price: float | None = None, tags: list[str] | None = None,
            limit: int = DEFAULT_LIMIT, cursor: str | None = None, now: datetime | None = None) -> dict:
     if offer_type and offer_type not in OFFER_TYPES:
-        raise DealError("invalid_argument", f"offer_type must be one of {', '.join(OFFER_TYPES)}")
+        raise DealError("invalid_argument", arg_hints.bad_enum(f"offer_type must be one of {', '.join(OFFER_TYPES)}", offer_type or "", list(OFFER_TYPES), 'search_deals(offer_type="verified_discount")'))
     if not isinstance(limit, int) or limit < 1 or limit > MAX_LIMIT:
         raise DealError("invalid_argument", f"limit must be 1..{MAX_LIMIT}")
     if max_price is not None and (not isinstance(max_price, (int, float)) or max_price < 0):
