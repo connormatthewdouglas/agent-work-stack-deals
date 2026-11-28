@@ -1,0 +1,72 @@
+{
+  "comment": "Deterministic SDPE-20 fixture in latest.json row shape: confirmed H100/A100 in-stock regions from a two-read vendor claim. Not a live snapshot.",
+  "rows": [
+    {
+      "vendor": "Hyperstack",
+      "gpu": "H100 PCIe",
+      "vram_gb": 80,
+      "tier": "On-demand",
+      "region": "all",
+      "available_regions": [
+        "CANADA-1"
+      ],
+      "in_stock": true,
+      "availability_source": "https://docs.hyperstack.cloud/docs/api-reference/get-gpu-stock",
+      "availability_source_type": "Hyperstack API (read-only key)",
+      "availability_checked_at": "2026-11-28T12:00:00Z",
+      "available_regions_detail": [
+        {
+          "region": "CANADA-1",
+          "checked_at": "2026-11-28T12:00:00Z",
+          "availability_expires_at": "2026-11-28T13:00:00Z",
+          "confirmed": true,
+          "confirmation": "two_reads",
+          "first_read_at": "2026-11-28T12:00:00Z",
+          "second_read_at": "2026-11-28T12:01:05Z",
+          "second_read_gap_s": 65.0
+        }
+      ],
+      "derived_from_regions": true,
+      "availability_expires_at": "2026-11-28T20:00:00Z",
+      "first_read_at": "2026-11-28T12:00:00Z",
+      "second_read_at": "2026-11-28T12:01:05Z",
+      "second_read_gap_s": 65.0
+    },
+    {
+      "vendor": "Lambda",
+      "gpu": "A100 SXM",
+      "vram_gb": 80,
+      "tier": "On-demand instance (1x GPU)",
+      "region": "all",
+      "available_regions": [
+        "us-east-1",
+        "us-west-2"
+      ],
+      "in_stock": true,
+      "availability_source": "https://cloud.lambda.ai/api/v1/instance-types",
+      "availability_source_type": "Lambda Cloud API (existing account)",
+      "availability_checked_at": "2026-11-28T12:00:00Z",
+      "available_regions_detail": [
+        {
+          "region": "us-east-1",
+          "checked_at": "2026-11-28T12:00:00Z",
+          "availability_expires_at": "2026-11-28T13:00:00Z",
+          "confirmed": true,
+          "confirmation": "two_reads"
+        },
+        {
+          "region": "us-west-2",
+          "checked_at": "2026-11-28T12:00:00Z",
+          "availability_expires_at": "2026-11-28T13:00:00Z",
+          "confirmed": true,
+          "confirmation": "two_reads"
+        }
+      ],
+      "derived_from_regions": true,
+      "availability_expires_at": "2026-11-28T13:00:00Z",
+      "first_read_at": "2026-11-28T12:00:00Z",
+      "second_read_at": "2026-11-28T12:01:05Z",
+      "second_read_gap_s": 65.0
+    }
+  ]
+}
