@@ -8,6 +8,13 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core import deals as D  # noqa: E402
 
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
+
 GOOD = {"rates": [{"advertiser": "X", "gpu": "H100 SXM", "hourly_usd": 2.0, "checked_at": "2026-10-30T10:00:00Z"}]}
 
 

@@ -590,6 +590,10 @@ def write_for_agents(deals: list[dict], feed: dict) -> Path:
   </ul>
   <p>The hosted endpoint <code>https://lantern-works-mcp.lantern-works.workers.dev/mcp</code> also offers opt-in <a href="#price-watch">price-watch</a> and poll-only price-alert tools ({watch_tools}). <code>get_price_trend(rate_id)</code> is a package tool (stdio and hosted) that returns a 7-day/30-day price trend from existing snapshots. <code>find_available_gpus(gpu, gpus=1)</code> lists who has N × GPU confirmed in stock right now from existing availability (never from a stale or static-label reading). Setup for each client: <a href="{BASE}/install/">/install/</a>.</p>
 
+  <h3 id="estimate-job-cost"><code>estimate_job_cost</code>: <code>job_days</code> and <code>tracked_url</code></h3>
+  <p><code>job_days</code> is an optional input (number greater than 0; omit it if you pass <code>job_hours</code> or work units). It means wall-clock days: <code>job_hours = job_days &times; 24</code>. Do not pass <code>job_days</code> together with <code>job_hours</code>, or together with <code>work_units</code> / throughput; that is <code>invalid_argument</code>. The resulting hours must be &le; 20,000 (hours, not GPU-hours), so 834 days is rejected. The tool always returns <code>job_days</code> and <code>job_hours</code> at the top level and on each result row (hours &divide; 24, four decimal places) even if you supplied hours. A multi-day total is a compute subtotal at current rates, not a reservation.</p>
+  <p><code>tracked_url</code> is a response field on each result row, not an input. It is a counted booking link through <code>https://lantern-works-telemetry.lantern-works.workers.dev/go/</code>: <code>/go/&lt;deal-id&gt;?src=mcp</code> when the rate has a deal id, otherwise <code>/go/v/&lt;vendor-slug&gt;?src=mcp</code>. The destination is resolved from the served feeds (a disclosed referral URL, or the vendor's checked source page), not from the caller. Counts are aggregate only; ranking does not use this field; quote receipt lines do not include it. A top-level <code>referral_disclosure</code> is included when any <code>tracked_url</code> is present. These links are for a human to open; agents must not follow them automatically. The same facts are on the <a href="{BASE}/api/#estimate-job-cost">public API page</a>.</p>
+
   <h2 id="deal-feed">Deal feed</h2>
   <p>Separately, the deal catalog is a public, read-only JSON feed. No auth, no API key, no rate-limited endpoint: fetch the file and filter locally. It currently lists {len(deals)} deals (schema <code>{esc(feed.get("schema_version"))}</code>, feed updated <code>{esc(feed.get("updated_at"))}</code>).</p>
 
@@ -1579,6 +1583,7 @@ _SITEMAP_SOURCE_SCRIPTS: list[tuple[str, tuple[str, ...]]] = [
     ("changelog", ("scripts/generate_seo_pages.py",)),
     ("quickstart", ("scripts/agent_growth_pages.py",)),
     ("integrate", ("scripts/agent_growth_pages.py",)),
+    ("receipts/write-up", ("scripts/receipts_writeup_page.py", "data/receipts-index.json")),
     ("receipts", ("scripts/receipts_page.py",)),
     ("coverage", ("scripts/coverage_page.py",)),
     ("reports/vendors", ("scripts/vendor_sample_reports.py",)),
@@ -1850,6 +1855,11 @@ def sitemap_lastmod_for_loc(loc: str) -> str | None:
     # a squash merge after 19:00 America/New_York would stamp the next UTC day.
     if stripped == "changelog":
         return _changelog_content_day()
+    # Receipts write-up lastmod is the newest tested_at in the Receipts index, not the
+    # generator's git date or the clock (a regen or late squash merge must not move it).
+    if stripped == "receipts/write-up":
+        import receipts_writeup_page
+        return receipts_writeup_page.content_day_from_root(ROOT)
     # Receipts case pages and the index use recorded content dates (tested_at /
     # proof-pack assembled_at), never a generator commit date or the clock.
     if stripped == "receipts" or stripped.startswith("receipts/"):
@@ -2433,6 +2443,8 @@ def main() -> None:
     tool_paths += agent_growth_pages.write_all(sys.modules[__name__])
     import receipts_page
     tool_paths += receipts_page.write(sys.modules[__name__])
+    import receipts_writeup_page
+    tool_paths += receipts_writeup_page.write(sys.modules[__name__])
     import compare_redirects
     compare_redirects.write_all(sys.modules[__name__])  # noindex stubs, deliberately not in the sitemap
     compare_redirects.write_retired_deals(sys.modules[__name__])

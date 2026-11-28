@@ -1,4 +1,5 @@
 """T41-03 ranked total: serverless is always held; min_gpus uses the count compare keeps in brief mode."""
+import pytest
 import json
 import sys
 from pathlib import Path
@@ -10,6 +11,13 @@ sys.path.insert(0, str(ROOT / "tests" / "release_gate"))
 from core.deals import compare_gpu_prices, tier_class  # noqa: E402
 from core.serverless import rate_reason  # noqa: E402
 from t41_counts import ranked_after_min_gpus  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _pin_committed_feed_clock(pin_committed_feed_clock):
+    """Judge the committed feed at its feed_updated_at, not the wall clock."""
+    return pin_committed_feed_clock
+
 
 
 def _toks(gpu: str) -> set[str]:

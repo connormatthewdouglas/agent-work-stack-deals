@@ -332,7 +332,13 @@ def apply_probe(previous: dict | None, current: dict, now: datetime | None = Non
     probe_error + probe_attempted_at and do not treat the attempt as a successful check.
     """
     cur = dict(current)
-    crash = cur.pop("probe_crash", None) or cur.pop("error", None)
+    # Only pop/convert `error` when it is an exception. A string (or other
+    # non-exception) error key must stay on the record; popping it silently
+    # used to drop a real probe note (#372).
+    crash = cur.pop("probe_crash", None)
+    if not isinstance(crash, BaseException):
+        err = cur.get("error")
+        crash = cur.pop("error") if isinstance(err, BaseException) else None
     if isinstance(crash, BaseException):
         attempted = cur.get("probe_attempted_at") or cur.get("attempted_at") or now
         return apply_probe_crash(previous, crash, attempted_at=attempted)
@@ -383,6 +389,23 @@ def stale_guard(a, now: datetime | None = None):
         v, t = last_known(a)
         out = {**out, "last_known_in_stock": v, "last_known_at": t}
     return _age_last_known(out, now)
+
+
+def request_availability(av, now: datetime | None = None):
+    """P64 request-time expiry check shared by find_available_gpus, compare_gpu_prices,
+    and estimate_job_cost. Applies stale_guard so a lapsed stock claim is never shown
+    as in_stock true or false; last_known_* stays visible. Non-dicts pass through."""
+    if not isinstance(av, dict):
+        return av
+    return stale_guard(av, now)
+
+
+def with_request_availability(r: dict, now: datetime | None = None) -> dict:
+    """Copy of a rate with availability passed through request_availability (P64)."""
+    if not isinstance(r, dict) or not isinstance(r.get("availability"), dict):
+        return r
+    guarded = request_availability(r["availability"], now)
+    return r if guarded is r["availability"] else {**r, "availability": guarded}
 
 
 def _age_last_known(av: dict, now: datetime | None = None) -> dict:

@@ -2,7 +2,7 @@
 
 T125: also publish Pax's Receipts proof pack v1 as stable third-party case
 pages under /receipts/<id>-<slug>/, with machine-readable evidence JSON.
-The 62-record index SHA stays pinned; proof-pack content lives in separate
+The 86-record index SHA stays pinned; proof-pack content lives in separate
 data files so regenerate does not invent or rewrite findings.
 """
 from __future__ import annotations
@@ -14,7 +14,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-SOURCE_SHA256 = "ebcd0b1b2524585dd343efcd7c4eeb0b560f71e4950dcb88bea069e6736be517"
+SOURCE_SHA256 = "e03bc05a3123d26537c4db50a84026913dcd063729063307790c72078c7dd31a"
 PROOF_PACK_MD = "receipts-proof-pack-v1.md"
 PROOF_PACK_JSON = "receipts-proof-pack-v1.json"
 # Durable public slugs for the three T125 cases (third-party servers only).
@@ -26,9 +26,9 @@ PROOF_CASES = (
 LABELS = {"works": "Worked", "works_with_caveats": "Worked with caveats", "broken": "Failed tested task",
           "deferred": "Deferred — needs credentials", "testing": "Testing"}
 FIREWALL = "Money may buy testing or re-testing, never a changed verdict. Paid listings are re-tested under the same criteria; payment never changes a result or its placement."
-LIMITS = "These are Pax-authored summaries of specific versions and tasks, dated October 29–31, 2026. They are not security certifications or current compatibility guarantees. Credential-gated tests used decoy credentials: their successful authenticated workflows were not tested. Deferred means untested for the promised task, not broken."
+LIMITS = "These are Pax-authored summaries of specific versions and tasks, dated October 29–31 and November 20, 2026. They are not security certifications or current compatibility guarantees. Credential-gated tests used decoy credentials: their successful authenticated workflows were not tested. Deferred means untested for the promised task, not broken."
 EVIDENCE = (
-    "Sixty-two records publish authored summaries only. Write-up and transcript "
+    "Eighty-six records publish authored summaries only. Write-up and transcript "
     "filenames in the index JSON refer to project records that are not included "
     "with those summaries. Ten third-party case pages under /receipts/ state the "
     "version tested, the date, the task, the recorded findings, and the transcript "

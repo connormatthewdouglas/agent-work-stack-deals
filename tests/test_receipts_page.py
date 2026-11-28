@@ -18,13 +18,13 @@ def test_published_summaries_preserve_verified_source_and_disclose_evidence_limi
     published = json.loads((ROOT / "api/v1/receipts.json").read_text())
     assert published == receipts_page.build(source)
     assert published["tests"] == json.loads(source)["tests"]
-    assert sum(published["counts"].values()) == 62
-    assert published["counts"]["deferred"] == 16
+    assert sum(published["counts"].values()) == 86
+    assert published["counts"]["deferred"] == 18
     page = (ROOT / "receipts/index.html").read_text()
     for text in [receipts_page.FIREWALL, "not security certifications", "not an independent endorsement",
                  "proof-pack page", "Deferred means untested"]:
         assert text in page
-    assert page.count('<article class="receipt"') == 62
+    assert page.count('<article class="receipt"') == 86
     assert 'href="tests/' not in page
     assert "House product: made by Lantern Works" in page
     assert 'id="test-000"' in page
