@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Receipts write-up: what we tested, the tally, and what broke</title>
-  <meta name="description" content="Lantern Works Receipts write-up: 62 MCP servers tested (29 October 2026 and 31 October 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
+  <meta name="description" content="Lantern Works Receipts write-up: 86 MCP servers tested (29 October 2026, 31 October 2026, and 20 November 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://thelanternworks.com/receipts/write-up/" />
   <meta property="og:title" content="Receipts write-up: what we tested, the tally, and what broke" />
-  <meta property="og:description" content="Lantern Works Receipts write-up: 62 MCP servers tested (29 October 2026 and 31 October 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
+  <meta property="og:description" content="Lantern Works Receipts write-up: 86 MCP servers tested (29 October 2026, 31 October 2026, and 20 November 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
   <meta property="og:url" content="https://thelanternworks.com/receipts/write-up/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Lantern Works" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Receipts write-up: what we tested, the tally, and what broke" />
-  <meta name="twitter:description" content="Lantern Works Receipts write-up: 62 MCP servers tested (29 October 2026 and 31 October 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
+  <meta name="twitter:description" content="Lantern Works Receipts write-up: 86 MCP servers tested (29 October 2026, 31 October 2026, and 20 November 2026), with verdict counts and the cases that failed their dated task, computed from the Receipts index at build time." />
   <style>
     :root { font-family: system-ui, sans-serif; color: #111; background: #fafafa; }
     body { max-width: 52rem; margin: 0 auto; padding: 1.25rem; line-height: 1.45; }
@@ -128,18 +128,18 @@
 <style>.receipt{border:1px solid #d1d5db;border-radius:10px;padding:1rem;margin:1rem 0;overflow-wrap:anywhere}.receipt h3{margin-top:0;font-size:1.15rem}.receipt code{white-space:normal}.receipt-policy{border-left:4px solid #f59e0b;padding-left:1rem;margin:1.25rem 0}table.tally{border-collapse:collapse;margin:1rem 0}table.tally th,table.tally td{border:1px solid #d1d5db;padding:.4rem .7rem;text-align:left}table.tally td:last-child{text-align:right}</style>
 <nav class="crumbs"><a href="https://thelanternworks.com/">Lantern Works</a> › <a href="https://thelanternworks.com/receipts/">Receipts</a> › Write-up</nav>
 <h1>Receipts write-up: what we tested, the tally, and what broke</h1>
-<p>Lantern Works tested 62 MCP servers by installing each one, giving it a specific task, and checking the output against an independent ground truth. This page's counts, date list, and broken-case list are computed from the Receipts index when the site is built, not typed in by hand. The records themselves are dated 29 October 2026 and 31 October 2026 (37 on 29 October 2026 and 25 on 31 October 2026; 62 in all). There is no filled-in day between those <code>tested_at</code> values.</p>
+<p>Lantern Works tested 86 MCP servers by installing each one, giving it a specific task, and checking the output against an independent ground truth. This page's counts, date list, and broken-case list are computed from the Receipts index when the site is built, not typed in by hand. The records themselves are dated 29 October 2026, 31 October 2026, and 20 November 2026 (37 on 29 October 2026, 25 on 31 October 2026, and 24 on 20 November 2026; 86 in all). Only dates that appear in the records are listed; no days in between are filled in.</p>
 <p>The full record list is the <a href="https://thelanternworks.com/receipts/">Receipts index</a>. Machine-readable records: <a href="https://thelanternworks.com/api/v1/receipts.json?ref=receipts-writeup">/api/v1/receipts.json</a>.</p>
 <h2>What we tested</h2>
-<p>This edition has 62 records: 1 house product, 20 reference, and 41 community. Install sources in the index are 37 <code>npm</code>, 22 <code>pypi</code>, and 3 <code>other</code>. Each record names the version tested, the canonical task, the ground truth it was graded against, and a headline finding.</p>
+<p>This edition has 86 records: 1 house product, 20 reference, and 65 community. Install sources in the index are 47 <code>npm</code>, 33 <code>pypi</code>, and 6 <code>other</code>. Each record names the version tested, the canonical task, the ground truth it was graded against, and a headline finding.</p>
 <p>Record #000 is the Lantern Works house product, <code>lantern-works-deals-mcp</code> version 0.3.8, tested 2026-10-29. It is not an independent endorsement of today's release. See the <a href="https://thelanternworks.com/receipts/#test-000">index entry</a>.</p><h2>The tally</h2>
 <p>Counts below are the number of records for each recorded <code>verdict</code> value in the Receipts index. The index page uses slightly different display wording for the same keys: “Worked” for <code>works</code>, “Worked with caveats” for <code>works_with_caveats</code>, “Failed tested task” for <code>broken</code>, and “Deferred — needs credentials” for <code>deferred</code>.</p>
 <div class="tscroll"><table class="tally">
 <thead><tr><th>Verdict</th><th>Recorded value</th><th>Count</th></tr></thead>
-<tbody><tr><td>Works</td><td><code>works</code></td><td>9</td></tr><tr><td>Works with caveats</td><td><code>works_with_caveats</code></td><td>17</td></tr><tr><td>Broken</td><td><code>broken</code></td><td>20</td></tr><tr><td>Deferred</td><td><code>deferred</code></td><td>16</td></tr><tr><th scope="row">Total</th><td></td><td>62</td></tr></tbody></table></div>
+<tbody><tr><td>Works</td><td><code>works</code></td><td>11</td></tr><tr><td>Works with caveats</td><td><code>works_with_caveats</code></td><td>24</td></tr><tr><td>Broken</td><td><code>broken</code></td><td>33</td></tr><tr><td>Deferred</td><td><code>deferred</code></td><td>18</td></tr><tr><th scope="row">Total</th><td></td><td>86</td></tr></tbody></table></div>
 <p>Deferred means the promised task was not tested, not that the server is broken. Credential-gated tests used decoy credentials, so successful authenticated workflows were not tested.</p>
 <h2>What broke</h2>
-<p>20 of 62 records have the recorded verdict <code>broken</code> (failed the dated, scoped task). Findings are the authored headlines and caveats from the index; they are not security certifications or current compatibility guarantees.</p>
+<p>33 of 86 records have the recorded verdict <code>broken</code> (failed the dated, scoped task). Findings are the authored headlines and caveats from the index; they are not security certifications or current compatibility guarantees.</p>
 <article class="receipt" id="broken-008">
 <h3>#008 wikipedia-mcp</h3>
 <p><code>wikipedia-mcp</code> v2.0.1 · tested 2026-10-29</p>
@@ -173,7 +173,7 @@
 <p><code>mcp-server-sqlite</code> v2025.4.25 · tested 2026-10-29</p>
 <p>Reference server, dead on arrival: its unbounded mcp[cli]&gt;=1.6.0 resolves SDK 2.3.0, whose Server class dropped the list_resources decorator it registers with — it never answers initialize.</p>
 <p><strong>Task:</strong> against a planted database: list tables, read a schema, run a SELECT aggregate (COUNT, SUM)</p>
-<ul><li>With two undocumented pins (mcp 1.17.0 + pydantic 2.11.7) the server itself is flawless: aggregates digit-for-digit, writes persist</li><li>Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0</li></ul><p><a href="https://thelanternworks.com/receipts/#test-018">Index entry #018</a></p>
+<ul><li>With two undocumented pins (mcp 1.17.0 + pydantic 2.11.7) the server itself is flawless: aggregates digit-for-digit, writes persist</li><li>Results are Python-repr text, not structuredContent; serverInfo claims version 0.1.0</li><li>Upstream archived (modelcontextprotocol/servers-archived, verified 2026-11-11): no longer maintained, no fix expected; 2025.4.25 remains the latest release on PyPI</li></ul><p><a href="https://thelanternworks.com/receipts/#test-018">Index entry #018</a></p>
 </article>
 <article class="receipt" id="broken-024">
 <h3>#024 deepwiki-mcp</h3>
@@ -280,11 +280,102 @@
 <p><strong>Task:</strong> search_repositories with query &quot;gitlab&quot; and a decoy token</p>
 <ul><li>JSON-RPC -32603 &quot;Cannot read properties of undefined (reading &#x27;map&#x27;)&quot; replaces the real 401</li><li>serverInfo reports 0.5.1 vs package 2025.4.25</li><li>A retest on credential-permitting egress would confirm against a live 401; the crash mechanism is already demonstrated</li></ul><p><a href="https://thelanternworks.com/receipts/#test-059">Index entry #059</a></p>
 </article>
+<article class="receipt" id="broken-064">
+<h3>#064 Johto Data MCP</h3>
+<p><code>com.johtodata/johto-data</code> v1.0.0 (last advertised serverInfo; not observed — server never answered) · tested 2026-11-20</p>
+<p>Broken at test time on both documented endpoints: the workers.dev host returns Cloudflare 404 &#x27;error code: 1042&#x27; for every documented free sample route and its MCP initialize stalls with 0 bytes, johtodata.com/mcp GETs the site&#x27;s own 404 page and its initialize stalls too, and the cited Official Registry entry no longer resolves.</p>
+<p><strong>Task:</strong> One free keyless sample tool call (kyb / sanctions-screen with sample:true), graded against GLEIF LEI and OFAC SDN public data</p>
+<ul><li>Paid x402 legs are Deferred-needs-key by design inside this record (pay-per-call USDC; Receipts does not pay)</li><li>Third-party checks saw johtodata.com/mcp live with 12 tools on 2026-11-08 and already unhealthy on 2026-11-11 — reads as an outage or withdrawal between Nov 8-20; retest if either endpoint answers initialize</li><li>A third-party watcher flagged agent-directed (competitor-suppression) text in this server&#x27;s tool descriptions; not independently observed — the server never listed tools to us</li></ul><p><a href="https://thelanternworks.com/receipts/#test-064">Index entry #064</a></p>
+</article>
+<article class="receipt" id="broken-067">
+<h3>#067 pubmed-mcp-server</h3>
+<p><code>pubmed-mcp-server</code> v0.1.2 · tested 2026-11-20</p>
+<p>Crashes at import as installed today: its unbounded mcp requirement resolves to mcp 2.3.0, which removed mcp.server.fastmcp. Pinned to mcp 1.30.0 the same package returns the exact article — title, all six authors, journal, date and abstract — matching E-utilities word for word.</p>
+<p><strong>Task:</strong> search_pubmed_articles for Jinek et al. 2012 (PMID 22745249), by title query and by 22745249[PMID] query</p>
+<ul><li>The mcp&lt;2 pin was a diagnostic only; the grade is the as-instructed install (same SDK-drift class as #028/#029/#036/#045)</li><li>Minimal surface even when alive: one tool, search hard-coded to 3 results, article details exposed only as an article://{pmid} resource, not a tool</li><li>Retest on any release that pins mcp&lt;2 or ports to the mcp 2.x API; canonical task and ground truth are reusable as-is</li><li>Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.</li><li>Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint &#x27;2.3.0-specific&#x27; was wrong; verdict and test date untouched.</li></ul><p><a href="https://thelanternworks.com/receipts/#test-067">Index entry #067</a></p>
+</article>
+<article class="receipt" id="broken-068">
+<h3>#068 Semantic Scholar MCP server</h3>
+<p><code>semantic-scholar-mcp</code> v0.4.0 · tested 2026-11-20</p>
+<p>Broken as installed — unbounded mcp&gt;=1.12.3 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0 its output matches the direct S2 API exactly, citation count included.</p>
+<p><strong>Task:</strong> get_paper for arXiv:1706.03762 (Attention Is All You Need)</p>
+<ul><li>Unbounded mcp[cli]&gt;=1.12.3 dependency is the sole cause; one pip install &#x27;mcp[cli]&lt;2&#x27; revives it, but the README never says so</li><li>Ships local write-capable memory/project tools alongside the API tools — a larger permission surface than a metadata lookup needs</li><li>Keyless S2 tier 429s under shared-IP load; server retries recover (search took 22.25s)</li><li>Pinned-run serverInfo reports the SDK version (1.30.0), not the package&#x27;s 0.4.0</li><li>Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.</li><li>Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint &#x27;2.3.0-specific&#x27; was wrong; verdict and test date untouched.</li></ul><p><a href="https://thelanternworks.com/receipts/#test-068">Index entry #068</a></p>
+</article>
+<article class="receipt" id="broken-069">
+<h3>#069 Crossref MCP server</h3>
+<p><code>crossref-mcp-server</code> v1.0.0 · tested 2026-11-20</p>
+<p>Broken as installed — unbounded mcp[cli]&gt;=1.0.0 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0 its DOI lookup matches the direct Crossref record on every field.</p>
+<p><strong>Task:</strong> crossref_doi_lookup for DOI 10.18653/v1/N19-1423 (BERT paper)</p>
+<ul><li>Unbounded mcp[cli]&gt;=1.0.0 dependency is the sole cause of the Broken verdict; the underlying server is a faithful Crossref pass-through</li><li>crossref_export_ris / crossref_export_bibtex are stateful — they export the most recent search held in server memory</li><li>Pinned-run serverInfo reports the SDK version (1.30.0), not the package&#x27;s 1.0.0</li><li>Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.</li><li>Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint &#x27;2.3.0-specific&#x27; was wrong; verdict and test date untouched.</li></ul><p><a href="https://thelanternworks.com/receipts/#test-069">Index entry #069</a></p>
+</article>
+<article class="receipt" id="broken-070">
+<h3>#070 OpenAlex MCP server</h3>
+<p><code>openalex-mcp-server</code> v1.0.5 · tested 2026-11-20</p>
+<p>Broken at two layers: its undici fetch ignores standard proxy env vars (EPROTO on proxy egress), and with the proxy engaged openalex_get_work still fails — it hard-codes the invalid select field &#x27;pmid&#x27; and OpenAlex answers HTTP 400.</p>
+<p><strong>Task:</strong> openalex_get_work for W2626778328 (Attention Is All You Need)</p>
+<ul><li>openalex_search could not be graded: OpenAlex&#x27;s keyless tier now draws on a daily budget shared by egress IP, which was exhausted (HTTP 429); its select list is valid, so a retest on a fresh budget or with a free key is the condition</li><li>Error messages are Chinese-language (e.g. &#x27;OpenAlex API 请求失败&#x27;)</li><li>README contradicts itself: OPENALEX_API_KEY is &#x27;optional&#x27; in the .env section but &#x27;required&#x27; in the Smithery/ModelScope configs</li><li>serverInfo reports version 1.0.0 against the package&#x27;s 1.0.5</li></ul><p><a href="https://thelanternworks.com/receipts/#test-070">Index entry #070</a></p>
+</article>
+<article class="receipt" id="broken-072">
+<h3>#072 NASA MCP server</h3>
+<p><code>nasa-mcp-server</code> v0.1.20 · tested 2026-11-20</p>
+<p>Broken as installed — unbounded mcp&gt;=0.1.0 resolves to mcp 2.3.0 and it crashes at import; pinned to mcp 1.30.0, get_apod exactly reproduces the direct api.nasa.gov DEMO_KEY response.</p>
+<p><strong>Task:</strong> get_apod for fixed date 2023-07-01 (DEMO_KEY default)</p>
+<ul><li>Unbounded mcp&gt;=0.1.0 dependency is the sole cause of the Broken verdict</li><li>get_apod returns a Python-dict-repr string as its text content rather than clean JSON</li><li>Silently defaults to the shared DEMO_KEY when NASA_API_KEY is unset (direct call showed X-Ratelimit-Limit: 10)</li><li>Upstream degradation observed directly: APOD serves a generic placeholder for all sampled dates, and the Mars-photos endpoint returns an HTML 404 &#x27;No such app&#x27; — get_mars_image presumably affected, not exercised</li><li>Resolved dependency as installed: mcp 2.3.0 (full freeze in sandbox). The tombstone hint is 2.3.0-specific: mcp 2.1.0 has no mcp/server/fastmcp.py at all (bare ModuleNotFoundError), while 2.0.1 carries the shim.</li><li>Correction 2026-11-23 (gigawatt; verified from the PyPI wheels by Pax): the rename hint ships in every mcp release from 2.1.1 and 2.0.1 onward — 2.1.1 carries the same 769-byte mcp/server/fastmcp.py (sha256 22c06aed18fb2ae51bbe79c7310a45ab54742342d9b9f2c87735b0e355838b09); 2.1.0 is the one exception and has no fastmcp.py at all. The earlier caveat calling the hint &#x27;2.3.0-specific&#x27; was wrong; verdict and test date untouched.</li></ul><p><a href="https://thelanternworks.com/receipts/#test-072">Index entry #072</a></p>
+</article>
+<article class="receipt" id="broken-073">
+<h3>#073 whois-mcp-server</h3>
+<p><code>whois-mcp-server</code> v0.1.5 · tested 2026-11-20</p>
+<p>Broken on fresh install twice over: unpinned mcp resolves to 2.x and kills its FastMCP import, its entry point crashes under mcp 1.x too — and the tool secretly needs a Chinaz API key, not public WHOIS/RDAP.</p>
+<p><strong>Task:</strong> WHOIS lookup for example.com (mcp_whois_query)</p>
+<ul><li>Unpinned mcp&gt;=1.0.0 resolves to mcp 2.3.0; &#x27;from mcp.server.fastmcp import FastMCP&#x27; no longer exists — startup crash before initialize</li><li>Diagnostic pin mcp==1.30.0 still crashes: mcp.run(transport=&#x27;sse&#x27;, port=18895) raises TypeError (unexpected kwarg &#x27;port&#x27;) — no user-side pin makes 0.1.5 start</li><li>Undisclosed key requirement: the only tool calls openapi.chinaz.net with a CHINAZ_API_KEY; keyless it returns code -1 &#x27;Missing CHINAZ API Key&#x27; — no WHOIS-protocol or RDAP lookup exists</li><li>SSE-only design (port 18895) contradicts the stdio command config in its own README</li><li>Project URLs in package metadata still point at github.com/your-username/whois-mcp-server (template placeholder)</li></ul><p><a href="https://thelanternworks.com/receipts/#test-073">Index entry #073</a></p>
+</article>
+<article class="receipt" id="broken-076">
+<h3>#076 coingecko-mcp-server</h3>
+<p><code>coingecko-mcp-server</code> v1.0.1 · tested 2026-11-20</p>
+<p>Broken as published: the npm tarball contains no dist/ at all, so its bin dies with MODULE_NOT_FOUND for every user — yet hand-built from its shipped sources, its prices match the direct CoinGecko API exactly.</p>
+<p><strong>Task:</strong> get_prices for bitcoin,ethereum in USD</p>
+<ul><li>Tarball ships only TypeScript sources: bin/main point at dist/index.js, which does not exist, and there is no prepare/prepack build script</li><li>typescript is not a declared dependency, so users cannot build it from the package&#x27;s own toolchain without adding packages</li><li>Diagnostic hand-build (tsc, clean) with NODE_USE_ENV_PROXY=1 returned BTC $62,061 and ETH $1,753.16, exactly matching ground truth fetched seconds earlier — the code is right, the release is not</li><li>Hand-built server is also proxy-blind: without NODE_USE_ENV_PROXY=1 every call returns a bare &#x27;Error: fetch failed&#x27;</li><li>Hand-built serverInfo reports version 1.0.0 while the package is 1.0.1; prime Broken-queue retest candidate if a version ever ships dist/</li></ul><p><a href="https://thelanternworks.com/receipts/#test-076">Index entry #076</a></p>
+</article>
+<article class="receipt" id="broken-080">
+<h3>#080 JSON MCP server (@gongrzhe)</h3>
+<p><code>@gongrzhe/server-json-mcp</code> v1.0.3 · tested 2026-11-20</p>
+<p>Scalar lookups are exact, but wildcard queries silently return only the first match and the filter tool returns empty or truncated results for every operator except &#x27;&lt;&#x27;.</p>
+<p><strong>Task:</strong> query and filter a planted JSON fixture (3 books priced 5/15/25) via JSONPath</p>
+<ul><li>query $.store.book[*].author returns &quot;Ann&quot; only (expected [&quot;Ann&quot;,&quot;Bob&quot;,&quot;Cat&quot;]); same first-match truncation for [*].price</li><li>filter tool: &#x27;@.price &gt; 10&#x27; -&gt; [], &#x27;&gt;= 10&#x27; -&gt; [], &#x27;== 15&#x27; -&gt; [], &#x27;&lt;= 15&#x27; -&gt; [Alpha] only; only &#x27;&lt;&#x27; is correct</li><li>Inline filter in query ($[?(@.price &gt; 10)].title) selects the right records but ignores the .title projection and returns full objects</li><li>All wrong answers returned with no error (isError never set)</li><li>Only input mode is a URL; the fixture had to be served over local HTTP to be tested at all</li></ul><p><a href="https://thelanternworks.com/receipts/#test-080">Index entry #080</a></p>
+</article>
+<article class="receipt" id="broken-081">
+<h3>#081 CSV MCP server (csv-editor)</h3>
+<p><code>csv-mcp-server</code> v1.0.0 · tested 2026-11-20</p>
+<p>Load and preview are perfect; afterwards the aggregation tool crashes on an internal enum error, statistics claim a real column is missing, and value counts silently report 3 rows for a 5-row file.</p>
+<p><strong>Task:</strong> load_csv a planted 5-row CSV, then group_by_aggregate (sum salary by department), get_statistics, get_value_counts, filter_rows</p>
+<ul><li>group_by_aggregate always errors: &quot;type object &#x27;OperationType&#x27; has no attribute &#x27;GROUP_BY&#x27;&quot;</li><li>get_statistics and filter_rows report &quot;Column &#x27;salary&#x27; not found&quot; for a column load_csv just previewed as int64</li><li>get_value_counts silently wrong: {eng:1, ops:1, sales:1}, total_count 3 for a 5-row file (expected 2/2/1, total 5)</li><li>load_csv silently ignores a caller-supplied session_id and returns a generated UUID; failures to the requested id read &#x27;Invalid session or no data loaded&#x27;</li><li>Failures are success:false payloads with isError:false at the MCP layer</li><li>serverInfo version &#x27;4.2.3&#x27; is the installed FastMCP version, not this package&#x27;s 1.0.0; cold initialize took 28s</li></ul><p><a href="https://thelanternworks.com/receipts/#test-081">Index entry #081</a></p>
+</article>
+<article class="receipt" id="broken-083">
+<h3>#083 Chroma MCP server</h3>
+<p><code>chroma-mcp</code> v0.2.6 · tested 2026-11-20</p>
+<p>Clean install as instructed is dead on arrival: chroma-mcp pins mcp==1.6.0, whose unbounded pydantic range now resolves 2.14.4, and the server crashes at import (eval_type_backport) before initialize — a diagnostic run with pydantic 2.11.7 passed the canonical task exactly.</p>
+<p><strong>Task:</strong> create a collection, add planted documents, query them back (ephemeral client)</p>
+<ul><li>As-installed server exits code 1 before initialize; none of its 13 tools can be listed or called</li><li>Diagnostic-only pin (pydantic==2.11.7) proves the server code is sound — create/add/query/get/count all exact — but is not the graded install</li><li>README tool list omits chroma_fork_collection, present in the live tool list</li><li>Retest condition: any newer chroma-mcp release, or a pin change in 0.2.6&#x27;s dependency set</li></ul><p><a href="https://thelanternworks.com/receipts/#test-083">Index entry #083</a></p>
+</article>
+<article class="receipt" id="broken-084">
+<h3>#084 mcp-server-docker</h3>
+<p><code>mcp-server-docker</code> v0.3.0 · tested 2026-11-20</p>
+<p>With no Docker daemon present the server crashes during start-up with a 143-line traceback and never answers initialize — no handshake, no tool list, no per-tool error.</p>
+<p><strong>Task:</strong> list_containers / list_images against the sandbox&#x27;s Docker state</p>
+<ul><li>Docker client is built eagerly in the lifespan handler via docker.from_env(), so a down/absent daemon kills the whole server instead of failing per-tool (contrast #046/#060)</li><li>The underlying cause (missing socket, FileNotFoundError) is visible at the tail of the traceback</li><li>Behaviour against a live daemon is untested and was out of scope to install; that is the retest condition</li></ul><p><a href="https://thelanternworks.com/receipts/#test-084">Index entry #084</a></p>
+</article>
+<article class="receipt" id="broken-085">
+<h3>#085 kubernetes-mcp-server</h3>
+<p><code>kubernetes-mcp-server</code> v0.1.3 · tested 2026-11-20</p>
+<p>Exemplary missing-backend message, but it exits code 1 before initialize: &#x27;no current-context is set and no contexts are defined in kubeconfig&#x27; — exactly true, yet no MCP client can ever connect.</p>
+<p><strong>Task:</strong> list namespaces / pods (namespaces_list, pods_list)</p>
+<ul><li>Best missing-backend reporting in the wave: one clean, accurate, actionable error line, no traceback</li><li>Still a handshake failure — a client that never sees stderr learns nothing, so it grades broken rather than the stays-up-and-errors-per-tool works_with_caveats pattern</li><li>--version works cleanly (v0.1.3)</li><li>Retest condition: one run with a real kubeconfig pointing at a live cluster</li></ul><p><a href="https://thelanternworks.com/receipts/#test-085">Index entry #085</a></p>
+</article>
 <h2>Method</h2>
-<p>These are Pax-authored summaries of specific versions and tasks, published by Lantern Works. The <code>tested_at</code> dates in this edition are 29 October 2026 and 31 October 2026. Evidence in the public index is authored summaries only: write-up and transcript filenames in the index JSON refer to project records that are not included with those summaries. 3 representative third-party cases have a public proof-pack page (excerpts and machine-readable evidence) under <a href="https://thelanternworks.com/receipts/">/receipts/</a>.</p>
+<p>These are Pax-authored summaries of specific versions and tasks, published by Lantern Works. The <code>tested_at</code> dates in this edition are 29 October 2026, 31 October 2026, and 20 November 2026. Evidence in the public index is authored summaries only: write-up and transcript filenames in the index JSON refer to project records that are not included with those summaries. 3 representative third-party cases have a public proof-pack page (excerpts and machine-readable evidence) under <a href="https://thelanternworks.com/receipts/">/receipts/</a>.</p>
 <aside class="receipt-policy" aria-label="Verdict policy"><h2>Verdict firewall</h2><p>Money may buy testing or re-testing, never a changed verdict. Paid listings are re-tested under the same criteria; payment never changes a result or its placement.</p></aside>
 <h2>Receipts index and case pages</h2>
-<p><a href="https://thelanternworks.com/receipts/">All 62 dated summaries</a></p>
+<p><a href="https://thelanternworks.com/receipts/">All 86 dated summaries</a></p>
 <ul><li><a href="https://thelanternworks.com/receipts/002-mcp-server-time/">#002 mcp-server-time</a> (Works)</li><li><a href="https://thelanternworks.com/receipts/056-server-redis/">#056 Redis MCP server</a> (Works With Caveats)</li><li><a href="https://thelanternworks.com/receipts/009-open-meteo-mcp/">#009 open-meteo-mcp</a> (Broken)</li></ul><p>Need GPU prices in your own agent? <a href="https://thelanternworks.com/quickstart/?ref=receipts-writeup">Try a free, cited comparison</a>. Price methodology is documented separately at <a href="https://thelanternworks.com/methodology/">/methodology/</a>.</p>
 
 </div>

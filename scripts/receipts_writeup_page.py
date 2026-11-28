@@ -223,8 +223,8 @@ def render_body(g, fig: dict, doc: dict) -> str:
         "task, and checking the output against an independent ground truth. This page's counts, "
         "date list, and broken-case list are computed from the Receipts index when the site is "
         f"built, not typed in by hand. The records themselves are dated {e(fig['date_list'])} "
-        f"({date_counts}; {total} in all). There is no filled-in day between those "
-        "<code>tested_at</code> values.</p>\n"
+        f"({date_counts}; {total} in all). Only dates that appear in the records are listed; "
+        "no days in between are filled in.</p>\n"
         f'<p>The full record list is the <a href="{base}/receipts/">Receipts index</a>. '
         f'Machine-readable records: <a href="{base}/api/v1/receipts.json?ref={REF}">/api/v1/receipts.json</a>.</p>\n'
         "<h2>What we tested</h2>\n"

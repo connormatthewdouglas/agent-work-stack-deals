@@ -190,6 +190,8 @@ CLAIM_AUDIT_KEYS = ("stock_read_at", "price_read_at", "price_at_claim_usd", "gpu
 
 
 LAST_KNOWN_KEYS = ("last_known_in_stock", "last_known_at")
+# P68 (additive): the last firm claim's own window, kept across failed/no_source reads (never extended).
+LAST_KNOWN_WINDOW_KEYS = ("last_known_expires_at", "last_known_max_age_hours")
 
 
 def _check_ts(src: dict) -> str | None:
@@ -229,6 +231,67 @@ def last_known(src: dict) -> tuple[bool | None, str | None]:
         return src["in_stock"], src.get("checked_at") or _check_ts(src)
     v, t = src.get("last_known_in_stock"), src.get("last_known_at")
     return (v, t) if isinstance(v, bool) and isinstance(t, str) and t else (None, None)
+
+
+def last_known_window(av: dict) -> tuple[str | None, float | None]:
+    """Expiry and TTL of the last firm stock claim (P68).
+
+    Anchored on last_known_at, never on a later failed-read checked_at, so a no_source
+    or quota check cannot extend the last good window. Does not change stale_guard.
+    """
+    if not isinstance(av, dict):
+        return None, None
+    _, t = last_known(av)
+    if not t:
+        return None, None
+    if _parse(av.get("last_known_expires_at")):
+        h = av.get("last_known_max_age_hours")
+        if not isinstance(h, (int, float)) or isinstance(h, bool):
+            h = claim_hours(t, av["last_known_expires_at"])
+        return av["last_known_expires_at"], float(h)
+    h = av.get("last_known_max_age_hours")
+    if isinstance(h, (int, float)) and not isinstance(h, bool) and h >= 0:
+        return _plus_h(t, h), float(h)
+    exp, mh = av.get("availability_expires_at"), av.get("max_age_hours")
+    ch, lk = _parse(av.get("checked_at")), _parse(t)
+    # Same claim (no later check, or checked_at is the last_known_at): the live expiry is the window.
+    if _parse(exp) and lk and (ch is None or ch <= lk):
+        if not isinstance(mh, (int, float)) or isinstance(mh, bool):
+            mh = claim_hours(t, exp)
+        return exp, float(mh)
+    # Later failed/no_source read: re-anchor on last_known_at using the row TTL, which
+    # yields an earlier expiry than checked_at + TTL (never extend).
+    if isinstance(mh, (int, float)) and not isinstance(mh, bool) and mh >= 0:
+        return _plus_h(t, mh), float(mh)
+    if _parse(exp) and lk and ch and ch > lk:
+        # TTL unknown; do not adopt a later checked_at-anchored expiry.
+        # Fall through to the 8h policy clock that stale_guard already uses for last_known.
+        pass
+    return _plus_h(t, AVAIL_MAX_AGE_H), float(AVAIL_MAX_AGE_H)
+
+
+def annotate_last_known_window(av: dict, now: datetime | None = None) -> dict:
+    """P68: flag last_known against its own claim window and surface that window.
+
+    Purely additive, after stale_guard (and P72 annotate_max_age). Never invents a
+    last_known value, never changes in_stock / availability_stale / the 8h P64 clock.
+    """
+    if not isinstance(av, dict):
+        return av
+    out = dict(av)
+    v, t = last_known(out)
+    if not (isinstance(v, bool) and t):
+        return out
+    out["last_known_in_stock"], out["last_known_at"] = v, t
+    exp, h = last_known_window(out)
+    if exp:
+        out["last_known_expires_at"] = exp
+    if h is not None:
+        out["last_known_max_age_hours"] = h
+    x = _parse(exp)
+    if x is not None:
+        out["last_known_outside_window"] = (now or now_utc()) > x
+    return out
 
 
 def apply_probe_outcome(av: dict, previous: dict | None = None) -> dict:
@@ -320,6 +383,23 @@ def stale_guard(a, now: datetime | None = None):
         v, t = last_known(a)
         out = {**out, "last_known_in_stock": v, "last_known_at": t}
     return _age_last_known(out, now)
+
+
+def request_availability(av, now: datetime | None = None):
+    """P64 request-time expiry check shared by find_available_gpus, compare_gpu_prices,
+    and estimate_job_cost. Applies stale_guard so a lapsed stock claim is never shown
+    as in_stock true or false; last_known_* stays visible. Non-dicts pass through."""
+    if not isinstance(av, dict):
+        return av
+    return stale_guard(av, now)
+
+
+def with_request_availability(r: dict, now: datetime | None = None) -> dict:
+    """Copy of a rate with availability passed through request_availability (P64)."""
+    if not isinstance(r, dict) or not isinstance(r.get("availability"), dict):
+        return r
+    guarded = request_availability(r["availability"], now)
+    return r if guarded is r["availability"] else {**r, "availability": guarded}
 
 
 def _age_last_known(av: dict, now: datetime | None = None) -> dict:
@@ -669,7 +749,7 @@ def _scout(vendor: str, r: dict | None) -> dict:
         if r and r.get(k) is not None:
             out[k] = r[k]
     if r:
-        for k in LAST_KNOWN_KEYS:
+        for k in LAST_KNOWN_KEYS + LAST_KNOWN_WINDOW_KEYS:
             if r.get(k) is not None and k not in out:
                 out[k] = r[k]
         prev = r if any(r.get(k) is not None for k in LAST_KNOWN_KEYS) else None

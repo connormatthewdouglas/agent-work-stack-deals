@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import html
 import re
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,10 +33,20 @@ def test_figures_match_live_index_and_are_not_constants():
     assert sum(fig["counts"].values()) == fig["total"]
     assert fig["dates"] == sorted({t["tested_at"] for t in tests})
     assert fig["content_day"] == max(t["tested_at"] for t in tests)
-    # 29–31 would imply a 30 October record that the index does not have.
-    assert "2026-10-30" not in fig["dates"]
     assert fig["date_list"] == receipts_writeup_page.format_date_list(fig["dates"])
-    assert "30 October" not in fig["date_list"]
+    assert fig["total"] == len(json.loads((ROOT / "data/receipts-index.json").read_text())["tests"])
+    assert fig["total"] == 86  # Receipts Batch 4 edition; still must match the index file above
+    # Date wording lists only days present in the index; gaps are not filled in.
+    for iso in fig["dates"]:
+        assert receipts_writeup_page.format_iso_date(iso) in fig["date_list"]
+    start = datetime.strptime(fig["dates"][0], "%Y-%m-%d")
+    end = datetime.strptime(fig["dates"][-1], "%Y-%m-%d")
+    day = start
+    while day <= end:
+        iso = day.strftime("%Y-%m-%d")
+        if iso not in fig["dates"]:
+            assert receipts_writeup_page.format_iso_date(iso) not in fig["date_list"]
+        day += timedelta(days=1)
 
     reduced = [t for t in tests if t["verdict"] != "broken"]
     fig2 = receipts_writeup_page.figures(reduced, [])
@@ -49,8 +61,17 @@ def test_published_page_uses_computed_tally_and_links():
     page = (ROOT / "receipts/write-up/index.html").read_text(encoding="utf-8")
     assert "computed from the Receipts index" in page
     assert fig["date_list"] in page
-    assert "30 October" not in page
+    assert "Only dates that appear in the records are listed" in page
     assert f"{fig['total']} MCP servers" in page or f"tested {fig['total']} MCP servers" in page
+    assert fig["total"] == len(tests)
+    start = datetime.strptime(fig["dates"][0], "%Y-%m-%d")
+    end = datetime.strptime(fig["dates"][-1], "%Y-%m-%d")
+    day = start
+    while day <= end:
+        iso = day.strftime("%Y-%m-%d")
+        if iso not in fig["dates"]:
+            assert receipts_writeup_page.format_iso_date(iso) not in page
+        day += timedelta(days=1)
     for key, label in receipts_writeup_page.VERDICT_LABELS:
         assert label in page
         assert f"<code>{key}</code>" in page

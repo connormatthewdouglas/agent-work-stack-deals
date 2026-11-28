@@ -659,9 +659,9 @@ def compare_gpu_prices(data: dict, gpu: str, limit: int = 10, history: dict | No
     except ValueError as e:
         raise DealError("invalid_argument", str(e))
     # 0.3.30: availability older than AVAIL_MAX_AGE_H is re-checked at call time and shown unknown (never ranks or leads)
-    from .gpu_availability import stale_guard
+    from .gpu_availability import request_availability
     _now_av = now.astimezone(timezone.utc) if isinstance(now, datetime) and now.tzinfo else None
-    rows = [dict(r, availability=stale_guard(r["availability"], _now_av)) if isinstance(r.get("availability"), dict) else r
+    rows = [dict(r, availability=request_availability(r["availability"], _now_av)) if isinstance(r.get("availability"), dict) else r
             for r in rows]
     excluded_too_old = 0
     stale_rows = []
@@ -970,14 +970,24 @@ def _live_item(r: dict, av: dict, reason: str | None = None) -> dict:
     }
     if av.get("stock_level"):
         item["stock_level"] = str(av["stock_level"])
+    from .gpu_availability import annotate_last_known_window
+    av = annotate_last_known_window(av)
+    if "availability_expires_at" in av:
+        item["availability_expires_at"] = to_utc_z(av.get("availability_expires_at"))
+    if av.get("max_age_hours") is not None:
+        item["max_age_hours"] = av["max_age_hours"]
     v, ts = last_known(av)
     if not isinstance(v, bool):
         v, ts = av.get("last_known_in_stock"), av.get("last_known_at")
     if isinstance(v, bool) and ts:
         item["last_known_in_stock"] = v
         item["last_known_at"] = to_utc_z(ts)
-    if av.get("availability_expires_at"):
-        item["availability_expires_at"] = to_utc_z(av.get("availability_expires_at"))
+        if av.get("last_known_expires_at"):
+            item["last_known_expires_at"] = to_utc_z(av.get("last_known_expires_at"))
+        if av.get("last_known_max_age_hours") is not None:
+            item["last_known_max_age_hours"] = av["last_known_max_age_hours"]
+        if "last_known_outside_window" in av:
+            item["last_known_outside_window"] = av["last_known_outside_window"]
     if av.get("availability_stale"):
         item["availability_stale"] = True
     if reason:
@@ -996,7 +1006,7 @@ def find_available_gpus(data: dict, gpu: str, gpus: int = 1, limit: int = 10,
     """
     from .ids import rate_id as _rate_id
     from .gpu import min_gpus_unmet
-    from .gpu_availability import stale_guard, now_utc
+    from .gpu_availability import request_availability, now_utc
     from .owner_hold import is_held
     from . import serverless as _sl
     from . import eligibility as EL
@@ -1073,7 +1083,7 @@ def find_available_gpus(data: dict, gpu: str, gpus: int = 1, limit: int = 10,
             excluded_serverless += 1
             continue
         if is_held(r.get("advertiser")):
-            av = stale_guard(r["availability"], clock) if isinstance(r.get("availability"), dict) else {}
+            av = request_availability(r["availability"], clock) if isinstance(r.get("availability"), dict) else {}
             _bucket(r, av, held="owner_hold")
             continue
         tc = tier_class(r)
@@ -1096,7 +1106,7 @@ def find_available_gpus(data: dict, gpu: str, gpus: int = 1, limit: int = 10,
                 "min_bill_usd_per_hour": mb, "min_bill_basis": basis,
             })
             continue
-        av = stale_guard(r["availability"], clock) if isinstance(r.get("availability"), dict) else {}
+        av = request_availability(r["availability"], clock) if isinstance(r.get("availability"), dict) else {}
         ev = EL.evaluate(r, cons, clock)
         if cons.get("region") and any(u["constraint"] == "region" for u in ev["unmet"]):
             excluded_other_region += 1
