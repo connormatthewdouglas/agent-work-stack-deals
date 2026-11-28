@@ -97,8 +97,8 @@ def test_top_rows_have_rent_here_and_lower_rows_do_not(feed, tool, mode):
             url = row["tracked_url"]
             assert url.startswith(golinks.GO_BASE) and "src=mcp" in url
             assert row["rent_url"] == url
-            assert row["rent_here"] == golinks.rent_here_line(url)
-            assert row["rent_here"].startswith("Rent here: ")
+            assert row["rent_here"] == golinks.RENT_HERE_LABEL
+            assert "http" not in row["rent_here"]  # URL lives on rent_url only
             # A deal_id on the rate becomes /go/<deal-id> when the tool keeps that field (compare, planner).
             if row.get("deal_id") == "deal-abc-001" or row.get("id") == "deal-abc-001":
                 assert url == golinks.GO_BASE + "deal-abc-001?src=mcp"
@@ -107,6 +107,7 @@ def test_top_rows_have_rent_here_and_lower_rows_do_not(feed, tool, mode):
         else:
             assert "rent_url" not in row and "rent_here" not in row
             assert row.get("tracked_url", "").startswith(golinks.GO_BASE)
+    assert sum(1 for r in rows if "rent_here" in r or "rent_url" in r) <= N
     assert out["referral_disclosure"] == golinks.REFERRAL_DISCLOSURE
 
 
@@ -134,7 +135,56 @@ def test_add_rent_here_is_additive_and_skips_rows_without_a_link():
     golinks.add_rent_here(out, "compare_gpu_prices", n=3)
     assert out["results"][0]["rent_url"].endswith("/go/v/acme?src=mcp")
     assert "rent_url" not in out["results"][1]  # no provider slug, no invented URL
-    assert out["results"][2]["rent_here"].startswith("Rent here: ")
+    assert out["results"][2]["rent_here"] == golinks.RENT_HERE_LABEL
+
+
+def test_sold_out_top_row_is_skipped_and_next_available_is_tagged():
+    """A sold-out row ranked in the top 3 does not get rent fields; the next in-stock row does.
+
+    compare_gpu_prices usually sorts out-of-stock rows after in-stock ones. Gauge
+    reproduced the bug when a sold-out row still sat in the top 3 (e.g.
+    compare_gpu_prices('H100 NVLink') at LW_AVAIL_NOW=2026-11-28T07:02:11Z, where
+    the only result was Hyperstack out_of_stock). This fixture builds real compare
+    rows, then places the sold-out row first to cover that ranking.
+    """
+    rates = [
+        _row("Sold Cloud", 1.00, availability=_av(in_stock=False), in_stock=False,
+             availability_status="out_of_stock"),
+        _row("Cheap Cloud", 1.10),
+        _row("Mid Cloud", 1.50, deal_id="deal-abc-001"),
+        _row("Dear Cloud", 2.00),
+        _row("Extra Cloud", 2.50),
+    ]
+    raw = compare_gpu_prices(_feed(rates), "H100", limit=10, on_demand_only=True, now=NOW)
+    sold_row = next(r for r in raw["results"] if r["advertiser"] == "Sold Cloud")
+    instock = [r for r in raw["results"] if r["advertiser"] != "Sold Cloud"]
+    assert sold_row.get("in_stock") is False and instock
+    raw["results"] = [sold_row] + instock
+    assert raw["results"][0]["advertiser"] == "Sold Cloud"
+    out = _finalize("compare_gpu_prices", raw, mode="brief")
+    rows = out["results"]
+    sold = rows[0]
+    assert sold["advertiser"] == "Sold Cloud"
+    assert sold.get("in_stock") is False
+    assert "rent_url" not in sold and "rent_here" not in sold
+    tagged = [r for r in rows if "rent_here" in r or "rent_url" in r]
+    assert [r["advertiser"] for r in tagged] == ["Cheap Cloud", "Mid Cloud", "Dear Cloud"]
+    assert len(tagged) <= N
+    for r in tagged:
+        assert r["rent_here"] == golinks.RENT_HERE_LABEL
+        assert r["rent_url"] == r["tracked_url"]
+        assert "http" not in r["rent_here"]
+    # The 5th row (4th in-stock, Extra Cloud) stays untagged.
+    extra = next(r for r in rows if r["advertiser"] == "Extra Cloud")
+    assert "rent_url" not in extra and "rent_here" not in extra
+
+
+def test_at_most_three_rows_carry_rent_here_or_rent_url(feed):
+    raw = compare_gpu_prices(feed, "H100", limit=10, on_demand_only=True, now=NOW)
+    out = _finalize("compare_gpu_prices", raw, mode="brief")
+    n = sum(1 for r in out["results"] if "rent_here" in r or "rent_url" in r)
+    assert n <= N
+    assert n == N  # the fixture has more than N in-stock rows
 
 
 def test_rent_url_click_reaches_stats_json_via_src_mcp(feed):
