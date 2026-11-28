@@ -126,6 +126,7 @@ def _reset_lastmod_caches() -> None:
     gen._SITEMAP_DEAL_DATES = None
     gen._SITEMAP_DEALS_FEED_DAY = False
     gen._SITEMAP_GPU_FEED_DAY = False
+    gen._SITEMAP_RECEIPTS_DATES = None
 
 
 def test_homepage_lastmod_follows_feed_not_script_commit_or_clock(monkeypatch):
@@ -241,3 +242,31 @@ def test_rewrite_sitemap_lastmods_keeps_url_count_and_fixes_coverage_slash():
     assert counts.get(STALE_HARDCODED, 0) < len(mods), (
         "T121: stale hardcoded date still dominates the sitemap"
     )
+
+
+def test_receipts_lastmod_follows_content_dates_not_script_commit(monkeypatch):
+    """P27: Receipts lastmod is tested_at (case pages) or the newest content date (index)."""
+    import receipts_page
+    _reset_lastmod_caches()
+    tomorrow = "2099-01-02"
+    monkeypatch.setattr(gen, "_git_commit_date", lambda *_a, **_k: tomorrow)
+    _reset_lastmod_caches()
+    rows = {r["id"]: r for r in json.loads((ROOT / "data/receipts-index.json").read_text())["tests"]}
+    today = datetime.now(timezone.utc).date().isoformat()
+    for spec in receipts_page.all_case_specs(ROOT):
+        loc = f"https://thelanternworks.com/receipts/{spec['slug']}/"
+        got = gen.sitemap_lastmod_for_loc(loc)
+        assert got == rows[spec["id"]]["tested_at"], (loc, got, rows[spec["id"]]["tested_at"])
+        assert got != tomorrow
+        assert got <= today
+    pack = json.loads((ROOT / "data/receipts-proof-pack-v1.json").read_text(encoding="utf-8"))
+    index_days = [r["tested_at"] for r in rows.values()]
+    assembled = pack.get("assembled_at")
+    if assembled:
+        index_days.append(assembled[:10])
+    expected_index = max(index_days)
+    index_lm = gen.sitemap_lastmod_for_loc("https://thelanternworks.com/receipts/")
+    assert index_lm == expected_index  # newest tested_at or proof-pack assembled_at
+    assert index_lm != tomorrow
+    assert index_lm <= today
+    _reset_lastmod_caches()

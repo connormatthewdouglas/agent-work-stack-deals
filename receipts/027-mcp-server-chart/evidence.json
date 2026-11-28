@@ -1,0 +1,27 @@
+{
+  "record_id": "027",
+  "package": "@antv/mcp-server-chart",
+  "version": "0.9.10",
+  "registry": "npm",
+  "server": "@antv/mcp-server-chart",
+  "verdict": "works_with_caveats",
+  "tested_at": "2026-10-29",
+  "task": "generate a bar chart from planted data (quarters Q1-Q4 = 10/25/17/32)",
+  "ground_truth": "the planted dataset, checked against the response's spec echo, a direct call to the rendering service with the identical spec, and visual inspection of the returned PNG (1800x1200, labels and proportions correct)",
+  "observed_summary": "The chart is exactly right — but the 'local' server POSTs your data to Ant Group's hosted GPT-Vis service (antv-studio.alipay.com) and hosts the image on Alipay's public CDN at unauthenticated URLs.",
+  "caveats": [
+    "The server sets no request timeout and upstream latency is bimodal: first call produced no response in 240s, a retry took 2.34s — clients with a 60s tool timeout will see un-diagnosable hangs",
+    "serverInfo version is the literal placeholder string '0.8.x' vs package 0.9.10; the CDN serves PNG bytes labeled image/jpeg"
+  ],
+  "category": "community",
+  "evidence": {
+    "transcript": "tests/027-chart-transcript.txt",
+    "writeup": "tests/027-chart.md"
+  },
+  "source": "receipts-index",
+  "stable_url": "https://thelanternworks.com/receipts/027-mcp-server-chart/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/027-mcp-server-chart/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}

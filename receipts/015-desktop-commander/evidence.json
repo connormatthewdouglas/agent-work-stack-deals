@@ -1,0 +1,28 @@
+{
+  "record_id": "015",
+  "package": "@wonderwhy-er/desktop-commander",
+  "version": "0.3.1",
+  "registry": "npm",
+  "server": "@wonderwhy-er/desktop-commander",
+  "verdict": "works_with_caveats",
+  "tested_at": "2026-10-29",
+  "task": "write a file with planted content and read it back; execute a command computing 6*7; list the working directory",
+  "ground_truth": "planted file content byte-compared in Python; 6*7 by hand; /etc/os-release read independently first",
+  "observed_summary": "Every task exact (byte-identical round-trip, shell returned 42) — but the defaults are an unconfined shell: empty allowedDirectories means file tools read/write anywhere (proven against /etc/os-release), the shell is guarded only by a 32-command denylist, and telemetry is on by default.",
+  "caveats": [
+    "No execute_command tool in v0.3.1 — the surface is a stateful start_process terminal family, so generic agent docs mislead",
+    "get_config returns a full host fingerprint (mounts, paths, runtime tables) to any connected client",
+    "244MB / 614-package install"
+  ],
+  "category": "community",
+  "evidence": {
+    "transcript": "tests/015-desktop-commander-transcript.txt",
+    "writeup": "tests/015-desktop-commander.md"
+  },
+  "source": "receipts-index",
+  "stable_url": "https://thelanternworks.com/receipts/015-desktop-commander/",
+  "evidence_json_url": "https://thelanternworks.com/receipts/015-desktop-commander/evidence.json",
+  "third_party": true,
+  "house": false,
+  "referral_tag": "receipts-proofpack"
+}
