@@ -6,6 +6,8 @@ Reverse-chronological ships for [Agent work-stack deals](https://thelanternworks
 
 ## Unreleased (site)
 
+- P17 terms (Brain #1200, 2026-11-28): a one-sentence commission disclosure stays immediately next to each affiliate link on deal pages (ScreenshotOne's close-to-the-link rule and the FTC-style disclosure Runable and Speak AI cite). The public feed already carries `disclosure` and `plain_url` on affiliate deals; MCP `get_deal`, `search_deals` and `compare_deals` now return those fields next to `redeem_url`. InboxKit and Runable stay listed but now use plain vendor URLs (the public pricing or homepage link, no referral parameters) until their terms are cleared: InboxKit bans coupon and deal sites, and Runable bans bot-driven referrals.
+
 - Price-moves digest (F5, Brain #1032, 2026-11-28): `/api/v1/gpu-price-digest.json` and `.xml` (RSS) list the biggest daily and 7-day tracked GPU price moves. The new read-only `get_price_moves` tool (stdio and hosted) serves the same digest. Moves reuse existing changes and history windows (2% deadband; held/stale days excluded; composition-only marketplace median changes are not price moves). Official generate is deterministic (snapshot dates only). Package tools 12, hosted 19.
 - Receipts write-up (P29, 2026-11-28): `/receipts/write-up/` summarizes what was tested, the verdict tally, and what broke. Every count and the `tested_at` date list are computed from `data/receipts-index.json` when the page is built, not typed by hand. The sitemap lastmod is the newest `tested_at` in that index (a content date). The page links to the Receipts index and to the public case pages. Credit is Lantern Works; no personal names.
 
