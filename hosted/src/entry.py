@@ -117,9 +117,16 @@ def _schema(fn):
         t = hints.get(p.name, str)
         args = [a for a in typing.get_args(t) if a is not type(None)]
         base = args[0] if args else t
-        js = {str: {"type": "string"}, int: {"type": "integer"}, float: {"type": "number"}, bool: {"type": "boolean"}}.get(base)
+        js = {str: {"type": "string"}, int: {"type": "integer"}, float: {"type": "number"}, bool: {"type": "boolean"},
+              dict: {"type": "object"}}.get(base)
         if js is None:
-            js = {"type": "array", "items": {"type": "string"}} if typing.get_origin(base) is list else {"type": "string"}
+            origin = typing.get_origin(base)
+            if origin is dict:
+                js = {"type": "object"}
+            elif origin is list:
+                js = {"type": "array", "items": {"type": "string"}}
+            else:
+                js = {"type": "string"}
         if p.default is inspect.Parameter.empty:
             req.append(p.name)
         else:

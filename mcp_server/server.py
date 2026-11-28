@@ -636,6 +636,10 @@ def rebuild_quote(receipt: dict) -> dict:
     "arithmetic_only" with provenance_verified=false when that can't be confirmed), per-line provenance, and
     revalidation against today's feed: per GPU line unchanged | price_changed | evidence_changed | held_today |
     not_in_feed_today (flat plans: not_revalidated), with revision 'same' or 'new'. Nothing is re-ranked."""
+    if not isinstance(receipt, dict):
+        receipt, err = contract.coerce_object_arg("receipt", receipt)
+        if err is not None:
+            return err
     if not isinstance(receipt, dict) or "lines" not in receipt or "receipt_sha256" not in receipt:
         return DealError("invalid_argument", "receipt must be the 'receipt' object from a quoting tool").to_dict()
     try:
