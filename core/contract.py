@@ -80,11 +80,13 @@ SPEC = {
     "search_deals": (["total", "count", "results"], "results",
                      ["id"],
                      ["total", "count", "results", "next_cursor"],
-                     ["id", "advertiser", "title", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason"]),
+                     ["id", "advertiser", "title", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason",
+                      "disclosure", "plain_url"]),
     "compare_deals": (["deals"], "deals",
                       ["id"],
                       ["order", "deals"],
-                      ["id", "advertiser", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason"]),
+                      ["id", "advertiser", "offer_type", "price_usd", "list_price_usd", "redeem_url", "source_url", "price_null_reason",
+                       "disclosure", "plain_url"]),
     "estimate_job_cost": (["gpu_family", "requested_gpus", "job_hours", "count", "results", "assumptions", "citations",
                            "missing_costs", "budget_verdict", "quote_id", "issued_at"], "results",
                           ["rank", "rate_id", "vendor", "allocated_gpus", "instances", "compute_subtotal_usd", "source_url"],
@@ -100,7 +102,7 @@ SPEC = {
                       ["line", "rate_id", "recorded_subtotal_usd", "recomputed_subtotal_usd", "matches"]),
     "get_deal": (["id"], None, [],
                  ["id", "title", "advertiser", "offer_type", "price_usd", "list_price_usd", "unit", "redeem_url", "verified_at", "affiliate",
-                  "source_url", "price_null_reason"], []),
+                  "source_url", "price_null_reason", "disclosure", "plain_url"], []),
 }
 # Optional typed fields beyond the required ones (T38 paging for get_price_changes).
 EXTRA_PROPS = {
