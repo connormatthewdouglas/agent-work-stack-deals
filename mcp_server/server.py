@@ -22,13 +22,13 @@ try:  # installed wheel: core is vendored as a subpackage
     from lantern_works_deals_mcp.core import deals as core
     from lantern_works_deals_mcp.core import stack
     from lantern_works_deals_mcp.core import agent_stack
-    from lantern_works_deals_mcp.core import contract, quote, cost_per_job, gpu_identity
+    from lantern_works_deals_mcp.core import contract, quote, cost_per_job, gpu_identity, arg_hints
 except ImportError:  # repo checkout: shared top-level core/
     from core import VERSION, DealError, FeedLoader, GpuChangesLoader, GpuHistoryLoader, GpuPricesLoader, StackPricingLoader  # noqa: E402
     from core import deals as core  # noqa: E402
     from core import stack  # noqa: E402
     from core import agent_stack  # noqa: E402
-    from core import contract, quote, cost_per_job, gpu_identity  # noqa: E402
+    from core import contract, quote, cost_per_job, gpu_identity, arg_hints  # noqa: E402
 
 INSTRUCTIONS = ("Read-only GPU rental price comparison (compare_gpu_prices, refreshed regularly, with each price's age shown, with a 7d/30d trend signal and price history; get_price_changes lists what moved; get_price_trend reports the trend for one rate_id; find_available_gpus lists who has N x GPU confirmed in stock right now), a "
                 "stack cost optimizer (optimize_stack, or optimize_agent_stack from a plain-text agent description), and the Lantern Works agent work-stack deal feed. Results are ranked by "
@@ -129,7 +129,9 @@ def _contract(fn):
     def wrapper(*a, mode: str | None = None, **kw):
         mode = dm if mode is None else mode
         if mode not in contract.MODES:
-            return contract.error("invalid_argument", f"mode must be one of {list(contract.MODES)}")
+            return contract.error("invalid_argument", arg_hints.bad_enum(
+                f"mode must be one of {list(contract.MODES)}", mode, list(contract.MODES),
+                'compare_gpu_prices(gpu="H100", mode="brief")'))
         return _with_retrieval(_inner(*a, mode=mode, **kw))
 
     def _inner(*a, mode: str = "full", **kw):

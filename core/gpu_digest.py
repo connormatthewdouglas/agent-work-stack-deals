@@ -13,6 +13,7 @@ import json
 import re
 from pathlib import Path
 
+from . import arg_hints
 from . import gpu_changes, gpu_history as H
 from .data_license import DATA_LICENSE, REPORT_ISSUE, REPORT_ISSUE_NOTE
 from .ids import rate_id
@@ -93,14 +94,18 @@ def _matches(m: dict, gpu: str | None, vendor: str | None, direction: str | None
 def _validate(period: str, limit: int, direction: str | None) -> tuple[str, int, str | None]:
     p = (period or "").strip().lower()
     if p not in PERIODS:
-        raise DigestError("invalid_argument", "period must be 'daily' or 'weekly'")
+        raise DigestError("invalid_argument", arg_hints.bad_enum(
+            "period must be 'daily' or 'weekly'", period or "", list(PERIODS),
+            'get_price_moves(period="daily")'))
     if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_LIMIT:
         raise DigestError("invalid_argument", f"limit must be an integer 1-{MAX_LIMIT}")
     d = (direction or "").strip().lower() or None
     if d in ("any", "all"):
         d = None
     if d is not None and d not in ("up", "down"):
-        raise DigestError("invalid_argument", "direction must be 'up', 'down', or omitted")
+        raise DigestError("invalid_argument", arg_hints.bad_enum(
+            "direction must be 'up', 'down', or omitted", d or direction or "", ["up", "down"],
+            'get_price_moves(period="daily", direction="down")'))
     return p, limit, d
 
 

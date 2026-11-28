@@ -9,6 +9,7 @@ from __future__ import annotations
 import copy
 import json
 
+from . import arg_hints
 from . import golinks
 
 ERROR_CODES = ("invalid_argument", "invalid_cursor", "cursor_expired", "not_found", "feed_unavailable", "feed_invalid",
@@ -342,10 +343,16 @@ def check_args(fn, args) -> dict | None:
     params = inspect.signature(fn).parameters
     extra = sorted(k for k in args if k not in params)
     if extra:
-        return error("invalid_argument", f"unknown argument(s): {', '.join(extra)}; valid: {', '.join(params)}")
+        return error("invalid_argument", arg_hints.format_hint(
+            f"unknown argument(s): {', '.join(extra)}; valid: {', '.join(params)}",
+            example=arg_hints.FIRST_CALL_EXAMPLES.get(getattr(fn, "__name__", "")),
+        ))
     missing = [n for n, p in params.items() if p.default is inspect.Parameter.empty and n not in args]
     if missing:
-        return error("invalid_argument", f"missing required argument(s): {', '.join(missing)}")
+        return error("invalid_argument", arg_hints.format_hint(
+            f"missing required argument(s): {', '.join(missing)}",
+            example=arg_hints.FIRST_CALL_EXAMPLES.get(getattr(fn, "__name__", "")),
+        ))
     try:
         hints = typing.get_type_hints(fn)
     except Exception:  # noqa: BLE001
